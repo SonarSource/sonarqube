@@ -21,9 +21,6 @@ package org.sonar.db.dialect;
 
 import java.util.List;
 
-/**
- * @since 1.12
- */
 public interface Dialect {
 
   /**

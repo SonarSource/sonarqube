@@ -21,9 +21,6 @@ package org.sonar.db.dialect;
 
 import org.apache.commons.lang.StringUtils;
 
-/**
- * @since 1.12
- */
 public class H2 extends AbstractDialect {
 
   public static final String ID = "h2";

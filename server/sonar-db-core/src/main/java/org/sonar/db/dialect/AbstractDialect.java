@@ -22,9 +22,6 @@ package org.sonar.db.dialect;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * @since 3.2
- */
 abstract class AbstractDialect implements Dialect {
   private final String id;
   private final String defaultDriverClassName;

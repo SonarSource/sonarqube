@@ -23,9 +23,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * @since 1.12
- */
 public class PostgreSql extends AbstractDialect {
 
   public static final String ID = "postgresql";
