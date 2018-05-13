@@ -47,6 +47,7 @@ dependencies {
 
   bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.0.1.4822@jar'
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
+  bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.0.0.1404@jar'
   bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.2.0.13398@jar'
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:4.1.0.6085@jar'
   bundledPlugin 'org.sonarsource.php:sonar-php-plugin:2.13.0.3107@jar'
