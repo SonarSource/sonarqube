@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -309,8 +310,15 @@ public class DatabaseUtils {
     * @throws SQLException
     */
   public static boolean tableExists(String table, Connection connection) {
+    return doTableExists(table, connection) ||
+      doTableExists(table.toLowerCase(Locale.ENGLISH), connection) ||
+      doTableExists(table.toUpperCase(Locale.ENGLISH), connection);
+
+  }
+
+  private static boolean doTableExists(String table, Connection connection) {
     // table type is used to speed-up Oracle by removing introspection of system tables and aliases.
-    try (ResultSet rs = connection.getMetaData().getTables(null, null, null, TABLE_TYPE)) {
+    try (ResultSet rs = connection.getMetaData().getTables(null, null, table, TABLE_TYPE)) {
       while (rs.next()) {
         String name = rs.getString("TABLE_NAME");
         if (table.equalsIgnoreCase(name)) {
