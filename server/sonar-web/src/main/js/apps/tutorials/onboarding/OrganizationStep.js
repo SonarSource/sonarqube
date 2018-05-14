@@ -27,6 +27,7 @@ import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessI
 import { getOrganizations } from '../../../api/organizations';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
+import { Button } from '../../../components/ui/buttons';
 
 /*::
 type Props = {|
@@ -137,8 +138,7 @@ export default class OrganizationStep extends React.PureComponent {
     this.setState({ existingOrganization: value });
   };
 
-  handleContinueClick = (event /*: Event */) => {
-    event.preventDefault();
+  handleContinueClick = () => {
     const organization = this.getSelectedOrganization();
     if (organization) {
       this.props.onContinue(organization);
@@ -234,9 +234,9 @@ export default class OrganizationStep extends React.PureComponent {
         {this.getSelectedOrganization() != null &&
           !this.state.loading && (
             <div className="big-spacer-top">
-              <button className="js-continue" onClick={this.handleContinueClick} type="button">
+              <Button className="js-continue" onClick={this.handleContinueClick}>
                 {translate('continue')}
-              </button>
+              </Button>
             </div>
           )}
       </div>

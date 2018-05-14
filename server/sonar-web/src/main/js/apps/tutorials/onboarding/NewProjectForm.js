@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { createProject, deleteProject } from '../../../api/components';
-import { DeleteButton } from '../../../components/ui/buttons';
+import { DeleteButton, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -123,8 +123,8 @@ export default class NewProjectForm extends React.PureComponent {
         <input
           autoFocus={true}
           className="input-large spacer-right text-middle"
-          minLength={1}
           maxLength={400}
+          minLength={1}
           onChange={this.handleProjectKeyChange}
           required={true}
           type="text"
@@ -133,9 +133,9 @@ export default class NewProjectForm extends React.PureComponent {
         {loading ? (
           <i className="spinner text-middle" />
         ) : (
-          <button className="text-middle" disabled={!valid}>
+          <SubmitButton className="text-middle" disabled={!valid}>
             {translate('Done')}
-          </button>
+          </SubmitButton>
         )}
         <div className="note spacer-top abs-width-300">
           {translate('onboarding.project_key_requirement')}

@@ -81,17 +81,12 @@ exports[`should render 1`] = `
       className="modal-foot"
     >
       <div>
-        <button
-          type="submit"
-        >
+        <SubmitButton>
           save
-        </button>
-        <button
-          className="button-link"
-          type="reset"
-        >
+        </SubmitButton>
+        <ResetButtonLink>
           cancel
-        </button>
+        </ResetButtonLink>
       </div>
     </footer>
   </form>

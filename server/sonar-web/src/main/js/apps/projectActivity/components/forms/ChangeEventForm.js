@@ -21,6 +21,7 @@
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
+import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 /*:: import type { Event } from '../../types'; */
 
 /*::
@@ -107,11 +108,11 @@ export default class ChangeEventForm extends React.PureComponent {
             <div className="modal-field">
               <label>{translate('name')}</label>
               <input
-                value={this.state.name}
                 autoFocus={true}
                 disabled={this.state.processing}
-                type="text"
                 onChange={this.changeInput}
+                type="text"
+                value={this.state.name}
               />
             </div>
           </div>
@@ -121,10 +122,8 @@ export default class ChangeEventForm extends React.PureComponent {
               <i className="spinner" />
             ) : (
               <div>
-                <button type="submit">{translate('change_verb')}</button>
-                <button type="reset" className="button-link" onClick={this.closeForm}>
-                  {translate('cancel')}
-                </button>
+                <SubmitButton>{translate('change_verb')}</SubmitButton>
+                <ResetButtonLink onClick={this.closeForm}>{translate('cancel')}</ResetButtonLink>
               </div>
             )}
           </footer>

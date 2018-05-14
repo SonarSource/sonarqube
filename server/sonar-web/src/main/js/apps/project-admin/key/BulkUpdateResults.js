@@ -21,18 +21,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { some } from 'lodash';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
+import { Button } from '../../../components/ui/buttons';
 
 export default class BulkUpdateResults extends React.PureComponent {
   static propTypes = {
     results: PropTypes.array.isRequired,
     onConfirm: PropTypes.func.isRequired
   };
-
-  handleConfirm(e) {
-    e.preventDefault();
-    e.target.blur();
-    this.props.onConfirm();
-  }
 
   render() {
     const { results, replace, by } = this.props;
@@ -41,15 +36,15 @@ export default class BulkUpdateResults extends React.PureComponent {
     const canUpdate = !isEmpty && !hasDuplications;
 
     return (
-      <div id="bulk-update-simulation" className="big-spacer-top">
+      <div className="big-spacer-top" id="bulk-update-simulation">
         {isEmpty && (
-          <div id="bulk-update-nothing" className="spacer-bottom">
+          <div className="spacer-bottom" id="bulk-update-nothing">
             {translateWithParameters('update_key.no_key_to_update', replace)}
           </div>
         )}
 
         {hasDuplications && (
-          <div id="bulk-update-duplicate" className="spacer-bottom">
+          <div className="spacer-bottom" id="bulk-update-duplicate">
             {translateWithParameters('update_key.cant_update_because_duplicate_keys', replace, by)}
           </div>
         )}
@@ -61,7 +56,7 @@ export default class BulkUpdateResults extends React.PureComponent {
         )}
 
         {!isEmpty && (
-          <table id="bulk-update-results" className="data zebra zebra-hover">
+          <table className="data zebra zebra-hover" id="bulk-update-results">
             <thead>
               <tr>
                 <th>{translate('update_key.old_key')}</th>
@@ -70,7 +65,7 @@ export default class BulkUpdateResults extends React.PureComponent {
             </thead>
             <tbody>
               {results.map(result => (
-                <tr key={result.key} data-key={result.key}>
+                <tr data-key={result.key} key={result.key}>
                   <td className="js-old-key">{result.key}</td>
                   <td className="js-new-key">
                     {result.duplicate && (
@@ -88,9 +83,9 @@ export default class BulkUpdateResults extends React.PureComponent {
 
         <div className="big-spacer-top">
           {canUpdate && (
-            <button id="bulk-update-confirm" onClick={this.handleConfirm.bind(this)}>
+            <Button id="bulk-update-confirm" onClick={this.props.onConfirm}>
               {translate('update_verb')}
-            </button>
+            </Button>
           )}
         </div>
       </div>

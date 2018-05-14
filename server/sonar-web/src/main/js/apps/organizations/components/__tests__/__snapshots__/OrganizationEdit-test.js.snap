@@ -125,12 +125,11 @@ exports[`smoke test 1`] = `
       <div
         className="modal-field"
       >
-        <button
+        <SubmitButton
           disabled={false}
-          type="submit"
         >
           save
-        </button>
+        </SubmitButton>
       </div>
     </form>
   </div>
@@ -277,12 +276,11 @@ exports[`smoke test 2`] = `
       <div
         className="modal-field"
       >
-        <button
+        <SubmitButton
           disabled={false}
-          type="submit"
         >
           save
-        </button>
+        </SubmitButton>
       </div>
     </form>
   </div>
@@ -429,12 +427,11 @@ exports[`smoke test 3`] = `
       <div
         className="modal-field"
       >
-        <button
+        <SubmitButton
           disabled={true}
-          type="submit"
         >
           save
-        </button>
+        </SubmitButton>
         <i
           className="spinner spacer-left"
         />

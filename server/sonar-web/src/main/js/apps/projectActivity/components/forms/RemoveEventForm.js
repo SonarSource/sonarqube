@@ -21,6 +21,7 @@
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
+import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 /*:: import type { Event } from '../../types'; */
 
 /*::
@@ -96,12 +97,10 @@ export default class RemoveEventForm extends React.PureComponent {
               <i className="spinner" />
             ) : (
               <div>
-                <button type="submit" className="button-red" autoFocus={true}>
+                <SubmitButton autoFocus={true} className="button-red">
                   {translate('delete')}
-                </button>
-                <button type="reset" className="button-link" onClick={this.closeForm}>
-                  {translate('cancel')}
-                </button>
+                </SubmitButton>
+                <ResetButtonLink onClick={this.closeForm}>{translate('cancel')}</ResetButtonLink>
               </div>
             )}
           </footer>

@@ -23,6 +23,7 @@ import UsersSelectSearch from '../../../users/components/UsersSelectSearch';
 import { searchMembers } from '../../../../api/organizations';
 import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
+import { SubmitButton, ResetButtonLink, Button } from '../../../../components/ui/buttons';
 /*:: import type { Organization } from '../../../../store/organizations/duck'; */
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 
@@ -79,7 +80,7 @@ export default class AddMemberForm extends React.PureComponent {
   renderModal() {
     const header = translate('users.add');
     return (
-      <Modal key="add-member-modal" contentLabel={header} onRequestClose={this.closeForm}>
+      <Modal contentLabel={header} key="add-member-modal" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>
@@ -89,21 +90,19 @@ export default class AddMemberForm extends React.PureComponent {
               <label>{translate('users.search_description')}</label>
               <UsersSelectSearch
                 autoFocus={true}
-                selectedUser={this.state.selectedMember}
                 excludedUsers={this.props.memberLogins}
-                searchUsers={this.handleSearch}
                 handleValueChange={this.selectedMemberChange}
+                searchUsers={this.handleSearch}
+                selectedUser={this.state.selectedMember}
               />
             </div>
           </div>
           <footer className="modal-foot">
             <div>
-              <button type="submit" disabled={!this.state.selectedMember}>
+              <SubmitButton disabled={!this.state.selectedMember}>
                 {translate('organization.members.add_to_members')}
-              </button>
-              <button type="reset" className="button-link" onClick={this.closeForm}>
-                {translate('cancel')}
-              </button>
+              </SubmitButton>
+              <ResetButtonLink onClick={this.closeForm}>{translate('cancel')}</ResetButtonLink>
             </div>
           </footer>
         </form>
@@ -113,9 +112,9 @@ export default class AddMemberForm extends React.PureComponent {
 
   render() {
     const buttonComponent = (
-      <button key="add-member-button" onClick={this.openForm}>
+      <Button key="add-member-button" onClick={this.openForm}>
         {translate('organization.members.add')}
-      </button>
+      </Button>
     );
     if (this.state.open) {
       return [buttonComponent, this.renderModal()];

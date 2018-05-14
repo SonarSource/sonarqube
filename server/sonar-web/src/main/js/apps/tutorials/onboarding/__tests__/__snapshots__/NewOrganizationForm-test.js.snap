@@ -19,13 +19,26 @@ exports[`creates new organization 1`] = `
       type="text"
       value=""
     />
-    <button
+    <SubmitButton
       className="text-middle"
       disabled={true}
-      type="submit"
     >
-      create
-    </button>
+      <Button
+        className="text-middle"
+        disabled={true}
+        preventDefault={false}
+        type="submit"
+      >
+        <button
+          className="button text-middle"
+          disabled={true}
+          onClick={[Function]}
+          type="submit"
+        >
+          create
+        </button>
+      </Button>
+    </SubmitButton>
     <div
       className="note spacer-top abs-width-300"
     >
@@ -215,13 +228,26 @@ exports[`deletes organization 3`] = `
       type="text"
       value=""
     />
-    <button
+    <SubmitButton
       className="text-middle"
       disabled={true}
-      type="submit"
     >
-      create
-    </button>
+      <Button
+        className="text-middle"
+        disabled={true}
+        preventDefault={false}
+        type="submit"
+      >
+        <button
+          className="button text-middle"
+          disabled={true}
+          onClick={[Function]}
+          type="submit"
+        >
+          create
+        </button>
+      </Button>
+    </SubmitButton>
     <div
       className="note spacer-top abs-width-300"
     >

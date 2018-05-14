@@ -38,9 +38,9 @@ it('generates token', async () => {
     <TokenStep
       currentUser={currentUser}
       finished={false}
-      open={true}
       onContinue={jest.fn()}
       onOpen={jest.fn()}
+      open={true}
       stepNumber={1}
     />
   );
@@ -58,9 +58,9 @@ it('revokes token', async () => {
     <TokenStep
       currentUser={currentUser}
       finished={false}
-      open={true}
       onContinue={jest.fn()}
       onOpen={jest.fn()}
+      open={true}
       stepNumber={1}
     />
   );
@@ -80,15 +80,15 @@ it('continues', async () => {
     <TokenStep
       currentUser={currentUser}
       finished={false}
-      open={true}
       onContinue={onContinue}
       onOpen={jest.fn()}
+      open={true}
       stepNumber={1}
     />
   );
   await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
-  click(wrapper.find('.js-continue'));
+  click(wrapper.find('[className="js-continue"]'));
   expect(onContinue).toBeCalledWith('abcd1234');
 });
 
@@ -98,14 +98,14 @@ it('uses existing token', async () => {
     <TokenStep
       currentUser={currentUser}
       finished={false}
-      open={true}
       onContinue={onContinue}
       onOpen={jest.fn()}
+      open={true}
       stepNumber={1}
     />
   );
   await new Promise(setImmediate);
   wrapper.setState({ existingToken: 'abcd1234', selection: 'use-existing' });
-  click(wrapper.find('.js-continue'));
+  click(wrapper.find('[className="js-continue"]'));
   expect(onContinue).toBeCalledWith('abcd1234');
 });

@@ -26,7 +26,7 @@ import {
   getOrganization
 } from '../../../api/organizations';
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
-import { DeleteButton } from '../../../components/ui/buttons';
+import { DeleteButton, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -153,9 +153,9 @@ export default class NewOrganizationForm extends React.PureComponent {
         {loading ? (
           <i className="spinner text-middle" />
         ) : (
-          <button className="text-middle" disabled={!valid} type="submit">
+          <SubmitButton className="text-middle" disabled={!valid}>
             {translate('create')}
-          </button>
+          </SubmitButton>
         )}
         {!unique && (
           <span className="big-spacer-left text-danger text-middle">

@@ -1,21 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render and open the modal 1`] = `
-<button
+<Button
   key="add-member-button"
   onClick={[Function]}
 >
   organization.members.add
-</button>
+</Button>
 `;
 
 exports[`should render and open the modal 2`] = `
 Array [
-  <button
+  <Button
     onClick={[Function]}
   >
     organization.members.add
-  </button>,
+  </Button>,
   <Modal
     contentLabel="users.add"
     onRequestClose={[Function]}
@@ -56,19 +56,16 @@ Array [
         className="modal-foot"
       >
         <div>
-          <button
+          <SubmitButton
             disabled={true}
-            type="submit"
           >
             organization.members.add_to_members
-          </button>
-          <button
-            className="button-link"
+          </SubmitButton>
+          <ResetButtonLink
             onClick={[Function]}
-            type="reset"
           >
             cancel
-          </button>
+          </ResetButtonLink>
         </div>
       </footer>
     </form>

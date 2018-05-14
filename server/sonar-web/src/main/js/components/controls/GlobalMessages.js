@@ -21,6 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { ERROR, SUCCESS } from '../../store/globalMessages/duck';
+import { Button } from '../ui/buttons';
 
 export default class GlobalMessages extends React.PureComponent {
   static propTypes = {
@@ -40,14 +41,13 @@ export default class GlobalMessages extends React.PureComponent {
       'process-spinner-success': message.level === SUCCESS
     });
     return (
-      <div key={message.id} className={className}>
+      <div className={className} key={message.id}>
         {message.message}
-        <button
+        <Button
           className="process-spinner-close"
-          type="button"
           onClick={() => this.props.closeGlobalMessage(message.id)}>
           <i className="icon-close" />
-        </button>
+        </Button>
       </div>
     );
   };

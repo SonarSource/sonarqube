@@ -21,6 +21,7 @@
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization } from '../../../../store/organizations/duck'; */
 
@@ -58,12 +59,10 @@ export default class RemoveMemberForm extends React.PureComponent {
           </div>
           <footer className="modal-foot">
             <div>
-              <button autoFocus={true} className="button-red" type="submit">
+              <SubmitButton autoFocus={true} className="button-red">
                 {translate('remove')}
-              </button>
-              <button className="button-link" onClick={this.props.onClose} type="reset">
-                {translate('cancel')}
-              </button>
+              </SubmitButton>
+              <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
             </div>
           </footer>
         </form>

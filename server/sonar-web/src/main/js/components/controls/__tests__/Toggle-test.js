@@ -23,12 +23,12 @@ import Toggle from '../Toggle';
 import { click } from '../../../helpers/testUtils';
 
 function getSample(props) {
-  return <Toggle value={true} onChange={() => true} {...props} />;
+  return <Toggle onChange={() => true} value={true} {...props} />;
 }
 
 it('should render', () => {
   const Toggle = shallow(getSample());
-  expect(Toggle.is('button')).toBe(true);
+  expect(Toggle.is('Button')).toBe(true);
 });
 
 it('should call onChange', () => {

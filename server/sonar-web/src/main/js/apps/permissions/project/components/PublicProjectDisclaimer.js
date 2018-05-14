@@ -21,6 +21,7 @@
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { Button, ResetButtonLink } from '../../../../components/ui/buttons';
 
 /*::
 type Props = {
@@ -36,13 +37,7 @@ type Props = {
 export default class PublicProjectDisclaimer extends React.PureComponent {
   /*:: props: Props; */
 
-  handleCancelClick = (event /*: Event */) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
-  handleConfirmClick = (event /*: Event */) => {
-    event.preventDefault();
+  handleConfirmClick = () => {
     this.props.onConfirm();
     this.props.onClose();
   };
@@ -66,12 +61,10 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
         </div>
 
         <footer className="modal-foot">
-          <button id="confirm-turn-to-public" onClick={this.handleConfirmClick}>
+          <Button id="confirm-turn-to-public" onClick={this.handleConfirmClick}>
             {translate('projects_role.turn_project_to_public', qualifier)}
-          </button>
-          <a href="#" onClick={this.handleCancelClick}>
-            {translate('cancel')}
-          </a>
+          </Button>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </footer>
       </Modal>
     );

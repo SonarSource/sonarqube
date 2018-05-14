@@ -19,6 +19,7 @@
  */
 import React, { Component } from 'react';
 import { changePassword } from '../../../api/users';
+import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 export default class Password extends Component {
@@ -80,7 +81,7 @@ export default class Password extends Component {
 
           {errors &&
             errors.map((e, i) => (
-              <div key={i} className="alert alert-danger">
+              <div className="alert alert-danger" key={i}>
                 {e}
               </div>
             ))}
@@ -91,10 +92,10 @@ export default class Password extends Component {
               <em className="mandatory">*</em>
             </label>
             <input
-              ref={elem => (this.oldPassword = elem)}
               autoComplete="off"
               id="old_password"
               name="old_password"
+              ref={elem => (this.oldPassword = elem)}
               required={true}
               type="password"
             />
@@ -105,10 +106,10 @@ export default class Password extends Component {
               <em className="mandatory">*</em>
             </label>
             <input
-              ref={elem => (this.password = elem)}
               autoComplete="off"
               id="password"
               name="password"
+              ref={elem => (this.password = elem)}
               required={true}
               type="password"
             />
@@ -119,18 +120,18 @@ export default class Password extends Component {
               <em className="mandatory">*</em>
             </label>
             <input
-              ref={elem => (this.passwordConfirmation = elem)}
               autoComplete="off"
               id="password_confirmation"
               name="password_confirmation"
+              ref={elem => (this.passwordConfirmation = elem)}
               required={true}
               type="password"
             />
           </div>
           <div className="modal-field">
-            <button id="change-password" type="submit">
+            <SubmitButton id="change-password">
               {translate('my_profile.password.submit')}
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </section>

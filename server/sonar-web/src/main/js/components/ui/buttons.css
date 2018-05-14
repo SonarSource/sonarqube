@@ -17,10 +17,209 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.button {
+  display: inline-block;
+  vertical-align: baseline;
+  height: var(--controlHeight);
+  line-height: calc(var(--controlHeight) - 2px);
+  padding: 0 12px;
+  border: 1px solid var(--darkBlue);
+  border-radius: 2px;
+  box-sizing: border-box;
+  background: transparent;
+  color: var(--darkBlue);
+  font-weight: 600;
+  font-size: var(--smallFontSize);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
-/* use double selector .button-icon.button-icon to increase the specificity */
+.button:hover,
+.button.button-active {
+  background: var(--darkBlue);
+  color: #fff;
+}
 
-.button-icon.button-icon {
+.button:active {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+
+.button:focus {
+  box-shadow: 0 0 0 3px rgba(35, 106, 151, 0.25);
+}
+
+.button.disabled,
+.button:disabled,
+.button:disabled:hover,
+.button:disabled:active,
+.button:disabled:focus {
+  color: var(--disableGrayText) !important;
+  border-color: var(--disableGrayBorder) !important;
+  background: var(--disableGrayBg) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+.button svg {
+  margin-top: calc((var(--controlHeight) - 16px - 2px) / 2);
+}
+
+/* #region .button-red */
+.button-red {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.button-red:hover,
+.button-red.active {
+  background: var(--red);
+  color: #fff;
+}
+
+.button-red:focus {
+  box-shadow: 0 0 0 3px rgba(212, 51, 63, 0.25);
+}
+/* #endregion */
+
+/* #region .button-success */
+.button-success {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.button-success:hover,
+.button-success.active {
+  background: var(--green);
+  color: #fff;
+}
+
+.button-success:focus {
+  box-shadow: 0 0 0 3px rgba(0, 170, 0, 0.25);
+}
+/* #endregion */
+
+/* #region .button-grey */
+.button-grey {
+  border-color: var(--gray71);
+  color: var(--secondFontColor);
+}
+
+.button-grey:hover,
+.button-grey.active {
+  background: var(--gray71);
+  color: #ffffff;
+}
+
+.button-grey:focus {
+  box-shadow: 0 0 0 3px rgba(180, 180, 180, 0.25);
+}
+/* #endregion */
+
+/* #region .button-link */
+.button-link {
+  display: inline;
+  height: auto; /* Keep this to not inherit the height from .button */
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--darkBlue);
+  font-weight: 400;
+  font-size: inherit;
+  line-height: inherit;
+  transition: all 0.2s ease;
+}
+
+.button-link svg {
+  margin-top: 0;
+}
+
+.button-link:hover {
+  background: transparent;
+  color: var(--blue);
+}
+
+.button-link:active {
+  box-shadow: none;
+  outline: thin dotted #ccc;
+}
+
+.button-link:disabled,
+.button-link:disabled:hover,
+.button-link:disabled:active,
+.button-link:disabled:focus {
+  color: var(--secondFontColor);
+  background: transparent !important;
+  cursor: default;
+}
+/* #endregion */
+
+.button-small {
+  height: var(--smallControlHeight);
+  line-height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.button-small > svg {
+  margin-top: 2px;
+}
+
+/* #region .button-group */
+.button-group {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+  white-space: nowrap;
+}
+
+.button-group > button,
+.button-group > .button {
+  position: relative;
+  z-index: var(--normalZIndex);
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  cursor: pointer;
+}
+
+.button-group > .button:hover:not(:disabled),
+.button-group > .button:focus:not(:disabled),
+.button-group > .button:active:not(:disabled),
+.button-group > .button.active:not(:disabled) {
+  z-index: var(--aboveNormalZIndex);
+}
+
+.button-group > .button:disabled {
+  z-index: var(--belowNormalZIndex);
+}
+
+.button-group > .button:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.button-group > .button:not(:last-child):not(.dropdown-toggle) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.button-group > .button + .button {
+  margin-left: -1px;
+}
+
+.button-group > a:not(.button) {
+  vertical-align: middle;
+  margin: 0 8px;
+  font-size: var(--smallFontSize);
+}
+/* #endregion */
+
+/* #region .button-icon */
+.button-icon {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -32,32 +231,33 @@
   color: inherit;
 }
 
-.button-icon.button-icon.button-small {
+.button-icon.button-small {
   width: var(--smallControlHeight);
   height: var(--smallControlHeight);
   padding: 0;
 }
 
-.button-icon.button-icon.button-small svg {
+.button-icon.button-small svg {
   margin-top: 0;
 }
 
-.button-icon.button-icon.button-tiny {
+.button-icon.button-tiny {
   width: var(--tinyControlHeight);
   height: var(--tinyControlHeight);
   padding: 0;
 }
 
-.button-icon.button-icon.button-tiny svg {
+.button-icon.button-tiny svg {
   margin-top: 0;
 }
 
-.button-icon.button-icon:hover,
-.button-icon.button-icon:focus {
+.button-icon:hover,
+.button-icon:focus {
   background-color: currentColor;
 }
 
-.button-icon.button-icon:hover svg,
-.button-icon.button-icon:focus svg {
+.button-icon:hover svg,
+.button-icon:focus svg {
   color: #fff;
 }
+/* #endregion */

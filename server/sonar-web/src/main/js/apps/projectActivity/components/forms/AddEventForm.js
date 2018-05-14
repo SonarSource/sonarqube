@@ -21,6 +21,7 @@
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
+import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 /*:: import type { Analysis } from '../../types'; */
 
 /*::
@@ -102,10 +103,10 @@ export default class AddEventForm extends React.PureComponent {
               <i className="spinner" />
             ) : (
               <div>
-                <button type="submit">{translate('save')}</button>
-                <button className="button-link" onClick={this.props.onClose} type="reset">
+                <SubmitButton>{translate('save')}</SubmitButton>
+                <ResetButtonLink onClick={this.props.onClose}>
                   {translate('cancel')}
-                </button>
+                </ResetButtonLink>
               </div>
             )}
           </footer>

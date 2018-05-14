@@ -5,7 +5,7 @@ exports[`should render with the message and a link to open the rule 1`] = `
   className="issue-message"
 >
   Reduce the number of conditional operators (4) used in the expression
-  <button
+  <Button
     aria-label="issue.rule_details"
     className="button-link issue-rule icon-ellipsis-h little-spacer-left"
     onClick={[Function]}

@@ -21,6 +21,7 @@
 import React from 'react';
 import DateRangeInput from '../../../components/controls/DateRangeInput';
 import { translate } from '../../../helpers/l10n';
+import { Button } from '../../../components/ui/buttons';
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 
 /*::
@@ -49,12 +50,12 @@ export default class ProjectActivityDateInput extends React.PureComponent {
           onChange={this.handleChange}
           value={{ from: this.props.from, to: this.props.to }}
         />
-        <button
+        <Button
           className="spacer-left"
-          onClick={this.handleResetClick}
-          disabled={this.props.from == null && this.props.to == null}>
+          disabled={this.props.from == null && this.props.to == null}
+          onClick={this.handleResetClick}>
           {translate('project_activity.reset_dates')}
-        </button>
+        </Button>
       </div>
     );
   }

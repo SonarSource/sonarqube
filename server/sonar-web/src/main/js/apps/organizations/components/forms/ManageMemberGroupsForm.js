@@ -24,6 +24,7 @@ import { getUserGroups } from '../../../../api/users';
 import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
+import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization, OrgGroup } from '../../../../store/organizations/duck'; */
 
@@ -141,10 +142,8 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
           </div>
           <footer className="modal-foot">
             <div>
-              <button type="submit">{translate('save')}</button>
-              <button className="button-link" onClick={this.props.onClose} type="reset">
-                {translate('cancel')}
-              </button>
+              <SubmitButton>{translate('save')}</SubmitButton>
+              <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
             </div>
           </footer>
         </form>

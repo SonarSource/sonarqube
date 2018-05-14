@@ -11,12 +11,12 @@ exports[`should render correctly the date inputs 1`] = `
       }
     }
   />
-  <button
+  <Button
     className="spacer-left"
     disabled={false}
     onClick={[Function]}
   >
     project_activity.reset_dates
-  </button>
+  </Button>
 </div>
 `;

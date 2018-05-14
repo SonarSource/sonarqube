@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import { deleteProject, deletePortfolio } from '../../../api/components';
 import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 export default class Form extends React.PureComponent {
   static propTypes = {
@@ -42,8 +43,7 @@ export default class Form extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleDeleteClick = event => {
-    event.preventDefault();
+  handleDeleteClick = () => {
     this.setState({ modalOpen: true });
   };
 
@@ -65,19 +65,14 @@ export default class Form extends React.PureComponent {
       .catch(this.stopLoading);
   };
 
-  handleCloseClick = (event /*: Event */) => {
-    event.preventDefault();
-    this.closeModal();
-  };
-
   render() {
     const { component } = this.props;
 
     return (
       <div>
-        <button id="delete-project" className="button-red" onClick={this.handleDeleteClick}>
+        <Button className="button-red" id="delete-project" onClick={this.handleDeleteClick}>
           {translate('delete')}
-        </button>
+        </Button>
 
         {this.state.modalOpen && (
           <Modal contentLabel="project deletion" onRequestClose={this.closeModal}>
@@ -94,15 +89,15 @@ export default class Form extends React.PureComponent {
               </div>
               <div className="modal-foot">
                 {this.state.loading && <i className="js-modal-spinner spinner spacer-right" />}
-                <button
-                  id="delete-project-confirm"
+                <SubmitButton
                   className="button-red"
-                  disabled={this.state.loading}>
+                  disabled={this.state.loading}
+                  id="delete-project-confirm">
                   {translate('delete')}
-                </button>
-                <a href="#" className="js-modal-close" onClick={this.handleCloseClick}>
+                </SubmitButton>
+                <ResetButtonLink className="js-modal-close" onClick={this.closeModal}>
                   {translate('cancel')}
-                </a>
+                </ResetButtonLink>
               </div>
             </form>
           </Modal>

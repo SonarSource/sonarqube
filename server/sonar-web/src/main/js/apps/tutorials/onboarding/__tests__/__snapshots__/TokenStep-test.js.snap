@@ -67,13 +67,26 @@ exports[`generates token 1`] = `
                   type="text"
                   value=""
                 />
-                <button
+                <SubmitButton
                   className="text-middle"
                   disabled={true}
-                  type="submit"
                 >
-                  onboarding.token.generate
-                </button>
+                  <Button
+                    className="text-middle"
+                    disabled={true}
+                    preventDefault={false}
+                    type="submit"
+                  >
+                    <button
+                      className="button text-middle"
+                      disabled={true}
+                      onClick={[Function]}
+                      type="submit"
+                    >
+                      onboarding.token.generate
+                    </button>
+                  </Button>
+                </SubmitButton>
               </form>
             </div>
           </div>
@@ -299,13 +312,18 @@ exports[`generates token 3`] = `
         <div
           className="big-spacer-top"
         >
-          <button
+          <Button
             className="js-continue"
             onClick={[Function]}
-            type="button"
           >
-            continue
-          </button>
+            <button
+              className="button js-continue"
+              onClick={[Function]}
+              type="button"
+            >
+              continue
+            </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -410,13 +428,18 @@ exports[`revokes token 1`] = `
         <div
           className="big-spacer-top"
         >
-          <button
+          <Button
             className="js-continue"
             onClick={[Function]}
-            type="button"
           >
-            continue
-          </button>
+            <button
+              className="button js-continue"
+              onClick={[Function]}
+              type="button"
+            >
+              continue
+            </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -490,13 +513,18 @@ exports[`revokes token 2`] = `
         <div
           className="big-spacer-top"
         >
-          <button
+          <Button
             className="js-continue"
             onClick={[Function]}
-            type="button"
           >
-            continue
-          </button>
+            <button
+              className="button js-continue"
+              onClick={[Function]}
+              type="button"
+            >
+              continue
+            </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -571,13 +599,26 @@ exports[`revokes token 3`] = `
                   type="text"
                   value=""
                 />
-                <button
+                <SubmitButton
                   className="text-middle"
                   disabled={true}
-                  type="submit"
                 >
-                  onboarding.token.generate
-                </button>
+                  <Button
+                    className="text-middle"
+                    disabled={true}
+                    preventDefault={false}
+                    type="submit"
+                  >
+                    <button
+                      className="button text-middle"
+                      disabled={true}
+                      onClick={[Function]}
+                      type="submit"
+                    >
+                      onboarding.token.generate
+                    </button>
+                  </Button>
+                </SubmitButton>
               </form>
             </div>
           </div>

@@ -26,12 +26,26 @@ exports[`creates new project 1`] = `
         type="text"
         value=""
       />
-      <button
+      <SubmitButton
         className="text-middle"
         disabled={true}
       >
-        Done
-      </button>
+        <Button
+          className="text-middle"
+          disabled={true}
+          preventDefault={false}
+          type="submit"
+        >
+          <button
+            className="button text-middle"
+            disabled={true}
+            onClick={[Function]}
+            type="submit"
+          >
+            Done
+          </button>
+        </Button>
+      </SubmitButton>
       <div
         className="note spacer-top abs-width-300"
       >
@@ -264,12 +278,26 @@ exports[`deletes project 3`] = `
         type="text"
         value=""
       />
-      <button
+      <SubmitButton
         className="text-middle"
         disabled={true}
       >
-        Done
-      </button>
+        <Button
+          className="text-middle"
+          disabled={true}
+          preventDefault={false}
+          type="submit"
+        >
+          <button
+            className="button text-middle"
+            disabled={true}
+            onClick={[Function]}
+            type="submit"
+          >
+            Done
+          </button>
+        </Button>
+      </SubmitButton>
       <div
         className="note spacer-top abs-width-300"
       >

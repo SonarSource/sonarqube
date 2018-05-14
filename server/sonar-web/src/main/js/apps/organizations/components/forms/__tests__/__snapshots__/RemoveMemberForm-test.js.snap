@@ -24,19 +24,15 @@ exports[`should render  1`] = `
       className="modal-foot"
     >
       <div>
-        <button
+        <SubmitButton
           autoFocus={true}
           className="button-red"
-          type="submit"
         >
           remove
-        </button>
-        <button
-          className="button-link"
-          type="reset"
-        >
+        </SubmitButton>
+        <ResetButtonLink>
           cancel
-        </button>
+        </ResetButtonLink>
       </div>
     </footer>
   </form>

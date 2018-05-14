@@ -22,6 +22,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '../../controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Button } from '../../ui/buttons';
 
 export default class IssueMessage extends React.PureComponent {
   /*:: props: {
@@ -36,8 +37,7 @@ export default class IssueMessage extends React.PureComponent {
     workspace: PropTypes.object.isRequired
   };
 
-  handleClick = (e /*: MouseEvent */) => {
-    e.preventDefault();
+  handleClick = () => {
     this.context.workspace.openRule({
       key: this.props.rule,
       organization: this.props.organization
@@ -48,9 +48,9 @@ export default class IssueMessage extends React.PureComponent {
     return (
       <div className="issue-message">
         {this.props.message}
-        <button
-          className="button-link issue-rule icon-ellipsis-h little-spacer-left"
+        <Button
           aria-label={translate('issue.rule_details')}
+          className="button-link issue-rule icon-ellipsis-h little-spacer-left"
           onClick={this.handleClick}
         />
         {this.props.engine && (

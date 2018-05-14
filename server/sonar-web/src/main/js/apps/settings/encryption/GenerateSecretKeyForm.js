@@ -20,6 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
+import { SubmitButton } from '../../../components/ui/buttons';
 
 export default class GenerateSecretKeyForm extends React.PureComponent {
   static propTypes = {
@@ -27,10 +28,10 @@ export default class GenerateSecretKeyForm extends React.PureComponent {
     generateSecretKey: PropTypes.func.isRequired
   };
 
-  handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
     this.props.generateSecretKey();
-  }
+  };
 
   render() {
     return (
@@ -40,10 +41,10 @@ export default class GenerateSecretKeyForm extends React.PureComponent {
             <div className="big-spacer-bottom">
               <h3 className="spacer-bottom">{translate('encryption.secret_key')}</h3>
               <input
-                id="secret-key"
                 className="input-large"
-                type="text"
+                id="secret-key"
                 readOnly={true}
+                type="text"
                 value={this.props.secretKey}
               />
             </div>
@@ -62,8 +63,8 @@ export default class GenerateSecretKeyForm extends React.PureComponent {
               dangerouslySetInnerHTML={{ __html: translate('ecryption.secret_key_description') }}
             />
 
-            <form id="generate-secret-key-form" onSubmit={e => this.handleSubmit(e)}>
-              <button>{translate('encryption.generate_secret_key')}s</button>
+            <form id="generate-secret-key-form" onSubmit={this.handleSubmit}>
+              <SubmitButton>{translate('encryption.generate_secret_key')}</SubmitButton>
             </form>
           </div>
         )}

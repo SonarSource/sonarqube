@@ -81,7 +81,7 @@
   width: 70px;
 }
 
-.boolean-toggle {
+.button.boolean-toggle {
   display: inline-block;
   vertical-align: middle;
   width: 48px;
@@ -95,11 +95,11 @@
   transition: all 0.3s ease;
 }
 
-.boolean-toggle:hover {
+.button.boolean-toggle:hover {
   background-color: #fff;
 }
 
-.boolean-toggle:focus {
+.button.boolean-toggle:focus {
   border-color: var(--blue);
   background-color: #f6f6f6;
 }
@@ -114,20 +114,20 @@
   transition: transform 0.3s cubic-bezier(0.87, -0.41, 0.19, 1.44), border 0.3s ease;
 }
 
-.boolean-toggle-on {
+.button.boolean-toggle-on {
   border-color: var(--darkBlue);
   background-color: var(--darkBlue);
 }
 
-.boolean-toggle-on:hover {
+.button.boolean-toggle-on:hover {
   background-color: var(--darkBlue);
 }
 
-.boolean-toggle-on:focus {
+.button.boolean-toggle-on:focus {
   background-color: var(--darkBlue);
 }
 
-.boolean-toggle-on .boolean-toggle-handle {
+.button.boolean-toggle-on .boolean-toggle-handle {
   border-color: #f6f6f6;
   transform: translateX(var(--controlHeight));
 }

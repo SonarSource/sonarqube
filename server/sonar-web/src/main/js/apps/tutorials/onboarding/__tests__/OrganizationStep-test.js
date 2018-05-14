@@ -78,7 +78,7 @@ it('works with existing organization', async () => {
     .first()
     .prop('onChange')({ value: 'another' });
   wrapper.update();
-  click(wrapper.find('.js-continue'));
+  click(wrapper.find('[className="js-continue"]'));
   expect(onContinue).toBeCalledWith('another');
 });
 
@@ -98,6 +98,6 @@ it('works with new organization', async () => {
   click(wrapper.find('.js-new'));
   wrapper.find('NewOrganizationForm').prop('onDone')('new');
   wrapper.update();
-  click(wrapper.find('.js-continue'));
+  click(wrapper.find('[className="js-continue"]'));
   expect(onContinue).toBeCalledWith('new');
 });

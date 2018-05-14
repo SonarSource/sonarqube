@@ -20,50 +20,50 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
+import { SubmitButton } from '../../../components/ui/buttons';
 
 export default class BulkUpdateForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired
   };
 
-  handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
-    this.refs.submit.blur();
 
     const replace = this.refs.replace.value;
     const by = this.refs.by.value;
 
     this.props.onSubmit(replace, by);
-  }
+  };
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit.bind(this)}>
+      <form onSubmit={this.handleSubmit}>
         <div className="modal-field">
           <label htmlFor="bulk-update-replace">{translate('update_key.replace')}</label>
           <input
-            ref="replace"
             id="bulk-update-replace"
             name="replace"
-            type="text"
             placeholder={translate('update_key.replace_example')}
+            ref="replace"
             required={true}
+            type="text"
           />
         </div>
 
         <div className="modal-field">
           <label htmlFor="bulk-update-by">{translate('update_key.by')}</label>
           <input
-            ref="by"
             id="bulk-update-by"
             name="by"
-            type="text"
             placeholder={translate('update_key.by_example')}
+            ref="by"
             required={true}
+            type="text"
           />
-          <button ref="submit" id="bulk-update-see-results" className="big-spacer-left">
+          <SubmitButton className="big-spacer-left" id="bulk-update-see-results">
             {translate('update_key.see_results')}
-          </button>
+          </SubmitButton>
         </div>
       </form>
     );

@@ -24,7 +24,7 @@ import Step from './Step';
 import { getTokens, generateToken, revokeToken } from '../../../api/user-tokens';
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
-import { DeleteButton } from '../../../components/ui/buttons';
+import { DeleteButton, SubmitButton, Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -130,8 +130,7 @@ export default class TokenStep extends React.PureComponent {
     }
   };
 
-  handleContinueClick = (event /*: Event */) => {
-    event.preventDefault();
+  handleContinueClick = () => {
     const token = this.getToken();
     if (token) {
       this.props.onContinue(token);
@@ -184,9 +183,9 @@ export default class TokenStep extends React.PureComponent {
             {this.state.loading ? (
               <i className="spinner text-middle" />
             ) : (
-              <button className="text-middle" disabled={!this.state.tokenName} type="submit">
+              <SubmitButton className="text-middle" disabled={!this.state.tokenName}>
                 {translate('onboarding.token.generate')}
-              </button>
+              </SubmitButton>
             )}
           </form>
         </div>
@@ -263,9 +262,9 @@ export default class TokenStep extends React.PureComponent {
 
         {this.canContinue() && (
           <div className="big-spacer-top">
-            <button className="js-continue" onClick={this.handleContinueClick} type="button">
+            <Button className="js-continue" onClick={this.handleContinueClick}>
               {translate('continue')}
-            </button>
+            </Button>
           </div>
         )}
       </div>

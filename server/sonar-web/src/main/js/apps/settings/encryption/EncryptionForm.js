@@ -20,6 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
+import { SubmitButton } from '../../../components/ui/buttons';
 
 export default class EncryptionForm extends React.PureComponent {
   static propTypes = {
@@ -46,8 +47,8 @@ export default class EncryptionForm extends React.PureComponent {
         <div className="spacer-bottom">{translate('encryption.form_intro')}</div>
 
         <form
-          id="encryption-form"
           className="big-spacer-bottom"
+          id="encryption-form"
           onSubmit={e => this.handleEncrypt(e)}>
           <textarea
             autoFocus={true}
@@ -59,7 +60,7 @@ export default class EncryptionForm extends React.PureComponent {
             value={this.state.value}
           />
           <div className="spacer-top">
-            <button>{translate('encryption.encrypt')}</button>
+            <SubmitButton>{translate('encryption.encrypt')}</SubmitButton>
           </div>
         </form>
 
@@ -68,10 +69,10 @@ export default class EncryptionForm extends React.PureComponent {
             {translate('encryption.encrypted_value')}
             {': '}
             <input
-              id="encrypted-value"
               className="input-clear input-code input-super-large"
-              type="text"
+              id="encrypted-value"
               readOnly={true}
+              type="text"
               value={this.props.encryptedValue}
             />
           </div>
@@ -83,7 +84,7 @@ export default class EncryptionForm extends React.PureComponent {
             dangerouslySetInnerHTML={{ __html: translate('encryption.form_note') }}
           />
           <form id="encryption-new-key-form" onSubmit={e => this.handleGenerateNewKey(e)}>
-            <button>{translate('encryption.generate_new_secret_key')}</button>
+            <SubmitButton>{translate('encryption.generate_new_secret_key')}</SubmitButton>
           </form>
         </div>
       </div>

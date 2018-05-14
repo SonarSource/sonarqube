@@ -20,6 +20,7 @@
 import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { defaultInputPropTypes } from '../../propTypes';
+import { Button } from '../../../../components/ui/buttons';
 
 export default class InputForPassword extends React.PureComponent {
   static propTypes = defaultInputPropTypes;
@@ -40,11 +41,9 @@ export default class InputForPassword extends React.PureComponent {
     this.setState({ changing: true, value: e.target.value });
   }
 
-  handleChangeClick(e) {
-    e.preventDefault();
-    e.target.blur();
+  handleChangeClick = () => {
     this.setState({ changing: true });
-  }
+  };
 
   renderInput() {
     return (
@@ -73,7 +72,7 @@ export default class InputForPassword extends React.PureComponent {
     return (
       <div>
         <i className="big-spacer-right icon-lock icon-gray" />
-        <button onClick={e => this.handleChangeClick(e)}>{translate('change_verb')}</button>
+        <Button onClick={this.handleChangeClick}>{translate('change_verb')}</Button>
       </div>
     );
   }

@@ -26,6 +26,7 @@ import { translate } from '../../../helpers/l10n';
 /*:: import type { Organization } from '../../../store/organizations/duck'; */
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
+import { SubmitButton } from '../../../components/ui/buttons';
 
 /*::
 type Props = {
@@ -115,14 +116,14 @@ class OrganizationEdit extends React.PureComponent {
                 <em className="mandatory">*</em>
               </label>
               <input
+                disabled={this.state.loading}
                 id="organization-name"
+                maxLength="64"
                 name="name"
+                onChange={e => this.setState({ name: e.target.value })}
                 required={true}
                 type="text"
-                maxLength="64"
                 value={this.state.name}
-                disabled={this.state.loading}
-                onChange={e => this.setState({ name: e.target.value })}
               />
               <div className="modal-field-description">
                 {translate('organization.name.description')}
@@ -131,13 +132,13 @@ class OrganizationEdit extends React.PureComponent {
             <div className="modal-field">
               <label htmlFor="organization-avatar">{translate('organization.avatar')}</label>
               <input
-                id="organization-avatar"
-                name="avatar"
-                type="text"
-                maxLength="256"
-                value={this.state.avatar}
                 disabled={this.state.loading}
+                id="organization-avatar"
+                maxLength="256"
+                name="avatar"
                 onChange={this.handleAvatarInputChange}
+                type="text"
+                value={this.state.avatar}
               />
               <div className="modal-field-description">
                 {translate('organization.avatar.description')}
@@ -148,20 +149,20 @@ class OrganizationEdit extends React.PureComponent {
                     {translate('organization.avatar.preview')}
                     {':'}
                   </div>
-                  <img src={this.state.avatarImage} alt="" height={30} />
+                  <img alt="" height={30} src={this.state.avatarImage} />
                 </div>
               )}
             </div>
             <div className="modal-field">
               <label htmlFor="organization-description">{translate('description')}</label>
               <textarea
-                id="organization-description"
-                name="description"
-                rows="3"
-                maxLength="256"
-                value={this.state.description}
                 disabled={this.state.loading}
+                id="organization-description"
+                maxLength="256"
+                name="description"
                 onChange={e => this.setState({ description: e.target.value })}
+                rows="3"
+                value={this.state.description}
               />
               <div className="modal-field-description">
                 {translate('organization.description.description')}
@@ -170,22 +171,20 @@ class OrganizationEdit extends React.PureComponent {
             <div className="modal-field">
               <label htmlFor="organization-url">{translate('organization.url')}</label>
               <input
-                id="organization-url"
-                name="url"
-                type="text"
-                maxLength="256"
-                value={this.state.url}
                 disabled={this.state.loading}
+                id="organization-url"
+                maxLength="256"
+                name="url"
                 onChange={e => this.setState({ url: e.target.value })}
+                type="text"
+                value={this.state.url}
               />
               <div className="modal-field-description">
                 {translate('organization.url.description')}
               </div>
             </div>
             <div className="modal-field">
-              <button type="submit" disabled={this.state.loading}>
-                {translate('save')}
-              </button>
+              <SubmitButton disabled={this.state.loading}>{translate('save')}</SubmitButton>
               {this.state.loading && <i className="spinner spacer-left" />}
             </div>
           </form>

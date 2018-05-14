@@ -21,7 +21,7 @@ import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import { isEmptyValue, getDefaultValue, getSettingValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { Button } from '../../../components/ui/buttons';
+import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { SettingValue, Definition } from '../../../api/settings';
 
 type Props = {
@@ -65,10 +65,8 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
             <p>{translate('settings.reset_confirm.description')}</p>
           </div>
           <footer className="modal-foot">
-            <button className="button-red">{translate('reset_verb')}</button>
-            <button className="button-link" onClick={this.handleClose} type="reset">
-              {translate('cancel')}
-            </button>
+            <SubmitButton className="button-red">{translate('reset_verb')}</SubmitButton>
+            <ResetButtonLink onClick={this.handleClose}>{translate('cancel')}</ResetButtonLink>
           </footer>
         </form>
       </Modal>

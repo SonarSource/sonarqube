@@ -20,6 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Button } from '../ui/buttons';
 import './styles.css';
 
 export default class Toggle extends React.PureComponent {
@@ -29,13 +30,11 @@ export default class Toggle extends React.PureComponent {
     onChange: PropTypes.func
   };
 
-  handleClick(e, value) {
-    e.preventDefault();
-    e.currentTarget.blur();
+  handleClick = value => {
     if (this.props.onChange) {
       this.props.onChange(!value);
     }
-  }
+  };
 
   render() {
     const { value } = this.props;
@@ -44,12 +43,12 @@ export default class Toggle extends React.PureComponent {
     const className = classNames('boolean-toggle', { 'boolean-toggle-on': booleanValue });
 
     return (
-      <button
+      <Button
         className={className}
         name={this.props.name}
-        onClick={e => this.handleClick(e, booleanValue)}>
+        onClick={() => this.handleClick(booleanValue)}>
         <div className="boolean-toggle-handle" />
-      </button>
+      </Button>
     );
   }
 }

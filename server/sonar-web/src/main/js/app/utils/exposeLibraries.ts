@@ -40,7 +40,7 @@ import SelectList from '../../components/SelectList/SelectList';
 import CoverageRating from '../../components/ui/CoverageRating';
 import DuplicationsRating from '../../components/ui/DuplicationsRating';
 import Level from '../../components/ui/Level';
-import { EditButton } from '../../components/ui/buttons';
+import { EditButton, Button, SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
 import ReloadButton from '../../components/controls/ReloadButton';
 
@@ -53,6 +53,7 @@ const exposeLibraries = () => {
   global.SonarMeasures = measures;
   global.SonarRequest = { ...request, throwGlobalError, addGlobalSuccessMessage };
   global.SonarComponents = {
+    Button,
     CoverageRating,
     DateFormatter,
     DateFromNow,
@@ -68,9 +69,11 @@ const exposeLibraries = () => {
     ListFooter,
     Modal,
     ReloadButton,
+    ResetButtonLink,
     SearchBox,
     Select,
     SelectList,
+    SubmitButton,
     Tooltip
   };
 };

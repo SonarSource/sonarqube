@@ -26,6 +26,7 @@ import CurrentsFilter from './CurrentsFilter';
 import DateFilter from './DateFilter';
 import { DEFAULT_FILTERS } from './../constants';
 import SearchBox from '../../../components/controls/SearchBox';
+import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 export default class Search extends React.PureComponent {
@@ -39,17 +40,17 @@ export default class Search extends React.PureComponent {
     onReload: PropTypes.func.isRequired
   };
 
-  handleStatusChange(status /*: string */) {
+  handleStatusChange = (status /*: string */) => {
     this.props.onFilterUpdate({ status });
-  }
+  };
 
-  handleTypeChange(taskType /*: string */) {
+  handleTypeChange = (taskType /*: string */) => {
     this.props.onFilterUpdate({ taskType });
-  }
+  };
 
-  handleCurrentsChange(currents /*: string */) {
+  handleCurrentsChange = (currents /*: string */) => {
     this.props.onFilterUpdate({ currents });
-  }
+  };
 
   handleDateChange = (date /*: { maxExecutedAt?: Date; minSubmittedAt?: Date } */) => {
     this.props.onFilterUpdate(date);
@@ -59,16 +60,9 @@ export default class Search extends React.PureComponent {
     this.props.onFilterUpdate({ query });
   };
 
-  handleReload(e /*: Object */) {
-    e.target.blur();
-    this.props.onReload();
-  }
-
-  handleReset(e /*: Object */) {
-    e.preventDefault();
-    e.target.blur();
+  handleReset = () => {
     this.props.onFilterUpdate(DEFAULT_FILTERS);
-  }
+  };
 
   renderSearchBox() {
     const { component, query } = this.props;
@@ -106,16 +100,12 @@ export default class Search extends React.PureComponent {
         <ul className="bt-search-form">
           <li>
             <h6 className="bt-search-form-label">{translate('status')}</h6>
-            <StatusFilter value={status} onChange={this.handleStatusChange.bind(this)} />
+            <StatusFilter onChange={this.handleStatusChange} value={status} />
           </li>
           {types.length > 1 && (
             <li>
               <h6 className="bt-search-form-label">{translate('type')}</h6>
-              <TypesFilter
-                value={taskType}
-                types={types}
-                onChange={this.handleTypeChange.bind(this)}
-              />
+              <TypesFilter onChange={this.handleTypeChange} types={types} value={taskType} />
             </li>
           )}
           {!component && (
@@ -123,7 +113,7 @@ export default class Search extends React.PureComponent {
               <h6 className="bt-search-form-label">
                 {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
               </h6>
-              <CurrentsFilter value={currents} onChange={this.handleCurrentsChange.bind(this)} />
+              <CurrentsFilter onChange={this.handleCurrentsChange} value={currents} />
             </li>
           )}
           <li>
@@ -138,12 +128,12 @@ export default class Search extends React.PureComponent {
           {this.renderSearchBox()}
 
           <li className="nowrap">
-            <button className="js-reload" onClick={this.handleReload.bind(this)} disabled={loading}>
+            <Button className="js-reload" disabled={loading} onClick={this.props.onReload}>
               {translate('reload')}
-            </button>{' '}
-            <button ref="resetButton" onClick={this.handleReset.bind(this)} disabled={loading}>
+            </Button>{' '}
+            <Button disabled={loading} onClick={this.handleReset}>
               {translate('reset_verb')}
-            </button>
+            </Button>
           </li>
         </ul>
       </section>

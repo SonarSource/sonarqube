@@ -27,7 +27,7 @@ jest.mock('react-dom');
 const memberLogins = ['admin'];
 
 it('should render and open the modal', () => {
-  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
+  const wrapper = shallow(<AddMemberForm addMember={jest.fn()} memberLogins={memberLogins} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ open: true });
 
@@ -36,8 +36,8 @@ it('should render and open the modal', () => {
 });
 
 it('should correctly handle user interactions', () => {
-  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
-  click(wrapper.find('button'));
+  const wrapper = shallow(<AddMemberForm addMember={jest.fn()} memberLogins={memberLogins} />);
+  click(wrapper.find('Button'));
   expect(wrapper.state('open')).toBeTruthy();
   wrapper.instance().closeForm();
   expect(wrapper.state('open')).toBeFalsy();
