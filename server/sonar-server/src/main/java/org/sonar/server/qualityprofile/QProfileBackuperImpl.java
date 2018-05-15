@@ -172,7 +172,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       BulkChangeResult changes = profileReset.reset(dbSession, targetProfile, ruleActivations);
       return new QProfileRestoreSummary(targetProfile, changes);
     } catch (XMLStreamException e) {
-      throw new IllegalStateException("Fail to restore Quality profile backup", e);
+      throw new IllegalArgumentException("Fail to restore Quality profile backup, XML document is not well formed", e);
     }
   }
 

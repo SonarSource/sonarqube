@@ -41,7 +41,6 @@ public class QualityProfileWsParameters {
   public static final String ACTION_REMOVE_PROJECT = "remove_project";
   public static final String ACTION_REMOVE_GROUP = "remove_group";
   public static final String ACTION_REMOVE_USER = "remove_user";
-  public static final String ACTION_RESTORE = "restore";
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_SEARCH_USERS = "search_users";
   public static final String ACTION_SEARCH_GROUPS = "search_groups";

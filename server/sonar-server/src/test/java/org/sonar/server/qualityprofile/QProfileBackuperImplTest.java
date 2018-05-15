@@ -26,7 +26,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.xml.stream.XMLStreamException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -46,6 +45,7 @@ import org.sonar.db.rule.RuleParamDto;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.rules.ExpectedException.none;
 
 public class QProfileBackuperImplTest {
 
@@ -58,7 +58,7 @@ public class QProfileBackuperImplTest {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public ExpectedException expectedException = none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -183,19 +183,6 @@ public class QProfileBackuperImplTest {
   }
 
   @Test
-  public void fail_to_restore_if_not_xml_backup() {
-    OrganizationDto organization = db.organizations().insert();
-    try {
-      underTest.restore(db.getSession(), new StringReader("foo"), organization, null);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Fail to restore Quality profile backup");
-      assertThat(e.getCause()).isInstanceOf(XMLStreamException.class);
-      assertThat(reset.calledProfile).isNull();
-    }
-  }
-
-  @Test
   public void fail_to_restore_if_bad_xml_format() {
     OrganizationDto organization = db.organizations().insert();
     try {
@@ -205,6 +192,27 @@ public class QProfileBackuperImplTest {
       assertThat(e).hasMessage("Backup XML is not valid. Root element must be <profile>.");
       assertThat(reset.calledProfile).isNull();
     }
+  }
+
+  @Test
+  public void fail_to_restore_if_not_xml_backup() {
+    OrganizationDto organization = db.organizations().insert();
+    try {
+      underTest.restore(db.getSession(), new StringReader("foo"), organization, null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(reset.calledProfile).isNull();
+    }
+  }
+
+  @Test
+  public void fail_to_restore_if_xml_is_not_well_formed() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Fail to restore Quality profile backup, XML document is not well formed");
+    OrganizationDto organization = db.organizations().insert();
+    String notWellFormedXml = "<?xml version='1.0' encoding='UTF-8'?><profile><name>\"profil\"</name><language>\"language\"</language><rules/></profile";
+
+    underTest.restore(db.getSession(), new StringReader(notWellFormedXml), organization, null);
   }
 
   @Test
@@ -221,7 +229,7 @@ public class QProfileBackuperImplTest {
   }
 
   @Test
-  public void fail_to_restore_external_rule() throws Exception {
+  public void fail_to_restore_external_rule() {
     db.rules().insert(RuleKey.of("sonarjs", "s001"), r -> r.setIsExternal(true)).getId();
     OrganizationDto organization = db.organizations().insert();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
