@@ -7,18 +7,31 @@
     {
       "link": "/documentation/quality-profiles",
       "text": "Quality Profiles"
+    },
+    {
+      "link": "/documentation/keyboard-shortcuts",
+      "text": "Keyboard Shortcuts"
     }
   ],
   "component_measures": [
     {
       "link": "/documentation/fixing-the-water-leak",
       "text": "Fixing the Water Leak"
+    },
+    {
+      "link": "/documentation/keyboard-shortcuts",
+      "text": "Keyboard Shortcuts"
     }
   ],
   "custom_measures": [],
   "custom_metrics": [],
   "global_permissions": [],
-  "issues": [],
+  "issues": [
+    {
+      "link": "/documentation/keyboard-shortcuts",
+      "text": "Keyboard Shortcuts"
+    }
+  ],
   "marketplace": [],
   "overview": [
     {
