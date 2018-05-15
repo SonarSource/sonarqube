@@ -90,6 +90,11 @@ export default class Form extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const domains = [...this.props.domains];
+    if (this.state.domain) {
+      domains.push(this.state.domain);
+    }
+
     return (
       <SimpleModal
         header={this.props.header}
@@ -146,7 +151,7 @@ export default class Form extends React.PureComponent<Props, State> {
                 <label htmlFor="create-metric-domain">{translate('custom_metrics.domain')}</label>
                 <Creatable
                   onChange={this.handleDomainChange}
-                  options={this.props.domains.map(domain => ({ label: domain, value: domain }))}
+                  options={domains.map(domain => ({ label: domain, value: domain }))}
                   value={this.state.domain}
                 />
               </div>

@@ -57,3 +57,34 @@ it('should render form', async () => {
   click(wrapper.find('ResetButtonLink'));
   expect(onClose).toBeCalled();
 });
+
+it('should create new domain', () => {
+  const wrapper = shallow(
+    <Form
+      confirmButtonText="confirmButtonText"
+      domains={['Coverage', 'Issues']}
+      header="header"
+      onClose={jest.fn()}
+      onSubmit={jest.fn()}
+      types={['INT', 'STRING']}
+    />
+  );
+
+  const optionsBefore = [
+    { label: 'Coverage', value: 'Coverage' },
+    { label: 'Issues', value: 'Issues' }
+  ];
+  expect(getSelect().prop('options')).toEqual(optionsBefore);
+
+  getSelect().prop<Function>('onChange')({ value: 'Another' });
+  wrapper.update();
+
+  expect(getSelect().prop('options')).toEqual([
+    ...optionsBefore,
+    { label: 'Another', value: 'Another' }
+  ]);
+
+  function getSelect() {
+    return wrapper.dive().find('Creatable');
+  }
+});
