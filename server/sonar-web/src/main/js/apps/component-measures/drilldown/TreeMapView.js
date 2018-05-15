@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+// $FlowFixMe
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import EmptyResult from './EmptyResult';

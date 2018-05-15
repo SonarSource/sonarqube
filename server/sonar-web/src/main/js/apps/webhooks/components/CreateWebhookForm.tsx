@@ -101,7 +101,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
               name="name"
               onBlur={handleBlur}
               onChange={handleChange}
-              touched={touched.name}
+              touched={touched.name !== ''}
               type="text"
               value={values.name}
             />
@@ -120,7 +120,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
               name="url"
               onBlur={handleBlur}
               onChange={handleChange}
-              touched={touched.url}
+              touched={touched.url !== ''}
               type="text"
               value={values.url}
             />

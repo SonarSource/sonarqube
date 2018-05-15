@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/order */
 import * as React from 'react';
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import ScannerContext from '../ScannerContext';
 import { click } from '../../../../helpers/testUtils';
 
@@ -57,7 +57,7 @@ it('closes', () => {
 });
 
 it('fetches scanner context on mount', async () => {
-  const wrapper = mount(<ScannerContext onClose={jest.fn()} task={task} />);
+  const wrapper = shallow(<ScannerContext onClose={jest.fn()} task={task} />);
   expect(wrapper.state()).toEqual({});
   expect(getTask).toBeCalledWith('123', ['scannerContext']);
   await new Promise(setImmediate);

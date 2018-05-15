@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/order */
 import * as React from 'react';
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import Stacktrace from '../Stacktrace';
 import { click } from '../../../../helpers/testUtils';
 
@@ -57,7 +57,7 @@ it('closes', () => {
 });
 
 it('fetches scanner context on mount', async () => {
-  const wrapper = mount(<Stacktrace onClose={jest.fn()} task={task} />);
+  const wrapper = shallow(<Stacktrace onClose={jest.fn()} task={task} />);
   expect(wrapper.state()).toEqual({ loading: true });
   expect(getTask).toBeCalledWith('123', ['stacktrace']);
   await new Promise(setImmediate);

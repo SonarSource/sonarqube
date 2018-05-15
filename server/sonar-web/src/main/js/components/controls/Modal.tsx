@@ -21,6 +21,8 @@ import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import * as classNames from 'classnames';
 
+ReactModal.setAppElement('#content');
+
 interface OwnProps {
   medium?: boolean;
   large?: boolean;

@@ -123,7 +123,7 @@ export default class Form extends React.PureComponent<Props, State> {
           <i className="spinner" />
         ) : (
           <Select
-            autofocus={true}
+            autoFocus={true}
             clearable={false}
             onChange={this.handleMetricSelect}
             options={options}

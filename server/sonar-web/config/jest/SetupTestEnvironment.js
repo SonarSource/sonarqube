@@ -23,8 +23,6 @@ window.t = window.tp = function() {
   return args.join('.');
 };
 
-// Fix for https://github.com/facebook/jest/issues/4545
-// Try to remove when jest 21.3.0 is out
-window.requestAnimationFrame = function(callback) {
-  setTimeout(callback, 0);
-};
+const content = document.createElement('div');
+content.id = 'content';
+document.documentElement.appendChild(content);

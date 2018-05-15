@@ -21,6 +21,7 @@
 import React from 'react';
 import { minBy } from 'lodash';
 import * as PropTypes from 'prop-types';
+// $FlowFixMe
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
 import AdvancedTimeline from '../charts/AdvancedTimeline';

@@ -136,7 +136,6 @@ export default class Projects extends React.PureComponent<Props, State> {
               cache={false}
               className="input-super-large"
               loadOptions={this.loadOptions}
-              minimumInput={2}
               name="new_project"
               onChange={this.handleAddProject}
               optionRenderer={this.renderOption}

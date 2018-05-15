@@ -35,6 +35,7 @@ exports[`should correctly render a graph 1`] = `
       disableHeight={false}
       disableWidth={false}
       onResize={[Function]}
+      style={Object {}}
     />
   </div>
 </div>

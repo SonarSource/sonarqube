@@ -177,7 +177,7 @@ export default class Condition extends React.PureComponent<Props, State> {
 
     return (
       <Select
-        autofocus={true}
+        autoFocus={true}
         className="input-medium"
         clearable={false}
         name="operator"

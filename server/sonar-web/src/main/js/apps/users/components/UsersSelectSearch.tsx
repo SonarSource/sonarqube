@@ -101,7 +101,7 @@ export default class UsersSelectSearch extends React.PureComponent<Props, State>
         : translate('no_results');
     return (
       <Select
-        autofocus={this.props.autoFocus}
+        autoFocus={this.props.autoFocus}
         className="Select-big"
         options={this.state.searchResult}
         isLoading={this.state.isLoading}

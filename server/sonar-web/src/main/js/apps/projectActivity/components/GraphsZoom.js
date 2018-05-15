@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+// $FlowFixMe
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import ZoomTimeLine from '../../../components/charts/ZoomTimeLine';
 import { hasHistoryData } from '../utils';

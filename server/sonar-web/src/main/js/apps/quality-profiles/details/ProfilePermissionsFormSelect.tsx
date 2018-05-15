@@ -92,7 +92,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
 
     return (
       <Select
-        autofocus={true}
+        autoFocus={true}
         className="Select-big"
         clearable={false}
         isLoading={this.state.loading}

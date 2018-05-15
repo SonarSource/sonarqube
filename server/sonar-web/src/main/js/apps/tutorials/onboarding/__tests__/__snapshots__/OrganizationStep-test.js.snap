@@ -81,7 +81,6 @@ exports[`works with existing organization 1`] = `
                 }
               >
                 <Select
-                  addLabelText="Add \\"{label}\\"?"
                   arrowRenderer={[Function]}
                   autosize={true}
                   backspaceRemoves={true}
@@ -129,16 +128,19 @@ exports[`works with existing organization 1`] = `
                   }
                   pageSize={5}
                   placeholder="Select..."
+                  removeSelected={true}
                   required={false}
+                  rtl={false}
                   scrollMenuIntoView={true}
                   searchable={true}
                   simpleValue={false}
                   tabSelectsValue={true}
+                  trimFilter={true}
                   valueComponent={[Function]}
                   valueKey="value"
                 >
                   <div
-                    className="Select input-super-large Select--single is-searchable"
+                    className="Select input-super-large is-searchable Select--single"
                   >
                     <div
                       className="Select-control"
@@ -163,6 +165,7 @@ exports[`works with existing organization 1`] = `
                           aria-haspopup="false"
                           aria-owns=""
                           className="Select-input"
+                          injectStyles={true}
                           minWidth="5"
                           onBlur={[Function]}
                           onChange={[Function]}
@@ -179,13 +182,6 @@ exports[`works with existing organization 1`] = `
                               }
                             }
                           >
-                            <style
-                              dangerouslySetInnerHTML={
-                                Object {
-                                  "__html": "input#undefined::-ms-clear {display: none;}",
-                                }
-                              }
-                            />
                             <input
                               aria-activedescendant="react-select-2--value"
                               aria-expanded="false"

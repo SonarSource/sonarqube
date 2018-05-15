@@ -133,7 +133,7 @@ exports[`should render form 2`] = `
           </em>
         </label>
         <Select
-          autofocus={true}
+          autoFocus={true}
           clearable={false}
           onChange={[Function]}
           options={

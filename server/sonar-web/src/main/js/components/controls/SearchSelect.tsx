@@ -125,7 +125,7 @@ export default class SearchSelect<T extends { value: string }> extends React.Pur
     const Component = this.props.canCreate ? Creatable : Select;
     return (
       <Component
-        autofocus={this.autofocus}
+        autoFocus={this.autofocus}
         className="input-super-large"
         clearable={this.props.clearable}
         escapeClearsValue={false}
