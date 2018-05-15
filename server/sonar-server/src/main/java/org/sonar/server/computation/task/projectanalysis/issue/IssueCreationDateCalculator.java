@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -31,8 +30,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.protobuf.DbCommons.TextRange;
@@ -57,8 +54,6 @@ import static org.sonar.core.issue.IssueChangeContext.createScan;
  * might be raised by adding a rule to a quality profile.
  */
 public class IssueCreationDateCalculator extends IssueVisitor {
-
-  private static final Logger LOGGER = Loggers.get(IssueCreationDateCalculator.class);
 
   private final ScmInfoRepository scmInfoRepository;
   private final IssueFieldsSetter issueUpdater;
@@ -177,8 +172,6 @@ public class IssueCreationDateCalculator extends IssueVisitor {
   }
 
   private void updateDate(DefaultIssue issue, Date scmDate) {
-    LOGGER.debug("Issue {} seems to be raised in consequence of a modification of the quality profile. Backdating the issue to {}.", issue,
-      DateTimeFormatter.ISO_INSTANT.format(scmDate.toInstant()));
     issueUpdater.setCreationDate(issue, scmDate, changeContext);
   }
 
