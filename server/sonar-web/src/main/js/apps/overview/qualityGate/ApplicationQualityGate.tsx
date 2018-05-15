@@ -24,6 +24,7 @@ import Level from '../../../components/ui/Level';
 import { getApplicationQualityGate, ApplicationProject } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 import { LightComponent, Metric } from '../../../app/types';
+import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   component: LightComponent;
@@ -88,14 +89,15 @@ export default class ApplicationQualityGate extends React.PureComponent<Props, S
         <h2 className="overview-title">
           {translate('overview.quality_gate')}
           {this.state.loading && <i className="spinner spacer-left" />}
-          {status != null && <Level level={status} />}
+          <DocTooltip className="spacer-left" doc="quality-gates/project-homepage-quality-gate" />
+          {status != null && <Level className="big-spacer-left" level={status} />}
         </h2>
 
         {projects &&
           metrics && (
             <div
-              id="overview-quality-gate-conditions-list"
-              className="overview-quality-gate-conditions-list clearfix">
+              className="overview-quality-gate-conditions-list clearfix"
+              id="overview-quality-gate-conditions-list">
               {projects
                 .filter(project => project.status !== 'OK')
                 .map(project => (
