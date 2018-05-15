@@ -17,36 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { Button } from '../ui/buttons';
 import './styles.css';
 
-export default class Toggle extends React.PureComponent {
-  static propTypes = {
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
-    name: PropTypes.string,
-    onChange: PropTypes.func
+export interface Props {
+  name?: string;
+  onChange?: (value: boolean) => void;
+  value: boolean | string;
+}
+
+export default class Toggle extends React.PureComponent<Props> {
+  getValue = () => {
+    const { value } = this.props;
+    return typeof value === 'string' ? value === 'true' : value;
   };
 
-  handleClick = value => {
+  handleClick = () => {
     if (this.props.onChange) {
+      const value = this.getValue();
       this.props.onChange(!value);
     }
   };
 
   render() {
-    const { value } = this.props;
-    const booleanValue = typeof value === 'string' ? value === 'true' : value;
-
-    const className = classNames('boolean-toggle', { 'boolean-toggle-on': booleanValue });
+    const value = this.getValue();
+    const className = classNames('boolean-toggle', { 'boolean-toggle-on': value });
 
     return (
-      <Button
-        className={className}
-        name={this.props.name}
-        onClick={() => this.handleClick(booleanValue)}>
+      <Button className={className} name={this.props.name} onClick={this.handleClick}>
         <div className="boolean-toggle-handle" />
       </Button>
     );

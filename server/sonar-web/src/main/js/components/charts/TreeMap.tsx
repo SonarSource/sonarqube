@@ -17,33 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { treemap as d3Treemap, hierarchy as d3Hierarchy } from 'd3-hierarchy';
 import TreeMapRect from './TreeMapRect';
 import { translate } from '../../helpers/l10n';
 
-/*:: export type TreeMapItem = {
-  key: string,
-  size: number,
-  color: string,
-  icon?: React.Element<*>,
-  tooltip?: string | React.Element<*>,
-  label: string,
-  link?: string
-}; */
+interface TreeMapItem {
+  color: string;
+  icon?: React.ReactNode;
+  key: string;
+  label: string;
+  link?: string;
+  size: number;
+  tooltip?: React.ReactNode;
+}
 
-/*:: type Props = {|
-  items: Array<TreeMapItem>,
-  onRectangleClick?: string => void,
-  height: number,
-  width: number
-|}; */
+interface HierarchicalTreemapItem extends TreeMapItem {
+  children?: TreeMapItem[];
+}
 
-export default class TreeMap extends React.PureComponent {
-  /*:: props: Props; */
+interface Props {
+  height: number;
+  items: TreeMapItem[];
+  onRectangleClick?: (item: string) => void;
+  width: number;
+}
 
-  mostCommitPrefix = (labels /*: Array<string> */) => {
+export default class TreeMap extends React.PureComponent<Props> {
+  mostCommitPrefix = (labels: string[]) => {
     const sortedLabels = labels.slice(0).sort();
     const firstLabel = sortedLabels[0];
     const firstLabelLength = firstLabel.length;
@@ -76,11 +77,11 @@ export default class TreeMap extends React.PureComponent {
       return this.renderNoData();
     }
 
-    const hierarchy = d3Hierarchy({ children: items })
+    const hierarchy = d3Hierarchy({ children: items } as HierarchicalTreemapItem)
       .sum(d => d.size)
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => (b.value || 0) - (a.value || 0));
 
-    const treemap = d3Treemap()
+    const treemap = d3Treemap<TreeMapItem>()
       .round(true)
       .size([width, height]);
 
@@ -92,20 +93,20 @@ export default class TreeMap extends React.PureComponent {
         <div className="treemap-container" style={{ width, height }}>
           {nodes.map(node => (
             <TreeMapRect
-              key={node.data.key}
-              x={node.x0}
-              y={node.y0}
-              width={node.x1 - node.x0}
-              height={node.y1 - node.y0}
               fill={node.data.color}
-              label={node.data.label}
-              prefix={prefix}
-              itemKey={node.data.key}
+              height={node.y1 - node.y0}
               icon={node.data.icon}
-              tooltip={node.data.tooltip}
+              itemKey={node.data.key}
+              key={node.data.key}
+              label={node.data.label}
               link={node.data.link}
               onClick={this.props.onRectangleClick}
               placement={node.x0 === 0 || node.x1 < halfWidth ? 'right' : 'left'}
+              prefix={prefix}
+              tooltip={node.data.tooltip}
+              width={node.x1 - node.x0}
+              x={node.x0}
+              y={node.y0}
             />
           ))}
         </div>

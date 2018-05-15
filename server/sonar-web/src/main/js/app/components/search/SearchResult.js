@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 /*:: import type { Component } from './utils'; */
 import FavoriteIcon from '../../../components/icons-components/FavoriteIcon';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
-import ClockIcon from '../../../components/common/ClockIcon';
+import ClockIcon from '../../../components/icons-components/ClockIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getProjectUrl } from '../../../helpers/urls';
 

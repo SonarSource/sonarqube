@@ -17,19 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import QualifierIcon from '../QualifierIcon';
+import LineChart from '../LineChart';
 
-it('should render icon', () => {
-  expect(shallow(<QualifierIcon qualifier="TRK" />)).toMatchSnapshot();
-  expect(shallow(<QualifierIcon qualifier="trk" />)).toMatchSnapshot();
+it('should display line', () => {
+  const data = [{ x: 1, y: 10 }, { x: 2, y: 30 }, { x: 3, y: 20 }];
+  const chart = shallow(<LineChart data={data} height={100} width={100} />);
+  expect(chart.find('.line-chart-path').length).toBe(1);
 });
 
-it('should not render icon', () => {
-  expect(shallow(<QualifierIcon qualifier={null} />).type()).toBeNull();
+it('should display ticks', () => {
+  const data = [{ x: 1, y: 10 }, { x: 2, y: 30 }, { x: 3, y: 20 }];
+  const ticks = ['A', 'B', 'C'];
+  const chart = shallow(<LineChart data={data} height={100} width={100} xTicks={ticks} />);
+  expect(chart.find('.line-chart-tick').length).toBe(3);
 });
 
-it('should render with custom class', () => {
-  expect(shallow(<QualifierIcon className="spacer-right" qualifier="TRK" />)).toMatchSnapshot();
+it('should display values', () => {
+  const data = [{ x: 1, y: 10 }, { x: 2, y: 30 }, { x: 3, y: 20 }];
+  const values = ['A', 'B', 'C'];
+  const chart = shallow(<LineChart data={data} height={100} width={100} xValues={values} />);
+  expect(chart.find('.line-chart-tick').length).toBe(3);
 });

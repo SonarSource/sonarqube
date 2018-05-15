@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import TreeMap from '../TreeMap';
+import QualifierIcon from '../QualifierIcon';
 
-it('should display', () => {
-  const items = [
-    { key: '1', size: 10, color: '#777', label: 'SonarQube :: Server' },
-    { key: '2', size: 30, color: '#777', label: 'SonarQube :: Web' },
-    { key: '3', size: 20, color: '#777', label: 'SonarQube :: Search' }
-  ];
-  const chart = shallow(
-    <TreeMap items={items} width={100} height={100} onRectangleClick={() => {}} />
-  );
-  expect(chart.find('TreeMapRect')).toHaveLength(3);
+it('should render icon', () => {
+  expect(shallow(<QualifierIcon qualifier="TRK" />)).toMatchSnapshot();
+  expect(shallow(<QualifierIcon qualifier="trk" />)).toMatchSnapshot();
+});
+
+it('should not render icon', () => {
+  expect(shallow(<QualifierIcon qualifier={null} />).type()).toBeNull();
+});
+
+it('should render with custom class', () => {
+  expect(shallow(<QualifierIcon className="spacer-right" qualifier="TRK" />)).toMatchSnapshot();
 });

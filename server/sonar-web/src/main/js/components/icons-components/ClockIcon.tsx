@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import Helmet from 'react-helmet';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { IconProps } from './types';
 
-/*::
-type Props = {
-  title: string,
-  organization?: ?{ name: string }
-};
-*/
-
-export default function OrganizationHelmet({ title, organization } /*: Props */) {
-  const defaultTitle = title + (organization ? ' - ' + organization.name : '');
-  return <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />;
+export default function ClockIcon({ className, size = 16 }: IconProps) {
+  return (
+    <svg
+      className={classNames('icon-clock', className)}
+      height={size}
+      version="1.1"
+      viewBox="0 0 16 16"
+      width={size}
+      xmlSpace="preserve"
+      xmlnsXlink="http://www.w3.org/1999/xlink">
+      <g fill="#fff" stroke="#ADADAD" transform="matrix(1.4 0 0 1.4 .3 .7)">
+        <circle cx="5.5" cy="5.2" r="5" />
+        <path d="M5.6 2.9v2.7l2-.5" fillRule="nonzero" />
+      </g>
+    </svg>
+  );
 }

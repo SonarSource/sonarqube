@@ -17,25 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
-import StatusIcon from './StatusIcon';
-import { translate } from '../../helpers/l10n';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import './LocationIndex.css';
 
-export default function StatusHelper(
-  props /*: {
-  resolution?: string,
-  status: string,
-  className?: string
-} */
-) {
-  const resolution =
-    props.resolution != null && ` (${translate('issue.resolution', props.resolution)})`;
+interface Props {
+  children?: React.ReactNode;
+  leading?: boolean;
+  onClick?: () => void;
+  selected?: boolean;
+  [x: string]: any;
+}
+
+export default function LocationIndex(props: Props) {
+  const { children, leading, onClick, selected, ...other } = props;
+  const clickAttributes = onClick ? { onClick, role: 'button', tabIndex: 0 } : {};
+  // put {...others} because Tooltip sets some event handlers
   return (
-    <span className={props.className}>
-      <StatusIcon className="little-spacer-right" status={props.status} />
-      {translate('issue.status', props.status)}
-      {resolution}
-    </span>
+    <div
+      className={classNames('location-index', {
+        'is-leading': leading,
+        selected
+      })}
+      {...clickAttributes}
+      {...other}>
+      {children}
+    </div>
   );
 }

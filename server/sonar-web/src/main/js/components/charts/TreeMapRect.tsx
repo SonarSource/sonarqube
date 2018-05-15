@@ -17,42 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
-import classNames from 'classnames';
+import * as classNames from 'classnames';
 import { scaleLinear } from 'd3-scale';
 import LinkIcon from '../icons-components/LinkIcon';
-import Tooltip from '../controls/Tooltip';
+import Tooltip, { Placement } from '../controls/Tooltip';
 
 const SIZE_SCALE = scaleLinear()
   .domain([3, 15])
   .range([11, 18])
   .clamp(true);
 
-/*:: type Props = {|
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  fill: string,
-  label: string,
-  prefix: string,
-  icon?: React.Element<*>,
-  tooltip?: string | React.Element<*>,
-  itemKey: string,
-  link?: string,
-  onClick?: string => void,
-  placement?: string
-|}; */
+interface Props {
+  fill: string;
+  height: number;
+  icon?: React.ReactNode;
+  itemKey: string;
+  label: string;
+  link?: string;
+  onClick?: (item: string) => void;
+  placement?: Placement;
+  prefix: string;
+  tooltip?: React.ReactNode;
+  width: number;
+  x: number;
+  y: number;
+}
 
-export default class TreeMapRect extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleLinkClick = (e /*: Event */) => e.stopPropagation();
+export default class TreeMapRect extends React.PureComponent<Props> {
+  handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
+  };
 
   handleRectClick = () => {
-    if (this.props.onClick != null) {
+    if (this.props.onClick) {
       this.props.onClick(this.props.itemKey);
     }
   };
@@ -64,7 +63,7 @@ export default class TreeMapRect extends React.PureComponent {
       return null;
     }
     return (
-      <Link className="treemap-link" to={link} onClick={this.handleLinkClick}>
+      <Link className="treemap-link" onClick={this.handleLinkClick} to={link}>
         <LinkIcon />
       </Link>
     );
@@ -91,9 +90,9 @@ export default class TreeMapRect extends React.PureComponent {
     return (
       <div
         className="treemap-cell"
-        style={cellStyles}
         onClick={this.handleRectClick}
         role="treeitem"
+        style={cellStyles}
         tabIndex={0}>
         <div className="treemap-inner" style={{ maxWidth: this.props.width }}>
           {isIconVisible && (

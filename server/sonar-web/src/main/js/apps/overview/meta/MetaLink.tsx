@@ -21,7 +21,7 @@ import * as React from 'react';
 import { isProvided, getLinkName } from '../../project-admin/links/utils';
 import { ProjectLink } from '../../../app/types';
 import DetachIcon from '../../../components/icons-components/DetachIcon';
-import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
+import BugTrackerIcon from '../../../components/icons-components/BugTrackerIcon';
 
 interface Props {
   link: ProjectLink;

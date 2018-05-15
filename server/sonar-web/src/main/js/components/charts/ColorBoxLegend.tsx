@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { ScaleLinear, ScaleOrdinal } from 'd3-scale';
 import { formatMeasure } from '../../helpers/measures';
 
-/*:: type Props = {
-  className?: string,
-  colorScale: Object,
-  colorNA?: string,
-  metricType: string
-}; */
+interface Props {
+  className?: string;
+  colorNA?: string;
+  colorScale:
+    | ScaleOrdinal<string, string> // used for LEVEL type
+    | ScaleLinear<number, string | number>; // used for RATING or PERCENT type
+  metricType: string;
+}
 
-export default function ColorBoxLegend(
-  { className, colorScale, colorNA, metricType } /*: Props */
-) {
-  const colorDomain = colorScale.domain();
+export default function ColorBoxLegend({ className, colorScale, colorNA, metricType }: Props) {
+  const colorDomain: Array<number | string> = colorScale.domain();
   const colorRange = colorScale.range();
   return (
     <div className={classNames('color-box-legend', className)}>

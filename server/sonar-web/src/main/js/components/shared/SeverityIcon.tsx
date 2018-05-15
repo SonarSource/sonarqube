@@ -17,36 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
-import getStore from '../../app/utils/getStore';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-/*::
-type Props = {
-  children: React.Element<*>
-};
-*/
+interface Props {
+  className?: string;
+  severity: string | null | undefined;
+}
 
-export default class WithStore extends React.PureComponent {
-  /*:: props: Props; */
-  /*:: store: {};
-*/
-
-  static childContextTypes = {
-    store: PropTypes.object
-  };
-
-  constructor(props /*: Props */) {
-    super(props);
-    this.store = getStore();
+export default function SeverityIcon(props: Props) {
+  if (!props.severity) {
+    return null;
   }
-
-  getChildContext() {
-    return { store: this.store };
-  }
-
-  render() {
-    return this.props.children;
-  }
+  return (
+    <i className={classNames('icon-severity-' + props.severity.toLowerCase(), props.className)} />
+  );
 }

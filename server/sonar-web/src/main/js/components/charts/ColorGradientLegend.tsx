@@ -17,60 +17,60 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { ScaleLinear, ScaleOrdinal } from 'd3-scale';
 
-/*:: type Props = {
-  className?: string,
-  colorScale: Object,
-  colorNA?: string,
-  direction?: number,
-  padding?: Array<number>,
-  height: number,
-  width: number
-}; */
+interface Props {
+  className?: string;
+  colorNA?: string;
+  colorScale:
+    | ScaleOrdinal<string, string> // used for LEVEL type
+    | ScaleLinear<number, string | number>; // used for RATING or PERCENT type
+  direction?: number;
+  height: number;
+  padding?: [number, number, number, number];
+  width: number;
+}
 
 const NA_SPACING = 4;
 
-export default function ColorGradientLegend(
-  {
-    className,
-    colorScale,
-    colorNA,
-    direction,
-    padding = [12, 24, 0, 0],
-    height,
-    width
-  } /*: Props */
-) {
-  const colorRange = colorScale.range();
+export default function ColorGradientLegend({
+  className,
+  colorScale,
+  colorNA,
+  direction,
+  padding = [12, 24, 0, 0],
+  height,
+  width
+}: Props) {
+  const colorRange: Array<string | number> = colorScale.range();
   if (direction === 1) {
     colorRange.reverse();
   }
 
-  const colorDomain = colorScale.domain();
+  const colorDomain: Array<string | number> = colorScale.domain();
   const lastColorIdx = colorRange.length - 1;
   const lastDomainIdx = colorDomain.length - 1;
   const widthNoPadding = width - padding[1];
   const rectHeight = height - padding[0];
   return (
-    <svg className={className} width={width} height={height}>
+    <svg className={className} height={height} width={width}>
       <defs>
         <linearGradient id="gradient-legend">
           {colorRange.map((color, idx) => (
-            <stop key={idx} offset={idx / lastColorIdx} stopColor={color} />
+            <stop key={idx} offset={idx / lastColorIdx} stopColor={String(color)} />
           ))}
         </linearGradient>
       </defs>
       <g transform={`translate(${padding[3]}, ${padding[0]})`}>
-        <rect fill="url(#gradient-legend)" x={0} y={0} height={rectHeight} width={widthNoPadding} />
+        <rect fill="url(#gradient-legend)" height={rectHeight} width={widthNoPadding} x={0} y={0} />
         {colorDomain.map((d, idx) => (
           <text
             className="gradient-legend-text"
+            dy="-2px"
             key={idx}
             x={widthNoPadding * (idx / lastDomainIdx)}
-            y={0}
-            dy="-2px">
+            y={0}>
             {d}
           </text>
         ))}
@@ -79,16 +79,16 @@ export default function ColorGradientLegend(
         <g transform={`translate(${widthNoPadding}, ${padding[0]})`}>
           <rect
             fill={colorNA}
-            x={NA_SPACING}
-            y={0}
             height={rectHeight}
             width={padding[1] - NA_SPACING}
+            x={NA_SPACING}
+            y={0}
           />
           <text
             className="gradient-legend-na"
+            dy="-2px"
             x={NA_SPACING + (padding[1] - NA_SPACING) / 2}
-            y={0}
-            dy="-2px">
+            y={0}>
             N/A
           </text>
         </g>

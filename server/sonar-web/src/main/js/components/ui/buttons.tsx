@@ -32,6 +32,7 @@ interface ButtonProps {
   disabled?: boolean;
   id?: string;
   innerRef?: (node: HTMLElement | null) => void;
+  name?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   preventDefault?: boolean;
   stopPropagation?: boolean;

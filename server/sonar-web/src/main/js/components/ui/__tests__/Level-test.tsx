@@ -17,23 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import Toggle from '../Toggle';
-import { click } from '../../../helpers/testUtils';
-
-function getSample(props) {
-  return <Toggle onChange={() => true} value={true} {...props} />;
-}
+import Level from '../Level';
 
 it('should render', () => {
-  const Toggle = shallow(getSample());
-  expect(Toggle.is('Button')).toBe(true);
-});
-
-it('should call onChange', () => {
-  const onChange = jest.fn();
-  const Toggle = shallow(getSample({ onChange }));
-  click(Toggle);
-  expect(onChange).toBeCalledWith(false);
+  const rating = shallow(<Level level="ERROR" />);
+  expect(rating.is('.level-ERROR')).toBe(true);
 });

@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import './LocationMessage.css';
 
-export default function SeverityIcon(props /*: { severity: ?string, className?: string } */) {
-  if (!props.severity) {
-    return null;
-  }
-  const className = classNames('icon-severity-' + props.severity.toLowerCase(), props.className);
-  return <i className={className} />;
+interface Props {
+  children?: React.ReactNode;
+  selected: boolean;
+}
+
+export default function LocationMessage(props: Props) {
+  return (
+    <div className={classNames('location-message', { selected: props.selected })}>
+      {props.children}
+    </div>
+  );
 }

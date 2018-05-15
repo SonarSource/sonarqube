@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { mount } from 'enzyme';
 import BubbleChart, { Bubble } from '../BubbleChart';
 
 it('should display bubbles', () => {
   const items = [{ x: 1, y: 10, size: 7 }, { x: 2, y: 30, size: 5 }];
-  const chart = mount(<BubbleChart items={items} height={100} />);
+  const chart = mount(<BubbleChart height={100} items={items} />);
   chart.find(Bubble).forEach(bubble => expect(bubble).toMatchSnapshot());
 });
 
 it('should render bubble links', () => {
   const items = [{ x: 1, y: 10, size: 7, link: 'foo' }, { x: 2, y: 30, size: 5, link: 'bar' }];
-  const chart = mount(<BubbleChart items={items} height={100} />);
+  const chart = mount(<BubbleChart height={100} items={items} />);
   chart.find(Bubble).forEach(bubble => expect(bubble).toMatchSnapshot());
 });
 
 it('should render bubbles with click handlers', () => {
   const onClick = jest.fn();
   const items = [{ x: 1, y: 10, size: 7, link: 'foo' }, { x: 2, y: 30, size: 5, link: 'bar' }];
-  const chart = mount(<BubbleChart items={items} height={100} onBubbleClick={onClick} />);
+  const chart = mount(<BubbleChart height={100} items={items} onBubbleClick={onClick} />);
   chart.find(Bubble).forEach(bubble => expect(bubble).toMatchSnapshot());
 });

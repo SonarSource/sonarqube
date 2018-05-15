@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Component } from '../types';
 import { BranchLike } from '../../../app/types';
-import PinIcon from '../../../components/shared/pin-icon';
+import PinIcon from '../../../components/icons-components/PinIcon';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { translate } from '../../../helpers/l10n';
 

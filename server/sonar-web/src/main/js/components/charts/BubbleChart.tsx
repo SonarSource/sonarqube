@@ -86,12 +86,12 @@ interface Props {
   displayXTicks?: boolean;
   displayYGrid?: boolean;
   displayYTicks?: boolean;
-  formatXTick: (tick: number) => string;
-  formatYTick: (tick: number) => string;
+  formatXTick?: (tick: number) => string;
+  formatYTick?: (tick: number) => string;
   height: number;
   items: Item[];
   onBubbleClick?: (link?: string) => void;
-  padding: [number, number, number, number];
+  padding?: [number, number, number, number];
   sizeDomain?: [number, number];
   sizeRange?: [number, number];
   xDomain?: [number, number];
@@ -115,9 +115,6 @@ export default class BubbleChart extends React.Component<Props, State> {
     displayXTicks: true,
     displayYGrid: true,
     displayYTicks: true,
-    formatXTick: (d: number) => d,
-    formatYTick: (d: number) => d,
-    padding: [10, 10, 10, 10],
     sizeRange: [5, 45]
   };
 
@@ -139,6 +136,18 @@ export default class BubbleChart extends React.Component<Props, State> {
   componentWillUnmount() {
     document.removeEventListener('mouseup', this.stopMoving);
     document.removeEventListener('mousemove', this.updateZoomCenter);
+  }
+
+  get formatXTick() {
+    return this.props.formatXTick || ((d: number) => String(d));
+  }
+
+  get formatYTick() {
+    return this.props.formatYTick || ((d: number) => String(d));
+  }
+
+  get padding() {
+    return this.props.padding || [10, 10, 10, 10];
   }
 
   startMoving = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -176,8 +185,8 @@ export default class BubbleChart extends React.Component<Props, State> {
       event.preventDefault();
 
       const rect = this.node.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left - this.props.padding[1];
-      const mouseY = event.clientY - rect.top - this.props.padding[0];
+      const mouseX = event.clientX - rect.left - this.padding[1];
+      const mouseY = event.clientY - rect.top - this.padding[0];
 
       let delta = event.deltaY;
       if ((event as any).webkitDirectionInvertedFromDevice) {
@@ -308,7 +317,7 @@ export default class BubbleChart extends React.Component<Props, State> {
     const ticks = xTicks.map((tick, index) => {
       const x = xScale(tick);
       const y = yScale.range()[0];
-      const innerText = this.props.formatXTick(tick);
+      const innerText = this.formatXTick(tick);
       return (
         <text
           className="bubble-chart-tick"
@@ -332,7 +341,7 @@ export default class BubbleChart extends React.Component<Props, State> {
     const ticks = yTicks.map((tick, index) => {
       const x = xScale.range()[0];
       const y = yScale(tick);
-      const innerText = this.props.formatYTick(tick);
+      const innerText = this.formatYTick(tick);
       return (
         <text
           className="bubble-chart-tick bubble-chart-tick-y"
@@ -350,8 +359,8 @@ export default class BubbleChart extends React.Component<Props, State> {
   };
 
   renderChart = (width: number) => {
-    const availableWidth = width - this.props.padding[1] - this.props.padding[3];
-    const availableHeight = this.props.height - this.props.padding[0] - this.props.padding[2];
+    const availableWidth = width - this.padding[1] - this.padding[3];
+    const availableHeight = this.props.height - this.padding[0] - this.padding[2];
 
     const xScale = scaleLinear()
       .domain(this.props.xDomain || [0, max(this.props.items, d => d.x) || 0])
@@ -389,8 +398,8 @@ export default class BubbleChart extends React.Component<Props, State> {
       );
     });
 
-    const xTicks = this.getTicks(xScale, this.props.formatXTick);
-    const yTicks = this.getTicks(yScale, this.props.formatYTick);
+    const xTicks = this.getTicks(xScale, this.formatXTick);
+    const yTicks = this.getTicks(yScale, this.formatYTick);
 
     return (
       <svg
@@ -400,9 +409,9 @@ export default class BubbleChart extends React.Component<Props, State> {
         onWheel={this.onWheel}
         ref={node => (this.node = node)}
         width={width}>
-        <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+        <g transform={`translate(${this.padding[3]}, ${this.padding[0]})`}>
           <svg
-            height={this.props.height - this.props.padding[0] - this.props.padding[2]}
+            height={this.props.height - this.padding[0] - this.padding[2]}
             style={{ overflow: 'hidden' }}
             width={width}>
             {this.renderXGrid(xTicks, xScale, yScale, centerXDelta)}

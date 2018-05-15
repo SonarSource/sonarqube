@@ -17,33 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import Helmet from 'react-helmet';
 
-/*::
-type Props = {
-  className?: string,
-  size?: number
-};
-*/
-
-export default function ClockIcon(props /*: Props */) {
-  /* eslint max-len: 0 */
-  return (
-    <svg
-      className={classNames('icon-clock', props.className)}
-      viewBox="0 0 16 16"
-      width={props.size}
-      height={props.size}>
-      <g fill="#fff" stroke="#ADADAD" transform="matrix(1.4 0 0 1.4 .3 .7)">
-        <circle cx="5.5" cy="5.2" r="5" />
-        <path fillRule="nonzero" d="M5.6 2.9v2.7l2-.5" />
-      </g>
-    </svg>
-  );
+interface Props {
+  organization?: { name: string };
+  title: string;
 }
 
-ClockIcon.defaultProps = {
-  size: 16
-};
+export default function OrganizationHelmet({ title, organization }: Props) {
+  const defaultTitle = title + (organization ? ' - ' + organization.name : '');
+  return <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />;
+}

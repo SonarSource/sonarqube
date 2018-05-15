@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import TreeMap from '../TreeMap';
 
-export default function BugTrackerIcon() {
-  /* eslint-disable max-len */
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" width="14" height="14">
-      <g transform="matrix(1,0,0,1,0,1)">
-        <path
-          style={{
-            fill: 'none',
-            stroke: 'currentColor',
-            strokeWidth: 2,
-            strokeLinecap: 'round',
-            strokeMiterlimit: '10'
-          }}
-          d="M12 9h-2L8 5 6.5 9.5l-2-6L3 9H1"
-        />
-      </g>
-    </svg>
+it('should display', () => {
+  const items = [
+    { key: '1', size: 10, color: '#777', label: 'SonarQube :: Server' },
+    { key: '2', size: 30, color: '#777', label: 'SonarQube :: Web' },
+    { key: '3', size: 20, color: '#777', label: 'SonarQube :: Search' }
+  ];
+  const chart = shallow(
+    <TreeMap height={100} items={items} onRectangleClick={() => {}} width={100} />
   );
-}
+  expect(chart.find('TreeMapRect')).toHaveLength(3);
+});

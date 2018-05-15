@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { max } from 'd3-array';
-import { LineChart } from '../../../components/charts/line-chart';
+import LineChart from '../../../components/charts/LineChart';
 import { HistoryItem } from '../../../api/time-machine';
 
 const HEIGHT = 80;
@@ -49,17 +49,16 @@ export default class Timeline extends React.PureComponent<Props> {
     }
 
     const data = snapshots.map((snapshot, index) => {
-      return { x: index, y: snapshot.value };
+      return { x: index, y: Number(snapshot.value) };
     });
-    const domain = [0, max(this.props.history, d => parseFloat(d.value))];
+    const domain = [0, max(this.props.history, d => parseFloat(d.value))] as [number, number];
     return (
       <LineChart
         data={data}
-        domain={domain}
-        interpolate="basis"
         displayBackdrop={true}
         displayPoints={false}
         displayVerticalGrid={false}
+        domain={domain}
         height={HEIGHT}
         padding={[0, 0, 0, 0]}
       />

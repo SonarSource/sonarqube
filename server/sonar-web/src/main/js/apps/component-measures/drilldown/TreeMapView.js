@@ -205,9 +205,9 @@ export default class TreeMapView extends React.PureComponent {
         <AutoSizer disableHeight={true}>
           {({ width }) => (
             <TreeMap
+              height={HEIGHT}
               items={treemapItems}
               onRectangleClick={this.props.handleSelect}
-              height={HEIGHT}
               width={width}
             />
           )}

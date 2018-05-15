@@ -6,11 +6,11 @@ exports[`should render correctly with a "before" range 1`] = `
     Array [
       Object {
         "x": 0,
-        "y": "29.6",
+        "y": 29.6,
       },
       Object {
         "x": 1,
-        "y": "170.8",
+        "y": 170.8,
       },
     ]
   }
@@ -24,7 +24,6 @@ exports[`should render correctly with a "before" range 1`] = `
     ]
   }
   height={80}
-  interpolate="basis"
   padding={
     Array [
       0,
@@ -33,8 +32,6 @@ exports[`should render correctly with a "before" range 1`] = `
       0,
     ]
   }
-  xTicks={Array []}
-  xValues={Array []}
 />
 `;
 
@@ -44,11 +41,11 @@ exports[`should render correctly with an "after" range 1`] = `
     Array [
       Object {
         "x": 0,
-        "y": "360",
+        "y": 360,
       },
       Object {
         "x": 1,
-        "y": "39",
+        "y": 39,
       },
     ]
   }
@@ -62,7 +59,6 @@ exports[`should render correctly with an "after" range 1`] = `
     ]
   }
   height={80}
-  interpolate="basis"
   padding={
     Array [
       0,
@@ -71,7 +67,5 @@ exports[`should render correctly with an "after" range 1`] = `
       0,
     ]
   }
-  xTicks={Array []}
-  xValues={Array []}
 />
 `;

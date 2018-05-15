@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
 import ListFooter from '../ListFooter';
 import { click } from '../../../helpers/testUtils';
 
@@ -33,13 +33,13 @@ it('should not render "show more"', () => {
 });
 
 it('should not render "show more"', () => {
-  const listFooter = shallow(<ListFooter count={5} total={5} loadMore={jest.fn()} />);
+  const listFooter = shallow(<ListFooter count={5} loadMore={jest.fn()} total={5} />);
   expect(listFooter.find('a').length).toBe(0);
 });
 
 it('should "show more"', () => {
   const loadMore = jest.fn();
-  const listFooter = shallow(<ListFooter count={3} total={5} loadMore={loadMore} />);
+  const listFooter = shallow(<ListFooter count={3} loadMore={loadMore} total={5} />);
   const link = listFooter.find('a');
   expect(link.length).toBe(1);
   click(link);

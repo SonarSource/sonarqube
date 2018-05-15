@@ -17,28 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { ERROR, SUCCESS } from '../../store/globalMessages/duck';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { Button } from '../ui/buttons';
 
-export default class GlobalMessages extends React.PureComponent {
-  static propTypes = {
-    messages: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        message: PropTypes.string.isRequired,
-        level: PropTypes.oneOf([ERROR, SUCCESS])
-      })
-    ),
-    closeGlobalMessage: PropTypes.func.isRequired
-  };
+interface Message {
+  id: string;
+  level: 'ERROR' | 'SUCCESS';
+  message: string;
+}
 
-  renderMessage = message => {
+interface Props {
+  closeGlobalMessage: (id: string) => void;
+  messages: Message[];
+}
+
+export default class GlobalMessages extends React.PureComponent<Props> {
+  renderMessage = (message: Message) => {
     const className = classNames('process-spinner', 'shown', {
-      'process-spinner-failed': message.level === ERROR,
-      'process-spinner-success': message.level === SUCCESS
+      'process-spinner-failed': message.level === 'ERROR',
+      'process-spinner-success': message.level === 'SUCCESS'
     });
     return (
       <div className={className} key={message.id}>

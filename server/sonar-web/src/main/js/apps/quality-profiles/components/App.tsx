@@ -31,7 +31,7 @@ interface Props {
   children: React.ReactElement<any>;
   languages: Languages;
   onRequestFail: (reasong: any) => void;
-  organization: { name: string; key: string } | null;
+  organization: { name: string; key: string } | undefined;
 }
 
 interface State {
@@ -113,8 +113,8 @@ export default class App extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <Suggestions suggestions="quality_profiles" />
         <OrganizationHelmet
-          title={translate('quality_profiles.page')}
           organization={this.props.organization}
+          title={translate('quality_profiles.page')}
         />
 
         {this.renderChild()}

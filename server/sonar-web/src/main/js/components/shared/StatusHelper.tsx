@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
-import './LocationMessage.css';
+import * as React from 'react';
+import StatusIcon from './StatusIcon';
+import { translate } from '../../helpers/l10n';
 
-/*::
-type Props = {
-  children?: React.Element<*>,
-  selected: boolean
-};
-*/
+interface Props {
+  className?: string;
+  resolution: string | undefined;
+  status: string;
+}
 
-export default function LocationMessage(props /*: Props */) {
+export default function StatusHelper(props: Props) {
+  const resolution = props.resolution && ` (${translate('issue.resolution', props.resolution)})`;
   return (
-    <div className={classNames('location-message', { selected: props.selected })}>
-      {props.children}
-    </div>
+    <span className={props.className}>
+      <StatusIcon className="little-spacer-right" status={props.status} />
+      {translate('issue.status', props.status)}
+      {resolution}
+    </span>
   );
 }

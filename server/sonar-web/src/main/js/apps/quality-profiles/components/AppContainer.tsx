@@ -26,7 +26,7 @@ import { Languages } from '../../../store/languages/reducer';
 
 interface StateProps {
   languages: Languages;
-  organization: { name: string; key: string } | null;
+  organization: { name: string; key: string } | undefined;
 }
 
 interface DispatchProps {
@@ -37,7 +37,7 @@ const mapStateToProps = (state: any, ownProps: any) => ({
   languages: getLanguages(state),
   organization: ownProps.params.organizationKey
     ? getOrganizationByKey(state, ownProps.params.organizationKey)
-    : null
+    : undefined
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

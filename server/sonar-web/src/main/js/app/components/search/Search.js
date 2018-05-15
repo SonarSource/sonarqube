@@ -29,7 +29,7 @@ import { sortQualifiers } from './utils';
 /*:: import type { Component, More, Results } from './utils'; */
 import RecentHistory from '../../components/RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import ClockIcon from '../../../components/common/ClockIcon';
+import ClockIcon from '../../../components/icons-components/ClockIcon';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import SearchBox from '../../../components/controls/SearchBox';
 import { getSuggestions } from '../../../api/components';

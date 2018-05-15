@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import { RATING_COLORS } from '../../helpers/constants';
 
-export default function ColorRatingsLegend({ className } /*: { className?: string } */) {
+interface Props {
+  className?: string;
+}
+
+export default function ColorRatingsLegend({ className }: Props) {
   return (
     <div className={classNames('color-box-legend', className)}>
       {[1, 2, 3, 4, 5].map(rating => (

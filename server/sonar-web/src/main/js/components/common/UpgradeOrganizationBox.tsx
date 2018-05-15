@@ -17,19 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import { translate, hasMessage } from '../../helpers/l10n';
 import './UpgradeOrganizationBox.css';
 
-/*::
-type Props = {
-  organization: string
-};
-*/
+interface Props {
+  organization: string;
+}
 
-export default function UpgradeOrganizationBox(props /*: Props */) {
+export default function UpgradeOrganizationBox({ organization }: Props) {
   return (
     <div className="boxed-group boxed-group-inner upgrade-organization-box">
       <h3 className="spacer-bottom">{translate('billing.upgrade_box.header')}</h3>
@@ -41,7 +38,7 @@ export default function UpgradeOrganizationBox(props /*: Props */) {
           <Link
             className="button"
             to={{
-              pathname: `organizations/${props.organization}/extension/billing/billing`,
+              pathname: `organizations/${organization}/extension/billing/billing`,
               query: { page: 'upgrade' }
             }}>
             {translate('billing.upgrade_box.button')}

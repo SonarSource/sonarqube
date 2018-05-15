@@ -22,7 +22,7 @@ import { isProvided, getLinkName } from './utils';
 import { ProjectLink } from '../../../app/types';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import DetachIcon from '../../../components/icons-components/DetachIcon';
-import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
+import BugTrackerIcon from '../../../components/icons-components/BugTrackerIcon';
 import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
