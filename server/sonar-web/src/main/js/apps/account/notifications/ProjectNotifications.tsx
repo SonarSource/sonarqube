@@ -17,42 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
 import { Link } from 'react-router';
 import NotificationsList from './NotificationsList';
-import { addNotification, removeNotification } from './actions';
+import { NotificationProject } from './types';
+import { Notification } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
-import {
-  getProjectNotifications,
-  getNotificationChannels,
-  getNotificationPerProjectTypes
-} from '../../../store/rootReducer';
-/*:: import type {
-  Notification,
-  NotificationsState,
-  ChannelsState,
-  TypesState
-} from '../../../store/notifications/duck'; */
 import { getProjectUrl } from '../../../helpers/urls';
 
-class ProjectNotifications extends React.PureComponent {
-  /*:: props: {
-    project: {
-      key: string,
-      name: string,
-      organization: string
-    },
-    notifications: NotificationsState,
-    channels: ChannelsState,
-    types: TypesState,
-    addNotification: (n: Notification) => void,
-    removeNotification: (n: Notification) => void
-  };
-*/
+interface Props {
+  addNotification: (n: Notification) => void;
+  channels: string[];
+  notifications: Notification[];
+  project: NotificationProject;
+  removeNotification: (n: Notification) => void;
+  types: string[];
+}
 
-  handleAddNotification({ channel, type }) {
+export default class ProjectNotifications extends React.PureComponent<Props> {
+  getCheckboxId = (type: string, channel: string) => {
+    return `project-notification-${this.props.project.key}-${type}-${channel}`;
+  };
+
+  handleAddNotification = ({ channel, type }: { channel: string; type: string }) => {
     this.props.addNotification({
       channel,
       type,
@@ -60,21 +48,21 @@ class ProjectNotifications extends React.PureComponent {
       projectName: this.props.project.name,
       organization: this.props.project.organization
     });
-  }
+  };
 
-  handleRemoveNotification({ channel, type }) {
+  handleRemoveNotification = ({ channel, type }: { channel: string; type: string }) => {
     this.props.removeNotification({
       channel,
       type,
       project: this.props.project.key
     });
-  }
+  };
 
   render() {
     const { project, channels } = this.props;
 
     return (
-      <table key={project.key} className="form big-spacer-bottom">
+      <table className="form big-spacer-bottom" key={project.key}>
         <thead>
           <tr>
             <th>
@@ -86,34 +74,22 @@ class ProjectNotifications extends React.PureComponent {
               </h4>
             </th>
             {channels.map(channel => (
-              <th key={channel} className="text-center">
+              <th className="text-center" key={channel}>
                 <h4>{translate('notification.channel', channel)}</h4>
               </th>
             ))}
           </tr>
         </thead>
         <NotificationsList
-          notifications={this.props.notifications}
           channels={this.props.channels}
-          types={this.props.types}
-          checkboxId={(d, c) => `project-notification-${project.key}-${d}-${c}`}
-          onAdd={n => this.handleAddNotification(n)}
-          onRemove={n => this.handleRemoveNotification(n)}
+          checkboxId={this.getCheckboxId}
+          notifications={this.props.notifications}
+          onAdd={this.handleAddNotification}
+          onRemove={this.handleRemoveNotification}
           project={true}
+          types={this.props.types}
         />
       </table>
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  notifications: getProjectNotifications(state, ownProps.project.key),
-  channels: getNotificationChannels(state),
-  types: getNotificationPerProjectTypes(state)
-});
-
-const mapDispatchToProps = { addNotification, removeNotification };
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectNotifications);
-
-export const UnconnectedProjectNotifications = ProjectNotifications;

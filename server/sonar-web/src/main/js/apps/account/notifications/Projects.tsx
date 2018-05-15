@@ -17,93 +17,87 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { connect } from 'react-redux';
-import { differenceBy } from 'lodash';
+import * as React from 'react';
+import { differenceWith } from 'lodash';
 import ProjectNotifications from './ProjectNotifications';
+import { NotificationProject } from './types';
+import { getSuggestions } from '../../../api/components';
+import { Notification } from '../../../app/types';
 import { AsyncSelect } from '../../../components/controls/Select';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
-import { getSuggestions } from '../../../api/components';
-import { getProjectsWithNotifications } from '../../../store/rootReducer';
 
-/*::
-type Props = {
-  projects: Array<{
-    key: string,
-    name: string
-  }>
-};
-*/
+export interface Props {
+  addNotification: (n: Notification) => void;
+  channels: string[];
+  notificationsByProject: { [project: string]: Notification[] };
+  projects: NotificationProject[];
+  removeNotification: (n: Notification) => void;
+  types: string[];
+}
 
-/*::
-type State = {
-  addedProjects: Array<{
-    key: string,
-    name: string
-  }>
-};
-*/
+interface State {
+  addedProjects: NotificationProject[];
+}
 
-class Projects extends React.PureComponent {
-  /*:: props: Props; */
+export default class Projects extends React.PureComponent<Props, State> {
+  state: State = { addedProjects: [] };
 
-  state /*: State */ = {
-    addedProjects: []
-  };
-
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     // remove all projects from `this.state.addedProjects`
     // that already exist in `nextProps.projects`
-    const nextAddedProjects = differenceBy(
-      this.state.addedProjects,
-      nextProps.projects,
-      project => project.key
-    );
-
-    if (nextAddedProjects.length !== this.state.addedProjects) {
-      this.setState({ addedProjects: nextAddedProjects });
-    }
+    this.setState(state => ({
+      addedProjects: differenceWith(
+        state.addedProjects,
+        Object.keys(nextProps.projects),
+        (stateProject, propsProjectKey) => stateProject.key !== propsProjectKey
+      )
+    }));
   }
 
-  loadOptions = (query, cb) => {
+  loadOptions = (query: string) => {
     if (query.length < 2) {
-      cb(null, { options: [] });
-      return;
+      return Promise.resolve({ options: [] });
     }
 
-    getSuggestions(query)
+    return getSuggestions(query)
       .then(r => {
         const projects = r.results.find(domain => domain.q === 'TRK');
         return projects ? projects.items : [];
       })
-      .then(projects =>
-        projects.map(project => ({
-          value: project.key,
-          label: project.name,
-          organization: project.organization
-        }))
-      )
+      .then(projects => {
+        return projects
+          .filter(
+            project =>
+              !this.props.projects.find(p => p.key === project.key) &&
+              !this.state.addedProjects.find(p => p.key === project.key)
+          )
+          .map(project => ({
+            value: project.key,
+            label: project.name,
+            organization: project.organization
+          }));
+      })
       .then(options => {
-        cb(null, { options });
+        return { options };
       });
   };
 
-  handleAddProject = selected => {
+  handleAddProject = (selected: { label: string; organization: string; value: string }) => {
     const project = {
       key: selected.value,
       name: selected.label,
       organization: selected.organization
     };
-    this.setState({
-      addedProjects: [...this.state.addedProjects, project]
-    });
+    this.setState(state => ({
+      addedProjects: [...state.addedProjects, project]
+    }));
   };
 
-  renderOption = option => {
+  renderOption = (option: { label: string; organization: string; value: string }) => {
     return (
       <span>
-        <Organization organizationKey={option.organization} link={false} />
+        <Organization link={false} organizationKey={option.organization} />
         <strong>{option.label}</strong>
       </span>
     );
@@ -121,7 +115,17 @@ class Projects extends React.PureComponent {
             <div className="note">{translate('my_account.no_project_notifications')}</div>
           )}
 
-          {allProjects.map(project => <ProjectNotifications key={project.key} project={project} />)}
+          {allProjects.map(project => (
+            <ProjectNotifications
+              addNotification={this.props.addNotification}
+              channels={this.props.channels}
+              key={project.key}
+              notifications={this.props.notificationsByProject[project.key] || []}
+              project={project}
+              removeNotification={this.props.removeNotification}
+              types={this.props.types}
+            />
+          ))}
 
           <div className="spacer-top panel bg-muted">
             <span className="text-middle spacer-right">
@@ -130,12 +134,12 @@ class Projects extends React.PureComponent {
             <AsyncSelect
               autoload={false}
               cache={false}
-              name="new_project"
-              style={{ width: '300px' }}
+              className="input-super-large"
               loadOptions={this.loadOptions}
               minimumInput={2}
-              optionRenderer={this.renderOption}
+              name="new_project"
               onChange={this.handleAddProject}
+              optionRenderer={this.renderOption}
               placeholder={translate('my_account.search_project')}
             />
           </div>
@@ -144,11 +148,3 @@ class Projects extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  projects: getProjectsWithNotifications(state)
-});
-
-export default connect(mapStateToProps)(Projects);
-
-export const UnconnectedProjects = Projects;

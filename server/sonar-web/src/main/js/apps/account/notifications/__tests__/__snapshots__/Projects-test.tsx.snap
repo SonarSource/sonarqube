@@ -1,0 +1,375 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render option 1`] = `
+<span>
+  <Connect(Organization)
+    link={false}
+    organizationKey="org"
+  />
+  <strong>
+    Qwe
+  </strong>
+</span>
+`;
+
+exports[`should render projects 1`] = `
+<section
+  className="boxed-group"
+>
+  <h2>
+    my_profile.per_project_notifications.title
+  </h2>
+  <div
+    className="boxed-group-inner"
+  >
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="foo"
+      notifications={
+        Array [
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type1",
+          },
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type2",
+          },
+        ]
+      }
+      project={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="bar"
+      notifications={Array []}
+      project={
+        Object {
+          "key": "bar",
+          "name": "Bar",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <div
+      className="spacer-top panel bg-muted"
+    >
+      <span
+        className="text-middle spacer-right"
+      >
+        my_account.set_notifications_for
+        :
+      </span>
+      <AsyncSelect
+        autoload={false}
+        cache={false}
+        className="input-super-large"
+        loadOptions={[Function]}
+        minimumInput={2}
+        name="new_project"
+        onChange={[Function]}
+        optionRenderer={[Function]}
+        placeholder="my_account.search_project"
+      />
+    </div>
+  </div>
+</section>
+`;
+
+exports[`should render projects 2`] = `
+<section
+  className="boxed-group"
+>
+  <h2>
+    my_profile.per_project_notifications.title
+  </h2>
+  <div
+    className="boxed-group-inner"
+  >
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="foo"
+      notifications={
+        Array [
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type1",
+          },
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type2",
+          },
+        ]
+      }
+      project={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="bar"
+      notifications={Array []}
+      project={
+        Object {
+          "key": "bar",
+          "name": "Bar",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="qux"
+      notifications={Array []}
+      project={
+        Object {
+          "key": "qux",
+          "name": "Qux",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <div
+      className="spacer-top panel bg-muted"
+    >
+      <span
+        className="text-middle spacer-right"
+      >
+        my_account.set_notifications_for
+        :
+      </span>
+      <AsyncSelect
+        autoload={false}
+        cache={false}
+        className="input-super-large"
+        loadOptions={[Function]}
+        minimumInput={2}
+        name="new_project"
+        onChange={[Function]}
+        optionRenderer={[Function]}
+        placeholder="my_account.search_project"
+      />
+    </div>
+  </div>
+</section>
+`;
+
+exports[`should render projects 3`] = `
+<section
+  className="boxed-group"
+>
+  <h2>
+    my_profile.per_project_notifications.title
+  </h2>
+  <div
+    className="boxed-group-inner"
+  >
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="foo"
+      notifications={
+        Array [
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type1",
+          },
+          Object {
+            "channel": "channel1",
+            "organization": "org",
+            "project": "foo",
+            "projectName": "Foo",
+            "type": "type2",
+          },
+        ]
+      }
+      project={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="bar"
+      notifications={Array []}
+      project={
+        Object {
+          "key": "bar",
+          "name": "Bar",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <ProjectNotifications
+      addNotification={[MockFunction]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      key="qux"
+      notifications={Array []}
+      project={
+        Object {
+          "key": "qux",
+          "name": "Qux",
+          "organization": "org",
+        }
+      }
+      removeNotification={[MockFunction]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      }
+    />
+    <div
+      className="spacer-top panel bg-muted"
+    >
+      <span
+        className="text-middle spacer-right"
+      >
+        my_account.set_notifications_for
+        :
+      </span>
+      <AsyncSelect
+        autoload={false}
+        cache={false}
+        className="input-super-large"
+        loadOptions={[Function]}
+        minimumInput={2}
+        name="new_project"
+        onChange={[Function]}
+        optionRenderer={[Function]}
+        placeholder="my_account.search_project"
+      />
+    </div>
+  </div>
+</section>
+`;
+
+exports[`should render projects 4`] = `
+Object {
+  "addedProjects": Array [],
+}
+`;

@@ -24,7 +24,6 @@ import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import metrics, * as fromMetrics from './metrics/reducer';
-import notifications, * as fromNotifications from './notifications/duck';
 import organizations, * as fromOrganizations from './organizations/duck';
 import organizationsMembers, * as fromOrganizationsMembers from './organizationsMembers/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
@@ -39,7 +38,6 @@ export default combineReducers({
   languages,
   marketplace,
   metrics,
-  notifications,
   organizations,
   organizationsMembers,
   users,
@@ -88,22 +86,6 @@ export const getMetrics = state => fromMetrics.getMetrics(state.metrics);
 export const getMetricByKey = (state, key) => fromMetrics.getMetricByKey(state.metrics, key);
 
 export const getMetricsKey = state => fromMetrics.getMetricsKey(state.metrics);
-
-export const getGlobalNotifications = state => fromNotifications.getGlobal(state.notifications);
-
-export const getProjectsWithNotifications = state =>
-  fromNotifications.getProjects(state.notifications);
-
-export const getProjectNotifications = (state, project) =>
-  fromNotifications.getForProject(state.notifications, project);
-
-export const getNotificationChannels = state => fromNotifications.getChannels(state.notifications);
-
-export const getNotificationGlobalTypes = state =>
-  fromNotifications.getGlobalTypes(state.notifications);
-
-export const getNotificationPerProjectTypes = state =>
-  fromNotifications.getPerProjectTypes(state.notifications);
 
 export const getOrganizationByKey = (state, key) =>
   fromOrganizations.getOrganizationByKey(state.organizations, key);

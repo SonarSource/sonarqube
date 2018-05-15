@@ -36,7 +36,7 @@ const routes = [
       },
       {
         path: 'notifications',
-        component: lazyLoad(() => import('./notifications/Notifications'))
+        component: lazyLoad(() => import('./notifications/NotificationsContainer'))
       },
       {
         path: 'organizations',

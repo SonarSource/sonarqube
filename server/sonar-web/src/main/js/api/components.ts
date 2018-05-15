@@ -239,7 +239,7 @@ export function getSuggestions(
   if (more) {
     data.more = more;
   }
-  return getJSON('/api/components/suggestions', data);
+  return getJSON('/api/components/suggestions', data).catch(throwGlobalError);
 }
 
 export function getComponentForSourceViewer(

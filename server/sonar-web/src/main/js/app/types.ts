@@ -312,6 +312,14 @@ export interface Metric {
   type: string;
 }
 
+export interface Notification {
+  channel: string;
+  organization?: string;
+  project?: string;
+  projectName?: string;
+  type: string;
+}
+
 export interface Organization {
   adminPages?: { key: string; name: string }[];
   avatar?: string;

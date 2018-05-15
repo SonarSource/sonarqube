@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import { UnconnectedGlobalNotifications } from '../GlobalNotifications';
+import GlobalNotifications from '../GlobalNotifications';
 
 it('should match snapshot', () => {
   const channels = ['channel1', 'channel2'];
@@ -32,12 +32,12 @@ it('should match snapshot', () => {
 
   expect(
     shallow(
-      <UnconnectedGlobalNotifications
-        notifications={notifications}
-        channels={channels}
-        types={types}
+      <GlobalNotifications
         addNotification={jest.fn()}
+        channels={channels}
+        notifications={notifications}
         removeNotification={jest.fn()}
+        types={types}
       />
     )
   ).toMatchSnapshot();

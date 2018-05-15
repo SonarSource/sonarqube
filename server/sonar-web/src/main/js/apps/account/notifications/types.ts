@@ -17,24 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import { UnconnectedProjects } from '../Projects';
-
-const projects = [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }];
-
-const newProject = { key: 'qux', name: 'Qux' };
-
-it('should render projects', () => {
-  const wrapper = shallow(<UnconnectedProjects projects={projects} />);
-  expect(wrapper).toMatchSnapshot();
-
-  // let's add a new project
-  wrapper.setState({ addedProjects: [newProject] });
-  expect(wrapper).toMatchSnapshot();
-
-  // let's say we saved it, so it's passed back in `props`
-  wrapper.setProps({ projects: [...projects, newProject] });
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.state()).toMatchSnapshot();
-});
+export interface NotificationProject {
+  key: string;
+  name: string;
+  organization: string;
+}

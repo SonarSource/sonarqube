@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import { UnconnectedProjectNotifications } from '../ProjectNotifications';
-import NotificationsList from '../NotificationsList';
+import ProjectNotifications from '../ProjectNotifications';
 
 const channels = ['channel1', 'channel2'];
 const types = ['type1', 'type2'];
@@ -33,13 +32,13 @@ const notifications = [
 it('should match snapshot', () => {
   expect(
     shallow(
-      <UnconnectedProjectNotifications
-        project={{ key: 'foo', name: 'Foo' }}
-        notifications={notifications}
-        channels={channels}
-        types={types}
+      <ProjectNotifications
         addNotification={jest.fn()}
+        channels={channels}
+        notifications={notifications}
+        project={{ key: 'foo', name: 'Foo', organization: 'org' }}
         removeNotification={jest.fn()}
+        types={types}
       />
     )
   ).toMatchSnapshot();
@@ -49,28 +48,29 @@ it('should call `addNotification` and `removeNotification`', () => {
   const addNotification = jest.fn();
   const removeNotification = jest.fn();
   const wrapper = shallow(
-    <UnconnectedProjectNotifications
-      project={{ key: 'foo', name: 'Foo' }}
-      notifications={notifications}
-      channels={channels}
-      types={types}
+    <ProjectNotifications
       addNotification={addNotification}
+      channels={channels}
+      notifications={notifications}
+      project={{ key: 'foo', name: 'Foo', organization: 'org' }}
       removeNotification={removeNotification}
+      types={types}
     />
   );
-  const notificationsList = wrapper.find(NotificationsList);
+  const notificationsList = wrapper.find('NotificationsList');
 
-  notificationsList.prop('onAdd')({ channel: 'channel2', type: 'type1' });
+  notificationsList.prop<Function>('onAdd')({ channel: 'channel2', type: 'type1' });
   expect(addNotification).toHaveBeenCalledWith({
     channel: 'channel2',
-    type: 'type1',
+    organization: 'org',
     project: 'foo',
-    projectName: 'Foo'
+    projectName: 'Foo',
+    type: 'type1'
   });
 
   jest.resetAllMocks();
 
-  notificationsList.prop('onRemove')({ channel: 'channel1', type: 'type1' });
+  notificationsList.prop<Function>('onRemove')({ channel: 'channel1', type: 'type1' });
   expect(removeNotification).toHaveBeenCalledWith({
     channel: 'channel1',
     type: 'type1',

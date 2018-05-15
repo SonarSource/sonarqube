@@ -17,35 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
+import { Notification } from '../../../app/types';
 import Checkbox from '../../../components/controls/Checkbox';
 import { translate, hasMessage } from '../../../helpers/l10n';
-/*:: import type {
-  Notification,
-  NotificationsState,
-  ChannelsState,
-  TypesState
-} from '../../../store/notifications/duck'; */
 
-export default class NotificationsList extends React.PureComponent {
-  /*:: props: {
-    onAdd: (n: Notification) => void,
-    onRemove: (n: Notification) => void,
-    channels: ChannelsState,
-    checkboxId: (string, string) => string,
-    project?: boolean,
-    types: TypesState,
-    notifications: NotificationsState
-  };
-*/
+interface Props {
+  onAdd: (n: Notification) => void;
+  onRemove: (n: Notification) => void;
+  channels: string[];
+  checkboxId: (type: string, channel: string) => string;
+  project?: boolean;
+  types: string[];
+  notifications: Notification[];
+}
 
-  isEnabled(type /*: string */, channel /*: string */) /*: boolean */ {
+export default class NotificationsList extends React.PureComponent<Props> {
+  isEnabled(type: string, channel: string) {
     return !!this.props.notifications.find(
       notification => notification.type === type && notification.channel === channel
     );
   }
 
-  handleCheck(type /*: string */, channel /*: string */, checked /*: boolean */) {
+  handleCheck(type: string, channel: string, checked: boolean) {
     if (checked) {
       this.props.onAdd({ type, channel });
     } else {
@@ -53,7 +47,7 @@ export default class NotificationsList extends React.PureComponent {
     }
   }
 
-  getDispatcherLabel(dispatcher /*: string */) {
+  getDispatcherLabel(dispatcher: string) {
     const globalMessageKey = ['notification.dispatcher', dispatcher];
     const projectMessageKey = [...globalMessageKey, 'project'];
     const shouldUseProjectMessage = this.props.project && hasMessage(...projectMessageKey);
@@ -71,7 +65,7 @@ export default class NotificationsList extends React.PureComponent {
           <tr key={type}>
             <td>{this.getDispatcherLabel(type)}</td>
             {channels.map(channel => (
-              <td key={channel} className="text-center">
+              <td className="text-center" key={channel}>
                 <Checkbox
                   checked={this.isEnabled(type, channel)}
                   id={checkboxId(type, channel)}

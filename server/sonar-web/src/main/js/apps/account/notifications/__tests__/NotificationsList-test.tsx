@@ -24,7 +24,7 @@ jest.mock('../../../../helpers/l10n', () => {
   return l10n;
 });
 
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import NotificationsList from '../NotificationsList';
 import Checkbox from '../../../../components/controls/Checkbox';
@@ -37,39 +37,39 @@ const notifications = [
   { channel: 'channel1', type: 'type2' },
   { channel: 'channel2', type: 'type2' }
 ];
-const checkboxId = (t, c) => `checkbox-io-${t}-${c}`;
+const checkboxId = (t: string, c: string) => `checkbox-io-${t}-${c}`;
 
 beforeEach(() => {
-  hasMessage.mockImplementation(() => false).mockClear();
+  (hasMessage as jest.Mock<any>).mockImplementation(() => false).mockClear();
 });
 
 it('should match snapshot', () => {
   expect(
     shallow(
       <NotificationsList
-        onAdd={jest.fn()}
-        onRemove={jest.fn()}
         channels={channels}
         checkboxId={checkboxId}
-        types={types}
         notifications={notifications}
+        onAdd={jest.fn()}
+        onRemove={jest.fn()}
+        types={types}
       />
     )
   ).toMatchSnapshot();
 });
 
 it('renders project-specific labels', () => {
-  hasMessage.mockImplementation(() => true);
+  (hasMessage as jest.Mock<any>).mockImplementation(() => true);
   expect(
     shallow(
       <NotificationsList
-        onAdd={jest.fn()}
-        onRemove={jest.fn()}
         channels={channels}
         checkboxId={checkboxId}
+        notifications={notifications}
+        onAdd={jest.fn()}
+        onRemove={jest.fn()}
         project={true}
         types={types}
-        notifications={notifications}
       />
     )
   ).toMatchSnapshot();
@@ -82,12 +82,12 @@ it('should call `onAdd` and `onRemove`', () => {
   const onRemove = jest.fn();
   const wrapper = shallow(
     <NotificationsList
-      onAdd={onAdd}
-      onRemove={onRemove}
       channels={channels}
       checkboxId={checkboxId}
-      types={types}
       notifications={notifications}
+      onAdd={onAdd}
+      onRemove={onRemove}
+      types={types}
     />
   );
   const checkbox = wrapper.find(Checkbox).first();

@@ -60,6 +60,6 @@ export function Creatable(props: ReactCreatableSelectProps) {
 }
 
 // TODO figure out why `ref` prop is incompatible
-export function AsyncSelect(props: ReactAsyncSelectProps & { ref: any }) {
+export function AsyncSelect(props: ReactAsyncSelectProps & { ref?: any }) {
   return <Async {...props} />;
 }
