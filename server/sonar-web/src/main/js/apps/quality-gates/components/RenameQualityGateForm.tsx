@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { renameQualityGate } from '../../../api/quality-gates';
-import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { QualityGate } from '../../../app/types';
 
 interface Props {
+  onClose: () => void;
   onRename: () => Promise<void>;
   organization?: string;
   qualityGate: QualityGate;
@@ -44,7 +44,7 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
     this.setState({ name: event.currentTarget.value });
   };
 
-  onRename = () => {
+  handleRename = () => {
     const { qualityGate, organization } = this.props;
     const { name } = this.state;
 
@@ -63,35 +63,29 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
     const confirmDisable = !name || (qualityGate && qualityGate.name === name);
 
     return (
-      <ConfirmButton
+      <ConfirmModal
         confirmButtonText={translate('rename')}
         confirmDisable={confirmDisable}
-        modalBody={
-          <div className="modal-field">
-            <label htmlFor="quality-gate-form-name">
-              {translate('name')}
-              <em className="mandatory">*</em>
-            </label>
-            <input
-              autoFocus={true}
-              id="quality-gate-form-name"
-              maxLength={100}
-              onChange={this.handleNameChange}
-              required={true}
-              size={50}
-              type="text"
-              value={name}
-            />
-          </div>
-        }
-        modalHeader={translate('quality_gates.rename')}
-        onConfirm={this.onRename}>
-        {({ onClick }) => (
-          <Button id="quality-gate-rename" onClick={onClick}>
-            {translate('rename')}
-          </Button>
-        )}
-      </ConfirmButton>
+        header={translate('quality_gates.rename')}
+        onClose={this.props.onClose}
+        onConfirm={this.handleRename}>
+        <div className="modal-field">
+          <label htmlFor="quality-gate-form-name">
+            {translate('name')}
+            <em className="mandatory">*</em>
+          </label>
+          <input
+            autoFocus={true}
+            id="quality-gate-form-name"
+            maxLength={100}
+            onChange={this.handleNameChange}
+            required={true}
+            size={50}
+            type="text"
+            value={name}
+          />
+        </div>
+      </ConfirmModal>
     );
   }
 }

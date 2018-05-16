@@ -20,13 +20,13 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { copyQualityGate } from '../../../api/quality-gates';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { Button } from '../../../components/ui/buttons';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { QualityGate } from '../../../app/types';
 
 interface Props {
+  onClose: () => void;
   onCopy: () => Promise<void>;
   organization?: string;
   qualityGate: QualityGate;
@@ -50,7 +50,7 @@ export default class CopyQualityGateForm extends React.PureComponent<Props, Stat
     this.setState({ name: event.currentTarget.value });
   };
 
-  onCopy = () => {
+  handleCopy = () => {
     const { qualityGate, organization } = this.props;
     const { name } = this.state;
 
@@ -70,35 +70,29 @@ export default class CopyQualityGateForm extends React.PureComponent<Props, Stat
     const confirmDisable = !name || (qualityGate && qualityGate.name === name);
 
     return (
-      <ConfirmButton
+      <ConfirmModal
         confirmButtonText={translate('copy')}
         confirmDisable={confirmDisable}
-        modalBody={
-          <div className="modal-field">
-            <label htmlFor="quality-gate-form-name">
-              {translate('name')}
-              <em className="mandatory">*</em>
-            </label>
-            <input
-              autoFocus={true}
-              id="quality-gate-form-name"
-              maxLength={100}
-              onChange={this.handleNameChange}
-              required={true}
-              size={50}
-              type="text"
-              value={name}
-            />
-          </div>
-        }
-        modalHeader={translate('quality_gates.copy')}
-        onConfirm={this.onCopy}>
-        {({ onClick }) => (
-          <Button className="little-spacer-left" id="quality-gate-copy" onClick={onClick}>
-            {translate('copy')}
-          </Button>
-        )}
-      </ConfirmButton>
+        header={translate('quality_gates.copy')}
+        onClose={this.props.onClose}
+        onConfirm={this.handleCopy}>
+        <div className="modal-field">
+          <label htmlFor="quality-gate-form-name">
+            {translate('name')}
+            <em className="mandatory">*</em>
+          </label>
+          <input
+            autoFocus={true}
+            id="quality-gate-form-name"
+            maxLength={100}
+            onChange={this.handleNameChange}
+            required={true}
+            size={50}
+            type="text"
+            value={name}
+          />
+        </div>
+      </ConfirmModal>
     );
   }
 }

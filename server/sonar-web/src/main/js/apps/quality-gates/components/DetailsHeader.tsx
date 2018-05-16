@@ -22,15 +22,16 @@ import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import RenameQualityGateForm from './RenameQualityGateForm';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
+import ModalButton from '../../../components/controls/ModalButton';
 import { setQualityGateAsDefault } from '../../../api/quality-gates';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { QualityGate } from '../../../app/types';
 
 interface Props {
+  onSetDefault: () => void;
   organization?: string;
   qualityGate: QualityGate;
-  onSetDefault: () => void;
   refreshItem: () => Promise<void>;
   refreshList: () => Promise<void>;
 }
@@ -67,18 +68,38 @@ export default class DetailsHeader extends React.PureComponent<Props> {
 
             <div className="pull-right">
               {actions.rename && (
-                <RenameQualityGateForm
-                  onRename={this.handleActionRefresh}
-                  organization={organization}
-                  qualityGate={qualityGate}
-                />
+                <ModalButton
+                  modal={({ onClose }) => (
+                    <RenameQualityGateForm
+                      onClose={onClose}
+                      onRename={this.handleActionRefresh}
+                      organization={organization}
+                      qualityGate={qualityGate}
+                    />
+                  )}>
+                  {({ onClick }) => (
+                    <Button id="quality-gate-rename" onClick={onClick}>
+                      {translate('rename')}
+                    </Button>
+                  )}
+                </ModalButton>
               )}
               {actions.copy && (
-                <CopyQualityGateForm
-                  onCopy={this.handleActionRefresh}
-                  organization={organization}
-                  qualityGate={qualityGate}
-                />
+                <ModalButton
+                  modal={({ onClose }) => (
+                    <CopyQualityGateForm
+                      onClose={onClose}
+                      onCopy={this.handleActionRefresh}
+                      organization={organization}
+                      qualityGate={qualityGate}
+                    />
+                  )}>
+                  {({ onClick }) => (
+                    <Button className="little-spacer-left" id="quality-gate-copy" onClick={onClick}>
+                      {translate('copy')}
+                    </Button>
+                  )}
+                </ModalButton>
               )}
               {actions.setAsDefault && (
                 <Button
@@ -90,7 +111,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
               )}
               {actions.delete && (
                 <DeleteQualityGateForm
-                  onDelete={this.handleActionRefresh}
+                  onDelete={this.props.refreshList}
                   organization={organization}
                   qualityGate={qualityGate}
                 />

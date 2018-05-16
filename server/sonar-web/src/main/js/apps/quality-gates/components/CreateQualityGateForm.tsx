@@ -20,12 +20,12 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { createQualityGate } from '../../../api/quality-gates';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { Button } from '../../../components/ui/buttons';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
 interface Props {
+  onClose: () => void;
   onCreate: () => Promise<void>;
   organization?: string;
 }
@@ -65,35 +65,29 @@ export default class CreateQualityGateForm extends React.PureComponent<Props, St
   render() {
     const { name } = this.state;
     return (
-      <ConfirmButton
+      <ConfirmModal
         confirmButtonText={translate('save')}
         confirmDisable={!name}
-        modalBody={
-          <div className="modal-field">
-            <label htmlFor="quality-gate-form-name">
-              {translate('name')}
-              <em className="mandatory">*</em>
-            </label>
-            <input
-              autoFocus={true}
-              id="quality-gate-form-name"
-              maxLength={100}
-              onChange={this.handleNameChange}
-              required={true}
-              size={50}
-              type="text"
-              value={name}
-            />
-          </div>
-        }
-        modalHeader={translate('quality_gates.create')}
+        header={translate('quality_gates.create')}
+        onClose={this.props.onClose}
         onConfirm={this.handleCreate}>
-        {({ onClick }) => (
-          <Button id="quality-gate-add" onClick={onClick}>
-            {translate('create')}
-          </Button>
-        )}
-      </ConfirmButton>
+        <div className="modal-field">
+          <label htmlFor="quality-gate-form-name">
+            {translate('name')}
+            <em className="mandatory">*</em>
+          </label>
+          <input
+            autoFocus={true}
+            id="quality-gate-form-name"
+            maxLength={100}
+            onChange={this.handleNameChange}
+            required={true}
+            size={50}
+            type="text"
+            value={name}
+          />
+        </div>
+      </ConfirmModal>
     );
   }
 }

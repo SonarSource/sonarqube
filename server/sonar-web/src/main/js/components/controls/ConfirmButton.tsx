@@ -18,15 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SimpleModal from './SimpleModal';
-import DeferredSpinner from '../common/DeferredSpinner';
-import { translate } from '../../helpers/l10n';
-import { SubmitButton, ResetButtonLink } from '../ui/buttons';
+import ModalButton, { ChildrenProps, ModalProps } from './ModalButton';
+import ConfirmModal from './ConfirmModal';
 
-export interface ChildrenProps {
-  onClick: () => void;
-  onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-}
+export { ChildrenProps } from './ModalButton';
 
 interface Props {
   children: (props: ChildrenProps) => React.ReactNode;
@@ -44,82 +39,22 @@ interface State {
 }
 
 export default class ConfirmButton extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { modal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleButtonClick = () => {
-    this.setState({ modal: true });
-  };
-
-  handleFormSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
-    if (event) {
-      event.preventDefault();
-    }
-    this.setState({ modal: true });
-  };
-
-  handleSubmit = () => {
-    const result = this.props.onConfirm(this.props.confirmData);
-    if (result) {
-      return result.then(this.handleCloseModal, () => {});
-    } else {
-      this.handleCloseModal();
-      return undefined;
-    }
-  };
-
-  handleCloseModal = () => {
-    if (this.mounted) {
-      this.setState({ modal: false });
-    }
+  renderConfirmModal = ({ onClose }: ModalProps) => {
+    return (
+      <ConfirmModal
+        confirmButtonText={this.props.confirmButtonText}
+        confirmData={this.props.confirmData}
+        confirmDisable={this.props.confirmDisable}
+        header={this.props.modalHeader}
+        isDestructive={this.props.isDestructive}
+        onClose={onClose}
+        onConfirm={this.props.onConfirm}>
+        {this.props.modalBody}
+      </ConfirmModal>
+    );
   };
 
   render() {
-    const { confirmButtonText, confirmDisable, isDestructive, modalBody, modalHeader } = this.props;
-
-    return (
-      <>
-        {this.props.children({
-          onClick: this.handleButtonClick,
-          onFormSubmit: this.handleFormSubmit
-        })}
-        {this.state.modal && (
-          <SimpleModal
-            header={modalHeader}
-            onClose={this.handleCloseModal}
-            onSubmit={this.handleSubmit}>
-            {({ onCloseClick, onFormSubmit, submitting }) => (
-              <form onSubmit={onFormSubmit}>
-                <header className="modal-head">
-                  <h2>{modalHeader}</h2>
-                </header>
-
-                <div className="modal-body">{modalBody}</div>
-
-                <footer className="modal-foot">
-                  <DeferredSpinner className="spacer-right" loading={submitting} />
-                  <SubmitButton
-                    className={isDestructive ? 'button-red' : undefined}
-                    disabled={submitting || confirmDisable}>
-                    {confirmButtonText}
-                  </SubmitButton>
-                  <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-                    {translate('cancel')}
-                  </ResetButtonLink>
-                </footer>
-              </form>
-            )}
-          </SimpleModal>
-        )}
-      </>
-    );
+    return <ModalButton modal={this.renderConfirmModal}>{this.props.children}</ModalButton>;
   }
 }

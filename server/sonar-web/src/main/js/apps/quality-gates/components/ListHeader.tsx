@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from '../../../components/ui/buttons';
 import CreateQualityGateForm from '../components/CreateQualityGateForm';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import ModalButton from '../../../components/controls/ModalButton';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -33,7 +35,20 @@ export default function ListHeader({ canCreate, refreshQualityGates, organizatio
     <header className="page-header">
       {canCreate && (
         <div className="page-actions">
-          <CreateQualityGateForm onCreate={refreshQualityGates} organization={organization} />
+          <ModalButton
+            modal={({ onClose }) => (
+              <CreateQualityGateForm
+                onClose={onClose}
+                onCreate={refreshQualityGates}
+                organization={organization}
+              />
+            )}>
+            {({ onClick }) => (
+              <Button id="quality-gate-add" onClick={onClick}>
+                {translate('create')}
+              </Button>
+            )}
+          </ModalButton>
         </div>
       )}
 
