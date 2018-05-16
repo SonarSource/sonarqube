@@ -41,7 +41,7 @@
     inner join metrics m on m.id = lm.metric_id
     inner join projects p on p.uuid = lm.component_uuid
     inner join project_branches b on b.uuid = p.uuid
-    where
+    <where>
     m.name = #{ncloc, jdbcType=VARCHAR}
     and p.enabled = ${_true}
     and p.scope = 'PRJ'
@@ -49,6 +49,10 @@
     and p.copy_component_uuid is null
     and b.branch_type = #{branchType, jdbcType=VARCHAR}
     and b.key_type = #{branch, jdbcType=VARCHAR}
+    <if test="projectUuidToExclude != null">
+      and b.project_uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
+    </if>
+    </where>
     group by b.project_uuid
     ) sumncloc
   </select>

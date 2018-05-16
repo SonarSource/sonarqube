@@ -24,8 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.task.container.TaskContainer;
 import org.sonar.server.computation.task.container.TaskContainerImpl;
 
 import static org.mockito.Mockito.mock;
@@ -39,11 +37,8 @@ public class ReportComputationStepsTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Component not found: " + ExtractReportStep.class);
 
-    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(new ComponentContainer(), new ContainerPopulator<TaskContainer>() {
-      @Override
-      public void populateContainer(TaskContainer container) {
-        // do nothing
-      }
+    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(new ComponentContainer(), container -> {
+      // do nothing
     });
 
     Lists.newArrayList(new ReportComputationSteps(computeEngineContainer).instances());
@@ -60,11 +55,8 @@ public class ReportComputationStepsTest {
         addSingleton(reportExtractionStep);
       }
     };
-    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, new ContainerPopulator<TaskContainer>() {
-      @Override
-      public void populateContainer(TaskContainer container) {
-        // do nothing
-      }
+    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, container -> {
+      // do nothing
     });
 
     Lists.newArrayList(new ReportComputationSteps(computeEngineContainer).instances());

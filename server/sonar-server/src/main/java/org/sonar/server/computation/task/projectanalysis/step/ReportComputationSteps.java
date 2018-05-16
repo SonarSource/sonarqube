@@ -25,6 +25,7 @@ import org.sonar.server.computation.task.container.TaskContainer;
 import org.sonar.server.computation.task.projectanalysis.filemove.FileMoveDetectionStep;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.computation.task.step.ExecuteStatelessInitExtensionsStep;
+import org.sonar.server.computation.task.step.PostMeasuresComputationChecksStep;
 
 /**
  * Ordered list of steps classes and instances to be executed for batch processing
@@ -69,6 +70,8 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     LoadMeasureComputersStep.class,
     ExecuteVisitorsStep.class,
+
+    PostMeasuresComputationChecksStep.class,
 
     // Must be executed after computation of all measures
     ComputeMeasureVariationsStep.class,

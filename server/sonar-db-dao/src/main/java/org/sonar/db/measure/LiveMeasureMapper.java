@@ -46,7 +46,8 @@ public interface LiveMeasureMapper {
   Long sumNclocOfBiggestLongLivingBranch(
     @Param("ncloc") String nclocKey,
     @Param("branch") KeyType branchOrPullRequest,
-    @Param("branchType") BranchType branchType);
+    @Param("branchType") BranchType branchType,
+    @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
 
   void insert(
     @Param("dto") LiveMeasureDto dto,
