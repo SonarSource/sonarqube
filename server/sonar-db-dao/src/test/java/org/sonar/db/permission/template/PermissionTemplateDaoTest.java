@@ -19,7 +19,6 @@
  */
 package org.sonar.db.permission.template;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -307,25 +306,28 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto template1 = templateDb.insertTemplate();
     PermissionTemplateDto template2 = templateDb.insertTemplate();
     PermissionTemplateDto template3 = templateDb.insertTemplate();
+    PermissionTemplateDto anotherTemplate = templateDb.insertTemplate();
 
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
 
-    templateDb.addUserToTemplate(42L, user1.getId(), ISSUE_ADMIN);
     templateDb.addUserToTemplate(template1.getId(), user1.getId(), ADMIN);
     templateDb.addUserToTemplate(template1.getId(), user2.getId(), ADMIN);
     templateDb.addUserToTemplate(template1.getId(), user3.getId(), ADMIN);
     templateDb.addUserToTemplate(template1.getId(), user1.getId(), USER);
     templateDb.addUserToTemplate(template2.getId(), user1.getId(), USER);
+    templateDb.addUserToTemplate(anotherTemplate.getId(), user1.getId(), ISSUE_ADMIN);
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
     underTest.usersCountByTemplateIdAndPermission(dbSession, asList(template1.getId(), template2.getId(), template3.getId()),
       context -> result.add(context.getResultObject()));
-    assertThat(result).hasSize(3);
-    assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
-    assertThat(result).extracting("templateId").containsOnly(template1.getId(), template2.getId());
-    assertThat(result).extracting("count").containsOnly(3, 1);
+    assertThat(result)
+      .extracting(CountByTemplateAndPermissionDto::getPermission, CountByTemplateAndPermissionDto::getTemplateId, CountByTemplateAndPermissionDto::getCount)
+      .containsExactlyInAnyOrder(
+        tuple(ADMIN, template1.getId(), 3),
+        tuple(USER, template1.getId(), 1),
+        tuple(USER, template2.getId(), 1));
   }
 
   @Test
