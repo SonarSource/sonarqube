@@ -134,7 +134,7 @@ public class BranchDto {
     return this;
   }
 
-  BranchDto setKeyType(@Nullable KeyType keyType) {
+  BranchDto setKeyType(KeyType keyType) {
     this.keyType = keyType;
     return this;
   }
@@ -143,7 +143,7 @@ public class BranchDto {
     return branchType;
   }
 
-  public BranchDto setBranchType(@Nullable BranchType b) {
+  public BranchDto setBranchType(BranchType b) {
     this.branchType = b;
     return this;
   }
