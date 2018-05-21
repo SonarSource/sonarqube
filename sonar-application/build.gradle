@@ -5,6 +5,8 @@ sonarqube {
 }
 
 configurations {
+  zip
+
   ce
   jsw
   scanner
@@ -75,6 +77,7 @@ jar {
 task zip(type: Zip) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$version"
+
   into("${archiveDir}/") {
     from file('src/main/assembly')
     exclude 'elasticsearch/modules/lang-expression/**'
@@ -149,6 +152,8 @@ task cleanLocalUnzippedDir(dependsOn: zip) {
   }
 }
 assemble.dependsOn cleanLocalUnzippedDir
+
+artifacts { zip zip }
 
 artifactoryPublish.skip = false
 

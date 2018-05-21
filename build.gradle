@@ -12,6 +12,11 @@ buildscript {
     classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
     classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
+    // BuildInfo plugin is broken for 4.7.2 :
+    // https://github.com/gradle/gradle/issues/4783#issuecomment-386720873
+    // https://github.com/JFrogDev/build-info/issues/165
+    // https://www.jfrog.com/jira/browse/GAP-288
+    // https://www.jfrog.com/jira/browse/GAP-289
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.6.2'
     classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2'
   }
