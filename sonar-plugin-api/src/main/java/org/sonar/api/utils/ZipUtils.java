@@ -85,12 +85,13 @@ public final class ZipUtils {
       FileUtils.forceMkdir(toDir);
     }
 
+    Path targetDirNormalizedPath = toDir.toPath().normalize();
     ZipInputStream zipStream = new ZipInputStream(stream);
     try {
       ZipEntry entry;
       while ((entry = zipStream.getNextEntry()) != null) {
         if (filter.test(entry)) {
-          unzipEntry(entry, zipStream, toDir);
+          unzipEntry(entry, zipStream, targetDirNormalizedPath);
         }
       }
       return toDir;
@@ -100,9 +101,9 @@ public final class ZipUtils {
     }
   }
 
-  private static void unzipEntry(ZipEntry entry, ZipInputStream zipStream, File toDir) throws IOException {
-    File to = new File(toDir, entry.getName());
-    verifyInsideTargetDirectory(entry, to.toPath(), toDir.toPath());
+  private static void unzipEntry(ZipEntry entry, ZipInputStream zipStream, Path targetDirNormalized) throws IOException {
+    File to = targetDirNormalized.resolve(entry.getName()).toFile();
+    verifyInsideTargetDirectory(entry, to.toPath(), targetDirNormalized);
 
     if (entry.isDirectory()) {
       throwExceptionIfDirectoryIsNotCreatable(to);
@@ -245,8 +246,8 @@ public final class ZipUtils {
     }
   }
 
-  private static void verifyInsideTargetDirectory(ZipEntry entry, Path entryPath, Path targetDirPath) {
-    if (!entryPath.normalize().startsWith(targetDirPath.normalize())) {
+  private static void verifyInsideTargetDirectory(ZipEntry entry, Path entryPath, Path targetDirNormalizedPath) {
+    if (!entryPath.normalize().startsWith(targetDirNormalizedPath)) {
       // vulnerability - trying to create a file outside the target directory
       throw new IllegalStateException("Unzipping an entry outside the target directory is not allowed: " + entry.getName());
     }
