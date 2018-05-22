@@ -55,9 +55,14 @@ function isMeasured(state: State): state is OwnState & Measurements {
 }
 
 export default function Tooltip(props: Props) {
-  // allows to pass `undefined` to `overlay` to avoid rendering a tooltip
-  // can useful in some cases to render the tooltip conditionally
-  return props.overlay !== undefined ? <TooltipInner {...props} /> : props.children;
+  // overlay is a ReactNode, so it can be `undefined` or `null`
+  // this allows to easily render a tooltip conditionally
+  // more generaly we avoid rendering empty tooltips
+  return props.overlay != null && props.overlay !== '' ? (
+    <TooltipInner {...props} />
+  ) : (
+    props.children
+  );
 }
 
 export class TooltipInner extends React.Component<Props, State> {

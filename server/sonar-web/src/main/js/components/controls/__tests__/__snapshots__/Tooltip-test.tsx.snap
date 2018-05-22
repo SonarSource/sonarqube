@@ -1,5 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render empty tooltips 1`] = `
+<div
+  id="tooltip"
+/>
+`;
+
+exports[`should not render empty tooltips 2`] = `
+<div
+  id="tooltip"
+/>
+`;
+
 exports[`should open & close 1`] = `
 <React.Fragment>
   <div

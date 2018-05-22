@@ -70,3 +70,20 @@ it('should not render tooltip without overlay', () => {
   );
   expect(wrapper.type()).toBe('div');
 });
+
+it('should not render empty tooltips', () => {
+  expect(
+    shallow(
+      <Tooltip overlay={undefined} visible={true}>
+        <div id="tooltip" />
+      </Tooltip>
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <Tooltip overlay="" visible={true}>
+        <div id="tooltip" />
+      </Tooltip>
+    )
+  ).toMatchSnapshot();
+});
