@@ -42,3 +42,10 @@ it('falls back to dummy avatar', () => {
   );
   expect(avatar).toMatchSnapshot();
 });
+
+it('do not fail when name is missing', () => {
+  const avatar = shallow(
+    <Avatar enableGravatar={false} gravatarServerUrl="" name={undefined} size={30} />
+  );
+  expect(avatar.getElement()).toBeNull();
+});

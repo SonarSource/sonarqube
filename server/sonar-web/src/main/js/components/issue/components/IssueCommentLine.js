@@ -89,10 +89,10 @@ export default class IssueCommentLine extends React.PureComponent {
           <Avatar
             className="little-spacer-right"
             hash={comment.authorAvatar}
-            name={comment.authorName}
+            name={comment.authorName || comment.author}
             size={16}
           />
-          {comment.authorName}
+          {comment.authorName || comment.author}
         </div>
         <div
           className="issue-comment-text markdown"

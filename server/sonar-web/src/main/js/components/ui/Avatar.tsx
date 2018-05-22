@@ -28,12 +28,15 @@ interface Props {
   enableGravatar: boolean;
   gravatarServerUrl: string;
   hash?: string;
-  name: string;
+  name?: string;
   size: number;
 }
 
 function Avatar(props: Props) {
   if (!props.enableGravatar || !props.hash) {
+    if (!props.name) {
+      return null;
+    }
     return <GenericAvatar className={props.className} name={props.name} size={props.size} />;
   }
 
@@ -43,11 +46,11 @@ function Avatar(props: Props) {
 
   return (
     <img
+      alt={props.name}
       className={classNames(props.className, 'rounded')}
+      height={props.size}
       src={url}
       width={props.size}
-      height={props.size}
-      alt={props.name}
     />
   );
 }
