@@ -177,6 +177,7 @@ ul.modal-head-metadata li {
   line-height: 1;
 }
 
+.modal-field a.icon-checkbox,
 .modal-field input,
 .modal-large-field input,
 .modal-field select,
@@ -187,6 +188,10 @@ ul.modal-head-metadata li {
 .modal-large-field .Select {
   margin-right: 5px;
   margin-bottom: 10px;
+}
+
+.modal-field a.icon-checkbox {
+  height: 24px;
 }
 
 .modal-field input[type='radio'],

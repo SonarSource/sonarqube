@@ -21,7 +21,7 @@ import * as React from 'react';
 import ConditionOperator from './ConditionOperator';
 import Period from './Period';
 import ConditionModal from './ConditionModal';
-import DeleteConditionForm from './DeleteConditionForm';
+import DeleteConditionModalForm from './DeleteConditionModalForm';
 import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
@@ -38,6 +38,7 @@ interface Props {
 }
 
 interface State {
+  deleteFormOpen: boolean;
   error: string;
   modal: boolean;
   op?: string;
@@ -49,11 +50,12 @@ export default class Condition extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      period: props.condition.period,
+      deleteFormOpen: false,
+      error: props.condition.error || '',
       modal: false,
       op: props.condition.op,
-      warning: props.condition.warning || '',
-      error: props.condition.error || ''
+      period: props.condition.period,
+      warning: props.condition.warning || ''
     };
   }
 
@@ -68,6 +70,10 @@ export default class Condition extends React.PureComponent<Props, State> {
   handleOpenUpdate = () => this.setState({ modal: true });
 
   handleUpdateClose = () => this.setState({ modal: false });
+
+  handleDeleteClick = () => this.setState({ deleteFormOpen: true });
+
+  closeDeleteForm = () => this.setState({ deleteFormOpen: false });
 
   render() {
     const { condition, canEdit, metric, organization, qualityGate } = this.props;
@@ -98,12 +104,12 @@ export default class Condition extends React.PureComponent<Props, State> {
               <ActionsDropdownItem className="js-condition-update" onClick={this.handleOpenUpdate}>
                 {translate('update_details')}
               </ActionsDropdownItem>
-              <DeleteConditionForm
-                condition={condition}
-                metric={metric}
-                onDelete={this.props.onRemoveCondition}
-                organization={organization}
-              />
+              <ActionsDropdownItem
+                destructive={true}
+                id="condition-delete"
+                onClick={this.handleDeleteClick}>
+                {translate('delete')}
+              </ActionsDropdownItem>
             </ActionsDropdown>
             {this.state.modal && (
               <ConditionModal
@@ -114,6 +120,15 @@ export default class Condition extends React.PureComponent<Props, State> {
                 onClose={this.handleUpdateClose}
                 organization={organization}
                 qualityGate={qualityGate}
+              />
+            )}
+            {this.state.deleteFormOpen && (
+              <DeleteConditionModalForm
+                condition={condition}
+                metric={metric}
+                onClose={this.closeDeleteForm}
+                onDelete={this.props.onRemoveCondition}
+                organization={organization}
               />
             )}
           </td>
