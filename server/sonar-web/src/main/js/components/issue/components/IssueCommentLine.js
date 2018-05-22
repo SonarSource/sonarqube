@@ -79,16 +79,17 @@ export default class IssueCommentLine extends React.PureComponent {
 
   render() {
     const { comment } = this.props;
+    const authorName = comment.authorName || comment.author;
     return (
       <div className="issue-comment">
-        <div className="issue-comment-author" title={comment.authorName}>
+        <div className="issue-comment-author" title={authorName}>
           <Avatar
             className="little-spacer-right"
             hash={comment.authorAvatar}
-            name={comment.authorName}
+            name={authorName}
             size={16}
           />
-          {comment.authorName}
+          {authorName}
         </div>
         <div
           className="issue-comment-text markdown"
