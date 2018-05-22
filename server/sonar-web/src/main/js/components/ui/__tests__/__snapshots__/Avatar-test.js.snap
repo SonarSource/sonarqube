@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`do not fail when name is missing 1`] = `null`;
+
 exports[`falls back to dummy avatar 1`] = `
 <div
   className="rounded"
