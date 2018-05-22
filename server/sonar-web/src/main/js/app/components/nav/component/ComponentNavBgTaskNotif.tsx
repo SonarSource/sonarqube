@@ -87,11 +87,13 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
       ) {
         return (
           <NavBarNotif className="alert alert-danger">
-            <span>{currentTask.errorMessage}</span>
-            {this.context.canAdmin && (
-              <Link className="little-spacer-left" to="/admin/extension/license/app">
+            <span className="little-spacer-right">{currentTask.errorMessage}</span>
+            {this.context.canAdmin ? (
+              <Link to="/admin/extension/license/app">
                 {translate('license.component_navigation.button', currentTask.errorType)}.
               </Link>
+            ) : (
+              translate('please_contact_administrator')
             )}
           </NavBarNotif>
         );
