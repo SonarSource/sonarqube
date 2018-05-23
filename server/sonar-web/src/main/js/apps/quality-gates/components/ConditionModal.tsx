@@ -22,13 +22,12 @@ import AddConditionSelect from './AddConditionSelect';
 import ConditionOperator from './ConditionOperator';
 import ThresholdInput from './ThresholdInput';
 import Period from './Period';
-import Modal from '../../../components/controls/Modal';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { Metric, QualityGate, Condition } from '../../../app/types';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { isDiffMetric } from '../../../helpers/measures';
 import { parseError } from '../../../helpers/request';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
 
 interface Props {
   condition?: Condition;
@@ -52,6 +51,8 @@ interface State {
 }
 
 export default class ConditionModal extends React.PureComponent<Props, State> {
+  mounted = false;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -64,13 +65,25 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     };
   }
 
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   handleError = (error: any) => {
-    parseError(error).then(
-      message => {
-        this.setState({ errorMessage: message });
-      },
-      () => {}
-    );
+    if (this.mounted) {
+      parseError(error).then(
+        message => {
+          this.setState({ errorMessage: message, submitting: false });
+        },
+        () => {
+          this.setState({ submitting: false });
+        }
+      );
+    }
   };
 
   getUpdatedCondition = (metric: Metric) => {
@@ -93,14 +106,11 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   };
 
   handleConditionResponse = (newCondition: Condition) => {
-    this.setState({ errorMessage: undefined, submitting: false });
     this.props.onAddCondition(newCondition);
     this.props.onClose();
   };
 
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  handleFormSubmit = () => {
     if (this.state.metric) {
       const { condition, qualityGate, organization } = this.props;
       this.setState({ submitting: true });
@@ -130,95 +140,84 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.setState({ metric });
   };
 
-  handlePeriodChange = (period: boolean) => this.setState({ period });
+  handlePeriodChange = (period: boolean) => {
+    this.setState({ period });
+  };
 
-  handleOperatorChange = (op: string) => this.setState({ op });
+  handleOperatorChange = (op: string) => {
+    this.setState({ op });
+  };
 
-  handleWarningChange = (warning: string) => this.setState({ warning });
+  handleWarningChange = (warning: string) => {
+    this.setState({ warning });
+  };
 
-  handleErrorChange = (error: string) => this.setState({ error });
+  handleErrorChange = (error: string) => {
+    this.setState({ error });
+  };
 
   render() {
     const { header, metrics, onClose } = this.props;
-    const { period, op, warning, error, metric, submitting } = this.state;
+    const { period, op, warning, error, metric } = this.state;
     return (
-      <Modal contentLabel={header} onRequestClose={onClose}>
-        <form onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-
-          <div className="modal-body">
-            {this.state.errorMessage && (
-              <div className="alert alert-danger">{this.state.errorMessage}</div>
-            )}
+      <ConfirmModal
+        confirmButtonText={header}
+        header={header}
+        onClose={onClose}
+        onConfirm={this.handleFormSubmit}>
+        {this.state.errorMessage && (
+          <div className="alert alert-warning modal-alert">{this.state.errorMessage}</div>
+        )}
+        <div className="modal-field">
+          <label htmlFor="create-user-login">{translate('quality_gates.conditions.metric')}</label>
+          {metrics && (
+            <AddConditionSelect metrics={metrics} onAddCondition={this.handleChooseType} />
+          )}
+          {this.props.metric && (
+            <span className="note">{getLocalizedMetricName(this.props.metric)}</span>
+          )}
+        </div>
+        {metric && (
+          <>
             <div className="modal-field">
-              <label htmlFor="create-user-login">
-                {translate('quality_gates.conditions.metric')}
-              </label>
-              {metrics && (
-                <AddConditionSelect metrics={metrics} onAddCondition={this.handleChooseType} />
-              )}
-              {this.props.metric && (
-                <span className="note">{getLocalizedMetricName(this.props.metric)}</span>
-              )}
+              <label>{translate('quality_gates.conditions.leak')}</label>
+              <Period
+                canEdit={true}
+                metric={metric}
+                onPeriodChange={this.handlePeriodChange}
+                period={period}
+              />
             </div>
-            {metric && (
-              <>
-                <div className="modal-field">
-                  <label>{translate('quality_gates.conditions.leak')}</label>
-                  <Period
-                    canEdit={true}
-                    metric={metric}
-                    onPeriodChange={this.handlePeriodChange}
-                    period={period}
-                  />
-                </div>
-                <div className="modal-field">
-                  <label>{translate('quality_gates.conditions.operator')}</label>
-                  <ConditionOperator
-                    canEdit={true}
-                    metric={metric}
-                    onOperatorChange={this.handleOperatorChange}
-                    op={op}
-                  />
-                </div>
-                <div className="modal-field">
-                  <label>{translate('quality_gates.conditions.warning')}</label>
-                  <ThresholdInput
-                    metric={metric}
-                    name="warning"
-                    onChange={this.handleWarningChange}
-                    value={warning}
-                  />
-                </div>
-                <div className="modal-field">
-                  <label>{translate('quality_gates.conditions.error')}</label>
-                  <ThresholdInput
-                    metric={metric}
-                    name="error"
-                    onChange={this.handleErrorChange}
-                    value={error}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitting} id="coding-rules-custom-rule-creation-reactivate">
-              {header}
-            </SubmitButton>
-            <ResetButtonLink
-              disabled={submitting}
-              id="coding-rules-custom-rule-creation-cancel"
-              onClick={onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </div>
-        </form>
-      </Modal>
+            <div className="modal-field">
+              <label>{translate('quality_gates.conditions.operator')}</label>
+              <ConditionOperator
+                canEdit={true}
+                metric={metric}
+                onOperatorChange={this.handleOperatorChange}
+                op={op}
+              />
+            </div>
+            <div className="modal-field">
+              <label>{translate('quality_gates.conditions.warning')}</label>
+              <ThresholdInput
+                metric={metric}
+                name="warning"
+                onChange={this.handleWarningChange}
+                value={warning}
+              />
+            </div>
+            <div className="modal-field">
+              <label>{translate('quality_gates.conditions.error')}</label>
+              <ThresholdInput
+                metric={metric}
+                name="error"
+                onChange={this.handleErrorChange}
+                value={error}
+              />
+            </div>
+          </>
+        )}
+      </ConfirmModal>
     );
   }
 }

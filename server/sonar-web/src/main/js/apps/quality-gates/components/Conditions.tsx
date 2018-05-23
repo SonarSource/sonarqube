@@ -20,10 +20,12 @@
 import * as React from 'react';
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import Condition from './Condition';
-import AddConditionButton from './AddConditionButton';
+import ConditionModal from './ConditionModal';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
+import ModalButton from '../../../components/controls/ModalButton';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   canEdit: boolean;
@@ -36,19 +38,7 @@ interface Props {
   qualityGate: QualityGate;
 }
 
-interface State {
-  error?: string;
-}
-
-export default class Conditions extends React.PureComponent<Props, State> {
-  state: State = {};
-
-  componentWillUpdate(nextProps: Props) {
-    if (nextProps.qualityGate !== this.props.qualityGate) {
-      this.setState({ error: undefined });
-    }
-  }
-
+export default class Conditions extends React.PureComponent<Props> {
   getConditionKey = (condition: ICondition, index: number) => {
     return condition.id ? condition.id : `new-${index}`;
   };
@@ -91,12 +81,21 @@ export default class Conditions extends React.PureComponent<Props, State> {
       <div className="quality-gate-section" id="quality-gate-conditions">
         {canEdit && (
           <div className="pull-right">
-            <AddConditionButton
-              metrics={availableMetrics}
-              onAddCondition={this.props.onAddCondition}
-              organization={organization}
-              qualityGate={qualityGate}
-            />
+            <ModalButton
+              modal={({ onClose }) => (
+                <ConditionModal
+                  header={translate('quality_gates.add_condition')}
+                  metrics={availableMetrics}
+                  onAddCondition={this.props.onAddCondition}
+                  onClose={onClose}
+                  organization={this.props.organization}
+                  qualityGate={this.props.qualityGate}
+                />
+              )}>
+              {({ onClick }) => (
+                <Button onClick={onClick}>{translate('quality_gates.add_condition')}</Button>
+              )}
+            </ModalButton>
           </div>
         )}
         <header className="display-flex-center spacer-bottom">
@@ -105,8 +104,6 @@ export default class Conditions extends React.PureComponent<Props, State> {
         </header>
 
         <div className="big-spacer-bottom">{translate('quality_gates.introduction')}</div>
-
-        {this.state.error && <div className="alert alert-danger">{this.state.error}</div>}
 
         {uniqDuplicates.length > 0 && (
           <div className="alert alert-warning">

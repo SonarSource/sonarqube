@@ -38,7 +38,7 @@ interface State {
   submitting: boolean;
 }
 
-export default class SimpleModal extends React.PureComponent<Props, State> {
+export default class SimpleModal extends React.Component<Props, State> {
   mounted = false;
   state: State = { submitting: false };
 

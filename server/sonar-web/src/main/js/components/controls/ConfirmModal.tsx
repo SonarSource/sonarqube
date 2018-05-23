@@ -23,18 +23,18 @@ import DeferredSpinner from '../common/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 
-interface Props {
+interface Props<T> {
   children: React.ReactNode;
   confirmButtonText: string;
-  confirmData?: string;
+  confirmData?: T;
   confirmDisable?: boolean;
   header: string;
   isDestructive?: boolean;
   onClose: () => void;
-  onConfirm: (data?: string) => void | Promise<void>;
+  onConfirm: (data?: T) => void | Promise<void>;
 }
 
-export default class ConfirmModal extends React.PureComponent<Props> {
+export default class ConfirmModal<T = string> extends React.PureComponent<Props<T>> {
   mounted = false;
 
   componentDidMount() {
