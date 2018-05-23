@@ -58,6 +58,7 @@ dependencies {
   bundledPlugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.7.0.1017@jar'
   bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin:1.6.0.2388@jar'
   bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin:1.5.0.1373@jar'
+  bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
 
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
