@@ -228,7 +228,7 @@ public class AnalysisContextReportPublisherTest {
       .setProperty("sonar.projectBaseDir", baseDir.toString())
       .setProperty("sonar.aVeryLongProp", StringUtils.repeat("abcde", 1000))));
 
-    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSubsequence(
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSequence(
       "sonar.aVeryLongProp=" + StringUtils.repeat("abcde", 199) + "ab...",
       "sonar.projectBaseDir=" + baseDir.toString(),
       "sonar.projectKey=foo");
