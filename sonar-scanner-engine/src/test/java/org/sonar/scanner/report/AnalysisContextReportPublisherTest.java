@@ -20,11 +20,14 @@
 package org.sonar.scanner.report;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,7 +73,7 @@ public class AnalysisContextReportPublisherTest {
   private InputModuleHierarchy hierarchy;
 
   @Before
-  public void prepare() throws Exception {
+  public void prepare() {
     logTester.setLevel(LoggerLevel.INFO);
     system2 = mock(System2.class);
     when(system2.properties()).thenReturn(new Properties());
@@ -82,13 +85,13 @@ public class AnalysisContextReportPublisherTest {
 
   @Test
   public void shouldOnlyDumpPluginsByDefault() throws Exception {
-    when(pluginRepo.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("xoo").setName("Xoo").setVersion(Version.create("1.0"))));
+    when(pluginRepo.getPluginInfos()).thenReturn(Collections.singletonList(new PluginInfo("xoo").setName("Xoo").setVersion(Version.create("1.0"))));
 
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     publisher.init(writer);
 
     assertThat(writer.getFileStructure().analysisLog()).exists();
-    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).contains("Xoo 1.0 (xoo)");
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).contains("Xoo 1.0 (xoo)");
 
     verifyZeroInteractions(system2);
   }
@@ -112,7 +115,7 @@ public class AnalysisContextReportPublisherTest {
 
     publisher.init(writer);
 
-    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(content).containsOnlyOnce(COM_FOO);
     assertThat(content).containsOnlyOnce(SONAR_SKIP);
   }
@@ -128,7 +131,7 @@ public class AnalysisContextReportPublisherTest {
 
     publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())));
 
-    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(content).doesNotContain(COM_FOO);
     assertThat(content).containsOnlyOnce(SONAR_SKIP);
   }
@@ -143,7 +146,7 @@ public class AnalysisContextReportPublisherTest {
     when(system2.properties()).thenReturn(props);
     publisher.init(writer);
 
-    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(content).containsOnlyOnce(COM_FOO);
     assertThat(content).doesNotContain(SONAR_SKIP);
 
@@ -154,7 +157,7 @@ public class AnalysisContextReportPublisherTest {
       .setProperty(COM_FOO, "bar")
       .setProperty(SONAR_SKIP, "true")));
 
-    content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(content).containsOnlyOnce(COM_FOO);
     assertThat(content).containsOnlyOnce(SONAR_SKIP);
   }
@@ -170,7 +173,7 @@ public class AnalysisContextReportPublisherTest {
     when(system2.envVariables()).thenReturn(env);
     publisher.init(writer);
 
-    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(content).containsOnlyOnce(FOO);
     assertThat(content).containsOnlyOnce(BIZ);
     assertThat(content).containsSequence(BIZ, FOO);
@@ -181,7 +184,7 @@ public class AnalysisContextReportPublisherTest {
       .setProperty("sonar.projectKey", "foo")
       .setProperty("env." + FOO, "BAR")));
 
-    content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(content).containsOnlyOnce(FOO);
     assertThat(content).containsOnlyOnce(BIZ);
     assertThat(content).doesNotContain("env." + FOO);
@@ -203,10 +206,31 @@ public class AnalysisContextReportPublisherTest {
       .setProperty("sonar.password", "azerty")
       .setProperty("sonar.cpp.license.secured", "AZERTY")));
 
-    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSequence(
       "sonar.cpp.license.secured=******",
       "sonar.login=******",
       "sonar.password=******",
+      "sonar.projectKey=foo");
+  }
+
+  @Test
+  public void shouldShortenModuleProperties() throws Exception {
+    File baseDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
+    publisher.init(writer);
+
+    assertThat(writer.getFileStructure().analysisLog()).exists();
+
+    publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(baseDir)
+      .setWorkDir(temp.newFolder())
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty("sonar.projectBaseDir", baseDir.toString())
+      .setProperty("sonar.aVeryLongProp", StringUtils.repeat("abcde", 1000))));
+
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSubsequence(
+      "sonar.aVeryLongProp=" + StringUtils.repeat("abcde", 199) + "ab...",
+      "sonar.projectBaseDir=" + baseDir.toString(),
       "sonar.projectKey=foo");
   }
 
@@ -218,7 +242,7 @@ public class AnalysisContextReportPublisherTest {
 
     publisher.init(writer);
 
-    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSequence(
       "sonar.cpp.license.secured=******",
       "sonar.login=******",
       "sonar.password=******");
@@ -247,7 +271,7 @@ public class AnalysisContextReportPublisherTest {
 
     publisher.dumpModuleSettings(module);
 
-    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
     assertThat(content).doesNotContain(SONAR_SKIP);
   }
 }

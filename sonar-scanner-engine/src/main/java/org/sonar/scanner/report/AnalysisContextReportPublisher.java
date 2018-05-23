@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
-
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.ScannerSide;
@@ -53,6 +53,7 @@ public class AnalysisContextReportPublisher {
 
   private static final String ENV_PROP_PREFIX = "env.";
   private static final String SONAR_PROP_PREFIX = "sonar.";
+  private static final int MAX_WIDTH = 1000;
   private final ScannerPluginRepository pluginRepo;
   private final AnalysisMode mode;
   private final System2 system;
@@ -145,7 +146,7 @@ public class AnalysisContextReportPublisher {
   }
 
   private static void dumpPropIfNotSensitive(BufferedWriter fileWriter, String prop, String value) throws IOException {
-    fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sensitive(prop) ? "******" : value)).append('\n');
+    fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sensitive(prop) ? "******" : StringUtils.abbreviate(value, MAX_WIDTH))).append('\n');
   }
 
   /**
