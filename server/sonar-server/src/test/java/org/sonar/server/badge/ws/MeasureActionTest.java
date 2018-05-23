@@ -31,11 +31,13 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
@@ -56,6 +58,9 @@ import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_ERROR;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_OK;
@@ -74,7 +79,10 @@ public class MeasureActionTest {
   private MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false);
 
   private WsActionTester ws = new WsActionTester(
-    new MeasureAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null), new SvgGenerator(mapSettings.asConfig())));
+    new MeasureAction(
+      db.getDbClient(),
+      new ProjectBadgesSupport(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null)),
+      new SvgGenerator(mapSettings.asConfig())));
 
   @Test
   public void int_measure() {
@@ -174,9 +182,159 @@ public class MeasureActionTest {
   }
 
   @Test
-  public void fail_on_invalid_quality_gate() {
+  public void measure_on_long_living_branch() {
+    ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
+    userSession.registerComponents(project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
+    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(5_000d));
+    ComponentDto longBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    db.measures().insertLiveMeasure(longBranch, metric, m -> m.setValue(10_000d));
+
+    String response = ws.newRequest()
+      .setParam("project", longBranch.getKey())
+      .setParam("branch", longBranch.getBranch())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkSvg(response, "bugs", "10k", DEFAULT);
+  }
+
+  @Test
+  public void measure_on_application() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertPublicApplication(organization);
+    userSession.registerComponents(application);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
+    db.measures().insertLiveMeasure(application, metric, m -> m.setValue(10_000d));
+
+    String response = ws.newRequest()
+      .setParam("project", application.getKey())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkSvg(response, "bugs", "10k", DEFAULT);
+  }
+
+  @Test
+  public void return_error_if_project_does_not_exist() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
+
+    String response = ws.newRequest()
+      .setParam("project", "unknown")
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Project has not been found");
+  }
+
+  @Test
+  public void return_error_if_branch_does_not_exist() {
     ComponentDto project = db.components().insertMainBranch();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    userSession.addProjectPermission(USER, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
+
+    String response = ws.newRequest()
+      .setParam("project", branch.getKey())
+      .setParam("branch", "unknown")
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Project has not been found");
+  }
+
+  @Test
+  public void return_error_if_measure_not_found() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
+
+    String response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Measure has not been found");
+  }
+
+  @Test
+  public void return_error_on_directory() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
+    userSession.registerComponents(project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
+
+    String response = ws.newRequest()
+      .setParam("project", directory.getKey())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Project is invalid");
+  }
+
+  @Test
+  public void return_error_on_short_living_branch() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto shortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
+
+    String response = ws.newRequest()
+      .setParam("project", shortBranch.getKey())
+      .setParam("branch", shortBranch.getBranch())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Project is invalid");
+  }
+
+  @Test
+  public void return_error_on_private_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
+
+    String response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Project is invalid");
+  }
+
+  @Test
+  public void return_error_on_provisioned_project() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
+
+    String response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Measure has not been found");
+  }
+
+  @Test
+  public void return_error_if_unauthorized() {
+    ComponentDto project = db.components().insertPublicProject();
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
+
+    String response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("metric", metric.getKey())
+      .execute().getInput();
+
+    checkError(response, "Insufficient privileges");
+  }
+
+  @Test
+  public void fail_on_invalid_quality_gate() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
 
@@ -197,7 +355,7 @@ public class MeasureActionTest {
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null));
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Measure not found");
+    expectedException.expectMessage("Measure has not been found");
 
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -206,65 +364,9 @@ public class MeasureActionTest {
   }
 
   @Test
-  public void project_does_not_exist() {
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
-
-    String response = ws.newRequest()
-      .setParam("project", "unknown")
-      .setParam("metric", metric.getKey())
-      .execute().getInput();
-
-    checkError(response, "Component not found");
-  }
-
-  @Test
-  public void branch_does_not_exist() {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
-    userSession.addProjectPermission(UserRole.USER, project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(10d));
-
-    String response = ws.newRequest()
-      .setParam("project", branch.getKey())
-      .setParam("branch", "unknown")
-      .setParam("metric", metric.getKey())
-      .execute().getInput();
-
-    checkError(response, "Component not found");
-  }
-
-  @Test
-  public void measure_not_found() {
+  public void fail_when_metric_not_found() {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
-
-    String response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("metric", metric.getKey())
-      .execute().getInput();
-
-    checkError(response, "Measure has not been found");
-  }
-
-  @Test
-  public void unauthorized() {
-    ComponentDto project = db.components().insertPrivateProject();
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
-
-    String response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("metric", metric.getKey())
-      .execute().getInput();
-
-    checkError(response, "Insufficient privileges");
-  }
-
-  @Test
-  public void fail_when_metric_not_found() {
-    ComponentDto project = db.components().insertMainBranch();
-    userSession.addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Metric 'bugs' hasn't been found");
@@ -289,7 +391,6 @@ public class MeasureActionTest {
       .containsExactlyInAnyOrder(
         tuple("project", true),
         tuple("branch", false),
-        tuple("pullRequest", false),
         tuple("metric", true));
   }
 

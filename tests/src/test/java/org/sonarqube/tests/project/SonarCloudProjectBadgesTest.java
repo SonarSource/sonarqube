@@ -31,6 +31,8 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.projectbadges.MeasureRequest;
+import org.sonarqube.ws.client.projectbadges.QualityGateRequest;
 import org.sonarqube.ws.client.projects.UpdateVisibilityRequest;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -40,9 +42,6 @@ import static util.ItUtils.projectDir;
 public class SonarCloudProjectBadgesTest {
 
   private static final String PROJECT_KEY = "sample";
-  private static final String WS_MEASURE_BADGES_ON_QUALITY_GATE = "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=alert_status";
-  private static final String WS_MEASURE_BADGES_ON_BUGS = "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=bugs";
-  private static final String WS_QUALITY_GATE_BADGE = "api/project_badges/quality_gate?project=" + PROJECT_KEY;
   private static final String SONAR_CLOUD_ORANGE_BADGE = "images/project_badges/sonarcloud-orange.svg";
 
   @ClassRule
@@ -60,15 +59,15 @@ public class SonarCloudProjectBadgesTest {
     ElementsCollection badgeButtons = badgesModal.$$(".badge-button").shouldHaveSize(3);
 
     // Check quality gate badge
-    shouldHaveUrl(badgesModal, WS_MEASURE_BADGES_ON_QUALITY_GATE);
+    shouldHaveUrl(badgesModal, "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=alert_status");
 
     // Check bugs badge
     selectOption("Bugs");
-    shouldHaveUrl(badgesModal, WS_MEASURE_BADGES_ON_BUGS);
+    shouldHaveUrl(badgesModal, "api/project_badges/measure?project=" + PROJECT_KEY + "&metric=bugs");
 
     // Check marketing quality gate badge
     badgeButtons.get(1).click();
-    shouldHaveUrl(badgesModal, WS_QUALITY_GATE_BADGE);
+    shouldHaveUrl(badgesModal, "api/project_badges/quality_gate?project=" + PROJECT_KEY);
 
     // Check scanned on SonarCloud badge
     badgeButtons.get(2).click();
@@ -83,8 +82,7 @@ public class SonarCloudProjectBadgesTest {
     orchestrator.executeBuild(
       SonarScanner
         .create(projectDir("shared/xoo-sample"))
-        .setProperties("sonar.organization", org.getKey(), "sonar.login", user.getLogin(), "sonar.password", user.getLogin())
-    );
+        .setProperties("sonar.organization", org.getKey(), "sonar.login", user.getLogin(), "sonar.password", user.getLogin()));
     tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("sample").setVisibility("private"));
     tester.openBrowser().logIn().submitCredentials(user.getLogin()).openProjectDashboard(PROJECT_KEY);
     shouldNotHaveBadges();
@@ -93,10 +91,16 @@ public class SonarCloudProjectBadgesTest {
   @Test
   public void project_badges_ws() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-    assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_MEASURE_BADGES_ON_QUALITY_GATE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
-    assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_MEASURE_BADGES_ON_BUGS)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
-    assertThat(tester.wsClient().wsConnector().call(new GetRequest(WS_QUALITY_GATE_BADGE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
     assertThat(tester.wsClient().wsConnector().call(new GetRequest(SONAR_CLOUD_ORANGE_BADGE)).failIfNotSuccessful().contentType()).isEqualTo("image/svg+xml");
+    assertThat(tester.wsClient().projectBadges().measure(new MeasureRequest().setProject(PROJECT_KEY).setMetric("alert_status")))
+      .contains("<!-- SONARCLOUD MEASURE -->");
+    assertThat(tester.wsClient().projectBadges().measure(new MeasureRequest().setProject(PROJECT_KEY).setMetric("bugs"))).contains("<!-- SONARCLOUD MEASURE -->");
+    assertThat(tester.wsClient().projectBadges().qualityGate(new QualityGateRequest().setProject(PROJECT_KEY))).contains("<!-- SONARCLOUD QUALITY GATE PASS -->");
+
+    String directory = "sample:src/main/xoo/sample";
+    assertThat(tester.wsClient().projectBadges().measure(new MeasureRequest().setProject(directory).setMetric("alert_status"))).contains("Project is invalid");
+    assertThat(tester.wsClient().projectBadges().measure(new MeasureRequest().setProject(directory).setMetric("bugs"))).contains("Project is invalid");
+    assertThat(tester.wsClient().projectBadges().qualityGate(new QualityGateRequest().setProject(directory))).contains("Project is invalid");
   }
 
   private void shouldNotHaveBadges() {

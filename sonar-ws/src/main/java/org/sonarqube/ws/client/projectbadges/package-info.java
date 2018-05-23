@@ -17,19 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.badge.ws;
+@ParametersAreNonnullByDefault
+@Generated("sonar-ws-generator")
+package org.sonarqube.ws.client.projectbadges;
 
-import org.sonar.core.platform.Module;
+import javax.annotation.Generated;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class ProjectBadgesWsModule extends Module {
-
-  @Override
-  protected void configureModule() {
-    add(
-      ProjectBadgesWs.class,
-      QualityGateAction.class,
-      MeasureAction.class,
-      SvgGenerator.class,
-      ProjectBadgesSupport.class);
-  }
-}

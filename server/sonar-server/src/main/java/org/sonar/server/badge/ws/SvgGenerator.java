@@ -175,7 +175,7 @@ public class SvgGenerator {
 
   private static int computeWidth(String text) {
     return text.chars()
-      .mapToObj(i -> (char)i)
+      .mapToObj(i -> (char) i)
       .mapToInt(c -> {
         Integer length = CHAR_LENGTH.get(c);
         checkState(length != null, "Invalid character '%s'", c);

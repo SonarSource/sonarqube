@@ -34,7 +34,7 @@ public class ProjectBadgesWsModuleTest {
   public void verify_count_of_added_components() {
     underTest.configure(container);
 
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 4);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 5);
   }
 
 }

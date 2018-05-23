@@ -20,9 +20,9 @@
 package org.sonarqube.ws.client;
 
 import javax.annotation.Generated;
-
 import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
 import org.sonarqube.ws.client.authentication.AuthenticationService;
+import org.sonarqube.ws.client.batch.BatchService;
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.custommeasures.CustomMeasuresService;
@@ -43,11 +43,12 @@ import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.plugins.PluginsService;
 import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
+import org.sonarqube.ws.client.projectbadges.ProjectBadgesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
-import org.sonarqube.ws.client.projecttags.ProjectTagsService;
 import org.sonarqube.ws.client.projects.ProjectsService;
+import org.sonarqube.ws.client.projecttags.ProjectTagsService;
 import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
@@ -63,11 +64,10 @@ import org.sonarqube.ws.client.timemachine.TimemachineService;
 import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
 import org.sonarqube.ws.client.userproperties.UserPropertiesService;
-import org.sonarqube.ws.client.usertokens.UserTokensService;
 import org.sonarqube.ws.client.users.UsersService;
+import org.sonarqube.ws.client.usertokens.UserTokensService;
 import org.sonarqube.ws.client.webhooks.WebhooksService;
 import org.sonarqube.ws.client.webservices.WebservicesService;
-import org.sonarqube.ws.client.batch.BatchService;
 
 /**
  * Allows to request the web services of SonarQube server. Instance is provided by
@@ -135,6 +135,8 @@ public interface WsClient {
   ProfilesService profiles();
 
   ProjectAnalysesService projectAnalyses();
+
+  ProjectBadgesService projectBadges();
 
   ProjectBranchesService projectBranches();
 

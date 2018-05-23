@@ -43,6 +43,7 @@ import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.plugins.PluginsService;
 import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
+import org.sonarqube.ws.client.projectbadges.ProjectBadgesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
@@ -101,6 +102,7 @@ class DefaultWsClient implements WsClient {
   private final PluginsService pluginsService;
   private final ProfilesService profilesService;
   private final ProjectAnalysesService projectAnalysesService;
+  private final ProjectBadgesService projectBadgesService;
   private final ProjectBranchesService projectBranchesService;
   private final ProjectLinksService projectLinksService;
   private final ProjectPullRequestsService projectPullRequestsService;
@@ -152,6 +154,7 @@ class DefaultWsClient implements WsClient {
     this.pluginsService = new PluginsService(wsConnector);
     this.profilesService = new ProfilesService(wsConnector);
     this.projectAnalysesService = new ProjectAnalysesService(wsConnector);
+    this.projectBadgesService = new ProjectBadgesService(wsConnector);
     this.projectBranchesService = new ProjectBranchesService(wsConnector);
     this.projectLinksService = new ProjectLinksService(wsConnector);
     this.projectPullRequestsService = new ProjectPullRequestsService(wsConnector);
@@ -293,6 +296,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public ProjectAnalysesService projectAnalyses() {
     return projectAnalysesService;
+  }
+
+  @Override
+  public ProjectBadgesService projectBadges() {
+    return projectBadgesService;
   }
 
   @Override
