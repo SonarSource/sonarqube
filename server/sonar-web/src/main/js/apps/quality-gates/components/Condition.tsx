@@ -81,12 +81,10 @@ export default class Condition extends React.PureComponent<Props, State> {
   };
 
   removeCondition = (condition: ICondition) => {
-    if (condition.id !== undefined) {
-      deleteCondition({ id: condition.id, organization: this.props.organization }).then(
-        () => this.props.onRemoveCondition(condition),
-        () => {}
-      );
-    }
+    deleteCondition({ id: condition.id, organization: this.props.organization }).then(
+      () => this.props.onRemoveCondition(condition),
+      () => {}
+    );
   };
 
   render() {

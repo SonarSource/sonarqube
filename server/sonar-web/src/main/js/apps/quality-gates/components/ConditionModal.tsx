@@ -23,7 +23,7 @@ import ConditionOperator from './ConditionOperator';
 import ThresholdInput from './ThresholdInput';
 import Period from './Period';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
-import { Metric, QualityGate, Condition } from '../../../app/types';
+import { Metric, QualityGate, Condition, Omit } from '../../../app/types';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { isDiffMetric } from '../../../helpers/measures';
 import { parseError } from '../../../helpers/request';
@@ -87,7 +87,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   };
 
   getUpdatedCondition = (metric: Metric) => {
-    const data: Condition = {
+    const data: Omit<Condition, 'id'> = {
       metric: metric.key,
       op: metric.type === 'RATING' ? 'GT' : this.state.op,
       warning: this.state.warning,

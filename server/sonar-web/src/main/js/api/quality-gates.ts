@@ -19,7 +19,7 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Condition, Metric, QualityGate } from '../app/types';
+import { Condition, Metric, QualityGate, Omit } from '../app/types';
 
 export function fetchQualityGates(data: {
   organization?: string;
@@ -78,7 +78,7 @@ export function createCondition(
   data: {
     gateId: number;
     organization?: string;
-  } & Condition
+  } & Omit<Condition, 'id'>
 ): Promise<Condition> {
   return postJSON('/api/qualitygates/create_condition', data);
 }

@@ -84,7 +84,7 @@ interface ComponentConfiguration {
 
 export interface Condition {
   error: string;
-  id?: number;
+  id: number;
   metric: string;
   op?: string;
   period?: number;
