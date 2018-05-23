@@ -24,7 +24,8 @@ import SelectListItem from '../../../components/common/SelectListItem';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import StatusHelper from '../../../components/shared/StatusHelper';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
+import TagsIcon from '../../../components/icons-components/TagsIcon';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
@@ -116,8 +117,8 @@ export default class SimilarIssuesPopup extends React.PureComponent {
           {issue.tags != null &&
             issue.tags.map(tag => (
               <SelectListItem item={`tag###${tag}`} key={`tag###${tag}`}>
-                <i className="icon-tags icon-half-transparent little-spacer-right" />
-                {tag}
+                <TagsIcon className="icon-half-transparent little-spacer-right text-middle" />
+                <span className="text-middle">{tag}</span>
               </SelectListItem>
             ))}
 

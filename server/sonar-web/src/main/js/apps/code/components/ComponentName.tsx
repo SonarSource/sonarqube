@@ -23,7 +23,7 @@ import Truncated from './Truncated';
 import { Component } from '../types';
 import * as theme from '../../../app/theme';
 import { BranchLike } from '../../../app/types';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
 function getTooltip(component: Component) {

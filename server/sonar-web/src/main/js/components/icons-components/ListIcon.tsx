@@ -18,22 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IconProps } from './types';
+import Icon, { IconProps } from './Icon';
 
-export default function ListIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
+export default function ListIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      version="1.1"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      xmlSpace="preserve">
+    <Icon className={className} size={size}>
       <path
-        style={{ fill }}
         d="M15.045 11.526v1.007q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354zM15.045 8.506v1.006q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354zM15.045 5.487v1.006q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354zM15.045 2.468v1.006q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354z"
+        style={{ fill }}
       />
-    </svg>
+    </Icon>
   );
 }

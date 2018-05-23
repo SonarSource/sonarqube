@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { ComponentDescriptor } from './context';
-import QualifierIcon from '../shared/QualifierIcon';
+import QualifierIcon from '../icons-components/QualifierIcon';
 import { collapsePath } from '../../helpers/path';
 
 interface Props {

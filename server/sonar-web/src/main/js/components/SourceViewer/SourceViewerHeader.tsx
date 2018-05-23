@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import * as PropTypes from 'prop-types';
 import MeasuresOverlay from './components/MeasuresOverlay';
 import { SourceViewerFile, BranchLike } from '../../app/types';
-import QualifierIcon from '../shared/QualifierIcon';
+import QualifierIcon from '../icons-components/QualifierIcon';
 import Dropdown from '../controls/Dropdown';
 import FavoriteContainer from '../controls/FavoriteContainer';
 import ListIcon from '../icons-components/ListIcon';

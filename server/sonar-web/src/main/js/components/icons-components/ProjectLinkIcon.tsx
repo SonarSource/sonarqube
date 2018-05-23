@@ -18,18 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import QualifierIcon from '../QualifierIcon';
+import { IconProps } from './Icon';
+import BugTrackerIcon from './BugTrackerIcon';
+import HouseIcon from './HouseIcon';
+import ContinuousIntegrationIcon from './ContinuousIntegrationIcon';
+import SCMIcon from './SCMIcon';
+import DetachIcon from './DetachIcon';
 
-it('should render icon', () => {
-  expect(shallow(<QualifierIcon qualifier="TRK" />)).toMatchSnapshot();
-  expect(shallow(<QualifierIcon qualifier="trk" />)).toMatchSnapshot();
-});
+interface ProjectLinkIconProps {
+  type: string;
+}
 
-it('should not render icon', () => {
-  expect(shallow(<QualifierIcon qualifier={null} />).type()).toBeNull();
-});
-
-it('should render with custom class', () => {
-  expect(shallow(<QualifierIcon className="spacer-right" qualifier="TRK" />)).toMatchSnapshot();
-});
+export default function ProjectLinkIcon({ type, ...props }: IconProps & ProjectLinkIconProps) {
+  switch (type) {
+    case 'issue':
+      return <BugTrackerIcon {...props} />;
+    case 'homepage':
+      return <HouseIcon {...props} />;
+    case 'ci':
+      return <ContinuousIntegrationIcon {...props} />;
+    case 'scm':
+      return <SCMIcon {...props} />;
+    default:
+      return <DetachIcon {...props} />;
+  }
+}

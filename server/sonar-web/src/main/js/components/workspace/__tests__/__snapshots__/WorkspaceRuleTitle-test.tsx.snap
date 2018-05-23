@@ -2,8 +2,9 @@
 
 exports[`should render loaded rule 1`] = `
 <React.Fragment>
-  <i
-    className="icon-workspace-doc little-spacer-right"
+  <LightBulbIcon
+    className="little-spacer-right"
+    fill="#4b9fd5"
   />
   Foo
 </React.Fragment>
@@ -11,8 +12,9 @@ exports[`should render loaded rule 1`] = `
 
 exports[`should render rule 1`] = `
 <React.Fragment>
-  <i
-    className="icon-workspace-doc little-spacer-right"
+  <LightBulbIcon
+    className="little-spacer-right"
+    fill="#4b9fd5"
   />
   —
 </React.Fragment>

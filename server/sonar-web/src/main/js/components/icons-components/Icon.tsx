@@ -18,19 +18,53 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 
-interface Props {
+export interface IconProps {
   className?: string;
-  qualifier: string | null;
+  fill?: string;
+  size?: number;
 }
 
-export default function QualifierIcon(props: Props) {
-  if (!props.qualifier) {
-    return null;
-  }
+interface Props {
+  children: React.ReactElement<any>;
+  className?: string;
+  size?: number;
+  style?: React.CSSProperties;
 
-  const className = classNames('icon-qualifier-' + props.qualifier.toLowerCase(), props.className);
+  // try to avoid using these:
+  width?: number;
+  height?: number;
+  viewBox?: string;
+}
 
-  return <i className={className} />;
+export default function Icon({
+  children,
+  className,
+  size = 16,
+  style,
+  height = size,
+  width = size,
+  viewBox = '0 0 16 16',
+  ...other
+}: Props) {
+  return (
+    <svg
+      className={className}
+      height={height}
+      style={{
+        fillRule: 'evenodd',
+        clipRule: 'evenodd',
+        strokeLinejoin: 'round',
+        strokeMiterlimit: '1.41421',
+        ...style
+      }}
+      version="1.1"
+      viewBox={viewBox}
+      width={width}
+      xmlSpace="preserve"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      {...other}>
+      {children}
+    </svg>
+  );
 }

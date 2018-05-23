@@ -89,9 +89,7 @@ export default function Changelog(props: Props) {
     <table className="data zebra-hover">
       <thead>
         <tr>
-          <th className="thin nowrap">
-            {translate('date')} <i className="icon-sort-desc" />
-          </th>
+          <th className="thin nowrap">{translate('date')}</th>
           <th className="thin nowrap">{translate('user')}</th>
           <th className="thin nowrap">{translate('action')}</th>
           <th>{translate('rule')}</th>

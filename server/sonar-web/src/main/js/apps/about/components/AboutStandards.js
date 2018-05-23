@@ -20,6 +20,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import ReadMore from './ReadMore';
+import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
@@ -52,32 +53,32 @@ export default function AboutStandards(props /*: Props */) {
         <div className="spacer-top">
           <ul className="list-inline">
             <li>
-              <Link to={getRulesUrl({ tags: 'misra' }, organization)} className="link-with-icon">
-                <i className="icon-tags" />
+              <Link className="link-with-icon" to={getRulesUrl({ tags: 'misra' }, organization)}>
+                <TagsIcon />
                 <span className="little-spacer-left">MISRA</span>
               </Link>
             </li>
             <li>
-              <Link to={getRulesUrl({ tags: 'cert' }, organization)} className="link-with-icon">
-                <i className="icon-tags" />
+              <Link className="link-with-icon" to={getRulesUrl({ tags: 'cert' }, organization)}>
+                <TagsIcon />
                 <span className="little-spacer-left">CERT</span>
               </Link>
             </li>
             <li>
-              <Link to={getRulesUrl({ tags: 'cwe' }, organization)} className="link-with-icon">
-                <i className="icon-tags" />
+              <Link className="link-with-icon" to={getRulesUrl({ tags: 'cwe' }, organization)}>
+                <TagsIcon />
                 <span className="little-spacer-left">CWE</span>
               </Link>
             </li>
             <li>
-              <Link to={getRulesUrl({ tags: owaspTags }, organization)} className="link-with-icon">
-                <i className="icon-tags" />
+              <Link className="link-with-icon" to={getRulesUrl({ tags: owaspTags }, organization)}>
+                <TagsIcon />
                 <span className="little-spacer-left">OWASP Top 10</span>
               </Link>
             </li>
             <li>
-              <Link to={getRulesUrl({ tags: sans25Tags }, organization)} className="link-with-icon">
-                <i className="icon-tags" />
+              <Link className="link-with-icon" to={getRulesUrl({ tags: sans25Tags }, organization)}>
+                <TagsIcon />
                 <span className="little-spacer-left">SANS Top 25</span>
               </Link>
             </li>

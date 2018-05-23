@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import { max } from 'lodash';
 import { SubComponent } from '../types';
 import Measure from '../../../components/measure/Measure';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';

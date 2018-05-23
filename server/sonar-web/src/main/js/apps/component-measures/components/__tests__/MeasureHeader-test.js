@@ -93,13 +93,13 @@ it('should render with branch', () => {
 it('should not render link to activity page for files', () => {
   expect(
     shallow(<MeasureHeader {...PROPS} />)
-      .find('IconHistory')
+      .find('HistoryIcon')
       .exists()
   ).toBeTruthy();
 
   expect(
     shallow(<MeasureHeader {...PROPS} component={{ ...PROPS.component, qualifier: 'FIL' }} />)
-      .find('IconHistory')
+      .find('HistoryIcon')
       .exists()
   ).toBeFalsy();
 });

@@ -31,6 +31,7 @@ import {
   getBranchLikeQuery
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 
 const SETTINGS_URLS = [
   '/project/admin',
@@ -196,7 +197,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
             id="component-navigation-admin"
             onClick={onToggleClick}>
             {translate('layout.settings')}
-            <i className="icon-dropdown little-spacer-left" />
+            <DropdownIcon className="little-spacer-left" />
           </a>
         )}
       </Dropdown>
@@ -436,7 +437,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
             id="component-navigation-more"
             onClick={onToggleClick}>
             {translate('more')}
-            <i className="icon-dropdown little-spacer-left" />
+            <DropdownIcon className="little-spacer-left" />
           </a>
         )}
       </Dropdown>

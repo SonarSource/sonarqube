@@ -47,11 +47,6 @@
   line-height: var(--controlHeight);
 }
 
-.boxed-group-header [class^='icon-'] {
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .boxed-group-actions {
   position: relative;
   z-index: 12;

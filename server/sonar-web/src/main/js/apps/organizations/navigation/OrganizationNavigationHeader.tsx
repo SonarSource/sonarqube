@@ -46,7 +46,9 @@ export default function OrganizationNavigationHeader({ organization, organizatio
               ))}
             </ul>
           }>
-          <a className="spacer-left link-base-color link-no-underline" href="#">
+          <a
+            className="display-inline-flex-center spacer-left link-base-color link-no-underline"
+            href="#">
             {organization.name}
             <DropdownIcon className="little-spacer-left" />
           </a>

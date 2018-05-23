@@ -21,12 +21,14 @@ import * as React from 'react';
 import { sortBy, uniq, without } from 'lodash';
 import { formatFacetStat, Query } from '../utils';
 import { searchIssueTags } from '../../../api/issues';
+import * as theme from '../../../app/theme';
 import { Component } from '../../../app/types';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetFooter from '../../../components/facet/FacetFooter';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
+import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -87,7 +89,7 @@ export default class TagFacet extends React.PureComponent<Props> {
   renderTag(tag: string) {
     return (
       <span>
-        <i className="icon-tags icon-gray little-spacer-right" />
+        <TagsIcon className="little-spacer-right" fill={theme.gray60} />
         {tag}
       </span>
     );

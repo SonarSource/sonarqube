@@ -7,8 +7,10 @@ exports[`should render with the message and a link to open the rule 1`] = `
   Reduce the number of conditional operators (4) used in the expression
   <Button
     aria-label="issue.rule_details"
-    className="button-link issue-rule icon-ellipsis-h little-spacer-left"
+    className="button-link issue-rule little-spacer-left"
     onClick={[Function]}
-  />
+  >
+    <EllipsisIcon />
+  </Button>
 </div>
 `;

@@ -134,6 +134,8 @@
 }
 
 .issue-meta-list {
+  display: flex;
+  align-items: center;
   padding-left: 10px;
 }
 
@@ -142,13 +144,8 @@
   font-size: var(--smallFontSize);
 }
 
-.issue-meta-on-right {
-  float: right;
-  margin-right: 0;
-}
-
-.issue-meta-on-right + .issue-meta-on-right {
-  margin-right: 10px;
+.issue-meta + .issue-meta {
+  margin-left: var(--gridSize);
 }
 
 .issue-meta-in-corner {
@@ -384,62 +381,6 @@ input.issue-action-options-search {
 .issue-more-actions {
   line-height: 1.5;
   font-size: var(--smallFontSize);
-}
-
-.issue-navigate {
-  display: none;
-  position: absolute;
-  width: 24px;
-  top: 0;
-  bottom: 0;
-  border-bottom: none;
-}
-
-.issue-navigate .issue-navigate-to-left,
-.issue-navigate .issue-navigate-to-right {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -8px 0 0 -3px;
-}
-
-.issue-navigate .issue-navigate-to-left:before,
-.issue-navigate .issue-navigate-to-right:before {
-  font-size: 18px;
-}
-
-.issue-navigate:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.issue-navigate-right .issue-meta-in-corner {
-  padding-right: 24px;
-}
-
-.issue-navigate-left {
-  padding-left: 24px;
-}
-
-.issue-navigate-left .issue-navigate {
-  display: block;
-  left: 0;
-}
-
-.issue-navigate-left .issue-navigate .issue-navigate-to-right {
-  display: none;
-}
-
-.issue-navigate-right {
-  padding-right: 24px;
-}
-
-.issue-navigate-right .issue-navigate {
-  display: block;
-  right: 0;
-}
-
-.issue-navigate-right .issue-navigate .issue-navigate-to-left {
-  display: none;
 }
 
 .issue-with-checkbox {

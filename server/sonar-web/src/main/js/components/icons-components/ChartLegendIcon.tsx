@@ -18,26 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IconProps } from './types';
+import Icon, { IconProps } from './Icon';
 
-export default function ChartLegendIcon({
-  className,
-  fill = 'currentColor',
-  size = 16
-}: IconProps) {
+export default function ChartLegendIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      version="1.1"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      xmlSpace="preserve">
+    <Icon className={className} size={size}>
       <path
-        style={{ fill }}
         d="M14.325 7.143v1.714q0 0.357-0.25 0.607t-0.607 0.25h-10.857q-0.357 0-0.607-0.25t-0.25-0.607v-1.714q0-0.357 0.25-0.607t0.607-0.25h10.857q0.357 0 0.607 0.25t0.25 0.607z"
+        style={{ fill }}
       />
-    </svg>
+    </Icon>
   );
 }

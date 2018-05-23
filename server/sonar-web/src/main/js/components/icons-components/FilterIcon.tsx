@@ -18,18 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
+import Icon, { IconProps } from './Icon';
 
-interface Props {
-  className?: string;
-  severity: string | null | undefined;
-}
-
-export default function SeverityIcon(props: Props) {
-  if (!props.severity) {
-    return null;
-  }
+export default function FilterIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <i className={classNames('icon-severity-' + props.severity.toLowerCase(), props.className)} />
+    <Icon className={className} size={size}>
+      <path
+        d="M13.957 2.333a.536.536 0 0 1-.12.596l-4.2 4.202v6.323a.552.552 0 0 1-.333.503.632.632 0 0 1-.213.043.51.51 0 0 1-.384-.162l-2.181-2.182a.542.542 0 0 1-.162-.383V7.13L2.162 2.929a.536.536 0 0 1-.12-.596A.552.552 0 0 1 2.547 2h10.908c.222 0 .418.137.503.333z"
+        style={{ fill }}
+      />
+    </Icon>
   );
 }

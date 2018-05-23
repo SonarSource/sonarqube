@@ -23,7 +23,7 @@ import * as PropTypes from 'prop-types';
 import { getTests } from '../../../api/components';
 import { BranchLike, SourceLine, TestCase } from '../../../app/types';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import TestStatusIcon from '../../shared/TestStatusIcon';
+import TestStatusIcon from '../../icons-components/TestStatusIcon';
 import { PopupPlacement } from '../../ui/popups';
 import { WorkspaceContext } from '../../workspace/context';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';

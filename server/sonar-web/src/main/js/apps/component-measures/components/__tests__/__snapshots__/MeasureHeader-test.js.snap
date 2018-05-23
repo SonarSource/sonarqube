@@ -92,7 +92,7 @@ exports[`should render correctly 1`] = `
             }
           }
         >
-          <IconHistory />
+          <HistoryIcon />
         </Link>
       </Tooltip>
     </div>
@@ -191,7 +191,7 @@ exports[`should render with branch 1`] = `
     }
   }
 >
-  <IconHistory />
+  <HistoryIcon />
 </Link>
 `;
 
@@ -238,7 +238,7 @@ exports[`should work with measure without value 1`] = `
             }
           }
         >
-          <IconHistory />
+          <HistoryIcon />
         </Link>
       </Tooltip>
     </div>

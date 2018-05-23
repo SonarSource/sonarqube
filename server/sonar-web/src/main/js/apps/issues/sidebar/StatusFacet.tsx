@@ -24,6 +24,7 @@ import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
+import StatusHelper from '../../../components/shared/StatusHelper';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -64,14 +65,6 @@ export default class StatusFacet extends React.PureComponent<Props> {
     return stats ? stats[status] : undefined;
   }
 
-  renderStatus(status: string) {
-    return (
-      <span>
-        <i className={`icon-status-${status.toLowerCase()}`} /> {translate('issue.status', status)}
-      </span>
-    );
-  }
-
   renderItem = (status: string) => {
     const active = this.props.statuses.includes(status);
     const stat = this.getStat(status);
@@ -83,7 +76,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
         halfWidth={true}
         key={status}
         loading={this.props.loading}
-        name={this.renderStatus(status)}
+        name={<StatusHelper resolution={undefined} status={status} />}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat, this.props.facetMode)}
         value={status}

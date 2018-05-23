@@ -25,6 +25,7 @@ import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
 import Dropdown from '../../../../components/controls/Dropdown';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 
 interface Props {
   appState: AppState;
@@ -165,7 +166,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
             id="global-navigation-more"
             onClick={onToggleClick}>
             {translate('more')}
-            <span className="icon-dropdown little-spacer-left" />
+            <DropdownIcon className="little-spacer-left text-middle" />
           </a>
         )}
       </Dropdown>

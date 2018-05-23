@@ -21,7 +21,6 @@ package org.sonarqube.qa.util.pageobjects;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import java.util.Locale;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -153,7 +152,7 @@ public class RuleDetails {
   }
 
   public RuleDetails activationShouldHaveSeverity(String profileKey, String severity) {
-    getActiveProfileElement(profileKey).$(".coding-rules-detail-quality-profile-severity .icon-severity-" + severity.toLowerCase(Locale.ENGLISH)).shouldBe(visible);
+    getActiveProfileElement(profileKey).$(".coding-rules-detail-quality-profile-severity").shouldHave(text(severity));
     return this;
   }
 

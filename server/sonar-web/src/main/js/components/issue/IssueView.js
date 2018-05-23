@@ -119,10 +119,6 @@ export default class IssueView extends React.PureComponent {
               ))}
             </div>
           )}
-        <a className="issue-navigate js-issue-navigate">
-          <i className="issue-navigate-to-left icon-chevron-left" />
-          <i className="issue-navigate-to-right icon-chevron-right" />
-        </a>
         {hasCheckbox && (
           <a className="js-toggle issue-checkbox-container" href="#" onClick={this.handleCheck}>
             <i

@@ -192,15 +192,8 @@
 }
 
 .coding-rules-detail-quality-profile-inheritance {
-  margin-top: 4px;
   font-size: var(--smallFontSize);
   font-weight: normal;
-}
-
-.coding-rules-detail-quality-profile-inheritance i {
-  position: relative;
-  top: -1px;
-  font-size: var(--mediumFontSize);
 }
 
 .coding-rules-detail-quality-profiles-activation {
@@ -272,11 +265,6 @@ textarea.coding-rules-markdown-description {
 .coding-rule-meta {
   padding: calc(0.25 * var(--gridSize));
   padding-left: 30px;
-  font-size: var(--smallFontSize);
-}
-
-.coding-rule-meta .icon-tags:before {
-  color: var(--secondFontColor);
   font-size: var(--smallFontSize);
 }
 

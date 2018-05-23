@@ -23,7 +23,7 @@ import * as PropTypes from 'prop-types';
 import { groupBy, sortBy } from 'lodash';
 import { BranchLike, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../app/types';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import QualifierIcon from '../../shared/QualifierIcon';
+import QualifierIcon from '../../icons-components/QualifierIcon';
 import { PopupPlacement } from '../../ui/popups';
 import { WorkspaceContext } from '../../workspace/context';
 import { translate } from '../../../helpers/l10n';

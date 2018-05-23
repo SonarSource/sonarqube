@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import ChangeProjectsForm from './ChangeProjectsForm';
 import { Profile } from '../types';
 import { getProfileProjects } from '../../../api/quality-profiles';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 

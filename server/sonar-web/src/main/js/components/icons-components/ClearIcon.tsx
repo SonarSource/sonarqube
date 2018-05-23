@@ -18,22 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IconProps } from './types';
+import Icon, { IconProps } from './Icon';
 
-export default function ClearIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
+export default function ClearIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      version="1.1"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      xmlSpace="preserve">
+    <Icon className={className} size={size}>
       <path
-        style={{ fill }}
         d="M14 4.242L11.758 2l-3.76 3.76L4.242 2 2 4.242l3.756 3.756L2 11.758 4.242 14l3.756-3.76 3.76 3.76L14 11.758l-3.76-3.76L14 4.242z"
+        style={{ fill }}
       />
-    </svg>
+    </Icon>
   );
 }

@@ -5,15 +5,17 @@ exports[`should render with a caret on the right if update is allowed 1`] = `
   className="tags-list"
   title="foo, bar"
 >
-  <i
-    className="icon-tags"
+  <TagsIcon
+    className="text-middle"
   />
   <span
-    className="text-ellipsis"
+    className="text-ellipsis text-middle"
   >
     foo, bar
   </span>
-  <DropdownIcon />
+  <DropdownIcon
+    className="text-middle"
+  />
 </span>
 `;
 
@@ -22,11 +24,11 @@ exports[`should render with a list of tag 1`] = `
   className="tags-list"
   title="foo, bar"
 >
-  <i
-    className="icon-tags"
+  <TagsIcon
+    className="text-middle"
   />
   <span
-    className="text-ellipsis"
+    className="text-ellipsis text-middle"
   >
     foo, bar
   </span>

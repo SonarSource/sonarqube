@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
+import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Level from '../../../components/ui/Level';
@@ -76,7 +77,7 @@ export default function ProjectCard({ project }: Props) {
                   rel="nofollow"
                   target="_blank"
                   title={link.name}>
-                  <i className={`icon-color-link icon-${link.type}`} />
+                  <ProjectLinkIcon type={link.type} />
                 </a>
               </li>
             ))}

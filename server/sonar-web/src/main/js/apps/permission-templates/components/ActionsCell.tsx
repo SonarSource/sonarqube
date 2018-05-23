@@ -29,7 +29,7 @@ import {
 } from '../../../api/permissions';
 import { PermissionTemplate } from '../../../app/types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 
 export interface Props {

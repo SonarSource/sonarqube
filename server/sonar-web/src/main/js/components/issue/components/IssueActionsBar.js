@@ -97,7 +97,7 @@ export default class IssueActionsBar extends React.PureComponent {
         <tbody>
           <tr>
             <td>
-              <ul className="list-inline issue-meta-list">
+              <ul className="issue-meta-list">
                 <li className="issue-meta">
                   <IssueType
                     isOpen={this.props.currentPopup === 'set-type' && canSetSeverity}

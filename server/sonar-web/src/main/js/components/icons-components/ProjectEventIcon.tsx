@@ -18,26 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Icon, { IconProps } from './Icon';
 
-interface Props {
-  className?: string;
-  size?: number;
-}
-
-export default function ProjectEventIcon({ className, size = 14 }: Props) {
+export default function ProjectEventIcon({ className, fill = '#fff', size = 14 }: IconProps) {
   return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      version="1.1"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      xmlSpace="preserve">
+    <Icon className={className} size={size}>
       <path
-        style={{ fill: '#fff', stroke: 'currentColor', strokeWidth: '2px' }}
         d="M8 2 L14 8 L8 14 L2 8 L8 2 L14 8"
+        style={{ fill, stroke: 'currentColor', strokeWidth: '2px' }}
       />
-    </svg>
+    </Icon>
   );
 }

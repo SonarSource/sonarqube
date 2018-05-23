@@ -19,7 +19,7 @@ exports[`should render the titlebar correctly 1`] = `
     className="issue-row-meta"
   >
     <ul
-      className="list-inline issue-meta-list"
+      className="issue-meta-list"
     >
       <li
         className="issue-meta"
@@ -102,7 +102,7 @@ exports[`should render the titlebar with the filter 1`] = `
     className="issue-row-meta"
   >
     <ul
-      className="list-inline issue-meta-list"
+      className="issue-meta-list"
     >
       <li
         className="issue-meta"

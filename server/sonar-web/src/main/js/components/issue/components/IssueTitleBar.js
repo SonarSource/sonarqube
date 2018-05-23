@@ -81,7 +81,7 @@ export default function IssueTitleBar(props /*: Props */) {
       />
 
       <div className="issue-row-meta">
-        <ul className="list-inline issue-meta-list">
+        <ul className="issue-meta-list">
           <li className="issue-meta">
             <IssueChangelog
               creationDate={issue.creationDate}

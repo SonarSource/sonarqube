@@ -23,7 +23,6 @@ import throwGlobalError from './throwGlobalError';
 import addGlobalSuccessMessage from './addGlobalSuccessMessage';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
-import * as icons from '../../components/icons-components/icons';
 import DateFromNow from '../../components/intl/DateFromNow';
 import DateFormatter from '../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../components/intl/DateTimeFormatter';
@@ -43,22 +42,31 @@ import Level from '../../components/ui/Level';
 import { EditButton, Button, SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
 import ReloadButton from '../../components/controls/ReloadButton';
+import QualifierIcon from '../../components/icons-components/QualifierIcon';
+import AlertErrorIcon from '../../components/icons-components/AlertErrorIcon';
+import AlertSuccessIcon from '../../components/icons-components/AlertSuccessIcon';
+import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
+import LockIcon from '../../components/icons-components/LockIcon';
+import DropdownIcon from '../../components/icons-components/DropdownIcon';
 
 const exposeLibraries = () => {
   const global = window as any;
 
   global.ReactRedux = ReactRedux;
   global.ReactRouter = ReactRouter;
-  global.SonarIcons = icons;
   global.SonarMeasures = measures;
   global.SonarRequest = { ...request, throwGlobalError, addGlobalSuccessMessage };
   global.SonarComponents = {
+    AlertErrorIcon,
+    AlertSuccessIcon,
+    AlertWarnIcon,
     Button,
     CoverageRating,
     DateFormatter,
     DateFromNow,
     DateTimeFormatter,
     DeferredSpinner,
+    DropdownIcon,
     DuplicationsRating,
     EditButton,
     FavoriteContainer,
@@ -67,7 +75,9 @@ const exposeLibraries = () => {
     Level,
     LicenseEditionSet,
     ListFooter,
+    LockIcon,
     Modal,
+    QualifierIcon,
     ReloadButton,
     ResetButtonLink,
     SearchBox,

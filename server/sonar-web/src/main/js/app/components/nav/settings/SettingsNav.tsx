@@ -30,6 +30,7 @@ import { Extension } from '../../../types';
 import { translate } from '../../../../helpers/l10n';
 import Dropdown from '../../../../components/controls/Dropdown';
 import { PluginPendingResult } from '../../../../api/plugins';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 
 interface Props {
   editionStatus?: EditionStatus;
@@ -137,7 +138,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
             id="settings-navigation-configuration"
             onClick={onToggleClick}>
             {translate('sidebar.project_settings')}
-            <i className="icon-dropdown little-spacer-left" />
+            <DropdownIcon className="little-spacer-left" />
           </a>
         )}
       </Dropdown>
@@ -172,7 +173,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
             className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
             href="#"
             onClick={onToggleClick}>
-            {translate('sidebar.projects')} <i className="icon-dropdown" />
+            {translate('sidebar.projects')}
+            <DropdownIcon className="little-spacer-left" />
           </a>
         )}
       </Dropdown>
@@ -221,7 +223,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
             className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
             href="#"
             onClick={onToggleClick}>
-            {translate('sidebar.security')} <i className="icon-dropdown" />
+            {translate('sidebar.security')}
+            <DropdownIcon className="little-spacer-left" />
           </a>
         )}
       </Dropdown>

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { TestCase } from '../../../app/types';
-import TestStatusIcon from '../../shared/TestStatusIcon';
+import TestStatusIcon from '../../icons-components/TestStatusIcon';
 
 interface Props {
   onClick: (testId: string) => void;

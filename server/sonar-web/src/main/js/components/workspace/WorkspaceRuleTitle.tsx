@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { RuleDescriptor } from './context';
+import LightBulbIcon from '../icons-components/LightBulbIcon';
+import * as theme from '../../app/theme';
 
 interface Props {
   limited?: boolean;
@@ -29,7 +31,7 @@ export default function WorkspaceRuleTitle({ limited, rule }: Props) {
   const { name = '—' } = rule;
   return (
     <>
-      <i className="icon-workspace-doc little-spacer-right" />
+      <LightBulbIcon className="little-spacer-right" fill={theme.blue} />
       {limited ? <span className="text-limited">{name}</span> : name}
     </>
   );

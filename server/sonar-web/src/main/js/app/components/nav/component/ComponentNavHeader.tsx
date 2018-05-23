@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import ComponentNavBranch from './ComponentNavBranch';
 import { Component, Organization, BranchLike, Breadcrumb } from '../../../types';
-import QualifierIcon from '../../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../../components/icons-components/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';

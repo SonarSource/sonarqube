@@ -73,8 +73,8 @@ exports[`should render correctly 1`] = `
   >
     <Button>
       system.download_logs
-      <i
-        className="icon-dropdown little-spacer-left"
+      <DropdownIcon
+        className="little-spacer-left"
       />
     </Button>
   </Dropdown>
@@ -150,8 +150,8 @@ exports[`should render correctly 2`] = `
 >
   <Button>
     system.download_logs
-    <i
-      className="icon-dropdown little-spacer-left"
+    <DropdownIcon
+      className="little-spacer-left"
     />
   </Button>
 </Dropdown>

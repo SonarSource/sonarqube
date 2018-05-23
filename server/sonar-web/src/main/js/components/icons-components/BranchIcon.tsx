@@ -21,7 +21,7 @@ import * as React from 'react';
 import ShortLivingBranchIcon from './ShortLivingBranchIcon';
 import LongLivingBranchIcon from './LongLivingBranchIcon';
 import PullRequestIcon from './PullRequestIcon';
-import { IconProps } from './types';
+import { IconProps } from './Icon';
 import { BranchLike } from '../../app/types';
 import { isShortLivingBranch, isPullRequest } from '../../helpers/branches';
 

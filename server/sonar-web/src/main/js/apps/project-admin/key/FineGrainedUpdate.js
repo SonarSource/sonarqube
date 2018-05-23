@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import UpdateKeyForm from './UpdateKeyForm';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 
 export default function FineGrainedUpdate(props) {
   const { component, modules } = props;

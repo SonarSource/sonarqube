@@ -21,8 +21,7 @@ import * as React from 'react';
 import { isProvided, getLinkName } from './utils';
 import { ProjectLink } from '../../../app/types';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import DetachIcon from '../../../components/icons-components/DetachIcon';
-import BugTrackerIcon from '../../../components/icons-components/BugTrackerIcon';
+import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -32,49 +31,30 @@ interface Props {
 }
 
 export default class LinkRow extends React.PureComponent<Props> {
-  renderIcon = (iconClassName: string) => {
-    if (iconClassName === 'icon-issue') {
-      return (
-        <div className="display-inline-block text-top spacer-right">
-          <BugTrackerIcon />
-        </div>
-      );
-    }
-
-    return (
-      <div className="display-inline-block text-top spacer-right">
-        <i className={iconClassName} />
-      </div>
-    );
-  };
-
   renderNameForProvided = (link: ProjectLink) => {
     return (
-      <div>
-        {this.renderIcon(`icon-${link.type}`)}
-        <div className="display-inline-block text-top">
-          <div>
-            <span className="js-name">{getLinkName(link)}</span>
-          </div>
-          <div className="note little-spacer-top">
-            <span className="js-type">{`sonar.links.${link.type}`}</span>
-          </div>
+      <div className="display-inline-block text-top">
+        <div>
+          <span className="js-name">{getLinkName(link)}</span>
+        </div>
+        <div className="note little-spacer-top">
+          <span className="js-type">{`sonar.links.${link.type}`}</span>
         </div>
       </div>
     );
   };
 
   renderName = (link: ProjectLink) => {
-    if (isProvided(link)) {
-      return this.renderNameForProvided(link);
-    }
-
     return (
       <div>
-        <DetachIcon className="little-spacer-right" />
-        <div className="display-inline-block text-top">
-          <span className="js-name">{link.name}</span>
-        </div>
+        <ProjectLinkIcon className="little-spacer-right" type={link.type} />
+        {isProvided(link) ? (
+          this.renderNameForProvided(link)
+        ) : (
+          <div className="display-inline-block text-top">
+            <span className="js-name">{link.name}</span>
+          </div>
+        )}
       </div>
     );
   };

@@ -22,6 +22,7 @@ import * as classNames from 'classnames';
 import { Link } from 'react-router';
 import { LocationDescriptor } from 'history';
 import Dropdown from './Dropdown';
+import DropdownIcon from '../icons-components/DropdownIcon';
 import SettingsIcon from '../icons-components/SettingsIcon';
 import { Button } from '../ui/buttons';
 
@@ -43,8 +44,8 @@ export default function ActionsDropdown(props: Props) {
         className={classNames('dropdown-toggle', props.toggleClassName, {
           'button-small': props.small
         })}>
-        <SettingsIcon className="text-text-bottom" />
-        <i className="icon-dropdown little-spacer-left" />
+        <SettingsIcon size={props.small ? 12 : 14} />
+        <DropdownIcon className="little-spacer-left" />
       </Button>
     </Dropdown>
   );

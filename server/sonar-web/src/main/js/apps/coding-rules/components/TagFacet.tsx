@@ -21,7 +21,9 @@ import * as React from 'react';
 import { uniq } from 'lodash';
 import Facet, { BasicProps } from './Facet';
 import { getRuleTags } from '../../../api/rules';
+import * as theme from '../../../app/theme';
 import FacetFooter from '../../../components/facet/FacetFooter';
+import TagsIcon from '../../../components/icons-components/TagsIcon';
 
 interface Props extends BasicProps {
   organization: string | undefined;
@@ -40,7 +42,7 @@ export default class TagFacet extends React.PureComponent<Props> {
 
   renderName = (tag: string) => (
     <>
-      <i className="icon-tags icon-gray little-spacer-right" />
+      <TagsIcon className="little-spacer-right" fill={theme.gray60} />
       {tag}
     </>
   );

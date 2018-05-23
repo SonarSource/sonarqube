@@ -106,7 +106,6 @@ function runDevServer(compiler, host, port, protocol) {
     },
     proxy: {
       '/api': proxy,
-      '/fonts': proxy,
       '/static': proxy,
       '/integration': proxy
     }

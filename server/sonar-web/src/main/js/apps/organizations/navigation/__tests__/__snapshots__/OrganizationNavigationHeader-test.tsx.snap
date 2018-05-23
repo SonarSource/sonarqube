@@ -52,7 +52,7 @@ exports[`renders dropdown 1`] = `
   }
 >
   <a
-    className="spacer-left link-base-color link-no-underline"
+    className="display-inline-flex-center spacer-left link-base-color link-no-underline"
     href="#"
   >
     Foo

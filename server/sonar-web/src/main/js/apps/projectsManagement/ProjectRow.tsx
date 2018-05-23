@@ -24,7 +24,7 @@ import { Project } from './utils';
 import { Visibility } from '../../app/types';
 import PrivateBadge from '../../components/common/PrivateBadge';
 import Checkbox from '../../components/controls/Checkbox';
-import QualifierIcon from '../../components/shared/QualifierIcon';
+import QualifierIcon from '../../components/icons-components/QualifierIcon';
 import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
 
 interface Props {

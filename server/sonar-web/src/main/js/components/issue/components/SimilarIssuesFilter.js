@@ -22,6 +22,7 @@ import React from 'react';
 import SimilarIssuesPopup from '../popups/SimilarIssuesPopup';
 import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import FilterIcon from '../../../components/icons-components/FilterIcon';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
@@ -68,8 +69,8 @@ export default class SimilarIssuesFilter extends React.PureComponent {
             aria-label={translate('issue.filter_similar_issues')}
             className="js-issue-filter button-link issue-action issue-action-with-options"
             onClick={this.handleClick}>
-            <i className="icon-filter icon-half-transparent" />
-            <DropdownIcon className="little-spacer-left" />
+            <FilterIcon className="icon-half-transparent" />
+            <DropdownIcon className="icon-half-transparent" />
           </Button>
         </Toggler>
       </div>

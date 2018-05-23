@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import ComparisonEmpty from './ComparisonEmpty';
-import SeverityIcon from '../../../components/shared/SeverityIcon';
+import SeverityIcon from '../../../components/icons-components/SeverityIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 

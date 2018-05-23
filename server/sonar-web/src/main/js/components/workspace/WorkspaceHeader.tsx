@@ -25,7 +25,7 @@ import ClearIcon from '../icons-components/ClearIcon';
 import CollapseIcon from '../icons-components/CollapseIcon';
 import ExpandIcon from '../icons-components/ExpandIcon';
 import MinimizeIcon from '../icons-components/MinimizeIcon';
-import { IconProps } from '../icons-components/types';
+import { IconProps } from '../icons-components/Icon';
 
 export interface Props {
   children: React.ReactNode;

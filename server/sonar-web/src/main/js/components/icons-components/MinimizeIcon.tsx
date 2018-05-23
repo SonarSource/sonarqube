@@ -18,22 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IconProps } from './types';
+import Icon, { IconProps } from './Icon';
 
-export default function MinimizeIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
+export default function MinimizeIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <svg
-      className={className}
-      height={size}
-      version="1.1"
-      viewBox="0 0 16 16"
-      width={size}
-      xmlSpace="preserve"
-      xmlnsXlink="http://www.w3.org/1999/xlink">
+    <Icon className={className} size={size}>
       <path
         d="M14 12.1v1.267c0 .176-.08.325-.239.448a.918.918 0 0 1-.58.185H2.819a.918.918 0 0 1-.58-.185C2.08 13.692 2 13.543 2 13.367V12.1c0-.176.08-.326.239-.449a.918.918 0 0 1 .58-.185h10.363c.227 0 .42.062.58.185.158.123.238.273.238.449z"
         style={{ fill }}
       />
-    </svg>
+    </Icon>
   );
 }

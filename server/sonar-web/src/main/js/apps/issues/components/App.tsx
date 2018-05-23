@@ -69,7 +69,7 @@ import { RawQuery } from '../../../helpers/query';
 import { scrollToElement } from '../../../helpers/scrolling';
 import EmptySearch from '../../../components/common/EmptySearch';
 import Checkbox from '../../../components/controls/Checkbox';
-
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import '../styles.css';
 
 interface FetchIssuesPromise {
@@ -821,7 +821,7 @@ export default class App extends React.PureComponent<Props, State> {
             }>
             <Button id="issues-bulk-change">
               {translate('bulk_change')}
-              <i className="icon-dropdown little-spacer-left" />
+              <DropdownIcon className="little-spacer-left" />
             </Button>
           </Dropdown>
         ) : (

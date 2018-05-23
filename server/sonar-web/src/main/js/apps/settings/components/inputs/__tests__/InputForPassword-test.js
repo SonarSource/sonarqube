@@ -27,7 +27,7 @@ it('should render lock icon, but no form', () => {
   const input = shallow(
     <InputForPassword isDefault={false} name="foo" onChange={onChange} value="bar" />
   );
-  expect(input.find('.icon-lock').length).toBe(1);
+  expect(input.find('LockIcon').length).toBe(1);
   expect(input.find('form').length).toBe(0);
 });
 

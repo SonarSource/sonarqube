@@ -19,22 +19,15 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { IconProps } from './types';
+import Icon, { IconProps } from './Icon';
 
 export default function ClockIcon({ className, size = 16 }: IconProps) {
   return (
-    <svg
-      className={classNames('icon-clock', className)}
-      height={size}
-      version="1.1"
-      viewBox="0 0 16 16"
-      width={size}
-      xmlSpace="preserve"
-      xmlnsXlink="http://www.w3.org/1999/xlink">
+    <Icon className={classNames('icon-clock', className)} size={size}>
       <g fill="#fff" stroke="#ADADAD" transform="matrix(1.4 0 0 1.4 .3 .7)">
         <circle cx="5.5" cy="5.2" r="5" />
         <path d="M5.6 2.9v2.7l2-.5" fillRule="nonzero" />
       </g>
-    </svg>
+    </Icon>
   );
 }

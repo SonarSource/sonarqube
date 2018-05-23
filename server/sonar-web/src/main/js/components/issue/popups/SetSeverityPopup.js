@@ -22,7 +22,7 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
-import SeverityIcon from '../../../components/shared/SeverityIcon';
+import SeverityIcon from '../../../components/icons-components/SeverityIcon';
 import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { Issue } from '../types'; */
 

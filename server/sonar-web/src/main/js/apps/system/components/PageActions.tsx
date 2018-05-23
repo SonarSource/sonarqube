@@ -25,6 +25,7 @@ import Dropdown from '../../../components/controls/Dropdown';
 import { EditButton, Button } from '../../../components/ui/buttons';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 
 interface Props {
   canDownloadLogs: boolean;
@@ -145,7 +146,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
             }>
             <Button>
               {translate('system.download_logs')}
-              <i className="icon-dropdown little-spacer-left" />
+              <DropdownIcon className="little-spacer-left" />
             </Button>
           </Dropdown>
         )}

@@ -61,8 +61,8 @@ exports[`renders main branch 1`] = `
             master
           </span>
         </Tooltip>
-        <i
-          className="icon-dropdown little-spacer-left"
+        <DropdownIcon
+          className="little-spacer-left"
         />
       </a>
     </Toggler>
@@ -152,8 +152,8 @@ exports[`renders pull request 1`] = `
             1234 – Feature PR
           </span>
         </Tooltip>
-        <i
-          className="icon-dropdown little-spacer-left"
+        <DropdownIcon
+          className="little-spacer-left"
         />
       </a>
     </Toggler>
@@ -264,8 +264,8 @@ exports[`renders short-living branch 1`] = `
             foo
           </span>
         </Tooltip>
-        <i
-          className="icon-dropdown little-spacer-left"
+        <DropdownIcon
+          className="little-spacer-left"
         />
       </a>
     </Toggler>

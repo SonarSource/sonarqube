@@ -32,7 +32,8 @@
 .navbar-tabs > li > a {
   display: block;
   height: var(--controlHeight);
-  line-height: calc(var(--controlHeight) - 6px);
+  line-height: 16px;
+  padding-top: 2px;
   border-bottom: 3px solid transparent;
   box-sizing: border-box;
   color: var(--baseFontColor);

@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface IconProps {
-  className?: string;
-  fill?: string;
-  size?: number;
+import * as React from 'react';
+import Icon, { IconProps } from './Icon';
+
+export default function LockIcon({ className, fill = 'currentColor', size }: IconProps) {
+  return (
+    <Icon className={className} size={size}>
+      <path
+        d="M5.455 7.364h5.09v-1.91A2.55 2.55 0 0 0 8 2.91a2.55 2.55 0 0 0-2.545 2.546v1.909zm8.272.954v5.727a.955.955 0 0 1-.954.955H3.227a.955.955 0 0 1-.954-.955V8.318c0-.527.427-.954.954-.954h.318v-1.91C3.545 3.01 5.554 1 8 1s4.455 2.009 4.455 4.455v1.909h.318c.527 0 .954.427.954.954z"
+        style={{ fill }}
+      />
+    </Icon>
+  );
 }

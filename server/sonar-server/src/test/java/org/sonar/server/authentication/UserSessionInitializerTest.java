@@ -107,7 +107,6 @@ public class UserSessionInitializerTest {
 
     // exclude static resources
     assertPathIsIgnored("/css/style.css");
-    assertPathIsIgnored("/fonts/font.ttf");
     assertPathIsIgnored("/images/logo.png");
     assertPathIsIgnored("/js/jquery.js");
   }

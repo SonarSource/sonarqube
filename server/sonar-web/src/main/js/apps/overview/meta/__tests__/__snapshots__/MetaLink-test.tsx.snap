@@ -8,17 +8,10 @@ exports[`should expand and collapse link 1`] = `
     rel="nofollow"
     target="_blank"
   >
-    <MetaLinkIcon
-      link={
-        Object {
-          "id": "1",
-          "name": "Foo",
-          "type": "foo",
-          "url": "scm:git:git@github.com",
-        }
-      }
+    <ProjectLinkIcon
+      className="little-spacer-right"
+      type="foo"
     />
-     
     Foo
   </a>
 </li>
@@ -32,17 +25,10 @@ exports[`should expand and collapse link 2`] = `
     rel="nofollow"
     target="_blank"
   >
-    <MetaLinkIcon
-      link={
-        Object {
-          "id": "1",
-          "name": "Foo",
-          "type": "foo",
-          "url": "scm:git:git@github.com",
-        }
-      }
+    <ProjectLinkIcon
+      className="little-spacer-right"
+      type="foo"
     />
-     
     Foo
   </a>
 </li>
@@ -56,17 +42,10 @@ exports[`should expand and collapse link 3`] = `
     rel="nofollow"
     target="_blank"
   >
-    <MetaLinkIcon
-      link={
-        Object {
-          "id": "1",
-          "name": "Foo",
-          "type": "foo",
-          "url": "scm:git:git@github.com",
-        }
-      }
+    <ProjectLinkIcon
+      className="little-spacer-right"
+      type="foo"
     />
-     
     Foo
   </a>
 </li>
@@ -80,17 +59,10 @@ exports[`should match snapshot 1`] = `
     rel="nofollow"
     target="_blank"
   >
-    <MetaLinkIcon
-      link={
-        Object {
-          "id": "1",
-          "name": "Foo",
-          "type": "foo",
-          "url": "http://example.com",
-        }
-      }
+    <ProjectLinkIcon
+      className="little-spacer-right"
+      type="foo"
     />
-     
     Foo
   </a>
 </li>

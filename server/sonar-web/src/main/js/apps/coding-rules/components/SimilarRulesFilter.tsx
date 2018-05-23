@@ -23,6 +23,9 @@ import { Rule } from '../../../app/types';
 import Dropdown from '../../../components/controls/Dropdown';
 import { translate } from '../../../helpers/l10n';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import FilterIcon from '../../../components/icons-components/FilterIcon';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import TagsIcon from '../../../components/icons-components/TagsIcon';
 
 interface Props {
   onFilterChange: (changes: Partial<Query>) => void;
@@ -97,8 +100,8 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
                   {allTags.map(tag => (
                     <li key={tag}>
                       <a data-field="tag" data-tag={tag} href="#" onClick={this.handleTagClick}>
-                        <i className="icon-tags icon-half-transparent little-spacer-right" />
-                        {tag}
+                        <TagsIcon className="icon-half-transparent little-spacer-right text-middle" />
+                        <span className="text-middle">{tag}</span>
                       </a>
                     </li>
                   ))}
@@ -108,8 +111,8 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
           </>
         }>
         <a className="js-rule-filter link-no-underline spacer-left dropdown-toggle" href="#">
-          <i className="icon-filter icon-half-transparent" />
-          <i className="icon-dropdown little-spacer-left" />
+          <FilterIcon className="icon-half-transparent" />
+          <DropdownIcon className="icon-half-transparent" />
         </a>
       </Dropdown>
     );

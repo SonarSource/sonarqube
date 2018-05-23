@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import './TagsList.css';
 import DropdownIcon from '../icons-components/DropdownIcon';
+import TagsIcon from '../icons-components/TagsIcon';
+import './TagsList.css';
 
 interface Props {
   allowUpdate?: boolean;
@@ -31,9 +32,9 @@ interface Props {
 export default function TagsList({ allowUpdate = false, className, tags }: Props) {
   return (
     <span className={classNames('tags-list', className)} title={tags.join(', ')}>
-      <i className="icon-tags" />
-      <span className="text-ellipsis">{tags.join(', ')}</span>
-      {allowUpdate && <DropdownIcon />}
+      <TagsIcon className="text-middle" />
+      <span className="text-ellipsis text-middle">{tags.join(', ')}</span>
+      {allowUpdate && <DropdownIcon className="text-middle" />}
     </span>
   );
 }

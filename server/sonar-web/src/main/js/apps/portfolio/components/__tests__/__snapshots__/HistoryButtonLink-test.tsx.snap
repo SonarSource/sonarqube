@@ -16,7 +16,7 @@ exports[`renders 1`] = `
     }
   }
 >
-  <IconHistory
+  <HistoryIcon
     size={14}
   />
 </Link>

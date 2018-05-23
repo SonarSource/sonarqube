@@ -36,6 +36,7 @@ import PlusCircleIcon from '../../../../components/icons-components/PlusCircleIc
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Toggler from '../../../../components/controls/Toggler';
 import Tooltip from '../../../../components/controls/Tooltip';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -186,7 +187,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
               <Tooltip mouseEnterDelay={1} overlay={displayName}>
                 <span className="text-limited text-top">{displayName}</span>
               </Tooltip>
-              <i className="icon-dropdown little-spacer-left" />
+              <DropdownIcon className="little-spacer-left" />
             </a>
           </Toggler>
         </div>

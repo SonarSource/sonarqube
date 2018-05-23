@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import TaskType from './TaskType';
 import { Task } from '../types';
-import QualifierIcon from '../../../components/shared/QualifierIcon';
+import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
 import {
   getProjectUrl,

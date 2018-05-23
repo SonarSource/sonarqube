@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Button } from '../ui/buttons';
+import ClearIcon from '../icons-components/ClearIcon';
+import { ButtonIcon } from '../ui/buttons';
 
 interface Message {
   id: string;
@@ -41,11 +42,12 @@ export default class GlobalMessages extends React.PureComponent<Props> {
     return (
       <div className={className} key={message.id}>
         {message.message}
-        <Button
-          className="process-spinner-close"
+        <ButtonIcon
+          className="button-small process-spinner-close"
+          color="#fff"
           onClick={() => this.props.closeGlobalMessage(message.id)}>
-          <i className="icon-close" />
-        </Button>
+          <ClearIcon />
+        </ButtonIcon>
       </div>
     );
   };

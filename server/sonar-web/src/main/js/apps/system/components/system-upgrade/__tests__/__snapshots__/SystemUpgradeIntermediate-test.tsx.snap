@@ -8,8 +8,9 @@ exports[`should display correctly 1`] = `
     onClick={[Function]}
   >
     system.show_intermediate_versions
-    <i
-      className="little-spacer-left icon-arrow-down"
+    <DropdownIcon
+      className="little-spacer-left"
+      turned={false}
     />
   </a>
 </div>
@@ -23,8 +24,9 @@ exports[`should display correctly 2`] = `
     onClick={[Function]}
   >
     system.hide_intermediate_versions
-    <i
-      className="little-spacer-left icon-arrow-up"
+    <DropdownIcon
+      className="little-spacer-left"
+      turned={true}
     />
   </a>
   <div

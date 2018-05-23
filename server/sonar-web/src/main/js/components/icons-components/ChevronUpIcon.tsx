@@ -18,22 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IconProps } from './types';
+import Icon, { IconProps } from './Icon';
 
-export default function ChevronUpIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
+export default function ChevronUpIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <svg
-      className={className}
-      height={size}
-      version="1.1"
-      viewBox="0 0 16 16"
-      width={size}
-      xmlSpace="preserve"
-      xmlnsXlink="http://www.w3.org/1999/xlink">
+    <Icon className={className} size={size}>
       <path
         d="M8.28 4.404l4.602 4.604a.382.382 0 0 1 .118.279c0 .108-.04.2-.118.279l-1.03 1.03a.382.382 0 0 1-.278.117.382.382 0 0 1-.28-.117L8 7.3l-3.294 3.295a.382.382 0 0 1-.28.117.382.382 0 0 1-.279-.117l-1.03-1.03A.382.382 0 0 1 3 9.286c0-.107.04-.2.118-.278L7.72 4.404A.382.382 0 0 1 8 4.287c.108 0 .201.04.28.117z"
         style={{ fill }}
-      />;
-    </svg>
+      />
+    </Icon>
   );
 }

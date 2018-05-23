@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { HistoryIcon } from '../../../components/icons-components/icons';
+import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 
 interface Props {

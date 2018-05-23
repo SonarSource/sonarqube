@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import DateFormatter from '../../../../components/intl/DateFormatter';
 import { SystemUpgrade } from '../../../../api/system';
 import { translate } from '../../../../helpers/l10n';
@@ -57,16 +57,11 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
           {showMore
             ? translate('system.hide_intermediate_versions')
             : translate('system.show_intermediate_versions')}
-          <i
-            className={classNames('little-spacer-left', {
-              'icon-arrow-down': !showMore,
-              'icon-arrow-up': showMore
-            })}
-          />
+          <DropdownIcon className="little-spacer-left" turned={showMore} />
         </a>
         {showMore &&
           upgrades.map(upgrade => (
-            <div key={upgrade.version} className="note system-upgrade-intermediate">
+            <div className="note system-upgrade-intermediate" key={upgrade.version}>
               <DateFormatter date={upgrade.releaseDate} long={true}>
                 {formattedDate => (
                   <p>

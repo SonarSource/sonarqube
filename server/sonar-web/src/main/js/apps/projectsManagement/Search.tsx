@@ -25,7 +25,7 @@ import { QUALIFIERS_ORDER, Project } from './utils';
 import { Organization } from '../../app/types';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
-import QualifierIcon from '../../components/shared/QualifierIcon';
+import QualifierIcon from '../../components/icons-components/QualifierIcon';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import DateInput from '../../components/controls/DateInput';
 import Select from '../../components/controls/Select';

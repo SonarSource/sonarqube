@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 .button {
-  display: inline-block;
-  vertical-align: baseline;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
   height: var(--controlHeight);
   line-height: calc(var(--controlHeight) - 2px);
   padding: 0 12px;
@@ -61,10 +62,6 @@
   background: var(--disableGrayBg) !important;
   cursor: not-allowed !important;
   box-shadow: none !important;
-}
-
-.button svg {
-  margin-top: calc((var(--controlHeight) - 16px - 2px) / 2);
 }
 
 /* #region .button-red */
@@ -133,10 +130,6 @@
   transition: all 0.2s ease;
 }
 
-.button-link svg {
-  margin-top: 0;
-}
-
 .button-link:hover {
   background: transparent;
   color: var(--blue);
@@ -162,10 +155,6 @@
   line-height: 18px;
   padding: 0 6px;
   font-size: 11px;
-}
-
-.button-small > svg {
-  margin-top: 2px;
 }
 
 /* #region .button-group */

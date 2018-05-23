@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import ChangelogPopup from '../popups/ChangelogPopup';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Toggler from '../../../components/controls/Toggler';
@@ -68,7 +69,7 @@ export default class IssueChangelog extends React.PureComponent {
               <span className="issue-meta-label">
                 <DateFromNow date={this.props.creationDate} />
               </span>
-              <i className="icon-dropdown little-spacer-left" />
+              <DropdownIcon className="little-spacer-left" />
             </Button>
           </Tooltip>
         </Toggler>

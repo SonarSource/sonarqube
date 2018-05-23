@@ -29,7 +29,7 @@ import { getAllMetrics } from '../../../api/metrics';
 import { FacetValue, SourceViewerFile, BranchLike } from '../../../app/types';
 import Modal from '../../controls/Modal';
 import Measure from '../../measure/Measure';
-import QualifierIcon from '../../shared/QualifierIcon';
+import QualifierIcon from '../../icons-components/QualifierIcon';
 import SeverityHelper from '../../shared/SeverityHelper';
 import CoverageRating from '../../ui/CoverageRating';
 import DuplicationsRating from '../../ui/DuplicationsRating';
@@ -44,6 +44,7 @@ import {
 } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { getBranchLikeQuery } from '../../../helpers/branches';
+import TagsIcon from '../../icons-components/TagsIcon';
 
 interface Props {
   branchLike: BranchLike | undefined;
@@ -192,7 +193,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             {this.renderBigMeasure(measures.sqale_index)}
           </div>
           {measures.violations &&
-            !measures.violations.value && (
+            !!measures.violations.value && (
               <>
                 {typesFacet && (
                   <div className="measures">
@@ -233,7 +234,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
                       {tagsFacet.map(f => (
                         <div className="measure measure-one-line" key={f.val}>
                           <span className="measure-name">
-                            <i className="icon-tags little-spacer-right" />
+                            <TagsIcon className="little-spacer-right" />
                             {f.val}
                           </span>
                           <span className="measure-value">

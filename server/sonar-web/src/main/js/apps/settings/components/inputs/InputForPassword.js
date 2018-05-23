@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import * as theme from '../../../../app/theme';
 import { translate } from '../../../../helpers/l10n';
 import { defaultInputPropTypes } from '../../propTypes';
+import LockIcon from '../../../../components/icons-components/LockIcon';
 import { Button } from '../../../../components/ui/buttons';
 
 export default class InputForPassword extends React.PureComponent {
@@ -71,8 +73,10 @@ export default class InputForPassword extends React.PureComponent {
 
     return (
       <div>
-        <i className="big-spacer-right icon-lock icon-gray" />
-        <Button onClick={this.handleChangeClick}>{translate('change_verb')}</Button>
+        <LockIcon className="text-middle big-spacer-right" fill={theme.gray60} />
+        <Button className="text-middle" onClick={this.handleChangeClick}>
+          {translate('change_verb')}
+        </Button>
       </div>
     );
   }

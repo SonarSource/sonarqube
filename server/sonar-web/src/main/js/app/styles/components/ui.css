@@ -62,13 +62,13 @@
 
 .process-spinner-close {
   position: absolute;
-  top: 0;
-  right: 0;
-  padding: 3px;
-  background: none !important;
-  border: none !important;
-  line-height: 1;
-  color: #fff;
+  top: 2px;
+  right: 2px;
+}
+
+.process-spinner-close:hover path,
+.process-spinner-close:focus path {
+  fill: var(--red) !important;
 }
 
 .shortcuts-section + .shortcuts-section {

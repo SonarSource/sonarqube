@@ -320,9 +320,9 @@ public class RulesPageTest {
     QualityProfile profile = createInheritedQualityProfile();
 
     RuleDetails ruleDetails = openRulesAsAdmin().takeRule(SAMPLE_RULE).open();
-    ruleDetails.activationShouldHaveSeverity(profile.getKey(), "BLOCKER");
+    ruleDetails.activationShouldHaveSeverity(profile.getKey(), "Blocker");
     ruleDetails.revertActivationToParentDefinition(profile.getKey());
-    ruleDetails.activationShouldHaveSeverity(profile.getKey(), "MAJOR");
+    ruleDetails.activationShouldHaveSeverity(profile.getKey(), "Major");
   }
 
   private RulesPage openRulesAsAdmin() {

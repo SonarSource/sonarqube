@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isProvided, getLinkName } from '../../project-admin/links/utils';
+import { getLinkName } from '../../project-admin/links/utils';
 import { ProjectLink } from '../../../app/types';
-import DetachIcon from '../../../components/icons-components/DetachIcon';
-import BugTrackerIcon from '../../../components/icons-components/BugTrackerIcon';
+import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 
 interface Props {
   link: ProjectLink;
@@ -31,16 +30,9 @@ export default function MetaLink({ link }: Props) {
   return (
     <li>
       <a className="link-with-icon" href={link.url} rel="nofollow" target="_blank">
-        <MetaLinkIcon link={link} /> {getLinkName(link)}
+        <ProjectLinkIcon className="little-spacer-right" type={link.type} />
+        {getLinkName(link)}
       </a>
     </li>
   );
-}
-
-function MetaLinkIcon({ link }: Props) {
-  if (link.type === 'issue') {
-    return <BugTrackerIcon />;
-  }
-
-  return isProvided(link) ? <i className={`icon-color-link icon-${link.type}`} /> : <DetachIcon />;
 }

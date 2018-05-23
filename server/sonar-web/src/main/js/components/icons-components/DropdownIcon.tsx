@@ -18,24 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IconProps } from './types';
+import Icon, { IconProps } from './Icon';
 
-export default function DropdownIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
+interface DropdownIconProps {
+  turned?: boolean;
+}
+
+export default function DropdownIcon({
+  className,
+  fill = 'currentColor',
+  size = 16,
+  turned = false
+}: IconProps & DropdownIconProps) {
   return (
-    <svg
+    <Icon
       className={className}
-      width={size / 16 * 7}
       height={size}
+      style={turned ? { transform: 'rotate(180deg)' } : undefined}
       viewBox="0 0 7 16"
-      version="1.1"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      xmlSpace="preserve">
-      <g transform="matrix(0.0273438,0,0,0.0273438,-6.4e-06,2.65625)">
-        <path
-          style={{ fill }}
-          d="M256,176C256,180.333 254.417,184.083 251.25,187.25L139.25,299.25C136.083,302.417 132.333,304 128,304C123.667,304 119.917,302.417 116.75,299.25L4.75,187.25C1.583,184.083 0,180.333 0,176C0,171.667 1.583,167.917 4.75,164.75C7.917,161.583 11.667,160 16,160L240,160C244.333,160 248.083,161.583 251.25,164.75C254.417,167.917 256,171.667 256,176Z"
-        />
-      </g>
-    </svg>
+      width={size / 16 * 7}>
+      <path
+        d="M7 6.469a.42.42 0 0 1-.13.307L3.808 9.84a.42.42 0 0 1-.308.13.42.42 0 0 1-.308-.13L.13 6.776A.42.42 0 0 1 0 6.47a.42.42 0 0 1 .13-.308.42.42 0 0 1 .307-.13h6.126a.42.42 0 0 1 .307.13.42.42 0 0 1 .13.308z"
+        style={{ fill }}
+      />
+    </Icon>
   );
 }
