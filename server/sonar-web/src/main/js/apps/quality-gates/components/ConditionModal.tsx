@@ -46,7 +46,6 @@ interface State {
   metric?: Metric;
   op?: string;
   period: boolean;
-  submitting: boolean;
   warning: string;
 }
 
@@ -60,8 +59,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
       period: props.condition ? props.condition.period === 1 : false,
       warning: props.condition ? props.condition.warning : '',
       metric: props.metric ? props.metric : undefined,
-      op: props.condition ? props.condition.op : undefined,
-      submitting: false
+      op: props.condition ? props.condition.op : undefined
     };
   }
 
@@ -74,16 +72,14 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   }
 
   handleError = (error: any) => {
-    if (this.mounted) {
-      parseError(error).then(
-        message => {
-          this.setState({ errorMessage: message, submitting: false });
-        },
-        () => {
-          this.setState({ submitting: false });
+    parseError(error).then(
+      message => {
+        if (this.mounted) {
+          this.setState({ errorMessage: message });
         }
-      );
-    }
+      },
+      () => {}
+    );
   };
 
   getUpdatedCondition = (metric: Metric) => {
@@ -107,13 +103,11 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
 
   handleConditionResponse = (newCondition: Condition) => {
     this.props.onAddCondition(newCondition);
-    this.props.onClose();
   };
 
   handleFormSubmit = () => {
     if (this.state.metric) {
       const { condition, qualityGate, organization } = this.props;
-      this.setState({ submitting: true });
 
       if (condition) {
         const data: Condition = {
@@ -121,19 +115,20 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
           ...this.getUpdatedCondition(this.state.metric)
         };
 
-        updateCondition({ organization, ...data }).then(
+        return updateCondition({ organization, ...data }).then(
           this.handleConditionResponse,
           this.handleError
         );
       } else {
         const data = this.getUpdatedCondition(this.state.metric);
 
-        createCondition({ gateId: qualityGate.id, organization, ...data }).then(
+        return createCondition({ gateId: qualityGate.id, organization, ...data }).then(
           this.handleConditionResponse,
           this.handleError
         );
       }
     }
+    return Promise.resolve();
   };
 
   handleChooseType = (metric: Metric) => {
@@ -162,6 +157,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     return (
       <ConfirmModal
         confirmButtonText={header}
+        confirmDisable={metric === undefined}
         header={header}
         onClose={onClose}
         onConfirm={this.handleFormSubmit}>
