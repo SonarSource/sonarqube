@@ -61,7 +61,6 @@ import static org.sonar.core.util.FileUtils.deleteQuietly;
 /**
  * Entry point to install and load plugins on server startup. It manages
  * <ul>
- *   <li>installation of bundled plugins on first server startup</li>
  *   <li>installation of new plugins (effective after server startup)</li>
  *   <li>un-installation of plugins (effective after server startup)</li>
  *   <li>cancel pending installations/un-installations</li>
@@ -106,7 +105,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   @Override
   public void start() {
     loadPreInstalledPlugins();
-    copyBundledPlugins();
     moveDownloadedPlugins();
     moveDownloadedEditionPlugins();
     unloadIncompatiblePlugins();
@@ -159,23 +157,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     if (fs.getEditionDownloadedPluginsDir().exists()) {
       for (File sourceFile : listJarFiles(fs.getEditionDownloadedPluginsDir())) {
         overrideAndRegisterPlugin(sourceFile, true);
-      }
-    }
-  }
-
-  /**
-   * Copies the plugins bundled with SonarQube distribution to directory extensions/plugins.
-   * Does nothing if not a fresh installation.
-   */
-  private void copyBundledPlugins() {
-    if (upgradeStatus.isFreshInstall()) {
-      for (File sourceFile : listJarFiles(fs.getBundledPluginsDir())) {
-        PluginInfo info = PluginInfo.create(sourceFile);
-        // lib/bundled-plugins should be copied only if the plugin is not already
-        // available in extensions/plugins
-        if (!pluginInfosByKeys.containsKey(info.getKey())) {
-          overrideAndRegisterPlugin(sourceFile, false);
-        }
       }
     }
   }

@@ -63,7 +63,6 @@ dependencies {
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
-
 }
 
 jar {
@@ -94,7 +93,7 @@ task zip(type: Zip) {
   into("${archiveDir}/lib/") {
     from jar
   }
-  into("${archiveDir}/lib/bundled-plugins/") {
+  into("${archiveDir}/extensions/plugins/") {
     from configurations.bundledPlugin
   }
   into("${archiveDir}/lib/jsw/") {

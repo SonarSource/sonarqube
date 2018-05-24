@@ -72,13 +72,6 @@ public interface ServerFileSystem {
   File getInstalledPluginsDir();
 
   /**
-   * Directory of the plugins packaged by default with application. These
-   * plugins are installed during the first fresh startup.
-   * @return a directory which may or not exist
-   */
-  File getBundledPluginsDir();
-
-  /**
    * The file listing all the installed plugins. Used by scanner only.
    * @return an existing file
    * @deprecated see {@link org.sonar.server.startup.GeneratePluginIndex}

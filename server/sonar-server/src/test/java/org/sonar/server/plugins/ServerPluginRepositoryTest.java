@@ -66,7 +66,6 @@ public class ServerPluginRepositoryTest {
 
   @Before
   public void setUp() throws IOException {
-    when(fs.getBundledPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getDeployedPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getDownloadedPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getHomeDir()).thenReturn(temp.newFolder());
@@ -78,30 +77,6 @@ public class ServerPluginRepositoryTest {
   @After
   public void tearDown() {
     underTest.stop();
-  }
-
-  /**
-   * The first server startup (fresh db) installs bundled plugins and instantiates bundled plugins.
-   */
-  @Test
-  public void first_startup_installs_bundled_plugins() throws Exception {
-    copyTestPluginTo("test-base-plugin", fs.getBundledPluginsDir());
-    when(upgradeStatus.isFreshInstall()).thenReturn(true);
-
-    underTest.start();
-
-    // both plugins are installed
-    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
-  }
-
-  @Test
-  public void bundled_plugins_are_not_installed_if_not_fresh_server() throws Exception {
-    copyTestPluginTo("test-base-plugin", fs.getBundledPluginsDir());
-    when(upgradeStatus.isFreshInstall()).thenReturn(false);
-
-    underTest.start();
-
-    assertThat(underTest.getPluginInfos()).isEmpty();
   }
 
   @Test
