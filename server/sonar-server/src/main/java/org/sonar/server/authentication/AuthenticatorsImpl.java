@@ -28,19 +28,19 @@ public class AuthenticatorsImpl implements Authenticators {
 
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthenticator basicAuthenticator;
-  private final SsoAuthenticator ssoAuthenticator;
+  private final HttpHeadersAuthenticator httpHeadersAuthenticator;
 
-  public AuthenticatorsImpl(JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator, SsoAuthenticator ssoAuthenticator) {
+  public AuthenticatorsImpl(JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator, HttpHeadersAuthenticator httpHeadersAuthenticator) {
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthenticator = basicAuthenticator;
-    this.ssoAuthenticator = ssoAuthenticator;
+    this.httpHeadersAuthenticator = httpHeadersAuthenticator;
   }
 
   // Try first to authenticate from SSO, then JWT token, then try from basic http header
   @Override
   public Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response) {
     // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
-    Optional<UserDto> user = ssoAuthenticator.authenticate(request, response);
+    Optional<UserDto> user = httpHeadersAuthenticator.authenticate(request, response);
     if (user.isPresent()) {
       return user;
     }

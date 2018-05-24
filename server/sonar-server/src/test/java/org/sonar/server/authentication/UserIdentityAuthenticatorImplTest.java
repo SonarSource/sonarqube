@@ -277,10 +277,29 @@ public class UserIdentityAuthenticatorImplTest {
 
   @Test
   public void throw_AuthenticationException_when_authenticating_new_user_when_email_already_exists_and_strategy_is_FORBID() {
-    db.users().insertUser(newUserDto()
-      .setLogin("Existing user with same email")
-      .setActive(true)
-      .setEmail("john@email.com"));
+    db.users().insertUser(u -> u.setEmail("john@email.com"));
+    Source source = Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName());
+
+    expectedException.expect(authenticationException().from(source)
+      .withLogin(USER_IDENTITY.getLogin())
+      .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
+        "This means that you probably already registered with another account."));
+    expectedException.expectMessage("Email 'john@email.com' is already used");
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(source)
+      .setExistingEmailStrategy(FORBID)
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+  }
+
+  @Test
+  public void throw_AuthenticationException_when_authenticating_new_user_and_email_already_exists_multiple_times() {
+    db.users().insertUser(u -> u.setEmail("john@email.com"));
+    db.users().insertUser(u -> u.setEmail("john@email.com"));
     Source source = Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName());
 
     expectedException.expect(authenticationException().from(source)

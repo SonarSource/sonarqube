@@ -22,7 +22,6 @@ package org.sonar.db.user;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -38,14 +37,15 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
+import static java.util.Locale.ENGLISH;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
+import static org.sonar.db.user.UserDto.SCM_ACCOUNTS_SEPARATOR;
 
 public class UserDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
-
 
   public UserDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
@@ -154,19 +154,18 @@ public class UserDao implements Dao {
 
   public List<UserDto> selectByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
     String like = new StringBuilder().append("%")
-      .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
-      .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();
+      .append(SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
+      .append(SCM_ACCOUNTS_SEPARATOR).append("%").toString();
     return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
   }
 
   /**
-   * Search for an active user with the given email exits in database
+   * Search for an active user with the given emailCaseInsensitive exits in database
    *
-   * Please note that email is case insensitive, result for searching 'mail@email.com' or 'Mail@Email.com' will be the same
+   * Select is case insensitive. Result for searching 'mail@emailCaseInsensitive.com' or 'Mail@Email.com' is the same
    */
-  @CheckForNull
-  public UserDto selectByEmail(DbSession dbSession, String email) {
-    return mapper(dbSession).selectByEmail(email.toLowerCase(Locale.ENGLISH));
+  public List<UserDto> selectByEmail(DbSession dbSession, String emailCaseInsensitive) {
+    return mapper(dbSession).selectByEmail(emailCaseInsensitive.toLowerCase(ENGLISH));
   }
 
   @CheckForNull

@@ -57,8 +57,7 @@ public interface UserMapper {
 
   List<UserDto> selectByIds(@Param("ids") List<Integer> ids);
 
-  @CheckForNull
-  UserDto selectByEmail(String email);
+  List<UserDto> selectByEmail(String email);
 
   @CheckForNull
   UserDto selectByExternalIdAndIdentityProvider(@Param("externalId") String externalId, @Param("externalIdentityProvider") String externalExternalIdentityProvider);

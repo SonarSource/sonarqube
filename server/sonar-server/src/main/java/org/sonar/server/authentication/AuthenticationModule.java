@@ -51,7 +51,7 @@ public class AuthenticationModule extends Module {
       RealmAuthenticator.class,
       BasicAuthenticator.class,
       ValidateAction.class,
-      SsoAuthenticator.class,
+      HttpHeadersAuthenticator.class,
       AuthenticatorsImpl.class);
   }
 }

@@ -40,12 +40,12 @@ public class AuthenticatorsImplTest {
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
-  private SsoAuthenticator ssoAuthenticator = mock(SsoAuthenticator.class);
-  private Authenticators underTest = new AuthenticatorsImpl(jwtHttpHandler, basicAuthenticator, ssoAuthenticator);
+  private HttpHeadersAuthenticator httpHeadersAuthenticator = mock(HttpHeadersAuthenticator.class);
+  private Authenticators underTest = new AuthenticatorsImpl(jwtHttpHandler, basicAuthenticator, httpHeadersAuthenticator);
 
   @Test
   public void authenticate_from_jwt_token() {
-    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
+    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(user));
 
     assertThat(underTest.authenticate(request, response)).hasValue(user);
@@ -55,7 +55,7 @@ public class AuthenticatorsImplTest {
   @Test
   public void authenticate_from_basic_header() {
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.of(user));
-    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
+    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
     assertThat(underTest.authenticate(request, response)).hasValue(user);
@@ -67,12 +67,12 @@ public class AuthenticatorsImplTest {
 
   @Test
   public void authenticate_from_sso() {
-    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.of(user));
+    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.of(user));
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
     assertThat(underTest.authenticate(request, response)).hasValue(user);
 
-    verify(ssoAuthenticator).authenticate(request, response);
+    verify(httpHeadersAuthenticator).authenticate(request, response);
     verify(jwtHttpHandler, never()).validateToken(request, response);
     verify(response, never()).setStatus(anyInt());
   }
@@ -80,7 +80,7 @@ public class AuthenticatorsImplTest {
   @Test
   public void return_empty_if_not_authenticated() {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
+    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
 
     assertThat(underTest.authenticate(request, response)).isEmpty();

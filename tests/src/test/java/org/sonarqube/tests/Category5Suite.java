@@ -37,9 +37,9 @@ import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
 import org.sonarqube.tests.startup.StartupIndexationTest;
 import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
 import org.sonarqube.tests.telemetry.TelemetryUploadTest;
+import org.sonarqube.tests.user.HttpHeadersAuthenticationTest;
 import org.sonarqube.tests.user.OnboardingTest;
 import org.sonarqube.tests.user.RealmAuthenticationTest;
-import org.sonarqube.tests.user.SsoAuthenticationTest;
 import org.sonarqube.tests.user.UserEsResilienceTest;
 
 /**
@@ -61,7 +61,7 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   // update center
   UpdateCenterTest.class,
   RealmAuthenticationTest.class,
-  SsoAuthenticationTest.class,
+  HttpHeadersAuthenticationTest.class,
   OnboardingTest.class,
   BuiltInQualityProfilesNotificationTest.class,
   ActiveRuleEsResilienceTest.class,

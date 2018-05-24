@@ -19,14 +19,13 @@
  */
 package org.sonarqube.tests.user;
 
+import com.codeborne.selenide.Condition;
 import com.google.common.base.Joiner;
 import com.sonar.orchestrator.Orchestrator;
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -41,10 +40,13 @@ import org.sonarqube.ws.client.users.DeactivateRequest;
 import org.sonarqube.ws.client.users.GroupsRequest;
 import org.sonarqube.ws.client.users.SearchRequest;
 
+import static com.codeborne.selenide.Selenide.$;
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonarqube.ws.UserGroups.Group;
-import static util.selenium.Selenese.runSelenese;
 
 public class BaseIdentityProviderTest {
 
@@ -105,8 +107,11 @@ public class BaseIdentityProviderTest {
     // As this property is null, the plugin will throw an exception
     tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.user", null);
 
-    runSelenese(ORCHESTRATOR, "/user/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html");
+    tester.openBrowser()
+      .logIn()
+      .useBaseAuth();
 
+    $("#bd").shouldHave(Condition.text("You're not authorized to access this page. Please contact the administrator"));
     assertThat(tester.users().getByLogin(USER_LOGIN)).isNotPresent();
   }
 
@@ -116,11 +121,30 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_PROVIDER_LOGIN, USER_NAME, USER_EMAIL);
     tester.users().generate(u -> u.setLogin("another").setName("Another").setEmail(USER_EMAIL).setPassword("another"));
 
-    runSelenese(ORCHESTRATOR, "/user/BaseIdentityProviderTest/fail_when_email_already_exists.html");
+    tester.openBrowser()
+      .logIn()
+      .useBaseAuth();
 
-    File logFile = ORCHESTRATOR.getServer().getWebLogs();
-    assertThat(FileUtils.readFileToString(logFile))
+    $("#bd").shouldHave(Condition.text(
+      format("You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.", USER_EMAIL)));
+    assertThat(readFileToString(ORCHESTRATOR.getServer().getWebLogs(), UTF_8))
       .doesNotContain("You can't sign up because email 'john@email.com' is already used by an existing user. This means that you probably already registered with another account");
+  }
+
+  @Test
+  public void fail_to_authenticate_user_when_email_already_exists_on_several_users() {
+    enablePlugin();
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_PROVIDER_LOGIN, USER_NAME, USER_EMAIL);
+    tester.users().generate(u -> u.setEmail(USER_EMAIL));
+    tester.users().generate(u -> u.setEmail(USER_EMAIL));
+
+    tester.openBrowser()
+      .logIn()
+      .useBaseAuth();
+
+    $("#bd").shouldHave(Condition.text(
+      format("You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.", USER_EMAIL)));
+    assertThat(tester.users().getByLogin(USER_LOGIN)).isNotPresent();
   }
 
   @Test
@@ -129,8 +153,13 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_PROVIDER_LOGIN, USER_NAME, USER_EMAIL);
     tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.allowsUsersToSignUp", "false");
 
-    runSelenese(ORCHESTRATOR, "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html");
+    tester.openBrowser()
+      .logIn()
+      .useBaseAuth();
 
+    $("#bd")
+      .shouldHave(Condition.text("You're not authorized to access this page. Please contact the administrator."))
+      .shouldHave(Condition.text(format("Reason: '%s' users are not allowed to sign up", FAKE_PROVIDER_KEY)));
     assertThat(tester.users().getByLogin(USER_LOGIN)).isNotPresent();
   }
 
@@ -190,13 +219,16 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_PROVIDER_LOGIN, USER_NAME, USER_EMAIL);
     tester.settings().setGlobalSettings("sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "true");
 
-    runSelenese(ORCHESTRATOR,
-      "/user/BaseIdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
+    tester.openBrowser()
+      .logIn()
+      .useBaseAuth();
 
-    File logFile = ORCHESTRATOR.getServer().getWebLogs();
-    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
-    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("UnauthorizedException");
-
+    $("#bd")
+      .shouldHave(Condition.text("You're not authorized to access this page. Please contact the administrator"))
+      .shouldHave(Condition.text("Reason: A functional error has happened"));
+    assertThat(readFileToString(ORCHESTRATOR.getServer().getWebLogs(), UTF_8))
+      .doesNotContain("A functional error has happened")
+      .doesNotContain("UnauthorizedException");
     assertThat(tester.users().getByLogin(USER_LOGIN)).isNotPresent();
   }
 

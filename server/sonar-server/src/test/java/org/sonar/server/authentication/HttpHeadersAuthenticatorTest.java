@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
-public class SsoAuthenticatorTest {
+public class HttpHeadersAuthenticatorTest {
 
   private MapSettings settings = new MapSettings();
 
@@ -113,7 +113,7 @@ public class SsoAuthenticatorTest {
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private SsoAuthenticator underTest = new SsoAuthenticator(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
+  private HttpHeadersAuthenticator underTest = new HttpHeadersAuthenticator(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {

@@ -21,11 +21,9 @@ package org.sonarqube.tests.user;
 
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
-import java.io.File;
 import java.net.HttpURLConnection;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -37,10 +35,12 @@ import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.users.CreateRequest;
-import util.selenium.Selenese;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -137,8 +137,11 @@ public class OAuth2IdentityProviderTest {
     // As this property is null, the plugin will throw an exception
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", null);
 
-    Selenese.runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/display_unauthorized_page_when_authentication_failed.html");
+    tester.openBrowser()
+      .logIn()
+      .useOAuth2();
 
+    $("#bd").shouldHave(Condition.text("You're not authorized to access this page. Please contact the administrator"));
     assertThatUserDoesNotExist(USER_LOGIN);
   }
 
@@ -148,8 +151,13 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.allowsUsersToSignUp", "false");
 
-    Selenese.runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html");
+    tester.openBrowser()
+      .logIn()
+      .useOAuth2();
 
+    $("#bd")
+      .shouldHave(Condition.text("You're not authorized to access this page. Please contact the administrator."))
+      .shouldHave(Condition.text(format("Reason: '%s' users are not allowed to sign up", FAKE_PROVIDER_KEY)));
     assertThatUserDoesNotExist(USER_LOGIN);
   }
 
@@ -159,12 +167,16 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.throwUnauthorizedMessage", "true");
 
-    Selenese.runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
+    tester.openBrowser()
+      .logIn()
+      .useOAuth2();
 
-    File logFile = orchestrator.getServer().getWebLogs();
-    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
-    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("UnauthorizedException");
-
+    $("#bd")
+      .shouldHave(Condition.text("You're not authorized to access this page. Please contact the administrator"))
+      .shouldHave(Condition.text("Reason: A functional error has happened"));
+    assertThat(readFileToString(orchestrator.getServer().getWebLogs(), UTF_8))
+      .doesNotContain("A functional error has happened")
+      .doesNotContain("UnauthorizedException");
     assertThatUserDoesNotExist(USER_LOGIN);
   }
 
@@ -203,6 +215,22 @@ public class OAuth2IdentityProviderTest {
 
     assertThat(tester.users().getByLogin(USER_LOGIN).get().getEmail()).isEqualTo(USER_EMAIL);
     assertThat(tester.users().getByLogin("another").get().getEmail()).isNullOrEmpty();
+  }
+
+  @Test
+  public void fail_to_authenticate_user_when_email_already_exists_on_several_users() {
+    simulateRedirectionToCallback();
+    enablePlugin();
+    tester.users().generate(u -> u.setEmail(USER_EMAIL));
+    tester.users().generate(u -> u.setEmail(USER_EMAIL));
+
+    tester.openBrowser()
+      .logIn()
+      .useOAuth2();
+
+    $("#bd").shouldHave(Condition.text(
+      format("You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.", USER_EMAIL)));
+    assertThatUserDoesNotExist(USER_LOGIN);
   }
 
   @Test

@@ -70,11 +70,11 @@ public class GroupTester {
     return response.getGroupsList();
   }
 
-  public GroupTester addMemberToGroups(Organizations.Organization organization, String userLogin, String... groups) {
+  public GroupTester addMemberToGroups(@Nullable Organizations.Organization organization, String userLogin, String... groups) {
     for (String group : groups) {
       AddUserRequest request = new AddUserRequest()
         .setLogin(userLogin)
-        .setOrganization(organization.getKey())
+        .setOrganization(organization != null ? organization.getKey() : null)
         .setName(group);
       session.wsClient().userGroups().addUser(request);
     }

@@ -585,12 +585,13 @@ public class UserDaoTest {
 
   @Test
   public void select_by_email() {
-    UserDto activeUser = db.users().insertUser();
+    UserDto activeUser1 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
+    UserDto activeUser2 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
     UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
 
-    assertThat(underTest.selectByEmail(session, activeUser.getEmail())).isNotNull();
-    assertThat(underTest.selectByEmail(session, disableUser.getEmail())).isNull();
-    assertThat(underTest.selectByEmail(session, "unknown")).isNull();
+    assertThat(underTest.selectByEmail(session, "user1@email.com")).hasSize(2);
+    assertThat(underTest.selectByEmail(session, disableUser.getEmail())).isEmpty();
+    assertThat(underTest.selectByEmail(session, "unknown")).isEmpty();
   }
 
   @Test

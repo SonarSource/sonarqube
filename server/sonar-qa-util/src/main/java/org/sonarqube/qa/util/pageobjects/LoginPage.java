@@ -45,6 +45,11 @@ public class LoginPage {
     return Selenide.page(Navigation.class);
   }
 
+  public Navigation useBaseAuth() {
+    Selenide.$(".oauth-providers a").click();
+    return Selenide.page(Navigation.class);
+  }
+
   public LoginPage submitWrongCredentials(String login, String password) {
     Selenide.$("#login").val(login);
     Selenide.$("#password").val(password);

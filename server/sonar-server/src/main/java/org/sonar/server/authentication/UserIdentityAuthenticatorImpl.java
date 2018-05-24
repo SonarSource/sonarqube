@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -135,7 +136,15 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     if (email == null) {
       return Optional.empty();
     }
-    UserDto existingUser = dbClient.userDao().selectByEmail(dbSession, email);
+    List<UserDto> existingUsers = dbClient.userDao().selectByEmail(dbSession, email);
+    if (existingUsers.isEmpty()) {
+      return Optional.empty();
+    }
+    if (existingUsers.size() > 1) {
+      throw generateExistingEmailError(authenticatorParameters, email);
+    }
+
+    UserDto existingUser = existingUsers.get(0);
     if (existingUser == null
       || Objects.equals(existingUser.getLogin(), authenticatorParameters.getUserIdentity().getLogin())
       || (Objects.equals(existingUser.getExternalId(), authenticatorParameters.getUserIdentity().getProviderId())
@@ -151,14 +160,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
       case WARN:
         throw new EmailAlreadyExistsRedirectionException(email, existingUser, authenticatorParameters.getUserIdentity(), authenticatorParameters.getProvider());
       case FORBID:
-        throw AuthenticationException.newBuilder()
-          .setSource(authenticatorParameters.getSource())
-          .setLogin(authenticatorParameters.getUserIdentity().getLogin())
-          .setMessage(format("Email '%s' is already used", email))
-          .setPublicMessage(format(
-            "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
-            email))
-          .build();
+        throw generateExistingEmailError(authenticatorParameters, email);
       default:
         throw new IllegalStateException(format("Unknown strategy %s", existingEmailStrategy));
     }
@@ -262,6 +264,17 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
 
   private static UserDto[] toArray(Optional<UserDto> userDto) {
     return userDto.map(u -> new UserDto[] {u}).orElse(new UserDto[] {});
+  }
+
+  private static AuthenticationException generateExistingEmailError(UserIdentityAuthenticatorParameters authenticatorParameters, String email) {
+    return AuthenticationException.newBuilder()
+      .setSource(authenticatorParameters.getSource())
+      .setLogin(authenticatorParameters.getUserIdentity().getLogin())
+      .setMessage(format("Email '%s' is already used", email))
+      .setPublicMessage(format(
+        "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
+        email))
+      .build();
   }
 
 }

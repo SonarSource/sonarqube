@@ -21,43 +21,30 @@ package org.sonarqube.tests.user;
 
 import com.codeborne.selenide.Condition;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
+import java.util.Collections;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.wsclient.Host;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.connectors.HttpClient4Connector;
-import org.sonar.wsclient.services.AuthenticationQuery;
-import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
 import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
+import org.sonarqube.ws.UserGroups.Group;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.SearchWsResponse.User;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.users.CreateRequest;
+import org.sonarqube.ws.client.users.ChangePasswordRequest;
 import org.sonarqube.ws.client.users.SearchRequest;
-import util.user.UserRule;
 
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.Assert.fail;
+import static util.ItUtils.expectHttpError;
 import static util.ItUtils.newOrchestratorBuilder;
-import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.pluginArtifact;
-import static util.ItUtils.resetSettings;
-import static util.selenium.Selenese.runSelenese;
 
 /**
  * Test REALM authentication.
@@ -66,17 +53,8 @@ import static util.selenium.Selenese.runSelenese;
  */
 public class RealmAuthenticationTest {
 
-  private static final String TECH_USER = "techUser";
-  private static final String USER_LOGIN = "tester";
-  private static final String ADMIN_USER_LOGIN = "admin-user";
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  /**
-   * Property from security-plugin for user management.
-   */
-  private static final String USERS_PROPERTY = "sonar.fakeauthenticator.users";
 
   @ClassRule
   public static final Orchestrator orchestrator = newOrchestratorBuilder()
@@ -85,53 +63,36 @@ public class RealmAuthenticationTest {
     .build();
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
-
-  @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();
-
-  @Before
-  @After
-  public void resetData() {
-    resetSettings(orchestrator, null, USERS_PROPERTY, "sonar.security.updateUserAttributes");
-  }
-
-  @Before
-  public void initAdminUser() {
-    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
-  }
-
-  @After
-  public void deleteAdminUser() {
-    userRule.resetUsers();
-  }
 
   /**
    * SONAR-3137, SONAR-2292
    * Restriction on password length (minimum 4 characters) should be disabled, when external system enabled.
    */
   @Test
-  public void shouldSynchronizeDetailsAndGroups() {
+  public void synchronize_details_and_groups() {
     // Given clean Sonar installation and no users in external system
-    String username = USER_LOGIN;
+    String username = tester.users().generateLogin();
     String password = "123";
-    Map<String, String> users = Maps.newHashMap();
+    Group group = tester.groups().generate();
 
     // When user created in external system
-    users.put(username + ".password", password);
-    users.put(username + ".name", "Tester Testerovich");
-    users.put(username + ".email", "tester@example.org");
-    users.put(username + ".groups", "sonar-user");
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(
+      username + ".password", password,
+      username + ".name", "Tester Testerovich",
+      username + ".email", "tester@example.org",
+      username + ".groups", group.getName()));
+
     // Then
     verifyAuthenticationIsOk(username, password);
-    verifyUser();
-
-    // with external details and groups
-    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
+    assertThat(tester.wsClient().users().search(new SearchRequest().setQ(username)).getUsersList())
+      .extracting(User::getLogin, User::getName, User::getEmail,
+        User::getExternalIdentity, User::getExternalProvider, User::getLocal, u -> u.getGroups().getGroupsList())
+      .containsExactlyInAnyOrder(tuple(username, "Tester Testerovich", "tester@example.org", username, "sonarqube", false, asList(group.getName(), "sonar-users")));
 
     // SONAR-4462
-    SystemInfoPage page = tester.openBrowser().logIn().submitCredentials(ADMIN_USER_LOGIN).openSystemInfo();
+    Users.CreateWsResponse.User adminUser = tester.users().generateAdministrator();
+    SystemInfoPage page = tester.openBrowser().logIn().submitCredentials(adminUser.getLogin()).openSystemInfo();
     page.getCardItem("System").shouldHaveFieldWithValue("External User Authentication", "FakeRealm");
   }
 
@@ -139,56 +100,54 @@ public class RealmAuthenticationTest {
    * SONAR-4034
    */
   @Test
-  public void shouldUpdateDetailsByDefault() {
+  public void update_details_by_default() {
     // Given clean Sonar installation and no users in external system
-    String username = USER_LOGIN;
+    String username = tester.users().generateLogin();
     String password = "123";
-    Map<String, String> users = Maps.newHashMap();
 
     // When user created in external system
-    users.put(username + ".password", password);
-    users.put(username + ".name", "Tester Testerovich");
-    users.put(username + ".email", "tester@example.org");
-    users.put(username + ".groups", "sonar-user");
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(
+      username + ".password", password,
+      username + ".name", "Tester Testerovich",
+      username + ".email", "tester@example.org"));
+
     // Then
     verifyAuthenticationIsOk(username, password);
-    verifyUser();
-
-    // with external details and groups
-    // TODO replace by WS ? Or with new Selenese utils
-    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
+    assertThat(tester.wsClient().users().search(new SearchRequest().setQ(username)).getUsersList())
+      .extracting(User::getLogin, User::getName, User::getEmail)
+      .containsExactlyInAnyOrder(tuple(username, "Tester Testerovich", "tester@example.org"));
 
     // Now update user details
-    users.put(username + ".name", "Tester2 Testerovich");
-    users.put(username + ".email", "tester2@example.org");
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(
+      username + ".password", password,
+      username + ".name", "Tester2 Testerovich",
+      username + ".email", "tester2@example.org"));
+
     // Then
     verifyAuthenticationIsOk(username, password);
 
     // with external details and groups updated
-    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details2.html");
+    assertThat(tester.wsClient().users().search(new SearchRequest().setQ(username)).getUsersList())
+      .extracting(User::getLogin, User::getName, User::getEmail)
+      .containsExactlyInAnyOrder(tuple(username, "Tester2 Testerovich", "tester2@example.org"));
   }
 
   /**
    * SONAR-3138
    */
   @Test
-  public void shouldNotFallback() {
+  public void does_not_fallback() {
     // Given clean Sonar installation and no users in external system
-    String login = USER_LOGIN;
+    String login = tester.users().generateLogin();
     String password = "1234567";
-    Map<String, String> users = Maps.newHashMap();
 
     // When user created in external system
-    users.put(login + ".password", password);
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(login + ".password", password));
     // Then
     verifyAuthenticationIsOk(login, password);
 
     // When external system does not work
-    users.remove(login + ".password");
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(Collections.emptyMap());
     // Then
     verifyAuthenticationIsNotOk(login, password);
   }
@@ -197,16 +156,14 @@ public class RealmAuthenticationTest {
    * SONAR-4543
    */
   @Test
-  public void adminIsLocalAccountByDefault() {
+  public void admin_is_local_account_by_default() {
     // Given clean Sonar installation and no users in external system
     String login = "admin";
     String localPassword = "admin";
     String remotePassword = "nimda";
-    Map<String, String> users = Maps.newHashMap();
 
     // When admin created in external system with a different password
-    users.put(login + ".password", remotePassword);
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(login + ".password", remotePassword));
 
     // Then this is local DB that should be used
     verifyAuthenticationIsNotOk(login, remotePassword);
@@ -217,52 +174,49 @@ public class RealmAuthenticationTest {
    * SONAR-1334, SONAR-3185 (createUsers=true is default)
    */
   @Test
-  public void shouldCreateNewUsers() {
+  public void create_new_users() {
     // Given clean Sonar installation and no users in external system
-    String username = USER_LOGIN;
+    String username = tester.users().generateLogin();
     String password = "1234567";
-    Map<String, String> users = Maps.newHashMap();
 
     // When user not exists in external system
     // Then
     verifyAuthenticationIsNotOk(username, password);
 
     // When user created in external system
-    users.put(username + ".password", password);
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(username + ".password", password));
     // Then
     verifyAuthenticationIsOk(username, password);
-    verifyUser();
+    verifyUser(username);
     verifyAuthenticationIsNotOk(username, "wrong");
   }
 
   // SONAR-3258
   @Test
-  public void shouldAutomaticallyReactivateDeletedUser() {
+  public void reactivate_deleted_user() {
     // Given clean Sonar installation and no users in external system
+    Users.CreateWsResponse.User adminUser = tester.users().generateAdministrator();
 
     // Let's create and delete the user "tester" in Sonar DB
+    String login = tester.users().generateLogin();
     Navigation nav = tester.openBrowser();
-    UsersManagementPage page = nav.logIn().submitCredentials(ADMIN_USER_LOGIN).openUsersManagement();
+    UsersManagementPage page = nav.logIn().submitCredentials(adminUser.getLogin()).openUsersManagement();
     page
-      .createUser(USER_LOGIN)
+      .createUser(login)
       .hasUsersCount(3)
-      .getUser(USER_LOGIN)
+      .getUser(login)
       .deactivateUser();
     page.hasUsersCount(2);
     nav.logOut()
-      .logIn().submitWrongCredentials(USER_LOGIN, USER_LOGIN)
+      .logIn().submitWrongCredentials(login, login)
       .getErrorMessage().shouldHave(Condition.text("Authentication failed"));
 
     // And now update the security with the user that was deleted
-    String login = USER_LOGIN;
     String password = "1234567";
-    Map<String, String> users = Maps.newHashMap();
-    users.put(login + ".password", password);
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(login + ".password", password));
     // check that the deleted/deactivated user "tester" has been reactivated and can now log in
     verifyAuthenticationIsOk(login, password);
-    verifyUser();
+    verifyUser(login);
   }
 
   /**
@@ -271,24 +225,20 @@ public class RealmAuthenticationTest {
   @Test
   public void update_password_of_technical_user() {
     // Create user in external authentication
-    updateUsersInExtAuth(ImmutableMap.of(USER_LOGIN + ".password", USER_LOGIN));
-    verifyAuthenticationIsOk(USER_LOGIN, USER_LOGIN);
+    String login = tester.users().generateLogin();
+    updateUsersInExtAuth(ImmutableMap.of(login + ".password", login));
+    verifyAuthenticationIsOk(login, login);
 
     // Create technical user in db
-    createUserInDb(TECH_USER, "old_password");
-    assertThat(checkAuthenticationThroughWebService(TECH_USER, "old_password")).isTrue();
+    Users.CreateWsResponse.User techUser = tester.users().generate(u -> u.setPassword("old_password"));
+    verifyAuthenticationIsOk(techUser.getLogin(), "old_password");
 
     // Updating password of technical user is allowed
-    updateUserPasswordInDb(TECH_USER, "new_password");
-    assertThat(checkAuthenticationThroughWebService(TECH_USER, "new_password")).isTrue();
+    tester.users().service().changePassword(new ChangePasswordRequest().setLogin(techUser.getLogin()).setPassword("new_password"));
+    verifyAuthenticationIsOk(techUser.getLogin(), "new_password");
 
     // But updating password of none local user is not allowed
-    try {
-      updateUserPasswordInDb(USER_LOGIN, "new_password");
-      fail();
-    } catch (HttpException e) {
-      verifyHttpException(e, 400);
-    }
+    expectHttpError(400, () -> tester.users().service().changePassword(new ChangePasswordRequest().setLogin(login).setPassword("new_password")));
   }
 
   /**
@@ -297,16 +247,14 @@ public class RealmAuthenticationTest {
   @Test
   public void authentication_with_ws() {
     // Given clean Sonar installation and no users in external system
-    String login = USER_LOGIN;
+    String login = tester.users().generateLogin();
     String password = "1234567";
-    Map<String, String> users = Maps.newHashMap();
 
     // When user created in external system
-    users.put(login + ".password", password);
-    updateUsersInExtAuth(users);
+    updateUsersInExtAuth(ImmutableMap.of(login + ".password", password));
 
     verifyAuthenticationIsOk(login, password);
-    verifyUser();
+    verifyUser(login);
     verifyAuthenticationIsNotOk("wrong", password);
     verifyAuthenticationIsNotOk(login, "wrong");
     verifyAuthenticationIsNotOk(login, null);
@@ -332,71 +280,54 @@ public class RealmAuthenticationTest {
 
   @Test
   public void provision_user_before_authentication() {
-    tester.wsClient().users().create(new CreateRequest()
-      .setLogin(USER_LOGIN)
-      .setName("Tester Testerovich")
+    Users.CreateWsResponse.User user = tester.users().generate(u -> u.setName("Tester Testerovich")
       .setEmail("tester@example.org")
+      .setPassword(null)
       .setLocal("false"));
     // The user is created in SonarQube but doesn't exist yet in external authentication system
-    verifyAuthenticationIsNotOk(USER_LOGIN, "123");
+    verifyAuthenticationIsNotOk(user.getLogin(), "123");
 
     updateUsersInExtAuth(ImmutableMap.of(
-      USER_LOGIN + ".password", "123",
-      USER_LOGIN + ".name", "Tester Testerovich",
-      USER_LOGIN + ".email", "tester@example.org"));
+      user.getLogin() + ".password", "123",
+      user.getLogin() + ".name", "Tester Testerovich",
+      user.getLogin() + ".email", "tester@example.org"));
 
-    verifyAuthenticationIsOk(USER_LOGIN, "123");
-    verifyUser();
+    verifyAuthenticationIsOk(user.getLogin(), "123");
+    verifyUser(user.getLogin());
   }
 
   @Test
   public void fail_to_authenticate_user_when_email_already_exists() {
-    userRule.createUser("another", "Another", "tester@example.org", "another");
-
-    String username = USER_LOGIN;
+    Users.CreateWsResponse.User user = tester.users().generate();
+    String username = tester.users().generateLogin();
     String password = "123";
-    Map<String, String> users = Maps.newHashMap();
-    users.put(username + ".password", password);
-    users.put(username + ".name", "Tester Testerovich");
-    users.put(username + ".email", "tester@example.org");
-    users.put(username + ".groups", "sonar-user");
-    updateUsersInExtAuth(users);
+
+    updateUsersInExtAuth(ImmutableMap.of(
+      username + ".password", password,
+      username + ".email", user.getEmail()));
 
     verifyAuthenticationIsNotOk(username, password);
   }
 
-  private void verifyHttpException(Exception e, int expectedCode) {
-    assertThat(e).isInstanceOf(HttpException.class);
-    HttpException exception = (HttpException) e;
-    assertThat(exception.status()).isEqualTo(expectedCode);
-  }
+  @Test
+  public void fail_to_authenticate_user_when_email_already_exists_on_several_users() {
+    Users.CreateWsResponse.User user1 = tester.users().generate(u -> u.setEmail("user@email.com"));
+    Users.CreateWsResponse.User user2 = tester.users().generate(u -> u.setEmail("user@email.com"));
+    String username = tester.users().generateLogin();
+    String password = "123";
 
-  private boolean checkAuthenticationThroughWebService(String login, String password) {
-    return createWsClient(login, password).find(new AuthenticationQuery()).isValid();
+    updateUsersInExtAuth(ImmutableMap.of(
+      username + ".password", password,
+      username + ".email", "user@email.com"));
+
+    verifyAuthenticationIsNotOk(username, password);
   }
 
   /**
    * Updates information about users in security-plugin.
    */
   private void updateUsersInExtAuth(Map<String, String> users) {
-    tester.settings().setGlobalSettings(USERS_PROPERTY, format(users));
-  }
-
-  private void createUserInDb(String login, String password) {
-    orchestrator.getServer().adminWsClient().userClient().create(UserParameters.create().login(login).name(login)
-      .password(password).passwordConfirmation(password));
-  }
-
-  private void updateUserPasswordInDb(String login, String newPassword) {
-    orchestrator.getServer().adminWsClient().post("/api/users/change_password", "login", login, "password", newPassword);
-  }
-
-  /**
-   * Utility method to create {@link Sonar} with specified {@code username} and {@code password}.
-   * Orchestrator does not provide such method.
-   */
-  private Sonar createWsClient(String username, String password) {
-    return new Sonar(new HttpClient4Connector(new Host(orchestrator.getServer().getUrl(), username, password)));
+    tester.settings().setGlobalSettings("sonar.fakeauthenticator.users", format(users));
   }
 
   @CheckForNull
@@ -412,22 +343,17 @@ public class RealmAuthenticationTest {
   }
 
   private void verifyAuthenticationIsOk(String login, String password) {
-    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_OK);
+    tester.as(login, password).wsClient().system().ping();
   }
 
   private void verifyAuthenticationIsNotOk(String login, String password) {
-    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_UNAUTHORIZED);
+    expectHttpError(401, () -> tester.as(login, password).wsClient().system().ping());
   }
 
-  private void verifyUser(){
-    assertThat(tester.wsClient().users().search(new SearchRequest().setQ(USER_LOGIN)).getUsersList())
-    .extracting(User::getLogin, User::getExternalIdentity, User::getExternalProvider, User::getLocal)
-    .containsExactlyInAnyOrder(tuple(USER_LOGIN, USER_LOGIN, "sonarqube", false));
-  }
-
-  private WsResponse checkAuthenticationWithWebService(String login, String password) {
-    // Call any WS
-    return newUserWsClient(orchestrator, login, password).wsConnector().call(new GetRequest("api/rules/search"));
+  private void verifyUser(String login) {
+    assertThat(tester.wsClient().users().search(new SearchRequest().setQ(login)).getUsersList())
+      .extracting(User::getLogin, User::getExternalIdentity, User::getExternalProvider, User::getLocal)
+      .containsExactlyInAnyOrder(tuple(login, login, "sonarqube", false));
   }
 
 }

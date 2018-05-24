@@ -58,9 +58,9 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_NAME_HE
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
-public class SsoAuthenticator implements Startable {
+public class HttpHeadersAuthenticator implements Startable {
 
-  private static final Logger LOG = Loggers.get(SsoAuthenticator.class);
+  private static final Logger LOG = Loggers.get(HttpHeadersAuthenticator.class);
 
   private static final Splitter COMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
@@ -82,8 +82,8 @@ public class SsoAuthenticator implements Startable {
   private boolean enabled = false;
   private Map<String, String> settingsByKey = new HashMap<>();
 
-  public SsoAuthenticator(System2 system2, Configuration config, UserIdentityAuthenticator userIdentityAuthenticator,
-    JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
+  public HttpHeadersAuthenticator(System2 system2, Configuration config, UserIdentityAuthenticator userIdentityAuthenticator,
+                                  JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
     this.system2 = system2;
     this.config = config;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
@@ -94,7 +94,7 @@ public class SsoAuthenticator implements Startable {
   @Override
   public void start() {
     if (config.getBoolean(SONAR_WEB_SSO_ENABLE.getKey()).orElse(false)) {
-      LOG.info("SSO Authentication enabled");
+      LOG.info("HTTP headers authentication enabled");
       enabled = true;
       SETTINGS.forEach(entry -> settingsByKey.put(entry.getKey(), config.get(entry.getKey()).orElse(entry.getDefaultValue())));
     }
