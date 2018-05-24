@@ -64,7 +64,7 @@ public class DefaultPeriodCleaner {
         rootUuid,
         Joiner.on(", ").join(
           snapshots.stream()
-            .map(snapshot -> snapshot.getAnalysisUuid() + "@" + DateUtils.formatDateTime(snapshot.getDate()))
+            .map(snapshot -> snapshot.getAnalysisUuid() + '@' + DateUtils.formatDateTime(snapshot.getDate()))
             .collect(MoreCollectors.toArrayList(snapshots.size()))));
     }
     purgeDao.deleteAnalyses(

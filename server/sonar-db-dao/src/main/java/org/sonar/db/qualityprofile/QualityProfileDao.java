@@ -242,9 +242,9 @@ public class QualityProfileDao implements Dao {
 
   private static String sqlQueryString(@Nullable String query) {
     if (query == null) {
-      return "%";
+      return '%';
     }
-    return "%" + query.toUpperCase(Locale.ENGLISH) + "%";
+    return '%' + query.toUpperCase(Locale.ENGLISH) + '%';
   }
 
   private static QualityProfileMapper mapper(DbSession dbSession) {

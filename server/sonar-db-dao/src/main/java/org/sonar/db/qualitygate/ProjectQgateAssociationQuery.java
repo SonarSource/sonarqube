@@ -157,7 +157,7 @@ public class ProjectQgateAssociationQuery {
       if (pageIndex == null) {
         pageIndex = DEFAULT_PAGE_INDEX;
       }
-      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
+      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ')');
     }
 
     public ProjectQgateAssociationQuery build() {

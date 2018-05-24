@@ -89,9 +89,9 @@ public class ComponentTreeQuery {
   public String getUuidPath(ComponentDto component) {
     switch (strategy) {
       case CHILDREN:
-        return component.getUuidPath() + component.uuid() + ".";
+        return component.getUuidPath() + component.uuid() + '.';
       case LEAVES:
-        return buildLikeValue(component.getUuidPath() + component.uuid() + ".", WildcardPosition.AFTER);
+        return buildLikeValue(component.getUuidPath() + component.uuid() + '.', WildcardPosition.AFTER);
       default:
         throw new IllegalArgumentException("Unknown strategy : " + strategy);
     }

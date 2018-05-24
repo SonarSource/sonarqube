@@ -74,7 +74,7 @@ class MyBatisConfBuilder {
   }
 
   private static String configFilePath(String mapperName) {
-    return "/" + mapperName.replace('.', '/') + ".xml";
+    return '/' + mapperName.replace('.', '/') + ".xml";
   }
 
   private void loadAndConfigureLogger(String mapperName) {
