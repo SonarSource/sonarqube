@@ -1,6 +1,9 @@
 #!/bin/bash
 ###############################
-# usage: start.sh [ -p ARG ] [ -l ARG ]
+# usage: start.sh [ -e ARG ] [ -p ARG ] [ -l ARG ]
+#  -e ARG: edition to run
+#          valid values are 'oss' (Open Source), 'dev' (Developer), 'ent' (Enterprise) and 'dce' (Data Center) (case insensitive)
+#          default value is 'oss'.
 #  -p ARG: name(s) of patch separated by colon (name of patch is filename without extension)
 #  -l ARG: name of log file to display.
 #          valid values are 'all', 'sonar', 'web', 'ce' and 'es' (case insensitive).
@@ -11,13 +14,21 @@ set -euo pipefail
 
 ROOT=$(pwd)
 
-source "$ROOT"/scripts/logs.sh
+source "$ROOT/scripts/editions.sh"
+if [ -r "$ROOT/private/scripts/editions.sh" ]; then
+  source "$ROOT/private/scripts/editions.sh"
+fi
+source "$ROOT/scripts/logs.sh"
+source "$ROOT/scripts/stop.sh"
 
 PATCHES=""
+EDITION="$DEFAULT_EDITION"
 LOG="$DEFAULT_LOG"
-while getopts ":p:l:" opt; do
+while getopts ":e:p:l:" opt; do
   case "$opt" in
-    p) PATCHES=$OPTARG
+    e) EDITION=${OPTARG:=$DEFAULT_EDITION}
+       ;;
+    p) PATCHES="$OPTARG"
        ;;
     l) LOG=${OPTARG:=$DEFAULT_LOG}
        ;;
@@ -28,6 +39,7 @@ while getopts ":p:l:" opt; do
   esac
 done
 
+checkEditionArgument "$EDITION"
 checkLogArgument "$LOG"
 
 if [[ "${OSTYPE:-}" == "darwin"* ]]; then
@@ -36,26 +48,32 @@ else
   OS='linux-x86-64'
 fi
 
-if ! ls sonar-application/build/distributions/sonar-application-*.zip &> /dev/null; then
+OSS_ZIP="$(distributionDirOf "oss")/$(baseFileNameOf "oss")-*.zip"
+if ! ls ${OSS_ZIP} &> /dev/null; then
   echo 'Sources are not built'
   "$ROOT"/build.sh
 fi
 
-cd sonar-application/build/distributions/
-if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
-  echo "Unzipping SQ..."
-  unzip -qq sonar-application-*.zip
+# stop SQ running in any instance
+stopAny
+
+cd "$(distributionDirOf "$EDITION")"
+
+TARGET_DIR="$(targetDirOf "$EDITION")"
+SH_FILE="${TARGET_DIR}/sonarqube-*/bin/$OS/sonar.sh"
+if ! ls ${SH_FILE} &> /dev/null; then
+  echo "Unpacking ${TARGET_DIR}..."
+  ZIP_FILE="$(baseFileNameOf "$EDITION")-*.zip"
+  unzip -qq ${ZIP_FILE} -d "${TARGET_DIR}"
 fi
-cd $(find sonarqube-* -type d | head -1)
+cd $(find ${TARGET_DIR}/sonarqube-* -type d | head -1)
 
 SQ_HOME=$(pwd)
 cd "$ROOT"
 
 source "$ROOT"/scripts/patches_utils.sh
 
-SQ_EXEC=$SQ_HOME/bin/$OS/sonar.sh
-
-"$SQ_EXEC" stop
+SQ_EXEC="$SQ_HOME/bin/$OS/sonar.sh"
 
 # invoke patches if at least one was specified
 # each patch is passed the path to the SQ instance home directory as first and only argument

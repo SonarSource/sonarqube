@@ -1,6 +1,9 @@
 #!/bin/bash
 ###############################
-# usage: logs.sh [ -l ARG ] [ -n ARG ]
+# usage: logs.sh [ -e ARG ] [ -l ARG ] [ -n ARG ]
+#  -e ARG: edition to run
+#          valid values are 'oss' (Open Source), 'dev' (Developer), 'ent' (Enterprise) and 'ha' (HA) (case insensitive)
+#          default value is 'oss'.
 #  -l ARG: name of log file to display.
 #          valid values are 'all', 'sonar', 'web', 'ce' and 'es' (case insensitive).
 #          default value is 'all'.
@@ -9,6 +12,12 @@
 ###############################
 
 set -euo pipefail
+
+ROOT="$(pwd)"
+source "$ROOT/scripts/editions.sh"
+if [ -r "$ROOT/private/scripts/editions.sh" ]; then
+  source "$ROOT/private/scripts/editions.sh"
+fi
 
 DEFAULT_LOG="all"
 DEFAULT_LINES="25"
@@ -37,7 +46,7 @@ function checkLogArgument() {
 }
 
 function buildTailArgs() {
-  local logArg=$(toLower $logArg)
+  local logArg="$(toLower $1)"
   local logLines="$2"
   local res=""
 
@@ -62,8 +71,11 @@ script_name=$(basename "$0")
 if [ "$script_name" == "logs.sh" ]; then
   LOG="$DEFAULT_LOG"
   LINES="$DEFAULT_LINES"
-  while getopts ":l:n:" opt; do
+  EDITION="$DEFAULT_EDITION"
+  while getopts ":e:l:n:" opt; do
     case "$opt" in
+      e) EDITION=${OPTARG:=$DEFAULT_EDITION}
+         ;;
       l) LOG=${OPTARG:=$DEFAULT_LOG}
          ;;
       n) LINES=${OPTARG:=$DEFAULT_LINES}
@@ -75,10 +87,15 @@ if [ "$script_name" == "logs.sh" ]; then
     esac
   done
 
+  checkEditionArgument "$EDITION"
   checkLogArgument "$LOG"
 
-  ROOT=$(pwd)
-  cd sonar-application/build/distributions/sonarqube-*
+  SQ_HOME_WILDCARD="$(distributionDirOf "$EDITION")/$(targetDirOf "$EDITION")/sonarqube-*"
+  if ! ls ${SQ_HOME_WILDCARD} &> /dev/null; then
+    echo "$(targetDirOf "$EDITION") is not unpacked"
+    exit 1
+  fi
+  cd ${SQ_HOME_WILDCARD}
   SQ_HOME=$(pwd)
   cd "$ROOT"
 
