@@ -54,6 +54,7 @@ export default class Meta extends React.PureComponent<Props> {
     const { qualifier, description, qualityProfiles, qualityGate, visibility } = component;
 
     const isProject = qualifier === 'TRK';
+    const isApp = qualifier === 'APP';
     const isPrivate = visibility === Visibility.Private;
 
     return (
@@ -104,15 +105,16 @@ export default class Meta extends React.PureComponent<Props> {
           {organizationsEnabled && <MetaOrganizationKey organization={component.organization} />}
         </div>
 
-        {!isPrivate && (
-          <BadgesModal
-            branchLike={branchLike}
-            metrics={metrics}
-            onSonarCloud={onSonarCloud}
-            project={component.key}
-            qualifier={component.qualifier}
-          />
-        )}
+        {!isPrivate &&
+          (isProject || isApp) && (
+            <BadgesModal
+              branchLike={branchLike}
+              metrics={metrics}
+              onSonarCloud={onSonarCloud}
+              project={component.key}
+              qualifier={component.qualifier}
+            />
+          )}
       </div>
     );
   }
