@@ -71,17 +71,6 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleError = (error: any) => {
-    parseError(error).then(
-      message => {
-        if (this.mounted) {
-          this.setState({ errorMessage: message });
-        }
-      },
-      () => {}
-    );
-  };
-
   getUpdatedCondition = (metric: Metric) => {
     const data: Omit<Condition, 'id'> = {
       metric: metric.key,
@@ -101,34 +90,26 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     return data;
   };
 
-  handleConditionResponse = (newCondition: Condition) => {
-    this.props.onAddCondition(newCondition);
-  };
-
   handleFormSubmit = () => {
     if (this.state.metric) {
       const { condition, qualityGate, organization } = this.props;
-
+      const newCondition = this.getUpdatedCondition(this.state.metric);
+      let submitPromise: Promise<Condition>;
       if (condition) {
-        const data: Condition = {
-          id: condition.id,
-          ...this.getUpdatedCondition(this.state.metric)
-        };
-
-        return updateCondition({ organization, ...data }).then(
-          this.handleConditionResponse,
-          this.handleError
-        );
+        submitPromise = updateCondition({ organization, id: condition.id, ...newCondition });
       } else {
-        const data = this.getUpdatedCondition(this.state.metric);
-
-        return createCondition({ gateId: qualityGate.id, organization, ...data }).then(
-          this.handleConditionResponse,
-          this.handleError
-        );
+        submitPromise = createCondition({ gateId: qualityGate.id, organization, ...newCondition });
       }
+      return submitPromise.then(this.props.onAddCondition, (error: any) =>
+        parseError(error).then(message => {
+          if (this.mounted) {
+            this.setState({ errorMessage: message });
+          }
+          return Promise.reject(message);
+        })
+      );
     }
-    return Promise.resolve();
+    return Promise.reject('No metric selected');
   };
 
   handleChooseType = (metric: Metric) => {
@@ -162,7 +143,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         onClose={onClose}
         onConfirm={this.handleFormSubmit}>
         {this.state.errorMessage && (
-          <div className="alert alert-warning modal-alert">{this.state.errorMessage}</div>
+          <div className="alert alert-danger modal-alert">{this.state.errorMessage}</div>
         )}
         <div className="modal-field">
           <label htmlFor="create-user-login">{translate('quality_gates.conditions.metric')}</label>

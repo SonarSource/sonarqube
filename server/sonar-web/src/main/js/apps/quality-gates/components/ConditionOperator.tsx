@@ -58,7 +58,7 @@ export default class ConditionOperator extends React.PureComponent<Props> {
 
     return (
       <Select
-        autofocus={true}
+        autoFocus={true}
         className="input-medium"
         clearable={false}
         name="operator"
