@@ -41,13 +41,17 @@ import DuplicationsRating from '../../components/ui/DuplicationsRating';
 import Level from '../../components/ui/Level';
 import { EditButton, Button, SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
+import Dropdown from '../../components/controls/Dropdown';
 import ReloadButton from '../../components/controls/ReloadButton';
-import QualifierIcon from '../../components/icons-components/QualifierIcon';
 import AlertErrorIcon from '../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../components/icons-components/AlertSuccessIcon';
 import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
-import LockIcon from '../../components/icons-components/LockIcon';
+import CheckIcon from '../../components/icons-components/CheckIcon';
+import ClearIcon from '../../components/icons-components/ClearIcon';
 import DropdownIcon from '../../components/icons-components/DropdownIcon';
+import HelpIcon from '../../components/icons-components/HelpIcon';
+import LockIcon from '../../components/icons-components/LockIcon';
+import QualifierIcon from '../../components/icons-components/QualifierIcon';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -61,15 +65,19 @@ const exposeLibraries = () => {
     AlertSuccessIcon,
     AlertWarnIcon,
     Button,
+    CheckIcon,
+    ClearIcon,
     CoverageRating,
     DateFormatter,
     DateFromNow,
     DateTimeFormatter,
     DeferredSpinner,
+    Dropdown,
     DropdownIcon,
     DuplicationsRating,
     EditButton,
     FavoriteContainer,
+    HelpIcon,
     HelpTooltip,
     HomePageSelect,
     Level,
