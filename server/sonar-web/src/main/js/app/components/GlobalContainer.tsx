@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import GlobalNav from './nav/global/GlobalNav';
+import StartupModal from './StartupModal';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
@@ -30,58 +30,26 @@ interface Props {
   location: { pathname: string };
 }
 
-interface State {
-  isOnboardingTutorialOpen: boolean;
-}
-
-export default class GlobalContainer extends React.PureComponent<Props, State> {
-  static childContextTypes = {
-    closeOnboardingTutorial: PropTypes.func,
-    openOnboardingTutorial: PropTypes.func
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { isOnboardingTutorialOpen: false };
-  }
-
-  getChildContext() {
-    return {
-      closeOnboardingTutorial: this.closeOnboardingTutorial,
-      openOnboardingTutorial: this.openOnboardingTutorial
-    };
-  }
-
-  openOnboardingTutorial = () => this.setState({ isOnboardingTutorialOpen: true });
-
-  closeOnboardingTutorial = () => this.setState({ isOnboardingTutorialOpen: false });
-
-  render() {
-    // it is important to pass `location` down to `GlobalNav` to trigger render on url change
-
-    return (
-      <SuggestionsProvider>
-        {({ suggestions }) => (
+export default function GlobalContainer(props: Props) {
+  // it is important to pass `location` down to `GlobalNav` to trigger render on url change
+  return (
+    <SuggestionsProvider>
+      {({ suggestions }) => (
+        <StartupModal>
           <div className="global-container">
             <div className="page-wrapper" id="container">
               <div className="page-container">
                 <Workspace>
-                  <GlobalNav
-                    closeOnboardingTutorial={this.closeOnboardingTutorial}
-                    isOnboardingTutorialOpen={this.state.isOnboardingTutorialOpen}
-                    location={this.props.location}
-                    openOnboardingTutorial={this.openOnboardingTutorial}
-                    suggestions={suggestions}
-                  />
+                  <GlobalNav location={props.location} suggestions={suggestions} />
                   <GlobalMessagesContainer />
-                  {this.props.children}
+                  {props.children}
                 </Workspace>
               </div>
             </div>
             <GlobalFooterContainer />
           </div>
-        )}
-      </SuggestionsProvider>
-    );
-  }
+        </StartupModal>
+      )}
+    </SuggestionsProvider>
+  );
 }

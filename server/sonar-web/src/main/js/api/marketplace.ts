@@ -20,12 +20,38 @@
 import { getJSON, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
+export interface License {
+  contactEmail: string;
+  edition: string;
+  expiresAt: string;
+  invalidInstalledPlugins: string[];
+  isExpired: boolean;
+  isOfficialDistribution: boolean;
+  isSupported: boolean;
+  isValidServerId: boolean;
+  loc: number;
+  maxLoc: number;
+  plugins: string[];
+  remainingLocThreshold: number;
+  serverId: string;
+  type: string;
+}
+
 export interface EditionStatus {
   currentEditionKey?: string;
 }
 
 export function getEditionStatus(): Promise<EditionStatus> {
   return getJSON('/api/editions/status');
+}
+
+export function showLicense(): Promise<License> {
+  return getJSON('/api/editions/show_license').catch((e: { response: Response }) => {
+    if (e.response && e.response.status === 404) {
+      return Promise.resolve(undefined);
+    }
+    return throwGlobalError(e);
+  });
 }
 
 export function getLicensePreview(data: {
