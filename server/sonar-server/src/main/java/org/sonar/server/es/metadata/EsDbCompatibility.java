@@ -33,13 +33,6 @@ public interface EsDbCompatibility {
   boolean hasSameDbVendor();
 
   /**
-   * Whether the effective DB schema version equals the version
-   * registered in Elasticsearch metadata.
-   * Return {@code false} if at least one of the values is absent
-   */
-  boolean hasSameDbSchemaVersion();
-
-  /**
    * Stores in Elasticsearch the metadata about database
    */
   void markAsCompatible();

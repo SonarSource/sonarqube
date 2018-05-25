@@ -152,16 +152,9 @@ public class IndexCreatorTest {
   }
 
   @Test
-  public void delete_existing_indices_if_db_schema_changed() {
-    testDeleteOnDbChange(LOG_DB_SCHEMA_CHANGED,
-      c -> c.setHasSameDbSchemaVersion(false));
-  }
-
-  @Test
   public void do_not_check_db_compatibility_on_fresh_es() {
     // supposed to be ignored
     esDbCompatibility.setHasSameDbVendor(false);
-    esDbCompatibility.setHasSameDbSchemaVersion(false);
 
     startNewCreator(new FakeIndexDefinition());
 
@@ -170,28 +163,6 @@ public class IndexCreatorTest {
       .doesNotContain(LOG_DB_SCHEMA_CHANGED)
       .contains("Create type fakes/fake")
       .contains("Create type metadatas/metadata");
-  }
-
-  @Test
-  public void do_not_check_db_compatibility_if_disabled_by_configuration() {
-    settings.setProperty("sonar.search.disableDropOnDbMigration", true);
-
-    // initial startup, automatic drop may be ignored because indices do not exist
-    startNewCreator(new FakeIndexDefinition());
-    logTester.clear();
-
-    // second startup, automatic drop can be disabled only by configuration
-
-    // supposed to be ignored
-    esDbCompatibility.setHasSameDbVendor(false);
-    esDbCompatibility.setHasSameDbSchemaVersion(false);
-
-    startNewCreator(new FakeIndexDefinition());
-
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .doesNotContain(LOG_DB_VENDOR_CHANGED)
-      .doesNotContain(LOG_DB_SCHEMA_CHANGED);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Automatic drop of search indices in turned off (see property sonar.search.disableDropOnDbMigration)");
   }
 
   private void testDeleteOnDbChange(String expectedLog, Consumer<TestEsDbCompatibility> afterFirstStart) {

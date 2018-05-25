@@ -63,14 +63,12 @@ public class MetadataIndexTest {
   @Test
   public void database_metadata_are_empty_if_absent_from_index() {
     assertThat(underTest.getDbVendor()).isNotPresent();
-    assertThat(underTest.getDbSchemaVersion()).isNotPresent();
   }
 
   @Test
   public void database_metadata_are_present_from_index() {
-    underTest.setDbMetadata("postgres", 1_800);
+    underTest.setDbMetadata("postgres");
 
     assertThat(underTest.getDbVendor()).hasValue("postgres");
-    assertThat(underTest.getDbSchemaVersion()).hasValue(1_800L);
   }
 }

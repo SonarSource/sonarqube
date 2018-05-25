@@ -31,7 +31,6 @@ import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 public class MetadataIndex {
 
   private static final String DB_VENDOR_KEY = "dbVendor";
-  private static final String DB_SCHEMA_VERSION_KEY = "dbSchemaVersion";
 
   private final EsClient esClient;
 
@@ -67,13 +66,8 @@ public class MetadataIndex {
     return getMetadata(DB_VENDOR_KEY);
   }
 
-  public Optional<Long> getDbSchemaVersion() {
-    return getMetadata(DB_SCHEMA_VERSION_KEY).map(Long::parseLong);
-  }
-
-  public void setDbMetadata(String vendor, long schemaVersion) {
+  public void setDbMetadata(String vendor) {
     setMetadata(DB_VENDOR_KEY, vendor);
-    setMetadata(DB_SCHEMA_VERSION_KEY, String.valueOf(schemaVersion));
   }
 
   private Optional<String> getMetadata(String id) {

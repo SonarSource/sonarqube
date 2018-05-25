@@ -48,7 +48,6 @@ import org.sonar.server.es.metadata.MetadataIndexDefinition;
 public class IndexCreator implements Startable {
 
   private static final Logger LOGGER = Loggers.get(IndexCreator.class);
-  private static final String PROPERY_DISABLE_CHECK = "sonar.search.disableDropOnDbMigration";
 
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;
@@ -151,19 +150,11 @@ public class IndexCreator implements Startable {
   }
 
   private void checkDbCompatibility(Collection<Index> definitions) {
-    boolean disabledCheck = configuration.getBoolean(PROPERY_DISABLE_CHECK).orElse(false);
-    if (disabledCheck) {
-      LOGGER.warn("Automatic drop of search indices in turned off (see property " + PROPERY_DISABLE_CHECK + ")");
-    }
-
     List<String> existingIndices = loadExistingIndicesExceptMetadata(definitions);
-    if (!disabledCheck && !existingIndices.isEmpty()) {
+    if (!existingIndices.isEmpty()) {
       boolean delete = false;
       if (!esDbCompatibility.hasSameDbVendor()) {
         LOGGER.info("Delete Elasticsearch indices (DB vendor changed)");
-        delete = true;
-      } else if (!esDbCompatibility.hasSameDbSchemaVersion()) {
-        LOGGER.info("Delete Elasticsearch indices (DB schema changed)");
         delete = true;
       }
       if (delete) {

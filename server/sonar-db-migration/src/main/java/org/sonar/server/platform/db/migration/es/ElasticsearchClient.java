@@ -17,26 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
 
-import org.sonar.server.es.metadata.EsDbCompatibility;
+package org.sonar.server.platform.db.migration.es;
 
-public class TestEsDbCompatibility implements EsDbCompatibility {
+public interface ElasticsearchClient {
 
-  private boolean hasSameDbVendor = true;
-
-  public TestEsDbCompatibility setHasSameDbVendor(boolean b) {
-    this.hasSameDbVendor = b;
-    return this;
-  }
-
-  @Override
-  public boolean hasSameDbVendor() {
-    return hasSameDbVendor;
-  }
-
-  @Override
-  public void markAsCompatible() {
-
-  }
+  /**
+   * This method is reentrant and does not fail if indexName or otherIndexNames does not exist
+   */
+  void deleteIndexes(String... otherIndexNames);
 }

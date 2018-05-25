@@ -19,21 +19,17 @@
  */
 package org.sonar.server.es.metadata;
 
-import java.util.Objects;
 import java.util.Optional;
 import org.sonar.db.DbClient;
-import org.sonar.server.platform.db.migration.history.MigrationHistory;
 
 public class EsDbCompatibilityImpl implements EsDbCompatibility {
 
   private final DbClient dbClient;
   private final MetadataIndex metadataIndex;
-  private final MigrationHistory dbMigrationHistory;
 
-  public EsDbCompatibilityImpl(DbClient dbClient, MetadataIndex metadataIndex, MigrationHistory dbMigrationHistory) {
+  public EsDbCompatibilityImpl(DbClient dbClient, MetadataIndex metadataIndex) {
     this.dbClient = dbClient;
     this.metadataIndex = metadataIndex;
-    this.dbMigrationHistory = dbMigrationHistory;
   }
 
   @Override
@@ -43,27 +39,11 @@ public class EsDbCompatibilityImpl implements EsDbCompatibility {
   }
 
   @Override
-  public boolean hasSameDbSchemaVersion() {
-    Optional<Long> registeredVersion = metadataIndex.getDbSchemaVersion();
-    if (!registeredVersion.isPresent()) {
-      return false;
-    }
-    return getDbSchemaVersion()
-      .filter(effectiveVersion -> Objects.equals(registeredVersion.get(), effectiveVersion))
-      .isPresent();
-  }
-
-  @Override
   public void markAsCompatible() {
-    metadataIndex.setDbMetadata(getDbVendor(), getDbSchemaVersion()
-      .orElseThrow(() -> new IllegalStateException("DB schema version is not present in database")));
+    metadataIndex.setDbMetadata(getDbVendor());
   }
 
   private String getDbVendor() {
     return dbClient.getDatabase().getDialect().getId();
-  }
-
-  private Optional<Long> getDbSchemaVersion() {
-    return dbMigrationHistory.getLastMigrationNumber();
   }
 }

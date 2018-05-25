@@ -17,26 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+@ParametersAreNonnullByDefault
+package org.sonar.server.platform.db.migration.es;
 
-import org.sonar.server.es.metadata.EsDbCompatibility;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class TestEsDbCompatibility implements EsDbCompatibility {
-
-  private boolean hasSameDbVendor = true;
-
-  public TestEsDbCompatibility setHasSameDbVendor(boolean b) {
-    this.hasSameDbVendor = b;
-    return this;
-  }
-
-  @Override
-  public boolean hasSameDbVendor() {
-    return hasSameDbVendor;
-  }
-
-  @Override
-  public void markAsCompatible() {
-
-  }
-}

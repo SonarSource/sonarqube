@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.Database;
 
-public class SelectImpl extends BaseSqlStatement<Select>implements Select {
+public class SelectImpl extends BaseSqlStatement<Select> implements Select {
 
   private SelectImpl(PreparedStatement pstmt) {
     super(pstmt);
