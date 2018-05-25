@@ -37,8 +37,10 @@ const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 const host = process.env.HOST || 'localhost';
 const proxy = process.env.PROXY || 'http://localhost:9000';
 
-const compiler = setupCompiler(host, port, protocol);
+// Force start script to proxy l10n request to the server (can be useful when working with plugins/extensions)
+const l10nCompiledFlag = process.argv.findIndex(val => val === 'l10nCompiled') >= 0;
 
+const compiler = setupCompiler(host, port, protocol);
 runDevServer(compiler, host, port, protocol);
 
 function setupCompiler(host, port, protocol) {
@@ -82,11 +84,13 @@ function runDevServer(compiler, host, port, protocol) {
   const devServer = new WebpackDevServer(compiler, {
     before(app) {
       app.use(errorOverlayMiddleware());
-      app.get('/api/l10n/index', (req, res) => {
-        getMessages()
-          .then(messages => res.json({ effectiveLocale: 'en', messages }))
-          .catch(() => res.status(500));
-      });
+      if (!l10nCompiledFlag) {
+        app.get('/api/l10n/index', (req, res) => {
+          getMessages()
+            .then(messages => res.json({ effectiveLocale: 'en', messages }))
+            .catch(() => res.status(500));
+        });
+      }
     },
     compress: true,
     clientLogLevel: 'none',
