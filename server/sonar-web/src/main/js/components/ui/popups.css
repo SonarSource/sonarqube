@@ -72,7 +72,7 @@
 
 .popup.is-bottom .popup-arrow {
   top: -6px;
-  left: calc(50% - 3px);
+  left: calc(50% - 6px);
   border-left-width: 6px;
   border-top-width: 0;
   border-right-color: transparent;
@@ -98,6 +98,8 @@
   top: 100%;
   right: 0;
   margin: 0;
+
+  /* TODO Update like .is-bottom-left, currently it's */
   transform: translateY(6px);
 }
 
@@ -126,7 +128,7 @@
   top: 100%;
   left: 0;
   margin: 0;
-  transform: translateY(6px);
+  transform: translate(-8px, 6px);
 }
 
 .popup.is-bottom-left .popup-arrow {
