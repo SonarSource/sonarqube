@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
+import * as PropTypes from 'prop-types';
 import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
 import {
   activeOrChildrenActive,
@@ -29,13 +30,22 @@ import {
 } from '../utils';
 import * as Docs from '../documentation.directory-loader';
 
+const pages = (Docs as any) as DocumentationEntry[];
+
 interface Props {
   splat?: string;
 }
 
 export default class Menu extends React.PureComponent<Props> {
+  static contextTypes = {
+    onSonarCloud: PropTypes.bool
+  };
+
   getMenuEntriesHierarchy = (root?: string): Array<DocumentationEntry> => {
-    const toplevelEntries = getEntryChildren(Docs as any, root);
+    const instancePages = this.context.onSonarCloud
+      ? pages
+      : pages.filter(page => page.scope !== 'sonarcloud');
+    const toplevelEntries = getEntryChildren(instancePages, root);
     toplevelEntries.forEach(entry => {
       const entryRoot = getEntryRoot(entry.relativeName);
       entry.children = entryRoot !== '' ? this.getMenuEntriesHierarchy(entryRoot) : [];
@@ -48,7 +58,7 @@ export default class Menu extends React.PureComponent<Props> {
     const opened = activeOrChildrenActive(this.props.splat || '', entry);
     const offset = 10 + 25 * depth;
     return (
-      <React.Fragment key={entry.name}>
+      <React.Fragment key={entry.relativeName}>
         <Link
           className={classNames('list-group-item', { active })}
           style={{ paddingLeft: offset }}

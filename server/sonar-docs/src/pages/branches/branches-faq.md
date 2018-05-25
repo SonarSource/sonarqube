@@ -2,7 +2,11 @@
 title: Frequently Asked Branches Questions
 ---
 
+<!-- sonarqube -->
+
 _Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)_
+
+<!-- /sonarqube -->
 
 **Q:** How long are branches retained?  
 **A:** Long-lived branches are retained until you delete them manually (**Administration > Branches**).

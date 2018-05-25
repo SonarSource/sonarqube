@@ -22,10 +22,13 @@ import Helmet from 'react-helmet';
 
 export default ({ data }) => {
   const page = data.markdownRemark;
-  const htmlWithInclusions = page.html.replace(/\<p\>@include (.*)\<\/p\>/, (_, path) => {
-    const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
-    return chunk ? chunk.node.html : '';
-  });
+  const htmlWithInclusions = cutSonarCloudContent(page.html).replace(
+    /\<p\>@include (.*)\<\/p\>/,
+    (_, path) => {
+      const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
+      return chunk ? chunk.node.html : '';
+    }
+  );
 
   return (
     <div css={{ paddingTop: 24, paddingBottom: 24 }}>
@@ -56,3 +59,19 @@ export const query = graphql`
     }
   }
 `;
+
+function cutSonarCloudContent(content) {
+  const beginning = '<!-- sonarcloud -->';
+  const ending = '<!-- /sonarcloud -->';
+
+  let newContent = content;
+  let start = newContent.indexOf(beginning);
+  let end = newContent.indexOf(ending);
+  while (start !== -1 && end !== -1) {
+    newContent = newContent.substring(0, start) + newContent.substring(end + ending.length);
+    start = newContent.indexOf(beginning);
+    end = newContent.indexOf(ending);
+  }
+
+  return newContent;
+}

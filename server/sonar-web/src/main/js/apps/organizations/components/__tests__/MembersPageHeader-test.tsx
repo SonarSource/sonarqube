@@ -17,25 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import MembersPageHeader from '../MembersPageHeader';
 
-it('should render the members page header', () => {
-  const wrapper = shallow(<MembersPageHeader />);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setProps({ loading: true });
-  expect(wrapper.find('.spinner')).toMatchSnapshot();
-});
-
-it('should render the members page header with the total', () => {
-  const wrapper = shallow(<MembersPageHeader total="5" />);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render its children', () => {
+it('should render', () => {
   const wrapper = shallow(
-    <MembersPageHeader loading={true} total="5">
+    <MembersPageHeader loading={true}>
       <span>children test</span>
     </MembersPageHeader>
   );

@@ -1,5 +1,79 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should cut sonarqube/sonarcloud content 1`] = `
+<div
+  className="markdown"
+>
+  <React.Fragment
+    key="h-1"
+  >
+    <DocParagraph
+      key="h-2"
+    >
+      some
+    </DocParagraph>
+    
+
+    <DocParagraph
+      key="h-3"
+    >
+      sonarqube
+    </DocParagraph>
+    
+
+    <DocParagraph
+      key="h-4"
+    >
+        long
+    </DocParagraph>
+    
+
+    <DocParagraph
+      key="h-5"
+    >
+        multiline
+    </DocParagraph>
+    
+
+    <DocParagraph
+      key="h-6"
+    >
+      text
+    </DocParagraph>
+  </React.Fragment>
+</div>
+`;
+
+exports[`should cut sonarqube/sonarcloud content 2`] = `
+<div
+  className="markdown"
+>
+  <React.Fragment
+    key="h-1"
+  >
+    <DocParagraph
+      key="h-2"
+    >
+      some
+    </DocParagraph>
+    
+
+    <DocParagraph
+      key="h-3"
+    >
+      sonarcloud
+    </DocParagraph>
+    
+
+    <DocParagraph
+      key="h-4"
+    >
+      text
+    </DocParagraph>
+  </React.Fragment>
+</div>
+`;
+
 exports[`should render simple markdown 1`] = `
 <div
   className="markdown"

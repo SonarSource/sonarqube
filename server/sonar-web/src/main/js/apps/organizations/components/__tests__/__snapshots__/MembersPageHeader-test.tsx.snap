@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    organization.members.page
+  </h1>
+  <DeferredSpinner
+    loading={true}
+    timeout={100}
+  />
+  <span>
+    children test
+  </span>
+  <p
+    className="page-description"
+  >
+    <FormattedMessage
+      defaultMessage="organization.members.page.description"
+      id="organization.members.page.description"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/organizations/manage-team"
+          >
+            organization.members.manage_a_team
+          </Link>,
+        }
+      }
+    />
+  </p>
+</header>
+`;

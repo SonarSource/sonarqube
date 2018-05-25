@@ -33,6 +33,20 @@
     }
   ],
   "marketplace": [],
+  "organization_members": [
+    {
+      "link": "/documentation/organizations/manage-team",
+      "text": "Manage a Team",
+      "scope": "sonarcloud"
+    }
+  ],
+  "organization_projects": [
+    {
+      "link": "/documentation/organizations/index",
+      "text": "Organizations",
+      "scope": "sonarcloud"
+    }
+  ],
   "overview": [
     {
       "link": "/documentation/fixing-the-water-leak",

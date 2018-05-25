@@ -37,7 +37,8 @@ module.exports = (root, files) => {
         name: path.basename(file).slice(0, -3),
         relativeName: file.slice(0, -3),
         title: headerData.title || file,
-        order: headerData.order || -1
+        order: headerData.order || -1,
+        scope: headerData.scope && headerData.scope.toLowerCase()
       };
     })
     .sort(compare);

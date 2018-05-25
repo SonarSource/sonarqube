@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as matter from 'gray-matter';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
+import * as PropTypes from 'prop-types';
 import Menu from './Menu';
 import NotFound from '../../../app/components/NotFound';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
@@ -41,6 +42,11 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   mounted = false;
+
+  static contextTypes = {
+    onSonarCloud: PropTypes.bool
+  };
+
   state: State = { loading: false, notFound: false };
 
   componentDidMount() {
@@ -65,7 +71,12 @@ export default class App extends React.PureComponent<Props, State> {
     import(`Docs/pages/${path === '' ? 'index' : path}.md`).then(
       ({ default: content }) => {
         if (this.mounted) {
-          this.setState({ content, loading: false, notFound: false });
+          const parsed = matter(content || '');
+          if (parsed.data.scope === 'sonarcloud' && !this.context.onSonarCloud) {
+            this.setState({ loading: false, notFound: true });
+          } else {
+            this.setState({ content, loading: false, notFound: false });
+          }
         }
       },
       () => {

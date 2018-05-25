@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export interface DocumentationEntry {
-  title: string;
-  order: string;
+  children: DocumentationEntry[];
   name: string;
+  order: string;
   relativeName: string;
-  children: Array<DocumentationEntry>;
+  scope?: 'sonarcloud';
+  title: string;
 }
 
 export function activeOrChildrenActive(root: string, entry: DocumentationEntry) {
@@ -39,10 +40,7 @@ export function getEntryRoot(name: string) {
   return name;
 }
 
-export function getEntryChildren(
-  entries: Array<DocumentationEntry>,
-  root?: string
-): Array<DocumentationEntry> {
+export function getEntryChildren(entries: DocumentationEntry[], root?: string) {
   return entries.filter(entry => {
     const parts = entry.relativeName.split('/');
     const depth = root ? root.split('/').length : 0;

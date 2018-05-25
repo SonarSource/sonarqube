@@ -24,7 +24,9 @@ import MembersPageHeader from './MembersPageHeader';
 import MembersListHeader from './MembersListHeader';
 import MembersList from './MembersList';
 import AddMemberForm from './forms/AddMemberForm';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../../components/controls/ListFooter';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
 /*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
@@ -89,31 +91,33 @@ export default class OrganizationMembers extends React.PureComponent {
     return (
       <div className="page page-limited">
         <Helmet title={translate('organization.members.page')} />
-        <MembersPageHeader loading={status.loading} total={status.total}>
+        <Suggestions suggestions="organization_members" />
+        <MembersPageHeader loading={status.loading}>
           {organization.canAdmin && (
             <div className="page-actions">
               <AddMemberForm
                 addMember={this.addMember}
-                organization={organization}
                 memberLogins={this.props.memberLogins}
+                organization={organization}
               />
+              <DocTooltip className="spacer-left" doc="organizations/add-organization-member" />
             </div>
           )}
         </MembersPageHeader>
-        <MembersListHeader total={status.total} handleSearch={this.handleSearchMembers} />
+        <MembersListHeader handleSearch={this.handleSearchMembers} total={status.total} />
         <MembersList
           members={members}
-          organizationGroups={this.props.organizationGroups}
           organization={organization}
+          organizationGroups={this.props.organizationGroups}
           removeMember={this.removeMember}
           updateMemberGroups={this.updateMemberGroups}
         />
         {status.total != null && (
           <ListFooter
             count={members.length}
-            total={status.total}
-            ready={!status.loading}
             loadMore={this.handleLoadMoreMembers}
+            ready={!status.loading}
+            total={status.total}
           />
         )}
       </div>

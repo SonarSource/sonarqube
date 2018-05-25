@@ -9,9 +9,10 @@ exports[`should not render actions for non admin 1`] = `
     encodeSpecialCharacters={true}
     title="organization.members.page"
   />
-  <MembersPageHeader
-    total={2}
+  <Suggestions
+    suggestions="organization_members"
   />
+  <MembersPageHeader />
   <MembersListHeader
     handleSearch={[Function]}
     total={2}
@@ -60,9 +61,11 @@ exports[`should render actions for admin 1`] = `
     encodeSpecialCharacters={true}
     title="organization.members.page"
   />
+  <Suggestions
+    suggestions="organization_members"
+  />
   <MembersPageHeader
     loading={true}
-    total={2}
   >
     <div
       className="page-actions"
@@ -76,6 +79,10 @@ exports[`should render actions for admin 1`] = `
             "name": "Foo",
           }
         }
+      />
+      <DocTooltip
+        className="spacer-left"
+        doc="organizations/add-organization-member"
       />
     </div>
   </MembersPageHeader>

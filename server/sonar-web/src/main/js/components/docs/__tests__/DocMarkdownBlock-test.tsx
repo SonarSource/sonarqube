@@ -41,3 +41,32 @@ it('should render use custom component for links', () => {
     shallow(<DocMarkdownBlock content="some [link](#quality-profiles)" />).find('DocLink')
   ).toMatchSnapshot();
 });
+
+it.only('should cut sonarqube/sonarcloud content', () => {
+  const content = `
+some
+
+<!-- sonarqube -->
+sonarqube
+<!-- /sonarqube -->
+
+<!-- sonarcloud -->
+sonarcloud
+<!-- /sonarcloud -->
+
+<!-- sonarqube -->
+  long
+
+  multiline
+<!-- /sonarqube -->
+
+text`;
+
+  expect(
+    shallow(<DocMarkdownBlock content={content} />, { context: { onSonarCloud: false } })
+  ).toMatchSnapshot();
+
+  expect(
+    shallow(<DocMarkdownBlock content={content} />, { context: { onSonarCloud: true } })
+  ).toMatchSnapshot();
+});

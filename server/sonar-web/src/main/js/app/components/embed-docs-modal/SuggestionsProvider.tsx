@@ -19,25 +19,26 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-//eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import { SuggestionsContext } from './SuggestionsContext';
 
 export interface SuggestionLink {
-  text: string;
   link: string;
+  scope?: 'sonarcloud';
+  text: string;
 }
 
 interface SuggestionsJson {
-  [key: string]: Array<SuggestionLink>;
+  [key: string]: SuggestionLink[];
 }
 
 interface Props {
-  children: ({ suggestions }: { suggestions: Array<SuggestionLink> }) => React.ReactNode;
+  children: ({ suggestions }: { suggestions: SuggestionLink[] }) => React.ReactNode;
 }
 
 interface State {
-  suggestions: Array<SuggestionLink>;
+  suggestions: SuggestionLink[];
 }
 
 export default class SuggestionsProvider extends React.Component<Props, State> {
@@ -47,7 +48,11 @@ export default class SuggestionsProvider extends React.Component<Props, State> {
     suggestions: PropTypes.object
   };
 
-  state = { suggestions: [] };
+  static contextTypes = {
+    onSonarCloud: PropTypes.bool
+  };
+
+  state: State = { suggestions: [] };
 
   getChildContext = (): { suggestions: SuggestionsContext } => {
     return {
@@ -60,7 +65,7 @@ export default class SuggestionsProvider extends React.Component<Props, State> {
 
   fetchSuggestions = () => {
     const jsonList = suggestionsJson as SuggestionsJson;
-    let suggestions: Array<SuggestionLink> = [];
+    let suggestions: SuggestionLink[] = [];
     this.keys.forEach(key => {
       if (jsonList[key]) {
         suggestions = [...jsonList[key], ...suggestions];
@@ -80,6 +85,10 @@ export default class SuggestionsProvider extends React.Component<Props, State> {
   };
 
   render() {
-    return this.props.children({ suggestions: this.state.suggestions });
+    const suggestions = this.context.onSonarCloud
+      ? this.state.suggestions
+      : this.state.suggestions.filter(suggestion => suggestion.scope !== 'sonarcloud');
+
+    return this.props.children({ suggestions });
   }
 }
