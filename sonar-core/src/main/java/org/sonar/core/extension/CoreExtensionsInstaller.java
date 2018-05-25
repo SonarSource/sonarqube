@@ -1,0 +1,166 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.core.extension;
+
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import org.sonar.api.ExtensionProvider;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.ComponentContainer;
+
+import static java.util.Objects.requireNonNull;
+
+public abstract class CoreExtensionsInstaller {
+  private static final Logger LOG = Loggers.get(CoreExtensionsInstaller.class);
+
+  private final SonarRuntime sonarRuntime;
+  private final CoreExtensionRepository coreExtensionRepository;
+  private final Class<? extends Annotation> supportedAnnotationType;
+
+  protected CoreExtensionsInstaller(SonarRuntime sonarRuntime, CoreExtensionRepository coreExtensionRepository,
+    Class<? extends Annotation> supportedAnnotationType) {
+    this.sonarRuntime = sonarRuntime;
+    this.coreExtensionRepository = coreExtensionRepository;
+    this.supportedAnnotationType = supportedAnnotationType;
+  }
+
+  public void install(ComponentContainer container, Predicate<Object> extensionFilter) {
+    coreExtensionRepository.loadedCoreExtensions()
+      .forEach(coreExtension -> install(container, extensionFilter, coreExtension));
+  }
+
+  private void install(ComponentContainer container, Predicate<Object> extensionFilter, CoreExtension coreExtension) {
+    String coreExtensionName = coreExtension.getName();
+    try {
+      List<Object> providerKeys = addDeclaredExtensions(container, extensionFilter, coreExtension);
+      addProvidedExtensions(container, extensionFilter, coreExtensionName, providerKeys);
+
+      LOG.info("Installed core extension: " + coreExtensionName);
+      coreExtensionRepository.installed(coreExtension);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load core extension " + coreExtensionName, e);
+    }
+  }
+
+  private List<Object> addDeclaredExtensions(ComponentContainer container, Predicate<Object> extensionFilter,
+    CoreExtension coreExtension) {
+    ContextImpl context = new ContextImpl(container, extensionFilter, coreExtension.getName());
+    coreExtension.load(context);
+    return context.getProviders();
+  }
+
+  private void addProvidedExtensions(ComponentContainer container, Predicate<Object> extensionFilter,
+    String extensionCategory, List<Object> providerKeys) {
+    providerKeys.stream()
+      .map(providerKey -> (ExtensionProvider) container.getComponentByKey(providerKey))
+      .forEach(provider -> addFromProvider(container, extensionFilter, extensionCategory, provider));
+  }
+
+  private void addFromProvider(ComponentContainer container, Predicate<Object> extensionFilter,
+    String extensionCategory, ExtensionProvider provider) {
+    Object obj = provider.provide();
+    if (obj != null) {
+      if (obj instanceof Iterable) {
+        for (Object ext : (Iterable) obj) {
+          addSupportedExtension(container, extensionFilter, extensionCategory, ext);
+        }
+      } else {
+        addSupportedExtension(container, extensionFilter, extensionCategory, obj);
+      }
+    }
+  }
+
+  private <T> boolean addSupportedExtension(ComponentContainer container, Predicate<Object> extensionFilter,
+    String extensionCategory, T component) {
+    if (hasSupportedAnnotation(component) && extensionFilter.test(component)) {
+      container.addExtension(extensionCategory, component);
+      return true;
+    }
+    return false;
+  }
+
+  private <T> boolean hasSupportedAnnotation(T component) {
+    return AnnotationUtils.getAnnotation(component, supportedAnnotationType) != null;
+  }
+
+  private class ContextImpl implements CoreExtension.Context {
+    private final ComponentContainer container;
+    private final Predicate<Object> extensionFilter;
+    private final String extensionCategory;
+    private final List<Object> providers = new ArrayList<>();
+
+    public ContextImpl(ComponentContainer container, Predicate<Object> extensionFilter, String extensionCategory) {
+      this.container = container;
+      this.extensionFilter = extensionFilter;
+      this.extensionCategory = extensionCategory;
+    }
+
+    @Override
+    public SonarRuntime getRuntime() {
+      return sonarRuntime;
+    }
+
+    @Override
+    public Configuration getBootConfiguration() {
+      return Optional.ofNullable(container.getComponentByType(Configuration.class))
+        .orElseGet(() -> new MapSettings().asConfig());
+    }
+
+    @Override
+    public CoreExtension.Context addExtension(Object component) {
+      requireNonNull(component, "component can't be null");
+
+      if (!addSupportedExtension(container, extensionFilter, extensionCategory, component)) {
+        container.declareExtension(extensionCategory, component);
+      } else if (ExtensionProviderSupport.isExtensionProvider(component)) {
+        providers.add(component);
+      }
+      return this;
+    }
+
+    @Override
+    public final CoreExtension.Context addExtensions(Object component, Object... otherComponents) {
+      addExtension(component);
+      Arrays.stream(otherComponents).forEach(this::addExtension);
+      return this;
+    }
+
+    @Override
+    public <T> CoreExtension.Context addExtensions(Collection<T> components) {
+      requireNonNull(components, "components can't be null");
+      components.forEach(this::addExtension);
+      return this;
+    }
+
+    public List<Object> getProviders() {
+      return providers;
+    }
+  }
+}

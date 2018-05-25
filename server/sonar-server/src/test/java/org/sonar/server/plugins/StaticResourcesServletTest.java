@@ -40,6 +40,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.extension.CoreExtensionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,7 +53,8 @@ public class StaticResourcesServletTest {
   private Server jetty;
 
   private PluginRepository pluginRepository = mock(PluginRepository.class);
-  private TestSystem system = new TestSystem(pluginRepository);
+  private CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
+  private TestSystem system = new TestSystem(pluginRepository, coreExtensionRepository);
 
   @Before
   public void setUp() throws Exception {
@@ -82,31 +84,58 @@ public class StaticResourcesServletTest {
 
   @Test
   public void return_content_if_exists_in_installed_plugin() throws Exception {
-    system.answer = IOUtils.toInputStream("bar");
+    system.pluginStream = IOUtils.toInputStream("bar");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
     Response response = call("/static/myplugin/foo.txt");
 
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar");
-    assertThat(system.calledResource).isEqualTo("static/foo.txt");
+    assertThat(system.pluginResource).isEqualTo("static/foo.txt");
   }
 
   @Test
   public void return_content_of_folder_of_installed_plugin() throws Exception {
-    system.answer = IOUtils.toInputStream("bar");
+    system.pluginStream = IOUtils.toInputStream("bar");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
     Response response = call("/static/myplugin/foo/bar.txt");
 
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar");
-    assertThat(system.calledResource).isEqualTo("static/foo/bar.txt");
+    assertThat(system.pluginResource).isEqualTo("static/foo/bar.txt");
+  }
+
+  @Test
+  public void return_content_of_folder_of_installed_core_extension() throws Exception {
+    system.coreExtensionStream = IOUtils.toInputStream("bar");
+    when(coreExtensionRepository.isInstalled("coreext")).thenReturn(true);
+
+    Response response = call("/static/coreext/foo/bar.txt");
+
+    assertThat(response.isSuccessful()).isTrue();
+    assertThat(response.body().string()).isEqualTo("bar");
+    assertThat(system.coreExtensionResource).isEqualTo("static/foo/bar.txt");
+  }
+
+  @Test
+  public void return_content_of_folder_of_installed_core_extension_over_installed_plugin_in_case_of_key_conflict() throws Exception {
+    system.coreExtensionStream = IOUtils.toInputStream("bar of plugin");
+    when(coreExtensionRepository.isInstalled("samekey")).thenReturn(true);
+    system.coreExtensionStream = IOUtils.toInputStream("bar of core extension");
+    when(coreExtensionRepository.isInstalled("samekey")).thenReturn(true);
+
+    Response response = call("/static/samekey/foo/bar.txt");
+
+    assertThat(response.isSuccessful()).isTrue();
+    assertThat(response.body().string()).isEqualTo("bar of core extension");
+    assertThat(system.pluginResource).isNull();
+    assertThat(system.coreExtensionResource).isEqualTo("static/foo/bar.txt");
   }
 
   @Test
   public void mime_type_is_set_on_response() throws Exception {
-    system.answer = IOUtils.toInputStream("bar");
+    system.pluginStream = IOUtils.toInputStream("bar");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
     Response response = call("/static/myplugin/foo.css");
@@ -117,7 +146,7 @@ public class StaticResourcesServletTest {
 
   @Test
   public void return_404_if_resource_not_found_in_installed_plugin() throws Exception {
-    system.answer = null;
+    system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
     Response response = call("/static/myplugin/foo.css");
@@ -129,7 +158,7 @@ public class StaticResourcesServletTest {
 
   @Test
   public void return_404_if_plugin_does_not_exist() throws Exception {
-    system.answer = null;
+    system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
     Response response = call("/static/myplugin/foo.css");
@@ -141,7 +170,7 @@ public class StaticResourcesServletTest {
 
   @Test
   public void return_resource_if_exists_in_requested_plugin() throws Exception {
-    system.answer = IOUtils.toInputStream("bar");
+    system.pluginStream = IOUtils.toInputStream("bar");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
     when(pluginRepository.getPluginInfo("myplugin")).thenReturn(new PluginInfo("myplugin"));
 
@@ -155,7 +184,7 @@ public class StaticResourcesServletTest {
 
   @Test
   public void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_plugin_does_not_exist() throws Exception {
-    system.answer = null;
+    system.pluginStream = null;
     system.isCommitted = true;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(false);
 
@@ -181,7 +210,7 @@ public class StaticResourcesServletTest {
   @Test
   public void do_not_fail_nor_log_ERROR_when_response_is_already_committed_and_resource_does_not_exist_in_installed_plugin() throws Exception {
     system.isCommitted = true;
-    system.answer = null;
+    system.pluginStream = null;
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
     Response response = call("/static/myplugin/foo.css");
@@ -193,7 +222,7 @@ public class StaticResourcesServletTest {
 
   @Test
   public void do_not_fail_nor_log_not_attempt_to_send_error_if_ClientAbortException_is_raised() throws Exception {
-    system.answerException = new ClientAbortException("Simulating ClientAbortException");
+    system.pluginStreamException = new ClientAbortException("Simulating ClientAbortException");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
     Response response = call("/static/myplugin/foo.css");
@@ -207,7 +236,7 @@ public class StaticResourcesServletTest {
   @Test
   public void do_not_fail_when_response_is_committed_after_other_error() throws Exception {
     system.isCommitted = true;
-    system.answerException = new RuntimeException("Simulating a error");
+    system.pluginStreamException = new RuntimeException("Simulating a error");
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
 
     Response response = call("/static/myplugin/foo.css");
@@ -218,16 +247,22 @@ public class StaticResourcesServletTest {
 
   private static class TestSystem extends StaticResourcesServlet.System {
     private final PluginRepository pluginRepository;
+    private final CoreExtensionRepository coreExtensionRepository;
     @Nullable
-    private InputStream answer;
-    private Exception answerException = null;
+    private InputStream pluginStream;
+    private Exception pluginStreamException = null;
     @Nullable
-    private String calledResource;
+    private String pluginResource;
+    @Nullable
+    private InputStream coreExtensionStream;
+    private Exception coreExtensionStreamException = null;
+    private String coreExtensionResource;
     private boolean isCommitted = false;
     private IOException sendErrorException = null;
 
-    TestSystem(PluginRepository pluginRepository) {
+    TestSystem(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository) {
       this.pluginRepository = pluginRepository;
+      this.coreExtensionRepository = coreExtensionRepository;
     }
 
     @Override
@@ -235,14 +270,29 @@ public class StaticResourcesServletTest {
       return pluginRepository;
     }
 
+    @Override
+    CoreExtensionRepository getCoreExtensionRepository() {
+      return this.coreExtensionRepository;
+    }
+
     @CheckForNull
     @Override
-    InputStream openResourceStream(String pluginKey, String resource, PluginRepository pluginRepository) throws Exception {
-      calledResource = resource;
-      if (answerException != null) {
-        throw answerException;
+    InputStream openPluginResourceStream(String pluginKey, String resource, PluginRepository pluginRepository) throws Exception {
+      pluginResource = resource;
+      if (pluginStreamException != null) {
+        throw pluginStreamException;
       }
-      return answer;
+      return pluginStream;
+    }
+
+    @CheckForNull
+    @Override
+    InputStream openCoreExtensionResourceStream(String resource) throws Exception {
+      coreExtensionResource = resource;
+      if (coreExtensionStreamException != null) {
+        throw coreExtensionStreamException;
+      }
+      return coreExtensionStream;
     }
 
     @Override

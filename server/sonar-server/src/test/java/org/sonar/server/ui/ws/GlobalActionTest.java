@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
 import org.sonar.server.branch.BranchFeatureRule;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
@@ -283,7 +284,9 @@ public class GlobalActionTest {
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin(any())).thenReturn(true);
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
-    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+    CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
+    when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);
       }

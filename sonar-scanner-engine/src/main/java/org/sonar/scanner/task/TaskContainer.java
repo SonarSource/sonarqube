@@ -22,15 +22,17 @@ package org.sonar.scanner.task;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
+import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
-import org.sonar.scanner.bootstrap.ExtensionMatcher;
-import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.bootstrap.GlobalProperties;
+
+import static org.sonar.api.batch.InstantiationStrategy.PER_TASK;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
 public class TaskContainer extends ComponentContainer {
 
@@ -57,15 +59,10 @@ public class TaskContainer extends ComponentContainer {
   }
 
   private void addTaskExtensions() {
-    getComponentByType(ExtensionInstaller.class).install(this, new TaskExtensionFilter());
-  }
-
-  static class TaskExtensionFilter implements ExtensionMatcher {
-    @Override
-    public boolean accept(Object extension) {
-      return ExtensionUtils.isScannerSide(extension)
-        && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_TASK);
-    }
+    getComponentByType(ExtensionInstaller.class)
+      .install(this, extension -> isScannerSide(extension) && isInstantiationStrategy(extension, PER_TASK));
+    getComponentByType(CoreExtensionsInstaller.class)
+      .install(this, t -> isInstantiationStrategy(t, PER_TASK));
   }
 
   @Override

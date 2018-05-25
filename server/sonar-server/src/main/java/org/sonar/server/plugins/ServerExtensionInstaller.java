@@ -36,6 +36,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.extension.ExtensionProviderSupport.isExtensionProvider;
 
 /**
  * Loads the plugins server extensions and injects them to DI container
@@ -121,12 +122,4 @@ public abstract class ServerExtensionInstaller {
     return null;
   }
 
-  static boolean isExtensionProvider(Object extension) {
-    return isType(extension, ExtensionProvider.class) || extension instanceof ExtensionProvider;
-  }
-
-  static boolean isType(Object extension, Class extensionClass) {
-    Class clazz = extension instanceof Class ? (Class) extension : extension.getClass();
-    return extensionClass.isAssignableFrom(clazz);
-  }
 }

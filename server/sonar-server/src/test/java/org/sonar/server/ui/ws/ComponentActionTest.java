@@ -54,6 +54,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -595,7 +596,9 @@ public class ComponentActionTest {
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin(any())).thenReturn(true);
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
-    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+    CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
+    when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);
       }

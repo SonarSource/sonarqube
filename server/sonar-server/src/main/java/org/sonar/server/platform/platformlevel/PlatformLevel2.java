@@ -20,10 +20,12 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.Durations;
-import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.extension.CoreExtensionRepositoryImpl;
+import org.sonar.core.extension.CoreExtensionsLoader;
+import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;
@@ -70,9 +72,11 @@ public class PlatformLevel2 extends PlatformLevel {
       PluginClassloaderFactory.class,
       InstalledPluginReferentialFactory.class,
       WebServerExtensionInstaller.class,
+      CoreExtensionRepositoryImpl.class,
+      CoreExtensionsLoader.class,
 
       // depends on plugins
-      DefaultI18n.class,
+      ServerI18n.class,
       RuleI18nManager.class);
 
     // Migration state must be kept at level2 to survive moving in and then out of safe mode
@@ -95,6 +99,7 @@ public class PlatformLevel2 extends PlatformLevel {
   public PlatformLevel start() {
     // ensuring the HistoryTable exists must be the first thing done when this level is started
     getOptional(MigrationHistoryTable.class).ifPresent(MigrationHistoryTable::start);
+    get(CoreExtensionsLoader.class).load();
     return super.start();
   }
 }

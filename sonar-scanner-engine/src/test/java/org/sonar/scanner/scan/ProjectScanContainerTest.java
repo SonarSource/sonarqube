@@ -24,6 +24,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.task.TaskExtension;
+import org.sonar.scanner.bootstrap.ExtensionMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +32,7 @@ public class ProjectScanContainerTest {
 
   @Test
   public void should_add_only_batch_extensions() {
-    ProjectScanContainer.BatchExtensionFilter filter = new ProjectScanContainer.BatchExtensionFilter();
+    ExtensionMatcher filter = ProjectScanContainer.getBatchPluginExtensionsFilter();
 
     assertThat(filter.accept(new MyBatchExtension())).isTrue();
     assertThat(filter.accept(MyBatchExtension.class)).isTrue();

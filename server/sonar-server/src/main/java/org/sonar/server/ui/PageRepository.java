@@ -20,10 +20,8 @@
 package org.sonar.server.ui;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
@@ -33,8 +31,11 @@ import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.Page.Scope;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.extension.CoreExtensionRepository;
+import org.sonar.server.ui.page.CorePageDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
@@ -46,26 +47,66 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 @ServerSide
 public class PageRepository implements Startable {
   private final PluginRepository pluginRepository;
+  private final CoreExtensionRepository coreExtensionRepository;
   private final List<PageDefinition> definitions;
+  private final List<CorePageDefinition> corePageDefinitions;
   private List<Page> pages;
 
-  public PageRepository(PluginRepository pluginRepository) {
+  /**
+   * Used by Pico when there is no {@link PageDefinition}.
+   */
+  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository) {
     this.pluginRepository = pluginRepository;
+    this.coreExtensionRepository = coreExtensionRepository;
     // in case there's no page definition
-    this.definitions = Collections.emptyList();
+    this.definitions = emptyList();
+    this.corePageDefinitions = emptyList();
   }
 
-  public PageRepository(PluginRepository pluginRepository, PageDefinition[] pageDefinitions) {
+  /**
+   * Used by Pico when there is only {@link PageDefinition} provided both by Plugin(s).
+   */
+  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository,
+    PageDefinition[] pageDefinitions) {
     this.pluginRepository = pluginRepository;
-    this.definitions = ImmutableList.copyOf(pageDefinitions);
+    this.coreExtensionRepository = coreExtensionRepository;
+    this.definitions = copyOf(pageDefinitions);
+    this.corePageDefinitions = emptyList();
+  }
+
+  /**
+   * Used by Pico when there is only {@link PageDefinition} provided both by Core Extension(s).
+   */
+  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository,
+    CorePageDefinition[] corePageDefinitions) {
+    this.pluginRepository = pluginRepository;
+    this.coreExtensionRepository = coreExtensionRepository;
+    this.definitions = emptyList();
+    this.corePageDefinitions = copyOf(corePageDefinitions);
+  }
+
+  /**
+   * Used by Pico when there is {@link PageDefinition} provided both by Core Extension(s) and Plugin(s).
+   */
+  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository,
+    PageDefinition[] pageDefinitions, CorePageDefinition[] corePageDefinitions) {
+    this.pluginRepository = pluginRepository;
+    this.coreExtensionRepository = coreExtensionRepository;
+    this.definitions = copyOf(pageDefinitions);
+    this.corePageDefinitions = copyOf(corePageDefinitions);
   }
 
   @Override
   public void start() {
     Context context = new Context();
     definitions.forEach(definition -> definition.define(context));
-    pages = context.getPages().stream()
-      .peek(checkPluginExists())
+    Context coreContext = new Context();
+    corePageDefinitions.stream()
+      .map(CorePageDefinition::getPageDefinition)
+      .forEach(definition -> definition.define(coreContext));
+    pages = Stream.concat(
+      context.getPages().stream().peek(this::checkPluginExists),
+      coreContext.getPages().stream().peek(this::checkCoreExtensionExists))
       .sorted(comparing(Page::getKey))
       .collect(toList());
   }
@@ -101,12 +142,16 @@ public class PageRepository implements Startable {
     return requireNonNull(pages, "Pages haven't been initialized yet");
   }
 
-  private Consumer<Page> checkPluginExists() {
-    return page -> {
-      String pluginKey = page.getPluginKey();
-      boolean pluginExists = pluginRepository.hasPlugin(pluginKey);
-      checkState(pluginExists, "Page '%s' references plugin '%s' that does not exist", page.getName(), pluginKey);
-    };
+  private void checkPluginExists(Page page) {
+    String pluginKey = page.getPluginKey();
+    checkState(pluginRepository.hasPlugin(pluginKey),
+      "Page '%s' references plugin '%s' that does not exist", page.getName(), pluginKey);
+  }
+
+  private void checkCoreExtensionExists(Page page) {
+    String coreExtensionName = page.getPluginKey();
+    checkState(coreExtensionRepository.isInstalled(coreExtensionName),
+      "Page '%s' references Core Extension '%s' which is not installed", page.getName(), coreExtensionName);
   }
 
 }

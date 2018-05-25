@@ -1,0 +1,34 @@
+sonarqube {
+    properties {
+        property 'sonar.projectName', "${projectTitle} :: Server :: Common"
+    }
+}
+
+dependencies {
+    // please keep the list grouped by configuration and ordered by name
+
+    compile 'com.google.guava:guava'
+    compile 'org.slf4j:slf4j-api'
+
+    compile project(':sonar-core')
+    compileOnly project(path: ':sonar-plugin-api')
+
+    compileOnly 'com.google.code.findbugs:jsr305'
+
+    testCompile 'com.google.code.findbugs:jsr305'
+    testCompile 'com.tngtech.java:junit-dataprovider'
+    testCompile 'junit:junit'
+    testCompile 'org.assertj:assertj-core'
+    testCompile 'org.mockito:mockito-core'
+}
+
+//artifactoryPublish.skip = false
+
+// Used by core plugins
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

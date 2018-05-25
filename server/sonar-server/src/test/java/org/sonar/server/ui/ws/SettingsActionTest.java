@@ -27,6 +27,7 @@ import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.process.ProcessProperties;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
@@ -83,7 +84,9 @@ public class SettingsActionTest {
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin(any())).thenReturn(true);
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused"));
-    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+    CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
+    when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);
       }

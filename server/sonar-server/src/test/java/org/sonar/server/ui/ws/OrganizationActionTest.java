@@ -33,6 +33,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -248,7 +249,9 @@ public class OrganizationActionTest {
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin(any())).thenReturn(true);
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
-    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+    CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
+    when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);
       }

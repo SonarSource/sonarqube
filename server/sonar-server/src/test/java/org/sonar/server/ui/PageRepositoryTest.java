@@ -31,6 +31,7 @@ import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.extension.CoreExtensionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -49,8 +50,9 @@ public class PageRepositoryTest {
   public LogTester logTester = new LogTester();
 
   private PluginRepository pluginRepository = mock(PluginRepository.class);
+  private CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
 
-  private PageRepository underTest = new PageRepository(pluginRepository);
+  private PageRepository underTest = new PageRepository(pluginRepository, coreExtensionRepository);
 
   @Before
   public void setUp() {
@@ -64,7 +66,7 @@ public class PageRepositoryTest {
       .addPage(Page.builder("my_plugin/K1").setName("N1").build())
       .addPage(Page.builder("my_plugin/K3").setName("N3").build());
     PageDefinition secondPlugin = context -> context.addPage(Page.builder("my_plugin/K2").setName("N2").build());
-    underTest = new PageRepository(pluginRepository, new PageDefinition[]{firstPlugin, secondPlugin});
+    underTest = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{firstPlugin, secondPlugin});
     underTest.start();
 
     List<Page> result = underTest.getAllPages();
@@ -87,7 +89,7 @@ public class PageRepositoryTest {
       .addPage(Page.builder("my_plugin/K4").setName("K4").setScope(GLOBAL).build())
       .addPage(Page.builder("my_plugin/K5").setName("K5").setScope(COMPONENT).setComponentQualifiers(Qualifier.VIEW).build())
       .addPage(Page.builder("my_plugin/K6").setName("K6").setScope(COMPONENT).setComponentQualifiers(Qualifier.APP).build());
-    underTest = new PageRepository(pluginRepository, new PageDefinition[]{plugin});
+    underTest = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{plugin});
     underTest.start();
 
     List<Page> result = underTest.getComponentPages(false, Qualifiers.PROJECT);
@@ -112,7 +114,7 @@ public class PageRepositoryTest {
       .addPage(Page.builder("my_plugin/K1").setName("N1").build())
       .addPage(Page.builder("my_plugin/K2").setName("N2").build())
       .addPage(Page.builder("my_plugin/K3").setName("N3").build());
-    underTest = new PageRepository(pluginRepository, new PageDefinition[]{plugin});
+    underTest = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{plugin});
     underTest.start();
 
     List<Page> result = underTest.getGlobalPages(false);
@@ -131,7 +133,7 @@ public class PageRepositoryTest {
       .addPage(Page.builder("my_plugin/O2").setName("O2").setScope(ORGANIZATION).build())
       .addPage(Page.builder("my_plugin/O3").setName("O3").setScope(ORGANIZATION).build())
       .addPage(Page.builder("my_plugin/OA1").setName("OA1").setScope(ORGANIZATION).setAdmin(true).build());
-    underTest = new PageRepository(pluginRepository, new PageDefinition[]{plugin});
+    underTest = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{plugin});
     underTest.start();
 
     List<Page> result = underTest.getOrganizationPages(false);
@@ -146,7 +148,7 @@ public class PageRepositoryTest {
     PageDefinition plugin = context -> context
       .addPage(Page.builder("my_plugin/O1").setName("O1").setScope(ORGANIZATION).build())
       .addPage(Page.builder("my_plugin/O2").setName("O2").setScope(ORGANIZATION).setAdmin(true).build());
-    underTest = new PageRepository(pluginRepository, new PageDefinition[]{plugin});
+    underTest = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{plugin});
     underTest.start();
 
     List<Page> result = underTest.getOrganizationPages(true);
@@ -170,7 +172,7 @@ public class PageRepositoryTest {
     PageDefinition plugin42 = context -> context.addPage(Page.builder("plugin_42/my_key").setName("N2").build());
     pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin("governance")).thenReturn(true);
-    underTest = new PageRepository(pluginRepository, new PageDefinition[]{governance, plugin42});
+    underTest = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{governance, plugin42});
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Page 'N2' references plugin 'plugin_42' that does not exist");

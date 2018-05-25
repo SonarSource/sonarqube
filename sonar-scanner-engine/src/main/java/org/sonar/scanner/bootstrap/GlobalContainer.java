@@ -32,6 +32,9 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.extension.CoreExtensionRepositoryImpl;
+import org.sonar.core.extension.CoreExtensionsInstaller;
+import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
@@ -39,6 +42,7 @@ import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.scanner.extension.ScannerCoreExtensionsInstaller;
 import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
 import org.sonar.scanner.repository.MetricsRepositoryLoader;
@@ -99,6 +103,7 @@ public class GlobalContainer extends ComponentContainer {
       new MetricsRepositoryProvider(),
       UuidFactoryImpl.INSTANCE);
     addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);
+    add(CoreExtensionRepositoryImpl.class, CoreExtensionsLoader.class, ScannerCoreExtensionsInstaller.class);
     addIfMissing(DefaultSettingsLoader.class, SettingsLoader.class);
     addIfMissing(DefaultMetricsRepositoryLoader.class, MetricsRepositoryLoader.class);
   }
@@ -106,6 +111,7 @@ public class GlobalContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     installPlugins();
+    loadCoreExtensions();
   }
 
   private void installPlugins() {
@@ -114,6 +120,11 @@ public class GlobalContainer extends ComponentContainer {
       Plugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());
       addExtension(pluginInfo, instance);
     }
+  }
+
+  private void loadCoreExtensions() {
+    CoreExtensionsLoader loader = getComponentByType(CoreExtensionsLoader.class);
+    loader.load();
   }
 
   public void executeTask(Map<String, String> taskProperties, Object... components) {

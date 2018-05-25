@@ -22,7 +22,6 @@ package org.sonar.scanner.scan;
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
@@ -33,6 +32,7 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.ScannerProperties;
+import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.ProjectAnalysisInfo;
@@ -41,7 +41,6 @@ import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
-import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.cpd.CpdExecutor;
@@ -101,6 +100,10 @@ import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.storage.Storages;
+
+import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
 public class ProjectScanContainer extends ComponentContainer {
 
@@ -238,7 +241,15 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void addBatchExtensions() {
-    getComponentByType(ExtensionInstaller.class).install(this, new BatchExtensionFilter());
+    getComponentByType(ExtensionInstaller.class)
+      .install(this, getBatchPluginExtensionsFilter());
+    getComponentByType(CoreExtensionsInstaller.class)
+      .install(this, extension -> isInstantiationStrategy(extension, PER_BATCH));
+  }
+
+  @VisibleForTesting
+  static ExtensionMatcher getBatchPluginExtensionsFilter() {
+    return extension -> isScannerSide(extension) && isInstantiationStrategy(extension, PER_BATCH);
   }
 
   @Override
@@ -299,14 +310,6 @@ public class ProjectScanContainer extends ComponentContainer {
   @VisibleForTesting
   void scan(DefaultInputModule module, GlobalAnalysisMode analysisMode) {
     new ModuleScanContainer(this, module, analysisMode).execute();
-  }
-
-  static class BatchExtensionFilter implements ExtensionMatcher {
-    @Override
-    public boolean accept(Object extension) {
-      return ExtensionUtils.isScannerSide(extension)
-        && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
-    }
   }
 
 }

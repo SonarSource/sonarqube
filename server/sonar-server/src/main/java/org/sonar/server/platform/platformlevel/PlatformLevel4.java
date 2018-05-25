@@ -32,6 +32,7 @@ import org.sonar.ce.CeModule;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.LogOAuthWarning;
@@ -66,6 +67,7 @@ import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.event.NewAlerts;
+import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.issue.AddTagsAction;
@@ -115,6 +117,7 @@ import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.monitoring.WebSystemInfoModule;
 import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
@@ -544,6 +547,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectBadgesWsModule.class,
 
       // privileged plugins
+      WebCoreExtensionsInstaller.class,
       PrivilegedPluginsBootstraper.class,
       PrivilegedPluginsStopper.class,
 
@@ -590,7 +594,10 @@ public class PlatformLevel4 extends PlatformLevel {
   @Override
   public PlatformLevel start() {
     ServerExtensionInstaller extensionInstaller = get(ServerExtensionInstaller.class);
-    extensionInstaller.installExtensions(getContainer());
+    CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
+    ComponentContainer container = getContainer();
+    extensionInstaller.installExtensions(container);
+    coreExtensionsInstaller.install(container, t -> true);
 
     super.start();
 

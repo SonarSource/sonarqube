@@ -52,6 +52,7 @@ import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
+import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
@@ -61,7 +62,6 @@ import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Module;
@@ -89,6 +89,9 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.event.NewAlerts;
+import org.sonar.core.extension.CoreExtensionRepositoryImpl;
+import org.sonar.core.extension.CoreExtensionsInstaller;
+import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.index.IssueIndex;
@@ -104,6 +107,7 @@ import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.CoreCustomMetrics;
@@ -191,6 +195,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     ComponentContainer level2 = this.level1.createChild();
     populateLevel2(level2);
     configureFromModules(level2);
+    level2.getComponentByType(CoreExtensionsLoader.class).load();
     level2.startComponents();
 
     ComponentContainer level3 = level2.createChild();
@@ -204,6 +209,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     configureFromModules(this.level4);
     ServerExtensionInstaller extensionInstaller = this.level4.getComponentByType(ServerExtensionInstaller.class);
     extensionInstaller.installExtensions(this.level4);
+    CoreExtensionsInstaller coreExtensionsInstaller = this.level4.getComponentByType(CECoreExtensionsInstaller.class);
+    coreExtensionsInstaller.install(this.level4, t -> true);
     this.level4.startComponents();
 
     startupTasks();
@@ -305,9 +312,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       CePluginRepository.class,
       InstalledPluginReferentialFactory.class,
       ComputeEngineExtensionInstaller.class,
+      CoreExtensionRepositoryImpl.class,
+      CoreExtensionsLoader.class,
 
       // depends on plugins
-      DefaultI18n.class, // used by RuleI18nManager
+      ServerI18n.class, // used by RuleI18nManager
       RuleI18nManager.class, // used by DebtRulesXMLImporter
       Durations.class // used in Web Services and DebtCalculator
     );
@@ -424,6 +433,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ServerLogging.class,
 
       // privileged plugins
+      CECoreExtensionsInstaller.class,
       PrivilegedPluginsBootstraper.class,
       PrivilegedPluginsStopper.class,
 

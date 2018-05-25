@@ -21,17 +21,16 @@ package org.sonar.scanner.scan;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
+import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
-import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
@@ -72,6 +71,10 @@ import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
 import org.sonar.scanner.source.HighlightableBuilder;
 import org.sonar.scanner.source.SymbolizableBuilder;
+
+import static org.sonar.api.batch.InstantiationStrategy.PER_PROJECT;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -165,8 +168,10 @@ public class ModuleScanContainer extends ComponentContainer {
   }
 
   private void addExtensions() {
-    ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
-    installer.install(this, e -> ExtensionUtils.isScannerSide(e) && ExtensionUtils.isInstantiationStrategy(e, InstantiationStrategy.PER_PROJECT));
+    ExtensionInstaller pluginInstaller = getComponentByType(ExtensionInstaller.class);
+    pluginInstaller.install(this, e -> isScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
+    CoreExtensionsInstaller coreExtensionsInstaller = getComponentByType(CoreExtensionsInstaller.class);
+    coreExtensionsInstaller.install(this, t -> isInstantiationStrategy(t, PER_PROJECT));
   }
 
   @Override

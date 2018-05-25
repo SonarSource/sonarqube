@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.platform.Platform;
 import org.sonarqube.ws.MediaTypes;
 
@@ -63,21 +64,25 @@ public class StaticResourcesServlet extends HttpServlet {
     InputStream in = null;
     OutputStream out = null;
     try {
+      CoreExtensionRepository coreExtensionRepository = system.getCoreExtensionRepository();
       PluginRepository pluginRepository = system.getPluginRepository();
-      if (!pluginRepository.hasPlugin(pluginKey)) {
+
+      boolean coreExtension = coreExtensionRepository.isInstalled(pluginKey);
+      if (!coreExtension && !pluginRepository.hasPlugin(pluginKey)) {
         silentlySendError(response, SC_NOT_FOUND);
         return;
       }
 
-      in = system.openResourceStream(pluginKey, resource, pluginRepository);
-      if (in != null) {
-        // mime type must be set before writing response body
-        completeContentType(response, resource);
-        out = response.getOutputStream();
-        IOUtils.copy(in, out);
-      } else {
+      in = coreExtension ? system.openCoreExtensionResourceStream(resource) : system.openPluginResourceStream(pluginKey, resource, pluginRepository);
+      if (in == null) {
         silentlySendError(response, SC_NOT_FOUND);
+        return;
       }
+
+      // mime type must be set before writing response body
+      completeContentType(response, resource);
+      out = response.getOutputStream();
+      IOUtils.copy(in, out);
     } catch (ClientAbortException e) {
       LOG.trace("Client canceled loading resource [{}] from plugin [{}]: {}", resource, pluginKey, e);
     } catch (Exception e) {
@@ -128,9 +133,19 @@ public class StaticResourcesServlet extends HttpServlet {
       return Platform.getInstance().getContainer().getComponentByType(PluginRepository.class);
     }
 
+    CoreExtensionRepository getCoreExtensionRepository() {
+      return Platform.getInstance().getContainer().getComponentByType(CoreExtensionRepository.class);
+    }
+
     @CheckForNull
-    InputStream openResourceStream(String pluginKey, String resource, PluginRepository pluginRepository) throws Exception {
-      return pluginRepository.getPluginInstance(pluginKey).getClass().getClassLoader().getResourceAsStream(resource);
+    InputStream openPluginResourceStream(String pluginKey, String resource, PluginRepository pluginRepository) throws Exception {
+      ClassLoader pluginClassLoader = pluginRepository.getPluginInstance(pluginKey).getClass().getClassLoader();
+      return pluginClassLoader.getResourceAsStream(resource);
+    }
+
+    @CheckForNull
+    InputStream openCoreExtensionResourceStream(String resource) throws Exception {
+      return getClass().getClassLoader().getResourceAsStream(resource);
     }
 
     boolean isCommitted(HttpServletResponse response) {
