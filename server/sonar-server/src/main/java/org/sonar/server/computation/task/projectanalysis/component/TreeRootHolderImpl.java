@@ -21,9 +21,9 @@ package org.sonar.server.computation.task.projectanalysis.component;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
@@ -52,11 +52,15 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
 
   @Override
   public Component getComponentByRef(int ref) {
+    return getOptionalComponentByRef(ref)
+      .orElseThrow(() -> new IllegalArgumentException(String.format("Component with ref '%s' can't be found", ref)));
+  }
+
+  @Override
+  public Optional<Component> getOptionalComponentByRef(int ref) {
     checkInitialized();
     ensureComponentByRefIsPopulated();
-    Component component = componentsByRef.get(ref);
-    checkArgument(component != null, "Component with ref '%s' can't be found", ref);
-    return component;
+    return Optional.ofNullable(componentsByRef.get(ref));
   }
 
   private void ensureComponentByRefIsPopulated() {

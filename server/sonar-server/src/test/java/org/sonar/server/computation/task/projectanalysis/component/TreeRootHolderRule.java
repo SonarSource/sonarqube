@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import java.util.Optional;
 import org.junit.rules.ExternalResource;
 
 public class TreeRootHolderRule extends ExternalResource implements TreeRootHolder {
@@ -43,5 +44,10 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   @Override
   public Component getComponentByRef(int ref) {
     return delegate.getComponentByRef(ref);
+  }
+
+  @Override
+  public Optional<Component> getOptionalComponentByRef(int ref) {
+    return delegate.getOptionalComponentByRef(ref);
   }
 }

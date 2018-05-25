@@ -100,6 +100,15 @@ public class TreeRootHolderImplTest {
   }
 
   @Test
+  public void getOptionalComponentByRef_returns_any_report_component_in_the_tree() {
+    underTest.setRoot(SOME_REPORT_COMPONENT_TREE);
+
+    for (int i = 1; i <= 4; i++) {
+      assertThat(underTest.getOptionalComponentByRef(i).get().getReportAttributes().getRef()).isEqualTo(i);
+    }
+  }
+
+  @Test
   public void getComponentByRef_throws_IAE_if_holder_does_not_contain_specified_component() {
     underTest.setRoot(SOME_REPORT_COMPONENT_TREE);
 
@@ -107,6 +116,13 @@ public class TreeRootHolderImplTest {
     expectedException.expectMessage("Component with ref '6' can't be found");
 
     underTest.getComponentByRef(6);
+  }
+
+  @Test
+  public void getOptionalComponentByRef_returns_empty_if_holder_does_not_contain_specified_component() {
+    underTest.setRoot(SOME_REPORT_COMPONENT_TREE);
+
+    assertThat(underTest.getOptionalComponentByRef(6)).isEmpty();
   }
 
   @Test

@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -169,7 +170,7 @@ public class TrackerRawInputFactory {
         if (flow.getLocationCount() > 0) {
           DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
           for (ScannerReport.IssueLocation location : flow.getLocationList()) {
-            dbFlowBuilder.addLocation(convertLocation(location));
+            convertLocation(location).ifPresent(dbFlowBuilder::addLocation);
           }
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
@@ -206,7 +207,7 @@ public class TrackerRawInputFactory {
         if (flow.getLocationCount() > 0) {
           DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
           for (ScannerReport.IssueLocation location : flow.getLocationList()) {
-            dbFlowBuilder.addLocation(convertLocation(location));
+            convertLocation(location).ifPresent(dbFlowBuilder::addLocation);
           }
           dbLocationsBuilder.addFlow(dbFlowBuilder);
         }
@@ -251,10 +252,15 @@ public class TrackerRawInputFactory {
       return issue;
     }
 
-    private DbIssues.Location convertLocation(ScannerReport.IssueLocation source) {
+    private Optional<DbIssues.Location> convertLocation(ScannerReport.IssueLocation source) {
       DbIssues.Location.Builder target = DbIssues.Location.newBuilder();
       if (source.getComponentRef() != 0 && source.getComponentRef() != component.getReportAttributes().getRef()) {
-        target.setComponentId(treeRootHolder.getComponentByRef(source.getComponentRef()).getUuid());
+        // SONAR-10781 Component might not exist because on short living branch and PR, only changed components are included in the report
+        Optional<Component> optionalComponent = treeRootHolder.getOptionalComponentByRef(source.getComponentRef());
+        if (!optionalComponent.isPresent()) {
+          return Optional.empty();
+        }
+        target.setComponentId(optionalComponent.get().getUuid());
       }
       if (isNotEmpty(source.getMsg())) {
         target.setMsg(source.getMsg());
@@ -264,7 +270,7 @@ public class TrackerRawInputFactory {
         DbCommons.TextRange.Builder targetRange = convertTextRange(sourceRange);
         target.setTextRange(targetRange);
       }
-      return target.build();
+      return Optional.of(target.build());
     }
 
     private DbCommons.TextRange.Builder convertTextRange(ScannerReport.TextRange sourceRange) {

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import java.util.Optional;
+
 /**
  * The tree of components defined in the scanner report.
  */
@@ -38,5 +40,17 @@ public interface TreeRootHolder {
    * @throws IllegalArgumentException if there's no {@link Component} with the specified reference
    */
   Component getComponentByRef(int ref);
+
+
+  /**
+   * Return a component by its batch reference. Returns {@link Optional#empty()} if there's
+   * no {@link Component} with the specified reference
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   * @deprecated This method was introduced as a quick fix for SONAR-10781. Ultimately one should never manipulate component
+   * ref that doesn't exists in the scanner report
+   */
+  @Deprecated
+  Optional<Component> getOptionalComponentByRef(int ref);
 
 }

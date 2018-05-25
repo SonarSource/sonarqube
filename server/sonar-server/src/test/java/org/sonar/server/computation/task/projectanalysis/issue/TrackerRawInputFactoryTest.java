@@ -30,6 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
@@ -55,10 +56,15 @@ import static org.mockito.Mockito.when;
 
 public class TrackerRawInputFactoryTest {
 
+  private static final String FILE_UUID = "fake_uuid";
+  private static final String ANOTHER_FILE_UUID = "another_fake_uuid";
   private static int FILE_REF = 2;
+  private static int NOT_IN_REPORT_FILE_REF = 3;
+  private static int ANOTHER_FILE_REF = 4;
 
-  private static ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).build();
-  private static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).build();
+  private static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).build();
+  private static ReportComponent ANOTHER_FILE = ReportComponent.builder(Component.Type.FILE, ANOTHER_FILE_REF).setUuid(ANOTHER_FILE_UUID).build();
+  private static ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).addChildren(FILE, ANOTHER_FILE).build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
@@ -131,6 +137,52 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.tags()).isEmpty();
     assertInitializedIssue(issue);
     assertThat(issue.debt()).isNull();
+  }
+
+  // SONAR-10781
+  @Test
+  public void load_issues_from_report_missing_secondary_location_component() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setGap(3.14)
+      .addFlow(ScannerReport.Flow.newBuilder()
+        .addLocation(ScannerReport.IssueLocation.newBuilder()
+          .setComponentRef(FILE_REF)
+          .setMsg("Secondary location in same file")
+          .setTextRange(TextRange.newBuilder().setStartLine(2).build()))
+        .addLocation(ScannerReport.IssueLocation.newBuilder()
+          .setComponentRef(NOT_IN_REPORT_FILE_REF)
+          .setMsg("Secondary location in a missing file")
+          .setTextRange(TextRange.newBuilder().setStartLine(3).build()))
+        .addLocation(ScannerReport.IssueLocation.newBuilder()
+          .setComponentRef(ANOTHER_FILE_REF)
+          .setMsg("Secondary location in another file")
+          .setTextRange(TextRange.newBuilder().setStartLine(3).build()))
+        .build())
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    DbIssues.Locations locations = issue.getLocations();
+    // fields set by analysis report
+    assertThat(locations.getFlowList()).hasSize(1);
+    assertThat(locations.getFlow(0).getLocationList()).hasSize(2);
+    // Not component id if location is in the same file
+    assertThat(locations.getFlow(0).getLocation(0).getComponentId()).isEmpty();
+    assertThat(locations.getFlow(0).getLocation(1).getComponentId()).isEqualTo(ANOTHER_FILE_UUID);
   }
 
   @Test
