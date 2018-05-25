@@ -148,7 +148,11 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     return (
       <>
         <h3 className="spacer-bottom">{translate('users.generate_tokens')}</h3>
-        <form autoComplete="off" id="generate-token-form" onSubmit={this.handleGenerateToken}>
+        <form
+          autoComplete="off"
+          className="display-flex-center"
+          id="generate-token-form"
+          onSubmit={this.handleGenerateToken}>
           <input
             className="spacer-right"
             maxLength={100}

@@ -20,6 +20,7 @@
 .button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   vertical-align: middle;
   height: var(--controlHeight);
   line-height: calc(var(--controlHeight) - 2px);
@@ -31,7 +32,6 @@
   color: var(--darkBlue);
   font-weight: 600;
   font-size: var(--smallFontSize);
-  text-align: center;
   text-decoration: none;
   cursor: pointer;
   outline: none;
