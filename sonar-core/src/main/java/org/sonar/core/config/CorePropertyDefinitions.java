@@ -47,7 +47,6 @@ public class CorePropertyDefinitions {
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
   public static final String ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS = "sonar.onboardingTutorial.showToNewUsers";
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
-  public static final String EDITIONS_CONFIG_URL = "sonar.editions.jsonUrl";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -229,15 +228,6 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(ORGANIZATIONS_CREATE_PERSONAL_ORG)
         .name("Create an organization for each new user.")
         .defaultValue(Boolean.toString(false))
-        .category(CATEGORY_ORGANIZATIONS)
-        .type(BOOLEAN)
-        .hidden()
-        .build(),
-
-      // EDITIONS
-      PropertyDefinition.builder(EDITIONS_CONFIG_URL)
-        .name("Defines URL of JSON file with the definitions of SonarSource editions.")
-        .defaultValue("https://update.sonarsource.org/editions.json")
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)
         .hidden()

@@ -81,7 +81,7 @@ export default class ComponentNav extends React.PureComponent<Props> {
     }
     return (
       <ContextNavBar
-        height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
+        height={notifComponent ? theme.contextNavHeightRaw + 30 : theme.contextNavHeightRaw}
         id="context-navigation"
         notif={notifComponent}>
         <div className="navbar-context-justified">

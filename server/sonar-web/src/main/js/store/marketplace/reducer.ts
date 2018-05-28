@@ -18,48 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Action } from './actions';
-import { Edition, EditionStatus } from '../../api/marketplace';
 import { PluginPendingResult } from '../../api/plugins';
 
 interface State {
-  editions?: Edition[];
-  loading: boolean;
-  status?: EditionStatus;
-  readOnly: boolean;
+  currentEdition?: string;
   pending: PluginPendingResult;
 }
 
-const defaultState: State = {
-  loading: true,
-  readOnly: false,
-  pending: { installing: [], removing: [], updating: [] }
-};
+const defaultState: State = { pending: { installing: [], removing: [], updating: [] } };
 
 export default function(state: State = defaultState, action: Action): State {
-  if (action.type === 'SET_EDITIONS') {
-    return { ...state, editions: action.editions, readOnly: action.readOnly, loading: false };
-  }
-  if (action.type === 'LOAD_EDITIONS') {
-    return { ...state, loading: action.loading };
-  }
   if (action.type === 'SET_PENDING_PLUGINS') {
     return {
       ...state,
       pending: action.pending
     };
   }
-  if (action.type === 'SET_EDITION_STATUS') {
-    const hasChanged = Object.keys(action.status).some(
-      (key: keyof EditionStatus) => !state.status || state.status[key] !== action.status[key]
-    );
-    // Prevent from rerendering the whole admin if the status didn't change
-    if (hasChanged) {
-      return { ...state, status: action.status };
-    }
+  if (action.type === 'SET_CURRENT_EDITION') {
+    return {
+      ...state,
+      currentEdition: action.currentEdition
+    };
   }
   return state;
 }
 
-export const getEditions = (state: State) => state.editions;
-export const getEditionStatus = (state: State) => state.status;
+export const getCurrentEdition = (state: State) => state.currentEdition;
 export const getPendingPlugins = (state: State) => state.pending;

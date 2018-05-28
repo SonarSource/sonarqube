@@ -1,87 +1,57 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display an error message 1`] = `
-<div
-  className="spacer-bottom marketplace-editions"
->
-  <span
-    className="alert alert-info"
-  >
-    <FormattedMessage
-      defaultMessage="marketplace.editions_unavailable"
-      id="marketplace.editions_unavailable"
-      values={
-        Object {
-          "url": <a
-            href="https://redirect.sonarsource.com/editions/editions.html"
-            target="_blank"
-          >
-            SonarSource.com
-          </a>,
-        }
-      }
-    />
-  </span>
-</div>
-`;
-
-exports[`should display the edition boxes correctly 1`] = `
-<i
-  className="big-spacer-bottom spinner"
-/>
-`;
-
-exports[`should display the edition boxes correctly 2`] = `
+exports[`should display the developer edition as installed 1`] = `
 <div
   className="spacer-bottom marketplace-editions"
 >
   <EditionBox
-    actionLabel="marketplace.downgrade"
-    disableAction={false}
-    displayAction={true}
+    currentEdition="developer"
     edition={
       Object {
-        "downloadUrl": "download_url",
         "homeUrl": "more_url",
         "key": "comunity",
-        "licenseRequestUrl": "license_url",
-        "name": "Comunity Edition",
-        "textDescription": "bar",
-      }
-    }
-    editionStatus={
-      Object {
-        "currentEditionKey": "developer",
-        "installationStatus": "NONE",
-        "nextEditionKey": "",
       }
     }
     key="comunity"
-    onAction={[Function]}
   />
   <EditionBox
-    actionLabel="marketplace.upgrade"
-    disableAction={false}
-    displayAction={false}
+    currentEdition="developer"
     edition={
       Object {
         "downloadUrl": "download_url",
         "homeUrl": "more_url",
         "key": "developer",
-        "licenseRequestUrl": "license_url",
-        "name": "Developer Edition",
-        "textDescription": "foo",
-      }
-    }
-    editionStatus={
-      Object {
-        "currentEditionKey": "developer",
-        "installationStatus": "NONE",
-        "nextEditionKey": "",
       }
     }
     key="developer"
-    onAction={[Function]}
+  />
+</div>
+`;
+
+exports[`should display the edition boxes correctly 1`] = `
+<div
+  className="spacer-bottom marketplace-editions"
+>
+  <EditionBox
+    currentEdition="community"
+    edition={
+      Object {
+        "homeUrl": "more_url",
+        "key": "comunity",
+      }
+    }
+    key="comunity"
+  />
+  <EditionBox
+    currentEdition="community"
+    edition={
+      Object {
+        "downloadUrl": "download_url",
+        "homeUrl": "more_url",
+        "key": "developer",
+      }
+    }
+    key="developer"
   />
 </div>
 `;

@@ -20,110 +20,22 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EditionBoxes from '../EditionBoxes';
-import { EditionStatus } from '../../../api/marketplace';
 
-const DEFAULT_STATUS: EditionStatus = {
-  currentEditionKey: 'developer',
-  nextEditionKey: '',
-  installationStatus: 'NONE'
-};
-
-const DEFAULT_EDITIONS = [
-  {
-    key: 'developer',
-    name: 'Developer Edition',
-    textDescription: 'foo',
-    downloadUrl: 'download_url',
-    homeUrl: 'more_url',
-    licenseRequestUrl: 'license_url'
-  },
-  {
-    key: 'comunity',
-    name: 'Comunity Edition',
-    textDescription: 'bar',
-    downloadUrl: 'download_url',
-    homeUrl: 'more_url',
-    licenseRequestUrl: 'license_url'
-  }
-];
+jest.mock('../utils', () => ({
+  EDITIONS: [
+    { key: 'comunity', homeUrl: 'more_url' },
+    { key: 'developer', downloadUrl: 'download_url', homeUrl: 'more_url' }
+  ]
+}));
 
 it('should display the edition boxes correctly', () => {
-  const wrapper = getWrapper({ editions: DEFAULT_EDITIONS, loading: true });
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setProps({ loading: false });
-  expect(wrapper).toMatchSnapshot();
+  expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should display an error message', () => {
-  const wrapper = getWrapper();
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should display community without the downgrade button', () => {
-  const communityBox = getWrapper({
-    editions: DEFAULT_EDITIONS,
-    editionStatus: {
-      currentEditionKey: '',
-      installationStatus: 'NONE'
-    },
-    loading: false
-  })
-    .find('EditionBox')
-    .first();
-  expect(communityBox.prop('displayAction')).toBeFalsy();
-});
-
-it('should not display action buttons', () => {
-  const wrapper = getWrapper({
-    editions: DEFAULT_EDITIONS,
-    editionStatus: {
-      currentEditionKey: '',
-      installationStatus: 'NONE'
-    },
-    loading: false,
-    canInstall: false,
-    canUninstall: false
-  });
-  wrapper.find('EditionBox').forEach(box => expect(box.prop('displayAction')).toBeFalsy());
-});
-
-it('should display disabled action buttons', () => {
-  const wrapper = getWrapper({
-    editions: DEFAULT_EDITIONS,
-    editionStatus: { installationStatus: 'AUTOMATIC_IN_PROGRESS', nextEditionKey: 'developer' },
-    loading: false
-  });
-
-  wrapper.find('EditionBox').forEach(box => expect(box.prop('disableAction')).toBeTruthy());
-  expect(wrapper.find('EditionBox').map(box => box.prop('displayAction'))).toEqual([true, false]);
-
-  wrapper.setProps({
-    editionStatus: { currentEditionKey: 'developer', installationStatus: 'UNINSTALL_IN_PROGRESS' }
-  });
-  wrapper.find('EditionBox').forEach(box => expect(box.prop('disableAction')).toBeTruthy());
-  expect(wrapper.find('EditionBox').map(box => box.prop('displayAction'))).toEqual([false, true]);
-
-  wrapper.setProps({ editionStatus: { installationStatus: 'AUTOMATIC_READY' } });
-  wrapper.find('EditionBox').forEach(box => expect(box.prop('disableAction')).toBeTruthy());
-});
-
-it('should open the license form', () => {
-  const wrapper = getWrapper({ editions: DEFAULT_EDITIONS });
-  (wrapper.instance() as EditionBoxes).handleOpenLicenseForm(DEFAULT_EDITIONS[0]);
-  wrapper.update();
-  expect(wrapper.find('LicenseEditionForm').exists()).toBeTruthy();
+it('should display the developer edition as installed', () => {
+  expect(getWrapper({ currentEdition: 'developer' })).toMatchSnapshot();
 });
 
 function getWrapper(props = {}) {
-  return shallow(
-    <EditionBoxes
-      canInstall={true}
-      canUninstall={true}
-      loading={false}
-      editionStatus={DEFAULT_STATUS}
-      updateCenterActive={true}
-      updateEditionStatus={jest.fn()}
-      {...props}
-    />
-  );
+  return shallow(<EditionBoxes currentEdition={undefined} {...props} />);
 }

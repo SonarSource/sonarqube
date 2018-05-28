@@ -1,10 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should display a pending plugin notif 1`] = `
+<PendingPluginsActionNotif
+  pending={
+    Object {
+      "installing": Array [
+        Object {
+          "implementationBuild": "1",
+          "key": "foo",
+          "name": "Foo",
+          "version": "1.0",
+        },
+      ],
+      "removing": Array [],
+      "updating": Array [],
+    }
+  }
+  refreshPending={[Function]}
+/>
+`;
+
 exports[`should work with extensions 1`] = `
 <ContextNavBar
   height={72}
   id="context-navigation"
-  notif={null}
 >
   <header
     className="navbar-context-header"

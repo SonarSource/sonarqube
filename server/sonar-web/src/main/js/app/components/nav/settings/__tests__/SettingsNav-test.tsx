@@ -35,3 +35,28 @@ it('should work with extensions', () => {
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Dropdown')).toMatchSnapshot();
 });
+
+it('should display a pending plugin notif', () => {
+  const extensions = [{ key: 'foo', name: 'Foo' }];
+  const wrapper = shallow(
+    <SettingsNav
+      extensions={extensions}
+      fetchPendingPlugins={() => {}}
+      location={{}}
+      organizationsEnabled={false}
+      pendingPlugins={{
+        installing: [
+          {
+            key: 'foo',
+            name: 'Foo',
+            version: '1.0',
+            implementationBuild: '1'
+          }
+        ],
+        removing: [],
+        updating: []
+      }}
+    />
+  );
+  expect(wrapper.find('ContextNavBar').prop('notif')).toMatchSnapshot();
+});

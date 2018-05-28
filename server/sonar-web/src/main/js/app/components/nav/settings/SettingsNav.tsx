@@ -20,20 +20,17 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
-import SettingsEditionsNotifContainer from './SettingsEditionsNotifContainer';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
 import * as theme from '../../../../app/theme';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import NavBarTabs from '../../../../components/nav/NavBarTabs';
-import { EditionStatus } from '../../../../api/marketplace';
-import { Extension } from '../../../types';
-import { translate } from '../../../../helpers/l10n';
 import Dropdown from '../../../../components/controls/Dropdown';
+import NavBarTabs from '../../../../components/nav/NavBarTabs';
+import { Extension } from '../../../types';
 import { PluginPendingResult } from '../../../../api/plugins';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
+import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  editionStatus?: EditionStatus;
   extensions: Extension[];
   fetchPendingPlugins: () => void;
   location: {};
@@ -232,23 +229,16 @@ export default class SettingsNav extends React.PureComponent<Props> {
   }
 
   render() {
-    const { editionStatus, extensions, pendingPlugins } = this.props;
+    const { extensions, pendingPlugins } = this.props;
     const hasSupportExtension = extensions.find(extension => extension.key === 'license/support');
+    const totalPendingPlugins =
+      pendingPlugins.installing.length +
+      pendingPlugins.removing.length +
+      pendingPlugins.updating.length;
 
-    const notifComponents = [];
-    if (
-      editionStatus &&
-      (editionStatus.installError || editionStatus.installationStatus !== 'NONE')
-    ) {
-      notifComponents.push(<SettingsEditionsNotifContainer editionStatus={editionStatus} />);
-    }
-
-    if (
-      pendingPlugins.installing.length > 0 ||
-      pendingPlugins.removing.length > 0 ||
-      pendingPlugins.updating.length > 0
-    ) {
-      notifComponents.push(
+    let notifComponent;
+    if (totalPendingPlugins > 0) {
+      notifComponent = (
         <PendingPluginsActionNotif
           pending={pendingPlugins}
           refreshPending={this.props.fetchPendingPlugins}
@@ -256,18 +246,11 @@ export default class SettingsNav extends React.PureComponent<Props> {
       );
     }
 
-    const notifContainer =
-      notifComponents.length > 0 ? (
-        <div className="alert-container">
-          {notifComponents.map((element, index) => <div key={index}>{element}</div>)}
-        </div>
-      ) : null;
-
     return (
       <ContextNavBar
-        height={theme.contextNavHeightRaw + 38 * notifComponents.length}
+        height={notifComponent ? theme.contextNavHeightRaw + 30 : theme.contextNavHeightRaw}
         id="context-navigation"
-        notif={notifContainer}>
+        notif={notifComponent}>
         <header className="navbar-context-header">
           <h1>{translate('layout.settings')}</h1>
         </header>

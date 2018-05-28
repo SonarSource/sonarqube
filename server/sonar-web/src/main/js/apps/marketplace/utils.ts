@@ -17,26 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { memoize, sortBy } from 'lodash';
+import { stringify } from 'querystring';
+import { memoize } from 'lodash';
 import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
-import { Edition } from '../../api/marketplace';
+import { omitNil } from '../../helpers/request';
+
+export interface Edition {
+  downloadUrl?: string;
+  homeUrl: string;
+  key: string;
+}
 
 export interface Query {
   filter: string;
   search?: string;
 }
 
-export function isPluginAvailable(plugin: Plugin): plugin is PluginAvailable {
-  return (plugin as any).release !== undefined;
-}
+export const EDITIONS: Edition[] = [
+  {
+    key: 'community',
+    homeUrl: 'https://redirect.sonarsource.com/editions/community.html'
+  },
+  {
+    key: 'developer',
+    homeUrl: 'https://redirect.sonarsource.com/editions/developer.html',
+    downloadUrl:
+      'https://sonarsource.bintray.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip'
+  },
+  {
+    key: 'enterprise',
+    homeUrl: 'https://redirect.sonarsource.com/editions/enterprise.html',
+    downloadUrl:
+      'https://sonarsource.bintray.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip'
+  },
+  {
+    key: 'datacenter',
+    homeUrl: 'https://redirect.sonarsource.com/editions/datacenter.html',
+    downloadUrl:
+      'https://sonarsource.bintray.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip'
+  }
+];
 
-export function isPluginInstalled(plugin: Plugin): plugin is PluginInstalled {
-  return isPluginPending(plugin) && (plugin as any).updatedAt !== undefined;
-}
-
-export function isPluginPending(plugin: Plugin): plugin is PluginPending {
-  return (plugin as any).version !== undefined;
+export function getEditionUrl(
+  edition: Edition,
+  data: { serverId?: string; ncloc?: number; sourceEdition: string }
+) {
+  let url = edition.homeUrl;
+  const query = stringify(omitNil(data));
+  if (query) {
+    url += '?' + query;
+  }
+  return url;
 }
 
 export function filterPlugins(plugins: Plugin[], search: string): Plugin[] {
@@ -50,9 +82,16 @@ export function filterPlugins(plugins: Plugin[], search: string): Plugin[] {
   });
 }
 
-const EDITIONS_ORDER = ['community', 'developer', 'enterprise', 'datacenter'];
-export function sortEditions(editions: Edition[]): Edition[] {
-  return sortBy(editions, edition => EDITIONS_ORDER.indexOf(edition.key));
+export function isPluginAvailable(plugin: Plugin): plugin is PluginAvailable {
+  return (plugin as any).release !== undefined;
+}
+
+export function isPluginInstalled(plugin: Plugin): plugin is PluginInstalled {
+  return isPluginPending(plugin) && (plugin as any).updatedAt !== undefined;
+}
+
+export function isPluginPending(plugin: Plugin): plugin is PluginPending {
+  return (plugin as any).version !== undefined;
 }
 
 export const DEFAULT_FILTER = 'all';

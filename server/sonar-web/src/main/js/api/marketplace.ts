@@ -17,43 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { checkStatus, corsRequest, getJSON, parseJSON, post, postJSON } from '../helpers/request';
+import { getJSON, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-
-export interface Edition {
-  key: string;
-  name: string;
-  textDescription: string;
-  homeUrl: string;
-  licenseRequestUrl: string;
-  downloadUrl: string;
-}
-
-export interface EditionsPerVersion {
-  [version: string]: Edition[];
-}
 
 export interface EditionStatus {
   currentEditionKey?: string;
-  nextEditionKey?: string;
-  installError?: string;
-  installationStatus:
-    | 'NONE'
-    | 'AUTOMATIC_IN_PROGRESS'
-    | 'MANUAL_IN_PROGRESS'
-    | 'AUTOMATIC_READY'
-    | 'UNINSTALL_IN_PROGRESS';
 }
 
 export function getEditionStatus(): Promise<EditionStatus> {
   return getJSON('/api/editions/status');
-}
-
-export function getEditionsList(url: string): Promise<EditionsPerVersion> {
-  return corsRequest(url)
-    .submit()
-    .then(checkStatus)
-    .then(parseJSON);
 }
 
 export function getLicensePreview(data: {
@@ -71,12 +43,4 @@ export function getFormData(): Promise<{ serverId: string; ncloc: number }> {
 
 export function applyLicense(data: { license: string }): Promise<EditionStatus> {
   return postJSON('/api/editions/apply_license', data).catch(throwGlobalError);
-}
-
-export function uninstallEdition(): Promise<void | Response> {
-  return post('/api/editions/uninstall').catch(throwGlobalError);
-}
-
-export function dismissErrorMessage(): Promise<void | Response> {
-  return post('/api/editions/clear_error_message').catch(throwGlobalError);
 }

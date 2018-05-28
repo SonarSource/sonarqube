@@ -45,7 +45,6 @@ import org.sonar.server.ui.VersionFormatter;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.RATING_GRID;
-import static org.sonar.core.config.CorePropertyDefinitions.EDITIONS_CONFIG_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
@@ -59,7 +58,6 @@ public class GlobalAction implements NavigationWsAction, Startable {
     SONAR_LF_LOGO_WIDTH_PX,
     SONAR_LF_ENABLE_GRAVATAR,
     SONAR_LF_GRAVATAR_SERVER_URL,
-    EDITIONS_CONFIG_URL,
     RATING_GRID);
 
   private final Map<String, String> systemSettingValuesByKey;

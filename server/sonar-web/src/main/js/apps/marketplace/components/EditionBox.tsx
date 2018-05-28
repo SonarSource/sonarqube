@@ -18,45 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import EditionBoxBadge from './EditionBoxBadge';
-import { Edition, EditionStatus } from '../../../api/marketplace';
-import { Button } from '../../../components/ui/buttons';
+import CheckIcon from '../../../components/icons-components/CheckIcon';
 import { translate } from '../../../helpers/l10n';
+import DocInclude from '../../../components/docs/DocInclude';
+import { Edition, getEditionUrl } from '../utils';
 
 interface Props {
-  actionLabel: string;
-  disableAction: boolean;
-  displayAction: boolean;
+  currentEdition: string;
   edition: Edition;
-  editionStatus?: EditionStatus;
-  onAction: (edition: Edition) => void;
+  ncloc?: number;
+  serverId?: string;
 }
 
-export default class EditionBox extends React.PureComponent<Props> {
-  handleAction = () => {
-    this.props.onAction(this.props.edition);
-  };
-
-  render() {
-    const { disableAction, displayAction, edition, editionStatus } = this.props;
-    return (
-      <div className="boxed-group boxed-group-inner marketplace-edition">
-        {editionStatus && <EditionBoxBadge editionKey={edition.key} status={editionStatus} />}
-        <div>
-          <h3 className="spacer-bottom">{edition.name}</h3>
-          <p>{edition.textDescription}</p>
-        </div>
-        <div className="marketplace-edition-action spacer-top">
-          <a href={edition.homeUrl} target="_blank">
-            {translate('marketplace.learn_more')}
-          </a>
-          {displayAction && (
-            <Button disabled={disableAction} onClick={this.handleAction}>
-              {this.props.actionLabel}
-            </Button>
-          )}
-        </div>
+export default function EditionBox({ currentEdition, edition, ncloc, serverId }: Props) {
+  const isInstalled = currentEdition === edition.key;
+  const url = getEditionUrl(edition, { ncloc, serverId, sourceEdition: currentEdition });
+  return (
+    <div className="boxed-group boxed-group-inner marketplace-edition">
+      {isInstalled && (
+        <span className="marketplace-edition-badge badge badge-normal-size display-flex-center">
+          <CheckIcon className="little-spacer-right" size={14} />
+          {translate('marketplace.installed')}
+        </span>
+      )}
+      <div>
+        <DocInclude path={'/tooltips/editions/' + edition.key} />
       </div>
-    );
-  }
+      <div className="marketplace-edition-action spacer-top">
+        <a href={url} target="_blank">
+          {translate('marketplace.learn_more')}
+        </a>
+      </div>
+    </div>
+  );
 }

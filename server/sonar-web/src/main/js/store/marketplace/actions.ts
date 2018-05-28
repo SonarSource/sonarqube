@@ -18,62 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Dispatch } from 'react-redux';
-import { getEditionsForVersion, getEditionsForLastVersion } from './utils';
-import { Edition, EditionStatus, getEditionStatus, getEditionsList } from '../../api/marketplace';
+import { getEditionStatus } from '../../api/marketplace';
 import { getPendingPlugins, PluginPendingResult } from '../../api/plugins';
-
-interface LoadEditionsAction {
-  type: 'LOAD_EDITIONS';
-  loading: boolean;
-}
 
 interface SetPendingPluginsAction {
   type: 'SET_PENDING_PLUGINS';
   pending: PluginPendingResult;
 }
 
-interface SetEditionsAction {
-  type: 'SET_EDITIONS';
-  editions: Edition[];
-  readOnly: boolean;
+interface SetCurrentEditionAction {
+  type: 'SET_CURRENT_EDITION';
+  currentEdition?: string;
 }
 
-interface SetEditionStatusAction {
-  type: 'SET_EDITION_STATUS';
-  status: EditionStatus;
-}
-
-export type Action =
-  | LoadEditionsAction
-  | SetEditionsAction
-  | SetEditionStatusAction
-  | SetPendingPluginsAction;
-
-export function loadEditions(loading = true): LoadEditionsAction {
-  return { type: 'LOAD_EDITIONS', loading };
-}
+export type Action = SetCurrentEditionAction | SetPendingPluginsAction;
 
 export function setPendingPlugins(pending: PluginPendingResult): SetPendingPluginsAction {
   return { type: 'SET_PENDING_PLUGINS', pending };
 }
 
-export function setEditions(editions: Edition[], readOnly?: boolean): SetEditionsAction {
-  return { type: 'SET_EDITIONS', editions, readOnly: !!readOnly };
-}
+export const setCurrentEdition = (currentEdition?: string) => (dispatch: Dispatch<Action>) => {
+  dispatch({ type: 'SET_CURRENT_EDITION', currentEdition });
+};
 
-let editionTimer: number | undefined;
-export const setEditionStatus = (status: EditionStatus) => (dispatch: Dispatch<Action>) => {
-  dispatch({ type: 'SET_EDITION_STATUS', status });
-  if (editionTimer) {
-    window.clearTimeout(editionTimer);
-    editionTimer = undefined;
-  }
-  if (status.installationStatus === 'AUTOMATIC_IN_PROGRESS') {
-    editionTimer = window.setTimeout(() => {
-      getEditionStatus().then(status => setEditionStatus(status)(dispatch), () => {});
-      editionTimer = undefined;
-    }, 2000);
-  }
+export const fetchCurrentEdition = () => (dispatch: Dispatch<Action>) => {
+  getEditionStatus().then(
+    editionStatus => dispatch(setCurrentEdition(editionStatus.currentEditionKey)),
+    () => {}
+  );
 };
 
 export const fetchPendingPlugins = () => (dispatch: Dispatch<Action>) => {
@@ -82,20 +54,5 @@ export const fetchPendingPlugins = () => (dispatch: Dispatch<Action>) => {
       dispatch(setPendingPlugins(pending));
     },
     () => {}
-  );
-};
-
-export const fetchEditions = (url: string, version: string) => (dispatch: Dispatch<Action>) => {
-  dispatch(loadEditions(true));
-  getEditionsList(url).then(
-    editionsPerVersion => {
-      const editions = getEditionsForVersion(editionsPerVersion, version);
-      if (editions) {
-        dispatch(setEditions(editions));
-      } else {
-        dispatch(setEditions(getEditionsForLastVersion(editionsPerVersion), true));
-      }
-    },
-    () => dispatch(loadEditions(false))
   );
 };

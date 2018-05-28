@@ -22,13 +22,10 @@ import App from './App';
 import {
   getAppState,
   getGlobalSettingValue,
-  getMarketplaceState,
-  getMarketplaceEditions,
-  getMarketplaceEditionStatus,
+  getMarketplaceCurrentEdition,
   getMarketplacePendingPlugins
 } from '../../store/rootReducer';
-import { Edition, EditionStatus } from '../../api/marketplace';
-import { setEditionStatus, fetchPendingPlugins } from '../../store/marketplace/actions';
+import { fetchPendingPlugins } from '../../store/marketplace/actions';
 import { RawQuery } from '../../helpers/query';
 import { PluginPendingResult } from '../../api/plugins';
 
@@ -37,32 +34,27 @@ interface OwnProps {
 }
 
 interface StateToProps {
-  editions?: Edition[];
-  editionsReadOnly: boolean;
-  editionStatus?: EditionStatus;
-  loadingEditions: boolean;
+  currentEdition?: string;
   pendingPlugins: PluginPendingResult;
   standaloneMode: boolean;
   updateCenterActive: boolean;
 }
 
 interface DispatchToProps {
-  setEditionStatus: (editionStatus: EditionStatus) => void;
   fetchPendingPlugins: () => void;
 }
 
-const mapStateToProps = (state: any) => ({
-  editions: getMarketplaceEditions(state),
-  editionsReadOnly: getMarketplaceState(state).readOnly,
-  editionStatus: getMarketplaceEditionStatus(state),
-  loadingEditions: getMarketplaceState(state).loading,
-  pendingPlugins: getMarketplacePendingPlugins(state),
-  standaloneMode: getAppState(state).standalone,
-  updateCenterActive:
-    (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value === 'true'
-});
+const mapStateToProps = (state: any) => {
+  return {
+    currentEdition: getMarketplaceCurrentEdition(state),
+    pendingPlugins: getMarketplacePendingPlugins(state),
+    standaloneMode: getAppState(state).standalone,
+    updateCenterActive:
+      (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value === 'true'
+  };
+};
 
-const mapDispatchToProps = { setEditionStatus, fetchPendingPlugins };
+const mapDispatchToProps = { fetchPendingPlugins };
 
 export default connect<StateToProps, DispatchToProps, OwnProps>(
   mapStateToProps,

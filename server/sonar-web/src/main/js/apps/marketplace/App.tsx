@@ -36,21 +36,16 @@ import {
   PluginPendingResult,
   getInstalledPlugins
 } from '../../api/plugins';
-import { Edition, EditionStatus } from '../../api/marketplace';
 import { RawQuery } from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
 import './style.css';
 
 export interface Props {
-  editions?: Edition[];
-  editionsReadOnly: boolean;
-  editionStatus?: EditionStatus;
+  currentEdition?: string;
   fetchPendingPlugins: () => void;
-  loadingEditions: boolean;
   location: { pathname: string; query: RawQuery };
   pendingPlugins: PluginPendingResult;
   standaloneMode: boolean;
-  setEditionStatus: (editionStatus: EditionStatus) => void;
   updateCenterActive: boolean;
 }
 
@@ -66,13 +61,7 @@ export default class App extends React.PureComponent<Props, State> {
     router: PropTypes.object.isRequired
   };
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      loadingPlugins: true,
-      plugins: []
-    };
-  }
+  state: State = { loadingPlugins: true, plugins: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -130,7 +119,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { editions, editionStatus, standaloneMode, pendingPlugins } = this.props;
+    const { currentEdition, standaloneMode, pendingPlugins } = this.props;
     const { loadingPlugins, plugins } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
@@ -140,15 +129,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Suggestions suggestions="marketplace" />
         <Helmet title={translate('marketplace.page')} />
         <Header />
-        <EditionBoxes
-          canInstall={standaloneMode && !this.props.editionsReadOnly}
-          canUninstall={standaloneMode}
-          editionStatus={editionStatus}
-          editions={editions}
-          loading={this.props.loadingEditions}
-          updateCenterActive={this.props.updateCenterActive}
-          updateEditionStatus={this.props.setEditionStatus}
-        />
+        <EditionBoxes currentEdition={currentEdition} />
         <Search
           query={query}
           updateCenterActive={this.props.updateCenterActive}

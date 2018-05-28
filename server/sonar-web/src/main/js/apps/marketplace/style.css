@@ -35,6 +35,11 @@
   margin-right: 8px;
 }
 
+.marketplace-edition .markdown h3 {
+  font-size: 14px;
+  margin-top: 0;
+}
+
 .marketplace-edition-badge {
   position: absolute;
   right: -1px;

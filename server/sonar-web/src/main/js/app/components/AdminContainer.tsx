@@ -22,20 +22,10 @@ import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
-import {
-  getAppState,
-  getGlobalSettingValue,
-  getMarketplaceEditionStatus,
-  getMarketplacePendingPlugins
-} from '../../store/rootReducer';
+import { getAppState, getMarketplacePendingPlugins } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
-import { EditionStatus, getEditionStatus } from '../../api/marketplace';
 import { setAdminPages } from '../../store/appState/duck';
-import {
-  fetchEditions,
-  setEditionStatus,
-  fetchPendingPlugins
-} from '../../store/marketplace/actions';
+import { fetchCurrentEdition, fetchPendingPlugins } from '../../store/marketplace/actions';
 import { translate } from '../../helpers/l10n';
 import { Extension } from '../types';
 import { PluginPendingResult } from '../../api/plugins';
@@ -47,23 +37,22 @@ interface StateProps {
     organizationsEnabled: boolean;
     version: string;
   };
-  editionStatus?: EditionStatus;
-  editionsUrl: string;
   pendingPlugins: PluginPendingResult;
 }
 
-interface DispatchProps {
-  fetchEditions: (url: string, version: string) => void;
+interface DispatchToProps {
   fetchPendingPlugins: () => void;
+  fetchCurrentEdition: () => void;
   setAdminPages: (adminPages: Extension[]) => void;
-  setEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
 interface OwnProps {
   location: {};
 }
 
-class AdminContainer extends React.PureComponent<StateProps & DispatchProps & OwnProps> {
+type Props = StateProps & DispatchToProps & OwnProps;
+
+class AdminContainer extends React.PureComponent<Props> {
   static contextTypes = {
     canAdmin: PropTypes.bool.isRequired
   };
@@ -73,16 +62,12 @@ class AdminContainer extends React.PureComponent<StateProps & DispatchProps & Ow
       handleRequiredAuthorization();
     } else {
       this.fetchNavigationSettings();
-      this.props.fetchEditions(this.props.editionsUrl, this.props.appState.version);
-      this.fetchEditionStatus();
+      this.props.fetchCurrentEdition();
     }
   }
 
   fetchNavigationSettings = () =>
     getSettingsNavigation().then(r => this.props.setAdminPages(r.extensions), () => {});
-
-  fetchEditionStatus = () =>
-    getEditionStatus().then(editionStatus => this.props.setEditionStatus(editionStatus), () => {});
 
   render() {
     const { adminPages, organizationsEnabled } = this.props.appState;
@@ -98,7 +83,6 @@ class AdminContainer extends React.PureComponent<StateProps & DispatchProps & Ow
       <div>
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
         <SettingsNav
-          editionStatus={this.props.editionStatus}
           extensions={adminPages}
           fetchPendingPlugins={this.props.fetchPendingPlugins}
           location={this.props.location}
@@ -113,16 +97,15 @@ class AdminContainer extends React.PureComponent<StateProps & DispatchProps & Ow
 
 const mapStateToProps = (state: any): StateProps => ({
   appState: getAppState(state),
-  editionStatus: getMarketplaceEditionStatus(state),
-  editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value,
   pendingPlugins: getMarketplacePendingPlugins(state)
 });
 
-const mapDispatchToProps: DispatchProps = {
-  setAdminPages,
-  setEditionStatus,
-  fetchEditions,
-  fetchPendingPlugins
+const mapDispatchToProps: DispatchToProps = {
+  fetchCurrentEdition,
+  fetchPendingPlugins,
+  setAdminPages
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer);
+export default connect<StateProps, DispatchToProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
+  AdminContainer
+);

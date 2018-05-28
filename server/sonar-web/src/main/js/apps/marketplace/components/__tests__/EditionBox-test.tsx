@@ -19,46 +19,22 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Edition, EditionStatus } from '../../../../api/marketplace';
 import EditionBox from '../EditionBox';
 
-const DEFAULT_STATUS: EditionStatus = {
-  currentEditionKey: '',
-  nextEditionKey: '',
-  installationStatus: 'NONE'
-};
-
-const DEFAULT_EDITION: Edition = {
+const DEFAULT_EDITION = {
   key: 'foo',
-  name: 'Foo',
-  textDescription: 'Foo desc',
   downloadUrl: 'download_url',
-  homeUrl: 'more_url',
-  licenseRequestUrl: 'license_url'
+  homeUrl: 'more_url'
 };
 
 it('should display the edition', () => {
-  expect(getWrapper()).toMatchSnapshot();
+  expect(getWrapper({ ncloc: 1000, serverId: 'serverId' })).toMatchSnapshot();
 });
 
-it('should disable action button', () => {
-  expect(getWrapper({ disableAction: true })).toMatchSnapshot();
-});
-
-it('should correctly hide action buttons', () => {
-  expect(getWrapper({ displayAction: false })).toMatchSnapshot();
+it('should show insalled badge', () => {
+  expect(getWrapper({ currentEdition: 'foo' })).toMatchSnapshot();
 });
 
 function getWrapper(props = {}) {
-  return shallow(
-    <EditionBox
-      actionLabel="action"
-      disableAction={false}
-      displayAction={true}
-      edition={DEFAULT_EDITION}
-      editionStatus={DEFAULT_STATUS}
-      onAction={jest.fn()}
-      {...props}
-    />
-  );
+  return shallow(<EditionBox currentEdition="community" edition={DEFAULT_EDITION} {...props} />);
 }

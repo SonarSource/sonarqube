@@ -27,7 +27,6 @@ import DateFromNow from '../../components/intl/DateFromNow';
 import DateFormatter from '../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../components/intl/DateTimeFormatter';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
-import LicenseEditionSet from '../../apps/marketplace/components/LicenseEditionSet';
 import HomePageSelect from '../../components/controls/HomePageSelect';
 import ListFooter from '../../components/controls/ListFooter';
 import Modal from '../../components/controls/Modal';
@@ -82,7 +81,6 @@ const exposeLibraries = () => {
     HelpTooltip,
     HomePageSelect,
     Level,
-    LicenseEditionSet,
     ListFooter,
     LockIcon,
     Modal,
