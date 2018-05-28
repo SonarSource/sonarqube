@@ -17,29 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const fs = require('fs');
-const path = require('path');
-const { getFrontMatter } = require('../../src/main/js/helpers/markdown');
+interface FrontMatter {
+  [x: string]: string;
+}
 
-const compare = (a, b) => {
-  if (a.order === b.order) return a.title.localeCompare(b.title);
-  if (a.order === -1) return 1;
-  if (b.order === -1) return -1;
-  return a.order - b.order;
-};
+export function getFrontMatter(content: string): FrontMatter;
 
-module.exports = (root, files) => {
-  return files
-    .map(file => {
-      const content = fs.readFileSync(root + '/' + file, 'utf8');
-      const headerData = getFrontMatter(content);
-      return {
-        name: path.basename(file).slice(0, -3),
-        relativeName: file.slice(0, -3),
-        title: headerData.title || file,
-        order: headerData.order || -1,
-        scope: headerData.scope && headerData.scope.toLowerCase()
-      };
-    })
-    .sort(compare);
-};
+export function separateFrontMatter(content: string): { content: string; frontmatter: FrontMatter };

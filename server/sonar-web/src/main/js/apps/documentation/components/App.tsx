@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as matter from 'gray-matter';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 import * as PropTypes from 'prop-types';
@@ -28,6 +27,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { getFrontMatter } from '../../../helpers/markdown';
 import '../styles.css';
 
 interface Props {
@@ -71,8 +71,8 @@ export default class App extends React.PureComponent<Props, State> {
     import(`Docs/pages/${path === '' ? 'index' : path}.md`).then(
       ({ default: content }) => {
         if (this.mounted) {
-          const parsed = matter(content || '');
-          if (parsed.data.scope === 'sonarcloud' && !this.context.onSonarCloud) {
+          const { scope } = getFrontMatter(content || '');
+          if (scope === 'sonarcloud' && !this.context.onSonarCloud) {
             this.setState({ loading: false, notFound: true });
           } else {
             this.setState({ content, loading: false, notFound: false });
@@ -108,7 +108,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const pageTitle = matter(this.state.content || '').data.title;
+    const pageTitle = getFrontMatter(this.state.content || '').title;
     const mainTitle = translate('documentation.page');
     const isIndex = !this.props.params.splat || this.props.params.splat === '';
     return (
