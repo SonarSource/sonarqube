@@ -48,7 +48,7 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.favorite !== this.props.favorite && nextProps.favorite !== this.state.favorite) {
+    if (nextProps.favorite !== this.props.favorite || nextProps.favorite !== this.state.favorite) {
       this.setState({ favorite: nextProps.favorite });
     }
   }
