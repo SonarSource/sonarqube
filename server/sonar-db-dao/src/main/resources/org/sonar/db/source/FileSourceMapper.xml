@@ -23,8 +23,8 @@
     from
       file_sources
     where
-      file_uuid = #{fileUuid}
-      and data_type = #{dataType}
+      file_uuid = #{fileUuid,jdbcType=VARCHAR}
+      and data_type = #{dataType,jdbcType=VARCHAR}
   </select>
 
   <select id="selectHashesForProject" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
@@ -38,8 +38,8 @@
     from
       file_sources
     where
-      project_uuid = #{projectUuid}
-      and data_type=#{dataType}
+      project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      and data_type = #{dataType,jdbcType=VARCHAR}
   </select>
 
   <select id="scrollLineHashes" parameterType="map" resultType="org.sonar.db.source.LineHashesWithKeyDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
@@ -60,9 +60,13 @@
   </select>
 
   <select id="selectLineHashesVersion" parameterType="map" resultType="Integer">
-    SELECT line_hashes_version
-    FROM file_sources
-    WHERE file_uuid = #{fileUuid,jdbcType=VARCHAR} and data_type=#{dataType,jdbcType=VARCHAR}
+    SELECT
+      line_hashes_version
+    FROM
+      file_sources
+    WHERE
+      file_uuid = #{fileUuid,jdbcType=VARCHAR}
+      and data_type=#{dataType,jdbcType=VARCHAR}
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
@@ -111,7 +115,7 @@
       src_hash = #{srcHash,jdbcType=VARCHAR},
       revision = #{revision,jdbcType=VARCHAR}
     where
-      id = #{id}
+      id = #{id,jdbcType=INTEGER}
   </update>
 
 </mapper>
