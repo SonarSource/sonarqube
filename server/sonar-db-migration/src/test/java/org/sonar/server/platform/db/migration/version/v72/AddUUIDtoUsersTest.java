@@ -43,7 +43,7 @@ public class AddUUIDtoUsersTest {
   public void column_is_added_to_table() throws SQLException {
     underTest.execute();
 
-    dbTester.assertColumnDefinition("users", "uuid", VARCHAR, 40, true);
+    dbTester.assertColumnDefinition("users", "uuid", VARCHAR, 255, true);
   }
 
   @Test

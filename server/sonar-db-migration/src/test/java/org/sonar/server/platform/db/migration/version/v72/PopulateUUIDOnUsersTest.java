@@ -19,11 +19,9 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
+import com.google.common.base.Strings;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.stream.Collectors;
-
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,7 +60,6 @@ public class PopulateUUIDOnUsersTest {
 
   @Test
   public void update_uuid_when_login_is_present() throws SQLException {
-
     String login1 = insertUser(NO_UUID, randomAlphanumeric(10));
     String login2 = insertUser(NO_UUID, randomAlphanumeric(10));
     String login3 = insertUser(NO_UUID, randomAlphanumeric(10));
@@ -77,6 +74,15 @@ public class PopulateUUIDOnUsersTest {
   }
 
   @Test
+  public void check_max_length() throws Exception {
+    String login = insertUser(NO_UUID, Strings.repeat("a", 255));
+
+    underTest.execute();
+
+    assertUser(tuple(login, login, PAST, NOW));
+  }
+
+  @Test
   public void generate_random_uuid_when_login_is_null() throws SQLException {
     insertUser(NO_UUID, NO_LOGIN);
     insertUser(NO_UUID, NO_LOGIN);
@@ -88,7 +94,7 @@ public class PopulateUUIDOnUsersTest {
   }
 
   @Test
-  public void _do_nothing_when_uuid_is_already_present() throws SQLException {
+  public void do_nothing_when_uuid_is_already_present() throws SQLException {
     String login1 = insertUser(NO_UUID, randomAlphanumeric(10));
     String login2 = insertUser("existing-uuid", randomAlphanumeric(10));
 

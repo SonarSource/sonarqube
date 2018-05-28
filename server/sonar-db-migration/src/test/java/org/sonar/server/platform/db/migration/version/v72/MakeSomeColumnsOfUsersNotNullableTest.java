@@ -38,7 +38,7 @@ public class MakeSomeColumnsOfUsersNotNullableTest {
   public void columns_are_set_as_not_nullable() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDefinition("users", "uuid", VARCHAR, 40, false);
+    db.assertColumnDefinition("users", "uuid", VARCHAR, 255, false);
     db.assertColumnDefinition("users", "login", VARCHAR, 255, false);
     db.assertColumnDefinition("users", "external_id", VARCHAR, 255, false);
     db.assertColumnDefinition("users", "external_login", VARCHAR, 255, false);
@@ -51,7 +51,7 @@ public class MakeSomeColumnsOfUsersNotNullableTest {
     underTest.execute();
     underTest.execute();
 
-    db.assertColumnDefinition("users", "uuid", VARCHAR, 40, false);
+    db.assertColumnDefinition("users", "uuid", VARCHAR, 255, false);
     db.assertColumnDefinition("users", "login", VARCHAR, 255, false);
     db.assertColumnDefinition("users", "external_id", VARCHAR, 255, false);
     db.assertColumnDefinition("users", "external_login", VARCHAR, 255, false);

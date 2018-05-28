@@ -46,7 +46,7 @@ public class MakeSomeColumnsOfUsersNotNullable extends DdlChange {
       .build());
 
     context.execute(new AlterColumnsBuilder(getDialect(), USERS_TABLE)
-      .updateColumn(notNullableColumn("uuid", 40))
+      .updateColumn(notNullableColumn("uuid", 255))
       .updateColumn(notNullableColumn("login", 255))
       .updateColumn(notNullableColumn("external_id", 255))
       .updateColumn(notNullableColumn("external_login", 255))

@@ -19,18 +19,18 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
+import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import java.sql.SQLException;
-
 public class AddUUIDtoUsers extends DdlChange {
 
   private static final String TABLE_NAME = "users";
   private static final String UUID_COLUMN_NAME = "uuid";
-  private static final int UUID_LENGTH = 40;
+  // We need to use a length of 255 as the migration that fed it will use login, which are using a length of 255
+  private static final int UUID_LENGTH = 255;
 
   public AddUUIDtoUsers(Database db) {
     super(db);

@@ -39,7 +39,7 @@ public class AddUniqueIndexesOnUsers extends DdlChange {
       .setTable("users")
       .setName("users_uuid")
       .setUnique(true)
-      .addColumn(notNullableColumn("uuid", 40))
+      .addColumn(notNullableColumn("uuid", 255))
       .build());
 
     context.execute(new CreateIndexBuilder(getDialect())
