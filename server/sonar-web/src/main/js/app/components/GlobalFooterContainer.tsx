@@ -23,6 +23,7 @@ import { getAppState } from '../../store/rootReducer';
 
 interface StateProps {
   productionDatabase: boolean;
+  sonarqubeEdition: string;
   sonarqubeVersion?: string;
 }
 
@@ -31,8 +32,9 @@ interface OwnProps {
 }
 
 const mapStateToProps = (state: any): StateProps => ({
-  sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase
+  productionDatabase: getAppState(state).productionDatabase,
+  sonarqubeEdition: getAppState(state).edition,
+  sonarqubeVersion: getAppState(state).version
 });
 
 export default connect<StateProps, {}, OwnProps>(mapStateToProps)(GlobalFooter);

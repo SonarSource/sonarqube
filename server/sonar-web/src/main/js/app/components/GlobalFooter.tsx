@@ -22,12 +22,14 @@ import { Link } from 'react-router';
 import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import InstanceMessage from '../../components/common/InstanceMessage';
+import { EDITIONS } from '../../apps/marketplace/utils';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isSonarCloud } from '../../helpers/system';
 
 interface Props {
   hideLoggedInInfo?: boolean;
   productionDatabase: boolean;
+  sonarqubeEdition: string;
   sonarqubeVersion?: string;
 }
 
@@ -39,6 +41,8 @@ export default function GlobalFooter({
   if (isSonarCloud()) {
     return <GlobalFooterSonarCloud />;
   }
+
+  const currentEdition = EDITIONS.find(edition => edition.key === sonarqubeEdition);
 
   return (
     <div className="page-footer page-container" id="footer">
@@ -56,6 +60,8 @@ export default function GlobalFooter({
       <GlobalFooterBranding />
 
       <ul className="page-footer-menu">
+        {!hideLoggedInInfo &&
+          currentEdition && <li className="page-footer-menu-item">{currentEdition.name}</li>}
         {!hideLoggedInInfo &&
           sonarqubeVersion && (
             <li className="page-footer-menu-item">

@@ -27,6 +27,7 @@ export interface Edition {
   downloadUrl?: string;
   homeUrl: string;
   key: string;
+  name: string;
 }
 
 export interface Query {
@@ -37,22 +38,26 @@ export interface Query {
 export const EDITIONS: Edition[] = [
   {
     key: 'community',
+    name: 'Community Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/community.html'
   },
   {
     key: 'developer',
+    name: 'Developer Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/developer.html',
     downloadUrl:
       'https://sonarsource.bintray.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip'
   },
   {
     key: 'enterprise',
+    name: 'Enterprise Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/enterprise.html',
     downloadUrl:
       'https://sonarsource.bintray.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip'
   },
   {
     key: 'datacenter',
+    name: 'Data Center Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/datacenter.html',
     downloadUrl:
       'https://sonarsource.bintray.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip'

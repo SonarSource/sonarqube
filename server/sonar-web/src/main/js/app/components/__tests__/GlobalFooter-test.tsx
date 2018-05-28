@@ -39,7 +39,9 @@ it('should show the db warning message', () => {
 });
 
 it('should display the sq version', () => {
-  expect(getWrapper({ sonarqubeVersion: '6.4-SNAPSHOT' })).toMatchSnapshot();
+  expect(
+    getWrapper({ sonarqubeEdition: 'enterprise', sonarqubeVersion: '6.4-SNAPSHOT' })
+  ).toMatchSnapshot();
 });
 
 it('should render SonarCloud footer', () => {
@@ -48,5 +50,5 @@ it('should render SonarCloud footer', () => {
 
 function getWrapper(props = {}, onSonarCloud = false) {
   (isSonarCloud as jest.Mock).mockImplementation(() => onSonarCloud);
-  return shallow(<GlobalFooter productionDatabase={true} {...props} />);
+  return shallow(<GlobalFooter productionDatabase={true} sonarqubeEdition="community" {...props} />);
 }

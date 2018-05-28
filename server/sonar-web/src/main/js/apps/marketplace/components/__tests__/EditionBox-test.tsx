@@ -23,6 +23,7 @@ import EditionBox from '../EditionBox';
 
 const DEFAULT_EDITION = {
   key: 'foo',
+  name: 'Foo',
   downloadUrl: 'download_url',
   homeUrl: 'more_url'
 };

@@ -12,6 +12,11 @@ exports[`should display the sq version 1`] = `
     <li
       className="page-footer-menu-item"
     >
+      Enterprise Edition
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
       footer.version_x.6.4-SNAPSHOT
     </li>
     <li
@@ -154,6 +159,11 @@ exports[`should render the only logged in information 1`] = `
   <ul
     className="page-footer-menu"
   >
+    <li
+      className="page-footer-menu-item"
+    >
+      Community Edition
+    </li>
     <li
       className="page-footer-menu-item"
     >
