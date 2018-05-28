@@ -65,7 +65,7 @@ export default class Filter extends React.PureComponent<Props> {
     );
   }
 
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
 
@@ -74,14 +74,15 @@ export default class Filter extends React.PureComponent<Props> {
     let urlOption;
 
     if (option) {
-      if (Array.isArray(value)) {
+      if (Array.isArray(value) && event.ctrlKey) {
         if (this.isSelected(option)) {
           urlOption = value.length > 1 ? value.filter(val => val !== option).join(',') : null;
         } else {
           urlOption = value.concat(option).join(',');
         }
       } else {
-        urlOption = this.isSelected(option) ? null : option;
+        urlOption =
+          this.isSelected(option) && (!Array.isArray(value) || value.length < 2) ? null : option;
       }
 
       this.props.onQueryChange({ [property]: urlOption });

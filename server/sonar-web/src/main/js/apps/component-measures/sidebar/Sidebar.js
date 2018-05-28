@@ -85,8 +85,8 @@ export default class Sidebar extends React.PureComponent {
         />
         {groupByDomains(this.props.measures).map(domain => (
           <DomainFacet
-            key={domain.name}
             domain={domain}
+            key={domain.name}
             onChange={this.changeMetric}
             onToggle={this.toggleFacet}
             open={this.state.openFacets[domain.name] === true}

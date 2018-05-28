@@ -44,12 +44,18 @@ export default class SeverityFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { severities } = this.props;
-    const newValue = orderBy(
-      severities.includes(itemValue) ? without(severities, itemValue) : [...severities, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = orderBy(
+        severities.includes(itemValue) ? without(severities, itemValue) : [...severities, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: severities.includes(itemValue) && severities.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -79,6 +85,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
         name={<SeverityHelper severity={severity} />}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat, this.props.facetMode)}
+        tooltip={this.props.severities.length === 1 && !this.props.severities.includes(severity)}
         value={severity}
       />
     );

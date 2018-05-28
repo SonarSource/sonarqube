@@ -49,7 +49,7 @@ it('should render half width', () => {
 it('should call onClick', () => {
   const onClick = jest.fn();
   const wrapper = renderFacetItem({ onClick });
-  click(wrapper, { currentTarget: { blur() {}, dataset: { value: 'bar' } } });
+  click(wrapper.find('a'), { currentTarget: { blur() {}, dataset: { value: 'bar' } } });
   expect(onClick).toHaveBeenCalled();
 });
 

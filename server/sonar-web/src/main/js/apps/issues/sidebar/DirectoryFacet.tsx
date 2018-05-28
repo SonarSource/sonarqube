@@ -46,14 +46,21 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { directories } = this.props;
-    const newValue = sortBy(
-      directories.includes(itemValue)
-        ? without(directories, itemValue)
-        : [...directories, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = sortBy(
+        directories.includes(itemValue)
+          ? without(directories, itemValue)
+          : [...directories, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]:
+          directories.includes(itemValue) && directories.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -97,6 +104,9 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
             name={this.renderName(directory)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(directory), this.props.facetMode)}
+            tooltip={
+              this.props.directories.length === 1 && !this.props.directories.includes(directory)
+            }
             value={directory}
           />
         ))}

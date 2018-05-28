@@ -48,12 +48,18 @@ export default class RuleFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { rules } = this.props;
-    const newValue = sortBy(
-      rules.includes(itemValue) ? without(rules, itemValue) : [...rules, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = sortBy(
+        rules.includes(itemValue) ? without(rules, itemValue) : [...rules, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: rules.includes(itemValue) && rules.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -111,6 +117,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
             name={this.getRuleName(rule)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(rule), this.props.facetMode)}
+            tooltip={this.props.rules.length === 1 && !this.props.rules.includes(rule)}
             value={rule}
           />
         ))}

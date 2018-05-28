@@ -50,17 +50,21 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
+    const { assignees } = this.props;
     if (itemValue === '') {
       // unassigned
       this.props.onChange({ assigned: !this.props.assigned, assignees: [] });
-    } else {
-      // defined assignee
-      const { assignees } = this.props;
+    } else if (multiple) {
       const newValue = sortBy(
         assignees.includes(itemValue) ? without(assignees, itemValue) : [...assignees, itemValue]
       );
-      this.props.onChange({ assigned: true, assignees: newValue });
+      this.props.onChange({ assigned: true, [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        assigned: true,
+        [this.property]: assignees.includes(itemValue) && assignees.length < 2 ? [] : [itemValue]
+      });
     }
   };
 
@@ -169,6 +173,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
             name={this.getAssigneeName(assignee)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(assignee), this.props.facetMode)}
+            tooltip={this.props.assignees.length === 1 && !this.isAssigneeActive(assignee)}
             value={assignee}
           />
         ))}

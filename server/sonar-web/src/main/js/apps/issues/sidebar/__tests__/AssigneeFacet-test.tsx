@@ -35,7 +35,7 @@ const renderAssigneeFacet = (props?: Partial<Props>) =>
       open={true}
       organization={undefined}
       referencedUsers={{ foo: { avatar: 'avatart-foo', name: 'name-foo' } }}
-      stats={{ '': 5, foo: 13, bar: 7 }}
+      stats={{ '': 5, foo: 13, bar: 7, baz: 6 }}
       {...props}
     />
   );
@@ -75,10 +75,10 @@ it('should call onChange', () => {
   expect(onChange).lastCalledWith({ assigned: false, assignees: [] });
 
   itemOnClick('bar');
-  expect(onChange).lastCalledWith({ assigned: true, assignees: ['bar', 'foo'] });
+  expect(onChange).lastCalledWith({ assigned: true, assignees: ['bar'] });
 
-  itemOnClick('foo');
-  expect(onChange).lastCalledWith({ assigned: true, assignees: [] });
+  itemOnClick('baz', true);
+  expect(onChange).lastCalledWith({ assigned: true, assignees: ['baz', 'foo'] });
 });
 
 it('should call onToggle', () => {

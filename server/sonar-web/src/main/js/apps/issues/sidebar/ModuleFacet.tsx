@@ -45,12 +45,18 @@ export default class ModuleFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { modules } = this.props;
-    const newValue = sortBy(
-      modules.includes(itemValue) ? without(modules, itemValue) : [...modules, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = sortBy(
+        modules.includes(itemValue) ? without(modules, itemValue) : [...modules, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: modules.includes(itemValue) && modules.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -99,6 +105,7 @@ export default class ModuleFacet extends React.PureComponent<Props> {
             name={this.renderName(module)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(module), this.props.facetMode)}
+            tooltip={this.props.modules.length === 1 && !this.props.modules.includes(module)}
             value={module}
           />
         ))}

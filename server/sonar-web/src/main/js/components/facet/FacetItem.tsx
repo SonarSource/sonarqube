@@ -19,6 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { isOnMac } from './utils';
+import Tooltip from '../controls/Tooltip';
+import { translate } from '../../helpers/l10n';
 
 export interface Props {
   active?: boolean;
@@ -27,8 +30,9 @@ export interface Props {
   halfWidth?: boolean;
   loading?: boolean;
   name: React.ReactNode;
-  onClick: (x: string) => void;
+  onClick: (x: string, multiple?: boolean) => void;
   stat?: React.ReactNode;
+  tooltip?: boolean;
   value: string;
 }
 
@@ -39,10 +43,10 @@ export default class FacetItem extends React.PureComponent<Props> {
     loading: false
   };
 
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.props.onClick(this.props.value);
+    this.props.onClick(this.props.value, event.ctrlKey || event.metaKey);
   };
 
   render() {
@@ -51,20 +55,37 @@ export default class FacetItem extends React.PureComponent<Props> {
       'search-navigator-facet-half': this.props.halfWidth
     });
 
-    return this.props.disabled ? (
-      <span className={className} data-facet={this.props.value}>
-        <span className="facet-name">{this.props.name}</span>
-        {this.props.stat != null && (
-          <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
+    const overlay =
+      this.props.tooltip && !this.props.disabled
+        ? translate(
+            isOnMac()
+              ? 'shortcuts.section.global.facets.multiselection.mac'
+              : 'shortcuts.section.global.facets.multiselection'
+          )
+        : undefined;
+
+    return (
+      <Tooltip overlay={overlay} placement="right">
+        {this.props.disabled ? (
+          <span className={className} data-facet={this.props.value}>
+            <span className="facet-name">{this.props.name}</span>
+            {this.props.stat != null && (
+              <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
+            )}
+          </span>
+        ) : (
+          <a
+            className={className}
+            data-facet={this.props.value}
+            href="#"
+            onClick={this.handleClick}>
+            <span className="facet-name">{this.props.name}</span>
+            {this.props.stat != null && (
+              <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
+            )}
+          </a>
         )}
-      </span>
-    ) : (
-      <a className={className} data-facet={this.props.value} href="#" onClick={this.handleClick}>
-        <span className="facet-name">{this.props.name}</span>
-        {this.props.stat != null && (
-          <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
-        )}
-      </a>
+      </Tooltip>
     );
   }
 }

@@ -46,12 +46,18 @@ export default class FileFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { files } = this.props;
-    const newValue = sortBy(
-      files.includes(itemValue) ? without(files, itemValue) : [...files, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = sortBy(
+        files.includes(itemValue) ? without(files, itemValue) : [...files, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: files.includes(itemValue) && files.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -101,6 +107,7 @@ export default class FileFacet extends React.PureComponent<Props> {
             name={this.renderName(file)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(file), this.props.facetMode)}
+            tooltip={this.props.files.length === 1 && !this.props.files.includes(file)}
             value={file}
           />
         ))}

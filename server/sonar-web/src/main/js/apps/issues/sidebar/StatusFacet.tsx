@@ -44,12 +44,18 @@ export default class StatusFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { statuses } = this.props;
-    const newValue = orderBy(
-      statuses.includes(itemValue) ? without(statuses, itemValue) : [...statuses, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = orderBy(
+        statuses.includes(itemValue) ? without(statuses, itemValue) : [...statuses, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: statuses.includes(itemValue) && statuses.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -79,6 +85,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
         name={<StatusHelper resolution={undefined} status={status} />}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat, this.props.facetMode)}
+        tooltip={this.props.statuses.length === 1 && !this.props.statuses.includes(status)}
         value={status}
       />
     );

@@ -45,12 +45,18 @@ export default class LanguageFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { languages } = this.props;
-    const newValue = sortBy(
-      languages.includes(itemValue) ? without(languages, itemValue) : [...languages, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = sortBy(
+        languages.includes(itemValue) ? without(languages, itemValue) : [...languages, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: languages.includes(itemValue) && languages.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -95,6 +101,7 @@ export default class LanguageFacet extends React.PureComponent<Props> {
             name={this.getLanguageName(language)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(language), this.props.facetMode)}
+            tooltip={this.props.languages.length === 1 && !this.props.languages.includes(language)}
             value={language}
           />
         ))}

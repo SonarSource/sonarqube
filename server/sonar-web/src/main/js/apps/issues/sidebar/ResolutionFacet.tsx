@@ -44,19 +44,24 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
+    const { resolutions } = this.props;
     if (itemValue === '') {
       // unresolved
       this.props.onChange({ resolved: !this.props.resolved, resolutions: [] });
-    } else {
-      // defined resolution
-      const { resolutions } = this.props;
+    } else if (multiple) {
       const newValue = orderBy(
         resolutions.includes(itemValue)
           ? without(resolutions, itemValue)
           : [...resolutions, itemValue]
       );
-      this.props.onChange({ resolved: true, resolutions: newValue });
+      this.props.onChange({ resolved: true, [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        resolved: true,
+        [this.property]:
+          resolutions.includes(itemValue) && resolutions.length < 2 ? [] : [itemValue]
+      });
     }
   };
 
@@ -95,6 +100,11 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
         name={this.getFacetItemName(resolution)}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat, this.props.facetMode)}
+        tooltip={
+          this.props.resolutions.length === 1 &&
+          resolution !== '' &&
+          !this.props.resolutions.includes(resolution)
+        }
         value={resolution}
       />
     );

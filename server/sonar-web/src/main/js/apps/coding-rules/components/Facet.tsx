@@ -51,16 +51,18 @@ interface Props extends BasicProps {
 }
 
 export default class Facet extends React.PureComponent<Props> {
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { values } = this.props;
     let newValue;
     if (this.props.singleSelection) {
       const value = values.length ? values[0] : undefined;
       newValue = itemValue === value ? undefined : itemValue;
-    } else {
+    } else if (multiple) {
       newValue = orderBy(
         values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
       );
+    } else {
+      newValue = values.includes(itemValue) && values.length < 2 ? [] : [itemValue];
     }
     this.props.onChange({ [this.props.property]: newValue });
   };
@@ -85,6 +87,7 @@ export default class Facet extends React.PureComponent<Props> {
         name={renderName(value)}
         onClick={this.handleItemClick}
         stat={stat && formatMeasure(stat, 'SHORT_INT')}
+        tooltip={this.props.values.length === 1 && !active}
         value={value}
       />
     );

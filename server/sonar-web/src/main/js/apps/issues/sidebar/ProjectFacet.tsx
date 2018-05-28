@@ -51,12 +51,18 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { projects } = this.props;
-    const newValue = sortBy(
-      projects.includes(itemValue) ? without(projects, itemValue) : [...projects, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = sortBy(
+        projects.includes(itemValue) ? without(projects, itemValue) : [...projects, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: projects.includes(itemValue) && projects.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -153,6 +159,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
             name={this.renderName(project)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(project), this.props.facetMode)}
+            tooltip={this.props.projects.length === 1 && !this.props.projects.includes(project)}
             value={project}
           />
         ))}

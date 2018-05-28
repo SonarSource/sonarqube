@@ -50,12 +50,19 @@ export default class TagFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { tags } = this.props;
-    const newValue = sortBy(
-      tags.includes(itemValue) ? without(tags, itemValue) : [...tags, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const { tags } = this.props;
+      const newValue = sortBy(
+        tags.includes(itemValue) ? without(tags, itemValue) : [...tags, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: tags.includes(itemValue) && tags.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -114,6 +121,7 @@ export default class TagFacet extends React.PureComponent<Props> {
             name={this.renderTag(tag)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(tag), this.props.facetMode)}
+            tooltip={this.props.tags.length === 1 && !this.props.tags.includes(tag)}
             value={tag}
           />
         ))}

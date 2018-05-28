@@ -20,6 +20,7 @@ exports[`should render 1`] = `
       name="unassigned"
       onClick={[Function]}
       stat="5"
+      tooltip={false}
       value=""
     />
     <FacetItem
@@ -41,6 +42,7 @@ exports[`should render 1`] = `
       }
       onClick={[Function]}
       stat="13"
+      tooltip={false}
       value="foo"
     />
     <FacetItem
@@ -52,7 +54,20 @@ exports[`should render 1`] = `
       name="bar"
       onClick={[Function]}
       stat="7"
+      tooltip={false}
       value="bar"
+    />
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="baz"
+      loading={false}
+      name="baz"
+      onClick={[Function]}
+      stat="6"
+      tooltip={false}
+      value="baz"
     />
   </FacetItemsList>
   <FacetFooter
@@ -113,6 +128,7 @@ exports[`should select unassigned 1`] = `
       name="unassigned"
       onClick={[Function]}
       stat="5"
+      tooltip={false}
       value=""
     />
     <FacetItem
@@ -134,6 +150,7 @@ exports[`should select unassigned 1`] = `
       }
       onClick={[Function]}
       stat="13"
+      tooltip={false}
       value="foo"
     />
     <FacetItem
@@ -145,7 +162,20 @@ exports[`should select unassigned 1`] = `
       name="bar"
       onClick={[Function]}
       stat="7"
+      tooltip={false}
       value="bar"
+    />
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="baz"
+      loading={false}
+      name="baz"
+      onClick={[Function]}
+      stat="6"
+      tooltip={false}
+      value="baz"
     />
   </FacetItemsList>
   <FacetFooter
@@ -180,6 +210,7 @@ exports[`should select user 1`] = `
       name="unassigned"
       onClick={[Function]}
       stat="5"
+      tooltip={true}
       value=""
     />
     <FacetItem
@@ -201,6 +232,7 @@ exports[`should select user 1`] = `
       }
       onClick={[Function]}
       stat="13"
+      tooltip={false}
       value="foo"
     />
     <FacetItem
@@ -212,7 +244,20 @@ exports[`should select user 1`] = `
       name="bar"
       onClick={[Function]}
       stat="7"
+      tooltip={true}
       value="bar"
+    />
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="baz"
+      loading={false}
+      name="baz"
+      onClick={[Function]}
+      stat="6"
+      tooltip={true}
+      value="baz"
     />
   </FacetItemsList>
   <FacetFooter

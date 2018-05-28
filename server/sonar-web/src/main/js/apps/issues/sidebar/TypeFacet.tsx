@@ -44,12 +44,18 @@ export default class TypeFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { types } = this.props;
-    const newValue = orderBy(
-      types.includes(itemValue) ? without(types, itemValue) : [...types, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = orderBy(
+        types.includes(itemValue) ? without(types, itemValue) : [...types, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: types.includes(itemValue) && types.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -82,6 +88,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
         }
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat, this.props.facetMode)}
+        tooltip={this.props.types.length === 1 && !this.props.types.includes(type)}
         value={type}
       />
     );

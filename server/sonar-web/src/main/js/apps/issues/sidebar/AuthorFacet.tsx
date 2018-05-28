@@ -43,12 +43,18 @@ export default class AuthorFacet extends React.PureComponent<Props> {
     open: true
   };
 
-  handleItemClick = (itemValue: string) => {
+  handleItemClick = (itemValue: string, multiple: boolean) => {
     const { authors } = this.props;
-    const newValue = sortBy(
-      authors.includes(itemValue) ? without(authors, itemValue) : [...authors, itemValue]
-    );
-    this.props.onChange({ [this.property]: newValue });
+    if (multiple) {
+      const newValue = sortBy(
+        authors.includes(itemValue) ? without(authors, itemValue) : [...authors, itemValue]
+      );
+      this.props.onChange({ [this.property]: newValue });
+    } else {
+      this.props.onChange({
+        [this.property]: authors.includes(itemValue) && authors.length < 2 ? [] : [itemValue]
+      });
+    }
   };
 
   handleHeaderClick = () => {
@@ -83,6 +89,7 @@ export default class AuthorFacet extends React.PureComponent<Props> {
             name={author}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(author), this.props.facetMode)}
+            tooltip={this.props.authors.length === 1 && !this.props.authors.includes(author)}
             value={author}
           />
         ))}
