@@ -47,8 +47,11 @@ public class PopulateFileSourceLineCount extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select distinct project_uuid from file_sources where line_count is null");
-    massUpdate.update("update file_sources set line_count = ? where project_uuid = ?");
-    massUpdate.rowPluralName("file source line counts");
+    massUpdate.update("update file_sources set line_count = ? where project_uuid = ?")
+      // Having transactions involving many rows can be very slow and should be avoided.
+      // A project can have many file_sources, so transaction is committed after each project.
+      .setBatchSize(1);
+    massUpdate.rowPluralName("file sources");
     massUpdate.execute(PopulateFileSourceLineCount::handle);
   }
 
