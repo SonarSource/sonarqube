@@ -27,7 +27,7 @@ interface Props {
   className?: string;
   loadMore?: () => void;
   ready?: boolean;
-  total: number;
+  total?: number;
 }
 
 export default function ListFooter({ ready = true, ...props }: Props) {
@@ -39,7 +39,7 @@ export default function ListFooter({ ready = true, ...props }: Props) {
     }
   };
 
-  const hasMore = props.total > props.count;
+  const hasMore = props.total && props.total > props.count;
   const loadMoreLink = (
     <a className="spacer-left" href="#" onClick={handleLoadMore}>
       {translate('show_more')}

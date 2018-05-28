@@ -24,6 +24,7 @@ import { Profile } from '../types';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { Button } from '../../../components/ui/buttons';
+import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -35,8 +36,10 @@ interface Props {
 interface State {
   formOpen: boolean;
   loading: boolean;
-  more?: boolean;
+  page: number;
   projects: Array<{ key: string; name: string; uuid: string }> | null;
+  ready: boolean;
+  total: number;
 }
 
 export default class ProfileProjects extends React.PureComponent<Props, State> {
@@ -45,7 +48,10 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   state: State = {
     formOpen: false,
     loading: true,
-    projects: null
+    page: 1,
+    projects: null,
+    ready: true,
+    total: 0
   };
 
   componentDidMount() {
@@ -69,20 +75,25 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
       return;
     }
 
-    const data = { key: this.props.profile.key };
+    const data = { key: this.props.profile.key, page: this.state.page };
     getProfileProjects(data).then(
       (r: any) => {
         if (this.mounted) {
-          this.setState({
-            projects: r.results,
-            more: r.more,
-            loading: false
-          });
+          this.setState(state => ({
+            projects: state.projects ? [...state.projects, ...r.results] : r.results,
+            total: r.paging.total,
+            loading: false,
+            ready: true
+          }));
         }
       },
       () => {}
     );
   }
+
+  loadMore = () => {
+    this.setState(state => ({ ready: false, page: state.page + 1 }), this.loadProjects);
+  };
 
   handleChangeClick = () => {
     this.setState({ formOpen: true });
@@ -122,17 +133,25 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     }
 
     return (
-      <ul>
-        {projects.map(project => (
-          <li className="spacer-top js-profile-project" data-key={project.key} key={project.uuid}>
-            <Link
-              className="link-with-icon"
-              to={{ pathname: '/dashboard', query: { id: project.key } }}>
-              <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <>
+        <ul>
+          {projects.map(project => (
+            <li className="spacer-top js-profile-project" data-key={project.key} key={project.uuid}>
+              <Link
+                className="link-with-icon"
+                to={{ pathname: '/dashboard', query: { id: project.key } }}>
+                <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <ListFooter
+          count={projects.length}
+          loadMore={this.loadMore}
+          ready={this.state.ready}
+          total={this.state.total}
+        />
+      </>
     );
   }
 
