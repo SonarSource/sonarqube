@@ -55,7 +55,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.profile !== this.props.profile) {
-      this.loadProjects();
+      this.setState({ projects: null, page: 1 }, this.loadProjects);
     }
   }
 

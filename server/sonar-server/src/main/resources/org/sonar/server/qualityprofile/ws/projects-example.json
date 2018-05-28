@@ -1,4 +1,9 @@
 {
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 4
+  },
   "results": [
     {
       "id": "5eab015a-1f76-4ba4-bd89-bf547132d673",
@@ -24,6 +29,5 @@
       "name": "SonarQube Android Plugin",
       "selected": false
     }
-  ],
-  "more": false
+  ]
 }

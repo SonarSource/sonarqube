@@ -69,6 +69,7 @@ public class ProjectsAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("projects-example.json"));
 
     action.setChangelog(
+      new Change("7.2", "'more' response field is deprecated"),
       new Change("6.5", "'id' response field is deprecated"),
       new Change("6.0", "'uuid' response field is deprecated and replaced by 'id'"),
       new Change("6.0", "'key' response field has been added to return the project key"));
@@ -160,6 +161,12 @@ public class ProjectsAction implements QProfileWsAction {
         .endObject();
     }
     json.endArray();
+    json.name("paging").beginObject()
+      .prop("pageIndex", paging.pageIndex())
+      .prop("pageSize", paging.pageSize())
+      .prop("total", paging.total())
+      .endObject();
+    // more is deprecated since 7.2
     json.prop("more", paging.hasNextPage());
     json.endObject();
     json.close();
