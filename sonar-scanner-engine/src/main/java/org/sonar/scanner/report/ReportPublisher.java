@@ -56,10 +56,14 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static java.net.URLEncoder.encode;
+import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
+import static org.sonar.scanner.scan.branch.BranchType.LONG;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
+import static org.sonar.scanner.scan.branch.BranchType.SHORT;
 
 @ScannerSide
 public class ReportPublisher implements Startable {
@@ -70,6 +74,11 @@ public class ReportPublisher implements Startable {
   public static final String VERBOSE_KEY = "sonar.verbose";
   public static final String METADATA_DUMP_FILENAME = "report-task.txt";
   private static final String CHARACTERISTIC = "characteristic";
+
+  private static final String DASHBOARD = "dashboard";
+  private static final String BRANCH = "branch";
+  private static final String ID = "id";
+  private static final String RESOLVED = "resolved";
 
   private final Configuration settings;
   private final ScannerWsClient wsClient;
@@ -213,32 +222,21 @@ public class ReportPublisher implements Startable {
     if (taskId == null) {
       LOG.info("ANALYSIS SUCCESSFUL");
     } else {
-      String publicUrl = server.getPublicRootUrl();
-      HttpUrl httpUrl = HttpUrl.parse(publicUrl);
 
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = moduleHierarchy.root().getKeyWithBranch();
       settings.get(ORGANIZATION).ifPresent(org -> metadata.put("organization", org));
       metadata.put("projectKey", effectiveKey);
-      metadata.put("serverUrl", publicUrl);
+      metadata.put("serverUrl", server.getPublicRootUrl());
       metadata.put("serverVersion", server.getVersion());
-      settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put("branch", branch));
+      settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put(BRANCH, branch));
 
-      URL dashboardUrl;
-      try {
-        dashboardUrl = httpUrl.newBuilder()
-          .addPathSegment("dashboard")
-          .addEncodedQueryParameter("id", encode(effectiveKey, "UTF-8"))
-          .build()
-          .url();
-      } catch (UnsupportedEncodingException e) {
-        throw new IllegalStateException("Unable to urlencode " + effectiveKey, e);
-      }
+      URL dashboardUrl = buildDashboardUrl(server.getPublicRootUrl(), effectiveKey);
       metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
 
-      URL taskUrl = HttpUrl.parse(publicUrl).newBuilder()
+      URL taskUrl = HttpUrl.parse(server.getPublicRootUrl()).newBuilder()
         .addPathSegment("api").addPathSegment("ce").addPathSegment("task")
-        .addQueryParameter("id", taskId)
+        .addQueryParameter(ID, taskId)
         .build()
         .url();
       metadata.put("ceTaskId", taskId);
@@ -249,6 +247,77 @@ public class ReportPublisher implements Startable {
       LOG.info("More about the report processing at {}", taskUrl);
 
       dumpMetadata(metadata);
+    }
+  }
+
+  private URL buildDashboardUrl(String publicUrl, String effectiveKey) {
+    HttpUrl httpUrl = HttpUrl.parse(publicUrl);
+
+    if (onPullRequest(branchConfiguration)) {
+      return httpUrl.newBuilder()
+        .addPathSegment("project")
+        .addPathSegment("issues")
+        .addEncodedQueryParameter(ID, encoded(effectiveKey))
+        .addEncodedQueryParameter("pullRequest", encoded(branchConfiguration.pullRequestKey()))
+        .addQueryParameter(RESOLVED, "false")
+        .build()
+        .url();
+    }
+
+    if (onLongLivingBranch(branchConfiguration)) {
+      return httpUrl.newBuilder()
+        .addPathSegment(DASHBOARD)
+        .addEncodedQueryParameter(ID, encoded(effectiveKey))
+        .addEncodedQueryParameter(BRANCH, encoded(branchConfiguration.branchName()))
+        .build()
+        .url();
+    }
+
+    if (onShortLivingBranch(branchConfiguration)) {
+      return httpUrl.newBuilder()
+        .addPathSegment(DASHBOARD)
+        .addEncodedQueryParameter(ID, encoded(effectiveKey))
+        .addEncodedQueryParameter(BRANCH, encoded(branchConfiguration.branchName()))
+        .addQueryParameter(RESOLVED, "false")
+        .build()
+        .url();
+    }
+
+    if (onMainBranch(branchConfiguration)) {
+      return httpUrl.newBuilder()
+        .addPathSegment(DASHBOARD)
+        .addEncodedQueryParameter(ID, encoded(effectiveKey))
+        .build()
+        .url();
+    }
+
+    return httpUrl.newBuilder().build().url();
+  }
+
+  private static boolean onPullRequest(BranchConfiguration branchConfiguration) {
+    return branchConfiguration.branchName() != null && (branchConfiguration.branchType() == PULL_REQUEST);
+  }
+
+  private static boolean onShortLivingBranch(BranchConfiguration branchConfiguration) {
+    return branchConfiguration.branchName() != null && (branchConfiguration.branchType() == SHORT);
+  }
+
+  private static boolean onLongLivingBranch(BranchConfiguration branchConfiguration) {
+    return branchConfiguration.branchName() != null && (branchConfiguration.branchType() == LONG);
+  }
+
+  private static boolean onMainBranch(BranchConfiguration branchConfiguration) {
+    return branchConfiguration.branchName() == null;
+  }
+
+  private static String encoded(@Nullable String queryParameter) {
+    if (isBlank(queryParameter)){
+      return EMPTY;
+    }
+    try {
+      return encode(queryParameter, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException("Unable to urlencode " + queryParameter, e);
     }
   }
 

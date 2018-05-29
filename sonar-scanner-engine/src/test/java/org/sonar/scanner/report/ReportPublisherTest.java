@@ -59,6 +59,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.scanner.scan.branch.BranchType.LONG;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 import static org.sonar.scanner.scan.branch.BranchType.SHORT;
 
@@ -130,7 +131,7 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void log_public_url_if_defined() throws IOException {
+  public void log_public_url_if_defined_for_main_branch() throws IOException {
     when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
     ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
       new ReportPublisherStep[0], branchConfiguration);
@@ -147,6 +148,78 @@ public class ReportPublisherTest {
         "serverUrl=https://publicserver/sonarqube\n" +
         "serverVersion=6.4\n" +
         "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube\n" +
+        "ceTaskId=TASK-123\n" +
+        "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
+  }
+
+  @Test
+  public void log_public_url_if_defined_for_long_living_branches() throws IOException {
+    when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
+    when(branchConfiguration.branchType()).thenReturn(LONG);
+    when(branchConfiguration.branchName()).thenReturn("branch-6.7");
+    ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
+      new ReportPublisherStep[0], branchConfiguration);
+
+    underTest.logSuccess("TASK-123");
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7")
+      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+
+    File detailsFile = new File(temp.getRoot(), "report-task.txt");
+    assertThat(readFileToString(detailsFile)).isEqualTo(
+      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
+        "serverUrl=https://publicserver/sonarqube\n" +
+        "serverVersion=6.4\n" +
+        "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7\n" +
+        "ceTaskId=TASK-123\n" +
+        "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
+  }
+
+  @Test
+  public void log_public_url_if_defined_for_short_living_branches() throws IOException {
+    when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
+    when(branchConfiguration.branchType()).thenReturn(SHORT);
+    when(branchConfiguration.branchName()).thenReturn("branch-6.7");
+    ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
+      new ReportPublisherStep[0], branchConfiguration);
+
+    underTest.logSuccess("TASK-123");
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7&resolved=false")
+      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+
+    File detailsFile = new File(temp.getRoot(), "report-task.txt");
+    assertThat(readFileToString(detailsFile)).isEqualTo(
+      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
+        "serverUrl=https://publicserver/sonarqube\n" +
+        "serverVersion=6.4\n" +
+        "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&branch=branch-6.7&resolved=false\n" +
+        "ceTaskId=TASK-123\n" +
+        "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
+  }
+
+  @Test
+  public void log_public_url_if_defined_for_pull_request() throws IOException {
+    when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
+    when(branchConfiguration.branchName()).thenReturn("Bitbucket cloud Widget");
+    when(branchConfiguration.branchType()).thenReturn(PULL_REQUEST);
+    when(branchConfiguration.pullRequestKey()).thenReturn("105");
+
+    ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
+      new ReportPublisherStep[0], branchConfiguration);
+
+    underTest.logSuccess("TASK-123");
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/project/issues?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105&resolved=false")
+      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+
+    File detailsFile = new File(temp.getRoot(), "report-task.txt");
+    assertThat(readFileToString(detailsFile)).isEqualTo(
+      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
+        "serverUrl=https://publicserver/sonarqube\n" +
+        "serverVersion=6.4\n" +
+        "dashboardUrl=https://publicserver/sonarqube/project/issues?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105&resolved=false\n" +
         "ceTaskId=TASK-123\n" +
         "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
   }
