@@ -24,12 +24,16 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
 public class MigrationEsClientImplTest {
+  @Rule
+  public LogTester logTester = new LogTester();
   @Rule
   public EsTester es = EsTester.createCustom(
     new SimpleIndexDefinition("a"),
@@ -45,6 +49,8 @@ public class MigrationEsClientImplTest {
     assertThat(loadExistingIndices())
       .doesNotContain("a")
       .contains("b", "c");
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("Drop Elasticsearch index [a]");
   }
 
   @Test
@@ -54,6 +60,9 @@ public class MigrationEsClientImplTest {
     assertThat(loadExistingIndices())
       .doesNotContain("a", "c")
       .contains("b");
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("Drop Elasticsearch index [a]", "Drop Elasticsearch index [c]")
+      .doesNotContain("Drop Elasticsearch index [xxx]");
   }
 
   private Iterator<String> loadExistingIndices() {

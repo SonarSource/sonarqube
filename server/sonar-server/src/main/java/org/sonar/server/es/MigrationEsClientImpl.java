@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 public class MigrationEsClientImpl implements MigrationEsClient {
@@ -41,6 +42,11 @@ public class MigrationEsClientImpl implements MigrationEsClient {
     Stream.concat(Stream.of(name), Arrays.stream(otherNames))
       .distinct()
       .filter(existingIndices::contains)
-      .forEach(index -> client.nativeClient().admin().indices().prepareDelete(index).get());
+      .forEach(this::deleteIndex);
+  }
+
+  private void deleteIndex(String index) {
+    Loggers.get(getClass()).info("Drop Elasticsearch index [{}]", index);
+    client.nativeClient().admin().indices().prepareDelete(index).get();
   }
 }
