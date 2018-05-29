@@ -61,7 +61,9 @@ public class DatabaseChecker implements Startable {
 
       // additional checks
       if (H2.ID.equals(db.getDialect().getId())) {
-        Loggers.get(DatabaseChecker.class).warn("H2 database should be used for evaluation purpose only");
+        Loggers.get(DatabaseChecker.class).warn("H2 database should be used for evaluation purpose only.");
+      } else if (MySql.ID.equals(db.getDialect().getId())) {
+        Loggers.get(DatabaseChecker.class).warn("MySQL support is deprecated and will be dropped soon.");
       } else if (Oracle.ID.equals(db.getDialect().getId())) {
         checkOracleDriverVersion();
       }

@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -40,6 +42,9 @@ public class DatabaseCheckerTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void requires_oracle_driver_11_2() throws Exception {
@@ -98,14 +103,17 @@ public class DatabaseCheckerTest {
     DatabaseChecker checker = new DatabaseChecker(db);
     checker.start();
     checker.stop();
-    // TODO test log
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("H2 database should be used for evaluation purpose only.");
   }
 
   @Test
   public void test_mysql() throws Exception {
     Database db = mockDb(new MySql(), 5, 7, "5.7");
     new DatabaseChecker(db).start();
-    // no error
+
+    // no error but warning
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("MySQL support is deprecated and will be dropped soon.");
   }
 
   @Test
