@@ -41,23 +41,29 @@ import { Extension } from '../types';
 import { PluginPendingResult } from '../../api/plugins';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
-interface Props {
+interface StateProps {
   appState: {
     adminPages: Extension[];
     organizationsEnabled: boolean;
     version: string;
   };
-  editionsUrl: string;
   editionStatus?: EditionStatus;
+  editionsUrl: string;
+  pendingPlugins: PluginPendingResult;
+}
+
+interface DispatchProps {
   fetchEditions: (url: string, version: string) => void;
   fetchPendingPlugins: () => void;
-  location: {};
-  pendingPlugins: PluginPendingResult;
   setAdminPages: (adminPages: Extension[]) => void;
   setEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
-class AdminContainer extends React.PureComponent<Props> {
+interface OwnProps {
+  location: {};
+}
+
+class AdminContainer extends React.PureComponent<StateProps & DispatchProps & OwnProps> {
   static contextTypes = {
     canAdmin: PropTypes.bool.isRequired
   };
@@ -105,13 +111,18 @@ class AdminContainer extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: any): StateProps => ({
   appState: getAppState(state),
   editionStatus: getMarketplaceEditionStatus(state),
   editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value,
   pendingPlugins: getMarketplacePendingPlugins(state)
 });
 
-const mapDispatchToProps = { setAdminPages, setEditionStatus, fetchEditions, fetchPendingPlugins };
+const mapDispatchToProps: DispatchProps = {
+  setAdminPages,
+  setEditionStatus,
+  fetchEditions,
+  fetchPendingPlugins
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer as any);
+export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer);

@@ -18,28 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RouterState, RedirectFunction } from 'react-router';
-import OrganizationPageContainer from './components/OrganizationPage';
-import OrganizationContainer from './components/OrganizationContainer';
-import OrganizationProjects from './components/OrganizationProjects';
-import OrganizationAdminContainer from './components/OrganizationAdminContainer';
-import OrganizationEdit from './components/OrganizationEdit';
-import OrganizationMembersContainer from './components/OrganizationMembersContainer';
-import OrganizationDelete from './components/OrganizationDelete';
-import GlobalPermissionsApp from '../permissions/global/components/App';
-import PermissionTemplateApp from '../permission-templates/components/AppContainer';
-import ProjectManagementApp from '../projectsManagement/AppContainer';
 import codingRulesRoutes from '../coding-rules/routes';
 import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
 import webhooksRoutes from '../webhooks/routes';
-import Issues from '../issues/components/AppContainer';
-import GroupsApp from '../groups/components/App';
-import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
+import { lazyLoad } from '../../components/lazyLoad';
+
+const OrganizationContainer = lazyLoad(() => import('./components/OrganizationContainer'));
 
 const routes = [
   {
     path: ':organizationKey',
-    component: OrganizationPageContainer,
+    component: lazyLoad(() => import('./components/OrganizationPage')),
     childRoutes: [
       {
         indexRoute: {
@@ -52,19 +42,23 @@ const routes = [
       {
         path: 'projects',
         component: OrganizationContainer,
-        childRoutes: [{ indexRoute: { component: OrganizationProjects } }]
+        childRoutes: [
+          { indexRoute: { component: lazyLoad(() => import('./components/OrganizationProjects')) } }
+        ]
       },
       {
         path: 'issues',
         component: OrganizationContainer,
-        childRoutes: [{ indexRoute: { component: Issues } }]
+        childRoutes: [
+          { indexRoute: { component: lazyLoad(() => import('../issues/components/AppContainer')) } }
+        ]
       },
       {
         path: 'members',
-        component: OrganizationMembersContainer
+        component: lazyLoad(() => import('./components/OrganizationMembersContainer'))
       },
       {
-        path: 'rules',
+        path: 'rules',  
         component: OrganizationContainer,
         childRoutes: codingRulesRoutes
       },
@@ -78,18 +72,29 @@ const routes = [
         childRoutes: qualityGatesRoutes
       },
       {
-        component: OrganizationAdminContainer,
+        component: lazyLoad(() => import('./components/OrganizationAdminContainer')),
         childRoutes: [
-          { path: 'delete', component: OrganizationDelete },
-          { path: 'edit', component: OrganizationEdit },
-          { path: 'groups', component: GroupsApp },
-          { path: 'permissions', component: GlobalPermissionsApp },
-          { path: 'permission_templates', component: PermissionTemplateApp },
-          { path: 'projects_management', component: ProjectManagementApp },
+          { path: 'delete', component: lazyLoad(() => import('./components/OrganizationDelete')) },
+          { path: 'edit', component: lazyLoad(() => import('./components/OrganizationEdit')) },
+          { path: 'groups', component: lazyLoad(() => import('../groups/components/App')) },
+          {
+            path: 'permissions',
+            component: lazyLoad(() => import('../permissions/global/components/App'))
+          },
+          {
+            path: 'permission_templates',
+            component: lazyLoad(() => import('../permission-templates/components/AppContainer'))
+          },
+          {
+            path: 'projects_management',
+            component: lazyLoad(() => import('../projectsManagement/AppContainer'))
+          },
           { path: 'webhooks', childRoutes: webhooksRoutes },
           {
             path: 'extension/:pluginKey/:extensionKey',
-            component: OrganizationPageExtension
+            component: lazyLoad(() =>
+              import('../../app/components/extensions/OrganizationPageExtension')
+            )
           }
         ]
       }

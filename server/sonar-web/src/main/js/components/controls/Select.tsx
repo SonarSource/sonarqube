@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ReactSelect, {
-  Creatable as ReactCreatable,
-  Async,
-  ReactSelectProps,
-  ReactCreatableSelectProps,
-  ReactAsyncSelectProps
-} from 'react-select';
+import { ReactSelectProps, ReactCreatableSelectProps, ReactAsyncSelectProps } from 'react-select';
 import * as theme from '../../app/theme';
 import ClearIcon from '../icons-components/ClearIcon';
 import { ButtonIcon } from '../ui/buttons';
+import { lazyLoad } from '../lazyLoad';
 import './react-select.css';
+
+const ReactSelectLib = import('react-select');
+const ReactSelect = lazyLoad(() => ReactSelectLib);
+const ReactCreatable = lazyLoad(() => ReactSelectLib.then(lib => ({ default: lib.Creatable })));
+const ReactAsync = lazyLoad(() => ReactSelectLib.then(lib => ({ default: lib.Async })));
 
 function renderInput() {
   return (
@@ -39,7 +39,7 @@ function renderInput() {
 }
 
 interface WithInnerRef {
-  innerRef?: (element: ReactSelect) => void;
+  innerRef?: (element: React.Component) => void;
 }
 
 export default function Select({ innerRef, ...props }: WithInnerRef & ReactSelectProps) {
@@ -61,5 +61,5 @@ export function Creatable(props: ReactCreatableSelectProps) {
 
 // TODO figure out why `ref` prop is incompatible
 export function AsyncSelect(props: ReactAsyncSelectProps & { ref?: any }) {
-  return <Async {...props} />;
+  return <ReactAsync {...props} />;
 }

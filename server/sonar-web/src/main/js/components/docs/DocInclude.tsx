@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DocMarkdownBlock from './DocMarkdownBlock';
+import { lazyLoad } from '../lazyLoad';
+
+const DocMarkdownBlock = lazyLoad(() => import('./DocMarkdownBlock'));
 
 interface Props {
   className?: string;

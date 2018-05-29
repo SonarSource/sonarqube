@@ -18,16 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { subMonths, setMonth, setYear, addDays, subDays } from 'date-fns';
+import * as addDays from 'date-fns/add_days';
+import * as setMonth from 'date-fns/set_month';
+import * as setYear from 'date-fns/set_year';
+import * as subDays from 'date-fns/sub_days';
+import * as subMonths from 'date-fns/sub_months';
 import DateInput, { Props } from '../DateInput';
 import { shallowWithIntl } from '../../../helpers/testUtils';
 import { parseDate } from '../../../helpers/dates';
 
-// need to mock, because react-day-picker uses `new Date()` as a default prop for `initialMonth`
-jest.mock('react-day-picker', () => ({
-  // eslint-disable-next-line func-name-matching
-  default: function DayPicker() {
-    return null;
+jest.mock('../../lazyLoad', () => ({
+  lazyLoad: () => {
+    return function DayPicker() {
+      return null;
+    };
   }
 }));
 

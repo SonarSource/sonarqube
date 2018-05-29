@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  differenceInDays as _differenceInDays,
-  differenceInSeconds as _differenceInSeconds,
-  differenceInYears as _differenceInYears,
-  isSameDay as _isSameDay,
-  parse,
-  startOfDay as _startOfDay
-} from 'date-fns';
+import * as _differenceInDays from 'date-fns/difference_in_days';
+import * as _differenceInSeconds from 'date-fns/difference_in_seconds';
+import * as _differenceInYears from 'date-fns/difference_in_years';
+import * as _isSameDay from 'date-fns/is_same_day';
+import * as _startOfDay from 'date-fns/start_of_day';
+import * as parse from 'date-fns/parse';
 
 function pad(number: number) {
   if (number < 10) {

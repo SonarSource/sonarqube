@@ -23,6 +23,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const LodashPlugin = require('lodash-webpack-plugin');
 const webpack = require('webpack');
 const InterpolateHtmlPlugin = require('./InterpolateHtmlPlugin');
 const paths = require('./paths');
@@ -77,7 +78,6 @@ module.exports = ({ production = true }) => ({
         test: /\.md$/,
         use: 'raw-loader'
       },
-      { test: require.resolve('lodash'), loader: 'expose-loader?_' },
       { test: require.resolve('react'), loader: 'expose-loader?React' },
       { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' },
       {
@@ -113,6 +113,15 @@ module.exports = ({ production = true }) => ({
         chunkFilename: 'css/[name].[chunkhash:8].chunk.css'
       }),
 
+    new LodashPlugin({
+      // keep these features
+      // https://github.com/lodash/lodash-webpack-plugin#feature-sets
+      shorthands: true,
+      collections: true,
+      memoizing: true,
+      flattening: true
+    }),
+
     new HtmlWebpackPlugin({
       inject: false,
       template: paths.appHtml,
@@ -126,5 +135,12 @@ module.exports = ({ production = true }) => ({
   ].filter(Boolean),
   optimization: {
     splitChunks: { chunks: 'all' }
-  }
+  },
+  performance: production
+    ? {
+        hints: 'error',
+        maxEntrypointSize: 700000, // ~700kb, recommended: 250kb
+        maxAssetSize: 400000 // ~400kb, recommended: 250kb
+      }
+    : undefined
 });

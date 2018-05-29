@@ -24,24 +24,10 @@ import { Router, Route, IndexRoute, Redirect } from 'react-router';
 import { Provider } from 'react-redux';
 import getStore from './getStore';
 import getHistory from './getHistory';
-import AppContextContainer from '../components/AppContextContainer';
 import LocalizationContainer from '../components/LocalizationContainer';
 import MigrationContainer from '../components/MigrationContainer';
 import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
-import SimpleContainer from '../components/SimpleContainer';
-import SimpleSessionsContainer from '../components/SimpleSessionsContainer';
-import Landing from '../components/Landing';
-import ProjectAdminContainer from '../components/ProjectAdminContainer';
-import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
-import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
-import PortfoliosPage from '../components/extensions/PortfoliosPage';
-import AdminContainer from '../components/AdminContainer';
-import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
-import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
-import MarkdownHelp from '../components/MarkdownHelp';
-import NotFound from '../components/NotFound';
-import OnboardingPage from '../../apps/tutorials/onboarding/OnboardingPage';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
@@ -63,7 +49,6 @@ import organizationsRoutes from '../../apps/organizations/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import portfolioRoutes from '../../apps/portfolio/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
-import projectAdminRoutes from '../../apps/project-admin/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
@@ -150,23 +135,26 @@ const startReactApp = () => {
         <Redirect from="/view" to="/portfolio" />
         <Redirect from="/users" to="/admin/users" />
 
-        <Route path="markdown/help" component={MarkdownHelp} />
+        <Route
+          path="markdown/help"
+          component={lazyLoad(() => import('../components/MarkdownHelp'))}
+        />
 
         <Route component={LocalizationContainer}>
-          <Route component={SimpleContainer}>
+          <Route component={lazyLoad(() => import('../components/SimpleContainer'))}>
             <Route path="maintenance">{maintenanceRoutes}</Route>
             <Route path="setup">{setupRoutes}</Route>
           </Route>
 
           <Route component={MigrationContainer}>
-            <Route component={AppContextContainer}>
-              <Route component={SimpleSessionsContainer}>
+            <Route component={lazyLoad(() => import('../components/AppContextContainer'))}>
+              <Route component={lazyLoad(() => import('../components/SimpleSessionsContainer'))}>
                 <Route path="/sessions" childRoutes={sessionsRoutes} />
               </Route>
             </Route>
 
             <Route path="/" component={App}>
-              <IndexRoute component={Landing} />
+              <IndexRoute component={lazyLoad(() => import('../components/Landing'))} />
 
               <Route component={GlobalContainer}>
                 <Route path="about" childRoutes={aboutRoutes} />
@@ -178,13 +166,24 @@ const startReactApp = () => {
                   <Route path="issues" component={ExploreIssues} />
                   <Route path="projects" component={ExploreProjects} />
                 </Route>
-                <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension} />
+                <Route
+                  path="extension/:pluginKey/:extensionKey"
+                  component={lazyLoad(() => import('../components/extensions/GlobalPageExtension'))}
+                />
                 <Route path="issues" component={IssuesPageSelector} />
-                <Route path="onboarding" component={OnboardingPage} />
+                <Route
+                  path="onboarding"
+                  component={lazyLoad(() =>
+                    import('../../apps/tutorials/onboarding/OnboardingPage')
+                  )}
+                />
                 <Route path="organizations" childRoutes={organizationsRoutes} />
                 <Route path="projects" childRoutes={projectsRoutes} />
                 <Route path="quality_gates" childRoutes={qualityGatesRoutes} />
-                <Route path="portfolios" component={PortfoliosPage} />
+                <Route
+                  path="portfolios"
+                  component={lazyLoad(() => import('../components/extensions/PortfoliosPage'))}
+                />
                 <Route path="profiles" childRoutes={qualityProfilesRoutes} />
                 <Route path="web_api" childRoutes={webAPIRoutes} />
 
@@ -196,7 +195,9 @@ const startReactApp = () => {
                   <Route path="project/activity" childRoutes={projectActivityRoutes} />
                   <Route
                     path="project/extension/:pluginKey/:extensionKey"
-                    component={ProjectPageExtension}
+                    component={lazyLoad(() =>
+                      import('../components/extensions/ProjectPageExtension')
+                    )}
                   />
                   <Route path="project/issues" component={Issues} />
                   <Route path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
@@ -204,25 +205,44 @@ const startReactApp = () => {
                     path="project/quality_profiles"
                     childRoutes={projectQualityProfilesRoutes}
                   />
-                  <Route component={ProjectAdminContainer}>
+                  <Route component={lazyLoad(() => import('../components/ProjectAdminContainer'))}>
                     <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
                     <Route
                       path="project/admin/extension/:pluginKey/:extensionKey"
-                      component={ProjectAdminPageExtension}
+                      component={lazyLoad(() =>
+                        import('../components/extensions/ProjectAdminPageExtension')
+                      )}
                     />
                     <Route path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
                     <Route path="project/branches" childRoutes={projectBranchesRoutes} />
                     <Route path="project/settings" childRoutes={settingsRoutes} />
                     <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
                     <Route path="project/webhooks" childRoutes={webhooksRoutes} />
+                    <Route
+                      path="project/deletion"
+                      component={lazyLoad(() =>
+                        import('../../apps/project-admin/deletion/Deletion')
+                      )}
+                    />
+                    <Route
+                      path="project/links"
+                      component={lazyLoad(() => import('../../apps/project-admin/links/Links'))}
+                    />
+                    <Route
+                      path="project/key"
+                      component={lazyLoad(() => import('../../apps/project-admin/key/Key'))}
+                    />
                   </Route>
-                  {projectAdminRoutes}
                 </Route>
 
-                <Route component={AdminContainer} path="admin">
+                <Route
+                  component={lazyLoad(() => import('../components/AdminContainer'))}
+                  path="admin">
                   <Route
                     path="extension/:pluginKey/:extensionKey"
-                    component={GlobalAdminPageExtension}
+                    component={lazyLoad(() =>
+                      import('../components/extensions/GlobalAdminPageExtension')
+                    )}
                   />
                   <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
                   <Route path="custom_metrics" childRoutes={customMetricsRoutes} />
@@ -238,8 +258,11 @@ const startReactApp = () => {
                   <Route path="webhooks" childRoutes={webhooksRoutes} />
                 </Route>
               </Route>
-              <Route path="not_found" component={NotFound} />
-              <Route path="*" component={NotFound} />
+              <Route
+                path="not_found"
+                component={lazyLoad(() => import('../components/NotFound'))}
+              />
+              <Route path="*" component={lazyLoad(() => import('../components/NotFound'))} />
             </Route>
           </Route>
         </Route>

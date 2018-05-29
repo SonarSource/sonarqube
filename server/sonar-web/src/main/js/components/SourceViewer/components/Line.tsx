@@ -149,7 +149,7 @@ export default class Line extends React.PureComponent<Props> {
           <LineDuplications line={line} onClick={this.props.loadDuplications} />
         )}
 
-        {times(duplicationsCount).map(index => (
+        {times(duplicationsCount, index => (
           <LineDuplicationBlock
             duplicated={duplications.includes(index)}
             index={index}

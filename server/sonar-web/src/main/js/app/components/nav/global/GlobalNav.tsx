@@ -23,7 +23,6 @@ import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
-import GlobalNavPlus from './GlobalNavPlus';
 import Search from '../../search/Search';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
@@ -31,11 +30,14 @@ import { isLoggedIn, CurrentUser, AppState } from '../../../types';
 import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
 import NavBar from '../../../../components/nav/NavBar';
 import Tooltip from '../../../../components/controls/Tooltip';
+import { lazyLoad } from '../../../../components/lazyLoad';
 import { translate } from '../../../../helpers/l10n';
 import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../../../store/rootReducer';
 import { skipOnboarding } from '../../../../store/users/actions';
 import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
 import './GlobalNav.css';
+
+const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'));
 
 interface StateProps {
   appState: AppState;

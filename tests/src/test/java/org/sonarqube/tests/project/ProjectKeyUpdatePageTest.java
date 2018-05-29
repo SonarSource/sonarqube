@@ -102,7 +102,7 @@ public class ProjectKeyUpdatePageTest {
 
     $(".modal").shouldNotBe(visible);
 
-    tester.openBrowser().openProjectKey("another");
+    openPage("another");
     assertThat(url()).endsWith("/project/key?id=another");
   }
 

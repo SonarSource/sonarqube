@@ -1,40 +1,35 @@
 {
   "presets": [
-    ["env", {
-      "modules": false,
-      "targets": {
-        "browsers": [
-          "last 3 Chrome versions",
-          "last 3 Firefox versions",
-          "last 3 Safari versions",
-          "last 3 Edge versions",
-          "IE 11"
-        ]
-      },
-      "useBuiltIns": true
-    }],
+    [
+      "env",
+      {
+        "modules": false,
+        "targets": {
+          "browsers": [
+            "last 3 Chrome versions",
+            "last 3 Firefox versions",
+            "last 3 Safari versions",
+            "last 3 Edge versions",
+            "IE 11"
+          ]
+        },
+        "useBuiltIns": true
+      }
+    ],
     "react"
   ],
   "plugins": [
     "transform-class-properties",
-    ["transform-object-rest-spread", {
-      // use built-in `Object.assign`
-      "useBuiltIns": true
-    }]
+    // use built-in `Object.assign`
+    ["transform-object-rest-spread", { "useBuiltIns": true }],
+    "lodash"
   ],
   "env": {
     "production": {
-      "plugins": [
-        "syntax-dynamic-import",
-        "transform-react-constant-elements"
-      ]
+      "plugins": ["syntax-dynamic-import", "transform-react-constant-elements"]
     },
     "development": {
-      "plugins": [
-        "syntax-dynamic-import",
-        "transform-react-jsx-source",
-        "transform-react-jsx-self"
-      ]
+      "plugins": ["syntax-dynamic-import", "transform-react-jsx-source", "transform-react-jsx-self"]
     },
     "test": {
       "plugins": [
@@ -45,7 +40,5 @@
       ]
     }
   },
-  "ignore": [
-    "**/libs/**"
-  ]
+  "ignore": ["**/libs/**"]
 }

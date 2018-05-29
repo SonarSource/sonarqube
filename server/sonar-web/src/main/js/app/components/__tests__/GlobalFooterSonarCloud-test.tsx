@@ -21,9 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import GlobalFooterSonarCloud from '../GlobalFooterSonarCloud';
 
-jest.mock('date-fns', () => ({
-  getYear: jest.fn(() => 2018)
-}));
+jest.mock('date-fns/get_year', () => jest.fn(() => 2018));
 
 it('should render correctly', () => {
   expect(shallow(<GlobalFooterSonarCloud />)).toMatchSnapshot();

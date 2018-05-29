@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DocMarkdownBlock from './DocMarkdownBlock';
 import HelpTooltip from '../controls/HelpTooltip';
+import { lazyLoad } from '../lazyLoad';
+
+const DocMarkdownBlock = lazyLoad(() => import('./DocMarkdownBlock'));
 
 interface Props {
   className?: string;
@@ -75,15 +77,15 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
   };
 
   renderOverlay() {
-    if (this.state.loading) {
-      return (
-        <div className="abs-width-300">
+    return (
+      <div className="abs-width-300">
+        {this.state.loading ? (
           <i className="spinner" />
-        </div>
-      );
-    }
-
-    return <DocMarkdownBlock className="cut-margins abs-width-300" content={this.state.content} />;
+        ) : (
+          <DocMarkdownBlock className="cut-margins" content={this.state.content} />
+        )}
+      </div>
+    );
   }
 
   render() {

@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
-import { isSameMinute, startOfMinute } from 'date-fns';
+import * as isSameMinute from 'date-fns/is_same_minute';
+import * as startOfMinute from 'date-fns/start_of_minute';
 import ChangesList from './ChangesList';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';

@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DonutChart from '../charts/DonutChart';
+import { lazyLoad } from '../lazyLoad';
 import * as theme from '../../app/theme';
+
+const DonutChart = lazyLoad(() => import('../charts/DonutChart'));
 
 const SIZE_TO_WIDTH_MAPPING = { small: 16, normal: 24, big: 40, huge: 60 };
 
