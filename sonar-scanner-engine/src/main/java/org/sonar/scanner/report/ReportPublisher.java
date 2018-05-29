@@ -24,6 +24,7 @@ import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -54,6 +55,7 @@ import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
+import static java.net.URLEncoder.encode;
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
@@ -222,10 +224,16 @@ public class ReportPublisher implements Startable {
       metadata.put("serverVersion", server.getVersion());
       settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put("branch", branch));
 
-      URL dashboardUrl = httpUrl.newBuilder()
-        .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
-        .build()
-        .url();
+      URL dashboardUrl;
+      try {
+        dashboardUrl = httpUrl.newBuilder()
+          .addPathSegment("dashboard")
+          .addEncodedQueryParameter("id", encode(effectiveKey, "UTF-8"))
+          .build()
+          .url();
+      } catch (UnsupportedEncodingException e) {
+        throw new IllegalStateException("Unable to urlencode " + effectiveKey, e);
+      }
       metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
 
       URL taskUrl = HttpUrl.parse(publicUrl).newBuilder()

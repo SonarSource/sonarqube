@@ -283,16 +283,16 @@ public class ScannerTest {
 
     BuildResult result = scan("shared/xoo-multi-modules-sample");
 
-    assertThat(result.getLogs()).contains("/dashboard/index/com.sonarsource.it.samples:multi-modules-sample");
+    assertThat(result.getLogs()).contains("/dashboard?id=com.sonarsource.it.samples%3Amulti-modules-sample");
 
     result = scan("shared/xoo-multi-modules-sample",
       "sonar.branch", "mybranch");
 
-    assertThat(result.getLogs()).contains("/dashboard/index/com.sonarsource.it.samples:multi-modules-sample:mybranch");
+    assertThat(result.getLogs()).contains("/dashboard?id=com.sonarsource.it.samples%3Amulti-modules-sample%3Amybranch");
 
     tester.settings().setGlobalSettings("sonar.core.serverBaseURL", "http://foo:123/sonar");
     result = scan("shared/xoo-multi-modules-sample");
-    assertThat(result.getLogs()).contains("http://foo:123/sonar/dashboard/index/com.sonarsource.it.samples:multi-modules-sample");
+    assertThat(result.getLogs()).contains("http://foo:123/sonar/dashboard?id=com.sonarsource.it.samples%3Amulti-modules-sample");
   }
 
   /**

@@ -85,7 +85,7 @@ public class ReportPublisherTest {
   @Before
   public void setUp() throws IOException {
     wsClient = mock(ScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
-    root = new DefaultInputModule(ProjectDefinition.create().setKey("struts").setBaseDir(temp.newFolder()).setWorkDir(temp.getRoot()));
+    root = new DefaultInputModule(ProjectDefinition.create().setKey("org.sonarsource.sonarqube:sonarqube").setBaseDir(temp.newFolder()).setWorkDir(temp.getRoot()));
     when(moduleHierarchy.root()).thenReturn(root);
     when(server.getPublicRootUrl()).thenReturn("https://localhost");
     when(server.getVersion()).thenReturn("6.4");
@@ -100,17 +100,17 @@ public class ReportPublisherTest {
     underTest.logSuccess("TASK-123");
 
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://localhost/dashboard/index/struts")
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://localhost/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
       .contains("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report")
       .contains("More about the report processing at https://localhost/api/ce/task?id=TASK-123");
 
     File detailsFile = new File(temp.getRoot(), "report-task.txt");
     assertThat(readFileToString(detailsFile)).isEqualTo(
       "organization=MyOrg\n" +
-        "projectKey=struts\n" +
+        "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
         "serverUrl=https://localhost\n" +
         "serverVersion=6.4\n" +
-        "dashboardUrl=https://localhost/dashboard/index/struts\n" +
+        "dashboardUrl=https://localhost/dashboard?id=org.sonarsource.sonarqube%3Asonarqube\n" +
         "ceTaskId=TASK-123\n" +
         "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n");
   }
@@ -138,21 +138,21 @@ public class ReportPublisherTest {
     underTest.logSuccess("TASK-123");
 
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard/index/struts")
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
       .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
 
     File detailsFile = new File(temp.getRoot(), "report-task.txt");
     assertThat(readFileToString(detailsFile)).isEqualTo(
-      "projectKey=struts\n" +
+      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
         "serverUrl=https://publicserver/sonarqube\n" +
         "serverVersion=6.4\n" +
-        "dashboardUrl=https://publicserver/sonarqube/dashboard/index/struts\n" +
+        "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube\n" +
         "ceTaskId=TASK-123\n" +
         "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
   }
 
   @Test
-  public void fail_if_public_url_malformed() throws IOException {
+  public void fail_if_public_url_malformed() {
     when(server.getPublicRootUrl()).thenReturn("invalid");
     ReportPublisher underTest = new ReportPublisher(settings.asConfig(), wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
       new ReportPublisherStep[0], branchConfiguration);
@@ -229,7 +229,7 @@ public class ReportPublisherTest {
     WsRequest wsRequest = capture.getValue();
     assertThat(wsRequest.getParams()).containsOnly(
       entry("organization", "MyOrg"),
-      entry("projectKey", "struts"));
+      entry("projectKey", "org.sonarsource.sonarqube:sonarqube"));
   }
 
   @Test
@@ -263,7 +263,7 @@ public class ReportPublisherTest {
     WsRequest wsRequest = capture.getValue();
     assertThat(wsRequest.getParameters().getKeys()).hasSize(3);
     assertThat(wsRequest.getParameters().getValues("organization")).containsExactly(orgName);
-    assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("struts");
+    assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("org.sonarsource.sonarqube:sonarqube");
     assertThat(wsRequest.getParameters().getValues("characteristic"))
       .containsExactlyInAnyOrder("branch=" + branchName, "branchType=" + SHORT.name());
   }
@@ -301,7 +301,7 @@ public class ReportPublisherTest {
     WsRequest wsRequest = capture.getValue();
     assertThat(wsRequest.getParameters().getKeys()).hasSize(3);
     assertThat(wsRequest.getParameters().getValues("organization")).containsExactly(orgName);
-    assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("struts");
+    assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("org.sonarsource.sonarqube:sonarqube");
     assertThat(wsRequest.getParameters().getValues("characteristic"))
       .containsExactlyInAnyOrder("pullRequest=" + pullRequestId);
   }
