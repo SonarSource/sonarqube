@@ -34,7 +34,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.platform.PluginInfo;
@@ -59,10 +58,9 @@ public class ServerPluginRepositoryTest {
   public LogTester logs = new LogTester();
 
   private SonarRuntime runtime = mock(SonarRuntime.class);
-  ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
-  ServerFileSystem fs = mock(ServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
-  PluginLoader pluginLoader = mock(PluginLoader.class);
-  ServerPluginRepository underTest = new ServerPluginRepository(runtime, upgradeStatus, fs, pluginLoader);
+  private ServerFileSystem fs = mock(ServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
+  private PluginLoader pluginLoader = mock(PluginLoader.class);
+  private ServerPluginRepository underTest = new ServerPluginRepository(runtime, fs, pluginLoader);
 
   @Before
   public void setUp() throws IOException {
@@ -107,7 +105,7 @@ public class ServerPluginRepositoryTest {
       fail();
     } catch (MessageException e) {
       assertThat(e)
-        .hasMessageStartingWith("Found two files for the same plugin [testbase]: ")
+        .hasMessageStartingWith("Found two versions of the plugin Base Plugin [testbase] in the directory extensions/plugins. Please remove one of ")
         // order is not guaranteed, so assertion is split
         .hasMessageContaining("test-base-plugin-0.1-SNAPSHOT.jar")
         .hasMessageContaining("test-base-plugin-0.2-SNAPSHOT.jar");
@@ -312,7 +310,7 @@ public class ServerPluginRepositoryTest {
     copyTestPluginTo("fake-views-plugin", fs.getInstalledPluginsDir());
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugin 'views' is no more compatible with this version of SonarQube");
+    expectedException.expectMessage("Plugin 'views' is no longer compatible with this version of SonarQube");
     underTest.start();
   }
 
@@ -321,7 +319,7 @@ public class ServerPluginRepositoryTest {
     copyTestPluginTo("fake-sqale-plugin", fs.getInstalledPluginsDir());
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugin 'sqale' is no more compatible with this version of SonarQube");
+    expectedException.expectMessage("Plugin 'sqale' is no longer compatible with this version of SonarQube");
     underTest.start();
   }
 
@@ -330,7 +328,7 @@ public class ServerPluginRepositoryTest {
     copyTestPluginTo("fake-report-plugin", fs.getInstalledPluginsDir());
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugin 'report' is no more compatible with this version of SonarQube");
+    expectedException.expectMessage("Plugin 'report' is no longer compatible with this version of SonarQube");
     underTest.start();
   }
 
