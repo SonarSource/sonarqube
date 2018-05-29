@@ -4,6 +4,7 @@ exports[`should display bubbles 1`] = `
 <Bubble
   key="0"
   r={45}
+  scale={1}
   x={-10}
   y={52.3015873015873}
 >
@@ -18,7 +19,7 @@ exports[`should display bubbles 1`] = `
             "stroke": undefined,
           }
         }
-        transform="translate(-10, 52.3015873015873)"
+        transform="translate(-10, 52.3015873015873) scale(1)"
       />
     </g>
   </Tooltip>
@@ -29,6 +30,7 @@ exports[`should display bubbles 2`] = `
 <Bubble
   key="1"
   r={33.57142857142857}
+  scale={1}
   x={-75}
   y={33.57142857142857}
 >
@@ -43,7 +45,7 @@ exports[`should display bubbles 2`] = `
             "stroke": undefined,
           }
         }
-        transform="translate(-75, 33.57142857142857)"
+        transform="translate(-75, 33.57142857142857) scale(1)"
       />
     </g>
   </Tooltip>
@@ -55,6 +57,7 @@ exports[`should render bubble links 1`] = `
   key="0"
   link="foo"
   r={45}
+  scale={1}
   x={-10}
   y={52.3015873015873}
 >
@@ -78,7 +81,7 @@ exports[`should render bubble links 1`] = `
                 "stroke": undefined,
               }
             }
-            transform="translate(-10, 52.3015873015873)"
+            transform="translate(-10, 52.3015873015873) scale(1)"
           />
         </a>
       </Link>
@@ -92,6 +95,7 @@ exports[`should render bubble links 2`] = `
   key="1"
   link="bar"
   r={33.57142857142857}
+  scale={1}
   x={-75}
   y={33.57142857142857}
 >
@@ -115,7 +119,7 @@ exports[`should render bubble links 2`] = `
                 "stroke": undefined,
               }
             }
-            transform="translate(-75, 33.57142857142857)"
+            transform="translate(-75, 33.57142857142857) scale(1)"
           />
         </a>
       </Link>
@@ -130,6 +134,7 @@ exports[`should render bubbles with click handlers 1`] = `
   link="foo"
   onClick={[MockFunction]}
   r={45}
+  scale={1}
   x={-10}
   y={52.3015873015873}
 >
@@ -145,7 +150,7 @@ exports[`should render bubbles with click handlers 1`] = `
             "stroke": undefined,
           }
         }
-        transform="translate(-10, 52.3015873015873)"
+        transform="translate(-10, 52.3015873015873) scale(1)"
       />
     </g>
   </Tooltip>
@@ -158,6 +163,7 @@ exports[`should render bubbles with click handlers 2`] = `
   link="bar"
   onClick={[MockFunction]}
   r={33.57142857142857}
+  scale={1}
   x={-75}
   y={33.57142857142857}
 >
@@ -173,7 +179,7 @@ exports[`should render bubbles with click handlers 2`] = `
             "stroke": undefined,
           }
         }
-        transform="translate(-75, 33.57142857142857)"
+        transform="translate(-75, 33.57142857142857) scale(1)"
       />
     </g>
   </Tooltip>
