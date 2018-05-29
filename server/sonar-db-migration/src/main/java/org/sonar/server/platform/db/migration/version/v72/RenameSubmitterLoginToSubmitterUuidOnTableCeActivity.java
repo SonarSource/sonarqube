@@ -43,5 +43,7 @@ public class RenameSubmitterLoginToSubmitterUuidOnTableCeActivity extends DdlCha
           .setIsNullable(true)
           .build())
       .build());
+
+    context.deleteIndexes("users");
   }
 }
