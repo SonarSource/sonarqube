@@ -25,8 +25,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static java.sql.Types.VARCHAR;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class RenameSubmitterLoginToSubmitterUuidOnTableCeActivityTest {
 
@@ -36,7 +39,8 @@ public class RenameSubmitterLoginToSubmitterUuidOnTableCeActivityTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private RenameSubmitterLoginToSubmitterUuidOnTableCeActivity underTest = new RenameSubmitterLoginToSubmitterUuidOnTableCeActivity(db.database());
+  private MigrationEsClient esClient = mock(MigrationEsClient.class);
+  private RenameSubmitterLoginToSubmitterUuidOnTableCeActivity underTest = new RenameSubmitterLoginToSubmitterUuidOnTableCeActivity(db.database(), esClient);
 
   @Test
   public void rename_column() throws SQLException {
@@ -44,6 +48,8 @@ public class RenameSubmitterLoginToSubmitterUuidOnTableCeActivityTest {
 
     db.assertColumnDefinition("ce_activity", "submitter_uuid", VARCHAR, 255, true);
     db.assertColumnDoesNotExist("ce_activity", "submitter_login");
+
+    verify(esClient).deleteIndexes("users");
   }
 
   public void migration_is_not_reentrant() throws SQLException {

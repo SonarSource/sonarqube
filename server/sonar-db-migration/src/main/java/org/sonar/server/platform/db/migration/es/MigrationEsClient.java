@@ -20,10 +20,10 @@
 
 package org.sonar.server.platform.db.migration.es;
 
-public interface ElasticsearchClient {
+public interface MigrationEsClient {
 
   /**
-   * This method is reentrant and does not fail if indexName or otherIndexNames does not exist
+   * This method is re-entrant and does not fail if indexName or otherIndexNames do not exist
    */
-  void deleteIndexes(String... otherIndexNames);
+  void deleteIndexes(String name, String... otherNames);
 }

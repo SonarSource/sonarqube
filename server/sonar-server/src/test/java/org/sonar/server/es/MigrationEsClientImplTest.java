@@ -19,53 +19,48 @@
  */
 package org.sonar.server.es;
 
-import org.elasticsearch.client.Client;
+import java.util.Iterator;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
 
-public class SimpleEsClientImplTest {
+public class MigrationEsClientImplTest {
   @Rule
-  public EsTester es = EsTester.createCustom(new FakeIndexDefinition(),
+  public EsTester es = EsTester.createCustom(
     new SimpleIndexDefinition("a"),
     new SimpleIndexDefinition("b"),
     new SimpleIndexDefinition("c"));
 
-  private Client client = es.client().nativeClient();
-  private SimpleEsClientImpl underTest = new SimpleEsClientImpl(client);
+  private MigrationEsClient underTest = new MigrationEsClientImpl(es.client());
 
   @Test
-  public void call_without_arguments_does_not_generate_an_elasticsearch_call() {
-    Client client = mock(Client.class);
-    SimpleEsClientImpl underTest = new SimpleEsClientImpl(client);
-    underTest.deleteIndexes();
+  public void delete_existing_index() {
+    underTest.deleteIndexes("a");
 
-    verify(client, never()).admin();
+    assertThat(loadExistingIndices())
+      .doesNotContain("a")
+      .contains("b", "c");
   }
 
   @Test
-  public void delete_known_indice_must_delete_the_index() {
-    underTest.deleteIndexes("fakes");
-
-    assertThat(es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings().get("fakes")).isNull();
-  }
-
-  @Test
-  public void delete_unknown_indice_must_delete_all_existing_indexes() {
+  public void ignore_indices_that_do_not_exist() {
     underTest.deleteIndexes("a", "xxx", "c");
 
-    assertThat(es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings().get("a")).isNull();
-    assertThat(es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings().get("c")).isNull();
+    assertThat(loadExistingIndices())
+      .doesNotContain("a", "c")
+      .contains("b");
   }
 
-  public class SimpleIndexDefinition implements IndexDefinition {
+  private Iterator<String> loadExistingIndices() {
+    return es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings().keysIt();
+  }
+
+  private static class SimpleIndexDefinition implements IndexDefinition {
     private final String indexName;
 
     public SimpleIndexDefinition(String indexName) {

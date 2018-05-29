@@ -26,6 +26,7 @@ import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.server.l18n.ServerI18n;
+import org.sonar.server.es.MigrationEsClientImpl;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;
@@ -56,6 +57,7 @@ public class PlatformLevel2 extends PlatformLevel {
       MigrationConfigurationModule.class,
       DatabaseVersion.class,
       DatabaseServerCompatibility.class,
+      MigrationEsClientImpl.class,
 
       new StartupMetadataProvider(),
       DefaultServerUpgradeStatus.class,

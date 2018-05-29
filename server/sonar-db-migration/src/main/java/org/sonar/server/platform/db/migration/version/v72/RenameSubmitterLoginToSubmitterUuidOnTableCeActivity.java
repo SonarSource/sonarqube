@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.version.v72;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 import org.sonar.server.platform.db.migration.sql.RenameColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -29,8 +30,11 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 
 public class RenameSubmitterLoginToSubmitterUuidOnTableCeActivity extends DdlChange {
 
-  public RenameSubmitterLoginToSubmitterUuidOnTableCeActivity(Database db) {
+  private final MigrationEsClient esClient;
+
+  public RenameSubmitterLoginToSubmitterUuidOnTableCeActivity(Database db, MigrationEsClient esClient) {
     super(db);
+    this.esClient = esClient;
   }
 
   @Override
@@ -44,6 +48,6 @@ public class RenameSubmitterLoginToSubmitterUuidOnTableCeActivity extends DdlCha
           .build())
       .build());
 
-    context.deleteIndexes("users");
+    esClient.deleteIndexes("users");
   }
 }
