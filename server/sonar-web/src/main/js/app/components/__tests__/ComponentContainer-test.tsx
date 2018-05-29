@@ -31,6 +31,7 @@ import {
   PullRequest,
   BranchType
 } from '../../types';
+import { STATUSES } from '../../../apps/background-tasks/constants';
 
 jest.mock('../../../api/branches', () => ({
   getBranches: jest.fn(() => Promise.resolve([])),
@@ -221,13 +222,16 @@ it('filters correctly the pending tasks for a main branch', () => {
   ).toBeFalsy();
   expect(component.isSameBranch({ pullRequest: 'pr-89' }, pullRequest)).toBeTruthy();
 
-  const currentTask = { pullRequest: 'pr-89' } as Task;
+  const currentTask = { pullRequest: 'pr-89', status: STATUSES.IN_PROGRESS } as Task;
+  const failedTask = { ...currentTask, status: STATUSES.FAILED };
   const pendingTasks = [
     currentTask,
     { branch: 'feature', branchType: 'SHORT' } as Task,
     {} as Task
   ];
   expect(component.getCurrentTask(undefined)).toBe(undefined);
+  component.setState({ currentTask: failedTask });
+  expect(component.getCurrentTask(mainBranch)).toBe(failedTask);
   component.setState({ currentTask });
   expect(component.getCurrentTask(mainBranch)).toBe(undefined);
   expect(component.getCurrentTask(pullRequest)).toMatchObject(currentTask);

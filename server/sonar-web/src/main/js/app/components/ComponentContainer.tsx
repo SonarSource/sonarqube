@@ -146,7 +146,13 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   getCurrentTask = (branchLike?: BranchLike) => {
     const { currentTask } = this.state;
-    return currentTask && this.isSameBranch(currentTask, branchLike) ? currentTask : undefined;
+    if (!currentTask) {
+      return undefined;
+    }
+
+    return currentTask.status === STATUSES.FAILED || this.isSameBranch(currentTask, branchLike)
+      ? currentTask
+      : undefined;
   };
 
   getPendingTasks = (branchLike?: BranchLike) => {
