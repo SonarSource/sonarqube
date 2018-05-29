@@ -24,9 +24,9 @@ import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static org.apache.commons.io.FileUtils.sizeOfDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,11 +98,6 @@ public class CePluginJarExploderTest {
     }
 
     @Override
-    public File getDataDir() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public File getHomeDir() {
       throw new UnsupportedOperationException();
     }
@@ -140,17 +135,7 @@ public class CePluginJarExploderTest {
     }
 
     @Override
-    public File getEditionDownloadedPluginsDir() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public File getUninstalledPluginsDir() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public File getEditionUninstalledPluginsDir() {
       throw new UnsupportedOperationException();
     }
 

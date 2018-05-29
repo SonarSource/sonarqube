@@ -32,6 +32,7 @@ import org.sonar.ce.CeModule;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
@@ -56,8 +57,6 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.duplication.ws.ShowResponseBuilder;
-import org.sonar.server.edition.EditionsWsModule;
-import org.sonar.server.edition.FinalizeEditionChange;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
@@ -67,7 +66,6 @@ import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.issue.AddTagsAction;
@@ -138,10 +136,6 @@ import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.edition.EditionInstaller;
-import org.sonar.server.plugins.edition.EditionInstallerExecutor;
-import org.sonar.server.plugins.edition.EditionPluginDownloader;
-import org.sonar.server.plugins.edition.EditionPluginUninstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.plugins.ws.AvailableAction;
@@ -283,12 +277,6 @@ public class PlatformLevel4 extends PlatformLevel {
       BackendCleanup.class,
       IndexDefinitions.class,
       WebPagesFilter.class,
-
-      // edition
-      EditionInstaller.class,
-      EditionPluginDownloader.class,
-      EditionInstallerExecutor.class,
-      EditionPluginUninstaller.class,
 
       // batch
       BatchWsModule.class,
@@ -556,9 +544,6 @@ public class PlatformLevel4 extends PlatformLevel {
       CeModule.class,
       CeWsModule.class,
 
-      // SonarSource editions
-      EditionsWsModule.class,
-
       InternalPropertiesImpl.class,
       ProjectConfigurationFactory.class,
 
@@ -581,9 +566,6 @@ public class PlatformLevel4 extends PlatformLevel {
     // telemetry
     add(TelemetryDataLoader.class);
     addIfStartupLeader(TelemetryDaemon.class, TelemetryClient.class);
-
-    // edition
-    addIfStartupLeader(FinalizeEditionChange.class);
 
     // system info
     addIfCluster(WebSystemInfoModule.forClusterMode()).otherwiseAdd(WebSystemInfoModule.forStandaloneMode());

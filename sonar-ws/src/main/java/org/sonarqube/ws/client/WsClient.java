@@ -27,7 +27,6 @@ import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.custommeasures.CustomMeasuresService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
-import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.favourites.FavouritesService;
@@ -103,8 +102,6 @@ public interface WsClient {
   CustomMeasuresService customMeasures();
 
   DuplicationsService duplications();
-
-  EditionsService editions();
 
   EmailsService emails();
 

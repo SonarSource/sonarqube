@@ -27,7 +27,6 @@ import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.custommeasures.CustomMeasuresService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
-import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.favourites.FavouritesService;
@@ -86,7 +85,6 @@ class DefaultWsClient implements WsClient {
   private final ComponentsService componentsService;
   private final CustomMeasuresService customMeasuresService;
   private final DuplicationsService duplicationsService;
-  private final EditionsService editionsService;
   private final EmailsService emailsService;
   private final FavoritesService favoritesService;
   private final FavouritesService favouritesService;
@@ -138,7 +136,6 @@ class DefaultWsClient implements WsClient {
     this.componentsService = new ComponentsService(wsConnector);
     this.customMeasuresService = new CustomMeasuresService(wsConnector);
     this.duplicationsService = new DuplicationsService(wsConnector);
-    this.editionsService = new EditionsService(wsConnector);
     this.emailsService = new EmailsService(wsConnector);
     this.favoritesService = new FavoritesService(wsConnector);
     this.favouritesService = new FavouritesService(wsConnector);
@@ -216,11 +213,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public DuplicationsService duplications() {
     return duplicationsService;
-  }
-
-  @Override
-  public EditionsService editions() {
-    return editionsService;
   }
 
   @Override

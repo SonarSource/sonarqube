@@ -36,18 +36,15 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
 
   private final File homeDir;
   private final File tempDir;
-  private final File dataDir;
   private final File deployDir;
   private final File uninstallDir;
-  private final File editionUninstallDir;
 
   public ServerFileSystemImpl(Configuration config) {
     this.homeDir = new File(config.get(PATH_HOME.getKey()).get());
     this.tempDir = new File(config.get(PATH_TEMP.getKey()).get());
-    this.dataDir = new File(config.get(PATH_DATA.getKey()).get());
-    this.deployDir = new File(this.dataDir, TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
+    File dataDir = new File(config.get(PATH_DATA.getKey()).get());
+    this.deployDir = new File(dataDir, TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
     this.uninstallDir = new File(getTempDir(), "uninstalled-plugins");
-    this.editionUninstallDir = new File(getTempDir(), "uninstalled-edition-plugins");
   }
 
   @Override
@@ -71,11 +68,6 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   }
 
   @Override
-  public File getDataDir() {
-    return dataDir;
-  }
-
-  @Override
   public File getDeployedPluginsDir() {
     return new File(deployDir, "plugins");
   }
@@ -83,11 +75,6 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   @Override
   public File getDownloadedPluginsDir() {
     return new File(getHomeDir(), "extensions/downloads");
-  }
-
-  @Override
-  public File getEditionDownloadedPluginsDir() {
-    return new File(getHomeDir(), "extensions/new-edition");
   }
 
   @Override
@@ -103,11 +90,6 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   @Override
   public File getUninstalledPluginsDir() {
     return uninstallDir;
-  }
-
-  @Override
-  public File getEditionUninstalledPluginsDir() {
-    return editionUninstallDir;
   }
 
 }

@@ -28,12 +28,6 @@ import java.io.File;
 public interface ServerFileSystem {
 
   /**
-   * Directory that contains the persisted data to be kept on restarts and upgrades.
-   * @return an existing directory
-   */
-  File getDataDir();
-
-  /**
    * Root directory of the server installation
    * @return an existing directory
    */
@@ -59,13 +53,6 @@ public interface ServerFileSystem {
   File getDownloadedPluginsDir();
 
   /**
-   * Directory of commercial plugins downloaded as part of the installation of an edition. Files
-   * will be moved to {@link #getInstalledPluginsDir()} on startup.
-   * @return a directory which may or not exist
-   */
-  File getEditionDownloadedPluginsDir();
-
-  /**
    * Directory of currently installed plugins. Used at startup.
    * @return a directory which may or not exist
    */
@@ -85,9 +72,4 @@ public interface ServerFileSystem {
    */
   File getUninstalledPluginsDir();
 
-  /**
-   * Directory where plugins that are part of an edition and are to be uninstalled are moved to.
-   * @return a directory which may or not exist
-   */
-  File getEditionUninstalledPluginsDir();
 }

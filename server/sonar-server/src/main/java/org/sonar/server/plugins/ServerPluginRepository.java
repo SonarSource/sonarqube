@@ -102,7 +102,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   public void start() {
     loadPreInstalledPlugins();
     moveDownloadedPlugins();
-    moveDownloadedEditionPlugins();
     unloadIncompatiblePlugins();
     logInstalledPlugins();
     loadInstances();
@@ -144,14 +143,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private void moveDownloadedPlugins() {
     if (fs.getDownloadedPluginsDir().exists()) {
       for (File sourceFile : listJarFiles(fs.getDownloadedPluginsDir())) {
-        overrideAndRegisterPlugin(sourceFile);
-      }
-    }
-  }
-
-  private void moveDownloadedEditionPlugins() {
-    if (fs.getEditionDownloadedPluginsDir().exists()) {
-      for (File sourceFile : listJarFiles(fs.getEditionDownloadedPluginsDir())) {
         overrideAndRegisterPlugin(sourceFile);
       }
     }
