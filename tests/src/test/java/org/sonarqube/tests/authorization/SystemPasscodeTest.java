@@ -22,6 +22,7 @@ package org.sonarqube.tests.authorization;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Arrays;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -31,6 +32,7 @@ import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore("FIXME IT disabled because it relies on a WS getting injected with core class, ie. a privileged plugin (fake-governance-plugin)")
 public class SystemPasscodeTest {
 
   static final String VALID_PASSCODE = "123456";

@@ -123,7 +123,8 @@ public class PluginsTest {
     builder.addPlugin(URLLocation.create(new URL("https://sonarsource.bintray.com/Distribution/sonar-scm-clearcase-plugin/sonar-scm-clearcase-plugin-1.1.jar")));
     installPlugin(builder, "org.codehaus.sonar-plugins", "sonar-scm-cvs-plugin");
     installPlugin(builder, "org.sonarsource.scm.git", "sonar-scm-git-plugin");
-    builder.addPlugin(URLLocation.create(new URL("http://downloads.sonarsource.com/plugins/org/codehaus/sonar-plugins/sonar-scm-jazzrtc-plugin/1.1/sonar-scm-jazzrtc-plugin-1.1.jar")));
+    builder
+      .addPlugin(URLLocation.create(new URL("http://downloads.sonarsource.com/plugins/org/codehaus/sonar-plugins/sonar-scm-jazzrtc-plugin/1.1/sonar-scm-jazzrtc-plugin-1.1.jar")));
     installPlugin(builder, "org.sonarsource.scm.mercurial", "sonar-scm-mercurial-plugin");
     installPlugin(builder, "org.sonarsource.scm.perforce", "sonar-scm-perforce-plugin");
     installPlugin(builder, "org.sonarsource.scm.svn", "sonar-scm-svn-plugin");
@@ -131,8 +132,6 @@ public class PluginsTest {
     installPlugin(builder, "com.sonarsource.vbnet", "sonar-vbnet-plugin");
     installPlugin(builder, "org.sonarsource.web", "sonar-web-plugin");
     installPlugin(builder, "org.sonarsource.xml", "sonar-xml-plugin");
-
-    builder.activateLicense();
 
     // use compression of plugin JARs, just to check that it does not fail
     builder.setServerProperty("sonar.pluginsCompression.enable", "true");

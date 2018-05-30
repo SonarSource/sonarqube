@@ -43,9 +43,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
@@ -62,6 +62,7 @@ import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
+@Ignore("FIXME IT disabled because it relies on a privileged plugin (fake-governance-plugin)")
 public class CeWorkersTest {
   private static final int WAIT = 200; // ms
   private static final int MAX_WAIT_LOOP = 5 * 60 * 5; // 5 minutes
