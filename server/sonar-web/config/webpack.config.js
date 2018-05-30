@@ -67,12 +67,20 @@ module.exports = ({ production = true }) => ({
         ]
       },
       {
+        // extract styles from 'app/' into separate file
         test: /\.css$/,
+        include: path.resolve(__dirname, '../src/main/js/app/styles'),
         use: [
           production ? MiniCssExtractPlugin.loader : 'style-loader',
           utils.cssLoader({ production }),
           utils.postcssLoader()
-        ].filter(Boolean)
+        ]
+      },
+      {
+        // inline all other styles
+        test: /\.css$/,
+        exclude: path.resolve(__dirname, '../src/main/js/app/styles'),
+        use: ['style-loader', utils.cssLoader({ production }), utils.postcssLoader()]
       },
       {
         test: /\.md$/,
@@ -84,7 +92,7 @@ module.exports = ({ production = true }) => ({
         test: /\.directory-loader\.js$/,
         loader: path.resolve(__dirname, 'documentation-loader/index.js')
       }
-    ].filter(Boolean)
+    ]
   },
   plugins: [
     // `allowExternal: true` to remove files outside of the current dir
@@ -139,7 +147,7 @@ module.exports = ({ production = true }) => ({
   performance: production
     ? {
         hints: 'error',
-        maxEntrypointSize: 700000, // ~700kb, recommended: 250kb
+        maxEntrypointSize: 710000, // ~700kb, recommended: 250kb
         maxAssetSize: 400000 // ~400kb, recommended: 250kb
       }
     : undefined
