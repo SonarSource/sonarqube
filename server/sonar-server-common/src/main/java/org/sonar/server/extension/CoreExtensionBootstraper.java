@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins.privileged;
+package org.sonar.server.extension;
 
 import java.util.List;
 import org.sonar.api.platform.Server;
@@ -26,26 +26,25 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.plugin.PrivilegedPluginBridge;
 
 import static java.lang.String.format;
 
 /**
- * Startup task to responsible to bootstrap installed Privileged plugins (if any).
+ * Startup task responsible to bootstrap installed Core Extensions (if any).
  */
-public class PrivilegedPluginsBootstraper implements ServerStartHandler {
-  private static final Logger LOGGER = Loggers.get(PrivilegedPluginsBootstraper.class);
+public class CoreExtensionBootstraper implements ServerStartHandler {
+  private static final Logger LOGGER = Loggers.get(CoreExtensionBootstraper.class);
 
   private final ComponentContainer componentContainer;
 
-  public PrivilegedPluginsBootstraper(ComponentContainer componentContainer) {
+  public CoreExtensionBootstraper(ComponentContainer componentContainer) {
     this.componentContainer = componentContainer;
   }
 
   @Override
   public void onServerStart(Server server) {
-    List<PrivilegedPluginBridge> bridges = componentContainer.getComponentsByType(PrivilegedPluginBridge.class);
-    for (PrivilegedPluginBridge bridge : bridges) {
+    List<CoreExtensionBridge> bridges = componentContainer.getComponentsByType(CoreExtensionBridge.class);
+    for (CoreExtensionBridge bridge : bridges) {
       Profiler profiler = Profiler.create(LOGGER).startInfo(format("Bootstrapping %s", bridge.getPluginName()));
       bridge.startPlugin(componentContainer);
       profiler.stopInfo();

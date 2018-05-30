@@ -46,8 +46,6 @@ class PluginClassLoaderDef {
    */
   private boolean compatibilityMode = false;
 
-  private boolean privileged = false;
-
   PluginClassLoaderDef(String basePluginKey) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(basePluginKey));
     this.basePluginKey = basePluginKey;
@@ -93,14 +91,6 @@ class PluginClassLoaderDef {
 
   void setCompatibilityMode(boolean b) {
     this.compatibilityMode = b;
-  }
-
-  boolean isPrivileged() {
-    return privileged;
-  }
-
-  void setPrivileged(boolean privileged) {
-    this.privileged = privileged;
   }
 
   @Override

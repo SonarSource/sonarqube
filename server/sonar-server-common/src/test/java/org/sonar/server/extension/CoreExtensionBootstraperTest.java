@@ -17,22 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins.privileged;
+package org.sonar.server.extension;
 
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.plugin.PrivilegedPluginBridge;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class PrivilegedPluginsBootstraperTest {
+public class CoreExtensionBootstraperTest {
   private ComponentContainer componentContainer = new ComponentContainer();
-  private PrivilegedPluginBridge bridge = mock(PrivilegedPluginBridge.class);
+  private CoreExtensionBridge bridge = mock(CoreExtensionBridge.class);
 
-  private PrivilegedPluginsBootstraper underTest = new PrivilegedPluginsBootstraper(componentContainer);
+  private CoreExtensionBootstraper underTest = new CoreExtensionBootstraper(componentContainer);
 
   @Test
   public void onServerStart_calls_startPlugin_if_Bridge_exists_in_container() {

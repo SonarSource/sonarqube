@@ -73,11 +73,7 @@ public class PluginClassloaderFactory {
 
     for (PluginClassLoaderDef def : defs) {
       builder.newClassloader(def.getBasePluginKey());
-      if (def.isPrivileged()) {
-        builder.setParent(def.getBasePluginKey(), baseClassLoader, new Mask());
-      } else {
-        builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask());
-      }
+      builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask());
       builder.setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
       for (File jar : def.getFiles()) {
         builder.addURL(def.getBasePluginKey(), fileToUrl(jar));

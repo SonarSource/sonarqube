@@ -24,16 +24,13 @@ import com.google.common.base.Strings;
 import java.io.Closeable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableSet;
 
 /**
  * Loads the plugin JAR files by creating the appropriate classloaders and by instantiating
@@ -52,11 +49,6 @@ import static java.util.Collections.unmodifiableSet;
 public class PluginLoader {
 
   private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins", "com/sonar/plugins", "com/sonarsource/plugins"};
-  /**
-   * Defines the base keys (defined by {@link #basePluginKey(PluginInfo, Map)}) of the plugins which are allowed to
-   * run a full server extensions.
-   */
-  private static final Set<String> PRIVILEGED_PLUGINS_BASE_KEYS = unmodifiableSet(new HashSet<>(asList("billing", "branch", "developer", "governance", "ha", "license")));
 
   public static final Version COMPATIBILITY_MODE_MAX_VERSION = Version.create("5.2");
 
@@ -105,7 +97,6 @@ public class PluginLoader {
         Version minSqVersion = info.getMinimalSqVersion();
         boolean compatibilityMode = minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         def.setCompatibilityMode(compatibilityMode);
-        def.setPrivileged(isPrivileged(baseKey));
         if (compatibilityMode) {
           Loggers.get(getClass()).debug("API compatibility mode is enabled on plugin {} [{}] " +
             "(built with API lower than {})",
@@ -114,10 +105,6 @@ public class PluginLoader {
       }
     }
     return classloadersByBasePlugin.values();
-  }
-
-  private static boolean isPrivileged(String basePluginKey) {
-    return PRIVILEGED_PLUGINS_BASE_KEYS.contains(basePluginKey);
   }
 
   /**

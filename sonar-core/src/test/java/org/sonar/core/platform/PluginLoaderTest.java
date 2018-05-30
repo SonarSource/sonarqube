@@ -148,15 +148,6 @@ public class PluginLoaderTest {
   }
 
   @Test
-  public void plugin_is_recognised_as_privileged_if_key_is_views_and_extends_no_other_plugins() throws IOException {
-    PluginInfo governance = createPluginInfo("governance");
-
-    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("governance", governance));
-
-    assertThat(defs.iterator().next().isPrivileged()).isTrue();
-  }
-
-  @Test
   public void plugin_is_not_recognised_as_system_extension_if_key_is_governance_and_extends_another_plugin() throws IOException {
     PluginInfo foo = createPluginInfo("foo");
     PluginInfo governance = createPluginInfo("governance")

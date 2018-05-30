@@ -52,7 +52,7 @@ public class FakeBillingPlugin implements Plugin {
 
   private static boolean isRunningInSQ() {
     try {
-      Class.forName("org.sonar.plugin.PrivilegedPluginBridge");
+      Class.forName("org.sonar.server.plugins.privileged.CoreExtensionBridge");
       return true;
     } catch (ClassNotFoundException e) {
       return false;

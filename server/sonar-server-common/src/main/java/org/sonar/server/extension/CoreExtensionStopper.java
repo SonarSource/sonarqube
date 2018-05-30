@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins.privileged;
+package org.sonar.server.extension;
 
 import java.util.List;
 import org.picocontainer.Startable;
@@ -25,32 +25,31 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.plugin.PrivilegedPluginBridge;
 
 import static java.lang.String.format;
 
 /**
- * As an component of PlatformLevel4, this class is responsible for notifying shutdown to the installed Privileged plugins
- * (if any) when its installed.
+ * As an component of PlatformLevel4, this class is responsible for notifying shutdown to the installed Core Extensions
+ * (if any).
  */
-public class PrivilegedPluginsStopper implements Startable {
-  private static final Logger LOGGER = Loggers.get(PrivilegedPluginsStopper.class);
+public class CoreExtensionStopper implements Startable {
+  private static final Logger LOGGER = Loggers.get(CoreExtensionStopper.class);
 
   private final ComponentContainer platformContainer;
 
-  public PrivilegedPluginsStopper(ComponentContainer platformContainer) {
+  public CoreExtensionStopper(ComponentContainer platformContainer) {
     this.platformContainer = platformContainer;
   }
 
   @Override
   public void start() {
-    // nothing to do, privileged plugins are started by PrivilegedPluginsBootstraper
+    // nothing to do, privileged plugins are started by CoreExtensionBootstraper
   }
 
   @Override
   public void stop() {
-    List<PrivilegedPluginBridge> bridges = platformContainer.getComponentsByType(PrivilegedPluginBridge.class);
-    for (PrivilegedPluginBridge bridge : bridges) {
+    List<CoreExtensionBridge> bridges = platformContainer.getComponentsByType(CoreExtensionBridge.class);
+    for (CoreExtensionBridge bridge : bridges) {
       Profiler profiler = Profiler.create(LOGGER).startInfo(format("Stopping %s", bridge.getPluginName()));
       bridge.stopPlugin();
       profiler.stopInfo();

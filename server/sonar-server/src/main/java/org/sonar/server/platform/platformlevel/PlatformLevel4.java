@@ -67,6 +67,8 @@ import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.event.NewAlerts;
+import org.sonar.server.extension.CoreExtensionBootstraper;
+import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.issue.AddTagsAction;
@@ -137,8 +139,6 @@ import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
-import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.plugins.ws.AvailableAction;
 import org.sonar.server.plugins.ws.CancelAllAction;
 import org.sonar.server.plugins.ws.DownloadAction;
@@ -535,10 +535,10 @@ public class PlatformLevel4 extends PlatformLevel {
       // Project badges
       ProjectBadgesWsModule.class,
 
-      // privileged plugins
+      // Core Extensions
       WebCoreExtensionsInstaller.class,
-      PrivilegedPluginsBootstraper.class,
-      PrivilegedPluginsStopper.class,
+      CoreExtensionBootstraper.class,
+      CoreExtensionStopper.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
       ReportAnalysisFailureNotificationModule.class,

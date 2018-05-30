@@ -95,6 +95,8 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.event.NewAlerts;
+import org.sonar.server.extension.CoreExtensionBootstraper;
+import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.index.IssueIndex;
@@ -146,8 +148,6 @@ import org.sonar.server.platform.monitoring.OfficialDistribution;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
-import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -443,8 +443,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // privileged plugins
       CECoreExtensionsInstaller.class,
-      PrivilegedPluginsBootstraper.class,
-      PrivilegedPluginsStopper.class,
+      CoreExtensionBootstraper.class,
+      CoreExtensionStopper.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
       CeConfigurationModule.class,

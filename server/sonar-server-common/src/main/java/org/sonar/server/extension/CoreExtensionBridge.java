@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugin;
+package org.sonar.server.extension;
 
 import org.sonar.core.platform.ComponentContainer;
 
 /**
- * Interface implemented by the Extension point exposed by the Privileged plugin that serves as the unique access
- * point from the whole SQ instance into the Privileged plugin.
+ * Interface implemented by the Extension point exposed by the Core Extensions that serves as the unique access
+ * point from the whole SQ instance into the Core Extension.
  */
-public interface PrivilegedPluginBridge {
+public interface CoreExtensionBridge {
 
   String getPluginName();
 
