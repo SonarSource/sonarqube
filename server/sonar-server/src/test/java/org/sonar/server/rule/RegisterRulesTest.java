@@ -92,6 +92,8 @@ public class RegisterRulesTest {
   private static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
   private static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
 
+  private static final RuleKey EXTERNAL_RULE_KEY1 = RuleKey.of("external_eslint", "rule1");
+
   private static final RuleKey RULE_KEY1 = RuleKey.of("fake", "rule1");
   private static final RuleKey RULE_KEY2 = RuleKey.of("fake", "rule2");
   private static final RuleKey RULE_KEY3 = RuleKey.of("fake", "rule3");
@@ -148,6 +150,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(rule1.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(rule1.getPluginKey()).isEqualTo(FAKE_PLUGIN_KEY);
+    assertThat(rule1.isExternal()).isFalse();
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), RULE_KEY1);
     assertThat(params).hasSize(2);
@@ -161,6 +164,31 @@ public class RegisterRulesTest {
 
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(dbTester.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
+  }
+
+  @Test
+  public void insert_new_external_rule() {
+    execute(new ExternalRuleRepository());
+
+    // verify db
+    assertThat(dbClient.ruleDao().selectAllDefinitions(dbTester.getSession())).hasSize(1);
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), dbTester.getDefaultOrganization(), EXTERNAL_RULE_KEY1);
+    assertThat(rule1.getName()).isEqualTo("One");
+    assertThat(rule1.getDescription()).isEqualTo("Description of One");
+    assertThat(rule1.getSeverityString()).isEqualTo(BLOCKER);
+    assertThat(rule1.getTags()).isEmpty();
+    assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(rule1.getConfigKey()).isEqualTo("config1");
+    assertThat(rule1.getStatus()).isEqualTo(RuleStatus.BETA);
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getScope()).isEqualTo(Scope.ALL);
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getDefRemediationFunction()).isNull();
+    assertThat(rule1.getDefRemediationGapMultiplier()).isNull();
+    assertThat(rule1.getDefRemediationBaseEffort()).isNull();
+    assertThat(rule1.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
+    assertThat(rule1.getPluginKey()).isEqualTo(FAKE_PLUGIN_KEY);
+    assertThat(rule1.isExternal()).isTrue();
   }
 
   @Test
@@ -496,7 +524,7 @@ public class RegisterRulesTest {
 
   @DataProvider
   public static Object[][] allRenamingCases() {
-    return new Object[][]{
+    return new Object[][] {
       {"repo1", "rule1", "repo1", "rule2"},
       {"repo1", "rule1", "repo2", "rule1"},
       {"repo1", "rule1", "repo2", "rule2"},
@@ -857,8 +885,7 @@ public class RegisterRulesTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("An incorrect state of deprecated rule keys has been detected.\n " +
-      "The deprecated rule key [javascript:linelength] was previously deprecated by [javascript:s103]. [javascript:s103] should be a deprecated key of [sonarjs:s103],"
-    );
+      "The deprecated rule key [javascript:linelength] was previously deprecated by [javascript:s103]. [javascript:s103] should be a deprecated key of [sonarjs:s103],");
 
     // This rule should have been moved to another repository
     execute(context -> createRule(context, "javascript", "sonarjs", "s103",
@@ -988,6 +1015,23 @@ public class RegisterRulesTest {
       repo.createRule(RULE_KEY3.rule())
         .setName("Three")
         .setHtmlDescription("Rule Three");
+      repo.done();
+    }
+  }
+
+  static class ExternalRuleRepository implements RulesDefinition {
+    @Override
+    public void define(Context context) {
+      NewRepository repo = context.createExternalRepository("eslint", "js");
+      repo.createRule(RULE_KEY1.rule())
+        .setName("One")
+        .setHtmlDescription("Description of One")
+        .setSeverity(BLOCKER)
+        .setInternalKey("config1")
+        .setTags("tag1", "tag2", "tag3")
+        .setScope(RuleScope.ALL)
+        .setType(RuleType.CODE_SMELL)
+        .setStatus(RuleStatus.BETA);
       repo.done();
     }
   }

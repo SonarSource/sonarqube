@@ -80,6 +80,33 @@ public class ExternalIssueTest {
   }
 
   @Test
+  public void should_import_external_issues_with_details_provided_by_code_analyzers() {
+    noIssues();
+    ruleExistsWithDetails("external_xoo:OneExternalIssueWithDetailsPerLine");
+
+    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+      "sonar.oneExternalIssueWithDetailsPerLine.activate", "true");
+    List<Issue> issuesList = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
+    assertThat(issuesList).hasSize(17);
+
+    assertThat(issuesList).allMatch(issue -> "external_xoo:OneExternalIssueWithDetailsPerLine".equals(issue.getRule()));
+    assertThat(issuesList).allMatch(issue -> "This issue is generated on each line and the rule contains details".equals(issue.getMessage()));
+    assertThat(issuesList).allMatch(issue -> Severity.MAJOR.equals(issue.getSeverity()));
+    assertThat(issuesList).allMatch(issue -> RuleType.BUG.equals(issue.getType()));
+    assertThat(issuesList).allMatch(issue -> "sample:src/main/xoo/sample/Sample.xoo".equals(issue.getComponent()));
+    assertThat(issuesList).allMatch(issue -> "OPEN".equals(issue.getStatus()));
+    assertThat(issuesList).allMatch(issue -> issue.getExternalRuleEngine().equals("xoo"));
+
+    ruleExistsWithDetails("external_xoo:OneExternalIssueWithDetailsPerLine");
+
+    // second analysis, issue tracking should work
+    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+      "sonar.oneExternalIssueWithDetailsPerLine.activate", "true");
+    issuesList = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
+    assertThat(issuesList).hasSize(17);
+  }
+
+  @Test
   public void should_import_external_issues_from_json_report_and_create_external_rules() {
     noIssues();
     ruleDoesntExist("external_externalXoo:rule1");
@@ -127,7 +154,7 @@ public class ExternalIssueTest {
 
   }
 
-  private void ruleExists(String key) {
+  private org.sonarqube.ws.Rules.Rule ruleExists(String key) {
     List<org.sonarqube.ws.Rules.Rule> rulesList = tester.wsClient().rules()
       .search(new org.sonarqube.ws.client.rules.SearchRequest()
         .setRuleKey(key)
@@ -140,6 +167,23 @@ public class ExternalIssueTest {
     assertThat(rulesList.get(0).getIsExternal()).isTrue();
     assertThat(rulesList.get(0).getTags().getTagsCount()).isEqualTo(0);
     assertThat(rulesList.get(0).getScope()).isEqualTo(RuleScope.ALL);
+
+    // if flag to include external is not given, shouldn't be able to find it
+    List<org.sonarqube.ws.Rules.Rule> rulesListWithoutExternal = tester.wsClient().rules()
+      .search(new org.sonarqube.ws.client.rules.SearchRequest()
+        .setRuleKey(key))
+      .getRulesList();
+    assertThat(rulesListWithoutExternal).isEmpty();
+
+    return rulesList.get(0);
+  }
+
+  private void ruleExistsWithDetails(String key) {
+    org.sonarqube.ws.Rules.Rule rule = ruleExists(key);
+    assertThat(rule.getHtmlDesc()).isEqualTo("Generates one external issue in each line");
+    assertThat(rule.getSeverity()).isEqualTo("MAJOR");
+    assertThat(rule.getType()).isEqualTo(RuleType.BUG);
+    assertThat(rule.getName()).isEqualTo("One external issue per line");
   }
 
   private void noIssues() {

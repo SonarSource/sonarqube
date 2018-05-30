@@ -103,6 +103,7 @@ public class RulesDefinitionTest {
 
     RulesDefinition.Repository repo = context.repository("findbugs");
     assertThat(repo.rules()).hasSize(2);
+    assertThat(repo.isExternal()).isFalse();
 
     RulesDefinition.Rule rule = repo.rule("NPE");
     assertThat(rule.scope()).isEqualTo(RuleScope.ALL);
@@ -163,6 +164,51 @@ public class RulesDefinitionTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
     assertThat(rule.debtRemediationFunction()).isNull();
+  }
+
+  @Test
+  public void define_external_rules() {
+    RulesDefinition.NewRepository newRepo = context.createExternalRepository("eslint", "js");
+    newRepo.createRule("NPE")
+      .setName("Detect NPE")
+      .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setSeverity(Severity.BLOCKER)
+      .setInternalKey("/something")
+      .setStatus(RuleStatus.BETA)
+      .setTags("one", "two")
+      .setScope(RuleScope.ALL)
+      .addTags("two", "three", "four");
+
+    newRepo.createRule("ABC").setName("ABC").setMarkdownDescription("ABC");
+    newRepo.done();
+
+    assertThat(context.repository("eslint")).isNull();
+    RulesDefinition.Repository repo = context.repository("external_eslint");
+    assertThat(repo.rules()).hasSize(2);
+    assertThat(repo.isExternal()).isTrue();
+
+    RulesDefinition.Rule rule = repo.rule("NPE");
+    assertThat(rule.scope()).isEqualTo(RuleScope.ALL);
+    assertThat(rule.key()).isEqualTo("NPE");
+    assertThat(rule.name()).isEqualTo("Detect NPE");
+    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
+    assertThat(rule.markdownDescription()).isNull();
+    assertThat(rule.tags()).containsOnly("one", "two", "three", "four");
+    assertThat(rule.params()).isEmpty();
+    assertThat(rule.internalKey()).isEqualTo("/something");
+    assertThat(rule.template()).isFalse();
+    assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
+    assertThat(rule.toString()).isEqualTo("[repository=external_eslint, key=NPE]");
+    assertThat(rule.repository()).isSameAs(repo);
+
+    RulesDefinition.Rule otherRule = repo.rule("ABC");
+    assertThat(otherRule.htmlDescription()).isNull();
+    assertThat(otherRule.markdownDescription()).isEqualTo("ABC");
+
+    // test equals() and hashCode()
+    assertThat(rule).isEqualTo(rule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
+    assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
   }
 
   @Test

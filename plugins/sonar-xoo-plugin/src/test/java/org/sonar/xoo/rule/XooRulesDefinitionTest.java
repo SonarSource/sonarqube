@@ -51,6 +51,15 @@ public class XooRulesDefinitionTest {
     assertThat(rule.debtRemediationFunction().baseEffort()).isNull();
     assertThat(rule.gapDescription()).isNotEmpty();
   }
+  
+  @Test
+  public void define_xooExternal_rules() {
+    RulesDefinition.Repository repo = context.repository("external_xoo");
+    assertThat(repo).isNotNull();
+    assertThat(repo.name()).isEqualTo("XooExternal");
+    assertThat(repo.language()).isEqualTo("xoo");
+    assertThat(repo.rules()).hasSize(1);
+  }
 
   @Test
   public void define_xoo2_rules() {

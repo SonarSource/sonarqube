@@ -397,7 +397,17 @@ public interface RulesDefinition {
      * to execute {@link org.sonar.api.server.rule.RulesDefinition.NewRepository#setName(String)}
      */
     public NewRepository createRepository(String key, String language) {
-      return new NewRepositoryImpl(this, key, language);
+      return new NewRepositoryImpl(this, key, language, false);
+    }
+
+    /**
+     * Creates a repository of rules from external rule engines.
+     * The key will always be prefixed with "external_".
+     * 
+     * @since 7.2
+     */
+    public NewRepository createExternalRepository(String key, String language) {
+      return new NewRepositoryImpl(this, key, language, true);
     }
 
     /**
@@ -472,19 +482,32 @@ public interface RulesDefinition {
 
   interface NewRepository extends NewExtendedRepository {
     NewRepository setName(String s);
+
+    /**
+     * @since 7.2
+     */
+    boolean isExternal();
   }
 
   class NewRepositoryImpl implements NewRepository {
     private final Context context;
     private final String key;
+    private final boolean isExternal;
     private String language;
     private String name;
     private final Map<String, NewRule> newRules = new HashMap<>();
 
-    private NewRepositoryImpl(Context context, String key, String language) {
+    private NewRepositoryImpl(Context context, String key, String language, boolean isExternal) {
       this.context = context;
-      this.key = this.name = key;
+      this.key = isExternal ? (RuleKey.EXTERNAL_RULE_REPO_PREFIX + key) : key;
+      this.name = key;
       this.language = language;
+      this.isExternal = isExternal;
+    }
+
+    @Override
+    public boolean isExternal() {
+      return isExternal;
     }
 
     @Override
@@ -550,6 +573,11 @@ public interface RulesDefinition {
 
   interface Repository extends ExtendedRepository {
     String name();
+
+    /**
+     * @since 7.2
+     */
+    boolean isExternal();
   }
 
   @Immutable
@@ -557,12 +585,13 @@ public interface RulesDefinition {
     private final String key;
     private final String language;
     private final String name;
+    private final boolean isExternal;
     private final Map<String, Rule> rulesByKey;
 
     private RepositoryImpl(NewRepositoryImpl newRepository, @Nullable Repository mergeInto) {
       this.key = newRepository.key;
       this.language = newRepository.language;
-
+      this.isExternal = newRepository.isExternal;
       Map<String, Rule> ruleBuilder = new HashMap<>();
       if (mergeInto != null) {
         if (!StringUtils.equals(newRepository.language, mergeInto.language()) || !StringUtils.equals(newRepository.key, mergeInto.key())) {
@@ -598,6 +627,11 @@ public interface RulesDefinition {
     @Override
     public String name() {
       return name;
+    }
+
+    @Override
+    public boolean isExternal() {
+      return isExternal;
     }
 
     @Override
@@ -1036,7 +1070,6 @@ public interface RulesDefinition {
 
     /**
      * @since 7.1
-     * @return
      */
     public RuleScope scope() {
       return scope;

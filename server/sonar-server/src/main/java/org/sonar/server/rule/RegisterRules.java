@@ -392,7 +392,7 @@ public class RegisterRules implements Startable {
       .setSystemTags(ruleDef.tags())
       .setType(RuleType.valueOf(ruleDef.type().name()))
       .setScope(toDtoScope(ruleDef.scope()))
-      .setIsExternal(false)
+      .setIsExternal(ruleDef.repository().isExternal())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     if (ruleDef.htmlDescription() != null) {
@@ -745,7 +745,6 @@ public class RegisterRules implements Startable {
     rule.setUpdatedAt(system2.now());
     dbClient.ruleDao().update(session, rule);
   }
-
 
   private static void verifyRuleKeyConsistency(List<RulesDefinition.ExtendedRepository> repositories, RegisterRulesContext registerRulesContext) {
     List<RulesDefinition.Rule> definedRules = repositories.stream()
