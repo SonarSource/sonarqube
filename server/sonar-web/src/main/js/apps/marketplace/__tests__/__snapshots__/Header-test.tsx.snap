@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with installed editions 1`] = `
+<header
+  className="page-header"
+  id="marketplace-header"
+>
+  <h1
+    className="page-title"
+  >
+    marketplace.page
+  </h1>
+  <h3
+    className="page-description"
+  >
+    marketplace.page.you_are_running.community
+  </h3>
+  <p
+    className="page-description"
+  >
+    marketplace.page.description
+  </p>
+</header>
+`;
+
+exports[`should render with installed editions 2`] = `
+<header
+  className="page-header"
+  id="marketplace-header"
+>
+  <h1
+    className="page-title"
+  >
+    marketplace.page
+  </h1>
+  <h3
+    className="page-description"
+  >
+    marketplace.page.you_are_running.datacenter
+  </h3>
+  <p
+    className="page-description"
+  >
+    marketplace.page.description_best_edition
+  </p>
+</header>
+`;

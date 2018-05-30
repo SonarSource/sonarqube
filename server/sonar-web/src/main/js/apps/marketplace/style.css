@@ -20,7 +20,6 @@
 .marketplace-editions {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   margin-left: -8px;
   margin-right: -8px;
 }
@@ -33,6 +32,11 @@
   justify-content: space-between;
   margin-left: 8px;
   margin-right: 8px;
+  max-width: 50%;
+}
+
+.marketplace-edition .markdown img {
+  width: 16px;
 }
 
 .marketplace-edition .markdown h3 {

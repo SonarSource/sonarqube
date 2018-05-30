@@ -119,7 +119,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { currentEdition, standaloneMode, pendingPlugins } = this.props;
+    const { currentEdition = 'community', standaloneMode, pendingPlugins } = this.props;
     const { loadingPlugins, plugins } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
@@ -128,8 +128,11 @@ export default class App extends React.PureComponent<Props, State> {
       <div className="page page-limited" id="marketplace-page">
         <Suggestions suggestions="marketplace" />
         <Helmet title={translate('marketplace.page')} />
-        <Header />
+        <Header currentEdition={currentEdition} />
         <EditionBoxes currentEdition={currentEdition} />
+        <header className="page-header">
+          <h1 className="page-title">{translate('marketplace.page.open_source_plugins')}</h1>
+        </header>
         <Search
           query={query}
           updateCenterActive={this.props.updateCenterActive}

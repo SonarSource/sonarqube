@@ -1,3 +1,7 @@
-### Enterprise Edition
+### ![SonarSource logo](/images/sonarsource-icon.png) Enterprise Edition
 
-Developer Edition + portfolio management, executive reporting, parallel processing of analysis reports and 20 languages.
+* Portfolio management
+* Executive reporting
+* Analysis of additional languages: COBOL, PL/I, RPG & VB6
+* Parallel processing of analysis reports
+

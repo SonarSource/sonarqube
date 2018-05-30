@@ -66,7 +66,7 @@ export const EDITIONS: Edition[] = [
 
 export function getEditionUrl(
   edition: Edition,
-  data: { serverId?: string; ncloc?: number; sourceEdition: string }
+  data: { serverId?: string; ncloc?: number; sourceEdition?: string }
 ) {
   let url = edition.homeUrl;
   const query = stringify(omitNil(data));

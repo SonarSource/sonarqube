@@ -24,7 +24,7 @@ import { EDITIONS } from './utils';
 import { getFormData } from '../../api/marketplace';
 
 export interface Props {
-  currentEdition?: string;
+  currentEdition: string;
 }
 
 interface State {
@@ -59,11 +59,18 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
   render() {
     const { currentEdition } = this.props;
     const { serverId, ncloc } = this.state;
+    const currentEditionIdx = EDITIONS.findIndex(edition => edition.key === currentEdition);
+    const visibleEditions = EDITIONS.slice(currentEditionIdx + 1);
+
+    if (visibleEditions.length <= 0) {
+      return null;
+    }
+
     return (
       <div className="spacer-bottom marketplace-editions">
-        {EDITIONS.map(edition => (
+        {visibleEditions.map(edition => (
           <EditionBox
-            currentEdition={currentEdition || 'community'}
+            currentEdition={currentEdition}
             edition={edition}
             key={edition.key}
             ncloc={ncloc}

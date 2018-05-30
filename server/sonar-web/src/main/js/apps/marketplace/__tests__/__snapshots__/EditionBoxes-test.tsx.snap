@@ -1,57 +1,88 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display the developer edition as installed 1`] = `
+exports[`should display the available edition boxes correctly 1`] = `
 <div
   className="spacer-bottom marketplace-editions"
 >
   <EditionBox
-    currentEdition="developer"
+    currentEdition="community"
     edition={
       Object {
-        "homeUrl": "more_url",
-        "key": "comunity",
-      }
-    }
-    key="comunity"
-  />
-  <EditionBox
-    currentEdition="developer"
-    edition={
-      Object {
-        "downloadUrl": "download_url",
         "homeUrl": "more_url",
         "key": "developer",
+        "name": "Developer Edition",
       }
     }
     key="developer"
+  />
+  <EditionBox
+    currentEdition="community"
+    edition={
+      Object {
+        "homeUrl": "more_url",
+        "key": "enterprise",
+        "name": "Enterprise Edition",
+      }
+    }
+    key="enterprise"
+  />
+  <EditionBox
+    currentEdition="community"
+    edition={
+      Object {
+        "homeUrl": "more_url",
+        "key": "datacenter",
+        "name": "Data Center Edition",
+      }
+    }
+    key="datacenter"
   />
 </div>
 `;
 
-exports[`should display the edition boxes correctly 1`] = `
+exports[`should display the datacenter edition box only 1`] = `
 <div
   className="spacer-bottom marketplace-editions"
 >
   <EditionBox
-    currentEdition="community"
+    currentEdition="enterprise"
     edition={
       Object {
         "homeUrl": "more_url",
-        "key": "comunity",
+        "key": "datacenter",
+        "name": "Data Center Edition",
       }
     }
-    key="comunity"
+    key="datacenter"
+  />
+</div>
+`;
+
+exports[`should display the enterprise and datacenter edition boxes 1`] = `
+<div
+  className="spacer-bottom marketplace-editions"
+>
+  <EditionBox
+    currentEdition="developer"
+    edition={
+      Object {
+        "homeUrl": "more_url",
+        "key": "enterprise",
+        "name": "Enterprise Edition",
+      }
+    }
+    key="enterprise"
   />
   <EditionBox
-    currentEdition="community"
+    currentEdition="developer"
     edition={
       Object {
-        "downloadUrl": "download_url",
         "homeUrl": "more_url",
-        "key": "developer",
+        "key": "datacenter",
+        "name": "Data Center Edition",
       }
     }
-    key="developer"
+    key="datacenter"
   />
 </div>
 `;

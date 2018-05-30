@@ -4,50 +4,18 @@ exports[`should display the edition 1`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
-  <div>
-    <DocInclude
-      path="/tooltips/editions/foo"
-    />
-  </div>
+  <DocInclude
+    path="/tooltips/editions/foo"
+  />
   <div
     className="marketplace-edition-action spacer-top"
   >
     <a
       href="more_url?ncloc=1000&serverId=serverId&sourceEdition=community"
+      rel="noopener noreferrer"
       target="_blank"
     >
-      marketplace.learn_more
-    </a>
-  </div>
-</div>
-`;
-
-exports[`should show insalled badge 1`] = `
-<div
-  className="boxed-group boxed-group-inner marketplace-edition"
->
-  <span
-    className="marketplace-edition-badge badge badge-normal-size display-flex-center"
-  >
-    <CheckIcon
-      className="little-spacer-right"
-      size={14}
-    />
-    marketplace.installed
-  </span>
-  <div>
-    <DocInclude
-      path="/tooltips/editions/foo"
-    />
-  </div>
-  <div
-    className="marketplace-edition-action spacer-top"
-  >
-    <a
-      href="more_url?sourceEdition=foo"
-      target="_blank"
-    >
-      marketplace.learn_more
+      marketplace.ask_for_information
     </a>
   </div>
 </div>

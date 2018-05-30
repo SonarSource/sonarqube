@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CheckIcon from '../../../components/icons-components/CheckIcon';
-import { translate } from '../../../helpers/l10n';
-import DocInclude from '../../../components/docs/DocInclude';
 import { Edition, getEditionUrl } from '../utils';
+import DocInclude from '../../../components/docs/DocInclude';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   currentEdition: string;
@@ -30,23 +29,16 @@ interface Props {
   serverId?: string;
 }
 
-export default function EditionBox({ currentEdition, edition, ncloc, serverId }: Props) {
-  const isInstalled = currentEdition === edition.key;
-  const url = getEditionUrl(edition, { ncloc, serverId, sourceEdition: currentEdition });
+export default function EditionBox({ edition, ncloc, serverId, currentEdition }: Props) {
   return (
     <div className="boxed-group boxed-group-inner marketplace-edition">
-      {isInstalled && (
-        <span className="marketplace-edition-badge badge badge-normal-size display-flex-center">
-          <CheckIcon className="little-spacer-right" size={14} />
-          {translate('marketplace.installed')}
-        </span>
-      )}
-      <div>
-        <DocInclude path={'/tooltips/editions/' + edition.key} />
-      </div>
+      <DocInclude path={'/tooltips/editions/' + edition.key} />
       <div className="marketplace-edition-action spacer-top">
-        <a href={url} target="_blank">
-          {translate('marketplace.learn_more')}
+        <a
+          href={getEditionUrl(edition, { ncloc, serverId, sourceEdition: currentEdition })}
+          rel="noopener noreferrer"
+          target="_blank">
+          {translate('marketplace.ask_for_information')}
         </a>
       </div>
     </div>

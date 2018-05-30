@@ -18,24 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../helpers/l10n';
+import { shallow } from 'enzyme';
+import Header from '../Header';
 
-interface Props {
-  currentEdition: string;
-}
-
-export default function Header({ currentEdition }: Props) {
-  return (
-    <header className="page-header" id="marketplace-header">
-      <h1 className="page-title">{translate('marketplace.page')}</h1>
-      <h3 className="page-description">
-        {translate('marketplace.page.you_are_running', currentEdition)}
-      </h3>
-      <p className="page-description">
-        {currentEdition === 'datacenter'
-          ? translate('marketplace.page.description_best_edition')
-          : translate('marketplace.page.description')}
-      </p>
-    </header>
-  );
-}
+it('should render with installed editions', () => {
+  expect(shallow(<Header currentEdition="community" />)).toMatchSnapshot();
+  expect(shallow(<Header currentEdition="datacenter" />)).toMatchSnapshot();
+});

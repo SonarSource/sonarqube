@@ -29,13 +29,14 @@ const DEFAULT_EDITION = {
 };
 
 it('should display the edition', () => {
-  expect(getWrapper({ ncloc: 1000, serverId: 'serverId' })).toMatchSnapshot();
+  expect(
+    shallow(
+      <EditionBox
+        currentEdition="community"
+        edition={DEFAULT_EDITION}
+        ncloc={1000}
+        serverId="serverId"
+      />
+    )
+  ).toMatchSnapshot();
 });
-
-it('should show insalled badge', () => {
-  expect(getWrapper({ currentEdition: 'foo' })).toMatchSnapshot();
-});
-
-function getWrapper(props = {}) {
-  return shallow(<EditionBox currentEdition="community" edition={DEFAULT_EDITION} {...props} />);
-}

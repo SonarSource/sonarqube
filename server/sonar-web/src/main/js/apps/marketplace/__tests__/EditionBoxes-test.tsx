@@ -23,19 +23,41 @@ import EditionBoxes from '../EditionBoxes';
 
 jest.mock('../utils', () => ({
   EDITIONS: [
-    { key: 'comunity', homeUrl: 'more_url' },
-    { key: 'developer', downloadUrl: 'download_url', homeUrl: 'more_url' }
+    { key: 'community', name: 'Community Edition', homeUrl: 'more_url' },
+    {
+      key: 'developer',
+      name: 'Developer Edition',
+      homeUrl: 'more_url'
+    },
+    {
+      key: 'enterprise',
+      name: 'Enterprise Edition',
+      homeUrl: 'more_url'
+    },
+    {
+      key: 'datacenter',
+      name: 'Data Center Edition',
+      homeUrl: 'more_url'
+    }
   ]
 }));
 
-it('should display the edition boxes correctly', () => {
+it('should display the available edition boxes correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should display the developer edition as installed', () => {
+it('should display the enterprise and datacenter edition boxes', () => {
   expect(getWrapper({ currentEdition: 'developer' })).toMatchSnapshot();
 });
 
+it('should display the datacenter edition box only', () => {
+  expect(getWrapper({ currentEdition: 'enterprise' })).toMatchSnapshot();
+});
+
+it('should not display any edition box', () => {
+  expect(getWrapper({ currentEdition: 'datacenter' }).type()).toBeNull();
+});
+
 function getWrapper(props = {}) {
-  return shallow(<EditionBoxes currentEdition={undefined} {...props} />);
+  return shallow(<EditionBoxes currentEdition={'community'} {...props} />);
 }
