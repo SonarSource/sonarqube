@@ -56,9 +56,12 @@ public enum Visibility {
   }
 
   public static boolean isPrivate(String label) {
+    return parseVisibility(label).isPrivate();
+  }
+
+  public static Visibility parseVisibility(String label) {
     return stream(values())
       .filter(v -> v.label.equals(label))
-      .map(Visibility::isPrivate)
       .findAny()
       .orElseThrow(() -> new IllegalStateException("Invalid visibility label '" + label + "'"));
   }

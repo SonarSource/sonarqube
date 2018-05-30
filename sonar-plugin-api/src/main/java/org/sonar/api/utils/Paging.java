@@ -40,7 +40,7 @@ public class Paging {
   }
 
   /**
-   * @deprecated since 5.2 please use the forPageIndex(...) builder method
+   * @deprecated since 5.2 please use the #forPgeIndex(...) builder method
    */
   @Deprecated
   public static Paging create(int pageSize, int pageIndex, int totalItems) {
