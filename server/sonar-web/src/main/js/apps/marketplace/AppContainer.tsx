@@ -22,7 +22,6 @@ import App from './App';
 import {
   getAppState,
   getGlobalSettingValue,
-  getMarketplaceCurrentEdition,
   getMarketplacePendingPlugins
 } from '../../store/rootReducer';
 import { fetchPendingPlugins } from '../../store/marketplace/actions';
@@ -46,7 +45,7 @@ interface DispatchToProps {
 
 const mapStateToProps = (state: any) => {
   return {
-    currentEdition: getMarketplaceCurrentEdition(state),
+    currentEdition: getAppState(state).edition,
     pendingPlugins: getMarketplacePendingPlugins(state),
     standaloneMode: getAppState(state).standalone,
     updateCenterActive:

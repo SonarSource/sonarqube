@@ -39,6 +39,7 @@ import CoverageRating from '../../components/ui/CoverageRating';
 import DuplicationsRating from '../../components/ui/DuplicationsRating';
 import Level from '../../components/ui/Level';
 import { EditButton, Button, SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
+import Checkbox from '../../components/controls/Checkbox';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
 import Dropdown from '../../components/controls/Dropdown';
 import ReloadButton from '../../components/controls/ReloadButton';
@@ -65,6 +66,7 @@ const exposeLibraries = () => {
     AlertSuccessIcon,
     AlertWarnIcon,
     Button,
+    Checkbox,
     CheckIcon,
     ClearIcon,
     CoverageRating,

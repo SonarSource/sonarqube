@@ -21,7 +21,6 @@ import { Action } from './actions';
 import { PluginPendingResult } from '../../api/plugins';
 
 interface State {
-  currentEdition?: string;
   pending: PluginPendingResult;
 }
 
@@ -34,14 +33,7 @@ export default function(state: State = defaultState, action: Action): State {
       pending: action.pending
     };
   }
-  if (action.type === 'SET_CURRENT_EDITION') {
-    return {
-      ...state,
-      currentEdition: action.currentEdition
-    };
-  }
   return state;
 }
 
-export const getCurrentEdition = (state: State) => state.currentEdition;
 export const getPendingPlugins = (state: State) => state.pending;

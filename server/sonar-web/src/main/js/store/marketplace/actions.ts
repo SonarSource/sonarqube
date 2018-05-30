@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Dispatch } from 'react-redux';
-import { getEditionStatus } from '../../api/marketplace';
 import { getPendingPlugins, PluginPendingResult } from '../../api/plugins';
 
 interface SetPendingPluginsAction {
@@ -26,27 +25,11 @@ interface SetPendingPluginsAction {
   pending: PluginPendingResult;
 }
 
-interface SetCurrentEditionAction {
-  type: 'SET_CURRENT_EDITION';
-  currentEdition?: string;
-}
-
-export type Action = SetCurrentEditionAction | SetPendingPluginsAction;
+export type Action = SetPendingPluginsAction;
 
 export function setPendingPlugins(pending: PluginPendingResult): SetPendingPluginsAction {
   return { type: 'SET_PENDING_PLUGINS', pending };
 }
-
-export const setCurrentEdition = (currentEdition?: string) => (dispatch: Dispatch<Action>) => {
-  dispatch({ type: 'SET_CURRENT_EDITION', currentEdition });
-};
-
-export const fetchCurrentEdition = () => (dispatch: Dispatch<Action>) => {
-  getEditionStatus().then(
-    editionStatus => dispatch(setCurrentEdition(editionStatus.currentEditionKey)),
-    () => {}
-  );
-};
 
 export const fetchPendingPlugins = () => (dispatch: Dispatch<Action>) => {
   getPendingPlugins().then(

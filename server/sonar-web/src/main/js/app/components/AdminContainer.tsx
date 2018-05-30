@@ -25,7 +25,7 @@ import SettingsNav from './nav/settings/SettingsNav';
 import { getAppState, getMarketplacePendingPlugins } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState/duck';
-import { fetchCurrentEdition, fetchPendingPlugins } from '../../store/marketplace/actions';
+import { fetchPendingPlugins } from '../../store/marketplace/actions';
 import { translate } from '../../helpers/l10n';
 import { Extension } from '../types';
 import { PluginPendingResult } from '../../api/plugins';
@@ -34,6 +34,7 @@ import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 interface StateProps {
   appState: {
     adminPages: Extension[];
+    edition: string;
     organizationsEnabled: boolean;
     version: string;
   };
@@ -42,7 +43,6 @@ interface StateProps {
 
 interface DispatchToProps {
   fetchPendingPlugins: () => void;
-  fetchCurrentEdition: () => void;
   setAdminPages: (adminPages: Extension[]) => void;
 }
 
@@ -62,7 +62,6 @@ class AdminContainer extends React.PureComponent<Props> {
       handleRequiredAuthorization();
     } else {
       this.fetchNavigationSettings();
-      this.props.fetchCurrentEdition();
     }
   }
 
@@ -101,7 +100,6 @@ const mapStateToProps = (state: any): StateProps => ({
 });
 
 const mapDispatchToProps: DispatchToProps = {
-  fetchCurrentEdition,
   fetchPendingPlugins,
   setAdminPages
 };

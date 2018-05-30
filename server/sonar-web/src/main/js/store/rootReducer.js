@@ -73,9 +73,6 @@ export const isFavorite = (state, componentKey) =>
 
 export const getMarketplaceState = state => state.marketplace;
 
-export const getMarketplaceCurrentEdition = state =>
-  fromMarketplace.getCurrentEdition(state.marketplace);
-
 export const getMarketplacePendingPlugins = state =>
   fromMarketplace.getPendingPlugins(state.marketplace);
 

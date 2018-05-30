@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON } from '../helpers/request';
+import { getJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface License {
@@ -37,14 +37,6 @@ export interface License {
   type: string;
 }
 
-export interface EditionStatus {
-  currentEditionKey?: string;
-}
-
-export function getEditionStatus(): Promise<EditionStatus> {
-  return getJSON('/api/editions/status');
-}
-
 export function showLicense(): Promise<License> {
   return getJSON('/api/editions/show_license').catch((e: { response: Response }) => {
     if (e.response && e.response.status === 404) {
@@ -54,19 +46,6 @@ export function showLicense(): Promise<License> {
   });
 }
 
-export function getLicensePreview(data: {
-  license: string;
-}): Promise<{
-  nextEditionKey: string;
-  previewStatus: 'NO_INSTALL' | 'AUTOMATIC_INSTALL' | 'MANUAL_INSTALL';
-}> {
-  return postJSON('/api/editions/preview', data).catch(throwGlobalError);
-}
-
 export function getFormData(): Promise<{ serverId: string; ncloc: number }> {
   return getJSON('/api/editions/form_data').catch(throwGlobalError);
-}
-
-export function applyLicense(data: { license: string }): Promise<EditionStatus> {
-  return postJSON('/api/editions/apply_license', data).catch(throwGlobalError);
 }
