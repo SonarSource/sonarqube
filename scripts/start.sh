@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ###############################
 # usage: start.sh [ -e ARG ] [ -p ARG ] [ -l ARG ]
 #  -e ARG: edition to run

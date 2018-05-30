@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ###############################
 # usage: logs.sh [ -e ARG ] [ -l ARG ] [ -n ARG ]
 #  -e ARG: edition to run

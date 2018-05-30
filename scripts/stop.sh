@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ###############################
 # Shortcut to stop server. It must be already built.
 ###############################

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ###############################
 # exposes library functions to modify properties in a property 
 #

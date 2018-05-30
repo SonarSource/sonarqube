@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run integration tests. SonarQube must be already built in order to
 # make the ZIP file available for tests.
 
