@@ -13,12 +13,12 @@ function checkEditionArgument() {
   local editionArg="$1"
   local lowerEditionArg=$(toLower $editionArg)
 
-  if [ "$lowerEditionArg" == "$DEFAULT_EDITION" ]; then
+  if [ "$lowerEditionArg" = "$DEFAULT_EDITION" ]; then
     return
   fi
 
   for t in $EDITIONS; do
-    if [ "$lowerEditionArg" == "$t" ]; then
+    if [ "$lowerEditionArg" = "$t" ]; then
       return
     fi
   done

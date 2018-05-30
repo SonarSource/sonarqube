@@ -29,6 +29,6 @@ function stopAny() {
 
 # check the script was called to avoid execute when script is only sourced
 script_name=$(basename "$0")
-if [ "$script_name" == "stop.sh" ]; then
+if [ "$script_name" = "stop.sh" ]; then
   stopAny
 fi

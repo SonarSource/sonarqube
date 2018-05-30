@@ -31,12 +31,12 @@ function checkLogArgument() {
   local logArg="$1"
   local lowerLogArg=$(toLower $logArg)
 
-  if [ "$lowerLogArg" == "$DEFAULT_LOG" ]; then
+  if [ "$lowerLogArg" = "$DEFAULT_LOG" ]; then
     return
   fi
 
   for t in $LOGS; do
-    if [ "$lowerLogArg" == "$t" ]; then
+    if [ "$lowerLogArg" = "$t" ]; then
       return
     fi
   done
@@ -51,7 +51,7 @@ function buildTailArgs() {
   local res=""
 
   for t in $LOGS; do
-    if [ "$logArg" == "$DEFAULT_LOG" ] || [ "$logArg" == "$t" ]; then
+    if [ "$logArg" = "$DEFAULT_LOG" ] || [ "$logArg" = "$t" ]; then
       res="$res -Fn $logLines $SQ_HOME/logs/$t.log"
     fi
   done
@@ -68,7 +68,7 @@ function doTail() {
 
 # check the script was called to avoid execute when script is only sourced
 script_name=$(basename "$0")
-if [ "$script_name" == "logs.sh" ]; then
+if [ "$script_name" = "logs.sh" ]; then
   LOG="$DEFAULT_LOG"
   LINES="$DEFAULT_LINES"
   EDITION="$DEFAULT_EDITION"
