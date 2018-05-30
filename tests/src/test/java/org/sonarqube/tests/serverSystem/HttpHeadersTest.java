@@ -36,6 +36,9 @@ import static util.ItUtils.call;
 
 public class HttpHeadersTest {
 
+  private static final int ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
+  private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60 * 60;
+
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
@@ -55,6 +58,8 @@ public class HttpHeadersTest {
 
     // SONAR-6964
     assertNoCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(-1);
   }
 
   @Test
@@ -64,6 +69,8 @@ public class HttpHeadersTest {
     verifySecurityHeaders(response);
     verifyContentType(response, "application/json");
     assertNoCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(-1);
   }
 
   @Test
@@ -73,6 +80,8 @@ public class HttpHeadersTest {
     verifySecurityHeaders(response);
     verifyContentType(response, "image/svg+xml");
     assertCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(FIVE_MINUTES_IN_SECONDS);
   }
 
   @Test
@@ -82,6 +91,8 @@ public class HttpHeadersTest {
     verifySecurityHeaders(response);
     verifyContentType(response, "text/css");
     assertCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(ONE_YEAR_IN_SECONDS);
   }
 
   @Test
@@ -90,6 +101,9 @@ public class HttpHeadersTest {
 
     verifySecurityHeaders(response);
     verifyContentType(response, "application/javascript");
+    assertCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(ONE_YEAR_IN_SECONDS);
   }
 
   @Test
@@ -98,6 +112,9 @@ public class HttpHeadersTest {
 
     verifySecurityHeaders(response);
     verifyContentType(response, "image/jpeg");
+    assertCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(FIVE_MINUTES_IN_SECONDS);
   }
 
   @Test
@@ -106,6 +123,9 @@ public class HttpHeadersTest {
 
     verifySecurityHeaders(response);
     verifyContentType(response, "application/javascript");
+    assertCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(FIVE_MINUTES_IN_SECONDS);
   }
 
   @Test
@@ -114,6 +134,9 @@ public class HttpHeadersTest {
 
     verifySecurityHeaders(response);
     verifyContentType(response, "text/html");
+    assertCacheInBrowser(response);
+
+    assertThat(response.cacheControl().maxAgeSeconds()).isEqualTo(FIVE_MINUTES_IN_SECONDS);
   }
 
   private static void assertCacheInBrowser(Response httpResponse) {

@@ -21,7 +21,6 @@ package org.sonar.server.platform.web;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -84,7 +83,6 @@ public class SecurityServletFilterTest {
 
   @Test
   public void set_security_headers() throws Exception {
-    underTest.init(mock(FilterConfig.class));
     HttpServletRequest request = newRequest("GET", "/");
 
     underTest.doFilter(request, response, chain);
@@ -92,13 +90,10 @@ public class SecurityServletFilterTest {
     verify(response).addHeader("X-Frame-Options", "SAMEORIGIN");
     verify(response).addHeader("X-XSS-Protection", "1; mode=block");
     verify(response).addHeader("X-Content-Type-Options", "nosniff");
-
-    underTest.destroy();
   }
 
   @Test
   public void do_not_set_frame_protection_on_integration_resources() throws Exception {
-    underTest.init(mock(FilterConfig.class));
     HttpServletRequest request = newRequest("GET", "/integration/vsts/index.html");
 
     underTest.doFilter(request, response, chain);
@@ -106,13 +101,10 @@ public class SecurityServletFilterTest {
     verify(response, never()).addHeader(eq("X-Frame-Options"), anyString());
     verify(response).addHeader("X-XSS-Protection", "1; mode=block");
     verify(response).addHeader("X-Content-Type-Options", "nosniff");
-
-    underTest.destroy();
   }
 
   @Test
   public void do_not_set_frame_protection_on_integration_resources_with_context() throws Exception {
-    underTest.init(mock(FilterConfig.class));
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getMethod()).thenReturn("GET");
     when(request.getRequestURI()).thenReturn("/sonarqube/integration/vsts/index.html");
@@ -123,8 +115,6 @@ public class SecurityServletFilterTest {
     verify(response, never()).addHeader(eq("X-Frame-Options"), anyString());
     verify(response).addHeader("X-XSS-Protection", "1; mode=block");
     verify(response).addHeader("X-Content-Type-Options", "nosniff");
-
-    underTest.destroy();
   }
 
   private static HttpServletRequest newRequest(String httpMethod, String path) {
