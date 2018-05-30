@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Login from './Login';
 import LoginSonarCloud from './LoginSonarCloud';
@@ -26,6 +25,7 @@ import { doLogin } from '../../../store/rootActions';
 import { getIdentityProviders } from '../../../api/users';
 import { IdentityProvider } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface OwnProps {
   location: {
@@ -50,10 +50,6 @@ interface State {
 
 class LoginContainer extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    onSonarCloud: PropTypes.bool
-  };
 
   state: State = {};
 
@@ -96,7 +92,7 @@ class LoginContainer extends React.PureComponent<Props, State> {
       return null;
     }
 
-    if (this.context.onSonarCloud) {
+    if (isSonarCloud()) {
       return (
         <LoginSonarCloud
           identityProviders={identityProviders}

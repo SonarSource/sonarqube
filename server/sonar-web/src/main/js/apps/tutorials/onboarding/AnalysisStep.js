@@ -37,7 +37,6 @@ type Props = {|
   onReset: () => void,
   open: boolean,
   organization?: string,
-  sonarCloud: boolean,
   stepNumber: number,
   token: string
 |};
@@ -73,7 +72,6 @@ export default class AnalysisStep extends React.PureComponent {
               onDone={this.handleLanguageSelect}
               onReset={this.handleLanguageReset}
               organization={this.props.organization}
-              sonarCloud={this.props.sonarCloud}
             />
           </div>
           <div className="flex-column flex-column-half">{this.renderCommand()}</div>

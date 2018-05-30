@@ -21,12 +21,12 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CurrentUser, isLoggedIn } from '../types';
-import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
+import { getCurrentUser } from '../../store/rootReducer';
 import { getHomePageUrl } from '../../helpers/urls';
+import { isSonarCloud } from '../../helpers/system';
 
 interface Props {
   currentUser: CurrentUser | undefined;
-  onSonarCloud: boolean;
 }
 
 class Landing extends React.PureComponent<Props> {
@@ -35,7 +35,7 @@ class Landing extends React.PureComponent<Props> {
   };
 
   componentDidMount() {
-    const { currentUser, onSonarCloud } = this.props;
+    const { currentUser } = this.props;
     if (currentUser && isLoggedIn(currentUser)) {
       if (currentUser.homepage) {
         const homepage = getHomePageUrl(currentUser.homepage);
@@ -43,7 +43,7 @@ class Landing extends React.PureComponent<Props> {
       } else {
         this.context.router.replace('/projects');
       }
-    } else if (onSonarCloud) {
+    } else if (isSonarCloud()) {
       window.location.href = 'https://about.sonarcloud.io';
     } else {
       this.context.router.replace('/about');
@@ -55,12 +55,8 @@ class Landing extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => {
-  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-  return {
-    currentUser: getCurrentUser(state),
-    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true')
-  };
-};
+const mapStateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state)
+});
 
 export default connect<Props>(mapStateToProps)(Landing);

@@ -36,6 +36,7 @@ import { RawQuery } from '../../../helpers/query';
 import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query } from '../query';
+import { isSonarCloud } from '../../../helpers/system';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 
@@ -43,7 +44,6 @@ export interface Props {
   currentUser: CurrentUser;
   isFavorite: boolean;
   location: { pathname: string; query: RawQuery };
-  onSonarCloud: boolean;
   organization?: { key: string };
   organizationsEnabled: boolean;
   storageOptionsSuffix?: string;
@@ -245,7 +245,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
                 onQueryChange={this.updateLocationQuery}
                 organization={this.props.organization}
                 query={this.state.query}
-                showFavoriteFilter={!this.props.onSonarCloud}
+                showFavoriteFilter={!isSonarCloud()}
                 view={this.getView()}
                 visualization={this.getVisualization()}
               />
@@ -266,7 +266,6 @@ export default class AllProjects extends React.PureComponent<Props, State> {
             loading={this.state.loading}
             onPerspectiveChange={this.handlePerspectiveChange}
             onQueryChange={this.updateLocationQuery}
-            onSonarCloud={this.props.onSonarCloud}
             onSortChange={this.handleSortChange}
             organization={this.props.organization}
             projects={this.state.projects}
@@ -301,7 +300,6 @@ export default class AllProjects extends React.PureComponent<Props, State> {
             cardType={this.getView()}
             isFavorite={this.props.isFavorite}
             isFiltered={this.isFiltered()}
-            onSonarCloud={this.props.onSonarCloud}
             organization={this.props.organization}
             projects={this.state.projects}
             query={this.state.query}

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { isSonarCloud } from '../../helpers/system';
 
 interface Props {
   hideLoggedInInfo?: boolean;
@@ -31,72 +31,69 @@ interface Props {
   sonarqubeVersion?: string;
 }
 
-export default class GlobalFooter extends React.PureComponent<Props> {
-  static contextTypes = {
-    onSonarCloud: PropTypes.bool
-  };
-
-  render() {
-    const { hideLoggedInInfo, productionDatabase, sonarqubeVersion } = this.props;
-    if (this.context.onSonarCloud) {
-      return <GlobalFooterSonarCloud />;
-    }
-
-    return (
-      <div id="footer" className="page-footer page-container">
-        {productionDatabase === false && (
-          <div className="alert alert-danger">
-            <p className="big" id="evaluation_warning">
-              {translate('footer.production_database_warning')}
-            </p>
-            <p>
-              <InstanceMessage message={translate('footer.production_database_explanation')} />
-            </p>
-          </div>
-        )}
-
-        <GlobalFooterBranding />
-
-        <ul className="page-footer-menu">
-          {!hideLoggedInInfo &&
-            sonarqubeVersion && (
-              <li className="page-footer-menu-item">
-                {translateWithParameters('footer.version_x', sonarqubeVersion)}
-              </li>
-            )}
-          <li className="page-footer-menu-item">
-            <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">{translate('footer.license')}</a>
-          </li>
-          <li className="page-footer-menu-item">
-            <a href="http://www.sonarqube.org">{translate('footer.community')}</a>
-          </li>
-          <li className="page-footer-menu-item">
-            <a href="https://redirect.sonarsource.com/doc/home.html">
-              {translate('footer.documentation')}
-            </a>
-          </li>
-          <li className="page-footer-menu-item">
-            <a href="https://redirect.sonarsource.com/doc/community.html">
-              {translate('footer.support')}
-            </a>
-          </li>
-          <li className="page-footer-menu-item">
-            <a href="https://redirect.sonarsource.com/doc/plugin-library.html">
-              {translate('footer.plugins')}
-            </a>
-          </li>
-          {!hideLoggedInInfo && (
-            <li className="page-footer-menu-item">
-              <Link to="/web_api">{translate('footer.web_api')}</Link>
-            </li>
-          )}
-          {!hideLoggedInInfo && (
-            <li className="page-footer-menu-item">
-              <Link to="/about">{translate('footer.about')}</Link>
-            </li>
-          )}
-        </ul>
-      </div>
-    );
+export default function GlobalFooter({
+  hideLoggedInInfo,
+  productionDatabase,
+  sonarqubeVersion
+}: Props) {
+  if (isSonarCloud()) {
+    return <GlobalFooterSonarCloud />;
   }
+
+  return (
+    <div className="page-footer page-container" id="footer">
+      {productionDatabase === false && (
+        <div className="alert alert-danger">
+          <p className="big" id="evaluation_warning">
+            {translate('footer.production_database_warning')}
+          </p>
+          <p>
+            <InstanceMessage message={translate('footer.production_database_explanation')} />
+          </p>
+        </div>
+      )}
+
+      <GlobalFooterBranding />
+
+      <ul className="page-footer-menu">
+        {!hideLoggedInInfo &&
+          sonarqubeVersion && (
+            <li className="page-footer-menu-item">
+              {translateWithParameters('footer.version_x', sonarqubeVersion)}
+            </li>
+          )}
+        <li className="page-footer-menu-item">
+          <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">{translate('footer.license')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="http://www.sonarqube.org">{translate('footer.community')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://redirect.sonarsource.com/doc/home.html">
+            {translate('footer.documentation')}
+          </a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://redirect.sonarsource.com/doc/community.html">
+            {translate('footer.support')}
+          </a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://redirect.sonarsource.com/doc/plugin-library.html">
+            {translate('footer.plugins')}
+          </a>
+        </li>
+        {!hideLoggedInInfo && (
+          <li className="page-footer-menu-item">
+            <Link to="/web_api">{translate('footer.web_api')}</Link>
+          </li>
+        )}
+        {!hideLoggedInInfo && (
+          <li className="page-footer-menu-item">
+            <Link to="/about">{translate('footer.about')}</Link>
+          </li>
+        )}
+      </ul>
+    </div>
+  );
 }

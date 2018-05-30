@@ -36,6 +36,7 @@ import { getFacet } from '../../../api/issues';
 import { getAppState, getCurrentUser, getGlobalSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
+import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
 /*::
@@ -60,8 +61,7 @@ class AboutApp extends React.PureComponent {
     },
     currentUser: { isLoggedIn: boolean },
     customText?: string,
-    fetchAboutPageSettings: () => Promise<*>,
-    onSonarCloud?: { value: string }
+    fetchAboutPageSettings: () => Promise<*>
   };
 */
 
@@ -72,7 +72,7 @@ class AboutApp extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.onSonarCloud && this.props.onSonarCloud.value === 'true') {
+    if (isSonarCloud()) {
       window.location = 'https://about.sonarcloud.io';
     } else {
       this.loadData();
@@ -104,24 +104,31 @@ class AboutApp extends React.PureComponent {
   }
 
   loadData() {
-    Promise.all([this.loadProjects(), this.loadIssues(), this.loadCustomText()]).then(responses => {
-      if (this.mounted) {
-        const [projectsCount, issues] = responses;
-        const issueTypes = keyBy(issues.facet, 'val');
-        this.setState({
-          projectsCount,
-          issueTypes,
-          loading: false
-        });
+    Promise.all([this.loadProjects(), this.loadIssues(), this.loadCustomText()]).then(
+      responses => {
+        if (this.mounted) {
+          const [projectsCount, issues] = responses;
+          const issueTypes = keyBy(issues.facet, 'val');
+          this.setState({
+            projectsCount,
+            issueTypes,
+            loading: false
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   }
 
   render() {
-    const { customText, onSonarCloud } = this.props;
+    const { customText } = this.props;
     const { loading, issueTypes, projectsCount } = this.state;
 
-    if (onSonarCloud && onSonarCloud.value === 'true') {
+    if (isSonarCloud()) {
       return null;
     }
 
@@ -135,18 +142,19 @@ class AboutApp extends React.PureComponent {
     }
 
     return (
-      <div id="about-page" className="page page-limited about-page">
+      <div className="page page-limited about-page" id="about-page">
         <div className="about-page-entry">
           <div className="about-page-intro">
             <h1 className="big-spacer-bottom">{translate('layout.sonar.slogan')}</h1>
             {!this.props.currentUser.isLoggedIn && (
-              <Link to="/sessions/new" className="button button-active big-spacer-right">
+              <Link className="button button-active big-spacer-right" to="/sessions/new">
                 {translate('layout.login')}
               </Link>
             )}
             <a
               className="button"
               href="https://redirect.sonarsource.com/doc/home.html"
+              rel="noopener noreferrer"
               target="_blank">
               {translate('about_page.read_documentation')}
             </a>
@@ -202,8 +210,7 @@ class AboutApp extends React.PureComponent {
 const mapStateToProps = state => ({
   appState: getAppState(state),
   currentUser: getCurrentUser(state),
-  customText: getGlobalSettingValue(state, 'sonar.lf.aboutText'),
-  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+  customText: getGlobalSettingValue(state, 'sonar.lf.aboutText')
 });
 
 const mapDispatchToProps = { fetchAboutPageSettings };

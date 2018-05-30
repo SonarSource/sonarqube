@@ -23,19 +23,14 @@ import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   location: { pathname: string };
-  onSonarCloud: boolean;
 }
 
-export default function GlobalNavExplore({ location, onSonarCloud }: Props) {
-  if (!onSonarCloud) {
-    return null;
-  }
-
+export default function GlobalNavExplore({ location }: Props) {
   const active = location.pathname.startsWith('explore');
 
   return (
     <li>
-      <Link to="/explore/projects" className={active ? 'active' : undefined}>
+      <Link className={active ? 'active' : undefined} to="/explore/projects">
         {translate('explore')}
       </Link>
     </li>

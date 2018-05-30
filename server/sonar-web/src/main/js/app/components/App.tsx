@@ -26,6 +26,7 @@ import { CurrentUser } from '../types';
 import { fetchCurrentUser } from '../../store/users/actions';
 import { fetchLanguages, fetchAppState } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
+import { getInstance } from '../../helpers/system';
 
 interface Props {
   children: JSX.Element;
@@ -39,7 +40,6 @@ interface State {
   branchesEnabled: boolean;
   canAdmin: boolean;
   loading: boolean;
-  onSonarCloud: boolean;
   organizationsEnabled: boolean;
 }
 
@@ -49,7 +49,6 @@ class App extends React.PureComponent<Props, State> {
   static childContextTypes = {
     branchesEnabled: PropTypes.bool.isRequired,
     canAdmin: PropTypes.bool.isRequired,
-    onSonarCloud: PropTypes.bool,
     organizationsEnabled: PropTypes.bool
   };
 
@@ -59,7 +58,6 @@ class App extends React.PureComponent<Props, State> {
       branchesEnabled: false,
       canAdmin: false,
       loading: true,
-      onSonarCloud: false,
       organizationsEnabled: false
     };
   }
@@ -68,7 +66,6 @@ class App extends React.PureComponent<Props, State> {
     return {
       branchesEnabled: this.state.branchesEnabled,
       canAdmin: this.state.canAdmin,
-      onSonarCloud: this.state.onSonarCloud,
       organizationsEnabled: this.state.organizationsEnabled
     };
   }
@@ -104,9 +101,6 @@ class App extends React.PureComponent<Props, State> {
         this.setState({
           branchesEnabled: appState.branchesEnabled,
           canAdmin: appState.canAdmin,
-          onSonarCloud: Boolean(
-            appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true'
-          ),
           organizationsEnabled: appState.organizationsEnabled
         });
       }
@@ -120,7 +114,7 @@ class App extends React.PureComponent<Props, State> {
     }
     return (
       <>
-        <Helmet defaultTitle={this.state.onSonarCloud ? 'SonarCloud' : 'SonarQube'} />
+        <Helmet defaultTitle={getInstance()} />
         {this.props.children}
       </>
     );

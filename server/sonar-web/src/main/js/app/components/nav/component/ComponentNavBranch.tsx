@@ -37,6 +37,7 @@ import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Toggler from '../../../../components/controls/Toggler';
 import Tooltip from '../../../../components/controls/Tooltip';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
+import { isSonarCloud } from '../../../../helpers/system';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -53,8 +54,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   mounted = false;
 
   static contextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired,
-    onSonarCloud: PropTypes.bool
+    branchesEnabled: PropTypes.bool.isRequired
   };
 
   state: State = {
@@ -130,7 +130,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     const { branchLikes, currentBranchLike } = this.props;
     const { configuration } = this.props.component;
 
-    if (this.context.onSonarCloud && !this.context.branchesEnabled) {
+    if (isSonarCloud() && !this.context.branchesEnabled) {
       return null;
     }
 

@@ -20,6 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import GlobalFooter from '../GlobalFooter';
+import { isSonarCloud } from '../../../helpers/system';
+
+jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 it('should render the only logged in information', () => {
   expect(getWrapper()).toMatchSnapshot();
@@ -44,7 +47,6 @@ it('should render SonarCloud footer', () => {
 });
 
 function getWrapper(props = {}, onSonarCloud = false) {
-  return shallow(<GlobalFooter productionDatabase={true} {...props} />, {
-    context: { onSonarCloud }
-  });
+  (isSonarCloud as jest.Mock).mockImplementation(() => onSonarCloud);
+  return shallow(<GlobalFooter productionDatabase={true} {...props} />);
 }

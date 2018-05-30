@@ -70,6 +70,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import EmptySearch from '../../../components/common/EmptySearch';
 import Checkbox from '../../../components/controls/Checkbox';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import { isSonarCloud } from '../../../helpers/system';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 
@@ -91,7 +92,6 @@ interface Props {
   location: { pathname: string; query: RawQuery };
   myIssues?: boolean;
   onBranchesChange: () => void;
-  onSonarCloud: boolean;
   organization?: { key: string };
 }
 
@@ -845,13 +845,13 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderFacets() {
-    const { component, currentUser, onSonarCloud } = this.props;
+    const { component, currentUser } = this.props;
     const { query } = this.state;
 
     return (
       <div className="layout-page-filters">
         {currentUser.isLoggedIn &&
-          !onSonarCloud && (
+          !isSonarCloud() && (
             <MyIssuesFilter
               myIssues={this.state.myIssues}
               onMyIssuesChange={this.handleMyIssuesChange}
@@ -1029,11 +1029,10 @@ export default class App extends React.PureComponent<Props, State> {
                     canSetHome={Boolean(
                       !this.props.organization &&
                         !this.props.component &&
-                        (!this.props.onSonarCloud || this.props.myIssues)
+                        (!isSonarCloud() || this.props.myIssues)
                     )}
                     loading={this.state.loading}
                     onReload={this.handleReload}
-                    onSonarCloud={this.props.onSonarCloud}
                     paging={paging}
                     selectedIndex={selectedIndex}
                   />

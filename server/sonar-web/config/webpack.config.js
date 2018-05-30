@@ -137,7 +137,12 @@ module.exports = ({ production = true }) => ({
     }),
 
     // keep `InterpolateHtmlPlugin` after `HtmlWebpackPlugin`
-    !production && new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
+    !production &&
+      new InterpolateHtmlPlugin({
+        WEB_CONTEXT: process.env.WEB_CONTEXT || '',
+        SERVER_STATUS: process.env.SERVER_STATUS || 'UP',
+        INSTANCE: process.env.INSTANCE || 'SonarQube'
+      }),
 
     !production && new webpack.HotModuleReplacementPlugin()
   ].filter(Boolean),

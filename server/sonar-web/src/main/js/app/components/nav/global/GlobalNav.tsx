@@ -32,9 +32,10 @@ import NavBar from '../../../../components/nav/NavBar';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { lazyLoad } from '../../../../components/lazyLoad';
 import { translate } from '../../../../helpers/l10n';
-import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../../../store/rootReducer';
+import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
 import { skipOnboarding } from '../../../../store/users/actions';
 import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
+import { isSonarCloud } from '../../../../helpers/system';
 import './GlobalNav.css';
 
 const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'));
@@ -42,7 +43,6 @@ const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'));
 interface StateProps {
   appState: AppState;
   currentUser: CurrentUser;
-  onSonarCloud: boolean;
 }
 
 interface DispatchProps {
@@ -100,16 +100,16 @@ class GlobalNav extends React.PureComponent<Props, State> {
         <GlobalNavMenu {...this.props} />
 
         <ul className="global-navbar-menu pull-right">
-          <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
+          {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper
             currentUser={this.props.currentUser}
             showTooltip={this.state.onboardingTutorialTooltip}
             suggestions={this.props.suggestions}
-            tooltip={!this.props.onSonarCloud}
+            tooltip={!isSonarCloud()}
           />
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           {isLoggedIn(this.props.currentUser) &&
-            this.props.onSonarCloud && (
+            isSonarCloud() && (
               <Tooltip
                 overlay={translate('tutorials.follow_later')}
                 visible={this.state.onboardingTutorialTooltip}>
@@ -127,15 +127,10 @@ class GlobalNav extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => {
-  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-
-  return {
-    currentUser: getCurrentUser(state),
-    appState: getAppState(state),
-    onSonarCloud: Boolean(sonarCloudSetting && sonarCloudSetting.value === 'true')
-  };
-};
+const mapStateToProps = (state: any): StateProps => ({
+  currentUser: getCurrentUser(state),
+  appState: getAppState(state)
+});
 
 const mapDispatchToProps: DispatchProps = { skipOnboarding };
 

@@ -17,44 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { withRouter } from 'react-router';
-import GlobalLoading from './GlobalLoading';
-import { getSystemStatus } from '../../api/system';
+import * as React from 'react';
+import { WithRouterProps } from 'react-router';
+import { getSystemStatus } from '../../helpers/system';
 
-class MigrationContainer extends React.PureComponent {
-  /*::
-  props: {
-    children?: React.Element<*>,
-    router: { push: ({ pathname: string, query?: { return_to: string } }) => void }
-  };
-  */
-
-  state = { loading: true };
-
+export default class MigrationContainer extends React.PureComponent<WithRouterProps> {
   componentDidMount() {
-    getSystemStatus().then(r => {
-      if (r.status === 'UP') {
-        this.setState({ loading: false });
-      } else {
-        this.props.router.push({
-          pathname: '/maintenance',
-          query: {
-            return_to: window.location.pathname + window.location.search + window.location.hash
-          }
-        });
-      }
-    });
+    if (getSystemStatus() !== 'UP') {
+      this.props.router.push({
+        pathname: '/maintenance',
+        query: {
+          // eslint-disable-next-line camelcase
+          return_to: window.location.pathname + window.location.search + window.location.hash
+        }
+      });
+    }
   }
 
   render() {
-    if (this.state.loading) {
-      return <GlobalLoading />;
+    if (getSystemStatus() !== 'UP') {
+      return null;
     }
-
     return this.props.children;
   }
 }
-
-export default withRouter(MigrationContainer);

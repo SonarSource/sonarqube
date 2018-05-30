@@ -22,12 +22,15 @@ import { shallow } from 'enzyme';
 import { OrganizationDelete } from '../OrganizationDelete';
 import { getOrganizationBilling } from '../../../../api/organizations';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../api/organizations', () => ({
   getOrganizationBilling: jest.fn(() =>
     Promise.resolve({ nclocCount: 1000, subscription: { status: 'active', trial: true } })
   )
 }));
+
+jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 beforeEach(() => {
   (getOrganizationBilling as jest.Mock<any>).mockClear();
@@ -38,6 +41,7 @@ it('smoke test', () => {
 });
 
 it('should redirect the page', async () => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => false);
   const deleteOrganization = jest.fn(() => Promise.resolve());
   const replace = jest.fn();
   const wrapper = getWrapper({ deleteOrganization }, { router: { replace } });
@@ -48,6 +52,7 @@ it('should redirect the page', async () => {
 });
 
 it('should show a info message for paying organization', async () => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => true);
   const wrapper = getWrapper({}, { onSonarCloud: true });
   await waitAndUpdate(wrapper);
   expect(getOrganizationBilling).toHaveBeenCalledWith('foo');

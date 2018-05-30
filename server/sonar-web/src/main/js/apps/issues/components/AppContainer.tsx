@@ -24,11 +24,7 @@ import { searchIssues } from '../../../api/issues';
 import { getOrganizations } from '../../../api/organizations';
 import { CurrentUser } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import {
-  getCurrentUser,
-  areThereCustomOrganizations,
-  getGlobalSettingValue
-} from '../../../store/rootReducer';
+import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 import { lazyLoad } from '../../../components/lazyLoad';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { RawQuery } from '../../../helpers/query';
@@ -36,16 +32,11 @@ import { receiveOrganizations } from '../../../store/organizations/duck';
 
 interface StateProps {
   currentUser: CurrentUser;
-  onSonarCloud: boolean;
 }
 
-const mapStateToProps = (state: any): StateProps => {
-  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-  return {
-    currentUser: getCurrentUser(state),
-    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true')
-  };
-};
+const mapStateToProps = (state: any): StateProps => ({
+  currentUser: getCurrentUser(state)
+});
 
 const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispatch<any>) => {
   if (!organizationKeys.length) {

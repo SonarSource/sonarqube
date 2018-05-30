@@ -147,10 +147,8 @@ const startReactApp = () => {
           </Route>
 
           <Route component={MigrationContainer}>
-            <Route component={lazyLoad(() => import('../components/AppContextContainer'))}>
-              <Route component={lazyLoad(() => import('../components/SimpleSessionsContainer'))}>
-                <Route path="/sessions" childRoutes={sessionsRoutes} />
-              </Route>
+            <Route component={lazyLoad(() => import('../components/SimpleSessionsContainer'))}>
+              <Route path="/sessions" childRoutes={sessionsRoutes} />
             </Route>
 
             <Route path="/" component={App}>

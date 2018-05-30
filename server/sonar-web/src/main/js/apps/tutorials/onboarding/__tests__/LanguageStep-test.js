@@ -21,6 +21,13 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import LanguageStep from '../LanguageStep';
+import { isSonarCloud } from '../../../../helpers/system';
+
+jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+
+beforeEach(() => {
+  isSonarCloud.mockImplementation(() => false);
+});
 
 it('selects java', () => {
   const onDone = jest.fn();
@@ -60,8 +67,9 @@ it('selects c#', () => {
 });
 
 it('selects c-family', () => {
+  isSonarCloud.mockImplementation(() => true);
   const onDone = jest.fn();
-  const wrapper = shallow(<LanguageStep onDone={onDone} onReset={jest.fn()} sonarCloud={true} />);
+  const wrapper = shallow(<LanguageStep onDone={onDone} onReset={jest.fn()} />);
 
   wrapper.find('RadioToggle').prop('onCheck')('c-family');
   wrapper.update();

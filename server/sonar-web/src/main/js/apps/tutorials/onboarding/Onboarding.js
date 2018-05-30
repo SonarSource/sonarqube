@@ -31,6 +31,7 @@ import { skipOnboarding } from '../../../api/users';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import './styles.css';
+import { isSonarCloud } from '../../../helpers/system';
 
 /*::
 type Props = {|
@@ -58,7 +59,6 @@ export default class Onboarding extends React.PureComponent {
   /*:: state: State; */
 
   static contextTypes = {
-    onSonarCloud: PropTypes.bool,
     router: PropTypes.object
   };
 
@@ -145,7 +145,6 @@ export default class Onboarding extends React.PureComponent {
       return null;
     }
 
-    const { onSonarCloud } = this.context;
     const { organizationsEnabled } = this.props;
     const { step, token } = this.state;
     let stepNumber = 1;
@@ -171,7 +170,9 @@ export default class Onboarding extends React.PureComponent {
               )}
               <p className="note">
                 {translate(
-                  onSonarCloud ? 'tutorials.find_it_back_in_plus' : 'tutorials.find_it_back_in_help'
+                  isSonarCloud()
+                    ? 'tutorials.find_it_back_in_plus'
+                    : 'tutorials.find_it_back_in_help'
                 )}
               </p>
             </div>
@@ -208,7 +209,6 @@ export default class Onboarding extends React.PureComponent {
             onReset={this.handleReset}
             open={step === 'analysis'}
             organization={this.state.organization}
-            sonarCloud={onSonarCloud}
             stepNumber={stepNumber}
             token={token}
           />

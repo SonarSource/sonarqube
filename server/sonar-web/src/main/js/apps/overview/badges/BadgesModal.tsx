@@ -26,13 +26,13 @@ import CodeSnippet from '../../../components/common/CodeSnippet';
 import Modal from '../../../components/controls/Modal';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import './styles.css';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
+import { isSonarCloud } from '../../../helpers/system';
+import './styles.css';
 
 interface Props {
   branchLike?: BranchLike;
   metrics: { [key: string]: Metric };
-  onSonarCloud: boolean;
   project: string;
   qualifier: string;
 }
@@ -71,7 +71,7 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
     const { selectedType, badgeOptions } = this.state;
     const header = translate('overview.badges.title');
     const fullBadgeOptions = { project, ...badgeOptions, ...getBranchLikeQuery(branchLike) };
-    const badges = this.props.onSonarCloud
+    const badges = isSonarCloud()
       ? [BadgeType.measure, BadgeType.qualityGate, BadgeType.marketing]
       : [BadgeType.measure, BadgeType.qualityGate];
     return (

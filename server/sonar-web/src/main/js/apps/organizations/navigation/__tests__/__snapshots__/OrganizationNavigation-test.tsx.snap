@@ -17,7 +17,7 @@ exports[`render 1`] = `
         }
       }
     />
-    <Connect(OrganizationNavigationMeta)
+    <OrganizationNavigationMeta
       organization={
         Object {
           "key": "foo",

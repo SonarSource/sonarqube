@@ -22,6 +22,7 @@ import * as PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import { SuggestionsContext } from './SuggestionsContext';
+import { isSonarCloud } from '../../../helpers/system';
 
 export interface SuggestionLink {
   link: string;
@@ -46,10 +47,6 @@ export default class SuggestionsProvider extends React.Component<Props, State> {
 
   static childContextTypes = {
     suggestions: PropTypes.object
-  };
-
-  static contextTypes = {
-    onSonarCloud: PropTypes.bool
   };
 
   state: State = { suggestions: [] };
@@ -85,7 +82,7 @@ export default class SuggestionsProvider extends React.Component<Props, State> {
   };
 
   render() {
-    const suggestions = this.context.onSonarCloud
+    const suggestions = isSonarCloud()
       ? this.state.suggestions
       : this.state.suggestions.filter(suggestion => suggestion.scope !== 'sonarcloud');
 

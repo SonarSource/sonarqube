@@ -21,17 +21,20 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { NoFavoriteProjects } from '../NoFavoriteProjects';
 import { Visibility } from '../../../../app/types';
+import { isSonarCloud } from '../../../../helpers/system';
+
+jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 it('renders', () => {
-  expect(shallow(<NoFavoriteProjects onSonarCloud={false} organizations={[]} />)).toMatchSnapshot();
+  (isSonarCloud as jest.Mock).mockImplementation(() => false);
+  expect(shallow(<NoFavoriteProjects organizations={[]} />)).toMatchSnapshot();
 });
 
 it('renders for SonarCloud', () => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => true);
   const organizations = [
     { isAdmin: true, key: 'org1', name: 'org1', projectVisibility: Visibility.Public },
     { isAdmin: false, key: 'org2', name: 'org2', projectVisibility: Visibility.Public }
   ];
-  expect(
-    shallow(<NoFavoriteProjects onSonarCloud={true} organizations={organizations} />)
-  ).toMatchSnapshot();
+  expect(shallow(<NoFavoriteProjects organizations={organizations} />)).toMatchSnapshot();
 });

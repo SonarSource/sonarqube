@@ -28,6 +28,7 @@ import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { Project } from '../types';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   currentUser: CurrentUser;
@@ -35,7 +36,6 @@ interface Props {
   loading: boolean;
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
   onQueryChange: (change: RawQuery) => void;
-  onSonarCloud: boolean;
   onSortChange: (sort: string, desc: boolean) => void;
   organization?: { key: string };
   projects?: Project[];
@@ -50,7 +50,7 @@ export default function PageHeader(props: Props) {
   const { loading, total, projects, currentUser, view } = props;
   const limitReached = projects != null && total != null && projects.length < total;
   const defaultOption = isLoggedIn(currentUser) ? 'name' : 'analysis_date';
-  const showHomePageSelect = !props.onSonarCloud || props.isFavorite;
+  const showHomePageSelect = !isSonarCloud() || props.isFavorite;
 
   return (
     <header className="page-header projects-topbar-items">
@@ -106,7 +106,7 @@ export default function PageHeader(props: Props) {
         <HomePageSelect
           className="huge-spacer-left"
           currentPage={
-            props.onSonarCloud ? { type: HomePageType.MyProjects } : { type: HomePageType.Projects }
+            isSonarCloud() ? { type: HomePageType.MyProjects } : { type: HomePageType.Projects }
           }
         />
       )}

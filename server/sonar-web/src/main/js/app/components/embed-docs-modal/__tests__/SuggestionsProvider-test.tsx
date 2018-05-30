@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import SuggestionsProvider from '../SuggestionsProvider';
+import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock(
   'Docs/EmbedDocsSuggestions.json',
@@ -30,7 +31,10 @@ jest.mock(
   { virtual: true }
 );
 
+jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+
 it('should add & remove suggestions', () => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => false);
   const children = jest.fn();
   const wrapper = shallow(<SuggestionsProvider>{children}</SuggestionsProvider>);
   const instance = wrapper.instance() as SuggestionsProvider;
@@ -49,10 +53,9 @@ it('should add & remove suggestions', () => {
 });
 
 it('should show sonarcloud pages', () => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => true);
   const children = jest.fn();
-  const wrapper = shallow(<SuggestionsProvider>{children}</SuggestionsProvider>, {
-    context: { onSonarCloud: true }
-  });
+  const wrapper = shallow(<SuggestionsProvider>{children}</SuggestionsProvider>);
   const instance = wrapper.instance() as SuggestionsProvider;
   expect(children).lastCalledWith({ suggestions: [] });
 

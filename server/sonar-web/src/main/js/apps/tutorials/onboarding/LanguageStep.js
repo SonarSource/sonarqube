@@ -22,13 +22,13 @@ import React from 'react';
 import NewProjectForm from './NewProjectForm';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { translate } from '../../../helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
 
 /*::
 type Props = {|
   onDone: (result: Result) => void,
   onReset: () => void,
   organization?: string,
-  sonarCloud: boolean
 |};
 */
 
@@ -47,8 +47,6 @@ export type Result = State; */
 
 export default class LanguageStep extends React.PureComponent {
   /*:: props: Props; */
-
-  static defaultProps = { sonarCloud: false };
 
   state /*: State */ = {};
 
@@ -157,7 +155,7 @@ export default class LanguageStep extends React.PureComponent {
           (this.state.cFamilyCompiler === 'clang-gcc' && this.state.os != null))) ||
       (this.state.language === 'other' && this.state.os !== undefined);
 
-    const languages = this.props.sonarCloud
+    const languages = isSonarCloud()
       ? ['java', 'dotnet', 'c-family', 'other']
       : ['java', 'dotnet', 'other'];
 

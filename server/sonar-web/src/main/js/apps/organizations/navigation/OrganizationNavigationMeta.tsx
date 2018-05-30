@@ -18,21 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Organization, HomePageType } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
-import { getGlobalSettingValue } from '../../../store/rootReducer';
+import { isSonarCloud } from '../../../helpers/system';
 
-interface StateProps {
-  onSonarCloud: boolean;
-}
-
-interface Props extends StateProps {
+interface Props {
   organization: Organization;
 }
 
-export function OrganizationNavigationMeta({ onSonarCloud, organization }: Props) {
+export default function OrganizationNavigationMeta({ organization }: Props) {
   return (
     <div className="navbar-context-meta">
       {organization.url != null && (
@@ -47,7 +42,7 @@ export function OrganizationNavigationMeta({ onSonarCloud, organization }: Props
       <div className="text-muted">
         <strong>{translate('organization.key')}:</strong> {organization.key}
       </div>
-      {onSonarCloud && (
+      {isSonarCloud() && (
         <div className="navbar-context-meta-secondary">
           <HomePageSelect
             currentPage={{ type: HomePageType.Organization, organization: organization.key }}
@@ -57,13 +52,3 @@ export function OrganizationNavigationMeta({ onSonarCloud, organization }: Props
     </div>
   );
 }
-
-const mapStateToProps = (state: any): StateProps => {
-  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-
-  return {
-    onSonarCloud: Boolean(sonarCloudSetting && sonarCloudSetting.value === 'true')
-  };
-};
-
-export default connect(mapStateToProps)(OrganizationNavigationMeta);

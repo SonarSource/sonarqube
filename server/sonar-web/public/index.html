@@ -23,7 +23,7 @@
   <meta name="msapplication-TileColor" content="#FFFFFF" />
   <meta name="msapplication-TileImage" content="%WEB_CONTEXT%/mstile-512x512.png" />
 
-  <title>Loading...</title>
+  <title>%INSTANCE%</title>
   
   <% for (let css of htmlWebpackPlugin.files.css) { %>
     <style><%= compilation.assets[css].source() %></style>
@@ -37,7 +37,11 @@
       <span class="global-loading-text">Loading...</span>
     </div>
   </div>
-  <script>window.baseUrl = '%WEB_CONTEXT%';</script>
+  <script>
+    window.baseUrl = '%WEB_CONTEXT%';
+    window.serverStatus = '%SERVER_STATUS%';
+    window.instance = '%INSTANCE%';
+  </script>
   <% for (let chunk in htmlWebpackPlugin.files.chunks) { %>
     <script src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
   <% } %>

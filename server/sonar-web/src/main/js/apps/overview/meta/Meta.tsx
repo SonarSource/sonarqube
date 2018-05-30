@@ -44,12 +44,11 @@ interface Props {
 
 export default class Meta extends React.PureComponent<Props> {
   static contextTypes = {
-    onSonarCloud: PropTypes.bool,
     organizationsEnabled: PropTypes.bool
   };
 
   render() {
-    const { onSonarCloud, organizationsEnabled } = this.context;
+    const { organizationsEnabled } = this.context;
     const { branchLike, component, metrics } = this.props;
     const { qualifier, description, qualityProfiles, qualityGate, visibility } = component;
 
@@ -110,7 +109,6 @@ export default class Meta extends React.PureComponent<Props> {
             <BadgesModal
               branchLike={branchLike}
               metrics={metrics}
-              onSonarCloud={onSonarCloud}
               project={component.key}
               qualifier={component.qualifier}
             />

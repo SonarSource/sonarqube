@@ -20,16 +20,11 @@
 import { connect } from 'react-redux';
 import { CurrentUser } from '../../../app/types';
 import { lazyLoad } from '../../../components/lazyLoad';
-import {
-  getCurrentUser,
-  areThereCustomOrganizations,
-  getGlobalSettingValue
-} from '../../../store/rootReducer';
+import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 import { RawQuery } from '../../../helpers/query';
 
 interface StateProps {
   currentUser: CurrentUser;
-  onSonarCloud: boolean;
   organizationsEnabled: boolean;
 }
 
@@ -40,14 +35,10 @@ interface OwnProps {
   storageOptionsSuffix?: string;
 }
 
-const stateToProps = (state: any) => {
-  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-  return {
-    currentUser: getCurrentUser(state),
-    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true'),
-    organizationsEnabled: areThereCustomOrganizations(state)
-  };
-};
+const stateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state),
+  organizationsEnabled: areThereCustomOrganizations(state)
+});
 
 export default connect<StateProps, {}, OwnProps>(stateToProps)(
   lazyLoad(() => import('./AllProjects'))

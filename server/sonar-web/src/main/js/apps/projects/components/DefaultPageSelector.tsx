@@ -24,11 +24,11 @@ import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../uti
 import { get } from '../../../helpers/storage';
 import { searchProjects } from '../../../api/components';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   currentUser: CurrentUser;
   location: { pathname: string; query: { [x: string]: string } };
-  onSonarCloud: boolean;
 }
 
 interface State {
@@ -47,17 +47,17 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
   }
 
   componentDidMount() {
-    if (this.props.onSonarCloud && !isLoggedIn(this.props.currentUser)) {
+    if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
       this.context.router.replace('/explore/projects');
     }
 
-    if (!this.props.onSonarCloud) {
+    if (!isSonarCloud()) {
       this.defineIfShouldBeRedirected();
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!this.props.onSonarCloud) {
+    if (!isSonarCloud()) {
       if (prevProps.location !== this.props.location) {
         this.defineIfShouldBeRedirected();
       } else if (this.state.shouldBeRedirected === true) {
@@ -113,7 +113,7 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
   }
 
   render() {
-    if (this.props.onSonarCloud && isLoggedIn(this.props.currentUser)) {
+    if (isSonarCloud() && isLoggedIn(this.props.currentUser)) {
       return <AllProjectsContainer isFavorite={true} location={this.props.location} />;
     }
 

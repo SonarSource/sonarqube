@@ -22,14 +22,22 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 import Onboarding from '../Onboarding';
 import { click, doAsync } from '../../../../helpers/testUtils';
+import { getInstance, isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../api/users', () => ({
   skipOnboarding: () => Promise.resolve()
 }));
 
+jest.mock('../../../../helpers/system', () => ({
+  getInstance: jest.fn(),
+  isSonarCloud: jest.fn()
+}));
+
 const currentUser = { login: 'admin', isLoggedIn: true };
 
 it('guides for on-premise', () => {
+  getInstance.mockImplementation(() => 'SonarQube');
+  isSonarCloud.mockImplementation(() => false);
   const wrapper = shallow(
     <Onboarding
       className="modal-container"
@@ -47,9 +55,10 @@ it('guides for on-premise', () => {
 });
 
 it('guides for sonarcloud', () => {
+  getInstance.mockImplementation(() => 'SonarCloud');
+  isSonarCloud.mockImplementation(() => true);
   const wrapper = shallow(
-    <Onboarding currentUser={currentUser} onFinish={jest.fn()} organizationsEnabled={true} />,
-    { context: { onSonarCloud: true } }
+    <Onboarding currentUser={currentUser} onFinish={jest.fn()} organizationsEnabled={true} />
   );
   expect(wrapper).toMatchSnapshot();
 
@@ -65,6 +74,8 @@ it('guides for sonarcloud', () => {
 });
 
 it('finishes', () => {
+  getInstance.mockImplementation(() => 'SonarQube');
+  isSonarCloud.mockImplementation(() => false);
   const onFinish = jest.fn();
   const wrapper = mount(
     <Onboarding currentUser={currentUser} onFinish={onFinish} organizationsEnabled={false} />

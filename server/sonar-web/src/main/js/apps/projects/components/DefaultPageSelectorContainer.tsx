@@ -20,19 +20,14 @@
 import { connect } from 'react-redux';
 import DefaultPageSelector from './DefaultPageSelector';
 import { CurrentUser } from '../../../app/types';
-import { getCurrentUser, getGlobalSettingValue } from '../../../store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 interface StateProps {
   currentUser: CurrentUser;
-  onSonarCloud: boolean;
 }
 
-const stateToProps = (state: any) => {
-  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-  return {
-    currentUser: getCurrentUser(state),
-    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true')
-  };
-};
+const stateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state)
+});
 
 export default connect<StateProps>(stateToProps)(DefaultPageSelector);

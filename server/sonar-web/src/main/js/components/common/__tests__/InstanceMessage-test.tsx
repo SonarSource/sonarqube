@@ -20,6 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import InstanceMessage from '../InstanceMessage';
+import { getInstance } from '../../../helpers/system';
+
+jest.mock('../../../helpers/system', () => ({ getInstance: jest.fn() }));
 
 it('should replace {instance} with "SonarQube"', () => {
   const childFunc = jest.fn();
@@ -44,7 +47,6 @@ function getWrapper(
   message: string,
   onSonarCloud = false
 ) {
-  return shallow(<InstanceMessage message={message}>{children}</InstanceMessage>, {
-    context: { onSonarCloud }
-  });
+  (getInstance as jest.Mock).mockImplementation(() => (onSonarCloud ? 'SonarCloud' : 'SonarQube'));
+  return shallow(<InstanceMessage message={message}>{children}</InstanceMessage>);
 }

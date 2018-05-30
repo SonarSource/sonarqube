@@ -29,9 +29,16 @@ import {
   PullRequest
 } from '../../../../types';
 import { click } from '../../../../../helpers/testUtils';
+import { isSonarCloud } from '../../../../../helpers/system';
+
+jest.mock('../../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 const mainBranch: MainBranch = { isMain: true, name: 'master' };
 const fooBranch: LongLivingBranch = { isMain: false, name: 'foo', type: BranchType.LONG };
+
+beforeEach(() => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => false);
+});
 
 it('renders main branch', () => {
   const component = {} as Component;
@@ -131,6 +138,7 @@ it('renders no branch support popup', () => {
 });
 
 it('renders nothing on SonarCloud without branch support', () => {
+  (isSonarCloud as jest.Mock).mockImplementation(() => true);
   const component = {} as Component;
   const wrapper = shallow(
     <ComponentNavBranch

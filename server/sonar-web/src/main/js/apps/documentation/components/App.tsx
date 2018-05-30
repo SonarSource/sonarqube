@@ -20,7 +20,6 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
-import * as PropTypes from 'prop-types';
 import Menu from './Menu';
 import NotFound from '../../../app/components/NotFound';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
@@ -28,6 +27,7 @@ import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { getFrontMatter } from '../../../helpers/markdown';
+import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
 interface Props {
@@ -42,10 +42,6 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    onSonarCloud: PropTypes.bool
-  };
 
   state: State = { loading: false, notFound: false };
 
@@ -72,7 +68,7 @@ export default class App extends React.PureComponent<Props, State> {
       ({ default: content }) => {
         if (this.mounted) {
           const { scope } = getFrontMatter(content || '');
-          if (scope === 'sonarcloud' && !this.context.onSonarCloud) {
+          if (scope === 'sonarcloud' && !isSonarCloud()) {
             this.setState({ loading: false, notFound: true });
           } else {
             this.setState({ content, loading: false, notFound: false });

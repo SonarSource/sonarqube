@@ -171,7 +171,6 @@ function shallowRender(
       currentUser={{ isLoggedIn: true }}
       isFavorite={false}
       location={{ pathname: '/projects', query: {} }}
-      onSonarCloud={false}
       organizationsEnabled={false}
       {...props}
     />,

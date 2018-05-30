@@ -19,14 +19,15 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { OrganizationNavigationMeta } from '../OrganizationNavigationMeta';
+import OrganizationNavigationMeta from '../OrganizationNavigationMeta';
 import { Visibility } from '../../../../app/types';
+
+jest.mock('../../../../helpers/system', () => ({ isSonarCloud: () => true }));
 
 it('renders', () => {
   expect(
     shallow(
       <OrganizationNavigationMeta
-        onSonarCloud={true}
         organization={{
           key: 'foo',
           name: 'Foo',

@@ -75,7 +75,6 @@ function shallowRender(props?: {}) {
       loading={false}
       onPerspectiveChange={jest.fn()}
       onQueryChange={jest.fn()}
-      onSonarCloud={false}
       onSortChange={jest.fn()}
       projects={[]}
       query={{ search: 'test' }}

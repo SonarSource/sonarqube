@@ -26,12 +26,12 @@ import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
 import Dropdown from '../../../../components/controls/Dropdown';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
+import { isSonarCloud } from '../../../../helpers/system';
 
 interface Props {
   appState: AppState;
   currentUser: CurrentUser;
   location: { pathname: string };
-  onSonarCloud?: boolean;
 }
 
 export default class GlobalNavMenu extends React.PureComponent<Props> {
@@ -40,14 +40,14 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderProjects() {
-    if (this.props.onSonarCloud && !isLoggedIn(this.props.currentUser)) {
+    if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
       return null;
     }
 
     return (
       <li>
-        <Link to="/projects" activeClassName="active">
-          {this.props.onSonarCloud ? translate('my_projects') : translate('projects.page')}
+        <Link activeClassName="active" to="/projects">
+          {isSonarCloud() ? translate('my_projects') : translate('projects.page')}
         </Link>
       </li>
     );
@@ -56,7 +56,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   renderPortfolios() {
     return (
       <li>
-        <Link to="/portfolios" activeClassName="active">
+        <Link activeClassName="active" to="/portfolios">
           {translate('portfolios.page')}
         </Link>
       </li>
@@ -64,18 +64,18 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
-    if (this.props.onSonarCloud && !isLoggedIn(this.props.currentUser)) {
+    if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
       return null;
     }
 
     const active = this.props.location.pathname === 'issues';
 
-    if (this.props.onSonarCloud) {
+    if (isSonarCloud()) {
       return (
         <li>
           <Link
-            to={{ pathname: '/issues', query: { resolved: 'false' } }}
-            className={active ? 'active' : undefined}>
+            className={active ? 'active' : undefined}
+            to={{ pathname: '/issues', query: { resolved: 'false' } }}>
             {translate('my_issues')}
           </Link>
         </li>
@@ -88,7 +88,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
         : { resolved: 'false' };
     return (
       <li>
-        <Link to={{ pathname: '/issues', query }} className={active ? 'active' : undefined}>
+        <Link className={active ? 'active' : undefined} to={{ pathname: '/issues', query }}>
           {translate('issues.page')}
         </Link>
       </li>
@@ -98,7 +98,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   renderRulesLink() {
     return (
       <li>
-        <Link to="/coding_rules" className={this.activeLink('/coding_rules')}>
+        <Link className={this.activeLink('/coding_rules')} to="/coding_rules">
           {translate('coding_rules.page')}
         </Link>
       </li>
@@ -108,7 +108,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   renderProfilesLink() {
     return (
       <li>
-        <Link to="/profiles" activeClassName="active">
+        <Link activeClassName="active" to="/profiles">
           {translate('quality_profiles.page')}
         </Link>
       </li>
@@ -118,7 +118,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   renderQualityGatesLink() {
     return (
       <li>
-        <Link to={getQualityGatesUrl()} activeClassName="active">
+        <Link activeClassName="active" to={getQualityGatesUrl()}>
           {translate('quality_gates.page')}
         </Link>
       </li>
@@ -132,7 +132,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <Link to="/admin" activeClassName="active">
+        <Link activeClassName="active" to="/admin">
           {translate('layout.settings')}
         </Link>
       </li>

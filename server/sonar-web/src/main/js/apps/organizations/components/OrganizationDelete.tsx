@@ -28,6 +28,7 @@ import { deleteOrganization } from '../actions';
 import { Organization } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 import { getOrganizationBilling } from '../../../api/organizations';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface DispatchToProps {
   deleteOrganization: (key: string) => Promise<void>;
@@ -46,8 +47,7 @@ interface State {
 export class OrganizationDelete extends React.PureComponent<Props, State> {
   mounted = false;
   static contextTypes = {
-    router: PropTypes.object,
-    onSonarCloud: PropTypes.bool
+    router: PropTypes.object
   };
 
   state: State = {};
@@ -62,7 +62,7 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
   }
 
   fetchOrganizationPlanInfo = () => {
-    if (this.context.onSonarCloud) {
+    if (isSonarCloud()) {
       getOrganizationBilling(this.props.organization.key).then(
         billingInfo => {
           if (this.mounted) {

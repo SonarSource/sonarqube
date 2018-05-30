@@ -104,7 +104,6 @@ public class GlobalActionTest {
     settings.setProperty("sonar.lf.logoWidthPx", 135);
     settings.setProperty("sonar.lf.gravatarServerUrl", "https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon");
     settings.setProperty("sonar.lf.enableGravatar", true);
-    settings.setProperty("sonar.sonarcloud.enabled", true);
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.editions.jsonUrl", "https://foo.bar/editions.json");
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
@@ -118,7 +117,6 @@ public class GlobalActionTest {
       "    \"sonar.lf.logoWidthPx\": \"135\"," +
       "    \"sonar.lf.gravatarServerUrl\": \"https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon\"," +
       "    \"sonar.lf.enableGravatar\": \"true\"," +
-      "    \"sonar.sonarcloud.enabled\": \"true\"," +
       "    \"sonar.editions.jsonUrl\": \"https://foo.bar/editions.json\"," +
       "    \"sonar.updatecenter.activate\": \"false\"," +
       "    \"sonar.technicalDebt.ratingGrid\": \"0.05,0.1,0.2,0.5\"" +

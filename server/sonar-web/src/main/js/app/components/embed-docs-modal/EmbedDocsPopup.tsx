@@ -25,6 +25,7 @@ import { CurrentUser, isLoggedIn } from '../../types';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   currentUser: CurrentUser;
@@ -34,7 +35,6 @@ interface Props {
 
 export default class EmbedDocsPopup extends React.PureComponent<Props> {
   static contextTypes = {
-    onSonarCloud: PropTypes.bool,
     openOnboardingTutorial: PropTypes.func
   };
 
@@ -159,8 +159,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
               {translate('api_documentation.page')}
             </Link>
           </li>
-          {this.context.onSonarCloud && this.renderSonarCloudLinks()}
-          {!this.context.onSonarCloud && this.renderSonarQubeLinks()}
+          {isSonarCloud() ? this.renderSonarCloudLinks() : this.renderSonarQubeLinks()}
         </ul>
       </DropdownOverlay>
     );

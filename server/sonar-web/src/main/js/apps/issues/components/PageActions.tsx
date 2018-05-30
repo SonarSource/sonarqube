@@ -24,12 +24,12 @@ import { HomePageType, Paging } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   canSetHome: boolean;
   loading: boolean;
   onReload: () => void;
-  onSonarCloud: boolean;
   paging: Paging | undefined;
   selectedIndex: number | undefined;
 }
@@ -73,9 +73,7 @@ export default class PageActions extends React.PureComponent<Props> {
           <HomePageSelect
             className="huge-spacer-left"
             currentPage={
-              this.props.onSonarCloud
-                ? { type: HomePageType.MyIssues }
-                : { type: HomePageType.Issues }
+              isSonarCloud() ? { type: HomePageType.MyIssues } : { type: HomePageType.Issues }
             }
           />
         )}

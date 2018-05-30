@@ -88,11 +88,7 @@ function mountRender(
   replace: any = jest.fn()
 ) {
   return mount(
-    <DefaultPageSelector
-      currentUser={currentUser}
-      location={{ pathname: '/projects', query }}
-      onSonarCloud={false}
-    />,
+    <DefaultPageSelector currentUser={currentUser} location={{ pathname: '/projects', query }} />,
     { context: { router: { replace } } }
   );
 }

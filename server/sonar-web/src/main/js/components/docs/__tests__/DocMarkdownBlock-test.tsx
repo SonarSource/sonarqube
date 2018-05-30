@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DocMarkdownBlock from '../DocMarkdownBlock';
+import { isSonarCloud } from '../../../helpers/system';
 
 // mock `remark` and `remark-react` to work around the issue with cjs imports
 jest.mock('remark', () => {
@@ -32,6 +33,8 @@ jest.mock('remark-react', () => {
   return { default: remarkReact };
 });
 
+jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+
 it('should render simple markdown', () => {
   expect(shallow(<DocMarkdownBlock content="this is *bold* text" />)).toMatchSnapshot();
 });
@@ -42,7 +45,7 @@ it('should render use custom component for links', () => {
   ).toMatchSnapshot();
 });
 
-it.only('should cut sonarqube/sonarcloud content', () => {
+it('should cut sonarqube/sonarcloud content', () => {
   const content = `
 some
 
@@ -62,11 +65,9 @@ sonarcloud
 
 text`;
 
-  expect(
-    shallow(<DocMarkdownBlock content={content} />, { context: { onSonarCloud: false } })
-  ).toMatchSnapshot();
+  (isSonarCloud as jest.Mock).mockImplementation(() => false);
+  expect(shallow(<DocMarkdownBlock content={content} />)).toMatchSnapshot();
 
-  expect(
-    shallow(<DocMarkdownBlock content={content} />, { context: { onSonarCloud: true } })
-  ).toMatchSnapshot();
+  (isSonarCloud as jest.Mock).mockImplementation(() => true);
+  expect(shallow(<DocMarkdownBlock content={content} />)).toMatchSnapshot();
 });

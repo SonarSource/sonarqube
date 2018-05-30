@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import * as PropTypes from 'prop-types';
 import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
 import {
   activeOrChildrenActive,
@@ -29,6 +28,7 @@ import {
   getEntryRoot
 } from '../utils';
 import * as Docs from '../documentation.directory-loader';
+import { isSonarCloud } from '../../../helpers/system';
 
 const pages = (Docs as any) as DocumentationEntry[];
 
@@ -37,12 +37,8 @@ interface Props {
 }
 
 export default class Menu extends React.PureComponent<Props> {
-  static contextTypes = {
-    onSonarCloud: PropTypes.bool
-  };
-
   getMenuEntriesHierarchy = (root?: string): Array<DocumentationEntry> => {
-    const instancePages = this.context.onSonarCloud
+    const instancePages = isSonarCloud()
       ? pages
       : pages.filter(page => page.scope !== 'sonarcloud');
     const toplevelEntries = getEntryChildren(instancePages, root);

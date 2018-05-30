@@ -28,16 +28,13 @@ import Dropdown from '../../../components/controls/Dropdown';
 import { getMyOrganizations } from '../../../store/rootReducer';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
 import { translate } from '../../../helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface StateProps {
   organizations: Organization[];
 }
 
-interface Props extends StateProps {
-  onSonarCloud: boolean;
-}
-
-export class NoFavoriteProjects extends React.PureComponent<Props> {
+export class NoFavoriteProjects extends React.PureComponent<StateProps> {
   static contextTypes = {
     openOnboardingTutorial: PropTypes.func
   };
@@ -49,11 +46,11 @@ export class NoFavoriteProjects extends React.PureComponent<Props> {
   };
 
   render() {
-    const { onSonarCloud, organizations } = this.props;
+    const { organizations } = this.props;
     return (
       <div className="projects-empty-list">
         <h3>{translate('projects.no_favorite_projects')}</h3>
-        {onSonarCloud ? (
+        {isSonarCloud() ? (
           <div className="spacer-top">
             <p>{translate('projects.no_favorite_projects.how_to_add_projects')}</p>
             <div className="huge-spacer-top">

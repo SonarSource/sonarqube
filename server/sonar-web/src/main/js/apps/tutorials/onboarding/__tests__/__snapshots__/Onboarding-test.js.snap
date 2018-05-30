@@ -201,7 +201,6 @@ exports[`guides for sonarcloud 1`] = `
       onFinish={[Function]}
       onReset={[Function]}
       open={false}
-      sonarCloud={true}
       stepNumber={3}
     />
   </div>
@@ -279,7 +278,6 @@ exports[`guides for sonarcloud 2`] = `
       onReset={[Function]}
       open={false}
       organization="my-org"
-      sonarCloud={true}
       stepNumber={3}
     />
   </div>
@@ -357,7 +355,6 @@ exports[`guides for sonarcloud 3`] = `
       onReset={[Function]}
       open={true}
       organization="my-org"
-      sonarCloud={true}
       stepNumber={3}
       token="abcd1234"
     />

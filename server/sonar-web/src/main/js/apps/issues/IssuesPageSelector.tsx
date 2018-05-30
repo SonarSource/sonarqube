@@ -22,28 +22,24 @@ import { connect } from 'react-redux';
 import AppContainer from './components/AppContainer';
 import { CurrentUser, isLoggedIn } from '../../app/types';
 import { RawQuery } from '../../helpers/query';
-import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
+import { getCurrentUser } from '../../store/rootReducer';
+import { isSonarCloud } from '../../helpers/system';
 
 interface StateProps {
   currentUser: CurrentUser;
-  onSonarCloud: boolean;
 }
 
 interface Props extends StateProps {
   location: { pathname: string; query: RawQuery };
 }
 
-function IssuesPage({ currentUser, location, onSonarCloud }: Props) {
-  const myIssues = (isLoggedIn(currentUser) && onSonarCloud) || undefined;
+function IssuesPage({ currentUser, location }: Props) {
+  const myIssues = (isLoggedIn(currentUser) && isSonarCloud()) || undefined;
   return <AppContainer location={location} myIssues={myIssues} />;
 }
 
-const stateToProps = (state: any) => {
-  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
-  return {
-    currentUser: getCurrentUser(state),
-    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true')
-  };
-};
+const stateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state)
+});
 
 export default connect<StateProps>(stateToProps)(IssuesPage);

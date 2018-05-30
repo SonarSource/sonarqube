@@ -21,11 +21,11 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
-import * as PropTypes from 'prop-types';
 import DocLink from './DocLink';
 import DocParagraph from './DocParagraph';
 import DocImg from './DocImg';
 import { separateFrontMatter } from '../../helpers/markdown';
+import { isSonarCloud } from '../../helpers/system';
 
 interface Props {
   className?: string;
@@ -33,43 +33,36 @@ interface Props {
   displayH1?: boolean;
 }
 
-export default class DocMarkdownBlock extends React.PureComponent<Props> {
-  static contextTypes = {
-    onSonarCloud: PropTypes.bool
-  };
-
-  render() {
-    const { className, content, displayH1 } = this.props;
-    const parsed = separateFrontMatter(content || '');
-    return (
-      <div className={classNames('markdown', className)}>
-        {displayH1 && <h1>{parsed.frontmatter.title}</h1>}
-        {
-          remark()
-            // .use(remarkInclude)
-            .use(reactRenderer, {
-              remarkReactComponents: {
-                // do not render outer <div />
-                div: React.Fragment,
-                // use custom link to render documentation anchors
-                a: DocLink,
-                // used to handle `@include`
-                p: DocParagraph,
-                // use custom img tag to render documentation images
-                img: DocImg
-              },
-              toHast: {}
-            })
-            .processSync(filterContent(parsed.content, this.context.onSonarCloud)).contents
-        }
-      </div>
-    );
-  }
+export default function DocMarkdownBlock({ className, content, displayH1 }: Props) {
+  const parsed = separateFrontMatter(content || '');
+  return (
+    <div className={classNames('markdown', className)}>
+      {displayH1 && <h1>{parsed.frontmatter.title}</h1>}
+      {
+        remark()
+          // .use(remarkInclude)
+          .use(reactRenderer, {
+            remarkReactComponents: {
+              // do not render outer <div />
+              div: React.Fragment,
+              // use custom link to render documentation anchors
+              a: DocLink,
+              // used to handle `@include`
+              p: DocParagraph,
+              // use custom img tag to render documentation images
+              img: DocImg
+            },
+            toHast: {}
+          })
+          .processSync(filterContent(parsed.content)).contents
+      }
+    </div>
+  );
 }
 
-function filterContent(content: string, onSonarCloud: boolean) {
-  const beginning = onSonarCloud ? '<!-- sonarqube -->' : '<!-- sonarcloud -->';
-  const ending = onSonarCloud ? '<!-- /sonarqube -->' : '<!-- /sonarcloud -->';
+function filterContent(content: string) {
+  const beginning = isSonarCloud() ? '<!-- sonarqube -->' : '<!-- sonarcloud -->';
+  const ending = isSonarCloud() ? '<!-- /sonarqube -->' : '<!-- /sonarcloud -->';
 
   let newContent = content;
   let start = newContent.indexOf(beginning);
