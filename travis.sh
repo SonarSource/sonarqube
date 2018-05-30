@@ -9,7 +9,7 @@ set -euo pipefail
 # JDK is kept in cache. It does not need to be downloaded from Oracle
 # at each build.
 #
-function installJdk8 {
+installJdk8() {
   echo "Setup JDK 1.8u171"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
@@ -26,7 +26,7 @@ function installJdk8 {
 #
 # Configure Maven settings and install some script utilities
 #
-function configureTravis {
+configureTravis() {
   mkdir -p ~/.local
   curl -sSL https://github.com/SonarSource/travis-utils/tarball/v47 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
@@ -35,10 +35,10 @@ configureTravis
 
 #
 # Travis fails on timeout when build does not print logs
-# during 10 minutes. This function aims to bypass this
+# during 10 minutes. This aims to bypass this
 # behavior when building the slow sonar-server sub-project.
 #
-function keep_alive() {
+keep_alive() {
   while true; do
     echo -en "\a"
     sleep 60

@@ -23,11 +23,11 @@ DEFAULT_LOG="all"
 DEFAULT_LINES="25"
 LOGS="sonar web ce es"
 
-function toLower() {
+toLower() {
   echo "$1" | tr '[:upper:]' '[:lower:]'
 }
 
-function checkLogArgument() {
+checkLogArgument() {
   local logArg="$1"
   local lowerLogArg=$(toLower $logArg)
 
@@ -45,7 +45,7 @@ function checkLogArgument() {
   exit 1
 }
 
-function buildTailArgs() {
+buildTailArgs() {
   local logArg="$(toLower $1)"
   local logLines="$2"
   local res=""
@@ -59,7 +59,7 @@ function buildTailArgs() {
   echo "$res"
 }
 
-function doTail() {
+doTail() {
   local logArg="$1"
   local logLines="${2:-"$DEFAULT_LINES"}"
   TAIL_ARG=$(buildTailArgs "$logArg" "$logLines")

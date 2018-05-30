@@ -8,12 +8,12 @@
 
 set -euo pipefail
 
-function cnt_lines {
+cnt_lines() {
   local FILE=$1
   wc -l < "$FILE"
 }
 
-function write_prop {
+write_prop() {
   local PROPERTY=$1
   local VALUE=$2
   local FILE=$3
@@ -25,7 +25,7 @@ function write_prop {
   echo "${PROPERTY}=${VALUE}" >> "$FILE"
 }
 
-function set_property {
+set_property() {
   local PROPERTY=$1
   local VALUE=$2
   local FILE=$3

@@ -5,11 +5,11 @@ set -euo pipefail
 DEFAULT_EDITION="oss"
 EDITIONS="oss"
 
-function toLower() {
+toLower() {
   echo "$1" | tr '[:upper:]' '[:lower:]'
 }
 
-function checkEditionArgument() {
+checkEditionArgument() {
   local editionArg="$1"
   local lowerEditionArg=$(toLower $editionArg)
 
@@ -27,7 +27,7 @@ function checkEditionArgument() {
   exit 1
 }
 
-function distributionDirOf() {
+distributionDirOf() {
   local edition="$1"
 
   if [ "$edition" = "oss" ]; then
@@ -38,7 +38,7 @@ function distributionDirOf() {
   fi
 }
 
-function baseFileNameOf() {
+baseFileNameOf() {
   local edition="$1"
 
   if [ "$edition" = "oss" ]; then
@@ -49,7 +49,7 @@ function baseFileNameOf() {
   fi
 }
 
-function targetDirOf() {
+targetDirOf() {
   local edition="$1"
 
   if [ "$edition" = "oss" ]; then

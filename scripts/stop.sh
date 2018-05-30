@@ -17,7 +17,7 @@ else
   OS='linux-x86-64'
 fi
 
-function stopAny() {
+stopAny() {
   for edition in $EDITIONS; do
       SONAR_SH="$(distributionDirOf "$edition")/$(targetDirOf "$edition")/sonarqube-*/bin/$OS/sonar.sh"
       if ls $SONAR_SH &> /dev/null; then
