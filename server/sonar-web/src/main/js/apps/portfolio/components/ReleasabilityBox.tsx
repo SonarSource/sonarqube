@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import RatingFreshness from './RatingFreshness';
 import Rating from '../../../components/ui/Rating';
 import Measure from '../../../components/measure/Measure';
+import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
@@ -64,7 +65,7 @@ export default function ReleasabilityBox({ component, measures }: Props) {
                 {Number(effort) === 1 ? 'project' : 'projects'}
               </span>
             </Link>{' '}
-            <span className="level level-ERROR level-small">{translate('metric.level.ERROR')}</span>
+            <Level level="ERROR" small={true} />
           </div>
         )}
     </div>

@@ -25,6 +25,8 @@ import { bisector, extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
 import * as theme from '../../app/theme';
+import './LineChart.css';
+import './AdvancedTimeline.css';
 
 /*::
 type Event = { className?: string, name: string, date: Date };

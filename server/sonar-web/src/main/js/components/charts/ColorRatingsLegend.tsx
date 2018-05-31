@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import { RATING_COLORS } from '../../helpers/constants';
+import './ColorBoxLegend.css';
 
 interface Props {
   className?: string;

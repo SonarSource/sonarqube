@@ -17,51 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.shortcut-button {
-  display: inline-block;
-  min-width: 24px;
-  height: var(--controlHeight);
-  line-height: 21px;
-  padding: 0 4px;
+.processes-container {
+  position: fixed;
+  z-index: var(--processContainerZIndex);
+  top: 0;
+  left: 50%;
+  width: 350px;
+  margin-left: -175px;
+  word-break: break-all;
+}
+
+.process-spinner {
+  position: relative;
+  padding: 0 10px;
+  line-height: var(--controlHeight);
+  border-radius: 0 0 3px 3px;
   box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  background-image: linear-gradient(to bottom, #f5f5f5, #eee);
-  box-shadow: inset 0 1px 0 #fff, 0 1px 0 #ccc;
-  color: var(--secondFontColor);
-  font-size: 11px;
+  background-color: #f0e8ac;
   text-align: center;
+  opacity: 0;
+  transition: all 0.2s ease;
 }
 
-.shortcut-button-small {
-  min-width: 16px;
-  height: 16px;
-  line-height: 14px;
-  margin-left: 4px;
-  margin-right: 4px;
+.process-spinner.shown {
+  opacity: 1;
 }
 
-.flash {
-  background-color: transparent;
-  transition: all 0.5s ease;
-}
-
-.flash.in {
-  background-color: #fcf8e3;
-}
-
-.flash-heavy.in {
-  background-color: #ffe456;
-}
-
-.identity-provider {
-  display: inline-block;
-  line-height: 14px;
-  padding: 2px 5px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+.process-spinner + .process-spinner {
+  margin-top: 5px;
   border-radius: 3px;
-  box-sizing: border-box;
-  background-color: var(--darkBlue);
-  font-size: var(--smallFontSize);
-  color: #fff;
+}
+
+.process-spinner-failed {
+  padding-right: 30px;
+  background-color: var(--red);
+  color: #ffffff;
+}
+
+.process-spinner-success {
+  padding-right: 30px;
+  background-color: var(--green);
+  color: #ffffff;
+}
+
+.process-spinner-close {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
+
+.process-spinner-close:hover path,
+.process-spinner-close:focus path {
+  fill: var(--red) !important;
 }

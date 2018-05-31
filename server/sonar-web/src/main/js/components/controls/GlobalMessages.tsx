@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import ClearIcon from '../icons-components/ClearIcon';
 import { ButtonIcon } from '../ui/buttons';
+import './GlobalMessages.css';
 
 interface Message {
   id: string;

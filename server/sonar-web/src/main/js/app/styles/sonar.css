@@ -32,7 +32,6 @@
 @import './components/modals.css';
 @import './components/alerts.css';
 @import './components/issues.css';
-@import './components/search-navigator.css';
 @import './components/dropdowns.css';
 @import './components/menu.css';
 @import './components/page.css';
@@ -42,7 +41,6 @@
 @import './components/panels.css';
 @import './components/badges.css';
 @import './components/columns.css';
-@import './components/side-tabs.css';
 @import './components/boxed-group.css';
 
 @import './style.css';

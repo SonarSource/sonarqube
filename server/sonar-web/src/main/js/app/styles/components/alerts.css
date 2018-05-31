@@ -34,11 +34,6 @@
   display: none;
 }
 
-.alert-inline {
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .modal-alert {
   margin: -10px -10px 16px;
   padding: 10px;

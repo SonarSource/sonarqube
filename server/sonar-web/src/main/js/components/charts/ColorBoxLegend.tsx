@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { ScaleLinear, ScaleOrdinal } from 'd3-scale';
 import { formatMeasure } from '../../helpers/measures';
+import './ColorBoxLegend.css';
 
 interface Props {
   className?: string;

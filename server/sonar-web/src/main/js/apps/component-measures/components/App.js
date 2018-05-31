@@ -39,6 +39,7 @@ import { getDisplayMetrics } from '../../../helpers/measures';
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 import '../style.css';
+import '../../../components/search-navigator.css';
 
 /*:: type Props = {|
   branchLike?: { id?: string; name: string },

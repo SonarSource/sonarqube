@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { ScaleLinear, ScaleOrdinal } from 'd3-scale';
+import './ColorGradientLegend.css';
 
 interface Props {
   className?: string;

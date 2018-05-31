@@ -27,6 +27,7 @@ import WildcardsHelp from './WildcardsHelp';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
+import '../side-tabs.css';
 
 /*::
 type Props = {

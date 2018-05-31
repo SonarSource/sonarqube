@@ -17,46 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.columns {
-  margin-left: -10px;
-  margin-right: -10px;
-  overflow: hidden;
+.line-tooltip {
+  fill: none;
+  stroke: var(--secondFontColor);
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
 }
 
-.columns:before,
-.columns:after {
-  display: table;
-  content: '';
-  line-height: 0;
+.chart-mouse-events-overlay {
+  fill: none;
+  stroke: none;
+  pointer-events: all;
 }
 
-.columns:after {
-  clear: both;
+.chart-zoomed .line-chart-area {
+  clip-path: url(#chart-clip);
 }
 
-.column-half {
-  float: left;
-  width: 50%;
-  padding: 0 10px;
-  box-sizing: border-box;
+.chart-zoomed .line-chart-path {
+  clip-path: url(#chart-clip);
 }
 
-.column-half.column-one {
-  margin: 0 25%;
+.chart-zoomed .leak-chart-rect {
+  clip-path: url(#chart-clip);
 }
 
-.flex-columns {
-  display: flex;
+.line-chart-dot {
+  fill: var(--blue);
 }
 
-.flex-column + .flex-column {
-  margin-left: 20px;
+.line-chart-dot.line-chart-dot-1 {
+  fill: var(--darkBlue);
 }
 
-.flex-column-half {
-  width: 50%;
+.line-chart-dot.line-chart-dot-2 {
+  fill: #24c6e0;
 }
 
-.flex-column-third {
-  width: calc(100% / 3);
+.line-chart-event {
+  fill: #fff;
+  stroke: var(--blue);
+  stroke-width: 2px;
+}
+
+.line-chart-event.VERSION {
+  stroke: var(--blue);
+}
+
+.line-chart-event.QUALITY_GATE {
+  stroke: var(--green);
+}
+
+.line-chart-event.QUALITY_PROFILE {
+  stroke: var(--orange);
+}
+
+.line-chart-event.OTHER {
+  stroke: var(--purple);
 }

@@ -26,6 +26,7 @@ import { scaleLinear, ScaleLinear } from 'd3-scale';
 import { sortBy, uniq } from 'lodash';
 import Tooltip from '../controls/Tooltip';
 import { translate } from '../../helpers/l10n';
+import './BubbleChart.css';
 
 const TICKS_COUNT = 5;
 

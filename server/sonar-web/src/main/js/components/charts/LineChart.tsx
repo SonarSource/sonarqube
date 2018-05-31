@@ -22,6 +22,7 @@ import { extent, max } from 'd3-array';
 import { scaleLinear, ScaleLinear } from 'd3-scale';
 import { area as d3Area, line as d3Line, curveBasis } from 'd3-shape';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+import './LineChart.css';
 
 interface DataPoint {
   x: number;

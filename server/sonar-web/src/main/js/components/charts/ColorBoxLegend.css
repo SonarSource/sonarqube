@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.panel {
-  padding: 10px;
+.color-box-legend {
+  display: flex;
+  justify-content: center;
 }
 
-.panel:not(:last-child) {
-  border-bottom: 1px solid var(--barBorderColor);
+.color-box-legend > *:not(:first-child) {
+  margin-left: 24px;
 }
 
-.panel-vertical {
-  padding-left: 0;
-  padding-right: 0;
+.color-box-legend .color-box-legend-rect {
+  display: inline-block;
+  margin-top: 1px;
+  margin-right: 4px;
+  border: 1px solid;
 }
 
-.panel-white {
-  border: 1px solid var(--barBorderColor);
-  background-color: #fff;
+.color-box-legend .color-box-legend-rect-inner {
+  display: block;
+  width: 8px;
+  height: 8px;
+  opacity: 0.2;
 }
 
-.panel-warning {
-  border: 1px solid #faebcc;
-  background-color: #fcf8e3;
-  color: #8a6d3b;
+.color-box-legend.color-box-full .color-box-legend-rect-inner {
+  opacity: 1;
 }

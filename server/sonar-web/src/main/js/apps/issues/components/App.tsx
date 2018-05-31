@@ -71,6 +71,7 @@ import EmptySearch from '../../../components/common/EmptySearch';
 import Checkbox from '../../../components/controls/Checkbox';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import '../styles.css';
+import '../../../components/search-navigator.css';
 
 interface FetchIssuesPromise {
   components: ReferencedComponent[];

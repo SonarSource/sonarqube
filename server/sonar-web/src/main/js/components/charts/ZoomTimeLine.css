@@ -17,26 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.panel {
-  padding: 10px;
+.chart-zoom-tick {
+  fill: var(--secondFontColor);
+  font-size: 10px;
+  text-anchor: middle;
+  user-select: none;
 }
 
-.panel:not(:last-child) {
-  border-bottom: 1px solid var(--barBorderColor);
+.chart-zoom .zoom-overlay {
+  fill: none;
+  stroke: none;
+  cursor: crosshair;
+  pointer-events: all;
 }
 
-.panel-vertical {
-  padding-left: 0;
-  padding-right: 0;
+.chart-zoom .zoom-selection {
+  fill: var(--secondFontColor);
+  fill-opacity: 0.2;
+  stroke: var(--secondFontColor);
+  shape-rendering: crispEdges;
+  cursor: move;
 }
 
-.panel-white {
-  border: 1px solid var(--barBorderColor);
-  background-color: #fff;
-}
-
-.panel-warning {
-  border: 1px solid #faebcc;
-  background-color: #fcf8e3;
-  color: #8a6d3b;
+.chart-zoom .zoom-selection-handle {
+  cursor: ew-resize;
+  fill-opacity: 0;
+  stroke: none;
 }

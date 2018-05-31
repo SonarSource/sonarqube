@@ -58,11 +58,10 @@ exports[`renders 1`] = `
       </span>
     </Link>
      
-    <span
-      className="level level-ERROR level-small"
-    >
-      metric.level.ERROR
-    </span>
+    <Level
+      level="ERROR"
+      small={true}
+    />
   </div>
 </div>
 `;

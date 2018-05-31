@@ -28,6 +28,8 @@ import Draggable, { DraggableCore } from 'react-draggable';
 /*:: import type { DraggableData } from 'react-draggable'; */
 /*:: import type { Point, Serie } from './AdvancedTimeline'; */
 import * as theme from '../../app/theme';
+import './LineChart.css';
+import './ZoomTimeLine.css';
 
 /*::
 type Scale = Function;

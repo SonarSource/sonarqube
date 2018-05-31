@@ -21,6 +21,7 @@ import * as React from 'react';
 import { treemap as d3Treemap, hierarchy as d3Hierarchy } from 'd3-hierarchy';
 import TreeMapRect from './TreeMapRect';
 import { translate } from '../../helpers/l10n';
+import './TreeMap.css';
 
 interface TreeMapItem {
   color: string;

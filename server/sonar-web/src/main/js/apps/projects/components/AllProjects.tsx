@@ -33,10 +33,11 @@ import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
-import '../styles.css';
 import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query } from '../query';
+import '../styles.css';
+import '../../../components/search-navigator.css';
 
 export interface Props {
   currentUser: CurrentUser;

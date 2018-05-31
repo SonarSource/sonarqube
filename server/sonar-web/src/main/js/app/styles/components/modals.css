@@ -97,24 +97,8 @@
   min-height: 30px;
 }
 
-ul.modal-head-metadata {
-  overflow: hidden;
-  padding: 0 0 5px 0;
-}
-
-ul.modal-head-metadata li {
-  float: left;
-  position: relative;
-  font-size: 85%;
-  color: var(--secondFontColor);
-}
-
 .modal-body {
   padding: 10px;
-}
-
-.modal-body .notes {
-  height: auto;
 }
 
 .modal-field,
@@ -148,17 +132,6 @@ ul.modal-head-metadata li {
   text-align: right;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.modal-field label.simple-label,
-.modal-validation-field label.simple-label {
-  display: inline-block;
-  vertical-align: middle;
-  float: none;
-  position: static;
-  margin: 0 0 0 -5px;
-  padding: 0;
-  text-align: left;
 }
 
 .modal-large-field label {

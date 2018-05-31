@@ -52,6 +52,7 @@ import DropdownIcon from '../../components/icons-components/DropdownIcon';
 import HelpIcon from '../../components/icons-components/HelpIcon';
 import LockIcon from '../../components/icons-components/LockIcon';
 import QualifierIcon from '../../components/icons-components/QualifierIcon';
+import Rating from '../../components/ui/Rating';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -86,6 +87,7 @@ const exposeLibraries = () => {
     LockIcon,
     Modal,
     QualifierIcon,
+    Rating,
     ReloadButton,
     ResetButtonLink,
     SearchBox,

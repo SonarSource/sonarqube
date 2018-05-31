@@ -26,6 +26,7 @@ import { updateIssue } from './actions';
 import { onFail } from '../../store/rootActions';
 import { setIssueAssignee } from '../../api/issues';
 /*:: import type { Issue as IssueType } from './types'; */
+import './Issue.css';
 
 /*::
 type Props = {|
