@@ -29,5 +29,6 @@
   "branchesEnabled": false,
   "defaultOrganization": "key_foo",
   "canAdmin": false,
-  "standalone": true
+  "standalone": true,
+  "edition": "community"
 }

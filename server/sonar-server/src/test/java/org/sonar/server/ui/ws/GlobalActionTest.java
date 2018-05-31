@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -28,13 +29,14 @@ import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
+import org.sonar.core.extension.CoreExtensionRepository;
+import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
 import org.sonar.server.branch.BranchFeatureRule;
-import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
@@ -61,10 +63,10 @@ public class GlobalActionTest {
   private Server server = mock(Server.class);
   private WebServer webServer = mock(WebServer.class);
   private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
-
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
   private BranchFeatureRule branchFeature = new BranchFeatureRule();
+  private EditionProvider editionProvider = mock(EditionProvider.class);
 
   private WsActionTester ws;
 
@@ -269,9 +271,28 @@ public class GlobalActionTest {
     when(server.getVersion()).thenReturn("6.2");
     when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
     when(webServer.isStandalone()).thenReturn(true);
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
     String result = call();
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void edition_is_not_returned_if_not_defined() {
+    init();
+    when(editionProvider.get()).thenReturn(Optional.empty());
+
+    String json = call();
+    assertThat(json).doesNotContain("edition");
+  }
+
+  @Test
+  public void edition_is_returned_if_defined() {
+    init();
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+
+    String json = call();
+    assertJson(json).isSimilarTo("{\"edition\":\"developer\"}");
   }
 
   private void init() {
@@ -293,7 +314,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession);
+      webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession, editionProvider);
     ws = new WsActionTester(wsAction);
     wsAction.start();
   }

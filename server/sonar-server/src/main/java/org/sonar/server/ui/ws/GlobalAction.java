@@ -21,6 +21,7 @@ package org.sonar.server.ui.ws;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.Startable;
@@ -33,6 +34,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
+import org.sonar.core.platform.EditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
@@ -72,10 +74,11 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
+  private final EditionProvider editionProvider;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession) {
+    DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, EditionProvider editionProvider) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -86,6 +89,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.branchFeature = branchFeature;
     this.userSession = userSession;
+    this.editionProvider = editionProvider;
     this.systemSettingValuesByKey = new HashMap<>();
   }
 
@@ -122,6 +126,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeDatabaseProduction(json);
       writeOrganizationSupport(json);
       writeBranchSupport(json);
+      editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       json.prop("standalone", webServer.isStandalone());
       json.endObject();
     }
