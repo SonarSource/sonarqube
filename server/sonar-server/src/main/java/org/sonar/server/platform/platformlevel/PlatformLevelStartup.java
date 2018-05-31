@@ -19,6 +19,9 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.organization.DefaultOrganizationEnforcer;
@@ -81,6 +84,8 @@ public class PlatformLevelStartup extends PlatformLevel {
         get(ServerLifecycleNotifier.class).notifyStart();
         get(ProcessCommandWrapper.class).notifyOperational();
         get(WebServerRuleFinder.class).stopCaching();
+        Loggers.get(PlatformLevelStartup.class)
+          .info("Running {} Edition", get(PlatformEditionProvider.class).get().map(EditionProvider.Edition::getLabel).orElse(""));
       }
     });
 

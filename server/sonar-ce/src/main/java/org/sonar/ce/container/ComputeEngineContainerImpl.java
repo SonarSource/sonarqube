@@ -41,6 +41,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.CeConfigurationModule;
 import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.CeHttpModule;
@@ -62,9 +63,14 @@ import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.extension.CoreExtensionRepositoryImpl;
+import org.sonar.core.extension.CoreExtensionsInstaller;
+import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.Module;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.timemachine.Periods;
@@ -89,9 +95,6 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.core.extension.CoreExtensionRepositoryImpl;
-import org.sonar.core.extension.CoreExtensionsInstaller;
-import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.index.IssueIndex;
@@ -212,6 +215,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     CoreExtensionsInstaller coreExtensionsInstaller = this.level4.getComponentByType(CECoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(this.level4, t -> true);
     this.level4.startComponents();
+    PlatformEditionProvider editionProvider = this.level4.getComponentByType(PlatformEditionProvider.class);
+    Loggers.get(ComputeEngineContainerImpl.class)
+      .info("Running {} edition", editionProvider.get().map(EditionProvider.Edition::getLabel).orElse(""));
 
     startupTasks();
 
@@ -431,6 +437,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // System
       ServerLogging.class,
+
+      // SonarSource editions
+      PlatformEditionProvider.class,
 
       // privileged plugins
       CECoreExtensionsInstaller.class,

@@ -34,6 +34,7 @@ import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.LogOAuthWarning;
@@ -543,6 +544,9 @@ public class PlatformLevel4 extends PlatformLevel {
       ReportAnalysisFailureNotificationModule.class,
       CeModule.class,
       CeWsModule.class,
+
+      // SonarSource editions
+      PlatformEditionProvider.class,
 
       InternalPropertiesImpl.class,
       ProjectConfigurationFactory.class,
