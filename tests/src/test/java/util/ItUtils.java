@@ -80,6 +80,7 @@ import org.sonarqube.ws.client.settings.ResetRequest;
 import org.sonarqube.ws.client.settings.SetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.sonar.orchestrator.container.Edition.COMMUNITY;
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
 import static java.lang.Double.parseDouble;
@@ -99,6 +100,7 @@ public class ItUtils {
 
   public static OrchestratorBuilder newOrchestratorBuilder() {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
+    builder.setEdition(COMMUNITY);
     String version = System.getProperty("sonar.runtimeVersion");
     if (StringUtils.isEmpty(version)) {
       File zip = FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile();

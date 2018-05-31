@@ -26,6 +26,8 @@ import com.sonar.orchestrator.http.HttpResponse;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 
+import static com.sonar.orchestrator.container.Edition.COMMUNITY;
+
 public class ApiDefinitionDownloader {
 
   public static void main(String[] args) {
@@ -34,6 +36,7 @@ public class ApiDefinitionDownloader {
 
   public static String downloadApiDefinition() {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
+    builder.setEdition(COMMUNITY);
     builder.setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile())
       .setOrchestratorProperty("orchestrator.workspaceDir", "build");
     Orchestrator orchestrator = builder

@@ -26,10 +26,13 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 
+import static com.sonar.orchestrator.container.Edition.COMMUNITY;
+
 public class CreateDb {
 
   public static void main(String[] args) {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
+    builder.setEdition(COMMUNITY);
     String version = System.getProperty("sonar.runtimeVersion");
     if (StringUtils.isEmpty(version)) {
       File zip = FileLocation.byWildcardMavenFilename(new File("../../sonar-application/build/distributions"), "sonar-application-*.zip").getFile();
