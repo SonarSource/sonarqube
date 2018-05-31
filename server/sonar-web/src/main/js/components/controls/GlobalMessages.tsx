@@ -35,6 +35,13 @@ interface Props {
 }
 
 export default class GlobalMessages extends React.PureComponent<Props> {
+  cutLongWords = (message: string) => {
+    return message
+      .split(' ')
+      .map(word => (word.length > 35 ? word.substr(0, 35) + '...' : word))
+      .join(' ');
+  };
+
   renderMessage = (message: Message) => {
     const className = classNames('process-spinner', 'shown', {
       'process-spinner-failed': message.level === 'ERROR',
@@ -42,7 +49,7 @@ export default class GlobalMessages extends React.PureComponent<Props> {
     });
     return (
       <div className={className} key={message.id}>
-        {message.message}
+        {this.cutLongWords(message.message)}
         <ButtonIcon
           className="button-small process-spinner-close"
           color="#fff"
