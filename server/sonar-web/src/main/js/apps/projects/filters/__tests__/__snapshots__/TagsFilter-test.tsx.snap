@@ -60,7 +60,6 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
           },
         ]
       }
-      organization={undefined}
       property="tags"
       query={
         Object {
@@ -122,7 +121,6 @@ exports[`should render the tags facet with the selected tags 1`] = `
       onOpen={[Function]}
       onQueryChange={[MockFunction]}
       options={Array []}
-      organization={undefined}
       property="tags"
       query={
         Object {
@@ -274,7 +272,6 @@ exports[`should render the tags without the ones in the facet 1`] = `
       onOpen={[Function]}
       onQueryChange={[MockFunction]}
       options={Array []}
-      organization={undefined}
       property="tags"
       query={
         Object {
@@ -338,7 +335,6 @@ exports[`should render the tags without the ones in the facet 2`] = `
           },
         ]
       }
-      organization={undefined}
       property="tags"
       query={
         Object {

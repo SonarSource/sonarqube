@@ -89,6 +89,12 @@ exports[`creates new organization 3`] = `
           "foo",
         ],
       ],
+      "results": Array [
+        Object {
+          "isThrow": false,
+          "value": undefined,
+        },
+      ],
     }
   }
 >
@@ -209,6 +215,12 @@ exports[`deletes organization 3`] = `
     [MockFunction] {
       "calls": Array [
         Array [],
+      ],
+      "results": Array [
+        Object {
+          "isThrow": false,
+          "value": undefined,
+        },
       ],
     }
   }

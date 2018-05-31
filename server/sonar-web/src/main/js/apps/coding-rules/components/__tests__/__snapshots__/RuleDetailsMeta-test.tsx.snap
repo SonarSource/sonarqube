@@ -293,7 +293,6 @@ exports[`should edit tags 1`] = `
     closeOnClickOutside={true}
     overlay={
       <RuleDetailsTagsPopup
-        organization={undefined}
         setTags={[MockFunction]}
         sysTags={Array []}
         tags={Array []}

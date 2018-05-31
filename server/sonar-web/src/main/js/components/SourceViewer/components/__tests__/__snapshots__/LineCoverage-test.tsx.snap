@@ -13,7 +13,6 @@ exports[`render covered line 1`] = `
     open={false}
     overlay={
       <CoveragePopup
-        branchLike={undefined}
         componentKey="foo"
         line={
           Object {

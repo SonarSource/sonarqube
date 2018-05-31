@@ -48,7 +48,6 @@ Array [
             }
             handleValueChange={[Function]}
             searchUsers={[Function]}
-            selectedUser={undefined}
           />
         </div>
       </div>

@@ -25,7 +25,6 @@ exports[`renders main branch 1`] = `
               },
             ]
           }
-          canAdmin={undefined}
           component={Object {}}
           currentBranchLike={
             Object {
@@ -110,7 +109,6 @@ exports[`renders pull request 1`] = `
               },
             ]
           }
-          canAdmin={undefined}
           component={Object {}}
           currentBranchLike={
             Object {
@@ -212,7 +210,6 @@ exports[`renders short-living branch 1`] = `
               },
             ]
           }
-          canAdmin={undefined}
           component={Object {}}
           currentBranchLike={
             Object {
