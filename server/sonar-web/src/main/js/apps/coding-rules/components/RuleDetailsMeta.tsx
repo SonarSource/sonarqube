@@ -28,7 +28,7 @@ import LinkIcon from '../../../components/icons-components/LinkIcon';
 import RuleScopeIcon from '../../../components/icons-components/RuleScopeIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import Dropdown from '../../../components/controls/Dropdown';
@@ -46,6 +46,8 @@ interface Props {
   referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
   ruleDetails: RuleDetails;
 }
+
+const EXTERNAL_RULE_REPO_PREFIX = 'external_';
 
 export default class RuleDetailsMeta extends React.PureComponent<Props> {
   renderType = () => {
@@ -207,8 +209,29 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     );
   };
 
+  renderExternalBadge = () => {
+    const { ruleDetails } = this.props;
+    if (!ruleDetails.repo) {
+      return null;
+    }
+    const engine = ruleDetails.repo.replace(new RegExp(`^${EXTERNAL_RULE_REPO_PREFIX}`), '');
+    if (!engine) {
+      return null;
+    }
+    return (
+      <Tooltip overlay={translateWithParameters('coding_rules.external_rule.engine', engine)}>
+        <li className="coding-rules-detail-property">
+          <div className="outline-badge badge-tiny-height spacer-left vertical-text-top">
+            {engine}
+          </div>
+        </li>
+      </Tooltip>
+    );
+  };
+
   render() {
     const { ruleDetails } = this.props;
+    const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
     return (
       <div className="js-rule-meta">
         <header className="page-header">
@@ -230,18 +253,27 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           </h3>
         </header>
 
-        {!ruleDetails.isExternal && (
+        {hasTypeData && (
           <ul className="coding-rules-detail-properties">
             {this.renderType()}
             {this.renderSeverity()}
-            {this.renderStatus()}
-            {this.renderScope()}
+            {!ruleDetails.isExternal && (
+              <>
+                {this.renderStatus()}
+                {this.renderScope()}
+              </>
+            )}
             {this.renderTags()}
-            {this.renderCreationDate()}
+            {!ruleDetails.isExternal && this.renderCreationDate()}
             {this.renderRepository()}
-            {this.renderTemplate()}
-            {this.renderParentTemplate()}
-            {this.renderRemediation()}
+            {!ruleDetails.isExternal && (
+              <>
+                {this.renderTemplate()}
+                {this.renderParentTemplate()}
+                {this.renderRemediation()}
+              </>
+            )}
+            {ruleDetails.isExternal && this.renderExternalBadge()}
           </ul>
         )}
       </div>

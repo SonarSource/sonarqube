@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="js-rule-description"
+>
+  <div
+    className="coding-rules-detail-description rule-desc markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "<p>Html Description</p>",
+      }
+    }
+  />
+  <div
+    className="coding-rules-detail-description coding-rules-detail-description-extra"
+  >
+    <div
+      id="coding-rules-detail-description-extra"
+    />
+  </div>
+</div>
+`;
+
+exports[`should display correctly 2`] = `
+<div
+  className="js-rule-description"
+>
+  <div
+    className="coding-rules-detail-description rule-desc markdown"
+  >
+    issue.external_issue_description.xoo:OneExternalIssuePerLine
+  </div>
+  <div
+    className="coding-rules-detail-description coding-rules-detail-description-extra"
+  >
+    <div
+      id="coding-rules-detail-description-extra"
+    />
+  </div>
+</div>
+`;
+
+exports[`should display correctly 3`] = `
+<div
+  className="js-rule-description"
+>
+  <div
+    className="coding-rules-detail-description rule-desc markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "<p>Html Description</p>",
+      }
+    }
+  />
+  <div
+    className="coding-rules-detail-description coding-rules-detail-description-extra"
+  >
+    <div
+      id="coding-rules-detail-description-extra"
+    />
+  </div>
+</div>
+`;

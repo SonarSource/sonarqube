@@ -189,18 +189,19 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
   render() {
     const { ruleDetails } = this.props;
+    const hasDescription = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
 
     return (
       <div className="js-rule-description">
-        {ruleDetails.isExternal ? (
-          <div className="coding-rules-detail-description rule-desc markdown">
-            {translateWithParameters('issue.external_issue_description', ruleDetails.name)}
-          </div>
-        ) : (
+        {hasDescription ? (
           <div
             className="coding-rules-detail-description rule-desc markdown"
             dangerouslySetInnerHTML={{ __html: ruleDetails.htmlDesc || '' }}
           />
+        ) : (
+          <div className="coding-rules-detail-description rule-desc markdown">
+            {translateWithParameters('issue.external_issue_description', ruleDetails.name)}
+          </div>
         )}
 
         {!ruleDetails.templateKey && (

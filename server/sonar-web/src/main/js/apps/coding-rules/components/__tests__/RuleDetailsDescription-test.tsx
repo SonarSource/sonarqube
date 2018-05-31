@@ -19,20 +19,24 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import RuleDetailsMeta from '../RuleDetailsMeta';
-import { RuleScope } from '../../../../app/types';
-import RuleDetailsTagsPopup from '../RuleDetailsTagsPopup';
+import RuleDetailsDescription from '../RuleDetailsDescription';
+import { click, change, waitAndUpdate } from '../../../../helpers/testUtils';
+
+jest.mock('../../../../api/rules', () => ({
+  updateRule: jest.fn().mockResolvedValue('updatedrule')
+}));
 
 const RULE = {
   key: 'squid:S1133',
   repo: 'squid',
   name: 'Deprecated code should be removed',
   createdAt: '2013-07-26T09:40:51+0200',
+  htmlDesc: '<p>Html Description</p>',
+  mdNote: 'Md Note',
   severity: 'INFO',
   status: 'READY',
   lang: 'java',
   langName: 'Java',
-  scope: RuleScope.Main,
   type: 'CODE_SMELL'
 };
 
@@ -40,9 +44,7 @@ const EXTERNAL_RULE = {
   key: 'external_xoo:OneExternalIssuePerLine',
   repo: 'external_xoo',
   name: 'xoo:OneExternalIssuePerLine',
-  createdAt: '2018-05-31T11:22:13+0200',
   status: 'READY',
-  scope: RuleScope.All,
   isExternal: true,
   type: 'UNKNOWN'
 };
@@ -52,47 +54,35 @@ const EXTERNAL_RULE_WITH_DATA = {
   repo: 'external_xoo',
   name: 'One external issue per line',
   createdAt: '2018-05-31T11:19:51+0200',
-  severity: 'MAJOR',
+  htmlDesc: '<p>Html Description</p>',
   status: 'READY',
-  tags: ['tag'],
-  lang: 'xoo',
-  langName: 'Xoo',
-  scope: RuleScope.All,
   isExternal: true,
   type: 'BUG'
 };
 
-it('should display right meta info', () => {
+it('should display correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
-  expect(
-    getWrapper({ hideSimilarRulesFilter: true, ruleDetails: EXTERNAL_RULE })
-  ).toMatchSnapshot();
-  expect(
-    getWrapper({ hideSimilarRulesFilter: true, ruleDetails: EXTERNAL_RULE_WITH_DATA })
-  ).toMatchSnapshot();
+  expect(getWrapper({ ruleDetails: EXTERNAL_RULE })).toMatchSnapshot();
+  expect(getWrapper({ ruleDetails: EXTERNAL_RULE_WITH_DATA })).toMatchSnapshot();
 });
 
-it('should edit tags', () => {
-  const onTagsChange = jest.fn();
-  const wrapper = getWrapper({ onTagsChange });
-  expect(wrapper.find('[data-meta="tags"]')).toMatchSnapshot();
-  const overlay = wrapper
-    .find('[data-meta="tags"]')
-    .find('Dropdown')
-    .prop('overlay') as RuleDetailsTagsPopup;
-
-  overlay.props.setTags(['foo', 'bar']);
-  expect(onTagsChange).toBeCalledWith(['foo', 'bar']);
+it('should add extra description', async () => {
+  const onChange = jest.fn();
+  const wrapper = getWrapper({ canWrite: true, onChange });
+  click(wrapper.find('#coding-rules-detail-extend-description'));
+  expect(wrapper.find('textarea').exists()).toBeTruthy();
+  change(wrapper.find('textarea'), 'new description');
+  click(wrapper.find('#coding-rules-detail-extend-description-submit'));
+  await waitAndUpdate(wrapper);
+  expect(onChange).toBeCalledWith('updatedrule');
 });
 
 function getWrapper(props = {}) {
   return shallow(
-    <RuleDetailsMeta
-      canWrite={true}
-      onFilterChange={jest.fn()}
-      onTagsChange={jest.fn()}
+    <RuleDetailsDescription
+      canWrite={false}
+      onChange={jest.fn()}
       organization={undefined}
-      referencedRepositories={{}}
       ruleDetails={RULE}
       {...props}
     />
