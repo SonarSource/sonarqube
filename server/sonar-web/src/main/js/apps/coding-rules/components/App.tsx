@@ -261,8 +261,8 @@ export default class App extends React.PureComponent<Props, State> {
       this.makeFetchRequest({ p: nextPage, facets: undefined }).then(
         ({ actives, paging, rules }) => {
           if (this.mounted) {
-            this.setState(state => ({
-              actives: { ...state.actives, actives },
+            this.setState((state: State) => ({
+              actives: { ...state.actives, ...actives },
               loading: false,
               paging,
               rules: [...state.rules, ...rules]
