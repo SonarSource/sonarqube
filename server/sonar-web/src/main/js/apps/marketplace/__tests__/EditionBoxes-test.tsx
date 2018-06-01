@@ -20,44 +20,24 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EditionBoxes from '../EditionBoxes';
-
-jest.mock('../utils', () => ({
-  EDITIONS: [
-    { key: 'community', name: 'Community Edition', homeUrl: 'more_url' },
-    {
-      key: 'developer',
-      name: 'Developer Edition',
-      homeUrl: 'more_url'
-    },
-    {
-      key: 'enterprise',
-      name: 'Enterprise Edition',
-      homeUrl: 'more_url'
-    },
-    {
-      key: 'datacenter',
-      name: 'Data Center Edition',
-      homeUrl: 'more_url'
-    }
-  ]
-}));
+import { EditionKey } from '../utils';
 
 it('should display the available edition boxes correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
 it('should display the enterprise and datacenter edition boxes', () => {
-  expect(getWrapper({ currentEdition: 'developer' })).toMatchSnapshot();
+  expect(getWrapper({ currentEdition: EditionKey.developer })).toMatchSnapshot();
 });
 
 it('should display the datacenter edition box only', () => {
-  expect(getWrapper({ currentEdition: 'enterprise' })).toMatchSnapshot();
+  expect(getWrapper({ currentEdition: EditionKey.enterprise })).toMatchSnapshot();
 });
 
 it('should not display any edition box', () => {
-  expect(getWrapper({ currentEdition: 'datacenter' }).type()).toBeNull();
+  expect(getWrapper({ currentEdition: EditionKey.datacenter }).type()).toBeNull();
 });
 
 function getWrapper(props = {}) {
-  return shallow(<EditionBoxes currentEdition={'community'} {...props} />);
+  return shallow(<EditionBoxes currentEdition={EditionKey.community} {...props} />);
 }

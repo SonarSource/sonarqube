@@ -18,21 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { EditionKey } from './utils';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
-  currentEdition: string;
+  currentEdition?: EditionKey;
 }
 
 export default function Header({ currentEdition }: Props) {
   return (
     <header className="page-header" id="marketplace-header">
       <h1 className="page-title">{translate('marketplace.page')}</h1>
-      <h3 className="page-description">
-        {translate('marketplace.page.you_are_running', currentEdition)}
-      </h3>
+      {currentEdition && (
+        <h3 className="page-description">
+          {translate('marketplace.page.you_are_running', currentEdition)}
+        </h3>
+      )}
       <p className="page-description">
-        {currentEdition === 'datacenter'
+        {currentEdition === EditionKey.datacenter
           ? translate('marketplace.page.description_best_edition')
           : translate('marketplace.page.description')}
       </p>

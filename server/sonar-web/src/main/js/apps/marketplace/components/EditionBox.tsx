@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Edition, getEditionUrl } from '../utils';
+import { Edition, getEditionUrl, EditionKey } from '../utils';
 import DocInclude from '../../../components/docs/DocInclude';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  currentEdition: string;
+  currentEdition?: EditionKey;
   edition: Edition;
   ncloc?: number;
   serverId?: string;

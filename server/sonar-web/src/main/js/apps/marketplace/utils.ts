@@ -23,10 +23,17 @@ import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../a
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
 import { omitNil } from '../../helpers/request';
 
+export enum EditionKey {
+  community = 'community',
+  developer = 'developer',
+  enterprise = 'enterprise',
+  datacenter = 'datacenter'
+}
+
 export interface Edition {
   downloadUrl?: string;
   homeUrl: string;
-  key: string;
+  key: EditionKey;
   name: string;
 }
 
@@ -37,26 +44,26 @@ export interface Query {
 
 export const EDITIONS: Edition[] = [
   {
-    key: 'community',
+    key: EditionKey.community,
     name: 'Community Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/community.html'
   },
   {
-    key: 'developer',
+    key: EditionKey.developer,
     name: 'Developer Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/developer.html',
     downloadUrl:
       'https://sonarsource.bintray.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip'
   },
   {
-    key: 'enterprise',
+    key: EditionKey.enterprise,
     name: 'Enterprise Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/enterprise.html',
     downloadUrl:
       'https://sonarsource.bintray.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip'
   },
   {
-    key: 'datacenter',
+    key: EditionKey.datacenter,
     name: 'Data Center Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/datacenter.html',
     downloadUrl:

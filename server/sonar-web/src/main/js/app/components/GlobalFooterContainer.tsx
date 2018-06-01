@@ -20,10 +20,11 @@
 import { connect } from 'react-redux';
 import GlobalFooter from './GlobalFooter';
 import { getAppState } from '../../store/rootReducer';
+import { EditionKey } from '../../apps/marketplace/utils';
 
 interface StateProps {
   productionDatabase: boolean;
-  sonarqubeEdition: string;
+  sonarqubeEdition?: EditionKey;
   sonarqubeVersion?: string;
 }
 

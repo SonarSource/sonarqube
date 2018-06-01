@@ -22,20 +22,21 @@ import { Link } from 'react-router';
 import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import InstanceMessage from '../../components/common/InstanceMessage';
-import { EDITIONS } from '../../apps/marketplace/utils';
+import { EDITIONS, EditionKey } from '../../apps/marketplace/utils';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isSonarCloud } from '../../helpers/system';
 
 interface Props {
   hideLoggedInInfo?: boolean;
   productionDatabase: boolean;
-  sonarqubeEdition: string;
+  sonarqubeEdition?: EditionKey;
   sonarqubeVersion?: string;
 }
 
 export default function GlobalFooter({
   hideLoggedInInfo,
   productionDatabase,
+  sonarqubeEdition,
   sonarqubeVersion
 }: Props) {
   if (isSonarCloud()) {

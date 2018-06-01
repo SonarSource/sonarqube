@@ -19,6 +19,7 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
+import { EditionKey } from './utils';
 import {
   getAppState,
   getGlobalSettingValue,
@@ -33,7 +34,7 @@ interface OwnProps {
 }
 
 interface StateToProps {
-  currentEdition?: string;
+  currentEdition?: EditionKey;
   pendingPlugins: PluginPendingResult;
   standaloneMode: boolean;
   updateCenterActive: boolean;

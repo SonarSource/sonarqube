@@ -20,10 +20,11 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EditionBox from '../EditionBox';
+import { EditionKey } from '../../utils';
 
 const DEFAULT_EDITION = {
-  key: 'foo',
-  name: 'Foo',
+  key: EditionKey.developer,
+  name: 'Developer',
   downloadUrl: 'download_url',
   homeUrl: 'more_url'
 };
@@ -32,7 +33,7 @@ it('should display the edition', () => {
   expect(
     shallow(
       <EditionBox
-        currentEdition="community"
+        currentEdition={EditionKey.community}
         edition={DEFAULT_EDITION}
         ncloc={1000}
         serverId="serverId"

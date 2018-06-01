@@ -5,7 +5,7 @@ exports[`should display the edition 1`] = `
   className="boxed-group boxed-group-inner marketplace-edition"
 >
   <DocInclude
-    path="/tooltips/editions/foo"
+    path="/tooltips/editions/developer"
   />
   <div
     className="marketplace-edition-action spacer-top"

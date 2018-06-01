@@ -28,6 +28,7 @@ export interface License {
   isExpired: boolean;
   isOfficialDistribution: boolean;
   isSupported: boolean;
+  isValidEdition: boolean;
   isValidServerId: boolean;
   loc: number;
   maxLoc: number;

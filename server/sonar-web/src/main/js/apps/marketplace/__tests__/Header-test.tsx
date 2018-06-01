@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Header from '../Header';
+import { EditionKey } from '../utils';
 
 it('should render with installed editions', () => {
-  expect(shallow(<Header currentEdition="community" />)).toMatchSnapshot();
-  expect(shallow(<Header currentEdition="datacenter" />)).toMatchSnapshot();
+  expect(shallow(<Header currentEdition={EditionKey.community} />)).toMatchSnapshot();
+  expect(shallow(<Header currentEdition={EditionKey.datacenter} />)).toMatchSnapshot();
 });

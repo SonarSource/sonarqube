@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import GlobalFooter from '../GlobalFooter';
+import { EditionKey } from '../../../apps/marketplace/utils';
 import { isSonarCloud } from '../../../helpers/system';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
@@ -40,7 +41,7 @@ it('should show the db warning message', () => {
 
 it('should display the sq version', () => {
   expect(
-    getWrapper({ sonarqubeEdition: 'enterprise', sonarqubeVersion: '6.4-SNAPSHOT' })
+    getWrapper({ sonarqubeEdition: EditionKey.enterprise, sonarqubeVersion: '6.4-SNAPSHOT' })
   ).toMatchSnapshot();
 });
 
@@ -50,5 +51,5 @@ it('should render SonarCloud footer', () => {
 
 function getWrapper(props = {}, onSonarCloud = false) {
   (isSonarCloud as jest.Mock).mockImplementation(() => onSonarCloud);
-  return shallow(<GlobalFooter productionDatabase={true} sonarqubeEdition="community" {...props} />);
+  return shallow(<GlobalFooter productionDatabase={true} sonarqubeEdition={EditionKey.community} {...props} />);
 }

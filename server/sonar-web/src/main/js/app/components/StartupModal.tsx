@@ -22,17 +22,18 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import OnboardingModal from '../../apps/tutorials/onboarding/OnboardingModal';
 import LicensePromptModal from '../../apps/marketplace/components/LicensePromptModal';
-import { showLicense } from '../../api/marketplace';
+import { CurrentUser, isLoggedIn } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
-import { hasMessage } from '../../helpers/l10n';
-import { save, get } from '../../helpers/storage';
+import { EditionKey } from '../../apps/marketplace/utils';
 import { getCurrentUser, getAppState } from '../../store/rootReducer';
 import { skipOnboarding } from '../../store/users/actions';
-import { CurrentUser, isLoggedIn } from '../types';
+import { showLicense } from '../../api/marketplace';
+import { hasMessage } from '../../helpers/l10n';
+import { save, get } from '../../helpers/storage';
 
 interface StateProps {
   canAdmin: boolean;
-  currentEdition: string;
+  currentEdition?: EditionKey;
   currentUser: CurrentUser;
 }
 
@@ -77,16 +78,22 @@ export class StartupModal extends React.PureComponent<Props, State> {
   }
 
   closeOnboarding = () => {
-    this.setState(state => ({
-      modal: state.modal === ModalKey.onboarding ? undefined : state.modal
-    }));
-    this.props.skipOnboarding();
+    this.setState(state => {
+      if (state.modal === ModalKey.onboarding) {
+        this.props.skipOnboarding();
+        return { modal: undefined };
+      }
+      return undefined;
+    });
   };
 
   closeLicense = () => {
-    this.setState(state => ({
-      modal: state.modal === ModalKey.license ? undefined : state.modal
-    }));
+    this.setState(state => {
+      if (state.modal === ModalKey.license) {
+        return { modal: undefined };
+      }
+      return undefined;
+    });
   };
 
   openOnboarding = () => {
@@ -96,16 +103,14 @@ export class StartupModal extends React.PureComponent<Props, State> {
   tryAutoOpenLicense = () => {
     const { canAdmin, currentEdition, currentUser } = this.props;
     const hasLicenseManager = hasMessage('license.prompt.title');
-    if (
-      currentEdition !== 'community' &&
-      isLoggedIn(currentUser) &&
-      canAdmin &&
-      hasLicenseManager
-    ) {
+    const hasLicensedEdition = currentEdition && currentEdition !== EditionKey.community;
+
+    if (canAdmin && hasLicensedEdition && isLoggedIn(currentUser) && hasLicenseManager) {
       const lastPrompt = get(LICENSE_PROMPT, currentUser.login);
+
       if (!lastPrompt || differenceInDays(new Date(), parseDate(lastPrompt)) >= 1) {
         return showLicense().then(license => {
-          if (!license || license.edition !== currentEdition) {
+          if (!license || !license.isValidEdition) {
             save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
             this.setState({ modal: ModalKey.license });
             return Promise.resolve();

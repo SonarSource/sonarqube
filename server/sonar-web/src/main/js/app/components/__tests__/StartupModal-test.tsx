@@ -26,6 +26,7 @@ import { hasMessage } from '../../../helpers/l10n';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { differenceInDays, toShortNotSoISOString } from '../../../helpers/dates';
 import { LoggedInUser } from '../../types';
+import { EditionKey } from '../../../apps/marketplace/utils';
 
 jest.mock('../../../api/marketplace', () => ({
   showLicense: jest.fn().mockResolvedValue(undefined)
@@ -63,7 +64,7 @@ beforeEach(() => {
 });
 
 it('should render only the children', async () => {
-  const wrapper = getWrapper({ currentEdition: 'community' });
+  const wrapper = getWrapper({ currentEdition: EditionKey.community });
   await shouldNotHaveModals(wrapper);
   expect(showLicense).toHaveBeenCalledTimes(0);
   expect(wrapper.find('div').exists()).toBeTruthy();
@@ -73,7 +74,7 @@ it('should render only the children', async () => {
   (hasMessage as jest.Mock<any>).mockReturnValueOnce(false);
   await shouldNotHaveModals(getWrapper());
 
-  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ edition: 'enterprise' });
+  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidEdition: true });
   await shouldNotHaveModals(getWrapper());
 
   (get as jest.Mock<any>).mockReturnValueOnce('date');
@@ -89,7 +90,7 @@ it('should render license prompt', async () => {
   (differenceInDays as jest.Mock<any>).mockReturnValueOnce(1);
   await shouldDisplayLicense(getWrapper());
 
-  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ edition: 'developer' });
+  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidEdition: false });
   await shouldDisplayLicense(getWrapper());
 });
 
@@ -101,7 +102,7 @@ it('should render onboarding modal', async () => {
     })
   );
 
-  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ edition: 'enterprise' });
+  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidEdition: true });
   await shouldDisplayOnboarding(
     getWrapper({ currentUser: { ...LOGGED_IN_USER, showOnboardingTutorial: true } })
   );
@@ -127,7 +128,7 @@ function getWrapper(props = {}) {
   return shallow(
     <StartupModal
       canAdmin={true}
-      currentEdition="enterprise"
+      currentEdition={EditionKey.enterprise}
       currentUser={LOGGED_IN_USER}
       skipOnboarding={jest.fn()}
       {...props}>
