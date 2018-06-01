@@ -53,8 +53,8 @@ import FiltersHeader from '../../../components/common/FiltersHeader';
 import SearchBox from '../../../components/controls/SearchBox';
 import { searchQualityProfiles, Profile } from '../../../api/quality-profiles';
 import { scrollToElement } from '../../../helpers/scrolling';
-import '../styles.css';
 import '../../../components/search-navigator.css';
+import '../styles.css';
 
 const PAGE_SIZE = 100;
 const LIMIT_BEFORE_LOAD_MORE = 5;

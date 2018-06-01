@@ -38,8 +38,8 @@ import { getDisplayMetrics } from '../../../helpers/measures';
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
-import '../style.css';
 import '../../../components/search-navigator.css';
+import '../style.css';
 
 /*:: type Props = {|
   branchLike?: { id?: string; name: string },

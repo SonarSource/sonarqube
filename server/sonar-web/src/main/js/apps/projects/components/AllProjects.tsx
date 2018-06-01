@@ -36,8 +36,8 @@ import { RawQuery } from '../../../helpers/query';
 import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query } from '../query';
-import '../styles.css';
 import '../../../components/search-navigator.css';
+import '../styles.css';
 
 export interface Props {
   currentUser: CurrentUser;

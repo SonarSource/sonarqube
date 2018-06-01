@@ -28,8 +28,8 @@ import { fetchQualityGates } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { Organization, QualityGate } from '../../../app/types';
-import '../styles.css';
 import '../../../components/search-navigator.css';
+import '../styles.css';
 
 interface Props {
   children: React.ReactElement<{
