@@ -57,8 +57,10 @@ export function getComponents(
   return getJSON('/api/projects/search', parameters);
 }
 
-export function bulkDeleteProjects(parameters: BaseSearchProjectsParameters): Promise<void> {
-  return post('/api/projects/bulk_delete', parameters);
+export function bulkDeleteProjects(
+  parameters: BaseSearchProjectsParameters
+): Promise<void | Response> {
+  return post('/api/projects/bulk_delete', parameters).catch(throwGlobalError);
 }
 
 export function deleteProject(project: string): Promise<void | Response> {
