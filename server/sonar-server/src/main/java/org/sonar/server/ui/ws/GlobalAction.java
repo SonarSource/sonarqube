@@ -34,7 +34,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
-import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
@@ -74,11 +74,11 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final BranchFeatureProxy branchFeature;
   private final UserSession userSession;
-  private final EditionProvider editionProvider;
+  private final PlatformEditionProvider editionProvider;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, EditionProvider editionProvider) {
+    DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;

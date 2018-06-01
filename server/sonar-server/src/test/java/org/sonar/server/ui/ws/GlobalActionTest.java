@@ -31,6 +31,7 @@ import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
@@ -66,7 +67,7 @@ public class GlobalActionTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("foo");
   private BranchFeatureRule branchFeature = new BranchFeatureRule();
-  private EditionProvider editionProvider = mock(EditionProvider.class);
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
   private WsActionTester ws;
 
