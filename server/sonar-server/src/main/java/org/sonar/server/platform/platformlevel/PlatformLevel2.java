@@ -35,6 +35,7 @@ import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTable;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
+import org.sonar.server.platform.web.WebPagesCache;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginFileSystem;
 import org.sonar.server.plugins.ServerPluginJarExploder;
@@ -57,6 +58,9 @@ public class PlatformLevel2 extends PlatformLevel {
       new StartupMetadataProvider(),
       DefaultServerUpgradeStatus.class,
       Durations.class,
+
+      // index.html cache
+      WebPagesCache.class,
 
       // plugins
       ServerPluginRepository.class,
