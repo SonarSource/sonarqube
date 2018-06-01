@@ -30,7 +30,7 @@ public interface EditionProvider {
     COMMUNITY("Community"),
     DEVELOPER("Developer"),
     ENTERPRISE("Enterprise"),
-    DATA_CENTER("Data Center");
+    DATACENTER("Data Center");
 
     private final String label;
 

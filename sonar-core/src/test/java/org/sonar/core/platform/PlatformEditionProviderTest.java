@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
-import static org.sonar.core.platform.EditionProvider.Edition.DATA_CENTER;
+import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
 import static org.sonar.core.platform.EditionProvider.Edition.DEVELOPER;
 
 public class PlatformEditionProviderTest {
@@ -47,19 +47,19 @@ public class PlatformEditionProviderTest {
   @Test
   public void returns_edition_from_other_EditionProvider_in_any_container() {
     ComponentContainer container = new ComponentContainer();
-    container.add((EditionProvider) () -> of(DATA_CENTER));
+    container.add((EditionProvider) () -> of(DATACENTER));
     ComponentContainer child = new ComponentContainer(container);
     child.add(PlatformEditionProvider.class);
 
     assertThat(container.getComponentByType(PlatformEditionProvider.class)).isNull();
     PlatformEditionProvider platformEditionProvider = child.getComponentByType(PlatformEditionProvider.class);
-    assertThat(platformEditionProvider.get()).contains(DATA_CENTER);
+    assertThat(platformEditionProvider.get()).contains(DATACENTER);
   }
 
   @Test
   public void get_fails_with_ISE_if_there_is_more_than_one_other_EditionProvider_in_any_container() {
     ComponentContainer container = new ComponentContainer();
-    container.add((EditionProvider) () -> of(DATA_CENTER));
+    container.add((EditionProvider) () -> of(DATACENTER));
     ComponentContainer child = new ComponentContainer(container);
     child.add((EditionProvider) () -> of(DEVELOPER));
     child.add(PlatformEditionProvider.class);
