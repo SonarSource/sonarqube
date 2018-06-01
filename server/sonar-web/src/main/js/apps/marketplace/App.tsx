@@ -122,7 +122,7 @@ export default class App extends React.PureComponent<Props, State> {
     const { currentEdition, standaloneMode, pendingPlugins } = this.props;
     const { loadingPlugins, plugins } = this.state;
     const query = parseQuery(this.props.location.query);
-    const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
+    const filteredPlugins = filterPlugins(plugins, query.search);
 
     return (
       <div className="page page-limited" id="marketplace-page">

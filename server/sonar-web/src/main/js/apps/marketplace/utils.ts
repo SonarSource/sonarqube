@@ -83,13 +83,19 @@ export function getEditionUrl(
   return url;
 }
 
-export function filterPlugins(plugins: Plugin[], search: string): Plugin[] {
+const EXCLUDED_PLUGINS = ['license'];
+export function filterPlugins(plugins: Plugin[], search?: string): Plugin[] {
+  if (!search) {
+    return plugins.filter(plugin => !EXCLUDED_PLUGINS.includes(plugin.key));
+  }
+
   const s = search.toLowerCase();
   return plugins.filter(plugin => {
     return (
-      plugin.name.toLowerCase().includes(s) ||
-      (plugin.description || '').toLowerCase().includes(s) ||
-      (plugin.category || '').toLowerCase().includes(s)
+      !EXCLUDED_PLUGINS.includes(plugin.key) &&
+      (plugin.name.toLowerCase().includes(s) ||
+        (plugin.description || '').toLowerCase().includes(s) ||
+        (plugin.category || '').toLowerCase().includes(s))
     );
   });
 }
