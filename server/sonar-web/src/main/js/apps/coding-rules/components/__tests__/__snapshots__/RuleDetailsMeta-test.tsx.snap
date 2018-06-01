@@ -110,7 +110,6 @@ exports[`should display right meta info 1`] = `
         closeOnClickOutside={true}
         overlay={
           <RuleDetailsTagsPopup
-            organization={undefined}
             setTags={[MockFunction]}
             sysTags={Array []}
             tags={Array []}
@@ -240,7 +239,6 @@ exports[`should display right meta info 3`] = `
         closeOnClickOutside={true}
         overlay={
           <RuleDetailsTagsPopup
-            organization={undefined}
             setTags={[MockFunction]}
             sysTags={Array []}
             tags={
