@@ -30,7 +30,7 @@ export interface IssueResponse {
 }
 
 interface IssuesResponse {
-  components?: { key: string; name: string; uuid: string }[];
+  components?: { key: string; organization: string; name: string; uuid: string }[];
   debtTotal?: number;
   facets: Array<{
     property: string;

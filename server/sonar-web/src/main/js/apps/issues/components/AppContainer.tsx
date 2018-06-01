@@ -22,7 +22,7 @@ import { Dispatch } from 'redux';
 import { uniq } from 'lodash';
 import { searchIssues } from '../../../api/issues';
 import { getOrganizations } from '../../../api/organizations';
-import { CurrentUser, Issue } from '../../../app/types';
+import { CurrentUser } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import {
   getCurrentUser,
@@ -47,12 +47,11 @@ const mapStateToProps = (state: any): StateProps => {
   };
 };
 
-const fetchIssueOrganizations = (issues: Issue[]) => (dispatch: Dispatch<any>) => {
-  if (!issues.length) {
+const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispatch<any>) => {
+  if (!organizationKeys.length) {
     return Promise.resolve();
   }
 
-  const organizationKeys = uniq(issues.map(issue => issue.organization));
   return getOrganizations({ organizations: organizationKeys.join() }).then(
     response => dispatch(receiveOrganizations(response.organizations)),
     throwGlobalError
@@ -73,8 +72,12 @@ const fetchIssues = (query: RawQuery, requestOrganizations = true) => (
       return { ...response, issues: parsedIssues };
     })
     .then(response => {
+      const organizationKeys = uniq([
+        ...response.issues.map(issue => issue.organization),
+        ...(response.components || []).map(component => component.organization)
+      ]);
       return organizationsEnabled && requestOrganizations
-        ? dispatch(fetchIssueOrganizations(response.issues)).then(() => response)
+        ? dispatch(fetchIssueOrganizations(organizationKeys)).then(() => response)
         : response;
     })
     .catch(throwGlobalError);
