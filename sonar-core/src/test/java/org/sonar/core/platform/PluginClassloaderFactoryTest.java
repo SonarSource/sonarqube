@@ -19,6 +19,7 @@
  */
 package org.sonar.core.platform;
 
+import com.sonarsource.plugins.license.api.FooBar;
 import java.io.File;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -90,6 +91,17 @@ public class PluginClassloaderFactoryTest {
     // dependent-plugin does not export its classes
     assertThat(canLoadClass(baseClassloader, DEPENDENT_PLUGIN_CLASSNAME)).isFalse();
     assertThat(canLoadClass(baseClassloader, BASE_PLUGIN_CLASSNAME)).isTrue();
+  }
+
+  @Test
+  public void classloader_exposes_license_api_from_main_classloader() {
+    PluginClassLoaderDef def = basePluginDef();
+    Map<PluginClassLoaderDef, ClassLoader> map = factory.create(asList(def));
+
+    assertThat(map).containsOnlyKeys(def);
+    ClassLoader classLoader = map.get(def);
+
+    assertThat(canLoadClass(classLoader, FooBar.class.getCanonicalName())).isTrue();
   }
 
   private static PluginClassLoaderDef basePluginDef() {

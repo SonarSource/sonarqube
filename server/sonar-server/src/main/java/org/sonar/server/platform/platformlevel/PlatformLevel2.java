@@ -20,13 +20,13 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.Durations;
+import org.sonar.core.extension.CoreExtensionRepositoryImpl;
+import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
-import org.sonar.core.extension.CoreExtensionRepositoryImpl;
-import org.sonar.core.extension.CoreExtensionsLoader;
-import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.es.MigrationEsClientImpl;
+import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;

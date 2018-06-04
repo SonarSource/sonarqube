@@ -178,6 +178,7 @@ public class PluginClassloaderFactory {
       .addInclusion("org/sonar/core/persistence/")
       .addInclusion("org/sonar/core/properties/")
       .addInclusion("org/sonar/server/views/")
+      .addInclusion("com/sonarsource/plugins/license/api/")
 
       // API exclusions
       .addExclusion("org/sonar/api/internal/");

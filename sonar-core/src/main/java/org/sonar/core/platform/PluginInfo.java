@@ -25,6 +25,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -429,9 +430,10 @@ public class PluginInfo implements Comparable<PluginInfo> {
     info.setImplementationBuild(manifest.getImplementationBuild());
     String[] requiredPlugins = manifest.getRequirePlugins();
     if (requiredPlugins != null) {
-      for (String s : requiredPlugins) {
-        info.addRequiredPlugin(RequiredPlugin.parse(s));
-      }
+      Arrays.stream(requiredPlugins)
+        .map(RequiredPlugin::parse)
+        .filter(t -> !"license".equals(t.key))
+        .forEach(info::addRequiredPlugin);
     }
     return info;
   }

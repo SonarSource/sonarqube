@@ -19,6 +19,9 @@
  */
 package org.sonar.core.platform;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.updatecenter.common.PluginManifest;
@@ -39,6 +43,7 @@ import static com.google.common.collect.Ordering.natural;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+@RunWith(DataProviderRunner.class)
 public class PluginInfoTest {
 
   @Rule
@@ -48,7 +53,7 @@ public class PluginInfoTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void test_RequiredPlugin() throws Exception {
+  public void test_RequiredPlugin() {
     PluginInfo.RequiredPlugin plugin = PluginInfo.RequiredPlugin.parse("java:1.1");
     assertThat(plugin.getKey()).isEqualTo("java");
     assertThat(plugin.getMinimalVersion().getName()).isEqualTo("1.1");
@@ -105,7 +110,7 @@ public class PluginInfoTest {
    * All other build environments have unique release versions (6.3.0.12345).
    */
   @Test
-  public void test_compatibility_with_snapshot_version_of_sonarqube() throws IOException {
+  public void test_compatibility_with_snapshot_version_of_sonarqube() {
     // plugins compatible with 5.6 LTS
     assertThat(withMinSqVersion("5.6").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
     assertThat(withMinSqVersion("5.6.1").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
@@ -134,7 +139,7 @@ public class PluginInfoTest {
    * @see #test_compatibility_with_snapshot_version_of_sonarqube
    */
   @Test
-  public void test_compatibility_with_release_version_of_sonarqube() throws IOException {
+  public void test_compatibility_with_release_version_of_sonarqube() {
     // plugins compatible with 5.6 LTS
     assertThat(withMinSqVersion("5.6").isCompatibleWith("6.3.0.5000")).isTrue();
     assertThat(withMinSqVersion("5.6.1").isCompatibleWith("6.3.0.5000")).isTrue();
@@ -222,6 +227,44 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getMinimalSqVersion().getName()).isEqualTo("4.5.1");
     assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsOnly("java", "pmd");
     assertThat(pluginInfo.isSonarLintSupported()).isTrue();
+  }
+
+  @Test
+  @UseDataProvider("licenseVersions")
+  public void requiredPlugin_license_is_ignored_when_reading_manifest(String version) throws IOException {
+    PluginManifest manifest = new PluginManifest();
+    manifest.setKey("java");
+    manifest.setVersion("1.0");
+    manifest.setName("Java");
+    manifest.setMainClass("org.foo.FooPlugin");
+    manifest.setRequirePlugins(new String[] {"license:" + version});
+
+    File jarFile = temp.newFile();
+    PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
+    assertThat(pluginInfo.getRequiredPlugins()).isEmpty();
+  }
+
+  @Test
+  @UseDataProvider("licenseVersions")
+  public void requiredPlugin_license_among_others_is_ignored_when_reading_manifest(String version) throws IOException {
+    PluginManifest manifest = new PluginManifest();
+    manifest.setKey("java");
+    manifest.setVersion("1.0");
+    manifest.setName("Java");
+    manifest.setMainClass("org.foo.FooPlugin");
+    manifest.setRequirePlugins(new String[] {"java:2.0", "license:" + version, "pmd:1.3"});
+
+    File jarFile = temp.newFile();
+    PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
+    assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsOnly("java", "pmd");
+  }
+
+  @DataProvider
+  public static Object[][] licenseVersions() {
+    return new Object[][] {
+      {"0.3"},
+      {"7.2.0.1253"}
+    };
   }
 
   @Test
