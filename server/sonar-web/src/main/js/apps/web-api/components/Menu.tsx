@@ -22,24 +22,20 @@ import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
-import { isDomainPathActive, actionsFilter } from '../utils';
+import { isDomainPathActive, actionsFilter, Query, serializeQuery } from '../utils';
 import { Domain } from '../../../api/web-api';
 
 interface Props {
   domains: Domain[];
-  showDeprecated: boolean;
-  showInternal: boolean;
-  searchQuery: string;
+  query: Query;
   splat: string;
 }
 
 export default function Menu(props: Props) {
-  const { domains, showInternal, showDeprecated, searchQuery, splat } = props;
+  const { domains, query, splat } = props;
   const filteredDomains = (domains || [])
     .map(domain => {
-      const filteredActions = domain.actions.filter(action =>
-        actionsFilter(showDeprecated, showInternal, searchQuery, domain, action)
-      );
+      const filteredActions = domain.actions.filter(action => actionsFilter(query, domain, action));
       return { ...domain, filteredActions };
     })
     .filter(domain => domain.filteredActions.length);
@@ -53,7 +49,7 @@ export default function Menu(props: Props) {
               active: isDomainPathActive(domain.path, splat)
             })}
             key={domain.path}
-            to={'/web_api/' + domain.path}>
+            to={{ pathname: '/web_api/' + domain.path, query: serializeQuery(query) }}>
             <h3 className="list-group-item-heading">
               {domain.path}
               {domain.deprecated && <DeprecatedBadge />}

@@ -22,8 +22,7 @@ import { shallow } from 'enzyme';
 import Search from '../Search';
 
 const PROPS = {
-  showDeprecated: false,
-  showInternal: false,
+  query: { search: '', deprecated: false, internal: false },
   onSearch: () => {},
   onToggleInternal: () => {},
   onToggleDeprecated: () => {}

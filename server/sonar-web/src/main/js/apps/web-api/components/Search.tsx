@@ -22,26 +22,30 @@ import Checkbox from '../../../components/controls/Checkbox';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import SearchBox from '../../../components/controls/SearchBox';
+import { Query } from '../utils';
 
 interface Props {
-  showDeprecated: boolean;
-  showInternal: boolean;
+  query: Query;
   onSearch: (search: string) => void;
   onToggleInternal: () => void;
   onToggleDeprecated: () => void;
 }
 
 export default function Search(props: Props) {
-  const { showInternal, showDeprecated, onToggleInternal, onToggleDeprecated } = props;
+  const { query, onToggleInternal, onToggleDeprecated } = props;
 
   return (
     <div className="web-api-search">
       <div>
-        <SearchBox onChange={props.onSearch} placeholder={translate('api_documentation.search')} />
+        <SearchBox
+          onChange={props.onSearch}
+          placeholder={translate('api_documentation.search')}
+          value={query.search}
+        />
       </div>
 
       <div className="big-spacer-top">
-        <Checkbox checked={showInternal} className="text-middle" onCheck={onToggleInternal}>
+        <Checkbox checked={query.internal} className="text-middle" onCheck={onToggleInternal}>
           <span className="little-spacer-left">{translate('api_documentation.show_internal')}</span>
         </Checkbox>
         <HelpTooltip
@@ -51,7 +55,7 @@ export default function Search(props: Props) {
       </div>
 
       <div className="spacer-top">
-        <Checkbox checked={showDeprecated} className="text-middle" onCheck={onToggleDeprecated}>
+        <Checkbox checked={query.deprecated} className="text-middle" onCheck={onToggleDeprecated}>
           <span className="little-spacer-left">
             {translate('api_documentation.show_deprecated')}
           </span>

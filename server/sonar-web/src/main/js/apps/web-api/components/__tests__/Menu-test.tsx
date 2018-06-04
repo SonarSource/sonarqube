@@ -45,11 +45,14 @@ const DOMAIN2 = {
 };
 const PROPS = {
   domains: [DOMAIN1, DOMAIN2],
-  showDeprecated: false,
-  showInternal: false,
-  searchQuery: '',
+  query: { search: '', deprecated: false, internal: false },
   splat: ''
 };
+
+const SHOW_DEPRECATED = { search: '', deprecated: true, internal: false };
+const SHOW_INTERNAL = { search: '', deprecated: false, internal: true };
+const SEARCH_FOO = { search: 'Foo', deprecated: false, internal: false };
+const SEARCH_BAR = { search: 'Bar', deprecated: false, internal: false };
 
 it('should render deprecated domains', () => {
   const domain = {
@@ -58,7 +61,7 @@ it('should render deprecated domains', () => {
     actions: [{ ...ACTION, deprecatedSince: '5.0' }]
   };
   const domains = [DOMAIN1, domain];
-  expect(shallow(<Menu {...PROPS} domains={domains} showDeprecated={true} />)).toMatchSnapshot();
+  expect(shallow(<Menu {...PROPS} domains={domains} query={SHOW_DEPRECATED} />)).toMatchSnapshot();
 });
 
 it('should not render deprecated domains', () => {
@@ -68,19 +71,19 @@ it('should not render deprecated domains', () => {
     actions: [{ ...ACTION, deprecatedSince: '5.0' }]
   };
   const domains = [DOMAIN1, domain];
-  expect(shallow(<Menu {...PROPS} domains={domains} showDeprecated={false} />)).toMatchSnapshot();
+  expect(shallow(<Menu {...PROPS} domains={domains} />)).toMatchSnapshot();
 });
 
 it('should render internal domains', () => {
   const domain = { ...DOMAIN2, internal: true, actions: [{ ...ACTION, internal: true }] };
   const domains = [DOMAIN1, domain];
-  expect(shallow(<Menu {...PROPS} domains={domains} showInternal={true} />)).toMatchSnapshot();
+  expect(shallow(<Menu {...PROPS} domains={domains} query={SHOW_INTERNAL} />)).toMatchSnapshot();
 });
 
 it('should not render internal domains', () => {
   const domain = { ...DOMAIN2, internal: true, actions: [{ ...ACTION, internal: true }] };
   const domains = [DOMAIN1, domain];
-  expect(shallow(<Menu {...PROPS} domains={domains} showInternal={false} />)).toMatchSnapshot();
+  expect(shallow(<Menu {...PROPS} domains={domains} />)).toMatchSnapshot();
 });
 
 it('should render only domains with an action matching the query', () => {
@@ -89,7 +92,7 @@ it('should render only domains with an action matching the query', () => {
     actions: [{ ...ACTION, key: 'bar', path: 'bar', description: 'Bar Desc' }]
   };
   const domains = [DOMAIN1, domain];
-  expect(shallow(<Menu {...PROPS} domains={domains} searchQuery="Foo" />)).toMatchSnapshot();
+  expect(shallow(<Menu {...PROPS} domains={domains} query={SEARCH_FOO} />)).toMatchSnapshot();
 });
 
 it('should also render domains with an actions description matching the query', () => {
@@ -100,5 +103,5 @@ it('should also render domains with an actions description matching the query', 
     actions: [{ ...ACTION, key: 'baz', path: 'baz', description: 'barbaz' }]
   };
   const domains = [DOMAIN1, DOMAIN2, domain];
-  expect(shallow(<Menu {...PROPS} domains={domains} searchQuery="Bar" />)).toMatchSnapshot();
+  expect(shallow(<Menu {...PROPS} domains={domains} query={SEARCH_BAR} />)).toMatchSnapshot();
 });

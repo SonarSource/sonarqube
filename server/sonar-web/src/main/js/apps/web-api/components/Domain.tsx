@@ -21,20 +21,16 @@ import * as React from 'react';
 import Action from './Action';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
-import { getActionKey, actionsFilter } from '../utils';
+import { getActionKey, actionsFilter, Query } from '../utils';
 import { Domain as DomainType } from '../../../api/web-api';
 
 interface Props {
   domain: DomainType;
-  showDeprecated: boolean;
-  showInternal: boolean;
-  searchQuery: string;
+  query: Query;
 }
 
-export default function Domain({ domain, showInternal, showDeprecated, searchQuery }: Props) {
-  const filteredActions = domain.actions.filter(action =>
-    actionsFilter(showDeprecated, showInternal, searchQuery, domain, action)
-  );
+export default function Domain({ domain, query }: Props) {
+  const filteredActions = domain.actions.filter(action => actionsFilter(query, domain, action));
 
   return (
     <div className="web-api-domain">
@@ -64,11 +60,11 @@ export default function Domain({ domain, showInternal, showDeprecated, searchQue
       <div className="web-api-domain-actions">
         {filteredActions.map(action => (
           <Action
-            key={getActionKey(domain.path, action.key)}
             action={action}
             domain={domain}
-            showDeprecated={showDeprecated}
-            showInternal={showInternal}
+            key={getActionKey(domain.path, action.key)}
+            showDeprecated={query.deprecated}
+            showInternal={query.internal}
           />
         ))}
       </div>

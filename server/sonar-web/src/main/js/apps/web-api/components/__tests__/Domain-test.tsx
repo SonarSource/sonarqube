@@ -38,16 +38,17 @@ const DOMAIN = {
 };
 const DEFAULT_PROPS = {
   domain: DOMAIN,
-  showDeprecated: false,
-  showInternal: false,
-  searchQuery: ''
+  query: { search: '', deprecated: false, internal: false }
 };
+const SHOW_DEPRECATED = { search: '', deprecated: true, internal: false };
+const SHOW_INTERNAL = { search: '', deprecated: false, internal: true };
+const SEARCH_FOO = { search: 'Foo', deprecated: false, internal: false };
 
 it('should render deprecated actions', () => {
   const action = { ...ACTION, deprecatedSince: '5.0' };
   const domain = { ...DOMAIN, actions: [action] };
   expect(
-    shallow(<Domain {...DEFAULT_PROPS} domain={domain} showDeprecated={true} />)
+    shallow(<Domain {...DEFAULT_PROPS} domain={domain} query={SHOW_DEPRECATED} />)
   ).toMatchSnapshot();
 });
 
@@ -55,7 +56,7 @@ it('should not render deprecated actions', () => {
   const action = { ...ACTION, deprecatedSince: '5.0' };
   const domain = { ...DOMAIN, actions: [action] };
   expect(
-    shallow(<Domain {...DEFAULT_PROPS} domain={domain} showDeprecated={false} />)
+    shallow(<Domain {...DEFAULT_PROPS} domain={domain} query={SHOW_INTERNAL} />)
   ).toMatchSnapshot();
 });
 
@@ -63,23 +64,21 @@ it('should render internal actions', () => {
   const action = { ...ACTION, internal: true };
   const domain = { ...DOMAIN, actions: [action] };
   expect(
-    shallow(<Domain {...DEFAULT_PROPS} domain={domain} showInternal={true} />)
+    shallow(<Domain {...DEFAULT_PROPS} domain={domain} query={SHOW_INTERNAL} />)
   ).toMatchSnapshot();
 });
 
 it('should not render internal actions', () => {
   const action = { ...ACTION, internal: true };
   const domain = { ...DOMAIN, actions: [action] };
-  expect(
-    shallow(<Domain {...DEFAULT_PROPS} domain={domain} showInternal={false} />)
-  ).toMatchSnapshot();
+  expect(shallow(<Domain {...DEFAULT_PROPS} domain={domain} />)).toMatchSnapshot();
 });
 
 it('should render only actions matching the query', () => {
   const actions = [ACTION, { ...ACTION, key: 'bar', description: 'Bar desc' }];
   const domain = { ...DOMAIN, actions };
   expect(
-    shallow(<Domain {...DEFAULT_PROPS} domain={domain} searchQuery="Foo" />)
+    shallow(<Domain {...DEFAULT_PROPS} domain={domain} query={SEARCH_FOO} />)
   ).toMatchSnapshot();
 });
 
@@ -91,6 +90,6 @@ it('should also render actions with a description matching the query', () => {
   ];
   const domain = { ...DOMAIN, actions };
   expect(
-    shallow(<Domain {...DEFAULT_PROPS} domain={domain} searchQuery="Foo" />)
+    shallow(<Domain {...DEFAULT_PROPS} domain={domain} query={SEARCH_FOO} />)
   ).toMatchSnapshot();
 });

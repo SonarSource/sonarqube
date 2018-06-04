@@ -12,7 +12,14 @@ exports[`should also render domains with an actions description matching the que
       key="bar"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/bar"
+      to={
+        Object {
+          "pathname": "/web_api/bar",
+          "query": Object {
+            "query": "Bar",
+          },
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -25,7 +32,14 @@ exports[`should also render domains with an actions description matching the que
       key="baz"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/baz"
+      to={
+        Object {
+          "pathname": "/web_api/baz",
+          "query": Object {
+            "query": "Bar",
+          },
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -49,7 +63,12 @@ exports[`should not render deprecated domains 1`] = `
       key="foo"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/foo"
+      to={
+        Object {
+          "pathname": "/web_api/foo",
+          "query": Object {},
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -73,7 +92,12 @@ exports[`should not render internal domains 1`] = `
       key="foo"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/foo"
+      to={
+        Object {
+          "pathname": "/web_api/foo",
+          "query": Object {},
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -97,7 +121,14 @@ exports[`should render deprecated domains 1`] = `
       key="foo"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/foo"
+      to={
+        Object {
+          "pathname": "/web_api/foo",
+          "query": Object {
+            "deprecated": true,
+          },
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -110,7 +141,14 @@ exports[`should render deprecated domains 1`] = `
       key="bar"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/bar"
+      to={
+        Object {
+          "pathname": "/web_api/bar",
+          "query": Object {
+            "deprecated": true,
+          },
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -134,7 +172,14 @@ exports[`should render internal domains 1`] = `
       key="foo"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/foo"
+      to={
+        Object {
+          "pathname": "/web_api/foo",
+          "query": Object {
+            "internal": true,
+          },
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -147,7 +192,14 @@ exports[`should render internal domains 1`] = `
       key="bar"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/bar"
+      to={
+        Object {
+          "pathname": "/web_api/bar",
+          "query": Object {
+            "internal": true,
+          },
+        }
+      }
     >
       <h3
         className="list-group-item-heading"
@@ -172,7 +224,14 @@ exports[`should render only domains with an action matching the query 1`] = `
       key="foo"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/web_api/foo"
+      to={
+        Object {
+          "pathname": "/web_api/foo",
+          "query": Object {
+            "query": "Foo",
+          },
+        }
+      }
     >
       <h3
         className="list-group-item-heading"

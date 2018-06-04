@@ -26,21 +26,20 @@ import Search from './Search';
 import Domain from './Domain';
 import { Domain as DomainType, fetchWebApi } from '../../../api/web-api';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { getActionKey, isDomainPathActive } from '../utils';
+import { getActionKey, isDomainPathActive, Query, serializeQuery, parseQuery } from '../utils';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { translate } from '../../../helpers/l10n';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { RawQuery } from '../../../helpers/query';
 import '../styles/web-api.css';
 
 interface Props {
+  location: { pathname: string; query: RawQuery };
   params: { splat?: string };
 }
 
 interface State {
   domains: DomainType[];
-  searchQuery: string;
-  showDeprecated: boolean;
-  showInternal: boolean;
 }
 
 export default class WebApiApp extends React.PureComponent<Props, State> {
@@ -52,12 +51,7 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      domains: [],
-      searchQuery: '',
-      showDeprecated: false,
-      showInternal: false
-    };
+    this.state = { domains: [] };
   }
 
   componentDidMount() {
@@ -103,47 +97,62 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
     }
   };
 
+  updateQuery = (newQuery: Partial<Query>) => {
+    const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
+    this.context.router.push({ pathname: this.props.location.pathname, query });
+  };
+
   toggleInternalInitially() {
     const splat = this.props.params.splat || '';
-    const { domains, showInternal } = this.state;
+    const { domains } = this.state;
+    const query = parseQuery(this.props.location.query);
 
-    if (!showInternal) {
-      domains.forEach(domain => {
-        if (domain.path === splat && domain.internal) {
-          this.setState({ showInternal: true });
+    if (!query.internal && splat) {
+      const domain = domains.find(domain => domain.path.startsWith(splat));
+      if (domain) {
+        let action;
+        if (domain.path !== splat) {
+          action = domain.actions.find(action => getActionKey(domain.path, action.key) === splat);
         }
-        domain.actions.forEach(action => {
-          const actionKey = getActionKey(domain.path, action.key);
-          if (actionKey === splat && action.internal) {
-            this.setState({ showInternal: true });
-          }
-        });
-      });
+        if (domain.internal || (action && action.internal)) {
+          this.updateQuery({ internal: true });
+        }
+      }
     }
   }
 
-  handleSearch = (searchQuery: string) => this.setState({ searchQuery });
+  handleSearch = (search: string) => {
+    this.updateQuery({ search });
+  };
 
   handleToggleInternal = () => {
     const splat = this.props.params.splat || '';
     const { router } = this.context;
     const { domains } = this.state;
     const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
-    const showInternal = !this.state.showInternal;
+    const query = parseQuery(this.props.location.query);
+    const internal = !query.internal;
 
-    if (domain && domain.internal && !showInternal) {
-      router.push('/web_api');
+    if (domain && domain.internal && !internal) {
+      router.push({
+        pathname: '/web_api',
+        query: { ...serializeQuery(query), internal: false }
+      });
+      return;
     }
 
-    this.setState({ showInternal });
+    this.updateQuery({ internal });
   };
 
-  handleToggleDeprecated = () =>
-    this.setState(state => ({ showDeprecated: !state.showDeprecated }));
+  handleToggleDeprecated = () => {
+    const query = parseQuery(this.props.location.query);
+    this.updateQuery({ deprecated: !query.deprecated });
+  };
 
   render() {
     const splat = this.props.params.splat || '';
-    const { domains, showInternal, showDeprecated, searchQuery } = this.state;
+    const query = parseQuery(this.props.location.query);
+    const { domains } = this.state;
 
     const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
 
@@ -163,20 +172,13 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
                   </div>
 
                   <Search
-                    showDeprecated={showDeprecated}
-                    showInternal={showInternal}
                     onSearch={this.handleSearch}
-                    onToggleInternal={this.handleToggleInternal}
                     onToggleDeprecated={this.handleToggleDeprecated}
+                    onToggleInternal={this.handleToggleInternal}
+                    query={query}
                   />
 
-                  <Menu
-                    domains={this.state.domains}
-                    showDeprecated={showDeprecated}
-                    showInternal={showInternal}
-                    searchQuery={searchQuery}
-                    splat={splat}
-                  />
+                  <Menu domains={this.state.domains} query={query} splat={splat} />
                 </div>
               </div>
             </div>
@@ -185,15 +187,7 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
 
         <div className="layout-page-main">
           <div className="layout-page-main-inner">
-            {domain && (
-              <Domain
-                key={domain.path}
-                domain={domain}
-                showDeprecated={showDeprecated}
-                showInternal={showInternal}
-                searchQuery={searchQuery}
-              />
-            )}
+            {domain && <Domain domain={domain} key={domain.path} query={query} />}
           </div>
         </div>
       </div>
