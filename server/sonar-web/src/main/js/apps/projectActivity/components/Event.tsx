@@ -17,41 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import EventInner from './EventInner';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DeleteButton, EditButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Event as EventType } from '../types'; */
+import { Event as IEvent } from '../../../api/projectActivity';
 
-/*::
-type Props = {
-  analysis: string,
-  canAdmin: boolean,
-  changeEvent: (event: string, name: string) => Promise<*>,
-  deleteEvent: (analysis: string, event: string) => Promise<*>,
-  event: EventType,
-  isFirst: boolean
-};
-*/
+interface Props {
+  analysis: string;
+  canAdmin: boolean;
+  changeEvent: (event: string, name: string) => Promise<void>;
+  deleteEvent: (analysis: string, event: string) => Promise<void>;
+  event: IEvent;
+  isFirst: boolean;
+}
 
-/*::
-type State = {
-  changing: boolean,
-  deleting: boolean
-};
-*/
+interface State {
+  changing: boolean;
+  deleting: boolean;
+}
 
-export default class Event extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    changing: false,
-    deleting: false
-  };
+export default class Event extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { changing: false, deleting: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -113,11 +104,13 @@ export default class Event extends React.PureComponent {
 
         {this.state.changing && (
           <ChangeEventForm
-            changeEventButtonText={
-              'project_activity.' + (isVersion ? 'change_version' : 'change_custom_event')
-            }
             changeEvent={this.props.changeEvent}
             event={this.props.event}
+            header={
+              isVersion
+                ? translate('project_activity.change_version')
+                : translate('project_activity.change_custom_event')
+            }
             onClose={this.stopChanging}
           />
         )}
@@ -127,10 +120,12 @@ export default class Event extends React.PureComponent {
             analysis={this.props.analysis}
             deleteEvent={this.props.deleteEvent}
             event={this.props.event}
-            onClose={this.stopDeleting}
-            removeEventButtonText={
-              'project_activity.' + (isVersion ? 'remove_version' : 'remove_custom_event')
+            header={
+              isVersion
+                ? translate('project_activity.remove_version')
+                : translate('project_activity.remove_custom_event')
             }
+            onClose={this.stopDeleting}
             removeEventQuestion={`project_activity.${
               isVersion ? 'remove_version' : 'remove_custom_event'
             }.question`}

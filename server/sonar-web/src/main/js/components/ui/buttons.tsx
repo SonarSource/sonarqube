@@ -27,6 +27,7 @@ import Tooltip from '../controls/Tooltip';
 import './buttons.css';
 
 interface ButtonProps {
+  autoFocus?: boolean;
   className?: string;
   children?: React.ReactNode;
   disabled?: boolean;

@@ -10,6 +10,7 @@ exports[`should confirm and close after confirm 1`] = `
     timeout={100}
   />
   <SubmitButton
+    autoFocus={true}
     disabled={true}
   >
     confirm
@@ -61,7 +62,9 @@ exports[`should render correctly 2`] = `
         loading={false}
         timeout={100}
       />
-      <SubmitButton>
+      <SubmitButton
+        autoFocus={true}
+      >
         confirm
       </SubmitButton>
       <ResetButtonLink
