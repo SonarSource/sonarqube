@@ -18,17 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { InjectedRouter } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { QualityGate } from '../../../app/types';
+import { getQualityGateUrl } from '../../../helpers/urls';
 
-export default function Intro() {
-  return (
-    <div className="layout-page-main">
-      <div className="layout-page-main-inner">
-        <div className="search-navigator-intro markdown">
-          <p>{translate('quality_gates.intro.1')}</p>
-          <p>{translate('quality_gates.intro.2')}</p>
+interface Props {
+  organization?: string;
+  qualityGates: QualityGate[];
+  router: InjectedRouter;
+}
+
+export default class Intro extends React.PureComponent<Props> {
+  componentDidMount() {
+    const defaultQualityGate = this.props.qualityGates.find(qualityGate =>
+      Boolean(qualityGate.isDefault)
+    );
+    if (defaultQualityGate) {
+      this.props.router.replace(
+        getQualityGateUrl(String(defaultQualityGate.id), this.props.organization)
+      );
+    }
+  }
+
+  render() {
+    return (
+      <div className="layout-page-main">
+        <div className="layout-page-main-inner">
+          <div className="search-navigator-intro markdown">
+            <p>{translate('quality_gates.intro.1')}</p>
+            <p>{translate('quality_gates.intro.2')}</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }

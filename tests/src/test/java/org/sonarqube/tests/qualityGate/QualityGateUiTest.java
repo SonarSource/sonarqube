@@ -118,7 +118,7 @@ public class QualityGateUiTest {
       .logIn().submitCredentials(admin)
       .openQualityGates()
       .canCreateQG()
-      .displayIntro();
+      .displayQualityGateDetail("Sonar way");
   }
 
   @Test

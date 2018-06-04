@@ -85,7 +85,7 @@ public class OrganizationQualityGateUiTest {
     QualityGatePage page = tester.openBrowser()
       .logIn().submitCredentials(gateAdmin.getLogin())
       .openQualityGates(organization.getKey());
-    page.countQualityGates(1).displayIntro();
+    page.countQualityGates(1).displayQualityGateDetail("Sonar way");
   }
 
   @Test

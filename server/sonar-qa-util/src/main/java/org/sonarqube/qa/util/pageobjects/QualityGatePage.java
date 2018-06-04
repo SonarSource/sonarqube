@@ -53,11 +53,6 @@ public class QualityGatePage {
     return this;
   }
 
-  public QualityGatePage displayIntro() {
-    $(".search-navigator-intro").should(exist).shouldBe(visible);
-    return this;
-  }
-
   public QualityGatePage displayQualityGateDetail(String qualityGateName) {
     $(".layout-page-main-header").shouldHave(text(qualityGateName));
     return this;
