@@ -24,7 +24,6 @@ export interface License {
   contactEmail: string;
   edition: string;
   expiresAt: string;
-  invalidInstalledPlugins: string[];
   isExpired: boolean;
   isOfficialDistribution: boolean;
   isSupported: boolean;
