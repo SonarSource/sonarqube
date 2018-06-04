@@ -50,7 +50,7 @@ export default function Analysis({ analysis, ...props }: Props) {
       </div>
 
       {sortedEvents.length > 0 ? (
-        <div className="project-activity-events">
+        <div className="overview-activity-events">
           {sortedEvents.map(event => <Event event={event} key={event.key} />)}
         </div>
       ) : (

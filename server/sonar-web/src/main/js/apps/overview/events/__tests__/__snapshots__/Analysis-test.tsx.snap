@@ -14,7 +14,7 @@ exports[`should sort the events with version first 1`] = `
     </strong>
   </div>
   <div
-    className="project-activity-events"
+    className="overview-activity-events"
   >
     <Event
       event={

@@ -418,6 +418,12 @@
   max-width: 120px;
 }
 
+.overview-activity-events {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .overview-analysis-event {
   display: inline-block;
 }
