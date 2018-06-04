@@ -84,3 +84,8 @@
 .web-api-params tr:first-child td {
   border-top: none;
 }
+
+.web-api-params td code {
+  white-space: normal;
+  word-wrap: break-word;
+}
