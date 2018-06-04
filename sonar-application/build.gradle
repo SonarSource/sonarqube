@@ -74,7 +74,7 @@ jar {
   }
 }
 
-task zip(type: Zip) {
+task zip(type: Zip, dependsOn: [configurations.ce, configurations.scanner, configurations.server]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$version"
 
