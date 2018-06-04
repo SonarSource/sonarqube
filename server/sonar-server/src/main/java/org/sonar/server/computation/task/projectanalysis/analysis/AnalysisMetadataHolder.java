@@ -105,7 +105,7 @@ public interface AnalysisMetadataHolder {
    *
    * @throws IllegalStateException if current analysis is not a pull request
    */
-  String getPullRequestId();
+  String getPullRequestKey();
 
   /**
    * The project as represented by the main branch. It is used to load settings

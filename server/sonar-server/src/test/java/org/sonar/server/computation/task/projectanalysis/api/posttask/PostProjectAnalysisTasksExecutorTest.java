@@ -302,7 +302,7 @@ public class PostProjectAnalysisTasksExecutorTest {
       }
 
       @Override
-      public String getPullRequestId() {
+      public String getPullRequestKey() {
         throw new UnsupportedOperationException();
       }
 

@@ -46,7 +46,7 @@ public class ProjectConfigurationFactory {
     Settings projectSettings = new ChildSettings(globalSettings);
     addSettings(projectSettings, projectKey);
     if (branch.getType() == BranchType.PULL_REQUEST) {
-      addSettings(projectSettings, generatePullRequestKey(projectKey, branch.getPullRequestId()));
+      addSettings(projectSettings, generatePullRequestKey(projectKey, branch.getPullRequestKey()));
     } else {
       addSettings(projectSettings, generateBranchKey(projectKey, branch.getName()));
     }

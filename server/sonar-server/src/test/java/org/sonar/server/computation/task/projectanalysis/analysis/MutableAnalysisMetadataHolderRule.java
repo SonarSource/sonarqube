@@ -122,13 +122,13 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public String getPullRequestId() {
-    return delegate.getPullRequestId();
+  public String getPullRequestKey() {
+    return delegate.getPullRequestKey();
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setPullRequestId(String pullRequestId) {
-    delegate.setPullRequestId(pullRequestId);
+  public MutableAnalysisMetadataHolder setPullRequestKey(String pullRequestKey) {
+    delegate.setPullRequestKey(pullRequestKey);
     return this;
   }
 

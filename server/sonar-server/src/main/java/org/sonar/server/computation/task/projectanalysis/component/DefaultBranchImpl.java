@@ -86,7 +86,7 @@ public class DefaultBranchImpl implements Branch {
   }
 
   @Override
-  public String getPullRequestId() {
+  public String getPullRequestKey() {
     throw new IllegalStateException("Only a branch of type PULL_REQUEST can have a pull request id.");
   }
 

@@ -171,13 +171,13 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setPullRequestId(String pullRequestId) {
-    this.pullRequestId.setProperty(pullRequestId);
+  public MutableAnalysisMetadataHolder setPullRequestKey(String pullRequestKey) {
+    this.pullRequestId.setProperty(pullRequestKey);
     return this;
   }
 
   @Override
-  public String getPullRequestId() {
+  public String getPullRequestKey() {
     checkState(pullRequestId.isInitialized(), "Pull request id has not been set");
     return pullRequestId.getProperty();
   }

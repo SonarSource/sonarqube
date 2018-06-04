@@ -57,5 +57,5 @@ public interface Branch extends ComponentKeyGenerator {
   /**
    * @throws IllegalStateException if this branch configuration is not a pull request.
    */
-  String getPullRequestId();
+  String getPullRequestKey();
 }

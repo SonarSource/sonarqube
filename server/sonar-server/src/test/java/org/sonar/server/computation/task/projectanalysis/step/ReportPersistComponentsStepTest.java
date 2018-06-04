@@ -944,7 +944,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
-    public String getPullRequestId() {
+    public String getPullRequestKey() {
       throw new UnsupportedOperationException();
     }
 

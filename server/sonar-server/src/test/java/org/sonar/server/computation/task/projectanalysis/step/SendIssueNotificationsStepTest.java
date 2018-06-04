@@ -20,23 +20,18 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -68,7 +63,6 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
@@ -233,7 +227,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newPullRequest());
-    analysisMetadataHolder.setPullRequestId(PULL_REQUEST_ID);
+    analysisMetadataHolder.setPullRequestKey(PULL_REQUEST_ID);
 
     underTest.execute();
 
@@ -500,7 +494,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(branch.isMain()).thenReturn(false);
     when(branch.getType()).thenReturn(PULL_REQUEST);
     when(branch.getName()).thenReturn(BRANCH_NAME);
-    when(branch.getPullRequestId()).thenReturn(PULL_REQUEST_ID);
+    when(branch.getPullRequestKey()).thenReturn(PULL_REQUEST_ID);
     return branch;
   }
 

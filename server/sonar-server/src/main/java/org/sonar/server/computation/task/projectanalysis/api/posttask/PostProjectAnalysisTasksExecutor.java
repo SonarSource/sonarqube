@@ -181,7 +181,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private BranchImpl createBranch() {
     org.sonar.server.computation.task.projectanalysis.analysis.Branch analysisBranch = analysisMetadataHolder.getBranch();
     if (!analysisBranch.isLegacyFeature()) {
-      String branchKey = analysisBranch.getType() == PULL_REQUEST ? analysisBranch.getPullRequestId() : analysisBranch.getName();
+      String branchKey = analysisBranch.getType() == PULL_REQUEST ? analysisBranch.getPullRequestKey() : analysisBranch.getName();
       return new BranchImpl(analysisBranch.isMain(), branchKey, Branch.Type.valueOf(analysisBranch.getType().name()));
     }
     return null;

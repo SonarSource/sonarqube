@@ -224,7 +224,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   @CheckForNull
   private String getPullRequest() {
     Branch branch = analysisMetadataHolder.getBranch();
-    return branch.getType() == PULL_REQUEST ? analysisMetadataHolder.getPullRequestId() : null;
+    return branch.getType() == PULL_REQUEST ? analysisMetadataHolder.getPullRequestKey() : null;
   }
 
 }

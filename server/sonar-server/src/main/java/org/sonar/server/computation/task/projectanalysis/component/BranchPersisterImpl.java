@@ -88,7 +88,7 @@ public class BranchPersisterImpl implements BranchPersister {
     dto.setMergeBranchUuid(branch.getMergeBranchUuid().orElse(null));
 
     if (branch.getType() == BranchType.PULL_REQUEST) {
-      dto.setKey(analysisMetadataHolder.getPullRequestId());
+      dto.setKey(analysisMetadataHolder.getPullRequestKey());
 
       DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
         .setBranch(branch.getName())

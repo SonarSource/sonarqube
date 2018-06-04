@@ -247,27 +247,27 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
     String pullRequestId = "pr-123";
-    underTest.setPullRequestId(pullRequestId);
+    underTest.setPullRequestKey(pullRequestId);
 
-    assertThat(underTest.getPullRequestId()).isEqualTo(pullRequestId);
+    assertThat(underTest.getPullRequestKey()).isEqualTo(pullRequestId);
   }
 
   @Test
   public void getPullRequestId_throws_ISE_when_holder_is_not_initialized() {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Pull request id has not been set");
+    expectedException.expectMessage("Pull request key has not been set");
 
-    new AnalysisMetadataHolderImpl().getPullRequestId();
+    new AnalysisMetadataHolderImpl().getPullRequestKey();
   }
 
   @Test
   public void setPullRequestId_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setPullRequestId("pr-123");
+    underTest.setPullRequestKey("pr-123");
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Pull request id has already been set");
-    underTest.setPullRequestId("pr-234");
+    expectedException.expectMessage("Pull request key has already been set");
+    underTest.setPullRequestKey("pr-234");
   }
 
   @Test
