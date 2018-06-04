@@ -25,6 +25,7 @@ import ComponentLink from './ComponentLink';
 import ComponentPin from './ComponentPin';
 import { Component as IComponent } from '../types';
 import { BranchLike } from '../../../app/types';
+import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
 
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
@@ -83,6 +84,7 @@ export default class Component extends React.PureComponent<Props> {
     } = this.props;
     const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
     const isApplication = rootComponent.qualifier === 'APP';
+    const hideCoverageAndDuplicates = isShortLivingBranch(branchLike) || isPullRequest(branchLike);
 
     let componentAction = null;
 
@@ -111,8 +113,8 @@ export default class Component extends React.PureComponent<Props> {
           { metric: 'bugs', type: 'SHORT_INT' },
           { metric: 'vulnerabilities', type: 'SHORT_INT' },
           { metric: 'code_smells', type: 'SHORT_INT' },
-          { metric: 'coverage', type: 'PERCENT' },
-          { metric: 'duplicated_lines_density', type: 'PERCENT' }
+          !hideCoverageAndDuplicates && { metric: 'coverage', type: 'PERCENT' },
+          !hideCoverageAndDuplicates && { metric: 'duplicated_lines_density', type: 'PERCENT' }
         ].filter(Boolean) as Array<{ metric: string; type: string }>);
 
     return (
@@ -123,15 +125,15 @@ export default class Component extends React.PureComponent<Props> {
         <td className="code-name-cell">
           <ComponentName
             branchLike={branchLike}
-            component={component}
-            rootComponent={rootComponent}
-            previous={previous}
             canBrowse={canBrowse}
+            component={component}
+            previous={previous}
+            rootComponent={rootComponent}
           />
         </td>
 
         {columns.map(column => (
-          <td key={column.metric} className="thin nowrap text-right">
+          <td className="thin nowrap text-right" key={column.metric}>
             <div className="code-components-cell">
               <ComponentMeasure
                 component={component}

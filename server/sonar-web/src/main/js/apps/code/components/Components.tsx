@@ -36,7 +36,11 @@ export default function Components(props: Props) {
   const { baseComponent, branchLike, components, rootComponent, selected } = props;
   return (
     <table className="data zebra">
-      <ComponentsHeader baseComponent={baseComponent} rootComponent={rootComponent} />
+      <ComponentsHeader
+        baseComponent={baseComponent}
+        branchLike={branchLike}
+        rootComponent={rootComponent}
+      />
       {baseComponent && (
         <tbody>
           <Component

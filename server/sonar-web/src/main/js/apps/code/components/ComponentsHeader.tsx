@@ -20,15 +20,19 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../types';
+import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
+import { BranchLike } from '../../../app/types';
 
 interface Props {
+  branchLike?: BranchLike;
   baseComponent?: Component;
   rootComponent: Component;
 }
 
-export default function ComponentsHeader({ baseComponent, rootComponent }: Props) {
+export default function ComponentsHeader({ baseComponent, branchLike, rootComponent }: Props) {
   const isPortfolio = rootComponent.qualifier === 'VW' || rootComponent.qualifier === 'SVW';
   const isApplication = rootComponent.qualifier === 'APP';
+  const hideCoverageAndDuplicates = isShortLivingBranch(branchLike) || isPullRequest(branchLike);
 
   const columns = isPortfolio
     ? [
@@ -44,8 +48,8 @@ export default function ComponentsHeader({ baseComponent, rootComponent }: Props
         translate('metric', 'bugs', 'name'),
         translate('metric', 'vulnerabilities', 'name'),
         translate('metric', 'code_smells', 'name'),
-        translate('metric', 'coverage', 'name'),
-        translate('metric', 'duplicated_lines_density', 'short_name')
+        !hideCoverageAndDuplicates && translate('metric', 'coverage', 'name'),
+        !hideCoverageAndDuplicates && translate('metric', 'duplicated_lines_density', 'short_name')
       ].filter(Boolean) as string[]);
 
   return (
