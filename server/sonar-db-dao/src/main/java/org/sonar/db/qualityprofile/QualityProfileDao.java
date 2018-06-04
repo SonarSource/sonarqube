@@ -71,8 +71,12 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectOrderedByOrganizationUuid(organization.getUuid());
   }
 
-  public List<RulesProfileDto> selectBuiltInRulesProfiles(DbSession dbSession) {
+  public List<RulesProfileDto> selectBuiltInRuleProfiles(DbSession dbSession) {
     return mapper(dbSession).selectBuiltInRuleProfiles();
+  }
+
+  public List<QProfileDto> selectBuiltInRuleProfilesWithActiveRules(DbSession dbSession) {
+    return mapper(dbSession).selectBuiltInRuleProfilesWithActiveRules();
   }
 
   @CheckForNull
@@ -129,6 +133,10 @@ public class QualityProfileDao implements Dao {
 
   public List<QProfileDto> selectDefaultProfiles(DbSession dbSession, OrganizationDto organization, Collection<String> languages) {
     return executeLargeInputs(languages, partition -> mapper(dbSession).selectDefaultProfiles(organization.getUuid(), partition));
+  }
+
+  public List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(DbSession dbSession) {
+    return mapper(dbSession).selectDefaultBuiltInProfilesWithoutActiveRules();
   }
 
   @CheckForNull

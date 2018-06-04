@@ -284,7 +284,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       .collect(uniqueIndex(BuiltInQProfile::getQProfileName));
 
     List<DefaultQProfileDto> defaults = new ArrayList<>();
-    dbClient.qualityProfileDao().selectBuiltInRulesProfiles(dbSession).forEach(rulesProfile -> {
+    dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession).forEach(rulesProfile -> {
       OrgQProfileDto dto = new OrgQProfileDto()
         .setOrganizationUuid(organization.getUuid())
         .setRulesProfileUuid(rulesProfile.getKee())

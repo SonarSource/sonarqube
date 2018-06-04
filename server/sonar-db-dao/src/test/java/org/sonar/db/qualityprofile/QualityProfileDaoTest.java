@@ -38,6 +38,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.rule.RuleDefinitionDto;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
@@ -480,6 +481,26 @@ public class QualityProfileDaoTest {
     assertThat(dto2.getName()).isEqualTo("Child2");
     assertThat(dto2.getLanguage()).isEqualTo("java");
     assertThat(dto2.getParentKee()).isEqualTo("java_parent");
+  }
+
+  @Test
+  public void selectBuiltInRuleProfilesWithActiveRules() {
+    // a quality profile without active rules but not builtin
+    db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(false));
+
+    // a built-in quality profile without active rules
+    db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(true));
+
+    // a built-in quality profile with active rules
+    QProfileDto builtInQPWithActiveRules = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(true));
+    RuleDefinitionDto ruleDefinitionDto = db.rules().insert();
+    db.qualityProfiles().activateRule(builtInQPWithActiveRules, ruleDefinitionDto);
+
+    dbSession.commit();
+
+    List<QProfileDto> qProfileDtos = underTest.selectBuiltInRuleProfilesWithActiveRules(dbSession);
+    assertThat(qProfileDtos).extracting(QProfileDto::getName)
+      .containsOnly(builtInQPWithActiveRules.getName());
   }
 
   @Test

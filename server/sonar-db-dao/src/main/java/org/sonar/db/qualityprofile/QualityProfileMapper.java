@@ -42,6 +42,8 @@ public interface QualityProfileMapper {
 
   List<RulesProfileDto> selectBuiltInRuleProfiles();
 
+  List<QProfileDto> selectBuiltInRuleProfilesWithActiveRules();
+
   @CheckForNull
   RulesProfileDto selectRuleProfile(@Param("uuid") String ruleProfileUuid);
 
@@ -49,6 +51,8 @@ public interface QualityProfileMapper {
 
   @CheckForNull
   QProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
+
+  List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules();
 
   List<QProfileDto> selectDefaultProfiles(
     @Param("organizationUuid") String organizationUuid,

@@ -319,7 +319,7 @@ public class QProfileFactoryImplTest {
   }
 
   private void assertThatRulesProfileExists(RulesProfileDto rulesProfile) {
-    assertThat(db.getDbClient().qualityProfileDao().selectBuiltInRulesProfiles(dbSession))
+    assertThat(db.getDbClient().qualityProfileDao().selectBuiltInRuleProfiles(dbSession))
       .extracting(RulesProfileDto::getKee)
       .containsExactly(rulesProfile.getKee());
     assertThat(db.countRowsOfTable(dbSession, "active_rules")).isGreaterThan(0);

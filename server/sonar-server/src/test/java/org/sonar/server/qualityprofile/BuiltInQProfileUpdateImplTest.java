@@ -322,7 +322,7 @@ public class BuiltInQProfileUpdateImplTest {
   }
 
   private void assertThatProfileIsMarkedAsUpdated(RulesProfileDto dto) {
-    RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectBuiltInRulesProfiles(db.getSession())
+    RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectBuiltInRuleProfiles(db.getSession())
       .stream()
       .filter(p -> p.getKee().equals(dto.getKee()))
       .findFirst()
@@ -331,7 +331,7 @@ public class BuiltInQProfileUpdateImplTest {
   }
 
   private void assertThatProfileIsNotMarkedAsUpdated(RulesProfileDto dto) {
-    RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectBuiltInRulesProfiles(db.getSession())
+    RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectBuiltInRuleProfiles(db.getSession())
       .stream()
       .filter(p -> p.getKee().equals(dto.getKee()))
       .findFirst()
@@ -355,5 +355,4 @@ public class BuiltInQProfileUpdateImplTest {
     db.getDbClient().activeRuleDao().insert(db.getSession(), dto);
     db.commit();
   }
-
 }
