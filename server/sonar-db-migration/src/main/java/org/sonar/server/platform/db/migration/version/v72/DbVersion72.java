@@ -54,6 +54,7 @@ public class DbVersion72 implements DbVersion {
       .add(2124, "Add FILE_SOURCE.LINE_COUNT", AddFileSourceLineCount.class)
       .add(2125, "Populate FILE_SOURCE.LINE_COUNT", PopulateFileSourceLineCount.class)
       .add(2126, "Make FILE_SOURCE.LINE_COUNT not nullable", MakeFileSourceLineCountNotNullable.class)
+      .add(2127, "Purge orphans for Compute Engine", PurgeOrphansForCE.class)
     ;
   }
 }
