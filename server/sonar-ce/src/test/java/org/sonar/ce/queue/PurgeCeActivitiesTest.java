@@ -19,18 +19,26 @@
  */
 package org.sonar.ce.queue;
 
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskTypes;
 
 import static java.time.ZoneOffset.UTC;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,13 +64,25 @@ public class PurgeCeActivitiesTest {
     underTest.start();
 
     assertThat(selectActivity("VERY_OLD").isPresent()).isFalse();
+    assertThat(selectTaskInput("VERY_OLD").isPresent()).isFalse();
+    assertThat(selectTaskCharecteristic("VERY_OLD")).hasSize(0);
     assertThat(scannerContextExists("VERY_OLD")).isFalse();
+
     assertThat(selectActivity("JUST_OLD_ENOUGH").isPresent()).isFalse();
+    assertThat(selectTaskInput("JUST_OLD_ENOUGH").isPresent()).isFalse();
+    assertThat(selectTaskCharecteristic("JUST_OLD_ENOUGH")).hasSize(0);
     assertThat(scannerContextExists("JUST_OLD_ENOUGH")).isFalse();
+
     assertThat(selectActivity("NOT_OLD_ENOUGH").isPresent()).isTrue();
+    assertThat(selectTaskInput("NOT_OLD_ENOUGH").isPresent()).isTrue();
+    assertThat(selectTaskCharecteristic("NOT_OLD_ENOUGH")).hasSize(1);
     assertThat(scannerContextExists("NOT_OLD_ENOUGH")).isFalse(); // because more than 4 weeks old
+
     assertThat(selectActivity("RECENT").isPresent()).isTrue();
+    assertThat(selectTaskInput("RECENT").isPresent()).isTrue();
+    assertThat(selectTaskCharecteristic("RECENT")).hasSize(1);
     assertThat(scannerContextExists("RECENT")).isTrue();
+
   }
 
   @Test
@@ -82,8 +102,16 @@ public class PurgeCeActivitiesTest {
     assertThat(scannerContextExists("RECENT")).isTrue();
   }
 
-  private Optional<CeActivityDto> selectActivity(String very_old) {
-    return dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), very_old);
+  private Optional<CeActivityDto> selectActivity(String taskUuid) {
+    return dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), taskUuid);
+  }
+
+  private List<CeTaskCharacteristicDto> selectTaskCharecteristic(String taskUuid) {
+    return dbTester.getDbClient().ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), Collections.singletonList(taskUuid));
+  }
+
+  private Optional<CeTaskInputDao.DataStream> selectTaskInput(String taskUuid) {
+    return dbTester.getDbClient().ceTaskInputDao().selectData(dbTester.getSession(), taskUuid);
   }
 
   private boolean scannerContextExists(String uuid) {
@@ -99,7 +127,15 @@ public class PurgeCeActivitiesTest {
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);
     when(system2.now()).thenReturn(date);
+    CeTaskCharacteristicDto ceTaskCharacteristicDto = new CeTaskCharacteristicDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setValue(randomAlphanumeric(10))
+      .setKey(randomAlphanumeric(10))
+      .setTaskUuid(dto.getUuid());
+
+    dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), dto.getUuid(), IOUtils.toInputStream(randomAlphanumeric(10), Charset.forName("UTF-8")));
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), dto);
+    dbTester.getDbClient().ceTaskCharacteristicsDao().insert(dbTester.getSession(), Collections.singletonList(ceTaskCharacteristicDto));
     dbTester.getSession().commit();
 
     insertScannerContext(uuid, date);

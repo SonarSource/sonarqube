@@ -21,10 +21,12 @@ package org.sonar.db.ce;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class CeTaskCharacteristicDao implements Dao {
 
@@ -36,6 +38,10 @@ public class CeTaskCharacteristicDao implements Dao {
 
   public List<CeTaskCharacteristicDto> selectByTaskUuids(DbSession dbSession, List<String> taskUuids) {
     return executeLargeInputs(taskUuids, uuid -> mapper(dbSession).selectByTaskUuids(uuid));
+  }
+
+  public void deleteByTaskUuids(DbSession dbSession, Set<String> taskUuids) {
+    executeLargeUpdates(taskUuids, mapper(dbSession)::deleteByTaskUuids);
   }
 
   private static CeTaskCharacteristicMapper mapper(DbSession session) {

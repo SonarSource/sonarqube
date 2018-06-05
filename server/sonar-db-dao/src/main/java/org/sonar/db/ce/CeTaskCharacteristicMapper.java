@@ -28,4 +28,5 @@ public interface CeTaskCharacteristicMapper {
 
   void insert(CeTaskCharacteristicDto taskCharacteristic);
 
+  void deleteByTaskUuids(@Param("taskUuids") List<String> taskUuids);
 }

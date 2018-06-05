@@ -58,6 +58,8 @@ public class PurgeCeActivities implements Startable {
         .map(CeActivityDto::getUuid)
         .collect(toSet());
       dbClient.ceActivityDao().deleteByUuids(dbSession, ceActivityUuids);
+      dbClient.ceTaskCharacteristicsDao().deleteByTaskUuids(dbSession, ceActivityUuids);
+      dbClient.ceTaskInputDao().deleteByUuids(dbSession, ceActivityUuids);
 
       Date fourWeeksAgo = DateUtils.addDays(new Date(system2.now()), -28);
 

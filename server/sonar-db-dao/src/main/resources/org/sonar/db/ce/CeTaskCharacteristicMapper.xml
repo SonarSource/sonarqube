@@ -34,4 +34,13 @@
     )
   </insert>
 
+  <delete id="deleteByTaskUuids" parameterType="string">
+    DELETE
+    FROM ce_task_characteristics
+    WHERE
+      task_uuid IN
+      <foreach collection="taskUuids" open="(" close=")" item="taskUuid" separator=",">
+        #{taskUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
 </mapper>
