@@ -30,6 +30,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.Location;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -103,8 +104,8 @@ public class ItUtils {
     builder.setEdition(COMMUNITY);
     String version = System.getProperty("sonar.runtimeVersion");
     if (StringUtils.isEmpty(version)) {
-      File zip = FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile();
-      builder.setZipFile(zip);
+      Location zip = FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip");
+      builder.setZipLocation(zip);
     } else {
       builder.setSonarVersion(version);
     }

@@ -22,6 +22,7 @@ package org.sonar.db;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.Location;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -35,8 +36,8 @@ public class CreateDb {
     builder.setEdition(COMMUNITY);
     String version = System.getProperty("sonar.runtimeVersion");
     if (StringUtils.isEmpty(version)) {
-      File zip = FileLocation.byWildcardMavenFilename(new File("../../sonar-application/build/distributions"), "sonar-application-*.zip").getFile();
-      builder.setZipFile(zip);
+      Location zip = FileLocation.byWildcardMavenFilename(new File("../../sonar-application/build/distributions"), "sonar-application-*.zip");
+      builder.setZipLocation(zip);
     } else {
       builder.setSonarVersion(version);
     }
