@@ -46,14 +46,14 @@
       and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
 
-    <select id="selectStaleShortLivingBranches" parameterType="map" resultType="String">
+    <select id="selectStaleShortLivingBranchesAndPullRequests" parameterType="map" resultType="String">
     select
       pb.uuid
     from
       project_branches pb
     where
         pb.project_uuid=#{mainBranchProjectUuid,jdbcType=VARCHAR}
-        and pb.branch_type='SHORT'
+        and (pb.branch_type='SHORT' or pb.branch_type='PULL_REQUEST')
         and pb.updated_at &lt; #{toDate}
   </select>
 
