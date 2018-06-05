@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import DeferredSpinner from '../common/DeferredSpinner';
 
 interface Props {
   checked: boolean;
@@ -26,6 +27,7 @@ interface Props {
   children?: React.ReactNode;
   className?: string;
   id?: string;
+  loading?: boolean;
   onCheck: (checked: boolean, id?: string) => void;
   thirdState?: boolean;
 }
@@ -60,10 +62,16 @@ export default class Checkbox extends React.PureComponent<Props> {
           href="#"
           id={this.props.id}
           onClick={this.handleClick}>
-          <i className={className} />
+          <DeferredSpinner loading={Boolean(this.props.loading)}>
+            <i className={className} />
+          </DeferredSpinner>
           {this.props.children}
         </a>
       );
+    }
+
+    if (this.props.loading) {
+      return <DeferredSpinner />;
     }
 
     return (

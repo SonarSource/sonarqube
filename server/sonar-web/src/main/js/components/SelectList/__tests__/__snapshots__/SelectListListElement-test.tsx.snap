@@ -7,6 +7,7 @@ exports[`should display a loader when checking 1`] = `
   <Checkbox
     checked={false}
     className="select-list-list-checkbox"
+    loading={false}
     onCheck={[Function]}
     thirdState={false}
   >
@@ -26,6 +27,7 @@ exports[`should display a loader when checking 2`] = `
   <Checkbox
     checked={false}
     className="select-list-list-checkbox"
+    loading={false}
     onCheck={[Function]}
     thirdState={false}
   >

@@ -76,6 +76,6 @@ export default class DeferredSpinner extends React.PureComponent<Props, State> {
         this.props.customSpinner || <i className={classNames('spinner', this.props.className)} />
       );
     }
-    return (this.props.children as JSX.Element) || null;
+    return this.props.children || null;
   }
 }

@@ -84,10 +84,6 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   renderContent() {
-    if (this.state.loading) {
-      return <DeferredSpinner />;
-    }
-
     if (this.state.notFound) {
       return <NotFound withContainer={false} />;
     }
@@ -131,7 +127,7 @@ export default class App extends React.PureComponent<Props, State> {
 
         <div className="layout-page-main">
           <div className="layout-page-main-inner documentation-layout-inner">
-            {this.renderContent()}
+            <DeferredSpinner loading={this.state.loading}>{this.renderContent()}</DeferredSpinner>;
           </div>
         </div>
       </div>
