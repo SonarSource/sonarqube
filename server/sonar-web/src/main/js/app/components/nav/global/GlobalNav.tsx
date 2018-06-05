@@ -29,9 +29,7 @@ import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
 import { isLoggedIn, CurrentUser, AppState } from '../../../types';
 import NavBar from '../../../../components/nav/NavBar';
-import Tooltip from '../../../../components/controls/Tooltip';
 import { lazyLoad } from '../../../../components/lazyLoad';
-import { translate } from '../../../../helpers/l10n';
 import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
 import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
 import { isSonarCloud } from '../../../../helpers/system';
@@ -51,33 +49,8 @@ interface OwnProps {
 
 type Props = StateProps & OwnProps;
 
-interface State {
-  onboardingTutorialTooltip: boolean;
-}
-
-class GlobalNav extends React.PureComponent<Props, State> {
-  interval?: number;
-
-  static contextTypes = {
-    closeOnboardingTutorial: PropTypes.func,
-    openOnboardingTutorial: PropTypes.func
-  };
-
-  state: State = { onboardingTutorialTooltip: false };
-
-  componentWillUnmount() {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-  }
-
-  closeOnboardingTutorial = () => {
-    this.setState({ onboardingTutorialTooltip: true });
-    this.context.closeOnboardingTutorial();
-    this.interval = window.setInterval(() => {
-      this.setState({ onboardingTutorialTooltip: false });
-    }, 3000);
-  };
+class GlobalNav extends React.PureComponent<Props> {
+  static contextTypes = { openOnboardingTutorial: PropTypes.func };
 
   render() {
     return (
@@ -90,18 +63,13 @@ class GlobalNav extends React.PureComponent<Props, State> {
           {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper
             currentUser={this.props.currentUser}
-            showTooltip={this.state.onboardingTutorialTooltip}
             suggestions={this.props.suggestions}
             tooltip={!isSonarCloud()}
           />
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           {isLoggedIn(this.props.currentUser) &&
             isSonarCloud() && (
-              <Tooltip
-                overlay={translate('tutorials.follow_later')}
-                visible={this.state.onboardingTutorialTooltip}>
-                <GlobalNavPlus openOnboardingTutorial={this.context.openOnboardingTutorial} />
-              </Tooltip>
+              <GlobalNavPlus openOnboardingTutorial={this.context.openOnboardingTutorial} />
             )}
           <GlobalNavUserContainer {...this.props} />
         </ul>

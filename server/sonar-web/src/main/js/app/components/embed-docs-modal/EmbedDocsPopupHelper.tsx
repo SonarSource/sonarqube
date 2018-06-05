@@ -22,13 +22,10 @@ import EmbedDocsPopup from './EmbedDocsPopup';
 import { SuggestionLink } from './SuggestionsProvider';
 import { CurrentUser } from '../../types';
 import Toggler from '../../../components/controls/Toggler';
-import Tooltip from '../../../components/controls/Tooltip';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
-import { translate } from '../../../helpers/l10n';
 
 interface Props {
   currentUser: CurrentUser;
-  showTooltip: boolean;
   suggestions: Array<SuggestionLink>;
   tooltip: boolean;
 }
@@ -90,13 +87,9 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<Props, Sta
               suggestions={this.props.suggestions}
             />
           }>
-          <Tooltip
-            overlay={this.props.tooltip ? translate('tutorials.follow_later') : undefined}
-            visible={this.props.showTooltip}>
-            <a className="navbar-help" href="#" onClick={this.handleClick}>
-              <HelpIcon />
-            </a>
-          </Tooltip>
+          <a className="navbar-help" href="#" onClick={this.handleClick}>
+            <HelpIcon />
+          </a>
         </Toggler>
       </li>
     );
