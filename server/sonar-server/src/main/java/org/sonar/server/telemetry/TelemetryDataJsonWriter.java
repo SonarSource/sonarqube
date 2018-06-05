@@ -19,6 +19,7 @@
  */
 package org.sonar.server.telemetry;
 
+import java.util.Locale;
 import org.sonar.api.utils.text.JsonWriter;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -32,6 +33,7 @@ public class TelemetryDataJsonWriter {
     json.beginObject();
     json.prop("id", statistics.getServerId());
     json.prop("version", statistics.getVersion());
+    statistics.getEdition().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
     json.name("database");
     json.beginObject();
     json.prop("name", statistics.getDatabase().getName());

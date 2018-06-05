@@ -26,6 +26,7 @@ import java.util.function.Function;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -46,13 +47,16 @@ public class TelemetryDataLoader {
   private final PluginRepository pluginRepository;
   private final UserIndex userIndex;
   private final ProjectMeasuresIndex projectMeasuresIndex;
+  private final PlatformEditionProvider editionProvider;
 
-  public TelemetryDataLoader(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex) {
+  public TelemetryDataLoader(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
+    PlatformEditionProvider editionProvider) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
     this.userIndex = userIndex;
     this.projectMeasuresIndex = projectMeasuresIndex;
+    this.editionProvider = editionProvider;
   }
 
   public TelemetryData load() {
@@ -60,6 +64,7 @@ public class TelemetryDataLoader {
 
     data.setServerId(server.getId());
     data.setVersion(server.getVersion());
+    data.setEdition(editionProvider.get());
     Function<PluginInfo, String> getVersion = plugin -> plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
     Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey, getVersion));
     data.setPlugins(plugins);

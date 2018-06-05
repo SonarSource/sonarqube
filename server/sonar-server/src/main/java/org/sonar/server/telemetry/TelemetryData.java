@@ -20,6 +20,8 @@
 package org.sonar.server.telemetry;
 
 import java.util.Map;
+import java.util.Optional;
+import org.sonar.core.platform.EditionProvider;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
 import static java.util.Objects.requireNonNull;
@@ -35,6 +37,7 @@ public class TelemetryData {
   private final Database database;
   private final Map<String, Long> projectCountByLanguage;
   private final Map<String, Long> nclocByLanguage;
+  private final Optional<EditionProvider.Edition> edition;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -47,6 +50,7 @@ public class TelemetryData {
     database = builder.database;
     projectCountByLanguage = builder.projectMeasuresStatistics.getProjectCountByLanguage();
     nclocByLanguage = builder.projectMeasuresStatistics.getNclocByLanguage();
+    edition = builder.edition;
   }
 
   public String getServerId() {
@@ -89,6 +93,10 @@ public class TelemetryData {
     return nclocByLanguage;
   }
 
+  public Optional<EditionProvider.Edition> getEdition() {
+    return edition;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -102,6 +110,7 @@ public class TelemetryData {
     private ProjectMeasuresStatistics projectMeasuresStatistics;
     private Long ncloc;
     private Boolean usingBranches;
+    private Optional<EditionProvider.Edition> edition;
 
     private Builder() {
       // enforce static factory method
@@ -147,6 +156,11 @@ public class TelemetryData {
       return this;
     }
 
+    public Builder setEdition(Optional<EditionProvider.Edition> edition) {
+      this.edition = edition;
+      return this;
+    }
+
     TelemetryData build() {
       requireNonNull(serverId);
       requireNonNull(version);
@@ -155,6 +169,7 @@ public class TelemetryData {
       requireNonNull(ncloc);
       requireNonNull(database);
       requireNonNull(usingBranches);
+      requireNonNull(edition);
 
       return new TelemetryData(this);
     }

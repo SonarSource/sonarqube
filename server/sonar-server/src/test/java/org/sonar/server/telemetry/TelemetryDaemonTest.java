@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import org.junit.After;
 import org.junit.Rule;
@@ -33,6 +34,8 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbSession;
@@ -96,9 +99,11 @@ public class TelemetryDaemonTest {
   private MapSettings settings = new MapSettings();
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
+  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
-  private TelemetryDaemon underTest = new TelemetryDaemon(new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2)), client, settings.asConfig(), internalProperties, system2);
+  private final TelemetryDataLoader dataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider);
+  private TelemetryDaemon underTest = new TelemetryDaemon(dataLoader, client, settings.asConfig(), internalProperties, system2);
 
   @After
   public void tearDown() {
@@ -113,6 +118,7 @@ public class TelemetryDaemonTest {
     server.setVersion("7.5.4");
     List<PluginInfo> plugins = asList(newPlugin("java", "4.12.0.11033"), newPlugin("scmgit", "1.2"), new PluginInfo("other"));
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
     IntStream.range(0, 3).forEach(i -> db.users().insertUser());
     db.users().insertUser(u -> u.setActive(false));
@@ -139,8 +145,7 @@ public class TelemetryDaemonTest {
 
     underTest.start();
 
-    ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
-    verify(client, timeout(2_000).atLeastOnce()).upload(jsonCaptor.capture());
+    ArgumentCaptor<String> jsonCaptor = captureJson();
     String json = jsonCaptor.getValue();
     assertJson(json).ignoreFields("database").isSimilarTo(getClass().getResource("telemetry-example.json"));
     assertJson(getClass().getResource("telemetry-example.json")).ignoreFields("database").isSimilarTo(json);
@@ -178,8 +183,7 @@ public class TelemetryDaemonTest {
 
     underTest.start();
 
-    ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
-    verify(client, timeout(2_000).atLeastOnce()).upload(jsonCaptor.capture());
+    ArgumentCaptor<String> jsonCaptor = captureJson();
     assertJson(jsonCaptor.getValue()).isSimilarTo("{\n" +
       "  \"ncloc\": 20\n" +
       "}\n");
@@ -219,8 +223,7 @@ public class TelemetryDaemonTest {
     server.setVersion(version);
     underTest.start();
 
-    ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
-    verify(client, timeout(2_000).atLeastOnce()).upload(json.capture());
+    ArgumentCaptor<String> json = captureJson();
     assertThat(json.getValue()).contains(id, version);
   }
 
@@ -275,5 +278,11 @@ public class TelemetryDaemonTest {
     settings.setProperty(SONAR_TELEMETRY_ENABLE.getKey(), SONAR_TELEMETRY_ENABLE.getDefaultValue());
     settings.setProperty(SONAR_TELEMETRY_URL.getKey(), SONAR_TELEMETRY_URL.getDefaultValue());
     settings.setProperty(SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getKey(), SONAR_TELEMETRY_FREQUENCY_IN_SECONDS.getDefaultValue());
+  }
+
+  private ArgumentCaptor<String> captureJson() throws IOException {
+    ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
+    verify(client, timeout(2_000).atLeastOnce()).upload(jsonCaptor.capture());
+    return jsonCaptor;
   }
 }
