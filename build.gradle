@@ -61,6 +61,10 @@ allprojects {
       }
     }
   }
+
+  task printDependencies {
+    dependsOn 'dependencies'
+  }
 }
 
 subprojects {

@@ -150,6 +150,13 @@ Execute from project base directory:
 Execute from project base directory:
 
     ./gradlew licenseFormat --rerun-tasks
+    
+### List all dependencies
+
+Execute from project base directory:
+
+    ./gradlew printDependencies
+    
 
 License
 -------
