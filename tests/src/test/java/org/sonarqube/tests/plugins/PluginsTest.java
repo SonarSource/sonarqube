@@ -23,12 +23,16 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.Location;
 import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.locator.URLLocation;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,8 +56,8 @@ import org.sonarqube.tests.plugins.checks.SwiftCheck;
 import org.sonarqube.tests.plugins.checks.Validation;
 import org.sonarqube.tests.plugins.checks.WebCheck;
 
+import static com.sonar.orchestrator.container.Edition.ENTERPRISE;
 import static org.assertj.core.api.Assertions.fail;
-import static util.ItUtils.newOrchestratorBuilder;
 
 /**
  * Verify that latest releases of the plugins available in update center
@@ -82,8 +86,18 @@ public class PluginsTest {
 
   @BeforeClass
   public static void startServer() throws MalformedURLException {
-    OrchestratorBuilder builder = newOrchestratorBuilder();
-
+    OrchestratorBuilder builder = Orchestrator.builderEnv()
+      .setEdition(ENTERPRISE)
+      .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+      .setOrchestratorProperty("orchestrator.workspaceDir", "build/it")
+      .activateLicense();
+    String version = System.getProperty("sonar.runtimeVersion");
+    if (StringUtils.isEmpty(version)) {
+      Location zip = FileLocation.byWildcardMavenFilename(new File("../private/edition-enterprise/build/distributions"), "sonarqube-enterprise-*.zip");
+      builder.setZipLocation(zip);
+    } else {
+      builder.setSonarVersion(version);
+    }
     installPlugin(builder, "com.sonarsource.abap", "sonar-abap-plugin");
     installPlugin(builder, "org.codehaus.sonar-plugins.android", "sonar-android-plugin");
     installPlugin(builder, "org.sonarsource.auth.bitbucket", "sonar-auth-bitbucket-plugin");
@@ -117,7 +131,6 @@ public class PluginsTest {
     installPlugin(builder, "com.sonarsource.vbnet", "sonar-vbnet-plugin");
     installPlugin(builder, "org.sonarsource.web", "sonar-web-plugin");
     installPlugin(builder, "org.sonarsource.xml", "sonar-xml-plugin");
-    installPlugin(builder, "com.sonarsource.license", "sonar-dev-license-plugin");
 
     builder.activateLicense();
 
