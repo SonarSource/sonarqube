@@ -53,6 +53,7 @@ enum ModalKey {
 }
 
 interface State {
+  automatic: boolean;
   modal?: ModalKey;
 }
 
@@ -60,17 +61,13 @@ const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
 export class StartupModal extends React.PureComponent<Props, State> {
   static childContextTypes = {
-    closeOnboardingTutorial: PropTypes.func,
     openOnboardingTutorial: PropTypes.func
   };
 
-  state: State = {};
+  state: State = { automatic: false };
 
   getChildContext() {
-    return {
-      closeOnboardingTutorial: this.closeOnboarding,
-      openOnboardingTutorial: this.openOnboarding
-    };
+    return { openOnboardingTutorial: this.openOnboarding };
   }
 
   componentDidMount() {
@@ -81,7 +78,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
     this.setState(state => {
       if (state.modal === ModalKey.onboarding) {
         this.props.skipOnboarding();
-        return { modal: undefined };
+        return { automatic: false, modal: undefined };
       }
       return undefined;
     });
@@ -90,7 +87,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   closeLicense = () => {
     this.setState(state => {
       if (state.modal === ModalKey.license) {
-        return { modal: undefined };
+        return { automatic: false, modal: undefined };
       }
       return undefined;
     });
@@ -112,7 +109,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
         return showLicense().then(license => {
           if (!license || !license.isValidEdition) {
             save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
-            this.setState({ modal: ModalKey.license });
+            this.setState({ automatic: true, modal: ModalKey.license });
             return Promise.resolve();
           }
           return Promise.reject('License exists');
@@ -124,17 +121,20 @@ export class StartupModal extends React.PureComponent<Props, State> {
 
   tryAutoOpenOnboarding = () => {
     if (this.props.currentUser.showOnboardingTutorial) {
+      this.setState({ automatic: true });
       this.openOnboarding();
     }
   };
 
   render() {
-    const { modal } = this.state;
+    const { automatic, modal } = this.state;
     return (
       <>
         {this.props.children}
         {modal === ModalKey.license && <LicensePromptModal onClose={this.closeLicense} />}
-        {modal === ModalKey.onboarding && <OnboardingModal onFinish={this.closeOnboarding} />}
+        {modal === ModalKey.onboarding && (
+          <OnboardingModal automatic={automatic} onFinish={this.closeOnboarding} />
+        )}
       </>
     );
   }

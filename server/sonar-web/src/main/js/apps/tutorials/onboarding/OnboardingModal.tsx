@@ -23,15 +23,16 @@ import { translate } from '../../../helpers/l10n';
 import { lazyLoad } from '../../../components/lazyLoad';
 
 interface Props {
+  automatic?: boolean;
   onFinish: () => void;
 }
 
 const OnboardingContainer = lazyLoad(() => import('./OnboardingContainer'));
 
-export default function OnboardingModal({ onFinish }: Props) {
+export default function OnboardingModal(props: Props) {
   return (
     <Modal contentLabel={translate('tutorials.onboarding')} large={true}>
-      <OnboardingContainer onFinish={onFinish} />
+      <OnboardingContainer {...props} />
     </Modal>
   );
 }

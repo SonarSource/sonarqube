@@ -23,13 +23,18 @@ exports[`guides for on-premise 1`] = `
       <div
         className="page-actions"
       >
-        <a
-          className="js-skip text-muted"
-          href="#"
-          onClick={[Function]}
+        <DeferredSpinner
+          loading={false}
+          timeout={100}
         >
-          tutorials.skip
-        </a>
+          <a
+            className="js-skip text-muted"
+            href="#"
+            onClick={[Function]}
+          >
+            close
+          </a>
+        </DeferredSpinner>
         <p
           className="note"
         >
@@ -88,13 +93,18 @@ exports[`guides for on-premise 2`] = `
       <div
         className="page-actions"
       >
-        <a
-          className="js-skip text-muted"
-          href="#"
-          onClick={[Function]}
+        <DeferredSpinner
+          loading={false}
+          timeout={100}
         >
-          tutorials.skip
-        </a>
+          <a
+            className="js-skip text-muted"
+            href="#"
+            onClick={[Function]}
+          >
+            close
+          </a>
+        </DeferredSpinner>
         <p
           className="note"
         >
@@ -152,13 +162,18 @@ exports[`guides for sonarcloud 1`] = `
       <div
         className="page-actions"
       >
-        <a
-          className="js-skip text-muted"
-          href="#"
-          onClick={[Function]}
+        <DeferredSpinner
+          loading={false}
+          timeout={100}
         >
-          tutorials.skip
-        </a>
+          <a
+            className="js-skip text-muted"
+            href="#"
+            onClick={[Function]}
+          >
+            close
+          </a>
+        </DeferredSpinner>
         <p
           className="note"
         >
@@ -228,13 +243,18 @@ exports[`guides for sonarcloud 2`] = `
       <div
         className="page-actions"
       >
-        <a
-          className="js-skip text-muted"
-          href="#"
-          onClick={[Function]}
+        <DeferredSpinner
+          loading={false}
+          timeout={100}
         >
-          tutorials.skip
-        </a>
+          <a
+            className="js-skip text-muted"
+            href="#"
+            onClick={[Function]}
+          >
+            close
+          </a>
+        </DeferredSpinner>
         <p
           className="note"
         >
@@ -305,13 +325,18 @@ exports[`guides for sonarcloud 3`] = `
       <div
         className="page-actions"
       >
-        <a
-          className="js-skip text-muted"
-          href="#"
-          onClick={[Function]}
+        <DeferredSpinner
+          loading={false}
+          timeout={100}
         >
-          tutorials.skip
-        </a>
+          <a
+            className="js-skip text-muted"
+            href="#"
+            onClick={[Function]}
+          >
+            close
+          </a>
+        </DeferredSpinner>
         <p
           className="note"
         >

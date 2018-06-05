@@ -25,16 +25,18 @@ import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
 import ProjectWatcher from './ProjectWatcher';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { skipOnboarding } from '../../../api/users';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
-import './styles.css';
 import { isSonarCloud } from '../../../helpers/system';
+import './styles.css';
 
 /*::
 type Props = {|
+  automatic?:boolean,
   className?: string,
   currentUser: { login: string, isLoggedIn: boolean },
   onFinish: () => void,
@@ -145,7 +147,7 @@ export default class Onboarding extends React.PureComponent {
       return null;
     }
 
-    const { organizationsEnabled } = this.props;
+    const { automatic, organizationsEnabled } = this.props;
     const { step, token } = this.state;
     let stepNumber = 1;
 
@@ -161,13 +163,12 @@ export default class Onboarding extends React.PureComponent {
               <InstanceMessage message={translate('onboarding.header')} />
             </h1>
             <div className="page-actions">
-              {this.state.skipping ? (
-                <i className="spinner" />
-              ) : (
+              <DeferredSpinner loading={this.state.skipping}>
                 <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
-                  {translate('tutorials.skip')}
+                  {automatic ? translate('tutorials.skip') : translate('close')}
                 </a>
-              )}
+              </DeferredSpinner>
+
               <p className="note">
                 {translate(
                   isSonarCloud()
