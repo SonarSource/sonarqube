@@ -25,7 +25,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.MavenBuild;
 import com.sonar.orchestrator.container.Server;
-import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -149,7 +148,7 @@ public class UpgradeTest {
       .setSonarVersion(sqVersion)
       .setOrchestratorProperty("orchestrator.keepDatabase", "false")
       .setOrchestratorProperty("orchestrator.workspaceDir", "build/it")
-      .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "5.1.0.13090"))
+      .keepBundledPlugins()
       .setStartupLogWatcher(log -> log.contains("Process[web] is up"));
     orchestrator = builder.build();
     orchestrator.start();
@@ -159,7 +158,7 @@ public class UpgradeTest {
   private void startAndUpgradeDevServer() {
     OrchestratorBuilder builder = newOrchestratorBuilder()
       .setOrchestratorProperty("orchestrator.keepDatabase", "true")
-      .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
+      .keepBundledPlugins()
       .setStartupLogWatcher(log -> log.contains("Database must be upgraded"));
     orchestrator = builder.build();
     orchestrator.start();
