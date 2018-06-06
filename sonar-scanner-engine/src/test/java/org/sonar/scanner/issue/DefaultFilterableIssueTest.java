@@ -50,7 +50,11 @@ public class DefaultFilterableIssueTest {
     Issue.Builder builder = Issue.newBuilder();
 
     builder.setGap(3.0);
-    builder.setTextRange(TextRange.newBuilder().setStartLine(30));
+    builder.setTextRange(TextRange.newBuilder()
+      .setStartLine(30)
+      .setStartOffset(10)
+      .setEndLine(31)
+      .setEndOffset(3));
     builder.setSeverity(Severity.MAJOR);
     return builder.build();
   }
@@ -72,6 +76,10 @@ public class DefaultFilterableIssueTest {
     assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.creationDate()).isEqualTo(new Date(10_000));
     assertThat(issue.line()).isEqualTo(30);
+    assertThat(issue.textRange().start().line()).isEqualTo(30);
+    assertThat(issue.textRange().start().lineOffset()).isEqualTo(10);
+    assertThat(issue.textRange().end().line()).isEqualTo(31);
+    assertThat(issue.textRange().end().lineOffset()).isEqualTo(3);
     assertThat(issue.projectKey()).isEqualTo("projectKey");
     assertThat(issue.effortToFix()).isEqualTo(3.0);
     assertThat(issue.severity()).isEqualTo("MAJOR");

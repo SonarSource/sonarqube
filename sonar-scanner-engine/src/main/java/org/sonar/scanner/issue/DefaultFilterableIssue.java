@@ -26,7 +26,10 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.scanner.ProjectAnalysisInfo;
@@ -66,9 +69,21 @@ public class DefaultFilterableIssue implements FilterableIssue {
     return rawIssue.getMsg();
   }
 
+  @Deprecated
   @Override
   public Integer line() {
     return rawIssue.hasTextRange() ? rawIssue.getTextRange().getStartLine() : null;
+  }
+
+  @Override
+  public TextRange textRange() {
+    if (!rawIssue.hasTextRange()) {
+      return null;
+    }
+
+    return new DefaultTextRange(
+      new DefaultTextPointer(rawIssue.getTextRange().getStartLine(), rawIssue.getTextRange().getStartOffset()),
+      new DefaultTextPointer(rawIssue.getTextRange().getEndLine(), rawIssue.getTextRange().getEndOffset()));
   }
 
   @Override

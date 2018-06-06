@@ -22,6 +22,7 @@ package org.sonar.api.scan.issue.filter;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.ThreadSafe;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.rule.RuleKey;
 
 /**
@@ -38,8 +39,19 @@ public interface FilterableIssue {
 
   String message();
 
+  /**
+   * @deprecated since 7.2. Use {@link #textRange() instead}.
+   */
+  
+  @Deprecated
   @CheckForNull
   Integer line();
+
+  /**
+   * @since 7.2 
+   */
+  @CheckForNull
+  TextRange textRange();
 
   /**
    * @deprecated since 5.5 use {@link #gap()}
