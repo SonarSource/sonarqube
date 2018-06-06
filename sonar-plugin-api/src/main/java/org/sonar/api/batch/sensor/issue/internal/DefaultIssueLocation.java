@@ -20,14 +20,18 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.apache.commons.lang.StringUtils.trim;
 
 public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
 
@@ -37,7 +41,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
 
   @Override
   public DefaultIssueLocation on(InputComponent component) {
-    Preconditions.checkArgument(component != null, "Component can't be null");
+    checkArgument(component != null, "Component can't be null");
     Preconditions.checkState(this.component == null, "on() already called");
     this.component = component;
     return this;
@@ -56,8 +60,19 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public DefaultIssueLocation message(String message) {
     requireNonNull(message, "Message can't be null");
-    this.message = StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_MAX_SIZE);
+    if (message.contains("\u0000")) {
+      throw new IllegalArgumentException(unsupportedCharacterError(message, component));
+    }
+    this.message = abbreviate(trim(message), MESSAGE_MAX_SIZE);
     return this;
+  }
+
+  private static String unsupportedCharacterError(String message, @Nullable InputComponent component) {
+    String error = "Character \\u0000 is not supported in issue message '" + message + "'";
+    if (component != null) {
+      error += ", on component: " + component.toString();
+    }
+    return error;
   }
 
   @Override
@@ -73,6 +88,12 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public String message() {
     return this.message;
+  }
+
+  public static void main (String[] args) {
+
+    new DefaultIssueLocation().message("pipo");
+
   }
 
 }

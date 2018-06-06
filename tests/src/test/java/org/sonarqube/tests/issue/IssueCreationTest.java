@@ -21,16 +21,22 @@ package org.sonarqube.tests.issue;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
 import static util.ItUtils.runProjectAnalysis;
 
 public class IssueCreationTest extends AbstractIssueTest {
+
+  @Rule
+  public ExpectedException thrown = none();
 
   private static final String SAMPLE_PROJECT_KEY = "sample";
   private static final int ISSUE_MESSAGE_MAX_LENGTH = 1_333;
@@ -58,6 +64,17 @@ public class IssueCreationTest extends AbstractIssueTest {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
     issue = issueClient().find(IssueQuery.create()).list().get(0);
     assertThat(issue.message()).isEqualTo("Issue With Custom Message");
+  }
+
+  @Test
+  public void fail_if_message_contains_null_character(){
+    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
+
+    thrown.expect(java.lang.IllegalStateException.class);
+
+    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.customMessage.message", "a \u0000 0message");
   }
 
   @Test

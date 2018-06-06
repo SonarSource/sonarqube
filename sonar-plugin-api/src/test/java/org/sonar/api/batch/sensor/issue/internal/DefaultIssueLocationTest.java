@@ -20,6 +20,9 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,15 +30,25 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
 
 public class DefaultIssueLocationTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException thrown = none();
 
   private InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
     .build();
+
+  @Test
+  public void should_build() {
+    assertThat(new DefaultIssueLocation()
+      .on(inputFile)
+      .message("pipo bimbo")
+      .message()
+    ).isEqualTo("pipo bimbo");
+  }
 
   @Test
   public void not_allowed_to_call_on_twice() {
@@ -56,6 +69,39 @@ public class DefaultIssueLocationTest {
     assertThat(new DefaultIssueLocation()
       .on(inputFile)
       .message(StringUtils.repeat("a", 4001)).message()).hasSize(4000);
+  }
+
+  @Test
+  public void prevent_null_character_in_message_text() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Character \\u0000 is not supported in issue message");
+
+    new DefaultIssueLocation()
+      .message("pipo " + '\u0000' + " bimbo");
+  }
+
+  @Test
+  public void prevent_null_character_in_message_text_when_builder_has_been_initialized() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(customMatcher("Character \\u0000 is not supported in issue message", ", on component: src/Foo.php"));
+
+    new DefaultIssueLocation()
+      .on(inputFile)
+      .message("pipo " + '\u0000' + " bimbo");
+  }
+
+  private Matcher<String> customMatcher(String startWith, String endWith) {
+    return new TypeSafeMatcher<String>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("Invalid message");
+      }
+
+      @Override
+      protected boolean matchesSafely(final String item) {
+        return item.startsWith(startWith) && item.endsWith(endWith);
+      }
+    };
   }
 
 }
