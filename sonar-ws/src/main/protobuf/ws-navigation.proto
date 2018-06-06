@@ -1,0 +1,17 @@
+// Copyright (C) 2018-2018 SonarSource SA
+// All rights reserved
+// mailto:info AT sonarsource DOT com
+syntax = "proto2";
+
+package sonarqube.ws.navigation;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Navigation";
+
+option optimize_for = SPEED;
+
+// POST api/navigation/marketplace
+message MarketplaceResponse {
+  optional string serverId = 1;
+  optional int64  ncloc = 2;
+}

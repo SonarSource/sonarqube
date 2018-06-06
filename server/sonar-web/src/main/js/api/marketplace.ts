@@ -45,7 +45,3 @@ export function showLicense(): Promise<License> {
     return throwGlobalError(e);
   });
 }
-
-export function getFormData(): Promise<{ serverId: string; ncloc: number }> {
-  return getJSON('/api/editions/form_data').catch(throwGlobalError);
-}

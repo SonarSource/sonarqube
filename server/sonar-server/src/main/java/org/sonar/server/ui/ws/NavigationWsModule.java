@@ -29,6 +29,7 @@ public class NavigationWsModule extends Module {
       OrganizationAction.class,
       ComponentAction.class,
       GlobalAction.class,
+      MarketplaceAction.class,
       SettingsAction.class);
   }
 }

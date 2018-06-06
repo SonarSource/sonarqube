@@ -31,6 +31,10 @@ export function getComponentNavigation(
   return getJSON('/api/navigation/component', data).catch(throwGlobalError);
 }
 
+export function getMarketplaceNavigation(): Promise<{ serverId: string; ncloc: number }> {
+  return getJSON('/api/navigation/marketplace').catch(throwGlobalError);
+}
+
 export function getSettingsNavigation(): Promise<any> {
   return getJSON('/api/navigation/settings').catch(throwGlobalError);
 }

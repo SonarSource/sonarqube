@@ -21,7 +21,7 @@
 import * as React from 'react';
 import EditionBox from './components/EditionBox';
 import { EDITIONS, EditionKey } from './utils';
-import { getFormData } from '../../api/marketplace';
+import { getMarketplaceNavigation } from '../../api/nav';
 
 export interface Props {
   currentEdition?: EditionKey;
@@ -38,15 +38,15 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchFormData();
+    this.fetchData();
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchFormData = () => {
-    getFormData().then(
+  fetchData = () => {
+    getMarketplaceNavigation().then(
       formData => {
         if (this.mounted) {
           this.setState({ ...formData });
