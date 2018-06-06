@@ -12,12 +12,16 @@ exports[`renders 1`] = `
         "id": "123",
         "status": "PENDING",
         "submittedAt": "2017-01-01",
+        "submitterLogin": "yoda",
         "type": "REPORT",
       }
     }
   />
   <TaskId
     id="123"
+  />
+  <TaskSubmitter
+    submitter="yoda"
   />
   <TaskDay
     submittedAt="2017-01-01"
@@ -41,6 +45,7 @@ exports[`renders 1`] = `
         "id": "123",
         "status": "PENDING",
         "submittedAt": "2017-01-01",
+        "submitterLogin": "yoda",
         "type": "REPORT",
       }
     }

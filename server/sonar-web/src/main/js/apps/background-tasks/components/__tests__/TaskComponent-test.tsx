@@ -29,6 +29,7 @@ const TASK = {
   organization: 'org',
   status: 'PENDING',
   submittedAt: '2017-01-01',
+  submitterLogin: 'yoda',
   type: 'REPORT'
 };
 

@@ -17,23 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface Task {
-  branch?: string;
-  branchType?: string;
-  componentKey?: string;
-  componentName?: string;
-  componentQualifier?: string;
-  errorMessage?: string;
-  executedAt?: string;
-  executionTimeMs?: number;
-  hasScannerContext?: boolean;
-  id: string;
-  organization?: string;
-  pullRequest?: string;
-  pullRequestTitle?: string;
-  startedAt?: string;
-  status: string;
-  submittedAt: string;
-  submitterLogin?: string;
-  type: string;
+import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
+
+interface Props {
+  submitter?: string;
+}
+
+export default function TaskSubmitter({ submitter }: Props) {
+  return <td className="thin nowrap note">{submitter || translate('anonymous')}</td>;
 }

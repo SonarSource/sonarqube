@@ -56,6 +56,7 @@ export default class Tasks extends React.PureComponent {
               <th>{translate('background_tasks.table.status')}</th>
               <th>{translate('background_tasks.table.task')}</th>
               <th>{translate('background_tasks.table.id')}</th>
+              <th className="text-right">{translate('background_tasks.table.submitter')}</th>
               <th>&nbsp;</th>
               <th className="text-right">{translate('background_tasks.table.submitted')}</th>
               <th className="text-right">{translate('background_tasks.table.started')}</th>
@@ -67,13 +68,13 @@ export default class Tasks extends React.PureComponent {
           <tbody>
             {tasks.map((task, index, tasks) => (
               <Task
-                key={task.id}
-                task={task}
-                tasks={tasks}
                 component={component}
+                key={task.id}
                 onCancelTask={onCancelTask}
                 onFilterTask={onFilterTask}
                 previousTask={index > 0 ? tasks[index - 1] : undefined}
+                task={task}
+                tasks={tasks}
               />
             ))}
           </tbody>

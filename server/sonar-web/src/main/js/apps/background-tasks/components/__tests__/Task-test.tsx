@@ -32,6 +32,7 @@ it('renders', () => {
           status: 'PENDING',
           id: '123',
           submittedAt: '2017-01-01',
+          submitterLogin: 'yoda',
           type: 'REPORT'
         }}
       />
