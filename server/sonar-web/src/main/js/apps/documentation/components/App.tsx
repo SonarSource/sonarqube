@@ -48,6 +48,11 @@ export default class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchContent(this.props.params.splat || 'index');
+
+    const footer = document.getElementById('footer');
+    if (footer) {
+      footer.classList.add('page-footer-with-sidebar', 'documentation-footer');
+    }
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -60,6 +65,11 @@ export default class App extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+
+    const footer = document.getElementById('footer');
+    if (footer) {
+      footer.classList.remove('page-footer-with-sidebar', 'documentation-footer');
+    }
   }
 
   fetchContent = (path: string) => {

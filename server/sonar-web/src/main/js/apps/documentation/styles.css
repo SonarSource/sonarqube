@@ -25,3 +25,8 @@
   margin-bottom: calc(4 * var(--gridSize));
   font-size: 20px;
 }
+
+.documentation-footer div,
+.documentation-footer .page-footer-menu {
+  max-width: 740px;
+}
