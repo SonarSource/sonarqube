@@ -21,6 +21,8 @@ package org.sonar.scanner.mediumtest.coverage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,7 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class GenericCoverageMediumTest {
-
+  private final List<String> logs = new ArrayList<>();
+  
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
@@ -45,6 +48,7 @@ public class GenericCoverageMediumTest {
     File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-coverage");
 
     TaskResult result = tester
+      .setLogOutput((msg, level) -> logs.add(msg))
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml")
       .execute();
@@ -76,8 +80,23 @@ public class GenericCoverageMediumTest {
         tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 1, ""),
         tuple(CoreMetrics.CONDITIONS_BY_LINE_KEY, 0, "3=2"),
         tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "3=1")
-
     );
+    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
+
+  }
+  
+  @Test
+  public void warnAboutDeprecatedProperty() {
+    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-coverage");
+
+    tester
+      .setLogOutput((msg, level) -> logs.add(msg))
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.genericcoverage.reportPath", "coverage.xml")
+      .execute();
+      
+      
+    assertThat(logs).anyMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
   }
 
   @Test
@@ -86,6 +105,7 @@ public class GenericCoverageMediumTest {
     File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-coverage");
 
     TaskResult result = tester
+      .setLogOutput((msg, level) -> logs.add(msg))
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml,coverage2.xml")
       .execute();
@@ -117,8 +137,9 @@ public class GenericCoverageMediumTest {
         tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 0, ""),
         tuple(CoreMetrics.CONDITIONS_BY_LINE_KEY, 0, "3=2"),
         tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "3=2")
-
     );
+    
+    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
   }
-
+  
 }

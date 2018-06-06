@@ -29,6 +29,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 
 import static org.sonar.api.CoreProperties.CATEGORY_CODE_COVERAGE;
@@ -45,9 +46,11 @@ public class GenericTestExecutionSensor implements Sensor {
   static final String OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.unitTestReportPaths";
 
   private final TestPlanBuilder testPlanBuilder;
+  private final DefaultConfiguration configuration;
 
-  public GenericTestExecutionSensor(TestPlanBuilder testPlanBuilder) {
+  public GenericTestExecutionSensor(TestPlanBuilder testPlanBuilder, DefaultConfiguration configuration) {
     this.testPlanBuilder = testPlanBuilder;
+    this.configuration = configuration;
   }
 
   public static ImmutableList<PropertyDefinition> properties() {
@@ -58,9 +61,9 @@ public class GenericTestExecutionSensor implements Sensor {
         .description("List of comma-separated paths (absolute or relative) containing unit tests results report.")
         .category(CATEGORY_CODE_COVERAGE)
         .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
         .deprecatedKey(OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY)
         .build());
-
   }
 
   @Override
@@ -71,10 +74,11 @@ public class GenericTestExecutionSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    if (context.settings().hasKey(OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY)) {
+    if (configuration.getOriginalProperties().containsKey(OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY)) {
       LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY, REPORT_PATHS_PROPERTY_KEY);
     }
-    for (String reportPath : context.settings().getStringArray(REPORT_PATHS_PROPERTY_KEY)) {
+
+    for (String reportPath : configuration.getStringArray(REPORT_PATHS_PROPERTY_KEY)) {
       File reportFile = context.fileSystem().resolvePath(reportPath);
       LOG.info("Parsing {}", reportFile);
       GenericTestExecutionReportParser parser = new GenericTestExecutionReportParser(testPlanBuilder);

@@ -21,7 +21,6 @@ package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;

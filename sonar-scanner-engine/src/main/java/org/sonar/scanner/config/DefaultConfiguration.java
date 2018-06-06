@@ -47,12 +47,14 @@ public abstract class DefaultConfiguration implements Configuration {
   private final Encryption encryption;
   private final GlobalAnalysisMode mode;
   private final Map<String, String> properties;
+  private final Map<String, String> originalProperties;
 
   public DefaultConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode, Map<String, String> props) {
     this.definitions = requireNonNull(propertyDefinitions);
     this.encryption = encryption;
     this.mode = mode;
     this.properties = unmodifiableMapWithTrimmedValues(definitions, props);
+    this.originalProperties = Collections.unmodifiableMap(props);
   }
 
   protected static Map<String, String> unmodifiableMapWithTrimmedValues(PropertyDefinitions definitions, Map<String, String> props) {
@@ -78,6 +80,10 @@ public abstract class DefaultConfiguration implements Configuration {
 
   public Map<String, String> getProperties() {
     return properties;
+  }
+
+  public Map<String, String> getOriginalProperties() {
+    return originalProperties;
   }
 
   @Override

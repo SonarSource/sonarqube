@@ -21,17 +21,24 @@ package org.sonar.scanner.genericcoverage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
+import org.sonar.scanner.scan.ProjectSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,12 +55,15 @@ public class GenericTestExecutionSensorTest {
   public void logWhenDeprecatedPropsAreUsed() throws IOException {
     File basedir = temp.newFolder();
     File report = new File(basedir, "report.xml");
-    FileUtils.write(report, "<unitTest version=\"1\"><file path=\"A.java\"><testCase name=\"test1\" duration=\"500\"/></file></unitTest>");
+    FileUtils.write(report, "<unitTest version=\"1\"><file path=\"A.java\"><testCase name=\"test1\" duration=\"500\"/></file></unitTest>", StandardCharsets.UTF_8);
     SensorContextTester context = SensorContextTester.create(basedir);
-    Settings settings = new MapSettings(new PropertyDefinitions(GenericTestExecutionSensor.properties()));
-    settings.setProperty(GenericTestExecutionSensor.OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY, "report.xml");
-    context.setSettings(settings);
-    new GenericTestExecutionSensor(mock(TestPlanBuilder.class)).execute(context);
+
+    Map<String, String> settings = new HashMap<>();
+    settings.put(GenericTestExecutionSensor.OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY, "report.xml");
+    PropertyDefinitions defs = new PropertyDefinitions(GenericTestExecutionSensor.properties());
+    DefaultConfiguration config = new ProjectSettings(defs, new Encryption(null), mock(GlobalAnalysisMode.class), settings);
+
+    new GenericTestExecutionSensor(mock(TestPlanBuilder.class), config).execute(context);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(
       "Using 'unitTest' as root element of the report is deprecated. Please change to 'testExecutions'.",
       "Property 'sonar.genericcoverage.unitTestReportPaths' is deprecated. Please use 'sonar.testExecutionReportPaths' instead.");

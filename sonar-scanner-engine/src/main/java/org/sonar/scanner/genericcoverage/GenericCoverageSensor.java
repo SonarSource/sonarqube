@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.config.DefaultConfiguration;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.CoreProperties.CATEGORY_CODE_COVERAGE;
@@ -63,9 +63,9 @@ public class GenericCoverageSensor implements Sensor {
   @Deprecated
   static final String OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.overallReportPaths";
 
-  private final Configuration config;
+  private final DefaultConfiguration config;
 
-  public GenericCoverageSensor(Configuration config) {
+  public GenericCoverageSensor(DefaultConfiguration config) {
     this.config = config;
   }
 
@@ -77,15 +77,23 @@ public class GenericCoverageSensor implements Sensor {
         .description("List of comma-separated paths (absolute or relative) containing coverage report.")
         .category(CATEGORY_CODE_COVERAGE)
         .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
         .deprecatedKey(OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY)
         .build());
 
   }
 
-  private void loadDeprecated(Set<String> reportPaths, String propertyKey) {
-    if (config.hasKey(propertyKey)) {
+  private void loadArrayDeprecated(Set<String> reportPaths, String propertyKey) {
+    if (config.getOriginalProperties().containsKey(propertyKey)) {
       LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", propertyKey, REPORT_PATHS_PROPERTY_KEY);
       reportPaths.addAll(Arrays.asList(config.getStringArray(propertyKey)));
+    }
+  }
+
+  private void loadDeprecated(Set<String> reportPaths, String propertyKey) {
+    if (config.getOriginalProperties().containsKey(propertyKey)) {
+      LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", propertyKey, REPORT_PATHS_PROPERTY_KEY);
+      config.get(propertyKey).ifPresent(reportPaths::add);
     }
   }
 
@@ -120,9 +128,9 @@ public class GenericCoverageSensor implements Sensor {
     Set<String> reportPaths = new LinkedHashSet<>();
     reportPaths.addAll(Arrays.asList(config.getStringArray(REPORT_PATHS_PROPERTY_KEY)));
     loadDeprecated(reportPaths, OLD_REPORT_PATH_PROPERTY_KEY);
-    loadDeprecated(reportPaths, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    loadDeprecated(reportPaths, OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    loadDeprecated(reportPaths, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
+    loadArrayDeprecated(reportPaths, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
+    loadArrayDeprecated(reportPaths, OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
+    loadArrayDeprecated(reportPaths, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
     return reportPaths;
   }
 

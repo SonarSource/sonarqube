@@ -19,15 +19,21 @@
  */
 package org.sonar.scanner.genericcoverage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.config.DefaultConfiguration;
+import org.sonar.scanner.scan.ProjectSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class GenericCoverageSensorTest {
 
@@ -36,12 +42,17 @@ public class GenericCoverageSensorTest {
 
   @Test
   public void migrateOldProperties() {
-    MapSettings settings = new MapSettings(new PropertyDefinitions(GenericCoverageSensor.properties()));
-    settings.setProperty(GenericCoverageSensor.OLD_REPORT_PATH_PROPERTY_KEY, "old.xml");
-    settings.setProperty(GenericCoverageSensor.OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old1.xml,old2.xml");
-    settings.setProperty(GenericCoverageSensor.OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old3.xml,old4.xml,old.xml");
-    settings.setProperty(GenericCoverageSensor.OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old5.xml,old6.xml");
-    Set<String> reportPaths = new GenericCoverageSensor(settings.asConfig()).loadReportPaths();
+    Map<String, String> settings = new HashMap<>();
+    settings.put(GenericCoverageSensor.OLD_REPORT_PATH_PROPERTY_KEY, "old.xml");
+    settings.put(GenericCoverageSensor.OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old1.xml,old2.xml");
+    settings.put(GenericCoverageSensor.OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old3.xml,old4.xml,old.xml");
+    settings.put(GenericCoverageSensor.OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old5.xml,old6.xml");
+
+    PropertyDefinitions defs = new PropertyDefinitions(GenericCoverageSensor.properties());
+    DefaultConfiguration config = new ProjectSettings(defs, new Encryption(null), mock(GlobalAnalysisMode.class), settings);
+
+    Set<String> reportPaths = new GenericCoverageSensor(config).loadReportPaths();
+
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(
       "Property 'sonar.genericcoverage.reportPath' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
       "Property 'sonar.genericcoverage.reportPaths' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
@@ -51,5 +62,4 @@ public class GenericCoverageSensorTest {
     assertThat(reportPaths).containsOnly(
       "old.xml", "old1.xml", "old2.xml", "old3.xml", "old4.xml", "old5.xml", "old6.xml");
   }
-
 }

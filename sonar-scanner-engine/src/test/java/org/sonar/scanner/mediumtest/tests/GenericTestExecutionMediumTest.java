@@ -22,6 +22,9 @@ package org.sonar.scanner.mediumtest.tests;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class GenericTestExecutionMediumTest {
+  private final List<String> logs = new ArrayList<>();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -57,18 +61,19 @@ public class GenericTestExecutionMediumTest {
     testDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "foo");
+    FileUtils.write(xooFile, "foo", StandardCharsets.UTF_8);
 
     File xooTestFile = new File(testDir, "sampleTest.xoo");
-    FileUtils.write(xooTestFile, "failure\nerror\nok\nskipped");
+    FileUtils.write(xooTestFile, "failure\nerror\nok\nskipped", StandardCharsets.UTF_8);
 
     File xooTestExecutionFile = new File(testDir, "sampleTest.xoo.test");
     FileUtils.write(xooTestExecutionFile, "skipped::::SKIPPED:UNIT\n" +
       "failure:2:Failure::FAILURE:UNIT\n" +
       "error:2:Error:The stack:ERROR:UNIT\n" +
-      "success:4:::OK:INTEGRATION");
+      "success:4:::OK:INTEGRATION", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    TaskResult result = tester
+      .newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -99,6 +104,7 @@ public class GenericTestExecutionMediumTest {
     File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-test-exec");
 
     TaskResult result = tester
+      .setLogOutput((msg, level) -> logs.add(msg))
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml")
       .execute();
@@ -133,6 +139,8 @@ public class GenericTestExecutionMediumTest {
         tuple(CoreMetrics.TEST_ERRORS_KEY, 1, 0L),
         tuple(CoreMetrics.TEST_EXECUTION_TIME_KEY, 0, 1105L),
         tuple(CoreMetrics.TEST_FAILURES_KEY, 1, 0L));
+    
+    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.testExecutionReportPaths'"));
   }
 
   @Test
@@ -141,6 +149,7 @@ public class GenericTestExecutionMediumTest {
     File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-test-exec");
 
     TaskResult result = tester
+      .setLogOutput((msg, level) -> logs.add(msg))
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml,unittest2.xml")
       .execute();
@@ -179,6 +188,8 @@ public class GenericTestExecutionMediumTest {
         tuple(CoreMetrics.TEST_ERRORS_KEY, 1, 0L),
         tuple(CoreMetrics.TEST_EXECUTION_TIME_KEY, 0, 1610L),
         tuple(CoreMetrics.TEST_FAILURES_KEY, 1, 0L));
+    
+    assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.testExecutionReportPaths'"));
   }
 
 }

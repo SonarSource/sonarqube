@@ -22,6 +22,7 @@ package org.sonar.scanner.mediumtest.coverage;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -56,8 +57,8 @@ public class CoverageMediumTest {
 
     File xooFile = new File(srcDir, "sample.xoo");
     File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
-    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
-    FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -92,11 +93,11 @@ public class CoverageMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
-    FileUtils.write(xooUtCoverageFile, "2:2:2:2\n4:0");
+    FileUtils.write(xooUtCoverageFile, "2:2:2:2\n4:0", StandardCharsets.UTF_8);
     File xooItCoverageFile = new File(srcDir, "sample.xoo.itcoverage");
-    FileUtils.write(xooItCoverageFile, "2:2:2:1\n3:1\n5:0");
+    FileUtils.write(xooItCoverageFile, "2:2:2:1\n3:1\n5:0", StandardCharsets.UTF_8);
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -136,8 +137,8 @@ public class CoverageMediumTest {
 
     File xooFile = new File(srcDir, "sample.xoo");
     File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
-    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
-    FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -170,8 +171,8 @@ public class CoverageMediumTest {
 
     File xooFile = new File(srcDir, "sample.xoo");
     File measuresFile = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
-    FileUtils.write(measuresFile, "executable_lines_data:2=1;3=1;4=0");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(measuresFile, "executable_lines_data:2=1;3=1;4=0", StandardCharsets.UTF_8);
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -213,13 +214,13 @@ public class CoverageMediumTest {
 
     File xooFile1 = new File(srcDir, "sample1.xoo");
     File measuresFile1 = new File(srcDir, "sample1.xoo.measures");
-    FileUtils.write(xooFile1, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
-    FileUtils.write(measuresFile1, "executable_lines_data:2=1;3=1;4=0");
+    FileUtils.write(xooFile1, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(measuresFile1, "executable_lines_data:2=1;3=1;4=0", StandardCharsets.UTF_8);
 
     File xooFile2 = new File(srcDir, "sample2.xoo");
     File measuresFile2 = new File(srcDir, "sample2.xoo.measures");
-    FileUtils.write(xooFile2, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
-    FileUtils.write(measuresFile2, "executable_lines_data:2=1;3=1;4=0");
+    FileUtils.write(xooFile2, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(measuresFile2, "executable_lines_data:2=1;3=1;4=0", StandardCharsets.UTF_8);
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
