@@ -69,6 +69,7 @@ exports[`should render the titlebar correctly 1`] = `
           onlyActiveOnIndex={false}
           style={Object {}}
           target="_blank"
+          title="permalink"
           to={
             Object {
               "pathname": "/project/issues",
@@ -152,6 +153,7 @@ exports[`should render the titlebar with the filter 1`] = `
           onlyActiveOnIndex={false}
           style={Object {}}
           target="_blank"
+          title="permalink"
           to={
             Object {
               "pathname": "/project/issues",

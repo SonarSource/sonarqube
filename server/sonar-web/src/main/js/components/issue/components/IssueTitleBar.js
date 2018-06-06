@@ -110,7 +110,11 @@ export default function IssueTitleBar(props /*: Props */) {
             </li>
           )}
           <li className="issue-meta">
-            <Link className="js-issue-permalink link-no-underline" target="_blank" to={issueUrl}>
+            <Link
+              className="js-issue-permalink link-no-underline"
+              target="_blank"
+              title={translate('permalink')}
+              to={issueUrl}>
               <LinkIcon />
             </Link>
           </li>

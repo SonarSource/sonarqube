@@ -68,7 +68,8 @@ export default class SimilarIssuesFilter extends React.PureComponent {
           <Button
             aria-label={translate('issue.filter_similar_issues')}
             className="js-issue-filter button-link issue-action issue-action-with-options"
-            onClick={this.handleClick}>
+            onClick={this.handleClick}
+            title={translate('issue.filter_similar_issues')}>
             <FilterIcon className="icon-half-transparent" />
             <DropdownIcon className="icon-half-transparent" />
           </Button>
