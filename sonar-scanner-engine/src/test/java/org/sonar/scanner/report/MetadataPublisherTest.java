@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +47,7 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scm.ScmConfiguration;
@@ -65,26 +67,19 @@ public class MetadataPublisherTest {
 
   private DefaultInputModule rootModule;
   private MetadataPublisher underTest;
-  private MapSettings settings;
-  private ModuleQProfiles qProfiles;
-  private ProjectAnalysisInfo projectAnalysisInfo;
-  private CpdSettings cpdSettings;
+  private ScanProperties properties = mock(ScanProperties.class);
+  private ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
+  private ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+  private CpdSettings cpdSettings = mock(CpdSettings.class);
   private InputModuleHierarchy inputModuleHierarchy;
-  private ScannerPluginRepository pluginRepository;
+  private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
   private BranchConfiguration branches;
   private ScmConfiguration scmConfiguration;
-  private ScmProvider scmProvider;
+  private ScmProvider scmProvider = mock(ScmProvider.class);
 
   @Before
   public void prepare() throws IOException {
-    projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    cpdSettings = mock(CpdSettings.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
-    settings = new MapSettings();
-    qProfiles = mock(ModuleQProfiles.class);
-    pluginRepository = mock(ScannerPluginRepository.class);
-
-    scmProvider = mock(ScmProvider.class);
     when(scmProvider.relativePathFromScmRoot(any(Path.class))).thenReturn(Paths.get("dummy/path"));
     when(scmProvider.revisionId(any(Path.class))).thenReturn("dummy-sha1");
 
@@ -99,13 +94,12 @@ public class MetadataPublisherTest {
     branches = mock(BranchConfiguration.class);
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings,
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, properties, qProfiles, cpdSettings,
       pluginRepository, branches, scmConfiguration);
   }
 
   @Test
   public void write_metadata() throws Exception {
-    settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     Date date = new Date();
     when(qProfiles.findAll()).thenReturn(asList(new QProfile("q1", "Q1", "java", date)));
     when(pluginRepository.getPluginsByKey()).thenReturn(ImmutableMap.of(
@@ -140,8 +134,6 @@ public class MetadataPublisherTest {
   @Test
   public void write_project_branch() throws Exception {
     when(cpdSettings.isCrossProjectDuplicationEnabled()).thenReturn(false);
-    settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
-    settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
 
     ProjectDefinition projectDef = ProjectDefinition.create()
       .setKey("foo")
@@ -163,7 +155,7 @@ public class MetadataPublisherTest {
 
   @Test
   public void write_project_organization() throws Exception {
-    settings.setProperty(ScannerProperties.ORGANIZATION, "SonarSource");
+    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
@@ -172,7 +164,7 @@ public class MetadataPublisherTest {
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getOrganizationKey()).isEqualTo("SonarSource");
+    assertThat(properties.organizationKey()).isEqualTo(Optional.of("SonarSource"));
   }
 
   @Test

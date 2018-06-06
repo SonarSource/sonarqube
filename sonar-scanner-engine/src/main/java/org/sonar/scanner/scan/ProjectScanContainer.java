@@ -134,6 +134,7 @@ public class ProjectScanContainer extends ComponentContainer {
     add(
       props,
       ProjectReactorBuilder.class,
+      ScanProperties.class,
       WorkDirectoriesInitializer.class,
       new MutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
@@ -197,6 +198,7 @@ public class ProjectScanContainer extends ComponentContainer {
       SensorStrategy.class,
 
       MutableProjectSettings.class,
+      ScannerProperties.class,
       new ProjectSettingsProvider(),
 
       // Report
@@ -244,13 +246,13 @@ public class ProjectScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     GlobalAnalysisMode analysisMode = getComponentByType(GlobalAnalysisMode.class);
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
+    ScanProperties properties = getComponentByType(ScanProperties.class);
+    properties.validate();
 
     LOG.info("Project key: {}", tree.root().key());
     LOG.info("Project base dir: {}", tree.root().getBaseDir());
-    String organization = props.property("sonar.organization");
-    if (StringUtils.isNotEmpty(organization)) {
-      LOG.info("Organization key: {}", organization);
-    }
+    properties.organizationKey().ifPresent(k -> LOG.info("Organization key: {}", k));
+    
     String branch = tree.root().definition().getBranch();
     if (branch != null) {
       LOG.info("Branch key: {}", branch);

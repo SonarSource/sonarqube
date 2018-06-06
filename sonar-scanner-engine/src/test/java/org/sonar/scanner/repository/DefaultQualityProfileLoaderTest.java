@@ -23,26 +23,28 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class DefaultQualityProfileLoaderTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
   private ScannerWsClient wsClient = mock(ScannerWsClient.class);
-  private MapSettings settings = new MapSettings();
-  private DefaultQualityProfileLoader underTest = new DefaultQualityProfileLoader(settings.asConfig(), wsClient);
+  private ScanProperties properties = mock(ScanProperties.class);
+  private DefaultQualityProfileLoader underTest = new DefaultQualityProfileLoader(properties, wsClient);
 
   @Test
   public void load_gets_profiles_for_specified_project_and_profile_name() throws IOException {
@@ -71,7 +73,7 @@ public class DefaultQualityProfileLoaderTest {
 
   @Test
   public void load_sets_organization_parameter_if_defined_in_settings() throws IOException {
-    settings.setProperty("sonar.organization", "my-org");
+    when(properties.organizationKey()).thenReturn(Optional.of("my-org"));
     prepareCallWithResults();
     underTest.load("foo", null);
     verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo&organization=my-org");
@@ -95,7 +97,7 @@ public class DefaultQualityProfileLoaderTest {
 
   @Test
   public void loadDefault_sets_organization_parameter_if_defined_in_settings() throws IOException {
-    settings.setProperty("sonar.organization", "my-org");
+    when(properties.organizationKey()).thenReturn(Optional.of("my-org"));
     WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true&organization=my-org", createStreamOfProfiles("qp"));
     WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?profileName=foo&organization=my-org", createStreamOfProfiles("qp"));
     underTest.loadDefault("foo");

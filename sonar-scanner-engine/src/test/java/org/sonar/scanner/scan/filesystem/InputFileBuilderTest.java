@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
+import org.sonar.scanner.scan.ScanProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -66,11 +67,11 @@ public class InputFileBuilderTest {
 
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
     BatchIdGenerator idGenerator = new BatchIdGenerator();
-    MapSettings settings = new MapSettings();
+    ScanProperties properties = mock(ScanProperties.class);
     ModuleFileSystemInitializer moduleFileSystemInitializer = mock(ModuleFileSystemInitializer.class);
     when(moduleFileSystemInitializer.defaultEncoding()).thenReturn(StandardCharsets.UTF_8);
     sensorStrategy = new SensorStrategy();
-    builder = new InputFileBuilder(module, metadataGenerator, idGenerator, settings.asConfig(), moduleFileSystemInitializer, new DefaultInputModuleHierarchy(root),
+    builder = new InputFileBuilder(module, metadataGenerator, idGenerator, properties, moduleFileSystemInitializer, new DefaultInputModuleHierarchy(root),
       sensorStrategy);
   }
 

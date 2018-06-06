@@ -25,30 +25,27 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BinaryOperator;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.GetRequest;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.scanner.util.ScannerUtils.encodeForUrl;
 
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
-  private final Configuration settings;
   private final ScannerWsClient wsClient;
+  private final ScanProperties properties;
 
-  public DefaultQualityProfileLoader(Configuration settings, ScannerWsClient wsClient) {
-    this.settings = settings;
+  public DefaultQualityProfileLoader(ScanProperties properties, ScannerWsClient wsClient) {
+    this.properties = properties;
     this.wsClient = wsClient;
   }
 
@@ -65,13 +62,13 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   }
 
   private List<QualityProfile> loadAndOverrideIfNeeded(@Nullable String profileName, StringBuilder url) {
-    getOrganizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
+    properties.organizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
     Map<String, QualityProfile> result = call(url.toString());
 
     if (profileName != null) {
       StringBuilder urlForName = new StringBuilder(WS_URL + "?profileName=");
       urlForName.append(encodeForUrl(profileName));
-      getOrganizationKey().ifPresent(k -> urlForName.append("&organization=").append(encodeForUrl(k)));
+      properties.organizationKey().ifPresent(k -> urlForName.append("&organization=").append(encodeForUrl(k)));
       result.putAll(call(urlForName.toString()));
     }
     if (result.isEmpty()) {
@@ -81,26 +78,16 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     return new ArrayList<>(result.values());
   }
 
-  private Optional<String> getOrganizationKey() {
-    return settings.get(ORGANIZATION);
-  }
-
   private Map<String, QualityProfile> call(String url) {
     GetRequest getRequest = new GetRequest(url);
-    InputStream is = wsClient.call(getRequest).contentStream();
-    SearchWsResponse profiles;
-
-    try {
-      profiles = SearchWsResponse.parseFrom(is);
+    try (InputStream is = wsClient.call(getRequest).contentStream()) {
+      SearchWsResponse profiles = SearchWsResponse.parseFrom(is);
+      List<QualityProfile> profilesList = profiles.getProfilesList();
+      return profilesList.stream().collect(toMap(QualityProfile::getLanguage, identity(), throwingMerger(), LinkedHashMap::new));
     } catch (IOException e) {
       throw new IllegalStateException("Failed to load quality profiles", e);
-    } finally {
-      IOUtils.closeQuietly(is);
     }
 
-    List<QualityProfile> profilesList = profiles.getProfilesList();
-    return profilesList.stream()
-      .collect(toMap(QualityProfile::getLanguage, identity(), throwingMerger(), LinkedHashMap::new));
   }
 
   private static <T> BinaryOperator<T> throwingMerger() {

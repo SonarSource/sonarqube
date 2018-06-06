@@ -27,11 +27,10 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.PathUtils;
+import org.sonar.scanner.scan.ScanProperties;
 
 public class InputFileBuilder {
-  public static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
   private final String moduleKey;
   private final Path moduleBaseDir;
   private final BatchIdGenerator idGenerator;
@@ -42,7 +41,8 @@ public class InputFileBuilder {
   private final SensorStrategy sensorStrategy;
 
   public InputFileBuilder(DefaultInputModule module, MetadataGenerator metadataGenerator,
-    BatchIdGenerator idGenerator, Configuration settings, ModuleFileSystemInitializer moduleFileSystemInitializer, InputModuleHierarchy hierarchy, SensorStrategy sensorStrategy) {
+    BatchIdGenerator idGenerator, ScanProperties properties, ModuleFileSystemInitializer moduleFileSystemInitializer, InputModuleHierarchy hierarchy,
+    SensorStrategy sensorStrategy) {
     this.sensorStrategy = sensorStrategy;
     this.projectBaseDir = hierarchy.root().getBaseDir();
     this.moduleFileSystemInitializer = moduleFileSystemInitializer;
@@ -50,7 +50,7 @@ public class InputFileBuilder {
     this.moduleBaseDir = module.getBaseDir();
     this.metadataGenerator = metadataGenerator;
     this.idGenerator = idGenerator;
-    this.preloadMetadata = settings.getBoolean(PRELOAD_FILE_METADATA_KEY).orElse(false);
+    this.preloadMetadata = properties.preloadFileMetadata();
   }
 
   DefaultInputFile create(InputFile.Type type, Path absolutePath, @Nullable String language) {

@@ -38,7 +38,6 @@ import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -48,6 +47,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
@@ -58,8 +58,6 @@ import org.sonarqube.ws.client.WsResponse;
 import static java.net.URLEncoder.encode;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
-import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.sonar.scanner.scan.branch.BranchType.LONG;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
@@ -69,18 +67,12 @@ import static org.sonar.scanner.scan.branch.BranchType.SHORT;
 public class ReportPublisher implements Startable {
 
   private static final Logger LOG = Loggers.get(ReportPublisher.class);
-
-  public static final String KEEP_REPORT_PROP_KEY = "sonar.scanner.keepReport";
-  public static final String VERBOSE_KEY = "sonar.verbose";
-  public static final String METADATA_DUMP_FILENAME = "report-task.txt";
   private static final String CHARACTERISTIC = "characteristic";
-
   private static final String DASHBOARD = "dashboard";
   private static final String BRANCH = "branch";
   private static final String ID = "id";
   private static final String RESOLVED = "resolved";
 
-  private final Configuration settings;
   private final ScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final InputModuleHierarchy moduleHierarchy;
@@ -89,13 +81,13 @@ public class ReportPublisher implements Startable {
   private final ReportPublisherStep[] publishers;
   private final Server server;
   private final BranchConfiguration branchConfiguration;
+  private final ScanProperties properties;
 
   private Path reportDir;
   private ScannerReportWriter writer;
 
-  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
+  public ReportPublisher(ScanProperties properties, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
-    this.settings = settings;
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
@@ -104,6 +96,7 @@ public class ReportPublisher implements Startable {
     this.temp = temp;
     this.publishers = publishers;
     this.branchConfiguration = branchConfiguration;
+    this.properties = properties;
   }
 
   @Override
@@ -122,7 +115,7 @@ public class ReportPublisher implements Startable {
 
   @Override
   public void stop() {
-    if (!shouldKeepReport()) {
+    if (!properties.shouldKeepReport()) {
       deleteQuietly(reportDir);
     }
   }
@@ -140,7 +133,7 @@ public class ReportPublisher implements Startable {
     String taskId = null;
     if (!analysisMode.isIssues()) {
       File report = generateReportFile();
-      if (shouldKeepReport()) {
+      if (properties.shouldKeepReport()) {
         LOG.info("Analysis report generated in " + reportDir);
       }
       if (!analysisMode.isMediumTest()) {
@@ -148,10 +141,6 @@ public class ReportPublisher implements Startable {
       }
     }
     logSuccess(taskId);
-  }
-
-  private boolean shouldKeepReport() {
-    return settings.getBoolean(KEEP_REPORT_PROP_KEY).orElse(false) || settings.getBoolean(VERBOSE_KEY).orElse(false);
   }
 
   private File generateReportFile() {
@@ -184,7 +173,7 @@ public class ReportPublisher implements Startable {
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("organization", settings.get(ORGANIZATION).orElse(null))
+      .setParam("organization", properties.organizationKey().orElse(null))
       .setParam("projectKey", moduleHierarchy.root().key())
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
       .setParam("projectBranch", moduleHierarchy.root().getBranch())
@@ -225,11 +214,11 @@ public class ReportPublisher implements Startable {
 
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = moduleHierarchy.root().getKeyWithBranch();
-      settings.get(ORGANIZATION).ifPresent(org -> metadata.put("organization", org));
+      properties.organizationKey().ifPresent(org -> metadata.put("organization", org));
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", server.getPublicRootUrl());
       metadata.put("serverVersion", server.getVersion());
-      settings.get(BRANCH_NAME).ifPresent(branch -> metadata.put(BRANCH, branch));
+      properties.branch().ifPresent(branch -> metadata.put("branch", branch));
 
       URL dashboardUrl = buildDashboardUrl(server.getPublicRootUrl(), effectiveKey);
       metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
@@ -311,7 +300,7 @@ public class ReportPublisher implements Startable {
   }
 
   private static String encoded(@Nullable String queryParameter) {
-    if (isBlank(queryParameter)){
+    if (isBlank(queryParameter)) {
       return EMPTY;
     }
     try {
@@ -322,13 +311,16 @@ public class ReportPublisher implements Startable {
   }
 
   private void dumpMetadata(Map<String, String> metadata) {
-    Path file = moduleHierarchy.root().getWorkDir().resolve(METADATA_DUMP_FILENAME);
-    try (Writer output = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-      for (Map.Entry<String, String> entry : metadata.entrySet()) {
-        output.write(entry.getKey());
-        output.write("=");
-        output.write(entry.getValue());
-        output.write("\n");
+    Path file = properties.metadataFilePath();
+    try {
+      Files.createDirectories(file.getParent());
+      try (Writer output = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+        for (Map.Entry<String, String> entry : metadata.entrySet()) {
+          output.write(entry.getKey());
+          output.write("=");
+          output.write(entry.getValue());
+          output.write("\n");
+        }
       }
 
       LOG.debug("Report metadata written to {}", file);

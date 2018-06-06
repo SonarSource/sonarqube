@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.ProjectAnalysisInfo;
@@ -40,6 +39,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scm.ScmConfiguration;
 
@@ -49,7 +49,7 @@ public class MetadataPublisher implements ReportPublisherStep {
 
   private static final Logger LOG = Loggers.get(MetadataPublisher.class);
 
-  private final Configuration settings;
+  private final ScanProperties properties;
   private final ModuleQProfiles qProfiles;
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final InputModuleHierarchy moduleHierarchy;
@@ -60,12 +60,12 @@ public class MetadataPublisher implements ReportPublisherStep {
   @Nullable
   private final ScmConfiguration scmConfiguration;
 
-  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
+  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
     ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
     @Nullable ScmConfiguration scmConfiguration) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
-    this.settings = settings;
+    this.properties = properties;
     this.qProfiles = qProfiles;
     this.cpdSettings = cpdSettings;
     this.pluginRepository = pluginRepository;
@@ -73,9 +73,9 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.scmConfiguration = scmConfiguration;
   }
 
-  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
+  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
     ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
-    this(projectAnalysisInfo, moduleHierarchy, settings, qProfiles, cpdSettings, pluginRepository, branchConfiguration, null);
+    this(projectAnalysisInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, null);
   }
 
   @Override
@@ -88,7 +88,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
       .setRootComponentRef(rootProject.batchId());
 
-    settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
+    properties.organizationKey().ifPresent(builder::setOrganizationKey);
 
     if (branchConfiguration.branchName() != null) {
       addBranchInformation(builder);
