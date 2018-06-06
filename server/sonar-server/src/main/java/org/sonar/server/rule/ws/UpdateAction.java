@@ -20,6 +20,7 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Splitter;
+import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -92,6 +93,7 @@ public class UpdateAction implements RulesWsAction {
     WebService.NewAction action = controller
       .createAction("update")
       .setPost(true)
+      .setResponseExample(Resources.getResource(getClass(), "example-update.json"))
       .setDescription("Update an existing rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
       .setSince("4.4")

@@ -1,0 +1,28 @@
+{
+  "rule":{
+    "key":"squid:forbidSonar",
+    "repo":"squid",
+    "name":"forbidSonar",
+    "createdAt":"2018-06-06T16:04:28+0200",
+    "htmlDesc":"Forbid classes with name starting with Sonar",
+    "mdDesc":"Forbid classes with name starting with Sonar",
+    "severity":"MAJOR",
+    "status":"READY",
+    "isTemplate":false,
+    "templateKey":"squid:S3688",
+    "sysTags":[],
+    "lang":"java",
+    "langName":"Java",
+    "params":[
+    {
+      "key":"className",
+      "htmlDesc":"Fully qualified name of the forbidden class. Use a regex to forbid a package.",
+      "defaultValue":"**/Sonar*",
+      "type":"STRING"
+    }
+    ],
+    "scope":"MAIN",
+    "isExternal":false,
+    "type":"CODE_SMELL"
+  }
+}

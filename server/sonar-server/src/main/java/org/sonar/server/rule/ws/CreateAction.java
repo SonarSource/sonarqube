@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,6 +82,7 @@ public class CreateAction implements RulesWsAction {
       .setPost(true)
       .setDescription("Create a custom rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
+      .setResponseExample(Resources.getResource(getClass(), "example-create.json"))
       .setSince("4.4")
       .setChangelog(
         new Change("5.5", "Creating manual rule is not more possible"))

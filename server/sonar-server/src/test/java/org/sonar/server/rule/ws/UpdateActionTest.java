@@ -100,6 +100,14 @@ public class UpdateActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
+  public void check_definition() {
+    assertThat(ws.getDef().isPost()).isTrue();
+    assertThat(ws.getDef().isInternal()).isFalse();
+    assertThat(ws.getDef().responseExampleAsString()).isNotNull();
+    assertThat(ws.getDef().description()).isNotNull();
+  }
+  
+  @Test
   public void update_custom_rule() {
     logInAsQProfileAdministrator();
     RuleDefinitionDto templateRule = db.rules().insert(

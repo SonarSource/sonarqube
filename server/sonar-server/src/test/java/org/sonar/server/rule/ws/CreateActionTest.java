@@ -81,6 +81,14 @@ public class CreateActionTest {
     new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
   @Test
+  public void check_definition() {
+    assertThat(ws.getDef().isPost()).isTrue();
+    assertThat(ws.getDef().isInternal()).isFalse();
+    assertThat(ws.getDef().responseExampleAsString()).isNotNull();
+    assertThat(ws.getDef().description()).isNotNull();
+  }
+  
+  @Test
   public void create_custom_rule() {
     logInAsQProfileAdministrator();
     // Template rule
