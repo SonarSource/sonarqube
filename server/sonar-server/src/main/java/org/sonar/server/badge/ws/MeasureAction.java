@@ -21,8 +21,12 @@ package org.sonar.server.badge.ws;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.EnumMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -54,10 +58,12 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.measures.Metric.Level;
-import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
+import static org.sonar.api.measures.Metric.ValueType;
+import static org.sonar.server.badge.ws.ETagUtils.RFC1123_DATE;
+import static org.sonar.server.badge.ws.ETagUtils.getETag;
 import static org.sonar.server.badge.ws.SvgFormatter.formatDuration;
 import static org.sonar.server.badge.ws.SvgFormatter.formatNumeric;
 import static org.sonar.server.badge.ws.SvgFormatter.formatPercent;
@@ -131,6 +137,7 @@ public class MeasureAction implements ProjectBadgesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    response.setHeader("Cache-Control", "no-cache");
     response.stream().setMediaType(SVG);
     String metricKey = request.mandatoryParam(PARAM_METRIC);
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -138,8 +145,19 @@ public class MeasureAction implements ProjectBadgesWsAction {
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
       LiveMeasureDto measure = getMeasure(dbSession, project, metricKey);
-      write(generateSvg(metric, measure), response.stream().output(), UTF_8);
+      String result = generateSvg(metric, measure);
+      String eTag = getETag(result);
+      Optional<String> requestedETag = request.header("If-None-Match");
+      if (requestedETag.filter(eTag::equals).isPresent()) {
+        response.stream().setStatus(304);
+        return;
+      }
+      response.setHeader("ETag", eTag);
+      write(result, response.stream().output(), UTF_8);
     } catch (ProjectBadgesException | ForbiddenException | NotFoundException e) {
+      // There is an issue, so do not return any ETag but make this response expire now
+      SimpleDateFormat sdf = new SimpleDateFormat(RFC1123_DATE, Locale.US);
+      response.setHeader("Expires", sdf.format(new Date()));
       write(svgGenerator.generateError(e.getMessage()), response.stream().output(), UTF_8);
     }
   }
@@ -186,5 +204,6 @@ public class MeasureAction implements ProjectBadgesWsAction {
     checkState(value != null, "Measure has not been found");
     return value;
   }
+
 
 }

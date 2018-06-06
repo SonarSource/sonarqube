@@ -19,6 +19,11 @@
  */
 package org.sonar.server.badge.ws;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,11 +34,13 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,9 +77,9 @@ public class QualityGateActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .execute().getInput();
+      .execute();
 
     checkResponse(response, OK);
   }
@@ -84,9 +91,9 @@ public class QualityGateActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(WARN.name()));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .execute().getInput();
+      .execute();
 
     checkResponse(response, WARN);
   }
@@ -98,11 +105,69 @@ public class QualityGateActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(ERROR.name()));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .execute().getInput();
+      .execute();
 
     checkResponse(response, ERROR);
+  }
+
+  @Test
+  public void etag_should_be_different_if_quality_gate_is_different() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
+    MetricDto metric = createQualityGateMetric();
+    LiveMeasureDto liveMeasure = db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
+
+    TestResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+    String eTagOK = response.getHeader("ETag");
+
+    liveMeasure.setData(WARN.name());
+    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure, null);
+    db.commit();
+
+    response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+
+    String eTagWARN = response.getHeader("ETag");
+
+    liveMeasure.setData(ERROR.name());
+    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure, null);
+    db.commit();
+
+    response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+
+    String eTagERROR = response.getHeader("ETag");
+
+    assertThat(Arrays.asList(eTagOK, eTagWARN, eTagERROR))
+      .doesNotContainNull()
+      .doesNotHaveDuplicates();
+  }
+
+  @Test
+  public void when_IfNoneMatch_match_etag_http_304_must_be_send() {
+    ComponentDto project = db.components().insertPublicProject();
+    userSession.registerComponents(project);
+    MetricDto metric = createQualityGateMetric();
+    db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
+
+    TestResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .execute();
+    String eTag = response.getHeader("ETag");
+
+    response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setHeader("If-None-Match", eTag)
+      .execute();
+
+    assertThat(response.getInput()).isEmpty();
+    assertThat(response.getStatus()).isEqualTo(304);
   }
 
   @Test
@@ -114,10 +179,10 @@ public class QualityGateActionTest {
     ComponentDto longBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
     db.measures().insertLiveMeasure(longBranch, metric, m -> m.setData(WARN.name()));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", longBranch.getKey())
       .setParam("branch", longBranch.getBranch())
-      .execute().getInput();
+      .execute();
 
     checkResponse(response, WARN);
   }
@@ -130,111 +195,111 @@ public class QualityGateActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(application, metric, m -> m.setData(WARN.name()));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", application.getKey())
-      .execute().getInput();
+      .execute();
 
     checkResponse(response, WARN);
   }
 
   @Test
-  public void return_error_on_directory() {
+  public void return_error_on_directory() throws ParseException {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
     userSession.registerComponents(project);
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", directory.getKey())
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Project is invalid");
   }
 
   @Test
-  public void return_error_on_short_living_branch() {
+  public void return_error_on_short_living_branch() throws ParseException {
     ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     ComponentDto shortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", shortBranch.getKey())
       .setParam("branch", shortBranch.getBranch())
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Project is invalid");
   }
 
   @Test
-  public void return_error_on_private_project() {
+  public void return_error_on_private_project() throws ParseException {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Project is invalid");
   }
 
   @Test
-  public void return_error_on_provisioned_project() {
+  public void return_error_on_provisioned_project() throws ParseException {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Quality gate has not been found");
   }
 
   @Test
-  public void return_error_on_not_existing_project() {
-    String response = ws.newRequest()
+  public void return_error_on_not_existing_project() throws ParseException {
+    TestResponse response = ws.newRequest()
       .setParam("project", "unknown")
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Project has not been found");
   }
 
   @Test
-  public void return_error_on_not_existing_branch() {
+  public void return_error_on_not_existing_branch() throws ParseException {
     ComponentDto project = db.components().insertMainBranch(p -> p.setPrivate(false));
     userSession.registerComponents(project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", branch.getKey())
       .setParam("branch", "unknown")
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Project has not been found");
   }
 
   @Test
-  public void return_error_if_measure_not_found() {
+  public void return_error_if_measure_not_found() throws ParseException {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Quality gate has not been found");
   }
 
   @Test
-  public void return_error_if_measure_value_is_null() {
+  public void return_error_if_measure_value_is_null() throws ParseException {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setData((String) null));
 
-    String response = ws.newRequest()
+    TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("metric", metric.getKey())
-      .execute().getInput();
+      .execute();
 
     checkError(response, "Quality gate has not been found");
   }
@@ -274,20 +339,28 @@ public class QualityGateActionTest {
     return db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY).setValueType(LEVEL.name()));
   }
 
-  private void checkError(String svg, String expectedError) {
-    assertThat(svg).contains("<text", ">" + expectedError + "</text>");
+  private void checkError(TestResponse response, String expectedError) throws ParseException {
+    SimpleDateFormat expiresDateFormat = new SimpleDateFormat(ETagUtils.RFC1123_DATE, Locale.US);
+    assertThat(response.getHeader("Cache-Control")).contains("no-cache");
+    assertThat(response.getHeader("Expires")).isNotNull();
+    assertThat(response.getHeader("ETag")).isNull();
+    assertThat(expiresDateFormat.parse(response.getHeader("Expires"))).isBefore(new Date());
+    assertThat(response.getInput()).contains("<text", ">" + expectedError + "</text>");
   }
 
-  private void checkResponse(String response, Level status) {
+  private void checkResponse(TestResponse response, Level status) {
+    assertThat(response.getHeader("ETag")).startsWith("W/");
+    assertThat(response.getHeader("Cache-Control")).contains("no-cache");
+    assertThat(response.getHeader("Expires")).isNull();
     switch (status) {
       case OK:
-        assertThat(response).contains("<!-- SONARQUBE QUALITY GATE PASS -->");
+        assertThat(response.getInput()).contains("<!-- SONARQUBE QUALITY GATE PASS -->");
         break;
       case WARN:
-        assertThat(response).contains("<!-- SONARQUBE QUALITY GATE WARN -->");
+        assertThat(response.getInput()).contains("<!-- SONARQUBE QUALITY GATE WARN -->");
         break;
       case ERROR:
-        assertThat(response).contains("<!-- SONARQUBE QUALITY GATE FAIL -->");
+        assertThat(response.getInput()).contains("<!-- SONARQUBE QUALITY GATE FAIL -->");
         break;
     }
   }

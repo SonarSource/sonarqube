@@ -21,6 +21,7 @@ package org.sonar.server.ws;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.protobuf.GeneratedMessageV3;
@@ -162,12 +163,17 @@ public class TestRequest extends ValidatingRequest {
   }
 
   @Override
+  public Map<String, String> getHeaders() {
+    return ImmutableMap.copyOf(headers);
+  }
+
+  @Override
   public Optional<String> header(String name) {
     return Optional.ofNullable(headers.get(name));
   }
 
   public TestRequest setHeader(String name, String value) {
-    this.headers.put(requireNonNull(name), requireNonNull(value));
+    headers.put(requireNonNull(name), requireNonNull(value));
     return this;
   }
 
