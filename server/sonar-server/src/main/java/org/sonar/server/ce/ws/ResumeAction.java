@@ -46,6 +46,7 @@ public class ResumeAction implements CeWsAction {
       .setDescription("Resumes pause of Compute Engine workers. Requires the system administration permission or " +
         "system passcode (see " + SystemPasscodeImpl.PASSCODE_CONF_PROPERTY + " in sonar.properties).")
       .setSince("7.2")
+      .setInternal(true)
       .setHandler(this)
       .setPost(true);
   }

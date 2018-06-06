@@ -51,7 +51,7 @@ public class ResumeActionTest {
   public void test_definition() {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("resume");
-    assertThat(def.isInternal()).isFalse();
+    assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isTrue();
     assertThat(def.params()).isEmpty();
     assertThat(def.responseExampleAsString()).isNull();

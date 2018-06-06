@@ -51,7 +51,7 @@ public class InfoActionTest {
   public void test_definition() {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("info");
-    assertThat(def.isInternal()).isFalse();
+    assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isFalse();
     assertThat(def.params()).isEmpty();
   }

@@ -51,7 +51,7 @@ public class PauseActionTest {
   public void test_definition() {
     WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("pause");
-    assertThat(def.isInternal()).isFalse();
+    assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isTrue();
     assertThat(def.params()).isEmpty();
     assertThat(def.responseExampleAsString()).isNull();

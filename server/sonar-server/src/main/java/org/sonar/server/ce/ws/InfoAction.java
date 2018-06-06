@@ -48,6 +48,7 @@ public class InfoAction implements CeWsAction {
       .setDescription("Gets information about Compute Engine. Requires the system administration permission or " +
         "system passcode (see " + SystemPasscodeImpl.PASSCODE_CONF_PROPERTY + " in sonar.properties).")
       .setSince("7.2")
+      .setInternal(true)
       .setHandler(this)
       .setResponseExample(getClass().getResource("info-example.json"));
   }
