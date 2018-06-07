@@ -25,7 +25,6 @@ import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -46,7 +45,6 @@ import static util.ItUtils.expectHttpError;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
 
-@Ignore("FIXME IT disabled because it relies on a privileged plugin (fake-billing-plugin)")
 public class BillingTest {
 
   private static final String PROPERTY_PREVENT_ANALYSIS = "sonar.billing.preventProjectAnalysis";

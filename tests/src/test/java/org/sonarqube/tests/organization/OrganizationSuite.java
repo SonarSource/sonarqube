@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.installCoreExtension;
 import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
@@ -43,12 +44,8 @@ public class OrganizationSuite {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
     builder -> builder
-
       .addPlugin(xooPlugin())
-      .addPlugin(pluginArtifact("fake-billing-plugin"))
       .addPlugin(pluginArtifact("ui-extensions-plugin"))
-
-      .setServerProperty("sonar.sonarcloud.enabled", "true")
-
-  );
+      .setServerProperty("sonar.sonarcloud.enabled", "true"),
+    server -> installCoreExtension(server, "core-extension-fake-billing"));
 }

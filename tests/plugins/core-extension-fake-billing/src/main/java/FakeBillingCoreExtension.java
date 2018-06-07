@@ -38,24 +38,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.core.extension.CoreExtension;
 
-public class FakeBillingPlugin implements Plugin {
+import static org.sonar.api.SonarQubeSide.COMPUTE_ENGINE;
+import static org.sonar.api.SonarQubeSide.SERVER;
+
+public class FakeBillingCoreExtension implements CoreExtension {
+  @Override
+  public String getName() {
+    return "fake-billing";
+  }
 
   @Override
-  public void define(Context context) {
+  public void load(Context context) {
+    SonarQubeSide sonarQubeSide = context.getRuntime().getSonarQubeSide();
     // Nothing should be loaded when the plugin is running within by the scanner
-    if (isRunningInSQ()) {
+    if (sonarQubeSide == SERVER || sonarQubeSide == COMPUTE_ENGINE) {
       context.addExtension(FakeBillingValidations.class);
     }
   }
 
-  private static boolean isRunningInSQ() {
-    try {
-      Class.forName("org.sonar.server.plugins.privileged.CoreExtensionBridge");
-      return true;
-    } catch (ClassNotFoundException e) {
-      return false;
-    }
-  }
 }
