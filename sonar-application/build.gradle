@@ -47,10 +47,10 @@ dependencies {
   jdbc_mysql 'mysql:mysql-connector-java'
   jdbc_postgresql 'org.postgresql:postgresql'
 
-  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.1.0.5212@jar'
+  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.2.0.5463@jar'
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.0.0.1404@jar'
-  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.3.0.13828@jar'
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.4.0.14284@jar'
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:4.1.0.6085@jar'
   bundledPlugin 'org.sonarsource.php:sonar-php-plugin:2.13.0.3107@jar'
   bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.10.0.2131@jar'
