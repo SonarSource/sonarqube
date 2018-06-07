@@ -137,7 +137,7 @@ export default class App extends React.PureComponent<Props, State> {
 
         <div className="layout-page-main">
           <div className="layout-page-main-inner documentation-layout-inner">
-            <DeferredSpinner loading={this.state.loading}>{this.renderContent()}</DeferredSpinner>;
+            <DeferredSpinner loading={this.state.loading}>{this.renderContent()}</DeferredSpinner>
           </div>
         </div>
       </div>
