@@ -158,7 +158,6 @@ public class RegisterQualityProfiles {
 
     dbClient.qualityProfileDao().selectDefaultBuiltInProfilesWithoutActiveRules(dbSession)
       .forEach(qp -> {
-        LOGGER.info("Built-in quality profile [{}] does not have any active rules", qp.getName());
         QProfileDto qProfileDto = qProfileByLanguage.get(qp.getLanguage());
         if (qProfileDto == null) {
           return;
