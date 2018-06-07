@@ -78,7 +78,7 @@ public class PurgeDao implements Dao {
     }
     LOG.debug("<- Purge stale branches");
 
-    List<String> branchUuids = mapper.selectStaleShortLivingBranches(rootUuid, dateToLong(maxDate.get()));
+    List<String> branchUuids = mapper.selectStaleShortLivingBranchesAndPullRequests(rootUuid, dateToLong(maxDate.get()));
 
     for (String branchUuid : branchUuids) {
       deleteRootComponent(branchUuid, mapper, commands);

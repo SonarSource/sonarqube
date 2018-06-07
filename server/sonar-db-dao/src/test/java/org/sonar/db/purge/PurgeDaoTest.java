@@ -137,6 +137,32 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void purge_inactive_pull_request() {
+    when(system2.now()).thenReturn(new Date().getTime());
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto longBranch = dbTester.components().insertProjectBranch(project);
+    ComponentDto recentPullRequest = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+
+    // pull request with other components and issues, updated 31 days ago
+    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
+    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(pullRequest));
+    ComponentDto subModule = dbTester.components().insertComponent(newModuleDto(module));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(subModule));
+    dbTester.issues().insert(rule, pullRequest, file);
+    dbTester.issues().insert(rule, pullRequest, subModule);
+    dbTester.issues().insert(rule, pullRequest, module);
+
+    // back to present
+    when(system2.now()).thenReturn(new Date().getTime());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(getUuidsInTableProjects()).containsOnly(project.uuid(), longBranch.uuid(), recentPullRequest.uuid());
+  }
+
+  @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
     PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "PROJECT_UUID"), asList(Scopes.DIRECTORY, Scopes.FILE),
