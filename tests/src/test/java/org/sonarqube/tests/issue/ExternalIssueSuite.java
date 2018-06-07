@@ -36,7 +36,9 @@ import util.ItUtils;
 public class ExternalIssueSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder()
-    .addPlugin(ItUtils.xooPlugin())
-    .build();
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(ItUtils.xooPlugin())
+
+  );
 }

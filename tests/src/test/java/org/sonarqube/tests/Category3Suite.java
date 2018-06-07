@@ -73,29 +73,28 @@ import static util.ItUtils.xooPlugin;
 public class Category3Suite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-    .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
+      .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
 
-    // Used by SettingsEncryptionTest
-    .addPlugin(pluginArtifact("settings-encryption-plugin"))
+      // Used by SettingsEncryptionTest
+      .addPlugin(pluginArtifact("settings-encryption-plugin"))
 
-    // Used by IssuesModeTest
-    .addPlugin(pluginArtifact("access-secured-props-plugin"))
+      // Used by IssuesModeTest
+      .addPlugin(pluginArtifact("access-secured-props-plugin"))
 
-    // used by TempFolderTest and DecimalScaleMetricTest
-    .addPlugin(pluginArtifact("batch-plugin"))
+      // used by TempFolderTest and DecimalScaleMetricTest
+      .addPlugin(pluginArtifact("batch-plugin"))
 
-    // used by ExtensionLifecycleTest
-    .addPlugin(pluginArtifact("extension-lifecycle-plugin"))
+      // used by ExtensionLifecycleTest
+      .addPlugin(pluginArtifact("extension-lifecycle-plugin"))
 
-    // used by ProjectBuilderTest
-    .addPlugin(pluginArtifact("project-builder-plugin"))
+      // used by ProjectBuilderTest
+      .addPlugin(pluginArtifact("project-builder-plugin"))
 
-    // used by ProjectWithoutSourceTest
-    .addPlugin(pluginArtifact("save-measure-on-project-plugin"))
+      // used by ProjectWithoutSourceTest
+      .addPlugin(pluginArtifact("save-measure-on-project-plugin"))
 
-    .setServerProperty("sonar.ce.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005")
-
-    .build();
+      .setServerProperty("sonar.ce.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"));
 }

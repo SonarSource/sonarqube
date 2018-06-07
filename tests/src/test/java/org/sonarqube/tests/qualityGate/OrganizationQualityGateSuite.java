@@ -37,13 +37,15 @@ import static util.ItUtils.xooPlugin;
 public class OrganizationQualityGateSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    // required for notification tests
-    .setServerProperty("sonar.notifications.delay", "1")
-    .setServerProperty("sonar.sonarcloud.enabled", "true")
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      // required for notification tests
+      .setServerProperty("sonar.notifications.delay", "1")
+      .setServerProperty("sonar.sonarcloud.enabled", "true")
 
-    .addPlugin(pluginArtifact("posttask-plugin"))
-    .addPlugin(xooPlugin())
-    .build();
+      .addPlugin(pluginArtifact("posttask-plugin"))
+      .addPlugin(xooPlugin())
+
+  );
 
 }

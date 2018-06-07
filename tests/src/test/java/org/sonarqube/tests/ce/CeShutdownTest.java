@@ -116,12 +116,12 @@ public class CeShutdownTest {
       pauseFile = temp.newFile();
       FileUtils.touch(pauseFile);
 
-      orchestrator = newOrchestratorBuilder()
-        .setServerProperty("sonar.ce.pauseTask.path", pauseFile.getAbsolutePath())
-        .setServerProperty("sonar.ce.gracefulStopTimeOutInMs", "" + timeOutInMs)
-        .addPlugin(ItUtils.xooPlugin())
-        .addPlugin(ItUtils.pluginArtifact("server-plugin"))
-        .build();
+      orchestrator = newOrchestratorBuilder(
+        builder -> builder
+          .setServerProperty("sonar.ce.pauseTask.path", pauseFile.getAbsolutePath())
+          .setServerProperty("sonar.ce.gracefulStopTimeOutInMs", "" + timeOutInMs)
+          .addPlugin(ItUtils.xooPlugin())
+          .addPlugin(ItUtils.pluginArtifact("server-plugin")));
       orchestrator.start();
       adminWsClient = ItUtils.newAdminWsClient(orchestrator);
       logsTailer = LogsTailer.builder()

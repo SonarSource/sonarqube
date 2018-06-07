@@ -24,8 +24,8 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.installCoreExtension;
 import static util.ItUtils.newOrchestratorBuilder;
-import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
@@ -42,13 +42,14 @@ import static util.ItUtils.xooPlugin;
 public class AuthorizationSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    // for SystemPasscodeTest
-    // this privileged plugin provides the WS api/system_passcode/check
-    // that is used by the tests
-    .addPlugin(pluginArtifact("fake-governance-plugin"))
-    .setServerProperty("sonar.web.systemPasscode", SystemPasscodeTest.VALID_PASSCODE)
-
-    .addPlugin(xooPlugin())
-    .build();
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .setServerProperty("sonar.web.systemPasscode", SystemPasscodeTest.VALID_PASSCODE)
+      .addPlugin(xooPlugin()),
+    server -> {
+      // for SystemPasscodeTest
+      // this core-extension provides the WS api/system_passcode/check
+      // that is used by the tests
+      installCoreExtension(server, "core-extension-it-tests");
+    });
 }

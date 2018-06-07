@@ -67,18 +67,16 @@ public class Category6Suite {
   public static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      // for ES resiliency tests
+      .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)
+      .setServerProperty("sonar.search.recovery.delayInMs", "1000")
+      .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+      .setServerProperty("sonar.notifications.delay", "1")
 
-    // for ES resiliency tests
-    .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)
-    .setServerProperty("sonar.search.recovery.delayInMs", "1000")
-    .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
-    .setServerProperty("sonar.notifications.delay", "1")
+      .addPlugin(xooPlugin())
+      .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
-    .addPlugin(xooPlugin())
-    .addPlugin(pluginArtifact("ui-extensions-plugin"))
-
-    .setServerProperty("sonar.sonarcloud.enabled", "true")
-
-    .build();
+      .setServerProperty("sonar.sonarcloud.enabled", "true"));
 }

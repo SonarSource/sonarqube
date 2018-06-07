@@ -40,18 +40,19 @@ public class ProjectSuite {
   static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    // for ES resiliency tests
-    .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)
-    .setServerProperty("sonar.search.recovery.delayInMs", "1000")
-    .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
-    .setServerProperty("sonar.notifications.delay", "1")
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      // for ES resiliency tests
+      .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)
+      .setServerProperty("sonar.search.recovery.delayInMs", "1000")
+      .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+      .setServerProperty("sonar.notifications.delay", "1")
 
-    .addPlugin(xooPlugin())
+      .addPlugin(xooPlugin())
 
-    // for ProjectSettingsTest
-    .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
+      // for ProjectSettingsTest
+      .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
 
-    .build();
+  );
 
 }

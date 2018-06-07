@@ -32,7 +32,7 @@ import org.sonar.api.utils.log.Loggers;
 
 public class LatchControllerWorkerMeasureComputer implements MeasureComputer {
   private static final Logger LOG = Loggers.get(LatchControllerWorkerMeasureComputer.class);
-  private static final String WORKER_LATCH_SHARED_MEMORY_FILE_PATH = "fakeGoverance.workerLatch.sharedMemoryFile";
+  private static final String WORKER_LATCH_SHARED_MEMORY_FILE_PATH = "itTests.workerLatch.sharedMemoryFile";
 
   private static final int WAIT = 200; // ms
   private static final int MAX_WAIT_ROUND = 5 * 60 * 2; // 2 minutes

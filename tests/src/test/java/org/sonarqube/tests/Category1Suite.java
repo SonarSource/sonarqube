@@ -49,26 +49,26 @@ import static util.ItUtils.xooPlugin;
 public class Category1Suite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .setServerProperty("sonar.notifications.delay", "1")
-    .addPlugin(pluginArtifact("property-sets-plugin"))
-    .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .setServerProperty("sonar.notifications.delay", "1")
+      .addPlugin(pluginArtifact("property-sets-plugin"))
+      .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
 
-    // Used in SettingsTest.global_property_change_extension_point
-    .addPlugin(pluginArtifact("global-property-change-plugin"))
+      // Used in SettingsTest.global_property_change_extension_point
+      .addPlugin(pluginArtifact("global-property-change-plugin"))
 
-    // Used in SettingsTest.should_get_settings_default_value
-    .addPlugin(pluginArtifact("server-plugin"))
+      // Used in SettingsTest.should_get_settings_default_value
+      .addPlugin(pluginArtifact("server-plugin"))
 
-    // Used in I18nTest
-    .addPlugin(pluginArtifact("l10n-fr-pack"))
+      // Used in I18nTest
+      .addPlugin(pluginArtifact("l10n-fr-pack"))
 
-    // 1 second. Required for notification test.
-    .setServerProperty("sonar.notifications.delay", "1")
+      // 1 second. Required for notification test.
+      .setServerProperty("sonar.notifications.delay", "1")
 
-    .addPlugin(pluginArtifact("posttask-plugin"))
+      .addPlugin(pluginArtifact("posttask-plugin"))
 
-    .addPlugin(xooPlugin())
-    .build();
+      .addPlugin(xooPlugin()));
 
 }

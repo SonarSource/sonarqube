@@ -64,9 +64,9 @@ public class RestartTest {
   public void restart_in_prod_mode_requires_sysadmin_permission_and_restarts() throws Exception {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
-      orchestrator = newOrchestratorBuilder()
-        .setOrchestratorProperty("orchestrator.keepWorkspace", "true")
-        .build();
+      orchestrator = newOrchestratorBuilder(
+        builder -> builder
+          .setOrchestratorProperty("orchestrator.keepWorkspace", "true"));
       orchestrator.start();
 
       verifyFailWith403(() -> newWsClient(orchestrator).system().restart());

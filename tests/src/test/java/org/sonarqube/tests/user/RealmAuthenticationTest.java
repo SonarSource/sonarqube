@@ -57,10 +57,10 @@ public class RealmAuthenticationTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @ClassRule
-  public static final Orchestrator orchestrator = newOrchestratorBuilder()
-    .addPlugin(pluginArtifact("security-plugin"))
-    .setServerProperty("sonar.security.realm", "FakeRealm")
-    .build();
+  public static final Orchestrator orchestrator = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(pluginArtifact("security-plugin"))
+      .setServerProperty("sonar.security.realm", "FakeRealm"));
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

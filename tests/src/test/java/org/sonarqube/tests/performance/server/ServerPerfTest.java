@@ -20,8 +20,6 @@
 package org.sonarqube.tests.performance.server;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -46,15 +44,17 @@ public class ServerPerfTest extends AbstractPerfTest {
   @Test
   public void server_startup_and_shutdown() throws Exception {
     String defaultWebJavaOptions = "-Xmx768m -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF-8";
-    Orchestrator orchestrator = newOrchestratorBuilder()
-      .addPlugin(xooPlugin())
+    Orchestrator orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(xooPlugin())
 
-      // See http://wiki.apache.org/tomcat/HowTo/FasterStartUp
-      // Sometimes source of entropy is too small and Tomcat spends ~20 seconds on the step :
-      // "Creation of SecureRandom instance for session ID generation using [SHA1PRNG]"
-      // Using /dev/urandom fixes the issue on linux
-      .setServerProperty("sonar.web.javaOpts", defaultWebJavaOptions + " -Djava.security.egd=file:/dev/./urandom")
-      .build();
+        // See http://wiki.apache.org/tomcat/HowTo/FasterStartUp
+        // Sometimes source of entropy is too small and Tomcat spends ~20 seconds on the step :
+        // "Creation of SecureRandom instance for session ID generation using [SHA1PRNG]"
+        // Using /dev/urandom fixes the issue on linux
+        .setServerProperty("sonar.web.javaOpts", defaultWebJavaOptions + " -Djava.security.egd=file:/dev/./urandom")
+
+    );
     try {
       ServerLogs.clear(orchestrator);
       orchestrator.start();

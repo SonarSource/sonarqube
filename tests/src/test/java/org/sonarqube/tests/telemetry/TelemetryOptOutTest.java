@@ -39,12 +39,12 @@ public class TelemetryOptOutTest {
 
   public static MockWebServer server = new MockWebServer();
 
-  private static Orchestrator orchestrator = newOrchestratorBuilder()
+  private static Orchestrator orchestrator = newOrchestratorBuilder(
+    builder -> builder
     .addPlugin(xooPlugin())
     .setServerProperty("sonar.telemetry.enable", "false")
     .setServerProperty("sonar.telemetry.url", server.url("").toString())
-    .setServerProperty("sonar.telemetry.frequencyInSeconds", "1")
-    .build();
+    .setServerProperty("sonar.telemetry.frequencyInSeconds", "1"));
   private static Tester tester = new Tester(orchestrator);
 
   @ClassRule

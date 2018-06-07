@@ -34,11 +34,12 @@ import static util.ItUtils.xooPlugin;
 public class OrganizationIssueSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
 
-    .setServerProperty("sonar.sonarcloud.enabled", "true")
+      .setServerProperty("sonar.sonarcloud.enabled", "true")
 
-    .build();
+  );
 
 }

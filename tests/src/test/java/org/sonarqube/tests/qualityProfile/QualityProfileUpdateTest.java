@@ -54,10 +54,11 @@ public class QualityProfileUpdateTest {
   @Test
   // SONAR-10363
   public void updating_an_analyzer_must_update_default_quality_profile() {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("foo-plugin-v1"))
-//      .setServerProperty("sonar.sonarcloud.enabled", "true")
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(pluginArtifact("foo-plugin-v1"))
+    // .setServerProperty("sonar.sonarcloud.enabled", "true"))
+    );
     orchestrator.start();
     tester = new Tester(orchestrator);
     tester.before();

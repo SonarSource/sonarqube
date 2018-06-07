@@ -35,8 +35,6 @@ import org.sonarqube.tests.serverSystem.LogsTest;
 import org.sonarqube.tests.serverSystem.PingTest;
 import org.sonarqube.tests.serverSystem.ServerSystemTest;
 import org.sonarqube.tests.serverSystem.SystemInfoTest;
-import org.sonarqube.tests.ui.UiExtensionsTest;
-import org.sonarqube.tests.ui.UiTest;
 import org.sonarqube.tests.ws.WsLocalCallTest;
 import org.sonarqube.tests.ws.WsTest;
 
@@ -74,19 +72,18 @@ import static util.ItUtils.xooPlugin;
 public class Category4Suite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
 
-    // Used in UiExtensionsTest
-    .addPlugin(pluginArtifact("ui-extensions-plugin"))
+      // Used in UiExtensionsTest
+      .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
-    // Used by WsLocalCallTest
-    .addPlugin(pluginArtifact("ws-plugin"))
+      // Used by WsLocalCallTest
+      .addPlugin(pluginArtifact("ws-plugin"))
 
-    // Used by LogsTest
-    .setServerProperty("sonar.web.accessLogs.pattern", LogsTest.ACCESS_LOGS_PATTERN)
+      // Used by LogsTest
+      .setServerProperty("sonar.web.accessLogs.pattern", LogsTest.ACCESS_LOGS_PATTERN)
 
-    .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8001")
-
-    .build();
+      .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8001"));
 }

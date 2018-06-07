@@ -55,13 +55,13 @@ public class HttpHeadersAuthenticationTest {
   private static final String GROUPS_HEADER = "H-Groups";
 
   @ClassRule
-  public static final Orchestrator orchestrator = newOrchestratorBuilder()
-    .setServerProperty("sonar.web.sso.enable", "true")
-    .setServerProperty("sonar.web.sso.loginHeader", LOGIN_HEADER)
-    .setServerProperty("sonar.web.sso.nameHeader", NAME_HEADER)
-    .setServerProperty("sonar.web.sso.emailHeader", EMAIL_HEADER)
-    .setServerProperty("sonar.web.sso.groupsHeader", GROUPS_HEADER)
-    .build();
+  public static final Orchestrator orchestrator = newOrchestratorBuilder(
+    builder -> builder
+      .setServerProperty("sonar.web.sso.enable", "true")
+      .setServerProperty("sonar.web.sso.loginHeader", LOGIN_HEADER)
+      .setServerProperty("sonar.web.sso.nameHeader", NAME_HEADER)
+      .setServerProperty("sonar.web.sso.emailHeader", EMAIL_HEADER)
+      .setServerProperty("sonar.web.sso.groupsHeader", GROUPS_HEADER));
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

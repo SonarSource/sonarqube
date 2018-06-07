@@ -40,21 +40,22 @@ import static util.ItUtils.xooPlugin;
 public class SonarCloudUserSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
 
-    // Used by OrganizationBaseIdentityProviderTest
-    .addPlugin(pluginArtifact("base-auth-plugin"))
+      // Used by OrganizationBaseIdentityProviderTest
+      .addPlugin(pluginArtifact("base-auth-plugin"))
 
-    // Used in OrganizationOAuth2IdentityProviderTest
-    .addPlugin(pluginArtifact("oauth2-auth-plugin"))
+      // Used in OrganizationOAuth2IdentityProviderTest
+      .addPlugin(pluginArtifact("oauth2-auth-plugin"))
 
-    .setServerProperty("sonar.sonarcloud.enabled", "true")
-    .setServerProperty("sonar.organizations.createPersonalOrg", "true")
+      .setServerProperty("sonar.sonarcloud.enabled", "true")
+      .setServerProperty("sonar.organizations.createPersonalOrg", "true")
 
-    // reduce memory for Elasticsearch
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+      // reduce memory for Elasticsearch
+      .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
-    .build();
+  );
 
 }

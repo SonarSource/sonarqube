@@ -60,11 +60,11 @@ public class SettingsTestRestartingOrchestrator {
   @Test
   public void test_settings() {
     URL secretKeyUrl = getClass().getResource("/settings/SettingsTest/sonar-secret.txt");
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("settings-plugin"))
-      .addPlugin(pluginArtifact("license-plugin"))
-      .setServerProperty("sonar.secretKeyPath", secretKeyUrl.getFile())
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(pluginArtifact("settings-plugin"))
+        .addPlugin(pluginArtifact("license-plugin"))
+        .setServerProperty("sonar.secretKeyPath", secretKeyUrl.getFile()));
     startOrchestrator();
 
     String adminUser = userRule.createAdminUser();
@@ -86,11 +86,11 @@ public class SettingsTestRestartingOrchestrator {
 
   @Test
   public void property_relocation() {
-    orchestrator = newOrchestratorBuilder()
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
       .addPlugin(pluginArtifact("property-relocation-plugin"))
       .addPlugin(xooPlugin())
-      .setServerProperty("sonar.deprecatedKey", "true")
-      .build();
+      .setServerProperty("sonar.deprecatedKey", "true"));
     startOrchestrator();
 
     SonarScanner withDeprecatedKey = SonarScanner.create(projectDir("shared/xoo-sample"))

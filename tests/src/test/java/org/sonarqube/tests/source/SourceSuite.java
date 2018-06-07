@@ -39,9 +39,9 @@ import static util.ItUtils.xooPlugin;
 public class SourceSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-    .addPlugin(MavenLocation.of("org.sonarsource.scm.git", "sonar-scm-git-plugin", "LATEST_RELEASE"))
-    .build();
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
+      .addPlugin(MavenLocation.of("org.sonarsource.scm.git", "sonar-scm-git-plugin", "LATEST_RELEASE")));
 
 }

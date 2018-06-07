@@ -69,10 +69,10 @@ public class BlueGreenTest {
 
   @Test
   public void upgrade_analyzer_when_analysis_is_pending_in_compute_engine_queue() throws Exception {
-    orchestrator = newOrchestratorBuilder()
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
       .addPlugin(pluginArtifact("blue-green-plugin-v1"))
-      .addPlugin(xooPlugin())
-      .build();
+      .addPlugin(xooPlugin()));
     tester = new Tester(orchestrator).disableOrganizations();
     orchestrator.start();
     tester.before();

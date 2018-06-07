@@ -50,8 +50,8 @@ public class StartupIndexationTest {
   @Test
   public void elasticsearch_error_at_startup_must_shutdown_node() throws Exception {
     try (SonarQube sonarQube = new SonarQube();
-         LogsTailer.Watch failedInitialization = sonarQube.logsTailer.watch("Background initialization failed. Stopping SonarQube");
-         LogsTailer.Watch stopWatcher = sonarQube.logsTailer.watch("SonarQube is stopped")) {
+      LogsTailer.Watch failedInitialization = sonarQube.logsTailer.watch("Background initialization failed. Stopping SonarQube");
+      LogsTailer.Watch stopWatcher = sonarQube.logsTailer.watch("SonarQube is stopped")) {
       sonarQube.lockAllElasticsearchWrites();
       sonarQube.resume();
       stopWatcher.waitForLog(10, TimeUnit.SECONDS);
@@ -61,7 +61,7 @@ public class StartupIndexationTest {
 
     // Restarting is recreating the indexes
     try (SonarQube sonarQube = new SonarQube();
-         LogsTailer.Watch sonarQubeIsUpWatcher = sonarQube.logsTailer.watch("SonarQube is up")) {
+      LogsTailer.Watch sonarQubeIsUpWatcher = sonarQube.logsTailer.watch("SonarQube is up")) {
       sonarQube.resume();
       sonarQubeIsUpWatcher.waitForLog(20, TimeUnit.SECONDS);
       SearchRequest searchRequest = new SearchRequest().setQ("admin");
@@ -82,12 +82,12 @@ public class StartupIndexationTest {
       pauseFile = temp.newFile();
       FileUtils.touch(pauseFile);
 
-      orchestrator = newOrchestratorBuilder()
-        .setServerProperty("sonar.web.pause.path", pauseFile.getAbsolutePath())
-        .addPlugin(pluginArtifact("wait-at-platform-level4-plugin"))
-        .setStartupLogWatcher(l -> l.contains("PlatformLevel4 initialization phase is paused"))
-        .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
-        .build();
+      orchestrator = newOrchestratorBuilder(
+        builder -> builder
+          .setServerProperty("sonar.web.pause.path", pauseFile.getAbsolutePath())
+          .addPlugin(pluginArtifact("wait-at-platform-level4-plugin"))
+          .setStartupLogWatcher(l -> l.contains("PlatformLevel4 initialization phase is paused"))
+          .setServerProperty("sonar.search.httpPort", "" + esHttpPort));
 
       tester = new Tester(orchestrator);
       orchestrator.start();

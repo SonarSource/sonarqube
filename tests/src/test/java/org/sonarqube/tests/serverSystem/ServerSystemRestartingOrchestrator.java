@@ -20,7 +20,6 @@
 package org.sonarqube.tests.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -32,6 +31,7 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.locationOf;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrchestratorBuilder;
 
@@ -58,9 +58,9 @@ public class ServerSystemRestartingOrchestrator {
   @Test
   public void check_minimal_sonar_version_at_startup() throws Exception {
     try {
-      orchestrator = newOrchestratorBuilder()
-        .addPlugin(FileLocation.of(new File(ServerSystemRestartingOrchestrator.class.getResource("/serverSystem/ServerSystemTest/incompatible-plugin-1.0.jar").toURI())))
-        .build();
+      orchestrator = newOrchestratorBuilder(
+        builder -> builder
+          .addPlugin(locationOf(ServerSystemRestartingOrchestrator.class.getResource("/serverSystem/ServerSystemTest/incompatible-plugin-1.0.jar"))));
       orchestrator.start();
       fail();
     } catch (Exception e) {
@@ -73,9 +73,9 @@ public class ServerSystemRestartingOrchestrator {
   public void support_install_dir_with_whitespaces() throws Exception {
     String dirName = "build/distributions/has space";
     FileUtils.deleteDirectory(new File(dirName));
-    orchestrator = newOrchestratorBuilder()
-      .setOrchestratorProperty("orchestrator.workspaceDir", dirName)
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .setOrchestratorProperty("orchestrator.workspaceDir", dirName));
     orchestrator.start();
 
     assertThat(newAdminWsClient(orchestrator).system().status().getStatus()).isEqualTo(System.Status.UP);
@@ -84,10 +84,10 @@ public class ServerSystemRestartingOrchestrator {
   // SONAR-4748
   @Test
   public void should_create_in_temp_folder() throws Exception {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(ItUtils.pluginArtifact("server-plugin"))
-      .setServerProperty("sonar.createTempFiles", "true")
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(ItUtils.pluginArtifact("server-plugin"))
+        .setServerProperty("sonar.createTempFiles", "true"));
     orchestrator.start();
 
     File tempDir = new File(orchestrator.getServer().getHome(), "temp/tmp");

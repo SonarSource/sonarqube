@@ -35,13 +35,13 @@ import static util.ItUtils.xooPlugin;
 public class WebhooksSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
 
-    // reduce memory for Elasticsearch
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+      // reduce memory for Elasticsearch
+      .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
-    .setServerProperty("sonar.sonarcloud.enabled", "true")
-
-    .build();
+      .setServerProperty("sonar.sonarcloud.enabled", "true")
+  );
 }

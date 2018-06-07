@@ -129,13 +129,13 @@ public class SystemStateTest {
 
     void start(Lock lock) {
       checkState(orchestrator == null);
-      orchestrator = newOrchestratorBuilder()
-        .addPlugin(pluginArtifact("server-plugin"))
-        .setServerProperty("sonar.web.startupLock.path", lock.webFile.getAbsolutePath())
-        .setServerProperty("sonar.ce.startupLock.path", lock.ceFile.getAbsolutePath())
-        .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
-        .setServerProperty("sonar.web.systemPasscode", systemPassCode)
-        .build();
+      orchestrator = newOrchestratorBuilder(
+        builder -> builder
+          .addPlugin(pluginArtifact("server-plugin"))
+          .setServerProperty("sonar.web.startupLock.path", lock.webFile.getAbsolutePath())
+          .setServerProperty("sonar.ce.startupLock.path", lock.ceFile.getAbsolutePath())
+          .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
+          .setServerProperty("sonar.web.systemPasscode", systemPassCode));
       elasticsearch = new Elasticsearch(esHttpPort);
 
       starter = new Thread(orchestrator::start);

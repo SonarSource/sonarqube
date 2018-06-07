@@ -156,11 +156,11 @@ public class UpgradeTest {
   }
 
   private void startAndUpgradeDevServer() {
-    OrchestratorBuilder builder = newOrchestratorBuilder()
-      .setOrchestratorProperty("orchestrator.keepDatabase", "true")
-      .keepBundledPlugins()
-      .setStartupLogWatcher(log -> log.contains("Database must be upgraded"));
-    orchestrator = builder.build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .setOrchestratorProperty("orchestrator.keepDatabase", "true")
+        .keepBundledPlugins()
+        .setStartupLogWatcher(log -> log.contains("Database must be upgraded")));
     orchestrator.start();
     initSelenide(orchestrator);
 

@@ -37,10 +37,12 @@ import static util.ItUtils.pluginArtifact;
 public class UpdateCenterTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = newOrchestratorBuilder()
-    .setServerProperty("sonar.updatecenter.url", UpdateCenterTest.class.getResource("/marketplace/UpdateCenterTest/update-center.properties").toString())
-    .addPlugin(pluginArtifact("sonar-fake-plugin"))
-    .build();
+  public static final Orchestrator orchestrator = newOrchestratorBuilder(
+    builder -> builder
+      .setServerProperty("sonar.updatecenter.url", UpdateCenterTest.class.getResource("/marketplace/UpdateCenterTest/update-center.properties").toString())
+      .addPlugin(pluginArtifact("sonar-fake-plugin"))
+
+  );
 
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
@@ -57,10 +59,10 @@ public class UpdateCenterTest {
     MarketplacePage page = nav.logIn().submitCredentials(userRule.createAdminUser()).openMarketplace();
     page
       .hasPluginsCount(2)
-      .hasPluginWithText("Fake","installed")
-      .hasPluginWithText("Fake","Uninstall")
-      .hasPluginWithText("Fake","Licensed under GNU LGPL 3")
-      .hasPluginWithText("Fake","Developed by SonarSource");
+      .hasPluginWithText("Fake", "installed")
+      .hasPluginWithText("Fake", "Uninstall")
+      .hasPluginWithText("Fake", "Licensed under GNU LGPL 3")
+      .hasPluginWithText("Fake", "Developed by SonarSource");
 
     page
       .searchPlugin("fa")

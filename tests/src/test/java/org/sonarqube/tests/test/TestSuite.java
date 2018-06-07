@@ -37,9 +37,8 @@ import static util.ItUtils.xooPlugin;
 public class TestSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-
-    .build();
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin()));
 
 }

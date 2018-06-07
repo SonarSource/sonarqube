@@ -37,11 +37,9 @@ import static util.ItUtils.xooPlugin;
 public class UiSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-
-    // Used in UiExtensionsTest
-    .addPlugin(pluginArtifact("ui-extensions-plugin"))
-
-    .build();
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
+      // Used in UiExtensionsTest
+      .addPlugin(pluginArtifact("ui-extensions-plugin")));
 }

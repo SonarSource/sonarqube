@@ -41,13 +41,14 @@ import static util.ItUtils.xooPlugin;
 public class OrganizationSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
 
-    .addPlugin(xooPlugin())
-    .addPlugin(pluginArtifact("fake-billing-plugin"))
-    .addPlugin(pluginArtifact("ui-extensions-plugin"))
+      .addPlugin(xooPlugin())
+      .addPlugin(pluginArtifact("fake-billing-plugin"))
+      .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
-    .setServerProperty("sonar.sonarcloud.enabled", "true")
+      .setServerProperty("sonar.sonarcloud.enabled", "true")
 
-    .build();
+  );
 }

@@ -21,7 +21,6 @@ package org.sonarqube.tests.ce;
 
 import com.google.common.collect.ImmutableList;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.http.HttpMethod;
 import java.io.File;
@@ -43,7 +42,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.ws.Ce;
@@ -57,12 +55,11 @@ import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.installCoreExtension;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrchestratorBuilder;
-import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
-@Ignore("FIXME IT disabled because it relies on a privileged plugin (fake-governance-plugin)")
 public class CeWorkersTest {
   private static final int WAIT = 200; // ms
   private static final int MAX_WAIT_LOOP = 5 * 60 * 5; // 5 minutes
@@ -84,13 +81,13 @@ public class CeWorkersTest {
   public static void setUp() throws Exception {
     sharedMemory = temporaryFolder.newFile();
 
-    OrchestratorBuilder builder = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("fake-governance-plugin"))
-      .setServerProperty("fakeGoverance.workerLatch.sharedMemoryFile", sharedMemory.getAbsolutePath())
-      // overwrite default value to display heap dump on OOM and reduce max heap
-      .setServerProperty("sonar.ce.javaOpts", "-Xmx256m -Xms128m")
-      .addPlugin(xooPlugin());
-    orchestrator = builder.build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .setServerProperty("itTests.workerLatch.sharedMemoryFile", sharedMemory.getAbsolutePath())
+        // overwrite default value to display heap dump on OOM and reduce max heap
+        .setServerProperty("sonar.ce.javaOpts", "-Xmx256m -Xms128m")
+        .addPlugin(xooPlugin()),
+      server -> installCoreExtension(server, "core-extension-it-tests"));
     orchestrator.start();
 
     adminWsClient = newAdminWsClient(orchestrator);

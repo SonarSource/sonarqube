@@ -68,11 +68,11 @@ public class BuiltInQualityProfilesNotificationTest {
 
   @Test
   public void does_not_send_mail_if_no_quality_profile_is_updated() throws Exception {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("foo-plugin-v1"))
-      .setServerProperty("email.smtp_host.secured", "localhost")
-      .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(pluginArtifact("foo-plugin-v1"))
+        .setServerProperty("email.smtp_host.secured", "localhost")
+        .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort())));
     orchestrator.start();
     userRule = UserRule.from(orchestrator);
     Users.CreateWsResponse.User profileAdmin1 = userRule.generate();
@@ -87,12 +87,12 @@ public class BuiltInQualityProfilesNotificationTest {
 
   @Test
   public void send_mail_if_quality_profile_is_updated() throws Exception {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("foo-plugin-v1"))
-      .setServerProperty("sonar.notifications.delay", "1")
-      .setServerProperty("email.smtp_host.secured", "localhost")
-      .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(pluginArtifact("foo-plugin-v1"))
+        .setServerProperty("sonar.notifications.delay", "1")
+        .setServerProperty("email.smtp_host.secured", "localhost")
+        .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort())));
     orchestrator.start();
 
     userRule = UserRule.from(orchestrator);
@@ -143,7 +143,6 @@ public class BuiltInQualityProfilesNotificationTest {
         "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + url + "/profiles")
       .isEqualTo(messages.get(1).getMimeMessage().getContent().toString());
 
-
     // uninstall plugin V2
     wsClient.wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
     // install plugin V1
@@ -175,12 +174,12 @@ public class BuiltInQualityProfilesNotificationTest {
 
   @Test
   public void do_not_send_mail_if_notifications_are_disabled_in_settings() throws Exception {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("foo-plugin-v1"))
-      .setServerProperty("sonar.builtInQualityProfiles.disableNotificationOnUpdate", "true")
-      .setServerProperty("email.smtp_host.secured", "localhost")
-      .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(pluginArtifact("foo-plugin-v1"))
+        .setServerProperty("sonar.builtInQualityProfiles.disableNotificationOnUpdate", "true")
+        .setServerProperty("email.smtp_host.secured", "localhost")
+        .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort())));
     orchestrator.start();
     userRule = UserRule.from(orchestrator);
     Users.CreateWsResponse.User profileAdmin1 = userRule.generate();

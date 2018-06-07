@@ -64,13 +64,15 @@ public class AnalysisEsResilienceTest {
   private static final int esHttpPort = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   static {
-    byteman = new Byteman(newOrchestratorBuilder(), CE);
-    orchestrator = byteman
-      .getOrchestratorBuilder()
-      .addPlugin(ItUtils.xooPlugin())
-      .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
-      .setServerProperty("sonar.sonarcloud.enabled", "true")
-      .build();
+    byteman = new Byteman();
+    orchestrator = newOrchestratorBuilder(
+      builder -> {
+        byteman.install(builder, CE);
+        builder
+          .addPlugin(ItUtils.xooPlugin())
+          .setServerProperty("sonar.search.httpPort", "" + esHttpPort)
+          .setServerProperty("sonar.sonarcloud.enabled", "true");
+      });
   }
 
   @Rule
@@ -183,8 +185,7 @@ public class AnalysisEsResilienceTest {
         tuple("CONFIRMED", 0L),
         tuple("REOPENED", 0L),
         tuple("RESOLVED", 0L),
-        tuple("CLOSED", 0L)
-      );
+        tuple("CLOSED", 0L));
 
     tester.elasticsearch().unlockWrites("issues");
 
@@ -202,8 +203,7 @@ public class AnalysisEsResilienceTest {
         tuple("CONFIRMED", 0L),
         tuple("REOPENED", 0L),
         tuple("RESOLVED", 0L),
-        tuple("CLOSED", 0L)
-      );
+        tuple("CLOSED", 0L));
   }
 
   @Test

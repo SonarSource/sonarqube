@@ -69,11 +69,13 @@ public class IssueCreationDatePluginChangedTest {
   private static final String USER_EMAIL = "tester@example.org";
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-    .addPlugin(ItUtils.pluginArtifact("backdating-plugin-v1"))
-    .addPlugin(ItUtils.pluginArtifact("backdating-customplugin"))
-    .build();
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
+      .addPlugin(ItUtils.pluginArtifact("backdating-plugin-v1"))
+      .addPlugin(ItUtils.pluginArtifact("backdating-customplugin"))
+
+  );
   @Rule
   public Tester tester = new Tester(ORCHESTRATOR);
 

@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,9 +100,22 @@ public class ItUtils {
   private ItUtils() {
   }
 
-  public static OrchestratorBuilder newOrchestratorBuilder() {
-    OrchestratorBuilder builder = Orchestrator.builderEnv();
-    builder.setEdition(COMMUNITY);
+  public static Orchestrator newOrchestratorBuilder() {
+    return newOrchestratorBuilder(t -> {}, server -> {});
+  }
+
+  public static Orchestrator newOrchestratorBuilder(Consumer<OrchestratorBuilder> beforeInstall) {
+    return newOrchestratorBuilder(beforeInstall, server -> {
+    });
+  }
+
+  public static Orchestrator newOrchestratorBuilder(Consumer<OrchestratorBuilder> beforeInstall, Consumer<Server> afterInstall) {
+    OrchestratorBuilder builder = Orchestrator.builderEnv()
+      .setEdition(COMMUNITY)
+      // reduce memory for Elasticsearch
+      .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+      .setOrchestratorProperty("orchestrator.workspaceDir", "build/it");
+
     String version = System.getProperty("sonar.runtimeVersion");
     if (StringUtils.isEmpty(version)) {
       Location zip = FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip");
@@ -109,10 +123,33 @@ public class ItUtils {
     } else {
       builder.setSonarVersion(version);
     }
-    return builder
-      // reduce memory for Elasticsearch
-      .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
-      .setOrchestratorProperty("orchestrator.workspaceDir", "build/it");
+
+    beforeInstall.accept(builder);
+
+    Orchestrator orchestrator = builder.build();
+
+    Server server = orchestrator.install();
+    afterInstall.accept(server);
+
+    return orchestrator;
+  }
+
+  public static void installCoreExtension(Server server, String coreExtensionDirName) {
+    File coreExtensionFile = pluginArtifact(coreExtensionDirName).getFile();
+    File libDir = new File(server.getHome(), "lib/common");
+    try {
+      FileUtils.copyFile(coreExtensionFile, new File(libDir, coreExtensionFile.getName()));
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to install core extension", e);
+    }
+  }
+
+  public static Location locationOf(URL url) {
+    try {
+      return FileLocation.of(new File(url.toURI()));
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("File does not exist", e);
+    }
   }
 
   public static FileLocation xooPlugin() {

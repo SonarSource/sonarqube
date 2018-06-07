@@ -45,12 +45,13 @@ import static util.ItUtils.xooPlugin;
 public class MeasureSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
 
-    // used by DecimalScaleMetricTest
-    .addPlugin(pluginArtifact("batch-plugin"))
+      // used by DecimalScaleMetricTest
+      .addPlugin(pluginArtifact("batch-plugin"))
 
-    .build();
+  );
 
 }

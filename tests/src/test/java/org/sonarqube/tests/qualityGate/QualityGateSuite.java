@@ -39,12 +39,14 @@ import static util.ItUtils.xooPlugin;
 public class QualityGateSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    // required for notification tests
-    .setServerProperty("sonar.notifications.delay", "1")
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      // required for notification tests
+      .setServerProperty("sonar.notifications.delay", "1")
 
-    .addPlugin(pluginArtifact("posttask-plugin"))
-    .addPlugin(xooPlugin())
-    .build();
+      .addPlugin(pluginArtifact("posttask-plugin"))
+      .addPlugin(xooPlugin())
+
+  );
 
 }

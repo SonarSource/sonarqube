@@ -43,14 +43,14 @@ import static util.ItUtils.xooPlugin;
 public class ScannerPerformanceSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-    // should not be so high, but required as long embedded h2 is used -> requires more memory on server
-    .setServerProperty("sonar.web.javaOpts", "-Xmx1G -XX:+HeapDumpOnOutOfMemoryError")
-    // Needed by DuplicationTest::hugeJavaFile
-    .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/one-xoo-issue-per-line.xml"))
-    .build();
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
+      // should not be so high, but required as long embedded h2 is used -> requires more memory on server
+      .setServerProperty("sonar.web.javaOpts", "-Xmx1G -XX:+HeapDumpOnOutOfMemoryError")
+      // Needed by DuplicationTest::hugeJavaFile
+      .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/one-xoo-issue-per-line.xml")));
 
   @BeforeClass
   public static void setUp() {

@@ -61,9 +61,9 @@ public class RuleReKeyingTest {
 
   @Test
   public void rules_are_re_keyed_when_upgrading_and_downgrading_plugin() {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("foo-plugin-v1"))
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(pluginArtifact("foo-plugin-v1")));
     orchestrator.start();
 
     tester = new Tester(orchestrator);

@@ -61,13 +61,14 @@ public class TelemetryUploadTest {
   @Test
   public void sent_telemetry_data() throws Exception {
     telemetryServer.enqueue(new MockResponse().setResponseCode(200));
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(xooPlugin())
-      .setServerProperty("sonar.telemetry.url", telemetryServer.url("").toString())
-      // increase frequency so that payload is sent quickly after startup
-      .setServerProperty("sonar.telemetry.frequencyInSeconds", "1")
-      //.setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8001")
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(xooPlugin())
+        .setServerProperty("sonar.telemetry.url", telemetryServer.url("").toString())
+        // increase frequency so that payload is sent quickly after startup
+        .setServerProperty("sonar.telemetry.frequencyInSeconds", "1")
+    // .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8001")
+    );
     orchestrator.start();
     // Consume request to no block the telemetry daemon
     telemetryServer.takeRequest();
@@ -104,10 +105,10 @@ public class TelemetryUploadTest {
 
   @Test
   public void does_not_send_telemetry_data_right_away_by_Default() {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(xooPlugin())
-      .setServerProperty("sonar.telemetry.url", telemetryServer.url("").toString())
-      .build();
+    orchestrator = newOrchestratorBuilder(
+      builder -> builder
+        .addPlugin(xooPlugin())
+        .setServerProperty("sonar.telemetry.url", telemetryServer.url("").toString()));
     // by default telemetry payload is sent 6 hours after startup, once a week
     orchestrator.start();
 
@@ -127,7 +128,7 @@ public class TelemetryUploadTest {
     return (int) Math.round(value);
   }
 
-  private void resetTelemetryLastPing(){
+  private void resetTelemetryLastPing() {
     try (PreparedStatement preparedStatement = orchestrator.getDatabase().openConnection().prepareStatement("delete from internal_properties where kee='telemetry.lastPing'");) {
       preparedStatement.execute();
       preparedStatement.close();

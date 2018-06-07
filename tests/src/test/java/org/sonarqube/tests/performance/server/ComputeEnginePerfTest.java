@@ -44,13 +44,13 @@ public class ComputeEnginePerfTest extends AbstractPerfTest {
   public static TemporaryFolder temp = new TemporaryFolder();
 
   @ClassRule
-  public static Orchestrator orchestrator = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
-    .setServerProperty(
-      "sonar.web.javaOpts",
-      String.format("-Xms%dm -Xmx%dm -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true", MAX_HEAP_SIZE_IN_MEGA, MAX_HEAP_SIZE_IN_MEGA))
-    .restoreProfileAtStartup(FileLocation.ofClasspath("/one-xoo-issue-per-line.xml"))
-    .build();
+  public static Orchestrator orchestrator = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
+      .setServerProperty(
+        "sonar.web.javaOpts",
+        String.format("-Xms%dm -Xmx%dm -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true", MAX_HEAP_SIZE_IN_MEGA, MAX_HEAP_SIZE_IN_MEGA))
+      .restoreProfileAtStartup(FileLocation.ofClasspath("/one-xoo-issue-per-line.xml")));
 
   private static File bigProjectBaseDir;
 

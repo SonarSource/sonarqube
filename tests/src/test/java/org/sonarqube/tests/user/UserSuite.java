@@ -46,18 +46,19 @@ import static util.ItUtils.xooPlugin;
 public class UserSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .addPlugin(xooPlugin())
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .addPlugin(xooPlugin())
 
-    // Used in BaseIdentityProviderTest
-    .addPlugin(pluginArtifact("base-auth-plugin"))
+      // Used in BaseIdentityProviderTest
+      .addPlugin(pluginArtifact("base-auth-plugin"))
 
-    // Used in OAuth2IdentityProviderTest
-    .addPlugin(pluginArtifact("oauth2-auth-plugin"))
+      // Used in OAuth2IdentityProviderTest
+      .addPlugin(pluginArtifact("oauth2-auth-plugin"))
 
-    // reduce memory for Elasticsearch
-    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+      // reduce memory for Elasticsearch
+      .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
-    .build();
+  );
 
 }

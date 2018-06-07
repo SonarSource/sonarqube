@@ -35,7 +35,6 @@ import static java.lang.String.format;
 public class Byteman {
 
   private final int port;
-  private final OrchestratorBuilder builder;
 
   public enum Process {
     WEB("sonar.web.javaAdditionalOpts"), CE("sonar.ce.javaAdditionalOpts");
@@ -47,10 +46,12 @@ public class Byteman {
     }
   }
 
-  public Byteman(OrchestratorBuilder builder, Process process) {
-    this.builder = builder;
-    String jar = findBytemanJar();
+  public Byteman() {
     port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+  }
+
+  public void install(OrchestratorBuilder builder, Process process) {
+    String jar = findBytemanJar();
     String bytemanArg = format("-javaagent:%s=boot:%s,port:%d", jar, jar, port);
     builder.setServerProperty(process.argument, bytemanArg);
   }
@@ -89,7 +90,4 @@ public class Byteman {
     }
   }
 
-    public OrchestratorBuilder getOrchestratorBuilder() {
-      return builder;
-    }
 }

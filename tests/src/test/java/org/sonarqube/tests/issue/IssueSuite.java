@@ -53,16 +53,17 @@ import static util.ItUtils.xooPlugin;
 public class IssueSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder()
-    .setServerProperty("sonar.search.httpPort", "9025")
-    .addPlugin(xooPlugin())
+  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+    builder -> builder
+      .setServerProperty("sonar.search.httpPort", "9025")
+      .addPlugin(xooPlugin())
 
-    // issue
-    .addPlugin(pluginArtifact("issue-filter-plugin"))
+      // issue
+      .addPlugin(pluginArtifact("issue-filter-plugin"))
 
-    // 1 second. Required for notification test.
-    .setServerProperty("sonar.notifications.delay", "1")
+      // 1 second. Required for notification test.
+      .setServerProperty("sonar.notifications.delay", "1")
 
-    .build();
+  );
 
 }

@@ -37,7 +37,7 @@ public class OnboardingTest {
   private static final String ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS = "sonar.onboardingTutorial.showToNewUsers";
 
   @ClassRule
-  public static final Orchestrator orchestrator = newOrchestratorBuilder().build();
+  public static final Orchestrator orchestrator = newOrchestratorBuilder();
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();

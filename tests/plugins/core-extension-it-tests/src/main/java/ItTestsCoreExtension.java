@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2018 SonarSource SA
@@ -25,19 +26,28 @@ import ce.OomTaskProcessor;
 import ce.ws.BombActivatorAction;
 import ce.ws.FakeGovWs;
 import ce.ws.SubmitAction;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.core.extension.CoreExtension;
 import systemPasscode.SystemPasscodeWebService;
 import workerCount.FakeWorkerCountProviderImpl;
 import workerCount.RefreshWorkerCountAction;
 import workerlatch.LatchControllerWorkerMeasureComputer;
 import workerlatch.WorkerLatchMetrics;
 
-public class FakeGovernancePlugin implements Plugin {
+import static org.sonar.api.SonarQubeSide.COMPUTE_ENGINE;
+import static org.sonar.api.SonarQubeSide.SERVER;
+
+public class ItTestsCoreExtension implements CoreExtension {
+  @Override
+  public String getName() {
+    return "it-tests";
+  }
 
   @Override
-  public void define(Context context) {
+  public void load(Context context) {
     // Nothing should be loaded when the plugin is running within by the scanner
-    if (isRunningInSQ()) {
+    SonarQubeSide sonarQubeSide = context.getRuntime().getSonarQubeSide();
+    if (sonarQubeSide == COMPUTE_ENGINE || sonarQubeSide == SERVER) {
       context.addExtension(FakeWorkerCountProviderImpl.class);
       context.addExtension(WorkerLatchMetrics.class);
       context.addExtension(LatchControllerWorkerMeasureComputer.class);
@@ -60,12 +70,4 @@ public class FakeGovernancePlugin implements Plugin {
     }
   }
 
-  private static boolean isRunningInSQ() {
-    try {
-      Class.forName("org.sonar.server.plugins.privileged.CoreExtensionBridge");
-      return true;
-    } catch (ClassNotFoundException e) {
-      return false;
-    }
-  }
 }

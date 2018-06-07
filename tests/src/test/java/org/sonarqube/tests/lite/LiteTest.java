@@ -25,14 +25,14 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.client.components.TreeRequest;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.issues.SearchRequest;
-import org.sonarqube.ws.client.measures.ComponentTreeRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
+import org.sonarqube.ws.client.measures.ComponentTreeRequest;
 import org.sonarqube.ws.client.measures.MeasuresService;
 
 import static java.util.Arrays.asList;
@@ -46,10 +46,10 @@ public class LiteTest {
 
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
 
-  private static Orchestrator orchestrator = newOrchestratorBuilder()
-    .setOrchestratorProperty("sonar.web.context", "/sonarqube")
-    .addPlugin(xooPlugin())
-    .build();
+  private static Orchestrator orchestrator = newOrchestratorBuilder(
+    builder -> builder
+      .setOrchestratorProperty("sonar.web.context", "/sonarqube")
+      .addPlugin(xooPlugin()));
 
   private static Tester tester = new Tester(orchestrator);
 

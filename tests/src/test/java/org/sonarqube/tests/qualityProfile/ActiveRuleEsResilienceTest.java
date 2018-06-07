@@ -48,14 +48,15 @@ public class ActiveRuleEsResilienceTest {
   private static final Byteman byteman;
 
   static {
-    byteman = new Byteman(newOrchestratorBuilder(), WEB);
-    orchestrator = byteman
-      .getOrchestratorBuilder()
-      .setServerProperty("sonar.search.recovery.delayInMs", "1000")
-      .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
-      .setServerProperty("sonar.sonarcloud.enabled", "true")
-      .addPlugin(ItUtils.xooPlugin())
-      .build();
+    byteman = new Byteman();
+    orchestrator = newOrchestratorBuilder(
+      builder -> {
+        byteman.install(builder, WEB);
+        builder.setServerProperty("sonar.search.recovery.delayInMs", "1000")
+          .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+          .setServerProperty("sonar.sonarcloud.enabled", "true")
+          .addPlugin(ItUtils.xooPlugin());
+      });
   }
 
   @Before
