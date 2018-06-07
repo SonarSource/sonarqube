@@ -28,6 +28,7 @@ import org.sonarqube.tests.issue.IssueCreationDatePluginChangedTest;
 import org.sonarqube.tests.marketplace.UpdateCenterTest;
 import org.sonarqube.tests.qualityProfile.ActiveRuleEsResilienceTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
+import org.sonarqube.tests.qualityProfile.PluginWithoutBuiltinQualityProfile;
 import org.sonarqube.tests.rule.RuleEsResilienceTest;
 import org.sonarqube.tests.serverSystem.BlueGreenTest;
 import org.sonarqube.tests.serverSystem.RestartTest;
@@ -64,6 +65,7 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   HttpHeadersAuthenticationTest.class,
   OnboardingTest.class,
   BuiltInQualityProfilesNotificationTest.class,
+  PluginWithoutBuiltinQualityProfile.class,
   ActiveRuleEsResilienceTest.class,
   AnalysisEsResilienceTest.class,
   RuleEsResilienceTest.class,

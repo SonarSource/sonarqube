@@ -71,12 +71,13 @@ public class BuiltInQProfileRepositoryImplTest {
   }
 
   @Test
-  public void initialize_creates_no_BuiltInQProfile_when_there_is_no_definition() {
+  public void initialize_throws_ISE_if_language_has_no_builtin_qp() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), new Languages(FOO_LANGUAGE));
 
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The following languages have no built-in quality profiles: foo");
+    
     underTest.initialize();
-
-    assertThat(underTest.get()).isEmpty();
   }
 
   @Test

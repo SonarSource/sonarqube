@@ -20,15 +20,19 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
@@ -76,6 +80,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     }
     Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage = validateAndClean(context);
     this.qProfiles = toFlatList(rulesProfilesByLanguage);
+    ensureAllLanguagesHaveAtLeastOneBuiltInQP();
     profiler.stopDebug();
   }
 
@@ -86,22 +91,29 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     return qProfiles;
   }
 
+  private void ensureAllLanguagesHaveAtLeastOneBuiltInQP() {
+    Set<String> languagesWithBuiltInQProfiles = qProfiles.stream().map(BuiltInQProfile::getLanguage).collect(Collectors.toSet());
+    Set<String> languagesWithoutBuiltInQProfiles = Arrays.stream(languages.all())
+      .map(Language::getKey)
+      .filter(key -> !languagesWithBuiltInQProfiles.contains(key))
+      .collect(Collectors.toSet());
+
+    checkState(languagesWithoutBuiltInQProfiles.isEmpty(), "The following languages have no built-in quality profiles: %s",
+      languagesWithoutBuiltInQProfiles.stream().collect(Collectors.joining()));
+  }
+
   private Map<String, Map<String, BuiltInQualityProfile>> validateAndClean(BuiltInQualityProfilesDefinition.Context context) {
     Map<String, Map<String, BuiltInQualityProfile>> profilesByLanguageAndName = context.profilesByLanguageAndName();
     profilesByLanguageAndName.entrySet()
       .removeIf(entry -> {
         String language = entry.getKey();
         if (languages.get(language) == null) {
-          LOGGER.info("Language {} is not installed, related Quality profiles are ignored", language);
-          return true;
-        }
-        Collection<BuiltInQualityProfile> profiles = entry.getValue().values();
-        if (profiles.isEmpty()) {
-          LOGGER.warn("No Quality profiles defined for language: {}", language);
+          LOGGER.info("Language {} is not installed, related quality profiles are ignored", language);
           return true;
         }
         return false;
       });
+
     return profilesByLanguageAndName;
   }
 

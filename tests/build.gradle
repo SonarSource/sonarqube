@@ -24,6 +24,7 @@ def pluginsForITs = [
     ':tests:plugins:foo-plugin-v1',
     ':tests:plugins:foo-plugin-v2',
     ':tests:plugins:foo-plugin-v3',
+    ':tests:plugins:foo-plugin-without-qprofile',
     ':tests:plugins:global-property-change-plugin',
     ':tests:plugins:issue-filter-plugin',
     ':tests:plugins:l10n-fr-pack',
