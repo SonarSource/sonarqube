@@ -25,6 +25,7 @@ import TaskDay from './TaskDay';
 import TaskDate from './TaskDate';
 import TaskExecutionTime from './TaskExecutionTime';
 import TaskActions from './TaskActions';
+import TaskSubmitter from './TaskSubmitter';
 import { Task as ITask } from '../types';
 
 interface Props {
@@ -43,6 +44,7 @@ export default function Task(props: Props) {
       <TaskStatus status={task.status} />
       <TaskComponent task={task} />
       <TaskId id={task.id} />
+      <TaskSubmitter submitter={task.submitterLogin} />
       <TaskDay
         submittedAt={task.submittedAt}
         prevSubmittedAt={previousTask && previousTask.submittedAt}

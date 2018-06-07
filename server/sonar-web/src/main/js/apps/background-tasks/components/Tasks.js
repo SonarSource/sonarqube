@@ -56,6 +56,7 @@ export default class Tasks extends React.PureComponent {
               <th>{translate('background_tasks.table.status')}</th>
               <th>{translate('background_tasks.table.task')}</th>
               <th>{translate('background_tasks.table.id')}</th>
+              <th>{translate('background_tasks.table.submitter')}</th>
               <th>&nbsp;</th>
               <th className="text-right">{translate('background_tasks.table.submitted')}</th>
               <th className="text-right">{translate('background_tasks.table.started')}</th>
