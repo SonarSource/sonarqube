@@ -156,6 +156,7 @@ public class UpdateEventActionTest {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.since()).isEqualTo("6.3");
     assertThat(definition.param(PARAM_EVENT).isRequired()).isTrue();
+    assertThat(definition.param(PARAM_NAME).isRequired()).isTrue();
   }
 
   @Test
@@ -185,8 +186,8 @@ public class UpdateEventActionTest {
     SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
-    expectedException.expect(NullPointerException.class);
-
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is missing");
     call("E1", null);
   }
 
