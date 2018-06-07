@@ -8,13 +8,8 @@ exports[`renders correctly 1`] = `
   >
     onboarding.analysis.msbuild.execute
   </h4>
-  <p
-    className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.msbuild.execute.text",
-      }
-    }
+  <InstanceMessage
+    message="onboarding.analysis.msbuild.execute.text"
   />
   <CodeSnippet
     isOneLine={true}
@@ -60,13 +55,8 @@ exports[`renders correctly 2`] = `
   >
     onboarding.analysis.msbuild.execute
   </h4>
-  <p
-    className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.msbuild.execute.text",
-      }
-    }
+  <InstanceMessage
+    message="onboarding.analysis.msbuild.execute.text"
   />
   <CodeSnippet
     isOneLine={true}

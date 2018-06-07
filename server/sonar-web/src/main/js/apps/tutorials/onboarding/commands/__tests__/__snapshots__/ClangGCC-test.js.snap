@@ -14,13 +14,8 @@ exports[`renders correctly 1`] = `
   >
     onboarding.analysis.sq_scanner.execute
   </h4>
-  <p
-    className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.execute.text",
-      }
-    }
+  <InstanceMessage
+    message="onboarding.analysis.sq_scanner.execute.text"
   />
   <CodeSnippet
     isOneLine={true}
@@ -65,13 +60,8 @@ exports[`renders correctly 2`] = `
   >
     onboarding.analysis.sq_scanner.execute
   </h4>
-  <p
-    className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.execute.text",
-      }
-    }
+  <InstanceMessage
+    message="onboarding.analysis.sq_scanner.execute.text"
   />
   <CodeSnippet
     isOneLine={true}
@@ -116,13 +106,8 @@ exports[`renders correctly 3`] = `
   >
     onboarding.analysis.sq_scanner.execute
   </h4>
-  <p
-    className="spacer-bottom markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "onboarding.analysis.sq_scanner.execute.text",
-      }
-    }
+  <InstanceMessage
+    message="onboarding.analysis.sq_scanner.execute.text"
   />
   <CodeSnippet
     isOneLine={true}

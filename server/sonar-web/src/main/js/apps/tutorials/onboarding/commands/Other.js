@@ -21,6 +21,7 @@
 import React from 'react';
 import SQScanner from './SQScanner';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
+import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -50,12 +51,14 @@ export default function Other(props /*: Props */) {
       <h4 className="huge-spacer-top spacer-bottom">
         {translate('onboarding.analysis.sq_scanner.execute')}
       </h4>
-      <p
-        className="spacer-bottom markdown"
-        dangerouslySetInnerHTML={{
-          __html: translate('onboarding.analysis.sq_scanner.execute.text')
-        }}
-      />
+      <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
+        {transformedMessage => (
+          <p
+            className="spacer-bottom markdown"
+            dangerouslySetInnerHTML={{ __html: transformedMessage }}
+          />
+        )}
+      </InstanceMessage>
       <CodeSnippet isOneLine={props.os === 'win'} snippet={command} />
       <p
         className="big-spacer-top markdown"

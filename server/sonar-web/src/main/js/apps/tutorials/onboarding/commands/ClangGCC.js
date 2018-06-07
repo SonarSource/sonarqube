@@ -22,6 +22,7 @@ import React from 'react';
 import SQScanner from './SQScanner';
 import BuildWrapper from './BuildWrapper';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
+import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -61,12 +62,14 @@ export default function ClangGCC(props /*: Props */) {
       <h4 className="huge-spacer-top spacer-bottom">
         {translate('onboarding.analysis.sq_scanner.execute')}
       </h4>
-      <p
-        className="spacer-bottom markdown"
-        dangerouslySetInnerHTML={{
-          __html: translate('onboarding.analysis.sq_scanner.execute.text')
-        }}
-      />
+      <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
+        {transformedMessage => (
+          <p
+            className="spacer-bottom markdown"
+            dangerouslySetInnerHTML={{ __html: transformedMessage }}
+          />
+        )}
+      </InstanceMessage>
       <CodeSnippet isOneLine={true} snippet={command1} />
       <CodeSnippet isOneLine={props.os === 'win'} snippet={command2} />
       <p

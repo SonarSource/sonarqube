@@ -21,6 +21,7 @@
 import React from 'react';
 import MSBuildScanner from './MSBuildScanner';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
+import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
@@ -52,12 +53,14 @@ export default function DotNet(props /*: Props */) {
       <h4 className="huge-spacer-top spacer-bottom">
         {translate('onboarding.analysis.msbuild.execute')}
       </h4>
-      <p
-        className="spacer-bottom markdown"
-        dangerouslySetInnerHTML={{
-          __html: translate('onboarding.analysis.msbuild.execute.text')
-        }}
-      />
+      <InstanceMessage message={translate('onboarding.analysis.msbuild.execute.text')}>
+        {transformedMessage => (
+          <p
+            className="spacer-bottom markdown"
+            dangerouslySetInnerHTML={{ __html: transformedMessage }}
+          />
+        )}
+      </InstanceMessage>
       <CodeSnippet isOneLine={true} snippet={command1} />
       <CodeSnippet isOneLine={true} snippet={command2} />
       <CodeSnippet isOneLine={true} snippet={command3} />
