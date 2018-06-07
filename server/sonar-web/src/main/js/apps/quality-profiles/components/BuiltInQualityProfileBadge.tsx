@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Tooltip from '../../../components/controls/Tooltip';
-import DocInclude from '../../../components/docs/DocInclude';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -35,12 +34,8 @@ export default function BuiltInQualityProfileBadge({ className, tooltip = true }
     </div>
   );
 
-  const overlay = (
-    <DocInclude
-      className="abs-width-300 cut-margins"
-      path="/tooltips/quality-profiles/built-in-quality-profile"
-    />
-  );
-
-  return <Tooltip overlay={tooltip ? overlay : undefined}>{badge}</Tooltip>;
+  if (tooltip) {
+    return <DocTooltip doc="quality-profiles/built-in-quality-profile">{badge}</DocTooltip>;
+  }
+  return badge;
 }

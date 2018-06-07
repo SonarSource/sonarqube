@@ -28,7 +28,7 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { isStagnant } from '../utils';
 import { Profile } from '../types';
 import Tooltip from '../../../components/controls/Tooltip';
-import DocInclude from '../../../components/docs/DocInclude';
+import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   onRequestFail: (reason: any) => void;
@@ -61,15 +61,9 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
 
     if (profile.isDefault) {
       return (
-        <Tooltip
-          overlay={
-            <DocInclude
-              className="abs-width-300 cut-margins"
-              path="/tooltips/quality-profiles/default-quality-profile"
-            />
-          }>
+        <DocTooltip doc="quality-profiles/default-quality-profile">
           <span className="badge">{translate('default')}</span>
-        </Tooltip>
+        </DocTooltip>
       );
     }
 
