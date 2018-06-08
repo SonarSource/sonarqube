@@ -38,6 +38,7 @@ import org.sonar.scanner.source.ZeroCoverageSensor;
 import org.sonar.scanner.task.ListTask;
 import org.sonar.scanner.task.ScanTask;
 import org.sonar.scanner.task.Tasks;
+import org.sonar.scanner.task.ViewsTask;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -53,7 +54,9 @@ public class BatchComponents {
       ListTask.DEFINITION,
       ListTask.class,
       ScanTask.DEFINITION,
-      ScanTask.class);
+      ScanTask.class,
+      ViewsTask.DEFINITION,
+      ViewsTask.class);
     components.addAll(CorePropertyDefinitions.all());
     if (!analysisMode.isIssues()) {
       // SCM
