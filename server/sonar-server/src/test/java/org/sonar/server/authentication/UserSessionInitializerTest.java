@@ -105,6 +105,12 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/api/users/identity_providers");
     assertPathIsIgnored("/api/l10n/index");
 
+    // exlude passcode urls
+    assertPathIsIgnoredWithAnonymousAccess("/api/ce/info");
+    assertPathIsIgnoredWithAnonymousAccess("/api/ce/pause");
+    assertPathIsIgnoredWithAnonymousAccess("/api/ce/resume");
+    assertPathIsIgnoredWithAnonymousAccess("/api/system/health");
+
     // exclude static resources
     assertPathIsIgnored("/css/style.css");
     assertPathIsIgnored("/images/logo.png");
@@ -182,6 +188,15 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
     verifyZeroInteractions(userSession, authenticators);
+    reset(userSession, authenticators);
+  }
+
+  private void assertPathIsIgnoredWithAnonymousAccess(String path) {
+    when(request.getRequestURI()).thenReturn(path);
+
+    assertThat(underTest.initUserSession(request, response)).isTrue();
+
+    verify(userSession).set(any(UserSession.class));
     reset(userSession, authenticators);
   }
 

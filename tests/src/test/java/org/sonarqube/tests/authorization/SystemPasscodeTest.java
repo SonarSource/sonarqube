@@ -20,6 +20,7 @@
 package org.sonarqube.tests.authorization;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.util.Arrays;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -68,6 +69,21 @@ public class SystemPasscodeTest {
 
     WsResponse response = tester.asAnonymous().wsClient().wsConnector().call(request);
     assertThat(response.code()).isEqualTo(401);
+  }
+
+  @Test
+  public void system_access_is_granted_even_with_forceAuthentication_is_set_to_true() {
+    tester.settings().setGlobalSetting("sonar.forceAuthentication", "true");
+    Arrays.asList("/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/info")
+      .forEach(url -> {
+          WsRequest request = new GetRequest("api/system/health")
+            .setHeader(PASSCODE_HEADER, VALID_PASSCODE);
+
+          WsResponse response = tester.asAnonymous().wsClient().wsConnector().call(request);
+          assertThat(response.code()).isEqualTo(200);
+        }
+      );
+    tester.settings().setGlobalSetting("sonar.forceAuthentication", "false");
   }
 
   private static GetRequest newRequest() {
