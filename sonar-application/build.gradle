@@ -7,10 +7,8 @@ sonarqube {
 configurations {
   zip
 
-  ce
   jsw
   scanner
-  server
   jdbc_mssql {
     transitive = false
   }
@@ -32,15 +30,15 @@ dependencies {
   // please keep list ordered
 
   compile 'org.elasticsearch.client:transport'
+  compile project(':server:sonar-ce')
   compile project(':server:sonar-main')
   compile project(':server:sonar-process')
+  compile project(':server:sonar-server')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  ce project(':server:sonar-ce')
   jsw 'tanukisoft:wrapper:3.2.3'
   scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
-  server project(':server:sonar-server')
 
   jdbc_h2 'com.h2database:h2'
   jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
@@ -74,7 +72,7 @@ jar {
   }
 }
 
-task zip(type: Zip, dependsOn: [configurations.ce, configurations.scanner, configurations.server]) {
+task zip(type: Zip, dependsOn: [configurations.compile]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$version"
 
@@ -103,7 +101,7 @@ task zip(type: Zip, dependsOn: [configurations.ce, configurations.scanner, confi
     from configurations.scanner
   }
   into("${archiveDir}/lib/common/") {
-    from configurations.ce + configurations.server + configurations.compile
+    from configurations.compile
   }
   into("${archiveDir}/web/") {
     from tasks.getByPath(':server:sonar-web:yarn_run').outputs
