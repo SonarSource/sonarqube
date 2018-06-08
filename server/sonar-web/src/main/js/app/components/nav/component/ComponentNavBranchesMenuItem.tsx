@@ -32,7 +32,6 @@ import {
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../helpers/urls';
-import Tooltip from '../../../../components/controls/Tooltip';
 
 export interface Props {
   branchLike: BranchLike;
@@ -58,18 +57,18 @@ export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: P
           active: props.selected
         })}
         to={getBranchLikeUrl(props.component.key, branchLike)}>
-        <Tooltip mouseEnterDelay={0.5} overlay={displayName} placement="left">
-          <div className="navbar-context-meta-branch-menu-item-name text-ellipsis">
-            <BranchIcon
-              branchLike={branchLike}
-              className={classNames('little-spacer-right', { 'big-spacer-left': shouldBeIndented })}
-            />
-            {displayName}
-            {isMainBranch(branchLike) && (
-              <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
-            )}
-          </div>
-        </Tooltip>
+        <div
+          className="navbar-context-meta-branch-menu-item-name text-ellipsis"
+          title={displayName}>
+          <BranchIcon
+            branchLike={branchLike}
+            className={classNames('little-spacer-right', { 'big-spacer-left': shouldBeIndented })}
+          />
+          {displayName}
+          {isMainBranch(branchLike) && (
+            <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
+          )}
+        </div>
         <div className="big-spacer-left note">
           <BranchStatus branchLike={branchLike} concise={true} />
         </div>

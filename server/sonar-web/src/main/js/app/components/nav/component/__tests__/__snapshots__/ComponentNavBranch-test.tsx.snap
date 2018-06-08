@@ -50,16 +50,12 @@ exports[`renders main branch 1`] = `
           }
           className="little-spacer-right"
         />
-        <Tooltip
-          mouseEnterDelay={1}
-          overlay="master"
+        <span
+          className="text-limited text-top"
+          title="master"
         >
-          <span
-            className="text-limited text-top"
-          >
-            master
-          </span>
-        </Tooltip>
+          master
+        </span>
         <DropdownIcon
           className="little-spacer-left"
         />
@@ -140,16 +136,12 @@ exports[`renders pull request 1`] = `
           }
           className="little-spacer-right"
         />
-        <Tooltip
-          mouseEnterDelay={1}
-          overlay="1234 – Feature PR"
+        <span
+          className="text-limited text-top"
+          title="1234 – Feature PR"
         >
-          <span
-            className="text-limited text-top"
-          >
-            1234 – Feature PR
-          </span>
-        </Tooltip>
+          1234 – Feature PR
+        </span>
         <DropdownIcon
           className="little-spacer-left"
         />
@@ -251,16 +243,12 @@ exports[`renders short-living branch 1`] = `
           }
           className="little-spacer-right"
         />
-        <Tooltip
-          mouseEnterDelay={1}
-          overlay="foo"
+        <span
+          className="text-limited text-top"
+          title="foo"
         >
-          <span
-            className="text-limited text-top"
-          >
-            foo
-          </span>
-        </Tooltip>
+          foo
+        </span>
         <DropdownIcon
           className="little-spacer-left"
         />

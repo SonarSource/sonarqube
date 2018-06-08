@@ -22,7 +22,6 @@ import React from 'react';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
-import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 /*:: type Props = {|
@@ -41,9 +40,9 @@ export default function ProjectOverviewFacet({ value, selected, onChange } /*: P
           disabled={false}
           key={value}
           name={
-            <Tooltip overlay={facetName} mouseEnterDelay={0.5}>
-              <strong id={`measure-overview-${value}-name`}>{facetName}</strong>
-            </Tooltip>
+            <strong id={`measure-overview-${value}-name`} title={facetName}>
+              {facetName}
+            </strong>
           }
           onClick={onChange}
           value={value}

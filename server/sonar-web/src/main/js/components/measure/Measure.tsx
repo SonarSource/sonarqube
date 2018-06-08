@@ -21,7 +21,7 @@ import * as React from 'react';
 import { getRatingTooltip } from './utils';
 import Rating from '../ui/Rating';
 import Level from '../ui/Level';
-import Tooltips from '../controls/Tooltip';
+import Tooltip from '../controls/Tooltip';
 import { formatMeasure } from '../../helpers/measures';
 
 interface Props {
@@ -58,9 +58,9 @@ export default function Measure({
   const rating = <Rating small={small} value={value} />;
   if (tooltip) {
     return (
-      <Tooltips overlay={tooltip}>
+      <Tooltip overlay={tooltip}>
         <span className={className}>{rating}</span>
-      </Tooltips>
+      </Tooltip>
     );
   }
   return rating;

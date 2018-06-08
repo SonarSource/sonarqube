@@ -110,7 +110,10 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
             </ul>
           </>
         }>
-        <a className="js-rule-filter link-no-underline spacer-left dropdown-toggle" href="#">
+        <a
+          className="js-rule-filter link-no-underline spacer-left dropdown-toggle"
+          href="#"
+          title={translate('coding_rules.filter_similar_rules')}>
           <FilterIcon className="icon-half-transparent" />
           <DropdownIcon className="icon-half-transparent" />
         </a>

@@ -19,6 +19,7 @@ exports[`should display right meta info 1`] = `
         className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
         onlyActiveOnIndex={false}
         style={Object {}}
+        title="permalink"
         to={
           Object {
             "pathname": "/coding_rules",

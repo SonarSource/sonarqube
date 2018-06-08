@@ -18,31 +18,26 @@ exports[`renders main branch 1`] = `
       }
     }
   >
-    <Tooltip
-      mouseEnterDelay={0.5}
-      overlay="master"
-      placement="left"
+    <div
+      className="navbar-context-meta-branch-menu-item-name text-ellipsis"
+      title="master"
     >
-      <div
-        className="navbar-context-meta-branch-menu-item-name text-ellipsis"
-      >
-        <BranchIcon
-          branchLike={
-            Object {
-              "isMain": true,
-              "name": "master",
-            }
+      <BranchIcon
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "master",
           }
-          className="little-spacer-right"
-        />
-        master
-        <div
-          className="outline-badge spacer-left"
-        >
-          branches.main_branch
-        </div>
+        }
+        className="little-spacer-right"
+      />
+      master
+      <div
+        className="outline-badge spacer-left"
+      >
+        branches.main_branch
       </div>
-    </Tooltip>
+    </div>
     <div
       className="big-spacer-left note"
     >
@@ -80,34 +75,29 @@ exports[`renders short-living branch 1`] = `
       }
     }
   >
-    <Tooltip
-      mouseEnterDelay={0.5}
-      overlay="foo"
-      placement="left"
+    <div
+      className="navbar-context-meta-branch-menu-item-name text-ellipsis"
+      title="foo"
     >
-      <div
-        className="navbar-context-meta-branch-menu-item-name text-ellipsis"
-      >
-        <BranchIcon
-          branchLike={
-            Object {
-              "isMain": false,
-              "mergeBranch": "master",
-              "name": "foo",
-              "status": Object {
-                "bugs": 1,
-                "codeSmells": 2,
-                "qualityGateStatus": "ERROR",
-                "vulnerabilities": 3,
-              },
-              "type": "SHORT",
-            }
+      <BranchIcon
+        branchLike={
+          Object {
+            "isMain": false,
+            "mergeBranch": "master",
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "qualityGateStatus": "ERROR",
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
           }
-          className="little-spacer-right big-spacer-left"
-        />
-        foo
-      </div>
-    </Tooltip>
+        }
+        className="little-spacer-right big-spacer-left"
+      />
+      foo
+    </div>
     <div
       className="big-spacer-left note"
     >
@@ -153,35 +143,30 @@ exports[`renders short-living orhpan branch 1`] = `
       }
     }
   >
-    <Tooltip
-      mouseEnterDelay={0.5}
-      overlay="foo"
-      placement="left"
+    <div
+      className="navbar-context-meta-branch-menu-item-name text-ellipsis"
+      title="foo"
     >
-      <div
-        className="navbar-context-meta-branch-menu-item-name text-ellipsis"
-      >
-        <BranchIcon
-          branchLike={
-            Object {
-              "isMain": false,
-              "isOrphan": true,
-              "mergeBranch": "master",
-              "name": "foo",
-              "status": Object {
-                "bugs": 1,
-                "codeSmells": 2,
-                "qualityGateStatus": "ERROR",
-                "vulnerabilities": 3,
-              },
-              "type": "SHORT",
-            }
+      <BranchIcon
+        branchLike={
+          Object {
+            "isMain": false,
+            "isOrphan": true,
+            "mergeBranch": "master",
+            "name": "foo",
+            "status": Object {
+              "bugs": 1,
+              "codeSmells": 2,
+              "qualityGateStatus": "ERROR",
+              "vulnerabilities": 3,
+            },
+            "type": "SHORT",
           }
-          className="little-spacer-right"
-        />
-        foo
-      </div>
-    </Tooltip>
+        }
+        className="little-spacer-right"
+      />
+      foo
+    </div>
     <div
       className="big-spacer-left note"
     >

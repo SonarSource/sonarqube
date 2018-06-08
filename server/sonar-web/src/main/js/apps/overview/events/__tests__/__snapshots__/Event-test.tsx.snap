@@ -1,16 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render a version correctly 1`] = `
-<Tooltip
-  mouseEnterDelay={0.5}
-  overlay="version 6.5-SNAPSHOT"
+<span
+  className="overview-analysis-event badge"
+  title="version 6.5-SNAPSHOT"
 >
-  <span
-    className="overview-analysis-event badge"
-  >
-    6.5-SNAPSHOT
-  </span>
-</Tooltip>
+  6.5-SNAPSHOT
+</span>
 `;
 
 exports[`should render an event correctly 1`] = `

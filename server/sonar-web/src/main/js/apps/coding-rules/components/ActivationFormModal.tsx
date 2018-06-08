@@ -21,7 +21,6 @@ import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import Tooltip from '../../../components/controls/Tooltip';
 import { activateRule, Profile as BaseProfile } from '../../../api/quality-profiles';
 import { Rule, RuleDetails, RuleActivation } from '../../../app/types';
 import { SEVERITIES } from '../../../helpers/constants';
@@ -207,11 +206,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             ) : (
               params.map(param => (
                 <div className="modal-field" key={param.key}>
-                  <label>
-                    <Tooltip overlay={param.key}>
-                      <span>{param.key}</span>
-                    </Tooltip>
-                  </label>
+                  <label title={param.key}>{param.key}</label>
                   {param.type === 'TEXT' ? (
                     <textarea
                       className="width100"

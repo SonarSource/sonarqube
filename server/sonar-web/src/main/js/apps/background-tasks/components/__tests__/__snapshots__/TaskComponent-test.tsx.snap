@@ -163,23 +163,21 @@ exports[`renders correctly for branches and pullrequest 3`] = `
     }
   >
     foo
-    <Tooltip>
+    <span
+      className="text-limited text-text-top"
+    >
       <span
-        className="text-limited text-text-top"
-      >
-        <span
-          style={
-            Object {
-              "marginLeft": 5,
-              "marginRight": 5,
-            }
+        style={
+          Object {
+            "marginLeft": 5,
+            "marginRight": 5,
           }
-        >
-          /
-        </span>
-        pr-89
+        }
+      >
+        /
       </span>
-    </Tooltip>
+      pr-89
+    </span>
   </Link>
   <TaskType
     type="REPORT"

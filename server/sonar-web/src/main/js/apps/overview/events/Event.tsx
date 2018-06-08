@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
 import { Event as IEvent } from '../../../api/projectActivity';
 import { translate } from '../../../helpers/l10n';
 
@@ -29,9 +28,11 @@ interface Props {
 export default function Event({ event }: Props) {
   if (event.category === 'VERSION') {
     return (
-      <Tooltip mouseEnterDelay={0.5} overlay={`${translate('version')} ${event.name}`}>
-        <span className="overview-analysis-event badge">{event.name}</span>
-      </Tooltip>
+      <span
+        className="overview-analysis-event badge"
+        title={`${translate('version')} ${event.name}`}>
+        {event.name}
+      </span>
     );
   }
 
@@ -39,9 +40,7 @@ export default function Event({ event }: Props) {
     <div className="overview-analysis-event">
       <span className="note">{translate('event.category', event.category)}:</span>{' '}
       {event.description ? (
-        <Tooltip mouseEnterDelay={0.5} overlay={event.description}>
-          <strong>{event.name}</strong>
-        </Tooltip>
+        <strong title={event.description}>{event.name}</strong>
       ) : (
         <strong>{event.name}</strong>
       )}

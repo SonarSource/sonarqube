@@ -32,7 +32,6 @@ import {
 import ShortLivingBranchIcon from '../../../components/icons-components/ShortLivingBranchIcon';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import PullRequestIcon from '../../../components/icons-components/PullRequestIcon';
-import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
   task: Task;
@@ -76,12 +75,10 @@ export default function TaskComponent({ task }: Props) {
           )}
 
           {task.pullRequest && (
-            <Tooltip overlay={task.pullRequestTitle}>
-              <span className="text-limited text-text-top">
-                <span style={{ marginLeft: 5, marginRight: 5 }}>/</span>
-                {task.pullRequest}
-              </span>
-            </Tooltip>
+            <span className="text-limited text-text-top" title={task.pullRequestTitle}>
+              <span style={{ marginLeft: 5, marginRight: 5 }}>/</span>
+              {task.pullRequest}
+            </span>
           )}
         </Link>
       )}

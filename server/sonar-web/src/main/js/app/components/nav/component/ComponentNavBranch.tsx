@@ -35,7 +35,6 @@ import { translate } from '../../../../helpers/l10n';
 import PlusCircleIcon from '../../../../components/icons-components/PlusCircleIcon';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Toggler from '../../../../components/controls/Toggler';
-import Tooltip from '../../../../components/controls/Tooltip';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
 
@@ -184,9 +183,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
               href="#"
               onClick={this.handleClick}>
               <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
-              <Tooltip mouseEnterDelay={1} overlay={displayName}>
-                <span className="text-limited text-top">{displayName}</span>
-              </Tooltip>
+              <span className="text-limited text-top" title={displayName}>
+                {displayName}
+              </span>
               <DropdownIcon className="little-spacer-left" />
             </a>
           </Toggler>

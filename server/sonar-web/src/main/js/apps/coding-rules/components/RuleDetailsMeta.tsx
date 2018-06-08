@@ -240,6 +240,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             {!ruleDetails.isExternal && (
               <Link
                 className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
+                title={translate('permalink')}
                 to={getRuleUrl(ruleDetails.key, this.props.organization)}>
                 <LinkIcon />
               </Link>
