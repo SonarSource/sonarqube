@@ -29,6 +29,10 @@
   font-size: var(--baseFontSize);
 }
 
+.navbar-context-branches .popup {
+  min-width: 430px;
+}
+
 .navbar-context-meta-branch-menu-title {
   padding-left: calc(3 * var(--gridSize));
 }

@@ -54,7 +54,13 @@ it('renders list', () => {
 it('searches', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
-      branchLikes={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      branchLikes={[
+        mainBranch(),
+        shortBranch('foo'),
+        shortBranch('foobar'),
+        longBranch('bar'),
+        longBranch('BARBAZ')
+      ]}
       component={component}
       currentBranchLike={mainBranch()}
       onClose={jest.fn()}

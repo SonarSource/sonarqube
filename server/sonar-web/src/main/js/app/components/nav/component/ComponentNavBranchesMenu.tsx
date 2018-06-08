@@ -84,7 +84,8 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       const matchBranchName = isBranch(branchLike) && branchLike.name.toLowerCase().includes(query);
       const matchPullRequestTitleOrId =
         isPullRequest(branchLike) &&
-        (branchLike.title.includes(query) || branchLike.key.includes(query));
+        (branchLike.title.toLowerCase().includes(query) ||
+          branchLike.key.toLowerCase().includes(query));
       return matchBranchName || matchPullRequestTitleOrId;
     });
   };

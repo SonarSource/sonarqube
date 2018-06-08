@@ -278,6 +278,31 @@ exports[`searches 1`] = `
       />
     </React.Fragment>
     <React.Fragment
+      key="branch-BARBAZ"
+    >
+      <li
+        className="divider"
+      />
+      <ComponentNavBranchesMenuItem
+        branchLike={
+          Object {
+            "isMain": false,
+            "name": "BARBAZ",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "key": "component",
+          }
+        }
+        innerRef={[Function]}
+        key="branch-BARBAZ"
+        onSelect={[Function]}
+        selected={false}
+      />
+    </React.Fragment>
+    <React.Fragment
       key="branch-bar"
     >
       <li
