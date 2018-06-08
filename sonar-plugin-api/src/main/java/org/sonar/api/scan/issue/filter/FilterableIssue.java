@@ -40,9 +40,8 @@ public interface FilterableIssue {
   String message();
 
   /**
-   * @deprecated since 7.2. Use {@link #textRange() instead}.
+   * @deprecated since 7.2. Use {@link #textRange()} instead.
    */
-  
   @Deprecated
   @CheckForNull
   Integer line();
