@@ -29,7 +29,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
@@ -96,16 +95,16 @@ public class DeleteActionTest {
     tester.newRequest().execute();
   }
 
-  public void fail_branch_does_not_exist() {
+  @Test
+  public void fail_if_branch_does_not_exist() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Branch 'branch1' not found");
 
     tester.newRequest()
-      .setParam("project", file.getDbKey())
+      .setParam("project", project.getDbKey())
       .setParam("branch", "branch1")
       .execute();
   }
@@ -141,10 +140,8 @@ public class DeleteActionTest {
 
   @Test
   public void delete_branch() {
-
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
-
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     tester.newRequest()

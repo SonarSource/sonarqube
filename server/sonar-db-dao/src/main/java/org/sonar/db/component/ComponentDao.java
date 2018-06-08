@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -193,6 +194,15 @@ public class ComponentDao implements Dao {
     List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(toList());
     List<String> allKeys = Stream.of(keys, dbKeys).flatMap(Collection::stream).collect(toList());
     return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
+  }
+
+  /**
+   * Return list of components that will will mix main and branch components.
+   * Please note that a project can only appear once in the list, it's not possible to ask for many branches on same project with this method.
+   */
+  public List<ComponentDto> selectByKeysAndBranches(DbSession session, Map<String, String> branchesByKey) {
+    List<String> dbKeys = branchesByKey.entrySet().stream().map(entry -> generateBranchKey(entry.getKey(), entry.getValue())).collect(toList());
+    return executeLargeInputs(dbKeys, subKeys -> mapper(session).selectByDbKeys(subKeys));
   }
 
   public List<ComponentDto> selectByKeysAndPullRequest(DbSession session, Collection<String> keys, String pullRequestId) {

@@ -19,9 +19,11 @@
  */
 package org.sonar.server.component;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
@@ -45,6 +47,8 @@ import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class ComponentUpdater {
+
+  private static final Set<String> MAIN_BRANCH_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
 
   private final DbClient dbClient;
   private final I18n i18n;
@@ -74,7 +78,7 @@ public class ComponentUpdater {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto componentDto = createRootComponent(dbSession, newComponent);
     if (isRootProject(componentDto)) {
-      createBranch(dbSession, componentDto.uuid());
+      createMainBranch(dbSession, componentDto.uuid());
     }
     removeDuplicatedProjects(dbSession, componentDto.getDbKey());
     handlePermissionTemplate(dbSession, componentDto, newComponent.getOrganizationUuid(), userId);
@@ -111,10 +115,11 @@ public class ComponentUpdater {
   }
 
   private static boolean isRootProject(ComponentDto componentDto) {
-    return Scopes.PROJECT.equals(componentDto.scope()) && Qualifiers.PROJECT.equals(componentDto.qualifier());
+    return Scopes.PROJECT.equals(componentDto.scope())
+      && MAIN_BRANCH_QUALIFIERS.contains(componentDto.qualifier());
   }
 
-  private BranchDto createBranch(DbSession session, String componentUuid) {
+  private BranchDto createMainBranch(DbSession session, String componentUuid) {
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.LONG)
       .setUuid(componentUuid)

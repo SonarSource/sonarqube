@@ -136,7 +136,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void create_project_with_branch() {
+  public void create_project_with_deprecated_branch() {
     ComponentDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
@@ -150,7 +150,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void persist_and_index_when_creating_view() {
+  public void create_view() {
     NewComponent view = NewComponent.newComponentBuilder()
       .setKey("view-key")
       .setName("view-name")
@@ -170,15 +170,15 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void persist_and_index_when_creating_application() {
-    NewComponent view = NewComponent.newComponentBuilder()
+  public void create_application() {
+    NewComponent application = NewComponent.newComponentBuilder()
       .setKey("app-key")
       .setName("app-name")
       .setQualifier(APP)
       .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), view, null);
+    ComponentDto returned = underTest.create(db.getSession(), application, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.getDbKey()).isEqualTo("app-key");
@@ -186,25 +186,12 @@ public class ComponentUpdaterTest {
     assertThat(loaded.qualifier()).isEqualTo("APP");
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
-    assertThat(branch).isNotPresent();
-  }
-
-  @Test
-  public void create_application() {
-    NewComponent view = NewComponent.newComponentBuilder()
-      .setKey("app-key")
-      .setName("app-name")
-      .setQualifier(APP)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-      .build();
-
-    ComponentDto returned = underTest.create(db.getSession(), view, null);
-
-    ComponentDto loaded = db.getDbClient().componentDao().selectByKey(db.getSession(), returned.getDbKey()).get();
-    assertThat(loaded.getDbKey()).isEqualTo("app-key");
-    assertThat(loaded.name()).isEqualTo("app-name");
-    assertThat(loaded.qualifier()).isEqualTo("APP");
-    assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
+    assertThat(branch).isPresent();
+    assertThat(branch.get().getKey()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
+    assertThat(branch.get().getMergeBranchUuid()).isNull();
+    assertThat(branch.get().getBranchType()).isEqualTo(BranchType.LONG);
+    assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
+    assertThat(branch.get().getProjectUuid()).isEqualTo(returned.uuid());
   }
 
   @Test

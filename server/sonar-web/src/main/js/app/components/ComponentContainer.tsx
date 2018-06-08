@@ -132,6 +132,15 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   fetchBranches = (
     component: Component
   ): Promise<{ branchLike?: BranchLike; branchLikes: BranchLike[] }> => {
+    const application = component.breadcrumbs.find(({ qualifier }) => qualifier === 'APP');
+    if (application) {
+      return getBranches(application.key).then(branchLikes => {
+        return {
+          branchLike: this.getCurrentBranchLike(branchLikes),
+          branchLikes
+        };
+      });
+    }
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
     return project
       ? Promise.all([getBranches(project.key), getPullRequests(project.key)]).then(

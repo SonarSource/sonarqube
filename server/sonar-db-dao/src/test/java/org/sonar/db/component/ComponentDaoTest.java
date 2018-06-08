@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -65,6 +66,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -284,6 +286,28 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(file1.getKey()), "unknown")).isEmpty();
     assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList("unknown"), "my_branch")).isEmpty();
     assertThat(underTest.selectByKeysAndBranch(dbSession, singletonList(branch.getKey()), "master")).extracting(ComponentDto::uuid).containsExactlyInAnyOrder(project.uuid());
+  }
+
+  @Test
+  public void select_by_keys_and_branches() {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ComponentDto application = db.components().insertMainBranch(a -> a.setQualifier(APP));
+    ComponentDto applicationBranch = db.components().insertProjectBranch(application, b -> b.setKey("my_branch"));
+
+    assertThat(underTest.selectByKeysAndBranches(db.getSession(), ImmutableMap.of(
+      projectBranch.getKey(), projectBranch.getBranch(),
+      applicationBranch.getKey(), applicationBranch.getBranch())))
+        .extracting(ComponentDto::getKey, ComponentDto::getBranch)
+        .containsExactlyInAnyOrder(
+          tuple(projectBranch.getKey(), "my_branch"),
+          tuple(applicationBranch.getKey(), "my_branch"));
+    assertThat(underTest.selectByKeysAndBranches(db.getSession(), ImmutableMap.of(
+      projectBranch.getKey(), "unknown",
+      "unknown", projectBranch.getBranch())))
+        .extracting(ComponentDto::getDbKey)
+        .isEmpty();
+    assertThat(underTest.selectByKeysAndBranches(db.getSession(), Collections.emptyMap())).isEmpty();
   }
 
   @Test

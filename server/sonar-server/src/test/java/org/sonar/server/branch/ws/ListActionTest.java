@@ -65,7 +65,6 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -111,7 +110,7 @@ public class ListActionTest {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
 
     ComponentDto longLivingBranch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(LONG));
+      .insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(org.sonar.db.component.BranchType.LONG));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(longLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(longLivingBranch, qualityGateStatus, m -> m.setData("OK"));
@@ -143,7 +142,7 @@ public class ListActionTest {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
 
     ComponentDto longLivingBranch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(LONG));
+      .insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(org.sonar.db.component.BranchType.LONG));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(longLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(longLivingBranch, qualityGateStatus, m -> m.setData("OK"));
@@ -234,7 +233,7 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto longLivingBranch = db.components().insertProjectBranch(project,
-      b -> b.setKey("long").setBranchType(LONG));
+      b -> b.setKey("long").setBranchType(org.sonar.db.component.BranchType.LONG));
     ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("short").setBranchType(SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     ComponentDto shortLivingBranchOnMaster = db.components().insertProjectBranch(project,
@@ -291,7 +290,7 @@ public class ListActionTest {
   public void status_on_long_living_branch() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.LONG));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     ListWsResponse response = ws.newRequest()
@@ -307,7 +306,7 @@ public class ListActionTest {
   public void status_on_short_living_branches() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.LONG));
     ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("short").setBranchType(SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     db.measures().insertLiveMeasure(shortLivingBranch, qualityGateStatus, m -> m.setData("OK"));
@@ -345,7 +344,7 @@ public class ListActionTest {
   public void status_on_short_living_branch_with_no_issue() {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
-    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto longLivingBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.LONG));
     db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexerTester.allowOnlyAnyone(project);
@@ -368,7 +367,7 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(USER, project);
     ComponentDto shortLivingBranch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT).setMergeBranchUuid(project.uuid()));
-    ComponentDto longLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto longLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.LONG));
     ComponentDto shortLivingBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT).setMergeBranchUuid(longLivingBranch2.uuid()));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(longLivingBranch2).setCreatedAt(lastAnalysisLongLivingBranch));
@@ -392,6 +391,24 @@ public class ListActionTest {
         tuple(BranchType.SHORT, false, null),
         tuple(BranchType.LONG, true, lastAnalysisLongLivingBranch),
         tuple(BranchType.SHORT, true, lastAnalysisShortLivingBranch));
+  }
+
+  @Test
+  public void application_branches() {
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    db.components().insertProjectBranch(application, b -> b.setKey("feature/bar"));
+    db.components().insertProjectBranch(application, b -> b.setKey("feature/foo"));
+    userSession.logIn().addProjectPermission(USER, application);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", application.getDbKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList())
+      .extracting(Branch::getName, Branch::getType)
+      .containsExactlyInAnyOrder(
+        tuple("feature/foo", BranchType.LONG),
+        tuple("feature/bar", BranchType.LONG));
   }
 
   @Test
@@ -424,7 +441,7 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(USER, project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid project key");
+    expectedException.expectMessage("Invalid project");
 
     ws.newRequest()
       .setParam("project", file.getDbKey())

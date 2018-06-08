@@ -31,7 +31,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -61,8 +60,10 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -665,19 +666,44 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_by_application_key() {
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
-    db.components().insertComponents(newProjectCopy("PC1", project1, application));
-    db.components().insertComponents(newProjectCopy("PC2", project2, application));
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.components().insertComponents(newProjectCopy(project1, application));
+    db.components().insertComponents(newProjectCopy(project2, application));
     RuleDefinitionDto rule = db.rules().insert();
     IssueDto issue1 = db.issues().insert(rule, project1, project1);
     IssueDto issue2 = db.issues().insert(rule, project2, project2);
     allowAnyoneOnProjects(project1, project2, application);
+    userSession.addProjectPermission(USER, application);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList()).extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey());
+  }
+
+  @Test
+  public void search_by_application_key_and_branch() {
+    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP));
+    ComponentDto applicationBranch = db.components().insertProjectBranch(application);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.components().insertComponents(newProjectCopy(project1, applicationBranch));
+    db.components().insertComponents(newProjectCopy(project2, applicationBranch));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue1 = db.issues().insert(rule, project1, project1);
+    IssueDto issue2 = db.issues().insert(rule, project2, project2);
+    allowAnyoneOnProjects(project1, project2, application);
+    userSession.addProjectPermission(USER, application);
+    indexIssuesAndViews();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, applicationBranch.getKey())
+      .setParam(PARAM_BRANCH, applicationBranch.getBranch())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
@@ -838,7 +864,7 @@ public class SearchActionComponentsTest {
   public void search_by_branch() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(USER, project);
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
@@ -866,7 +892,7 @@ public class SearchActionComponentsTest {
   public void search_by_pull_request() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(USER, project);
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
@@ -894,7 +920,7 @@ public class SearchActionComponentsTest {
   public void search_using_main_branch_name() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(USER, project);
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
     allowAnyoneOnProjects(project);
@@ -938,7 +964,7 @@ public class SearchActionComponentsTest {
   public void does_not_return_branch_issues_when_using_db_key() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(USER, project);
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
     ComponentDto branch = db.components().insertProjectBranch(project);

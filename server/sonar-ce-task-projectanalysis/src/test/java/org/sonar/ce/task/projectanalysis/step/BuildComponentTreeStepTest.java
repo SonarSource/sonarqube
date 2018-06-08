@@ -202,7 +202,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void generate_keys_when_using_branch() {
+  public void generate_keys_when_using_new_branch() {
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn("origin/feature");
     when(branch.isMain()).thenReturn(false);
@@ -224,6 +224,27 @@ public class BuildComponentTreeStepTest {
     verifyComponent(MODULE_REF, "generated", REPORT_MODULE_KEY, null);
     verifyComponent(DIR_REF_1, "generated", REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, null);
     verifyComponent(FILE_1_REF, "generated", REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, null);
+  }
+
+  @Test
+  public void generate_keys_when_using_existing_branch() {
+    ComponentDto projectDto = dbTester.components().insertMainBranch();
+    ComponentDto branchDto = dbTester.components().insertProjectBranch(projectDto);
+    Branch branch = mock(Branch.class);
+    when(branch.getName()).thenReturn(branchDto.getBranch());
+    when(branch.isMain()).thenReturn(false);
+    when(branch.isLegacyFeature()).thenReturn(false);
+    when(branch.generateKey(any(), any())).thenReturn(branchDto.getDbKey());
+    analysisMetadataHolder.setRootComponentRef(ROOT_REF)
+      .setAnalysisDate(ANALYSIS_DATE)
+      .setProject(Project.from(projectDto))
+      .setBranch(branch);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, branchDto.getKey()));
+
+    underTest.execute();
+
+    verifyComponent(ROOT_REF, branchDto.getDbKey(), branchDto.getKey(), branchDto.uuid());
   }
 
   @Test

@@ -19,18 +19,20 @@
  */
 package org.sonar.server.branch.ws;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -49,6 +51,7 @@ import org.sonarqube.ws.ProjectBranches;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -65,6 +68,8 @@ import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ListAction implements BranchWsAction {
+
+  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(PROJECT, APP);
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -85,6 +90,7 @@ public class ListAction implements BranchWsAction {
       .setDescription("List the branches of a project.<br/>" +
         "Requires 'Browse' or 'Execute analysis' rights on the specified project.")
       .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
+      .setChangelog(new Change("7.2", "Application can be used on this web service"))
       .setHandler(this);
 
     addProjectParam(action);
@@ -97,11 +103,11 @@ public class ListAction implements BranchWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
       checkPermission(project);
-      checkArgument(project.isEnabled() && PROJECT.equals(project.qualifier()), "Invalid project key");
+      checkArgument(ALLOWED_QUALIFIERS.contains(project.qualifier()), "Invalid project");
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByComponent(dbSession, project).stream()
         .filter(b -> b.getBranchType() == SHORT || b.getBranchType() == LONG)
-        .collect(MoreCollectors.toList());
+        .collect(toList());
       List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(toList());
 
       Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()

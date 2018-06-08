@@ -68,6 +68,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
@@ -269,34 +270,32 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_views() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project1 = newPrivateProjectDto(organizationDto);
-    ComponentDto file1 = newFileDto(project1, null);
-    ComponentDto project2 = newPrivateProjectDto(organizationDto);
-    indexIssues(
-      // Project1 has 2 issues (one on a file and one on the project itself)
-      newDoc("I1", project1),
-      newDoc("I2", file1),
-      // Project2 has 1 issue
-      newDoc("I3", project2));
+  public void filter_by_portfolios() {
+    ComponentDto portfolio1 = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto portfolio2 = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project1));
+    ComponentDto project2 = db.components().insertPrivateProject();
 
-    // The view1 is containing 2 issues from project1
-    String view1 = "ABCD";
-    indexView(view1, asList(project1.uuid()));
+    IssueDoc issueOnProject1 = newDoc(project1);
+    IssueDoc issueOnFile = newDoc(file);
+    IssueDoc issueOnProject2 = newDoc(project2);
 
-    // The view2 is containing 1 issue from project2
-    String view2 = "CDEF";
-    indexView(view2, asList(project2.uuid()));
+    indexIssues(issueOnProject1, issueOnFile, issueOnProject2);
+    indexView(portfolio1.uuid(), singletonList(project1.uuid()));
+    indexView(portfolio2.uuid(), singletonList(project2.uuid()));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view1)), "I1", "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view2)), "I3");
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(view1, view2)), "I1", "I2", "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio1.uuid())), issueOnProject1.key(), issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio2.uuid())), issueOnProject2.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(portfolio1.uuid(), portfolio2.uuid())), issueOnProject1.key(), issueOnFile.key(), issueOnProject2.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio1.uuid())).projectUuids(singletonList(project1.uuid())), issueOnProject1.key(),
+      issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio1.uuid())).fileUuids(singletonList(file.uuid())), issueOnFile.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(singletonList("unknown")));
   }
 
   @Test
-  public void filter_by_views_not_having_projects() {
+  public void filter_by_portfolios_not_having_projects() {
     OrganizationDto organizationDto = newOrganizationDto();
     ComponentDto project1 = newPrivateProjectDto(organizationDto);
     ComponentDto file1 = newFileDto(project1, null);
@@ -305,43 +304,6 @@ public class IssueIndexTest {
     indexView(view1, emptyList());
 
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view1)));
-  }
-
-  @Test
-  public void filter_by_created_after_by_projects() {
-    Date now = new Date();
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project1 = newPrivateProjectDto(organizationDto);
-    IssueDoc project1Issue1 = newDoc(project1).setFuncCreationDate(addDays(now, -10));
-    IssueDoc project1Issue2 = newDoc(project1).setFuncCreationDate(addDays(now, -20));
-    ComponentDto project2 = newPrivateProjectDto(organizationDto);
-    IssueDoc project2Issue1 = newDoc(project2).setFuncCreationDate(addDays(now, -15));
-    IssueDoc project2Issue2 = newDoc(project2).setFuncCreationDate(addDays(now, -30));
-    indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2);
-
-    // Search for issues of project 1 having less than 15 days
-    assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
-      project1Issue1.key());
-
-    // Search for issues of project 1 having less than 14 days and project 2 having less then 25 days
-    assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
-        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
-      project1Issue1.key(), project2Issue1.key());
-
-    // Search for issues of project 1 having less than 30 days
-    assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
-      project1Issue1.key(), project1Issue2.key());
-
-    // Search for issues of project 1 and project 2 having less than 5 days
-    assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true),
-        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true))));
   }
 
   @Test
@@ -414,6 +376,95 @@ public class IssueIndexTest {
     indexIssues(projectIssue, branchIssue);
 
     assertThatSearchReturnsOnly(IssueQuery.builder(), projectIssue.key());
+  }
+
+  @Test
+  public void filter_by_application() {
+    ComponentDto application1 = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto application2 = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project1));
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    IssueDoc issueOnProject1 = newDoc(project1);
+    IssueDoc issueOnFile = newDoc(file);
+    IssueDoc issueOnProject2 = newDoc(project2);
+
+    indexIssues(issueOnProject1, issueOnFile, issueOnProject2);
+    indexView(application1.uuid(), singletonList(project1.uuid()));
+    indexView(application2.uuid(), singletonList(project2.uuid()));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application1.uuid())), issueOnProject1.key(), issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application2.uuid())), issueOnProject2.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(application1.uuid(), application2.uuid())), issueOnProject1.key(), issueOnFile.key(), issueOnProject2.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application1.uuid())).projectUuids(singletonList(project1.uuid())), issueOnProject1.key(),
+      issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application1.uuid())).fileUuids(singletonList(file.uuid())), issueOnFile.key());
+    assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(singletonList("unknown")));
+  }
+
+  @Test
+  public void filter_by_application_and_branch() {
+    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP));
+    ComponentDto branch1 = db.components().insertProjectBranch(application);
+    ComponentDto branch2 = db.components().insertProjectBranch(application);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project1));
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    IssueDoc issueOnProject1 = newDoc(project1);
+    IssueDoc issueOnFile = newDoc(file);
+    IssueDoc issueOnProject2 = newDoc(project2);
+    indexIssues(issueOnProject1, issueOnFile, issueOnProject2);
+
+    indexView(branch1.uuid(), singletonList(project1.uuid()));
+    indexView(branch2.uuid(), singletonList(project2.uuid()));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).branchUuid(branch1.uuid()).mainBranch(false), issueOnProject1.key(),
+      issueOnFile.key());
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).projectUuids(singletonList(project1.uuid())).branchUuid(branch1.uuid()).mainBranch(false),
+      issueOnProject1.key(), issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).fileUuids(singletonList(file.uuid())).branchUuid(branch1.uuid()).mainBranch(false),
+      issueOnFile.key());
+    assertThatSearchReturnsEmpty(IssueQuery.builder().branchUuid("unknown"));
+  }
+
+  @Test
+  public void filter_by_created_after_by_projects() {
+    Date now = new Date();
+    OrganizationDto organizationDto = newOrganizationDto();
+    ComponentDto project1 = newPrivateProjectDto(organizationDto);
+    IssueDoc project1Issue1 = newDoc(project1).setFuncCreationDate(addDays(now, -10));
+    IssueDoc project1Issue2 = newDoc(project1).setFuncCreationDate(addDays(now, -20));
+    ComponentDto project2 = newPrivateProjectDto(organizationDto);
+    IssueDoc project2Issue1 = newDoc(project2).setFuncCreationDate(addDays(now, -15));
+    IssueDoc project2Issue2 = newDoc(project2).setFuncCreationDate(addDays(now, -30));
+    indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2);
+
+    // Search for issues of project 1 having less than 15 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
+      project1Issue1.key());
+
+    // Search for issues of project 1 having less than 14 days and project 2 having less then 25 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
+        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
+      project1Issue1.key(), project2Issue1.key());
+
+    // Search for issues of project 1 having less than 30 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
+      project1Issue1.key(), project1Issue2.key());
+
+    // Search for issues of project 1 and project 2 having less than 5 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true),
+        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true))));
   }
 
   @Test

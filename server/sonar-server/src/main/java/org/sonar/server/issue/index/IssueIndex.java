@@ -84,6 +84,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -183,6 +184,32 @@ public class IssueIndex {
     this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_KEY);
   }
 
+  public SearchResponse search(IssueQuery query, SearchOptions options) {
+    SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_TYPE_ISSUE);
+
+    configureSorting(query, requestBuilder);
+    configurePagination(options, requestBuilder);
+    configureRouting(query, options, requestBuilder);
+
+    QueryBuilder esQuery = matchAllQuery();
+    BoolQueryBuilder esFilter = boolQuery();
+    Map<String, QueryBuilder> filters = createFilters(query);
+    for (QueryBuilder filter : filters.values()) {
+      if (filter != null) {
+        esFilter.must(filter);
+      }
+    }
+    if (esFilter.hasClauses()) {
+      requestBuilder.setQuery(boolQuery().must(esQuery).filter(esFilter));
+    } else {
+      requestBuilder.setQuery(esQuery);
+    }
+
+    configureStickyFacets(query, options, filters, esQuery, requestBuilder);
+    requestBuilder.setFetchSource(false);
+    return requestBuilder.get();
+  }
+
   /**
    * Optimization - do not send ES request to all shards when scope is restricted
    * to a set of projects. Because project UUID is used for routing, the request
@@ -201,31 +228,95 @@ public class IssueIndex {
     esSearch.setFrom(options.getOffset()).setSize(options.getLimit());
   }
 
+  private Map<String, QueryBuilder> createFilters(IssueQuery query) {
+    Map<String, QueryBuilder> filters = new HashMap<>();
+    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization()));
+
+    // Issue is assigned Filter
+    if (BooleanUtils.isTrue(query.assigned())) {
+      filters.put(IS_ASSIGNED_FILTER, existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID));
+    } else if (BooleanUtils.isFalse(query.assigned())) {
+      filters.put(IS_ASSIGNED_FILTER, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID)));
+    }
+
+    // Issue is Resolved Filter
+    String isResolved = "__isResolved";
+    if (BooleanUtils.isTrue(query.resolved())) {
+      filters.put(isResolved, existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
+    } else if (BooleanUtils.isFalse(query.resolved())) {
+      filters.put(isResolved, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)));
+    }
+
+    // Field Filters
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, createTermsFilter(
+      IssueIndexDefinition.FIELD_ISSUE_RULE_ID,
+      query.rules().stream().map(RuleDefinitionDto::getId).collect(Collectors.toList())));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
+
+    addComponentRelatedFilters(query, filters);
+
+    addDatesFilter(filters, query);
+    addCreatedAfterByProjectsFilter(filters, query);
+    return filters;
+  }
+
   private static void addComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
-    QueryBuilder viewFilter = createViewFilter(query.viewUuids());
+    addCommonComponentRelatedFilters(query, filters);
+    if (query.viewUuids().isEmpty()) {
+      addBranchComponentRelatedFilters(query, filters);
+    } else {
+      addViewRelatedFilters(query, filters);
+    }
+  }
+
+  private static void addCommonComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
     QueryBuilder componentFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
     QueryBuilder projectFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
     QueryBuilder moduleRootFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.moduleRootUuids());
     QueryBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
     QueryBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
     QueryBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
-    QueryBuilder branchFilter = createTermFilter(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, query.branchUuid());
-    filters.put("__is_main_branch", createTermFilter(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.isMainBranch())));
 
     if (BooleanUtils.isTrue(query.onComponentOnly())) {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
     } else {
-      filters.put("__view", viewFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectFilter);
-      filters.put(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, branchFilter);
       filters.put("__module", moduleRootFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, moduleFilter);
       filters.put(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, directoryFilter);
-      if (fileFilter != null) {
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter);
-      } else {
-        filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
-      }
+      filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, fileFilter != null ? fileFilter : componentFilter);
+    }
+  }
+
+  private static void addBranchComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
+    if (BooleanUtils.isTrue(query.onComponentOnly())) {
+      return;
+    }
+    QueryBuilder branchFilter = createTermFilter(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, query.branchUuid());
+    filters.put("__is_main_branch", createTermFilter(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.isMainBranch())));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, branchFilter);
+  }
+
+  private static void addViewRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
+    if (BooleanUtils.isTrue(query.onComponentOnly())) {
+      return;
+    }
+    Collection<String> viewUuids = query.viewUuids();
+    String branchUuid = query.branchUuid();
+    boolean onApplicationBranch = branchUuid != null && !viewUuids.isEmpty();
+    if (onApplicationBranch) {
+      filters.put("__view", createViewFilter(singletonList(query.branchUuid())));
+    } else {
+      filters.put("__view", createViewFilter(viewUuids));
     }
   }
 
@@ -341,32 +432,6 @@ public class IssueIndex {
     return value == null ? null : termQuery(field, value);
   }
 
-  public SearchResponse search(IssueQuery query, SearchOptions options) {
-    SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_TYPE_ISSUE);
-
-    configureSorting(query, requestBuilder);
-    configurePagination(options, requestBuilder);
-    configureRouting(query, options, requestBuilder);
-
-    QueryBuilder esQuery = matchAllQuery();
-    BoolQueryBuilder esFilter = boolQuery();
-    Map<String, QueryBuilder> filters = createFilters(query);
-    for (QueryBuilder filter : filters.values()) {
-      if (filter != null) {
-        esFilter.must(filter);
-      }
-    }
-    if (esFilter.hasClauses()) {
-      requestBuilder.setQuery(boolQuery().must(esQuery).filter(esFilter));
-    } else {
-      requestBuilder.setQuery(esQuery);
-    }
-
-    configureStickyFacets(query, options, filters, esQuery, requestBuilder);
-    requestBuilder.setFetchSource(false);
-    return requestBuilder.get();
-  }
-
   private void configureSorting(IssueQuery query, SearchRequestBuilder esRequest) {
     createSortBuilders(query).forEach(esRequest::addSort);
   }
@@ -378,48 +443,6 @@ public class IssueIndex {
       return sorting.fill(sortField, asc);
     }
     return sorting.fillDefault();
-  }
-
-  private Map<String, QueryBuilder> createFilters(IssueQuery query) {
-    Map<String, QueryBuilder> filters = new HashMap<>();
-    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization()));
-
-    // Issue is assigned Filter
-    if (BooleanUtils.isTrue(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID));
-    } else if (BooleanUtils.isFalse(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID)));
-    }
-
-    // Issue is Resolved Filter
-    String isResolved = "__isResolved";
-    if (BooleanUtils.isTrue(query.resolved())) {
-      filters.put(isResolved, existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
-    } else if (BooleanUtils.isFalse(query.resolved())) {
-      filters.put(isResolved, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)));
-    }
-
-    // Field Filters
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
-
-    addComponentRelatedFilters(query, filters);
-
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_ID, createTermsFilter(
-      IssueIndexDefinition.FIELD_ISSUE_RULE_ID,
-      query.rules().stream().map(RuleDefinitionDto::getId).collect(Collectors.toList())));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
-
-    addDatesFilter(filters, query);
-    addCreatedAfterByProjectsFilter(filters, query);
-    return filters;
   }
 
   private QueryBuilder createAuthorizationFilter(boolean checkAuthorization) {

@@ -54,6 +54,10 @@ import HelpIcon from '../../components/icons-components/HelpIcon';
 import LockIcon from '../../components/icons-components/LockIcon';
 import QualifierIcon from '../../components/icons-components/QualifierIcon';
 import Rating from '../../components/ui/Rating';
+import BranchIcon from '../../components/icons-components/BranchIcon';
+import LongLivingBranchIcon from '../../components/icons-components/LongLivingBranchIcon';
+import PullRequestIcon from '../../components/icons-components/PullRequestIcon';
+import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -63,9 +67,12 @@ const exposeLibraries = () => {
   global.SonarMeasures = measures;
   global.SonarRequest = { ...request, throwGlobalError, addGlobalSuccessMessage };
   global.SonarComponents = {
+    ActionsDropdown,
+    ActionsDropdownItem,
     AlertErrorIcon,
     AlertSuccessIcon,
     AlertWarnIcon,
+    BranchIcon,
     Button,
     Checkbox,
     CheckIcon,
@@ -86,7 +93,9 @@ const exposeLibraries = () => {
     Level,
     ListFooter,
     LockIcon,
+    LongLivingBranchIcon,
     Modal,
+    PullRequestIcon,
     QualifierIcon,
     Rating,
     ReloadButton,
