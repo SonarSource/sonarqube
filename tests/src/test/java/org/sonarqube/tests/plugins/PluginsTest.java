@@ -117,7 +117,8 @@ public class PluginsTest {
     installPlugin(builder, "l10nde");
     installPlugin(builder, "l10nel");
     installPlugin(builder, "l10nes");
-    installPlugin(builder, "l10nfr");
+    // FIXME google analytics is not compatible with 6.7 as 6/8/18
+    // installPlugin(builder, "l10nfr");
     installPlugin(builder, "l10nit");
     installPlugin(builder, "l10nja");
     installPlugin(builder, "l10nko");
@@ -146,7 +147,8 @@ public class PluginsTest {
     installPlugin(builder, "scmsvn");
     installPlugin(builder, "scmtfvc");
     installPlugin(builder, "softvis3d");
-    installPlugin(builder, "sonargraphintegration");
+    // FIXME google analytics is not compatible with 6.7 as 6/8/18
+    // installPlugin(builder, "sonargraphintegration");
     installPlugin(builder, "status");
     // FIXME swift is disabled as latest release is not using new license manager installPlugin(builder, "swift");
     // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
