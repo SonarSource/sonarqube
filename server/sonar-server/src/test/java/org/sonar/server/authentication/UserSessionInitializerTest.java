@@ -105,6 +105,9 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/api/users/identity_providers");
     assertPathIsIgnored("/api/l10n/index");
 
+    // WS with Passcode
+    assertPathIsIgnoredWithAnonymousAccess("/api/system/health");
+
     // exclude static resources
     assertPathIsIgnored("/css/style.css");
     assertPathIsIgnored("/fonts/font.ttf");
@@ -183,6 +186,16 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
     verifyZeroInteractions(userSession, authenticators);
+    reset(userSession, authenticators);
+  }
+
+  private void assertPathIsIgnoredWithAnonymousAccess(String path) {
+    when(request.getRequestURI()).thenReturn(path);
+    when(authenticators.authenticate(request, response)).thenReturn(Optional.empty());
+
+    assertThat(underTest.initUserSession(request, response)).isTrue();
+
+    verify(userSession).set(any(UserSession.class));
     reset(userSession, authenticators);
   }
 

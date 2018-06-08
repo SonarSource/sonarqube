@@ -65,10 +65,18 @@ public class UserSessionInitializer {
     "/api/users/identity_providers", "/api/l10n/index",
     LOGIN_URL, LOGOUT_URL, VALIDATE_URL);
 
+  private static final Set<String> URL_USING_PASSCODE = ImmutableSet.of(
+    "/api/system/health"
+  );
+
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")
     .excludes(staticResourcePatterns())
     .excludes(SKIPPED_URLS)
+    .build();
+
+  private static final UrlPattern PASSCODE_URLS = UrlPattern.builder()
+    .includes(URL_USING_PASSCODE)
     .build();
 
   private final Configuration config;
@@ -91,7 +99,7 @@ public class UserSessionInitializer {
     try {
       // Do not set user session when url is excluded
       if (URL_PATTERN.matches(path)) {
-        loadUserSession(request, response);
+        loadUserSession(request, response, PASSCODE_URLS.matches(path));
       }
       return true;
     } catch (AuthenticationException e) {
@@ -115,13 +123,15 @@ public class UserSessionInitializer {
     return provider != AuthenticationEvent.Provider.LOCAL && provider != AuthenticationEvent.Provider.JWT;
   }
 
-  private void loadUserSession(HttpServletRequest request, HttpServletResponse response) {
+  private void loadUserSession(HttpServletRequest request, HttpServletResponse response, boolean usingPasscode) {
     UserSession session;
     Optional<UserDto> user = authenticators.authenticate(request, response);
     if (user.isPresent()) {
       session = userSessionFactory.create(user.get());
     } else {
-      failIfAuthenticationIsRequired();
+      if (!usingPasscode) {
+        failIfAuthenticationIsRequired();
+      }
       session = userSessionFactory.createAnonymous();
     }
     threadLocalSession.set(session);
