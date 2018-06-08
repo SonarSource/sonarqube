@@ -96,6 +96,21 @@ public class CommandFactoryImplTest {
   }
 
   @Test
+  public void constructor_logs_warning_if_env_variable_ES_JAVA_OPTS_is_set() {
+    System2 system2 = Mockito.mock(System2.class);
+    when(system2.getenv("ES_JAVA_OPTS")).thenReturn("xyz");
+    attachMemoryAppenderToLoggerOf(CommandFactoryImpl.class);
+
+    new CommandFactoryImpl(new Props(new Properties()), tempDir, system2);
+
+    assertThat(listAppender.getLogs())
+      .extracting(ILoggingEvent::getMessage)
+      .containsOnly(
+        "ES_JAVA_OPTS is defined but will be ignored. " +
+          "Use properties sonar.search.javaOpts and/or sonar.search.javaAdditionalOpts in sonar.properties to change SQ JVM processes options");
+  }
+
+  @Test
   public void createEsCommand_throws_ISE_if_es_binary_is_not_found() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot find elasticsearch binary");
@@ -133,7 +148,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
 
-    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
+    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
   }
 
   @Test
@@ -166,7 +181,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
 
-    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
+    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
   }
 
   @Test

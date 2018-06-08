@@ -51,6 +51,7 @@ import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_OPTS;
 
 public class CommandFactoryImpl implements CommandFactory {
   private static final String ENV_VAR_JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
+  private static final String ENV_VAR_ES_JAVA_OPTS = "ES_JAVA_OPTS";
   /**
    * Properties about proxy that must be set as system properties
    */
@@ -78,6 +79,13 @@ public class CommandFactoryImpl implements CommandFactory {
         .warn("JAVA_TOOL_OPTIONS is defined but will be ignored. " +
           "Use properties sonar.*.javaOpts and/or sonar.*.javaAdditionalOpts in sonar.properties to change SQ JVM processes options");
     }
+    String esJavaOpts = system2.getenv(ENV_VAR_ES_JAVA_OPTS);
+    if (esJavaOpts != null && !esJavaOpts.trim().isEmpty()) {
+      LoggerFactory.getLogger(CommandFactoryImpl.class)
+        .warn("ES_JAVA_OPTS is defined but will be ignored. " +
+          "Use properties sonar.search.javaOpts and/or sonar.search.javaAdditionalOpts in sonar.properties to change SQ JVM processes options");
+    }
+
   }
 
   @Override
@@ -95,7 +103,8 @@ public class CommandFactoryImpl implements CommandFactory {
       .addOption("-Epath.conf=" + esInstallation.getConfDirectory().getAbsolutePath())
       .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
-      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
+      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS)
+      .suppressEnvVariable(ENV_VAR_ES_JAVA_OPTS);
   }
 
   private JavaCommand createEsCommandForWindows() {
@@ -113,7 +122,8 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
       .setClassName("org.elasticsearch.bootstrap.Elasticsearch")
       .addClasspath("lib/*")
-      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
+      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS)
+      .suppressEnvVariable(ENV_VAR_ES_JAVA_OPTS);
   }
 
   private EsInstallation createEsInstallation() {
