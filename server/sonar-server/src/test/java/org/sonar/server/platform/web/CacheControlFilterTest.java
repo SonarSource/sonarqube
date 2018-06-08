@@ -62,7 +62,7 @@ public class CacheControlFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).addHeader("Cache-Control", format("max-age=%s", 18_000));
+    verify(response).addHeader("Cache-Control", format("max-age=%s", 300));
   }
 
   @Test
@@ -71,7 +71,7 @@ public class CacheControlFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).addHeader("Cache-Control", format("max-age=%s", 18_000));
+    verify(response).addHeader("Cache-Control", format("max-age=%s", 300));
   }
 
   @Test
@@ -80,7 +80,7 @@ public class CacheControlFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).addHeader("Cache-Control", format("max-age=%s", 18_000));
+    verify(response).addHeader("Cache-Control", format("max-age=%s", 300));
   }
 
   @Test

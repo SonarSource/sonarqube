@@ -37,7 +37,7 @@ import static util.ItUtils.call;
 public class HttpHeadersTest {
 
   private static final int ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
-  private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60 * 60;
+  private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60;
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
