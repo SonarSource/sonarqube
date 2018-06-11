@@ -35,7 +35,7 @@ export default function GlobalContainer(props: Props) {
   return (
     <SuggestionsProvider>
       {({ suggestions }) => (
-        <StartupModal>
+        <StartupModal location={props.location}>
           <div className="global-container">
             <div className="page-wrapper" id="container">
               <div className="page-container">

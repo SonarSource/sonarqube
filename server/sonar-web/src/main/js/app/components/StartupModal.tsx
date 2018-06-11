@@ -42,6 +42,7 @@ interface DispatchProps {
 }
 
 interface OwnProps {
+  location: { pathname: string };
   children?: React.ReactNode;
 }
 
@@ -120,7 +121,8 @@ export class StartupModal extends React.PureComponent<Props, State> {
   };
 
   tryAutoOpenOnboarding = () => {
-    if (this.props.currentUser.showOnboardingTutorial) {
+    const { currentUser, location } = this.props;
+    if (currentUser.showOnboardingTutorial && !location.pathname.startsWith('documentation')) {
       this.setState({ automatic: true });
       this.openOnboarding();
     }

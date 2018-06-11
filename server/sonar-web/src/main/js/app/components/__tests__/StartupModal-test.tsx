@@ -80,6 +80,14 @@ it('should render only the children', async () => {
   (get as jest.Mock<any>).mockReturnValueOnce('date');
   (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
   await shouldNotHaveModals(getWrapper());
+
+  await shouldNotHaveModals(
+    getWrapper({
+      canAdmin: false,
+      currentUser: { ...LOGGED_IN_USER, showOnboardingTutorial: true },
+      location: { pathname: 'documentation/index' }
+    })
+  );
 });
 
 it('should render license prompt', async () => {
@@ -130,6 +138,7 @@ function getWrapper(props = {}) {
       canAdmin={true}
       currentEdition={EditionKey.enterprise}
       currentUser={LOGGED_IN_USER}
+      location={{ pathname: 'foo/bar' }}
       skipOnboarding={jest.fn()}
       {...props}>
       <div />
