@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { differenceBy } from 'lodash';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
 import { Component, BranchLike } from '../types';
@@ -47,14 +48,19 @@ interface Props {
 }
 
 interface State {
+  branchLike?: BranchLike;
   branchLikes: BranchLike[];
   component?: Component;
   currentTask?: Task;
+  isPending: boolean;
   loading: boolean;
-  pendingTasks?: PendingTask[];
+  tasksInProgress?: PendingTask[];
 }
 
+const FETCH_STATUS_WAIT_TIME = 3000;
+
 export class ComponentContainer extends React.PureComponent<Props, State> {
+  watchStatusTimer?: number;
   mounted = false;
 
   static contextTypes = {
@@ -63,12 +69,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { branchLikes: [], loading: true };
+    this.state = { branchLikes: [], isPending: false, loading: true };
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchComponent(this.props);
+    this.fetchComponent();
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -90,7 +96,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
   });
 
-  fetchComponent(props: Props) {
+  fetchComponent(props = this.props) {
     const { branch, id: key, pullRequest } = props.location.query;
     this.setState({ loading: true });
 
@@ -114,49 +120,98 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         this.props.fetchOrganizations([component.organization]);
       }
 
-      this.fetchBranches(component).then(branchLikes => {
+      this.fetchBranches(component).then(({ branchLike, branchLikes }) => {
         if (this.mounted) {
-          this.setState({ loading: false, branchLikes, component });
+          this.setState({ branchLike, branchLikes, component, loading: false });
+          this.fetchStatus(component);
         }
       }, onError);
-
-      this.fetchStatus(component);
     }, onError);
   }
 
-  fetchBranches = (component: Component): Promise<BranchLike[]> => {
+  fetchBranches = (
+    component: Component
+  ): Promise<{ branchLike?: BranchLike; branchLikes: BranchLike[] }> => {
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
     return project
       ? Promise.all([getBranches(project.key), getPullRequests(project.key)]).then(
-          ([branches, pullRequests]) => [...branches, ...pullRequests]
+          ([branches, pullRequests]) => {
+            const branchLikes = [...branches, ...pullRequests];
+            return {
+              branchLike: this.getCurrentBranchLike(branchLikes),
+              branchLikes
+            };
+          }
         )
-      : Promise.resolve([]);
+      : Promise.resolve({ branchLikes: [] });
   };
 
   fetchStatus = (component: Component) => {
     getTasksForComponent(component.key).then(
       ({ current, queue }) => {
         if (this.mounted) {
-          this.setState({ currentTask: current, pendingTasks: queue });
+          let shouldFetchComponent = false;
+          this.setState(
+            ({ branchLike, component, currentTask, tasksInProgress }) => {
+              const newCurrentTask = this.getCurrentTask(current, branchLike);
+              const pendingTasks = this.getPendingTasks(queue, branchLike);
+              const newTasksInProgress = pendingTasks.filter(
+                task => task.status === STATUSES.IN_PROGRESS
+              );
+
+              const currentTaskChanged =
+                currentTask && newCurrentTask && currentTask.id !== newCurrentTask.id;
+              const progressChanged =
+                tasksInProgress &&
+                (newTasksInProgress.length !== tasksInProgress.length ||
+                  differenceBy(newTasksInProgress, tasksInProgress, 'id').length > 0);
+
+              shouldFetchComponent = Boolean(currentTaskChanged || progressChanged);
+              if (!shouldFetchComponent && component && newTasksInProgress.length > 0) {
+                window.clearTimeout(this.watchStatusTimer);
+                this.watchStatusTimer = window.setTimeout(
+                  () => this.fetchStatus(component),
+                  FETCH_STATUS_WAIT_TIME
+                );
+              }
+
+              const isPending = pendingTasks.some(task => task.status === STATUSES.PENDING);
+              return {
+                currentTask: newCurrentTask,
+                isPending,
+                tasksInProgress: newTasksInProgress
+              };
+            },
+            () => {
+              if (shouldFetchComponent) {
+                this.fetchComponent();
+              }
+            }
+          );
         }
       },
       () => {}
     );
   };
 
-  getCurrentTask = (branchLike?: BranchLike) => {
-    const { currentTask } = this.state;
-    if (!currentTask) {
+  getCurrentBranchLike = (branchLikes: BranchLike[]) => {
+    const { query } = this.props.location;
+    return query.pullRequest
+      ? branchLikes.find(b => isPullRequest(b) && b.key === query.pullRequest)
+      : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
+  };
+
+  getCurrentTask = (current: Task, branchLike?: BranchLike) => {
+    if (!current) {
       return undefined;
     }
 
-    return currentTask.status === STATUSES.FAILED || this.isSameBranch(currentTask, branchLike)
-      ? currentTask
+    return current.status === STATUSES.FAILED || this.isSameBranch(current, branchLike)
+      ? current
       : undefined;
   };
 
-  getPendingTasks = (branchLike?: BranchLike) => {
-    const { pendingTasks = [] } = this.state;
+  getPendingTasks = (pendingTasks: PendingTask[], branchLike?: BranchLike) => {
     return pendingTasks.filter(task => this.isSameBranch(task, branchLike));
   };
 
@@ -184,9 +239,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   handleBranchesChange = () => {
     if (this.mounted && this.state.component) {
       this.fetchBranches(this.state.component).then(
-        branchLikes => {
+        ({ branchLike, branchLikes }) => {
           if (this.mounted) {
-            this.setState({ branchLikes });
+            this.setState({ branchLike, branchLikes });
           }
         },
         () => {}
@@ -195,21 +250,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { query } = this.props.location;
-    const { branchLikes, component, loading } = this.state;
+    const { component, loading } = this.state;
 
     if (!loading && !component) {
       return <ComponentContainerNotFound />;
     }
 
-    const branchLike = query.pullRequest
-      ? branchLikes.find(b => isPullRequest(b) && b.key === query.pullRequest)
-      : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
-
-    const currentTask = this.getCurrentTask(branchLike);
-    const pendingTasks = this.getPendingTasks(branchLike);
-    const isInProgress = pendingTasks.some(task => task.status === STATUSES.IN_PROGRESS);
-    const isPending = pendingTasks.some(task => task.status === STATUSES.PENDING);
+    const { branchLike, branchLikes, currentTask, isPending, tasksInProgress } = this.state;
+    const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
     return (
       <div>

@@ -32,6 +32,7 @@ import {
   BranchType
 } from '../../types';
 import { STATUSES } from '../../../apps/background-tasks/constants';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/branches', () => ({
   getBranches: jest.fn(() => Promise.resolve([])),
@@ -229,13 +230,35 @@ it('filters correctly the pending tasks for a main branch', () => {
     { branch: 'feature', branchType: 'SHORT' } as Task,
     {} as Task
   ];
-  expect(component.getCurrentTask(undefined)).toBe(undefined);
-  component.setState({ currentTask: failedTask });
-  expect(component.getCurrentTask(mainBranch)).toBe(failedTask);
-  component.setState({ currentTask });
-  expect(component.getCurrentTask(mainBranch)).toBe(undefined);
-  expect(component.getCurrentTask(pullRequest)).toMatchObject(currentTask);
-  component.setState({ pendingTasks });
-  expect(component.getPendingTasks(mainBranch)).toMatchObject([{}]);
-  expect(component.getPendingTasks(pullRequest)).toMatchObject([currentTask]);
+  expect(component.getCurrentTask(currentTask, undefined)).toBe(undefined);
+  expect(component.getCurrentTask(failedTask, mainBranch)).toBe(failedTask);
+  expect(component.getCurrentTask(currentTask, mainBranch)).toBe(undefined);
+  expect(component.getCurrentTask(currentTask, pullRequest)).toMatchObject(currentTask);
+  expect(component.getPendingTasks(pendingTasks, mainBranch)).toMatchObject([{}]);
+  expect(component.getPendingTasks(pendingTasks, pullRequest)).toMatchObject([currentTask]);
+});
+
+it('reload component after task progress finished', async () => {
+  jest.useFakeTimers();
+  const inProgressTask = { id: 'foo', status: STATUSES.IN_PROGRESS } as Task;
+  (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({ queue: [inProgressTask] });
+  const wrapper = shallow(
+    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
+      <Inner />
+    </ComponentContainer>
+  );
+  await waitAndUpdate(wrapper);
+  expect(getComponentNavigation).toHaveBeenCalledTimes(1);
+  expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+
+  jest.runAllTimers();
+  expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+  await waitAndUpdate(wrapper);
+  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+
+  jest.runAllTimers();
+  await waitAndUpdate(wrapper);
+  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 });
