@@ -208,8 +208,6 @@ public class CompareActionTest {
       .setStatus(RuleStatus.READY);
     RuleDefinitionDto ruleDefinition = rule.getDefinition();
     db.ruleDao().insert(session, ruleDefinition);
-    RuleParamDto param = RuleParamDto.createFor(ruleDefinition).setName("param_" + id).setType(RuleParamType.STRING.toString());
-    db.ruleDao().insertRuleParam(session, ruleDefinition, param);
     return ruleDefinition;
   }
 

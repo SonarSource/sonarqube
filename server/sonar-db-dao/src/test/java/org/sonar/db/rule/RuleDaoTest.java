@@ -745,19 +745,41 @@ public class RuleDaoTest {
 
   @Test
   public void insert_parameter() {
-    db.prepareDbUnit(getClass(), "insert_parameter.xml");
-    RuleDefinitionDto rule1 = underTest.selectOrFailDefinitionByKey(db.getSession(), RuleKey.of("plugin", "NewRuleKey"));
+    RuleDefinitionDto ruleDefinitionDto = db.rules().insert();
 
-    RuleParamDto param = RuleParamDto.createFor(rule1)
+    RuleParamDto orig = RuleParamDto.createFor(ruleDefinitionDto)
       .setName("max")
       .setType("INTEGER")
       .setDefaultValue("30")
       .setDescription("My Parameter");
 
-    underTest.insertRuleParam(db.getSession(), rule1, param);
-    db.getSession().commit();
+    underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, orig);
 
-    db.assertDbUnit(getClass(), "insert_parameter-result.xml", "rules_parameters");
+    List<RuleParamDto> ruleParamDtos = underTest.selectRuleParamsByRuleKey(db.getSession(), ruleDefinitionDto.getKey());
+    assertThat(ruleParamDtos).hasSize(1);
+
+    RuleParamDto loaded = ruleParamDtos.get(0);
+    assertThat(loaded.getRuleId()).isEqualTo(orig.getRuleId());
+    assertThat(loaded.getName()).isEqualTo(orig.getName());
+    assertThat(loaded.getType()).isEqualTo(orig.getType());
+    assertThat(loaded.getDefaultValue()).isEqualTo(orig.getDefaultValue());
+    assertThat(loaded.getDescription()).isEqualTo(orig.getDescription());
+  }
+
+  @Test
+  public void should_fail_to_insert_duplicate_parameter() {
+    RuleDefinitionDto ruleDefinitionDto = db.rules().insert();
+
+    RuleParamDto param = RuleParamDto.createFor(ruleDefinitionDto)
+      .setName("max")
+      .setType("INTEGER")
+      .setDefaultValue("30")
+      .setDescription("My Parameter");
+
+    underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, param);
+
+    thrown.expect(PersistenceException.class);
+    underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, param);
   }
 
   @Test

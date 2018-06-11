@@ -19,22 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddUniqueIndexOnRulesParametersTest {
 
-public class DbVersion72Test {
-  private DbVersion72 underTest = new DbVersion72();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddUniqueIndexOnRulesParametersTest.class, "rules_parameters.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddUniqueIndexOnRulesParameters underTest = new AddUniqueIndexOnRulesParameters(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2100() {
-    verifyMinimumMigrationNumber(underTest, 2100);
+  public void add_unique_indexes() throws SQLException {
+    underTest.execute();
+
+    db.assertUniqueIndex("rules_parameters", "rules_parameters_unique", "rule_id", "name");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 30);
-  }
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
 
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
+  }
 }

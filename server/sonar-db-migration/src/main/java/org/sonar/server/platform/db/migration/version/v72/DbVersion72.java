@@ -55,6 +55,8 @@ public class DbVersion72 implements DbVersion {
       .add(2125, "Populate FILE_SOURCE.LINE_COUNT", PopulateFileSourceLineCount.class)
       .add(2126, "Make FILE_SOURCE.LINE_COUNT not nullable", MakeFileSourceLineCountNotNullable.class)
       .add(2127, "Purge orphans for Compute Engine", PurgeOrphansForCE.class)
+      .add(2128, "Purge duplicate rules_parameters and their orphans", PurgeDuplicateRulesParameters.class)
+      .add(2129, "Add unique index on rule_id + name on rules_parameters", AddUniqueIndexOnRulesParameters.class)
     ;
   }
 }
