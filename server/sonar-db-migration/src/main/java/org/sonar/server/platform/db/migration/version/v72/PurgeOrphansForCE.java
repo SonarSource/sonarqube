@@ -25,16 +25,13 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 public class PurgeOrphansForCE extends DataChange {
 
-  private final Database db;
-
   public PurgeOrphansForCE(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    switch (db.getDialect().getId()) {
+    switch (getDialect().getId()) {
       case "mssql":
       case "mysql":
         executeForMySQLAndMsSQL(context);
