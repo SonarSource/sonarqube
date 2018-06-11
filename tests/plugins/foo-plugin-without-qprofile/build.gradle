@@ -3,9 +3,6 @@ sonarqube {
 }
 
 dependencies {
-  compile 'com.google.guava:guava'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
 }
@@ -22,8 +19,5 @@ jar {
       'Plugin-Name': 'Foo',
       'Plugin-License': 'GNU LGPL 3'
     )
-  }
-  into('META-INF/lib') {
-    from configurations.compile
   }
 }

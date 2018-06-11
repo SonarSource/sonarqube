@@ -31,14 +31,12 @@ import static org.junit.Assert.fail;
 import static util.ItUtils.newOrchestratorBuilder;
 import static util.ItUtils.pluginArtifact;
 
-public class PluginWithoutBuiltinQualityProfile {
+public class PluginWithoutBuiltinQualityProfileTest {
   private static Orchestrator orchestrator;
 
   @Test
   public void should_fail_if_plugin_defines_language_and_no_builtin_qprofile() throws IOException {
-    orchestrator = newOrchestratorBuilder()
-      .addPlugin(pluginArtifact("foo-plugin-without-qprofile"))
-      .build();
+    orchestrator = newOrchestratorBuilder(b -> b.addPlugin(pluginArtifact("foo-plugin-without-qprofile")));
 
     try {
       orchestrator.start();
