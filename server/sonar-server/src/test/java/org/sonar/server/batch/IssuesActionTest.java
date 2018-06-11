@@ -173,6 +173,10 @@ public class IssuesActionTest {
 
     RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL"));
+    
+    RuleDefinitionDto migrated = db.rules().insert();
+    db.executeUpdateSql("update rules set is_external = NULL where rules.id = ?", migrated.getId());
+    IssueDto issueFromMigratedRule = db.issues().insert(migrated, project, file, i -> i.setKee("MIGRATED"));
 
     addPermissionTo(project);
     try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
@@ -181,7 +185,8 @@ public class IssuesActionTest {
         .containsExactlyInAnyOrder(
           tuple(issueOnFile.getKey(), module.getKey()),
           tuple(issueOnModule.getKey(), module.getKey()),
-          tuple(issueOnProject.getKey(), project.getKey()));
+          tuple(issueOnProject.getKey(), project.getKey()),
+          tuple(issueFromMigratedRule.getKey(), module.getKey()));
     }
   }
 
