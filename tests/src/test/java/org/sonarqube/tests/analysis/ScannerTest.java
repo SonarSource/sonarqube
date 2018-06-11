@@ -26,10 +26,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.MessageConstraintException;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.tests.Category3Suite;
@@ -54,6 +56,9 @@ public class ScannerTest {
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();
+
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -251,13 +256,13 @@ public class ScannerTest {
 
     File cache = new File(userHome, "cache");
     assertThat(cache).exists().isDirectory();
-    int cachedFiles = FileUtils.listFiles(cache, new String[]{"jar"}, true).size();
+    int cachedFiles = FileUtils.listFiles(cache, new String[] {"jar"}, true).size();
     assertThat(cachedFiles).isGreaterThan(5);
     assertThat(result.getLogs()).contains("User cache: " + cache.getAbsolutePath());
 
     result = scan("shared/xoo-sample",
       "sonar.userHome", userHome.getAbsolutePath());
-    int cachedFiles2 = FileUtils.listFiles(cache, new String[]{"jar"}, true).size();
+    int cachedFiles2 = FileUtils.listFiles(cache, new String[] {"jar"}, true).size();
     assertThat(cachedFiles).isEqualTo(cachedFiles2);
     assertThat(result.getLogs()).contains("User cache: " + cache.getAbsolutePath());
   }
@@ -378,6 +383,15 @@ public class ScannerTest {
     scan("analysis/custom-module-key");
     assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleA")).isNotNull();
     assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleB")).isNotNull();
+  }
+
+  @Test
+  public void use_invalid_organization_key() {
+    BuildResult result = scanQuietly("shared/xoo-sample",
+      "sonar.organization", "non-existing-org");
+
+    assertThat(result.isSuccess()).isFalse();
+    assertThat(result.getLogs()).contains("Failed to load the default quality profiles: No organization with key 'non-existing-org'");
   }
 
   private BuildResult scan(String projectPath, String... props) {

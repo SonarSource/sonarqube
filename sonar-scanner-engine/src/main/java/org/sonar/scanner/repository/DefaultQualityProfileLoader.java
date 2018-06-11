@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
@@ -33,6 +34,7 @@ import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpException;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -52,16 +54,31 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   @Override
   public List<QualityProfile> loadDefault(@Nullable String profileName) {
     StringBuilder url = new StringBuilder(WS_URL + "?defaults=true");
-    return loadAndOverrideIfNeeded(profileName, url);
+    return handleErrors(profileName, url, () -> "Failed to load the default quality profiles");
   }
 
   @Override
   public List<QualityProfile> load(String projectKey, @Nullable String profileName) {
     StringBuilder url = new StringBuilder(WS_URL + "?projectKey=").append(encodeForUrl(projectKey));
-    return loadAndOverrideIfNeeded(profileName, url);
+    return handleErrors(profileName, url, () -> String.format("Failed to load the quality profiles of project '%s'", projectKey));
   }
 
-  private List<QualityProfile> loadAndOverrideIfNeeded(@Nullable String profileName, StringBuilder url) {
+  private List<QualityProfile> handleErrors(@Nullable String profileName, StringBuilder url, Supplier<String> errorMsg) {
+    try {
+      return loadAndOverrideIfNeeded(profileName, url);
+    } catch (HttpException e) {
+      if (e.code() == 404) {
+        throw MessageException.of(errorMsg.get() + ": " + ScannerWsClient.tryParseAsJsonError(e.content()));
+      }
+      throw new IllegalStateException(errorMsg.get(), e);
+    } catch (MessageException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalStateException(errorMsg.get(), e);
+    }
+  }
+
+  private List<QualityProfile> loadAndOverrideIfNeeded(@Nullable String profileName, StringBuilder url) throws IOException {
     properties.organizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
     Map<String, QualityProfile> result = call(url.toString());
 
@@ -78,16 +95,13 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     return new ArrayList<>(result.values());
   }
 
-  private Map<String, QualityProfile> call(String url) {
+  private Map<String, QualityProfile> call(String url) throws IOException {
     GetRequest getRequest = new GetRequest(url);
     try (InputStream is = wsClient.call(getRequest).contentStream()) {
       SearchWsResponse profiles = SearchWsResponse.parseFrom(is);
       List<QualityProfile> profilesList = profiles.getProfilesList();
       return profilesList.stream().collect(toMap(QualityProfile::getLanguage, identity(), throwingMerger(), LinkedHashMap::new));
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to load quality profiles", e);
     }
-
   }
 
   private static <T> BinaryOperator<T> throwingMerger() {

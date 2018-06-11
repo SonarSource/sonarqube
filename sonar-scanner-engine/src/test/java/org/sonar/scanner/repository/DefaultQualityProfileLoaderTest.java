@@ -33,6 +33,7 @@ import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.client.HttpException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -111,6 +112,18 @@ public class DefaultQualityProfileLoaderTest {
 
     exception.expect(MessageException.class);
     exception.expectMessage("No quality profiles");
+
+    underTest.load("project", null);
+    verifyNoMoreInteractions(wsClient);
+  }
+
+  @Test
+  public void load_throws_MessageException_if_organization_is_not_found() throws IOException {
+    HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No organization with key 'myorg'\"}]}");
+    WsTestUtil.mockException(wsClient, e);
+
+    exception.expect(MessageException.class);
+    exception.expectMessage("Failed to load the quality profiles of project 'project': No organization with key 'myorg'");
 
     underTest.load("project", null);
     verifyNoMoreInteractions(wsClient);
