@@ -105,9 +105,9 @@ function runDevServer(compiler, host, port, protocol) {
       disableDotRule: true
     },
     proxy: {
-      '/api': proxy,
-      '/static': proxy,
-      '/integration': proxy
+      '/api': { target: proxy, changeOrigin: true },
+      '/static': { target: proxy, changeOrigin: true },
+      '/integration': { target: proxy, changeOrigin: true }
     }
   });
 
