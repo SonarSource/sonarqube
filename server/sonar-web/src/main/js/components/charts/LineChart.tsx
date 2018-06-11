@@ -26,7 +26,7 @@ import './LineChart.css';
 
 interface DataPoint {
   x: number;
-  y: number;
+  y?: number;
 }
 
 interface Props {
@@ -54,7 +54,7 @@ export default class LineChart extends React.PureComponent<Props> {
     const area = d3Area<DataPoint>()
       .x(d => xScale(d.x))
       .y0(yScale.range()[0])
-      .y1(d => yScale(d.y))
+      .y1(d => yScale(d.y || 0))
       .defined(d => d.y != null)
       .curve(curveBasis);
 
@@ -76,7 +76,7 @@ export default class LineChart extends React.PureComponent<Props> {
 
     const points = this.props.data.filter(point => point.y != null).map((point, index) => {
       const x = xScale(point.x);
-      const y = yScale(point.y);
+      const y = yScale(point.y || 0);
       return <circle className="line-chart-point" cx={x} cy={y} key={index} r="3" />;
     });
     return <g>{points}</g>;
@@ -92,7 +92,7 @@ export default class LineChart extends React.PureComponent<Props> {
     const lines = this.props.data.map((point, index) => {
       const x = xScale(point.x);
       const y1 = yScale.range()[0];
-      const y2 = yScale(point.y);
+      const y2 = yScale(point.y || 0);
       return <line className="line-chart-grid" key={index} x1={x} x2={x} y1={y1} y2={y2} />;
     });
     return <g>{lines}</g>;
@@ -128,7 +128,7 @@ export default class LineChart extends React.PureComponent<Props> {
     const ticks = xValues.map((value, index) => {
       const point = this.props.data[index];
       const x = xScale(point.x);
-      const y = yScale(point.y);
+      const y = yScale(point.y || 0);
       return (
         <text className="line-chart-tick" dy="-1em" key={index} x={x} y={y}>
           {value}
@@ -141,7 +141,7 @@ export default class LineChart extends React.PureComponent<Props> {
   renderLine(xScale: ScaleLinear<number, number>, yScale: ScaleLinear<number, number>) {
     const p = d3Line<DataPoint>()
       .x(d => xScale(d.x))
-      .y(d => yScale(d.y))
+      .y(d => yScale(d.y || 0))
       .defined(d => d.y != null)
       .curve(curveBasis);
     return <path className="line-chart-path" d={p(this.props.data) as string} />;

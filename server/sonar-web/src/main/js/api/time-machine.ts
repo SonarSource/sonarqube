@@ -23,7 +23,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface HistoryItem {
   date: Date;
-  value: string;
+  value?: string;
 }
 
 export interface History {
