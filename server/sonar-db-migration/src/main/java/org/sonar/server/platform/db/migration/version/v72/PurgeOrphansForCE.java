@@ -21,8 +21,14 @@ package org.sonar.server.platform.db.migration.version.v72;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
+/**
+ * The migration drops the orphans from tables ce_*. It can be executed
+ * when server is up, so it supports blue/green deployments.
+ */
+@SupportsBlueGreen
 public class PurgeOrphansForCE extends DataChange {
 
   public PurgeOrphansForCE(Database db) {

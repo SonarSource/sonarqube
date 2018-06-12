@@ -21,8 +21,17 @@ package org.sonar.server.platform.db.migration.version.v72;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
+/**
+ * The migration drops duplicated rows from some rules-related tables.
+ * The root cause of these duplications is not known. It could even
+ * be already fixed. Assuming that the duplications are not created frequently,
+ * nor recently, then executing the migration when server is up
+ * is safe. Blue/green deployment is supported.
+ */
+@SupportsBlueGreen
 public class PurgeDuplicateRulesParameters extends DataChange {
 
   private static final String REMOVE_DUPLICATE_RULES_PARAMS_SQL_FOR_GENERIC =

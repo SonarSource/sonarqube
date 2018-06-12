@@ -21,11 +21,18 @@ package org.sonar.server.platform.db.migration.version.v72;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+/**
+ * The missing unique index can be added when server is up, so
+ * blue/green deployment is supported.
+ * See {@link PurgeDuplicateRulesParameters} for more details.
+ */
+@SupportsBlueGreen
 public class AddUniqueIndexOnRulesParameters extends DdlChange {
 
   public AddUniqueIndexOnRulesParameters(Database db) {
