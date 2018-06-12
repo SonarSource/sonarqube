@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -82,6 +83,38 @@ public class IssueLifecycleTest {
     assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
+  }
+
+  @Test
+  public void set_fromHotspot_flag_for_existing_vulnerability() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setCreationDate(parseDate("2015-10-01"))
+      .setUpdateDate(parseDate("2015-10-02"))
+      .setCloseDate(parseDate("2015-10-03"));
+
+    DefaultIssue base = new DefaultIssue()
+      .setKey("BASE_KEY")
+      .setType(RuleType.VULNERABILITY)
+      .setResolution(RESOLUTION_FIXED)
+      .setStatus(STATUS_CLOSED)
+      .setSeverity(BLOCKER)
+      .setCreationDate(parseDate("2015-01-01"))
+      .setUpdateDate(parseDate("2015-01-02"))
+      .setCloseDate(parseDate("2015-01-03"));
+
+    underTest.mergeExistingOpenIssue(raw, base);
+
+    assertThat(raw.isNew()).isFalse();
+    assertThat(raw.key()).isNotNull();
+    assertThat(raw.key()).isEqualTo(base.key());
+    assertThat(raw.creationDate()).isEqualTo(base.creationDate());
+    assertThat(raw.updateDate()).isEqualTo(base.updateDate());
+    assertThat(raw.closeDate()).isEqualTo(base.closeDate());
+    assertThat(raw.type()).isEqualTo(RuleType.VULNERABILITY);
+    assertThat(raw.isFromHotspot()).isTrue();
   }
 
   @Test

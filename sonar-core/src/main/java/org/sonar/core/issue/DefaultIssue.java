@@ -88,6 +88,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private Date updateDate;
   private Date closeDate;
 
+  private boolean isFromHotspot = false;
+
   // FOLLOWING FIELDS ARE AVAILABLE ONLY DURING SCAN
 
   // Current changes
@@ -604,6 +606,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     } else {
       return ImmutableSet.copyOf(tags);
     }
+  }
+
+  public DefaultIssue setIsFromHotspot(boolean value) {
+    this.isFromHotspot = value;
+    return this;
+  }
+
+  public boolean isFromHotspot() {
+    return isFromHotspot;
   }
 
   public DefaultIssue setTags(Collection<String> tags) {

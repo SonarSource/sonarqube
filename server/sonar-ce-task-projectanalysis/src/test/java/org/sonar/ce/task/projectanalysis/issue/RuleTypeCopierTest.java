@@ -45,6 +45,7 @@ public class RuleTypeCopierTest {
     underTest.onIssue(mock(Component.class), issue);
 
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
+    assertThat(issue.isFromHotspot()).isEqualTo(false);
   }
 
   @Test
@@ -55,5 +56,16 @@ public class RuleTypeCopierTest {
     underTest.onIssue(mock(Component.class), issue);
 
     assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
+    assertThat(issue.isFromHotspot()).isEqualTo(false);
+  }
+
+  @Test
+  public void set_from_hotspot_flag_for_hotspot() {
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+
+    underTest.onIssue(mock(Component.class), issue);
+
+    assertThat(issue.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
+    assertThat(issue.isFromHotspot()).isEqualTo(true);
   }
 }

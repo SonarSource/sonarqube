@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class RuleTypeCopier extends IssueVisitor {
 
@@ -40,5 +40,6 @@ public class RuleTypeCopier extends IssueVisitor {
         issue.setType(rule.getType());
       }
     }
+    issue.setIsFromHotspot(issue.type() == RuleType.SECURITY_HOTSPOT);
   }
 }

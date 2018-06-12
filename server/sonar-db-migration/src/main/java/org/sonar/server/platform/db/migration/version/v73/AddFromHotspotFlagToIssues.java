@@ -19,16 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v73;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion73 implements DbVersion {
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class AddFromHotspotFlagToIssues extends DdlChange {
+
+  public AddFromHotspotFlagToIssues(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2200, "Populate PROJECT_BRANCHES with existing main application branches", PopulateMainApplicationBranches.class)
-      .add(2201, "Add 'from hotspot' flag to issues", AddFromHotspotFlagToIssues.class)
-    ;
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "issues")
+      .addColumn(newBooleanColumnDefBuilder()
+        .setColumnName("from_hotspot")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
+
 }
