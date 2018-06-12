@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import java.util.stream.Stream;
+import java.util.List;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
@@ -44,12 +44,12 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
   }
 
   @Override
-  public void execute(Stream<RegisteredMigrationStep> steps) {
+  public void execute(List<RegisteredMigrationStep> steps) {
     Profiler globalProfiler = Profiler.create(LOGGER);
     globalProfiler.startInfo(GLOBAL_START_MESSAGE);
     boolean allStepsExecuted = false;
     try {
-      steps.forEachOrdered(this::execute);
+      steps.forEach(this::execute);
       allStepsExecuted = true;
     } finally {
       if (allStepsExecuted) {

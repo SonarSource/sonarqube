@@ -19,9 +19,10 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
@@ -29,6 +30,7 @@ import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,12 +47,13 @@ public class MigrationEngineImplTest {
   };
   private MigrationSteps migrationSteps = mock(MigrationSteps.class);
 
-  private MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, populator, migrationSteps);
+  private Configuration configuration;
+  private MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, populator, migrationSteps, configuration);
 
   @Test
   public void execute_execute_all_steps_of_there_is_no_last_migration_number() {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.empty());
-    Stream<RegisteredMigrationStep> steps = Stream.of(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
+    List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
     when(migrationSteps.readAll()).thenReturn(steps);
 
     underTest.execute();
@@ -62,7 +65,7 @@ public class MigrationEngineImplTest {
   @Test
   public void execute_execute_steps_from_last_migration_number_plus_1() {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(50L));
-    Stream<RegisteredMigrationStep> steps = Stream.of(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
+    List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
     when(migrationSteps.readFrom(51)).thenReturn(steps);
 
     underTest.execute();

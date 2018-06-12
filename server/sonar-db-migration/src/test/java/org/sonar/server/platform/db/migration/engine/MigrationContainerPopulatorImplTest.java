@@ -31,6 +31,8 @@ import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,7 +63,7 @@ public class MigrationContainerPopulatorImplTest {
           return Stream.of(Clazz1.class, Clazz3.class);
         }
       });
-    when(migrationSteps.readAll()).thenReturn(Stream.empty());
+    when(migrationSteps.readAll()).thenReturn(emptyList());
 
     underTest.populateContainer(migrationContainer);
 
@@ -72,7 +74,7 @@ public class MigrationContainerPopulatorImplTest {
 
   @Test
   public void populateContainer_adds_MigrationStepsExecutorImpl() {
-    when(migrationSteps.readAll()).thenReturn(Stream.empty());
+    when(migrationSteps.readAll()).thenReturn(emptyList());
 
     // add MigrationStepsExecutorImpl's dependencies
     migrationContainer.add(mock(MigrationHistory.class));
@@ -84,7 +86,7 @@ public class MigrationContainerPopulatorImplTest {
 
   @Test
   public void populateContainer_adds_classes_of_all_steps_defined_in_MigrationSteps() {
-    when(migrationSteps.readAll()).thenReturn(Stream.of(
+    when(migrationSteps.readAll()).thenReturn(asList(
       new RegisteredMigrationStep(1, "foo", MigrationStep1.class),
       new RegisteredMigrationStep(2, "bar", MigrationStep2.class),
       new RegisteredMigrationStep(3, "dor", MigrationStep3.class)));
@@ -98,7 +100,7 @@ public class MigrationContainerPopulatorImplTest {
 
   @Test
   public void populateCotnainer_does_not_fail_if_same_class_is_used_for_more_than_one_migration() {
-    when(migrationSteps.readAll()).thenReturn(Stream.of(
+    when(migrationSteps.readAll()).thenReturn(asList(
       new RegisteredMigrationStep(1, "foo", MigrationStep1.class),
       new RegisteredMigrationStep(2, "bar", MigrationStep2.class),
       new RegisteredMigrationStep(3, "bar2", MigrationStep2.class),

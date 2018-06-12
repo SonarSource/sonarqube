@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -78,7 +76,7 @@ public class MigrationStepsImplTest {
 
   @Test
   public void readAll_iterates_over_all_steps_in_constructor_list_argument() {
-    verifySteamContainsNumbers(underTest.readAll(), 1L, 2L, 8L);
+    verifyContainsNumbers(underTest.readAll(), 1L, 2L, 8L);
   }
 
   @Test
@@ -91,24 +89,23 @@ public class MigrationStepsImplTest {
 
   @Test
   public void readFrom_returns_stream_of_sublist_from_the_first_migration_with_number_greater_or_equal_to_argument() {
-    verifySteamContainsNumbers(underTest.readFrom(1), 1L, 2L, 8L);
-    verifySteamContainsNumbers(underTest.readFrom(2), 2L, 8L);
-    verifySteamContainsNumbers(underTest.readFrom(3), 8L);
-    verifySteamContainsNumbers(underTest.readFrom(4), 8L);
-    verifySteamContainsNumbers(underTest.readFrom(5), 8L);
-    verifySteamContainsNumbers(underTest.readFrom(6), 8L);
-    verifySteamContainsNumbers(underTest.readFrom(7), 8L);
-    verifySteamContainsNumbers(underTest.readFrom(8), 8L);
+    verifyContainsNumbers(underTest.readFrom(1), 1L, 2L, 8L);
+    verifyContainsNumbers(underTest.readFrom(2), 2L, 8L);
+    verifyContainsNumbers(underTest.readFrom(3), 8L);
+    verifyContainsNumbers(underTest.readFrom(4), 8L);
+    verifyContainsNumbers(underTest.readFrom(5), 8L);
+    verifyContainsNumbers(underTest.readFrom(6), 8L);
+    verifyContainsNumbers(underTest.readFrom(7), 8L);
+    verifyContainsNumbers(underTest.readFrom(8), 8L);
   }
 
   @Test
   public void readFrom_returns_an_empty_stream_if_argument_is_greater_than_biggest_migration_number() {
-    verifySteamContainsNumbers(underTest.readFrom(9));
-    verifySteamContainsNumbers(unorderedSteps.readFrom(9));
+    verifyContainsNumbers(underTest.readFrom(9));
+    verifyContainsNumbers(unorderedSteps.readFrom(9));
   }
 
-  private static void verifySteamContainsNumbers(Stream<RegisteredMigrationStep> stream, Long... expectedMigrationNumbers) {
-    List<RegisteredMigrationStep> steps = stream.collect(Collectors.toList());
+  private static void verifyContainsNumbers(List<RegisteredMigrationStep> steps, Long... expectedMigrationNumbers) {
     assertThat(steps).hasSize(expectedMigrationNumbers.length);
     Iterator<RegisteredMigrationStep> iterator = steps.iterator();
     Arrays.stream(expectedMigrationNumbers).forEach(expected -> assertThat(iterator.next().getMigrationNumber()).isEqualTo(expected));

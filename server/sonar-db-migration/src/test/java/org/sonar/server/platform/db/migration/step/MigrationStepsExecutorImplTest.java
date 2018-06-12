@@ -22,9 +22,9 @@ package org.sonar.server.platform.db.migration.step;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
@@ -34,6 +34,7 @@ import org.sonar.server.platform.db.migration.engine.SimpleMigrationContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -48,7 +49,7 @@ public class MigrationStepsExecutorImplTest {
 
   @Test
   public void execute_does_not_fail_when_stream_is_empty_and_log_start_stop_INFO() {
-    underTest.execute(Stream.empty());
+    underTest.execute(Collections.emptyList());
 
     assertThat(logTester.logs()).hasSize(2);
     assertLogLevel(LoggerLevel.INFO, "Executing DB migrations...", "Executed DB migrations: success | time=");
@@ -56,7 +57,7 @@ public class MigrationStepsExecutorImplTest {
 
   @Test
   public void execute_fails_with_ISE_if_no_instance_of_computation_step_exist_in_container() {
-    Stream<RegisteredMigrationStep> steps = Stream.of(registeredStepOf(1, MigrationStep1.class));
+    List<RegisteredMigrationStep> steps = asList(registeredStepOf(1, MigrationStep1.class));
 
     try {
       underTest.execute(steps);
@@ -87,7 +88,7 @@ public class MigrationStepsExecutorImplTest {
   public void execute_execute_the_instance_of_type_specified_in_step_in_stream_order() {
     migrationContainer.add(MigrationStep1.class, MigrationStep2.class, MigrationStep3.class);
 
-    underTest.execute(Stream.of(
+    underTest.execute(asList(
       registeredStepOf(1, MigrationStep2.class),
       registeredStepOf(2, MigrationStep1.class),
       registeredStepOf(3, MigrationStep3.class)));
@@ -113,7 +114,7 @@ public class MigrationStepsExecutorImplTest {
   @Test
   public void execute_throws_MigrationStepExecutionException_on_first_failing_step_execution_throws_SQLException() {
     migrationContainer.add(MigrationStep2.class, SqlExceptionFailingMigrationStep.class, MigrationStep3.class);
-    Stream<RegisteredMigrationStep> steps = Stream.of(
+    List<RegisteredMigrationStep> steps = asList(
       registeredStepOf(1, MigrationStep2.class),
       registeredStepOf(2, SqlExceptionFailingMigrationStep.class),
       registeredStepOf(3, MigrationStep3.class));
@@ -141,7 +142,7 @@ public class MigrationStepsExecutorImplTest {
   public void execute_throws_MigrationStepExecutionException_on_first_failing_step_execution_throws_any_exception() {
     migrationContainer.add(MigrationStep2.class, RuntimeExceptionFailingMigrationStep.class, MigrationStep3.class);
 
-    Stream<RegisteredMigrationStep> steps = Stream.of(
+    List<RegisteredMigrationStep> steps = asList(
       registeredStepOf(1, MigrationStep2.class),
       registeredStepOf(2, RuntimeExceptionFailingMigrationStep.class),
       registeredStepOf(3, MigrationStep3.class));

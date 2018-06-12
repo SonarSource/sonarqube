@@ -19,8 +19,8 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -42,18 +42,18 @@ class MigrationStepsImpl implements MigrationSteps {
   }
 
   @Override
-  public Stream<RegisteredMigrationStep> readAll() {
-    return steps.stream();
+  public List<RegisteredMigrationStep> readAll() {
+    return steps;
   }
 
   @Override
-  public Stream<RegisteredMigrationStep> readFrom(long migrationNumber) {
+  public List<RegisteredMigrationStep> readFrom(long migrationNumber) {
     validate(migrationNumber);
     int startingIndex = lookupIndexOfClosestTo(migrationNumber);
     if (startingIndex < 0) {
-      return Stream.empty();
+      return Collections.emptyList();
     }
-    return steps.subList(startingIndex, steps.size()).stream();
+    return steps.subList(startingIndex, steps.size());
   }
 
   private int lookupIndexOfClosestTo(long startingPoint) {

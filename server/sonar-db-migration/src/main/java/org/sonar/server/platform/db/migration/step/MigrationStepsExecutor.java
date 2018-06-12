@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * Responsible for:
@@ -34,5 +34,5 @@ public interface MigrationStepsExecutor {
   /**
    * @throws MigrationStepExecutionException at the first failing migration step execution
    */
-  void execute(Stream<RegisteredMigrationStep> steps);
+  void execute(List<RegisteredMigrationStep> steps);
 }
