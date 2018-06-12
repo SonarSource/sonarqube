@@ -28,11 +28,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.qa.util.pageobjects.EncryptionPage;
 import org.sonarqube.qa.util.pageobjects.Navigation;
+import util.ItUtils;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.visible;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.xooPlugin;
@@ -60,7 +61,7 @@ public class SettingsTestRestartingOrchestrator {
   @Test
   public void test_settings() {
     URL secretKeyUrl = getClass().getResource("/settings/SettingsTest/sonar-secret.txt");
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(pluginArtifact("settings-plugin"))
         .addPlugin(pluginArtifact("license-plugin"))
@@ -86,7 +87,7 @@ public class SettingsTestRestartingOrchestrator {
 
   @Test
   public void property_relocation() {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
       .addPlugin(pluginArtifact("property-relocation-plugin"))
       .addPlugin(xooPlugin())

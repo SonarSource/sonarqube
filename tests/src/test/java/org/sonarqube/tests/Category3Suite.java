@@ -40,8 +40,9 @@ import org.sonarqube.tests.analysis.ScannerTest;
 import org.sonarqube.tests.analysis.SettingsEncryptionTest;
 import org.sonarqube.tests.analysis.TempFolderTest;
 import org.sonarqube.tests.plugins.VersionPluginTest;
+import util.ItUtils;
 
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -73,7 +74,7 @@ import static util.ItUtils.xooPlugin;
 public class Category3Suite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin())
       .addPlugin(MavenLocation.of("org.sonarsource.java", "sonar-java-plugin", "LATEST_RELEASE"))

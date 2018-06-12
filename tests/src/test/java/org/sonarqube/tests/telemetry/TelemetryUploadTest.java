@@ -37,7 +37,7 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static util.ItUtils.jsonToMap;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.xooPlugin;
 
@@ -61,7 +61,7 @@ public class TelemetryUploadTest {
   @Test
   public void sent_telemetry_data() throws Exception {
     telemetryServer.enqueue(new MockResponse().setResponseCode(200));
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(xooPlugin())
         .setServerProperty("sonar.telemetry.url", telemetryServer.url("").toString())
@@ -105,7 +105,7 @@ public class TelemetryUploadTest {
 
   @Test
   public void does_not_send_telemetry_data_right_away_by_Default() {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(xooPlugin())
         .setServerProperty("sonar.telemetry.url", telemetryServer.url("").toString()));

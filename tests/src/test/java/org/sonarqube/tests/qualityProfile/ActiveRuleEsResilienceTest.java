@@ -38,7 +38,7 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.tests.Byteman.Process.WEB;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 
 public class ActiveRuleEsResilienceTest {
   private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
@@ -49,7 +49,7 @@ public class ActiveRuleEsResilienceTest {
 
   static {
     byteman = new Byteman();
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> {
         byteman.install(builder, WEB);
         builder.setServerProperty("sonar.search.recovery.delayInMs", "1000")

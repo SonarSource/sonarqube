@@ -100,16 +100,16 @@ public class ItUtils {
   private ItUtils() {
   }
 
-  public static Orchestrator newOrchestratorBuilder() {
-    return newOrchestratorBuilder(t -> {}, server -> {});
+  public static Orchestrator newOrchestrator() {
+    return newOrchestrator(t -> {}, server -> {});
   }
 
-  public static Orchestrator newOrchestratorBuilder(Consumer<OrchestratorBuilder> beforeInstall) {
-    return newOrchestratorBuilder(beforeInstall, server -> {
+  public static Orchestrator newOrchestrator(Consumer<OrchestratorBuilder> beforeInstall) {
+    return newOrchestrator(beforeInstall, server -> {
     });
   }
 
-  public static Orchestrator newOrchestratorBuilder(Consumer<OrchestratorBuilder> beforeInstall, Consumer<Server> afterInstall) {
+  public static Orchestrator newOrchestrator(Consumer<OrchestratorBuilder> beforeInstall, Consumer<Server> afterInstall) {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setEdition(COMMUNITY)
       // reduce memory for Elasticsearch

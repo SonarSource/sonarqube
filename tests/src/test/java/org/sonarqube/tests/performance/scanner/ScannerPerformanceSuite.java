@@ -27,8 +27,9 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.performance.AbstractPerfTest;
+import util.ItUtils;
 
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
@@ -43,7 +44,7 @@ import static util.ItUtils.xooPlugin;
 public class ScannerPerformanceSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin())
       // should not be so high, but required as long embedded h2 is used -> requires more memory on server

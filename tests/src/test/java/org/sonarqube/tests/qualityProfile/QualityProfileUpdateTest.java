@@ -31,10 +31,11 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 
 public class QualityProfileUpdateTest {
@@ -54,7 +55,7 @@ public class QualityProfileUpdateTest {
   @Test
   // SONAR-10363
   public void updating_an_analyzer_must_update_default_quality_profile() {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(pluginArtifact("foo-plugin-v1"))
     // .setServerProperty("sonar.sonarcloud.enabled", "true"))

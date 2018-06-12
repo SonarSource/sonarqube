@@ -34,7 +34,7 @@ import static util.ItUtils.xooPlugin;
 public class SettingsSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin()));
 

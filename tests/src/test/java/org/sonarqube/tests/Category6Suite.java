@@ -36,8 +36,9 @@ import org.sonarqube.tests.qualityProfile.QualityProfilesEditTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesWsTest;
 import org.sonarqube.tests.rule.RulesMarkdownTest;
 import org.sonarqube.tests.rule.RulesWsTest;
+import util.ItUtils;
 
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -67,7 +68,7 @@ public class Category6Suite {
   public static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       // for ES resiliency tests
       .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)

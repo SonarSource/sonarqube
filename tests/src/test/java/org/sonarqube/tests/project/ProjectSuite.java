@@ -25,8 +25,9 @@ import java.net.InetAddress;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import util.ItUtils;
 
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -40,7 +41,7 @@ public class ProjectSuite {
   static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       // for ES resiliency tests
       .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)

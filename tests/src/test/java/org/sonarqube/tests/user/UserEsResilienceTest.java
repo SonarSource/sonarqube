@@ -39,7 +39,7 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.tests.Byteman.Process.WEB;
 import static util.ItUtils.expectHttpError;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 
 public class UserEsResilienceTest {
 
@@ -49,7 +49,7 @@ public class UserEsResilienceTest {
 
   static {
     byteman = new Byteman();
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> {
         byteman.install(builder, WEB);
         builder

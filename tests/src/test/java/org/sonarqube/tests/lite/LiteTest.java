@@ -34,11 +34,12 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 import org.sonarqube.ws.client.measures.ComponentTreeRequest;
 import org.sonarqube.ws.client.measures.MeasuresService;
+import util.ItUtils;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.xooPlugin;
 
@@ -46,7 +47,7 @@ public class LiteTest {
 
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
 
-  private static Orchestrator orchestrator = newOrchestratorBuilder(
+  private static Orchestrator orchestrator = ItUtils.newOrchestrator(
     builder -> builder
       .setOrchestratorProperty("sonar.web.context", "/sonarqube")
       .addPlugin(xooPlugin()));

@@ -29,9 +29,10 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.sonarqube.tests.performance.AbstractPerfTest;
 import org.sonarqube.tests.performance.ServerLogs;
+import util.ItUtils;
 
 import static org.apache.commons.io.FileUtils.readLines;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.xooPlugin;
 
 public class ServerPerfTest extends AbstractPerfTest {
@@ -44,7 +45,7 @@ public class ServerPerfTest extends AbstractPerfTest {
   @Test
   public void server_startup_and_shutdown() throws Exception {
     String defaultWebJavaOptions = "-Xmx768m -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF-8";
-    Orchestrator orchestrator = newOrchestratorBuilder(
+    Orchestrator orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(xooPlugin())
 

@@ -33,8 +33,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.tests.performance.AbstractPerfTest;
 import org.sonarqube.tests.performance.ServerLogs;
+import util.ItUtils;
 
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.xooPlugin;
 
 public class ComputeEnginePerfTest extends AbstractPerfTest {
@@ -44,7 +45,7 @@ public class ComputeEnginePerfTest extends AbstractPerfTest {
   public static TemporaryFolder temp = new TemporaryFolder();
 
   @ClassRule
-  public static Orchestrator orchestrator = newOrchestratorBuilder(
+  public static Orchestrator orchestrator = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin())
       .setServerProperty(

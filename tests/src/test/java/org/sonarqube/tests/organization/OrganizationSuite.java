@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import static util.ItUtils.installCoreExtension;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -42,7 +42,7 @@ import static util.ItUtils.xooPlugin;
 public class OrganizationSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin())
       .addPlugin(pluginArtifact("ui-extensions-plugin"))

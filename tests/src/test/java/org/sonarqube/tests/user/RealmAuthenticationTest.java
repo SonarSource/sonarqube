@@ -38,12 +38,13 @@ import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.users.ChangePasswordRequest;
 import org.sonarqube.ws.client.users.SearchRequest;
+import util.ItUtils;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.expectHttpError;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 
 /**
@@ -57,7 +58,7 @@ public class RealmAuthenticationTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @ClassRule
-  public static final Orchestrator orchestrator = newOrchestratorBuilder(
+  public static final Orchestrator orchestrator = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(pluginArtifact("security-plugin"))
       .setServerProperty("sonar.security.realm", "FakeRealm"));

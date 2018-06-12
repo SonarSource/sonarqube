@@ -44,13 +44,14 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.measures.ComponentRequest;
+import util.ItUtils;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
 import static java.lang.Integer.parseInt;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 
 public class UpgradeTest {
 
@@ -156,7 +157,7 @@ public class UpgradeTest {
   }
 
   private void startAndUpgradeDevServer() {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .setOrchestratorProperty("orchestrator.keepDatabase", "true")
         .keepBundledPlugins()

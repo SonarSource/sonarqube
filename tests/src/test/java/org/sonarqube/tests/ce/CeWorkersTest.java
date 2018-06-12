@@ -57,7 +57,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.installCoreExtension;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.xooPlugin;
 
 public class CeWorkersTest {
@@ -81,7 +81,7 @@ public class CeWorkersTest {
   public static void setUp() throws Exception {
     sharedMemory = temporaryFolder.newFile();
 
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = newOrchestrator(
       builder -> builder
         .setServerProperty("itTests.workerLatch.sharedMemoryFile", sharedMemory.getAbsolutePath())
         // overwrite default value to display heap dump on OOM and reduce max heap

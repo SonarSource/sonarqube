@@ -41,7 +41,7 @@ import util.user.UserRule;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 
 public class BuiltInQualityProfilesNotificationTest {
@@ -68,7 +68,7 @@ public class BuiltInQualityProfilesNotificationTest {
 
   @Test
   public void does_not_send_mail_if_no_quality_profile_is_updated() throws Exception {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(pluginArtifact("foo-plugin-v1"))
         .setServerProperty("email.smtp_host.secured", "localhost")
@@ -87,7 +87,7 @@ public class BuiltInQualityProfilesNotificationTest {
 
   @Test
   public void send_mail_if_quality_profile_is_updated() throws Exception {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(pluginArtifact("foo-plugin-v1"))
         .setServerProperty("sonar.notifications.delay", "1")
@@ -174,7 +174,7 @@ public class BuiltInQualityProfilesNotificationTest {
 
   @Test
   public void do_not_send_mail_if_notifications_are_disabled_in_settings() throws Exception {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(pluginArtifact("foo-plugin-v1"))
         .setServerProperty("sonar.builtInQualityProfiles.disableNotificationOnUpdate", "true")

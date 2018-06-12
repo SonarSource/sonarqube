@@ -25,10 +25,11 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Test;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 
 public class PluginWithoutBuiltinQualityProfileTest {
@@ -36,7 +37,7 @@ public class PluginWithoutBuiltinQualityProfileTest {
 
   @Test
   public void should_fail_if_plugin_defines_language_and_no_builtin_qprofile() throws IOException {
-    orchestrator = newOrchestratorBuilder(b -> b.addPlugin(pluginArtifact("foo-plugin-without-qprofile")));
+    orchestrator = ItUtils.newOrchestrator(b -> b.addPlugin(pluginArtifact("foo-plugin-without-qprofile")));
 
     try {
       orchestrator.start();

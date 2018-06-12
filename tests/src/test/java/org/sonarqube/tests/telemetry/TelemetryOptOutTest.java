@@ -29,17 +29,18 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.jsonToMap;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.xooPlugin;
 
 public class TelemetryOptOutTest {
 
   public static MockWebServer server = new MockWebServer();
 
-  private static Orchestrator orchestrator = newOrchestratorBuilder(
+  private static Orchestrator orchestrator = ItUtils.newOrchestrator(
     builder -> builder
     .addPlugin(xooPlugin())
     .setServerProperty("sonar.telemetry.enable", "false")

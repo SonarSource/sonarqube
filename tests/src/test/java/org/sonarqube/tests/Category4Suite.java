@@ -37,8 +37,9 @@ import org.sonarqube.tests.serverSystem.ServerSystemTest;
 import org.sonarqube.tests.serverSystem.SystemInfoTest;
 import org.sonarqube.tests.ws.WsLocalCallTest;
 import org.sonarqube.tests.ws.WsTest;
+import util.ItUtils;
 
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -72,7 +73,7 @@ import static util.ItUtils.xooPlugin;
 public class Category4Suite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin())
 

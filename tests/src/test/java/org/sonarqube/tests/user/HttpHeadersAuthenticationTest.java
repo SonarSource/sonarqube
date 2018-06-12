@@ -33,6 +33,7 @@ import org.sonarqube.ws.UserGroups.Group;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.Users.SearchWsResponse;
 import org.sonarqube.ws.client.users.SearchRequest;
+import util.ItUtils;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -40,7 +41,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.call;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 
 /**
  * Test authentication using HTTP headers.
@@ -55,7 +56,7 @@ public class HttpHeadersAuthenticationTest {
   private static final String GROUPS_HEADER = "H-Groups";
 
   @ClassRule
-  public static final Orchestrator orchestrator = newOrchestratorBuilder(
+  public static final Orchestrator orchestrator = ItUtils.newOrchestrator(
     builder -> builder
       .setServerProperty("sonar.web.sso.enable", "true")
       .setServerProperty("sonar.web.sso.loginHeader", LOGIN_HEADER)

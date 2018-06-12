@@ -38,7 +38,7 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.newWsClient;
 
 /**
@@ -64,7 +64,7 @@ public class RestartTest {
   public void restart_in_prod_mode_requires_sysadmin_permission_and_restarts() throws Exception {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
-      orchestrator = newOrchestratorBuilder(
+      orchestrator = ItUtils.newOrchestrator(
         builder -> builder
           .setOrchestratorProperty("orchestrator.keepWorkspace", "true"));
       orchestrator.start();

@@ -42,7 +42,7 @@ import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
@@ -69,7 +69,7 @@ public class BlueGreenTest {
 
   @Test
   public void upgrade_analyzer_when_analysis_is_pending_in_compute_engine_queue() throws Exception {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
       .addPlugin(pluginArtifact("blue-green-plugin-v1"))
       .addPlugin(xooPlugin()));

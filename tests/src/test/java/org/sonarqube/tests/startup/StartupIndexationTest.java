@@ -36,9 +36,10 @@ import org.sonarqube.qa.util.LogsTailer;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.users.SearchRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 
 public class StartupIndexationTest {
@@ -82,7 +83,7 @@ public class StartupIndexationTest {
       pauseFile = temp.newFile();
       FileUtils.touch(pauseFile);
 
-      orchestrator = newOrchestratorBuilder(
+      orchestrator = ItUtils.newOrchestrator(
         builder -> builder
           .setServerProperty("sonar.web.pause.path", pauseFile.getAbsolutePath())
           .addPlugin(pluginArtifact("wait-at-platform-level4-plugin"))

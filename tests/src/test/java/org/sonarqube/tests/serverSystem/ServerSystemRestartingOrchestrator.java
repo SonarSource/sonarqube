@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.locationOf;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 
 /**
  * This class start a new orchestrator on each test case
@@ -58,7 +58,7 @@ public class ServerSystemRestartingOrchestrator {
   @Test
   public void check_minimal_sonar_version_at_startup() throws Exception {
     try {
-      orchestrator = newOrchestratorBuilder(
+      orchestrator = ItUtils.newOrchestrator(
         builder -> builder
           .addPlugin(locationOf(ServerSystemRestartingOrchestrator.class.getResource("/serverSystem/ServerSystemTest/incompatible-plugin-1.0.jar"))));
       orchestrator.start();
@@ -73,7 +73,7 @@ public class ServerSystemRestartingOrchestrator {
   public void support_install_dir_with_whitespaces() throws Exception {
     String dirName = "build/distributions/has space";
     FileUtils.deleteDirectory(new File(dirName));
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .setOrchestratorProperty("orchestrator.workspaceDir", dirName));
     orchestrator.start();
@@ -84,7 +84,7 @@ public class ServerSystemRestartingOrchestrator {
   // SONAR-4748
   @Test
   public void should_create_in_temp_folder() throws Exception {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(ItUtils.pluginArtifact("server-plugin"))
         .setServerProperty("sonar.createTempFiles", "true"));

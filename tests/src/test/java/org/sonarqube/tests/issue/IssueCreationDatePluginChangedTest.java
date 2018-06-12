@@ -43,7 +43,7 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
@@ -69,7 +69,7 @@ public class IssueCreationDatePluginChangedTest {
   private static final String USER_EMAIL = "tester@example.org";
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin())
       .addPlugin(ItUtils.pluginArtifact("backdating-plugin-v1"))

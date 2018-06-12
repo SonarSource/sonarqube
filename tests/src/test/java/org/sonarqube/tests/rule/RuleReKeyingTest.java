@@ -36,11 +36,12 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.issues.SearchRequest;
+import util.ItUtils;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
 
@@ -61,7 +62,7 @@ public class RuleReKeyingTest {
 
   @Test
   public void rules_are_re_keyed_when_upgrading_and_downgrading_plugin() {
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> builder
         .addPlugin(pluginArtifact("foo-plugin-v1")));
     orchestrator.start();

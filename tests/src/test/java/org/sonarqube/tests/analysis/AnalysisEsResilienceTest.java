@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonarqube.tests.Byteman.Process.CE;
 import static org.sonarqube.ws.Ce.TaskStatus.FAILED;
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.projectDir;
 
 public class AnalysisEsResilienceTest {
@@ -65,7 +65,7 @@ public class AnalysisEsResilienceTest {
 
   static {
     byteman = new Byteman();
-    orchestrator = newOrchestratorBuilder(
+    orchestrator = ItUtils.newOrchestrator(
       builder -> {
         byteman.install(builder, CE);
         builder

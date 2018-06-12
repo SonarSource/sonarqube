@@ -24,8 +24,9 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import util.ItUtils;
 
-import static util.ItUtils.newOrchestratorBuilder;
+import static util.ItUtils.newOrchestrator;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
@@ -39,7 +40,7 @@ import static util.ItUtils.xooPlugin;
 public class SourceSuite {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = newOrchestratorBuilder(
+  public static final Orchestrator ORCHESTRATOR = ItUtils.newOrchestrator(
     builder -> builder
       .addPlugin(xooPlugin())
       .addPlugin(MavenLocation.of("org.sonarsource.scm.git", "sonar-scm-git-plugin", "LATEST_RELEASE")));
