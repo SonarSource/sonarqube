@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as getYear from 'date-fns/get_year';
+import { Link } from 'react-router';
 import { translate } from '../../helpers/l10n';
 
 export default function GlobalFooterSonarCloud() {
@@ -34,22 +35,28 @@ export default function GlobalFooterSonarCloud() {
 
       <ul className="page-footer-menu">
         <li className="page-footer-menu-item">
-          <a href="https://about.sonarcloud.io/news/">{translate('footer.news')}</a>
-        </li>
-        <li className="page-footer-menu-item">
-          <a href="https://about.sonarcloud.io/terms.pdf">{translate('footer.terms')}</a>
+          <a href="https://blog.sonarsource.com/product/SonarCloud">{translate('footer.news')}</a>
         </li>
         <li className="page-footer-menu-item">
           <a href="https://twitter.com/sonarcloud">{translate('footer.twitter')}</a>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://about.sonarcloud.io/get-started/">{translate('footer.get_started')}</a>
+          <Link to="/terms.pdf">{translate('footer.terms')}</Link>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
+          <Link to="/privacy">{translate('footer.privacy')}</Link>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://about.sonarcloud.io/">{translate('footer.about')}</a>
+          <a href="https://community.sonarsource.com/c/help/sc">{translate('footer.help')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <Link to="/contact">{translate('footer.contact_us')}</Link>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://sonarcloud.statuspage.io/">{translate('footer.status')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <Link to="/about">{translate('footer.about')}</Link>
         </li>
       </ul>
     </div>
