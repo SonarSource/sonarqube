@@ -51,6 +51,8 @@ import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.SONAR_PRISMIC_ACCESS_TOKEN;
 import static org.sonar.process.ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE;
 
 public class GlobalAction implements NavigationWsAction, Startable {
@@ -96,6 +98,10 @@ public class GlobalAction implements NavigationWsAction, Startable {
   @Override
   public void start() {
     this.systemSettingValuesByKey.put(SONAR_UPDATECENTER_ACTIVATE.getKey(), config.get(SONAR_UPDATECENTER_ACTIVATE.getKey()).orElse(null));
+    boolean isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
+    if (isOnSonarCloud) {
+      this.systemSettingValuesByKey.put(SONAR_PRISMIC_ACCESS_TOKEN.getKey(), config.get(SONAR_PRISMIC_ACCESS_TOKEN.getKey()).orElse(null));
+    }
   }
 
   @Override

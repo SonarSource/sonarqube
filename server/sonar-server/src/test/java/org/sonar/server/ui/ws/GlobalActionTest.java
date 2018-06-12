@@ -127,6 +127,19 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void return_prismic_setting_on_sonarcloud_only() {
+    settings.setProperty("sonar.sonarcloud.enabled", true);
+    settings.setProperty("sonar.prismic.accessToken", "secret");
+    init();
+
+    assertJson(call()).isSimilarTo("{" +
+      "  \"settings\": {" +
+      "    \"sonar.prismic.accessToken\": \"secret\"" +
+      "  }" +
+      "}");
+  }
+
+  @Test
   public void return_deprecated_logo_settings() {
     init();
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");

@@ -108,6 +108,9 @@ public class ProcessProperties {
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
     SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
+
+    SONAR_PRISMIC_ACCESS_TOKEN("sonar.prismic.accessToken", ""),
+
     BITBUCKETCLOUD_APP_KEY("sonar.bitbucketcloud.appKey", "sonarcloud"),
     BITBUCKETCLOUD_ENDPOINT("sonar.bitbucketcloud.endpoint", "https://api.bitbucket.org"),
 
