@@ -22,6 +22,8 @@ package org.sonar.server.platform;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
@@ -33,7 +35,8 @@ public class DefaultServerUpgradeStatusTest {
   private static final long LAST_VERSION = 150;
   private MigrationSteps migrationSteps = mock(MigrationSteps.class);
   private DatabaseVersion dbVersion = mock(DatabaseVersion.class);
-  private DefaultServerUpgradeStatus underTest = new DefaultServerUpgradeStatus(dbVersion, migrationSteps);
+  private MapSettings settings = new MapSettings();
+  private DefaultServerUpgradeStatus underTest = new DefaultServerUpgradeStatus(dbVersion, migrationSteps, new ConfigurationBridge(settings));
 
   @Before
   public void setUp() throws Exception {
@@ -72,5 +75,17 @@ public class DefaultServerUpgradeStatusTest {
     assertThat(underTest.isFreshInstall()).isFalse();
     assertThat(underTest.isUpgraded()).isFalse();
     assertThat(underTest.getInitialDbVersion()).isEqualTo((int) LAST_VERSION);
+  }
+
+  @Test
+  public void isBlueGreen() {
+    settings.clear();
+    assertThat(underTest.isBlueGreen()).isFalse();
+
+    settings.setProperty("sonar.blueGreenEnabled", true);
+    assertThat(underTest.isBlueGreen()).isTrue();
+
+    settings.setProperty("sonar.blueGreenEnabled", false);
+    assertThat(underTest.isBlueGreen()).isFalse();
   }
 }

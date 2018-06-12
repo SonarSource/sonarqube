@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
@@ -35,6 +34,7 @@ import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
+import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
@@ -53,7 +53,7 @@ public class AutoDbMigrationTest {
   public LogTester logTester = new LogTester();
 
   private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  private ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+  private DefaultServerUpgradeStatus serverUpgradeStatus = mock(DefaultServerUpgradeStatus.class);
   private MigrationEngine migrationEngine = mock(MigrationEngine.class);
   private MigrationSteps migrationSteps = mock(MigrationSteps.class);
   private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine, migrationSteps);
@@ -116,7 +116,31 @@ public class AutoDbMigrationTest {
     verify(noRealH2Creation).start();
     verifyNoMoreInteractions(noRealH2Creation);
     verifyZeroInteractions(migrationEngine);
-    assertThat(logTester.logs()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+  }
+
+  @Test
+  public void start_runs_MigrationEngine_if_blue_green_upgrade() {
+    mockFreshInstall(false);
+    when(serverUpgradeStatus.isUpgraded()).thenReturn(true);
+    when(serverUpgradeStatus.isBlueGreen()).thenReturn(true);
+
+    underTest.start();
+
+    verify(migrationEngine).execute();
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Automatically perform DB migration on blue/green deployment");
+  }
+
+  @Test
+  public void start_does_nothing_if_blue_green_but_no_upgrade() {
+    mockFreshInstall(false);
+    when(serverUpgradeStatus.isUpgraded()).thenReturn(false);
+    when(serverUpgradeStatus.isBlueGreen()).thenReturn(true);
+
+    underTest.start();
+
+    verifyZeroInteractions(migrationEngine);
+    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
   }
 
   @Test

@@ -88,15 +88,14 @@ public class DatabaseServerCompatibilityTest {
   }
 
   @Test
-  public void fail_if_upgrade_required_on_blue_green_deployment() {
+  public void upgrade_automatically_if_blue_green_deployment() {
     settings.setProperty("sonar.blueGreenEnabled", "true");
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Blue/green deployment is not supported. Database must be upgraded.");
-
     new DatabaseServerCompatibility(version, settings.asConfig()).start();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
   }
 }

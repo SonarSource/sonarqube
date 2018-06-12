@@ -48,20 +48,19 @@ public class DatabaseServerCompatibility implements Startable {
       throw MessageException.of("Database was upgraded to a more recent of SonarQube. Backup must probably be restored or db settings are incorrect.");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      if (configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false)) {
-        throw new IllegalStateException("Blue/green deployment is not supported. Database must be upgraded.");
-      }
-
       Optional<Long> currentVersion = this.version.getVersion();
       if (currentVersion.isPresent() && currentVersion.get() < DatabaseVersion.MIN_UPGRADE_VERSION) {
         throw MessageException.of("Current version is too old. Please upgrade to Long Term Support version firstly.");
       }
-      String msg = "Database must be upgraded. Please backup database and browse /setup";
-      Loggers.get(DatabaseServerCompatibility.class).warn(msg);
-      Loggers.get(STARTUP_LOGGER_NAME).warn('\n'
-        + HIGHLIGHTER + '\n'
-        + "      " + msg
-        + '\n' + HIGHLIGHTER);
+      boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
+      if (!blueGreen) {
+        String msg = "Database must be upgraded. Please backup database and browse /setup";
+        Loggers.get(DatabaseServerCompatibility.class).warn(msg);
+        Loggers.get(STARTUP_LOGGER_NAME).warn('\n'
+          + HIGHLIGHTER + '\n'
+          + "      " + msg
+          + '\n' + HIGHLIGHTER);
+      }
     }
   }
 

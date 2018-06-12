@@ -23,24 +23,25 @@ import java.util.Optional;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.picocontainer.Startable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
-/**
- * @since 2.5
- */
-public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, Startable {
+public class DefaultServerUpgradeStatus implements ServerUpgradeStatus, Startable {
 
   private final DatabaseVersion dbVersion;
   private final MigrationSteps migrationSteps;
+  private final Configuration configuration;
 
   // available when connected to db
   private long initialDbVersion;
 
-  public DefaultServerUpgradeStatus(DatabaseVersion dbVersion, MigrationSteps migrationSteps) {
+  public DefaultServerUpgradeStatus(DatabaseVersion dbVersion, MigrationSteps migrationSteps, Configuration configuration) {
     this.dbVersion = dbVersion;
     this.migrationSteps = migrationSteps;
+    this.configuration = configuration;
   }
 
   @Override
@@ -67,6 +68,10 @@ public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, St
   @Override
   public int getInitialDbVersion() {
     return (int) initialDbVersion;
+  }
+
+  public boolean isBlueGreen() {
+    return configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
   }
 
   @Override

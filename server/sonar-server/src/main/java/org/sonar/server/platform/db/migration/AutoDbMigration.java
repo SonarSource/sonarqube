@@ -25,13 +25,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.apache.commons.dbutils.DbUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DdlUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
+import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
@@ -39,12 +39,12 @@ import org.sonar.server.platform.db.migration.step.MigrationSteps;
  * FIXME fix this class to remove use of DdlUtils.createSchema
  */
 public class AutoDbMigration implements Startable {
-  private final ServerUpgradeStatus serverUpgradeStatus;
+  private final DefaultServerUpgradeStatus serverUpgradeStatus;
   private final DbClient dbClient;
   private final MigrationEngine migrationEngine;
   private final MigrationSteps migrationSteps;
 
-  public AutoDbMigration(ServerUpgradeStatus serverUpgradeStatus, DbClient dbClient, MigrationEngine migrationEngine, MigrationSteps migrationSteps) {
+  public AutoDbMigration(DefaultServerUpgradeStatus serverUpgradeStatus, DbClient dbClient, MigrationEngine migrationEngine, MigrationSteps migrationSteps) {
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.dbClient = dbClient;
     this.migrationEngine = migrationEngine;
@@ -53,15 +53,16 @@ public class AutoDbMigration implements Startable {
 
   @Override
   public void start() {
-    if (!serverUpgradeStatus.isFreshInstall()) {
-      return;
-    }
-
-    Loggers.get(getClass()).info("Automatically perform DB migration on fresh install");
-    Dialect dialect = dbClient.getDatabase().getDialect();
-    if (H2.ID.equals(dialect.getId())) {
-      installH2();
-    } else {
+    if (serverUpgradeStatus.isFreshInstall()) {
+      Loggers.get(getClass()).info("Automatically perform DB migration on fresh install");
+      Dialect dialect = dbClient.getDatabase().getDialect();
+      if (H2.ID.equals(dialect.getId())) {
+        installH2();
+      } else {
+        migrationEngine.execute();
+      }
+    } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isBlueGreen()) {
+      Loggers.get(getClass()).info("Automatically perform DB migration on blue/green deployment");
       migrationEngine.execute();
     }
   }
