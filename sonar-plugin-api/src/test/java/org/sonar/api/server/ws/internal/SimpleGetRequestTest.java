@@ -50,7 +50,7 @@ public class SimpleGetRequestTest {
   }
 
   @Test
-  public void get_part() throws Exception {
+  public void get_part() {
     InputStream inputStream = mock(InputStream.class);
     underTest.setPart("key", inputStream, "filename");
 

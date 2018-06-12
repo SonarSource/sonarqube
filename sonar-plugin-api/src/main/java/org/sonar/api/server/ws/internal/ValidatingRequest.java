@@ -216,7 +216,7 @@ public abstract class ValidatingRequest extends Request {
     try {
       return Integer.parseInt(value);
     } catch (NumberFormatException exception) {
-      throw new IllegalStateException(format("'%s' value '%s' cannot be parsed as an integer", key, value), exception);
+      throw new IllegalArgumentException(format("'%s' value '%s' cannot be parsed as an integer", key, value), exception);
     }
   }
 
