@@ -86,13 +86,10 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <li className="divider" />
-        {this.renderTitle(translate('embed_docs.get_support'))}
         <li>
-          {this.renderIconLink(
-            'https://about.sonarcloud.io/contact/',
-            'sc-icon.svg',
-            translate('embed_docs.contact_form')
-          )}
+          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+            {translate('embed_docs.get_help')}
+          </a>
         </li>
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
@@ -117,20 +114,10 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           </li>
         )}
         <li className="divider" />
-        {this.renderTitle(translate('embed_docs.get_support'))}
         <li>
-          {this.renderIconLink(
-            'https://groups.google.com/forum/#!forum/sonarqube',
-            'google-group-icon.svg',
-            'Google Groups'
-          )}
-        </li>
-        <li>
-          {this.renderIconLink(
-            'http://stackoverflow.com/questions/tagged/sonarqube',
-            'so-icon.svg',
-            'Stack Overflow'
-          )}
+          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+            {translate('embed_docs.get_help')}
+          </a>
         </li>
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}

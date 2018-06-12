@@ -71,41 +71,13 @@ exports[`should display suggestion links 1`] = `
       <li
         className="divider"
       />
-      <li
-        className="menu-header"
-      >
-        embed_docs.get_support
-      </li>
       <li>
         <a
-          href="https://groups.google.com/forum/#!forum/sonarqube"
+          href="https://community.sonarsource.com/"
           rel="noopener noreferrer"
           target="_blank"
         >
-          <img
-            alt="Google Groups"
-            className="spacer-right"
-            height="18"
-            src="/images/embed-doc/google-group-icon.svg"
-            width="18"
-          />
-          Google Groups
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://stackoverflow.com/questions/tagged/sonarqube"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <img
-            alt="Stack Overflow"
-            className="spacer-right"
-            height="18"
-            src="/images/embed-doc/so-icon.svg"
-            width="18"
-          />
-          Stack Overflow
+          embed_docs.get_help
         </a>
       </li>
       <li
