@@ -21,6 +21,7 @@ import * as ReactRedux from 'react-redux';
 import * as ReactRouter from 'react-router';
 import throwGlobalError from './throwGlobalError';
 import addGlobalSuccessMessage from './addGlobalSuccessMessage';
+import Suggestions from '../components/embed-docs-modal/Suggestions';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
 import DateFromNow from '../../components/intl/DateFromNow';
@@ -94,6 +95,7 @@ const exposeLibraries = () => {
     Select,
     SelectList,
     SubmitButton,
+    Suggestions,
     Tooltip
   };
 };

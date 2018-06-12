@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
+import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { injectIntl } from 'react-intl';
@@ -48,6 +49,10 @@ class Extension extends React.PureComponent {
   /*:: container: Object; */
   /*:: props: Props; */
   /*:: stop: ?Function; */
+
+  static contextTypes = {
+    suggestions: PropTypes.object.isRequired
+  };
 
   componentDidMount() {
     this.startExtension();
@@ -79,6 +84,7 @@ class Extension extends React.PureComponent {
       intl: this.props.intl,
       location: this.props.location,
       router: this.props.router,
+      suggestions: this.context.suggestions,
       ...this.props.options
     });
   };

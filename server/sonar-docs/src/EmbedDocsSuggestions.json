@@ -25,6 +25,13 @@
   ],
   "custom_measures": [],
   "custom_metrics": [],
+  "extension_billing": [
+    {
+      "link": "/documentation/sonarcloud-pricing",
+      "text": "Pricing",
+      "scope": "sonarcloud"
+    }
+  ],
   "global_permissions": [
     {
       "link": "/documentation/organizations/manage-team",
