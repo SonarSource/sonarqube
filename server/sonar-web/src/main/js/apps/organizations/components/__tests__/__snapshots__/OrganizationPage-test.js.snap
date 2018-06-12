@@ -21,6 +21,9 @@ exports[`smoke test 1`] = `
     encodeSpecialCharacters={true}
     titleTemplate="%s - Foo"
   />
+  <Suggestions
+    suggestions="organization_space"
+  />
   <OrganizationNavigation
     organization={
       Object {

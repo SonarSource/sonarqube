@@ -29,7 +29,7 @@ type Props = {|
   renderForm: () => React.Element<*>,
   renderResult: () => ?React.Element<*>,
   stepNumber: number,
-  stepTitle: string
+  stepTitle: React.Element<*> | string
 |};
 */
 

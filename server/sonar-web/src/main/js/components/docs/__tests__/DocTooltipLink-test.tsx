@@ -19,20 +19,12 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import DocLink from '../DocLink';
+import DocTooltipLink from '../DocTooltipLink';
 
 it('should render simple link', () => {
-  expect(shallow(<DocLink href="http://sample.com" />)).toMatchSnapshot();
+  expect(shallow(<DocTooltipLink href="http://sample.com" />)).toMatchSnapshot();
 });
 
-it('should render documentation link', () => {
-  expect(shallow(<DocLink href="/foo/bar" />)).toMatchSnapshot();
-});
-
-it('should render sonarcloud link', () => {
-  expect(shallow(<DocLink href="/#sonarcloud#/foo/bar" />)).toMatchSnapshot();
-});
-
-it.skip('should render documentation anchor', () => {
-  expect(shallow(<DocLink href="#quality-profiles" />)).toMatchSnapshot();
+it('should render internal link', () => {
+  expect(shallow(<DocTooltipLink href="/foo/bar" />)).toMatchSnapshot();
 });

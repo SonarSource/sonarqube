@@ -25,7 +25,13 @@
   ],
   "custom_measures": [],
   "custom_metrics": [],
-  "global_permissions": [],
+  "global_permissions": [
+    {
+      "link": "/documentation/organizations/manage-team",
+      "text": "Manage a Team",
+      "scope": "sonarcloud"
+    }
+  ],
   "issues": [
     {
       "link": "/documentation/keyboard-shortcuts",
@@ -41,6 +47,13 @@
     }
   ],
   "organization_projects": [
+    {
+      "link": "/documentation/organizations/manage-team",
+      "text": "Manage a Team",
+      "scope": "sonarcloud"
+    }
+  ],
+  "organization_space": [
     {
       "link": "/documentation/organizations/index",
       "text": "Organizations",
@@ -58,8 +71,20 @@
   "project_activity": [],
   "project_quality_gate": [],
   "project_quality_profiles": [],
-  "projects_management": [],
-  "projects": [],
+  "projects_management": [
+    {
+      "link": "/documentation/analyze-a-project",
+      "text": "Analyze a Project",
+      "scope": "sonarcloud"
+    }
+  ],
+  "projects": [
+    {
+      "link": "/documentation/analyze-a-project",
+      "text": "Analyze a Project",
+      "scope": "sonarcloud"
+    }
+  ],
   "quality_gates": [
     {
       "link": "/documentation/fixing-the-water-leak",
@@ -74,7 +99,13 @@
   ],
   "settings": [],
   "system_info": [],
-  "user_groups": [],
+  "user_groups": [
+    {
+      "link": "/documentation/organizations/manage-team",
+      "text": "Manage a Team",
+      "scope": "sonarcloud"
+    }
+  ],
   "users": [],
   "webhooks": []
 }

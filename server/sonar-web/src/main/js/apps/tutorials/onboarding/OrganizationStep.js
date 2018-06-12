@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { sortBy } from 'lodash';
 import Step from './Step';
 import NewOrganizationForm from './NewOrganizationForm';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { getOrganizations } from '../../../api/organizations';
 import Select from '../../../components/controls/Select';
@@ -263,7 +264,12 @@ export default class OrganizationStep extends React.PureComponent {
         renderForm={this.renderForm}
         renderResult={this.renderResult}
         stepNumber={this.props.stepNumber}
-        stepTitle={translate('onboarding.organization.header')}
+        stepTitle={
+          <span>
+            {translate('onboarding.organization.header')}
+            <DocTooltip className="little-spacer-left" doc="organizations/organization" />
+          </span>
+        }
       />
     );
   }

@@ -23,6 +23,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import OrganizationNavigation from '../navigation/OrganizationNavigation';
 import NotFound from '../../../app/components/NotFound';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchOrganization } from '../actions';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 /*:: import type { Organization } from '../../../store/organizations/duck'; */
@@ -69,15 +70,15 @@ export class OrganizationPage extends React.PureComponent {
     this.mounted = false;
   }
 
-  updateOrganization = (organizationKey /*: string */) => {
+  stopLoading = () => {
     if (this.mounted) {
-      this.setState({ loading: true });
+      this.setState({ loading: false });
     }
-    this.props.fetchOrganization(organizationKey).then(() => {
-      if (this.mounted) {
-        this.setState({ loading: false });
-      }
-    });
+  };
+
+  updateOrganization = (organizationKey /*: string */) => {
+    this.setState({ loading: true });
+    this.props.fetchOrganization(organizationKey).then(this.stopLoading, this.stopLoading);
   };
 
   render() {
@@ -94,7 +95,8 @@ export class OrganizationPage extends React.PureComponent {
     return (
       <div>
         <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name} />
-        <OrganizationNavigation organization={organization} location={this.props.location} />
+        <Suggestions suggestions="organization_space" />
+        <OrganizationNavigation location={this.props.location} organization={organization} />
         {this.props.children}
       </div>
     );

@@ -82,7 +82,7 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
         {this.state.loading ? (
           <i className="spinner" />
         ) : (
-          <DocMarkdownBlock className="cut-margins" content={this.state.content} />
+          <DocMarkdownBlock className="cut-margins" content={this.state.content} isTooltip={true} />
         )}
       </div>
     );

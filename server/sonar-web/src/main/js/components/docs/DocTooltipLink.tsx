@@ -18,21 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import DocLink from '../DocLink';
+import { Link } from 'react-router';
+import DetachIcon from '../../components/icons-components/DetachIcon';
 
-it('should render simple link', () => {
-  expect(shallow(<DocLink href="http://sample.com" />)).toMatchSnapshot();
-});
-
-it('should render documentation link', () => {
-  expect(shallow(<DocLink href="/foo/bar" />)).toMatchSnapshot();
-});
-
-it('should render sonarcloud link', () => {
-  expect(shallow(<DocLink href="/#sonarcloud#/foo/bar" />)).toMatchSnapshot();
-});
-
-it.skip('should render documentation anchor', () => {
-  expect(shallow(<DocLink href="#quality-profiles" />)).toMatchSnapshot();
-});
+export default function DocTooltipLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const { children, href, ...other } = props;
+  return (
+    <span className="display-inline-flex-center">
+      {href && href.startsWith('/') ? (
+        <Link
+          rel="noopener noreferrer"
+          target="_blank"
+          to={`/documentation/${href.substr(1)}`}
+          {...other}>
+          {children}
+        </Link>
+      ) : (
+        <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
+          {children}
+        </a>
+      )}
+      <DetachIcon className="little-spacer-left little-spacer-right" size={12} />
+    </span>
+  );
+}

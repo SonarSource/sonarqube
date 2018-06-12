@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render internal link 1`] = `
+<span
+  className="display-inline-flex-center"
+>
+  <Link
+    onlyActiveOnIndex={false}
+    rel="noopener noreferrer"
+    style={Object {}}
+    target="_blank"
+    to="/documentation/foo/bar"
+  />
+  <DetachIcon
+    className="little-spacer-left little-spacer-right"
+    size={12}
+  />
+</span>
+`;
+
+exports[`should render simple link 1`] = `
+<span
+  className="display-inline-flex-center"
+>
+  <a
+    href="http://sample.com"
+    rel="noopener noreferrer"
+    target="_blank"
+  />
+  <DetachIcon
+    className="little-spacer-left little-spacer-right"
+    size={12}
+  />
+</span>
+`;

@@ -24,6 +24,7 @@ import * as PropTypes from 'prop-types';
 import { createOrganization } from '../../organizations/actions';
 import { Organization } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
@@ -126,7 +127,10 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
     return (
       <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
         <header className="modal-head">
-          <h2>{translate('my_account.create_organization')}</h2>
+          <h2>
+            {translate('my_account.create_organization')}
+            <DocTooltip className="spacer-left" doc="organizations/organization" />
+          </h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>

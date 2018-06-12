@@ -24,6 +24,7 @@ import reactRenderer from 'remark-react';
 import DocLink from './DocLink';
 import DocParagraph from './DocParagraph';
 import DocImg from './DocImg';
+import DocTooltipLink from './DocTooltipLink';
 import { separateFrontMatter } from '../../helpers/markdown';
 import { isSonarCloud } from '../../helpers/system';
 
@@ -31,9 +32,10 @@ interface Props {
   className?: string;
   content: string | undefined;
   displayH1?: boolean;
+  isTooltip?: boolean;
 }
 
-export default function DocMarkdownBlock({ className, content, displayH1 }: Props) {
+export default function DocMarkdownBlock({ className, content, displayH1, isTooltip }: Props) {
   const parsed = separateFrontMatter(content || '');
   return (
     <div className={classNames('markdown', className)}>
@@ -46,7 +48,7 @@ export default function DocMarkdownBlock({ className, content, displayH1 }: Prop
               // do not render outer <div />
               div: React.Fragment,
               // use custom link to render documentation anchors
-              a: DocLink,
+              a: isTooltip ? DocTooltipLink : DocLink,
               // used to handle `@include`
               p: DocParagraph,
               // use custom img tag to render documentation images

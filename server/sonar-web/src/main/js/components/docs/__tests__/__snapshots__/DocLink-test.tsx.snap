@@ -1,16 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render documentation link 1`] = `
+<Link
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/documentation/foo/bar"
+/>
+`;
+
 exports[`should render simple link 1`] = `
-<React.Fragment>
+<span
+  className="display-inline-flex-center"
+>
   <a
-    className="text-middle"
     href="http://sample.com"
     rel="noopener noreferrer"
     target="_blank"
   />
   <DetachIcon
-    className="text-middle text-muted little-spacer-left little-spacer-right"
+    className="text-muted little-spacer-left little-spacer-right"
     size={12}
   />
-</React.Fragment>
+</span>
+`;
+
+exports[`should render sonarcloud link 1`] = `
+<Link
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/foo/bar"
+/>
 `;

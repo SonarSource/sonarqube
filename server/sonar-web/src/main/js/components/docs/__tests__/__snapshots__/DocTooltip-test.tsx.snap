@@ -25,6 +25,7 @@ exports[`should render 2`] = `
       <LazyLoader
         className="cut-margins"
         content="this is *bold* text"
+        isTooltip={true}
       />
     </div>
   }

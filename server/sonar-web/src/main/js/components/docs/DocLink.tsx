@@ -21,26 +21,28 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import DetachIcon from '../../components/icons-components/DetachIcon';
 
+const SONARCLOUD_LINK = '/#sonarcloud#/';
+
 export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   const { children, href, ...other } = props;
-
   if (href && href.startsWith('/')) {
+    let url = `/documentation/${href.substr(1)}`;
+    if (href.startsWith(SONARCLOUD_LINK)) {
+      url = `/${href.substr(SONARCLOUD_LINK.length)}`;
+    }
     return (
-      <Link to={`/documentation/${href.substr(1)}`} {...other}>
+      <Link to={url} {...other}>
         {children}
       </Link>
     );
   }
 
   return (
-    <>
-      <a className="text-middle" href={href} rel="noopener noreferrer" target="_blank" {...other}>
+    <span className="display-inline-flex-center">
+      <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
         {children}
       </a>
-      <DetachIcon
-        className="text-middle text-muted little-spacer-left little-spacer-right"
-        size={12}
-      />
-    </>
+      <DetachIcon className="text-muted little-spacer-left little-spacer-right" size={12} />
+    </span>
   );
 }
