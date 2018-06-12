@@ -20,12 +20,13 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
+import ProductNewsMenuItem from './ProductNewsMenuItem';
 import { SuggestionLink } from './SuggestionsProvider';
 import { CurrentUser, isLoggedIn } from '../../types';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { isSonarCloud } from '../../../helpers/system';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
 
 interface Props {
   currentUser: CurrentUser;
@@ -87,17 +88,27 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
       <React.Fragment>
         <li className="divider" />
         <li>
-          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+          <a
+            href="https://community.sonarsource.com/c/help/sc"
+            rel="noopener noreferrer"
+            target="_blank">
             {translate('embed_docs.get_help')}
           </a>
         </li>
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
-          {this.renderIconLink('https://about.sonarcloud.io/news/', 'sc-icon.svg', 'Product News')}
+          {this.renderIconLink('https://twitter.com/sonarcloud', 'twitter-icon.svg', 'Twitter')}
         </li>
         <li>
-          {this.renderIconLink('https://twitter.com/sonarcloud', 'twitter-icon.svg', 'Twitter')}
+          {this.renderIconLink(
+            'https://blog.sonarsource.com/product/SonarCloud',
+            'sc-icon.svg',
+            translate('embed_docs.news')
+          )}
+        </li>
+        <li>
+          <ProductNewsMenuItem tag="SonarCloud" />
         </li>
       </React.Fragment>
     );
@@ -125,7 +136,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           {this.renderIconLink(
             'https://www.sonarsource.com/resources/product-news/',
             'sq-icon.svg',
-            'Product News'
+            translate('embed_docs.news')
           )}
         </li>
         <li>

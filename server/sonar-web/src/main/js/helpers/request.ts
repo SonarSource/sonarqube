@@ -213,6 +213,23 @@ export function getJSON(url: string, data?: RequestData): Promise<any> {
 }
 
 /**
+ * Shortcut to do a CORS GET request and return responsejson
+ */
+export function getCorsJSON(url: string, data?: RequestData): Promise<any> {
+  return corsRequest(url)
+    .setData(data)
+    .submit()
+    .then(response => {
+      if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response);
+      } else {
+        return Promise.reject({ response });
+      }
+    })
+    .then(parseJSON);
+}
+
+/**
  * Shortcut to do a POST request and return response json
  */
 export function postJSON(url: string, data?: RequestData): Promise<any> {

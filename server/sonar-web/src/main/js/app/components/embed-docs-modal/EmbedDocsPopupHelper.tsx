@@ -34,6 +34,7 @@ interface State {
 }
 
 export default class EmbedDocsPopupHelper extends React.PureComponent<Props, State> {
+  mounted = false;
   state: State = { helpOpen: false };
 
   componentDidMount() {

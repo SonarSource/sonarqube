@@ -310,6 +310,10 @@ td.big-spacer-top {
   flex: 1;
 }
 
+.flex-0 {
+  flex: 0 0 auto;
+}
+
 .flex-shrink {
   flex-shrink: 1;
   min-width: 0;

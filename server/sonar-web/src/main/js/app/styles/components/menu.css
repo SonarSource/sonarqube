@@ -54,6 +54,16 @@
   transition: none;
 }
 
+.menu > li > a.rich-item {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--gray80);
+  border-radius: 4px;
+  margin: 4px 10px;
+  padding: 2px 8px;
+  white-space: normal;
+}
+
 .menu .divider {
   height: 1px;
   margin: 6px 0;

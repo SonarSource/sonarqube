@@ -1,5 +1,127 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should display correct links for SonarCloud 1`] = `
+<DropdownOverlay>
+  <ul
+    className="menu abs-width-240"
+  >
+    <React.Fragment>
+      <li
+        className="menu-header"
+      >
+        embed_docs.suggestion
+      </li>
+      <li
+        key="0"
+      >
+        <Link
+          onClick={[MockFunction]}
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="#"
+        >
+          foo
+        </Link>
+      </li>
+      <li
+        key="1"
+      >
+        <Link
+          onClick={[MockFunction]}
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="#"
+        >
+          bar
+        </Link>
+      </li>
+      <li
+        className="divider"
+      />
+    </React.Fragment>
+    <li>
+      <Link
+        onClick={[MockFunction]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/documentation"
+      >
+        embed_docs.documentation
+      </Link>
+    </li>
+    <li>
+      <Link
+        onClick={[MockFunction]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/web_api"
+      >
+        api_documentation.page
+      </Link>
+    </li>
+    <React.Fragment>
+      <li
+        className="divider"
+      />
+      <li>
+        <a
+          href="https://community.sonarsource.com/c/help/sc"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          embed_docs.get_help
+        </a>
+      </li>
+      <li
+        className="divider"
+      />
+      <li
+        className="menu-header"
+      >
+        embed_docs.stay_connected
+      </li>
+      <li>
+        <a
+          href="https://twitter.com/sonarcloud"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <img
+            alt="Twitter"
+            className="spacer-right"
+            height="18"
+            src="/images/embed-doc/twitter-icon.svg"
+            width="18"
+          />
+          Twitter
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://blog.sonarsource.com/product/SonarCloud"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <img
+            alt="embed_docs.news"
+            className="spacer-right"
+            height="18"
+            src="/images/embed-doc/sc-icon.svg"
+            width="18"
+          />
+          embed_docs.news
+        </a>
+      </li>
+      <li>
+        <Connect(ProductNewsMenuItem)
+          tag="SonarCloud"
+        />
+      </li>
+    </React.Fragment>
+  </ul>
+</DropdownOverlay>
+`;
+
 exports[`should display suggestion links 1`] = `
 <DropdownOverlay>
   <ul
@@ -95,13 +217,13 @@ exports[`should display suggestion links 1`] = `
           target="_blank"
         >
           <img
-            alt="Product News"
+            alt="embed_docs.news"
             className="spacer-right"
             height="18"
             src="/images/embed-doc/sq-icon.svg"
             width="18"
           />
-          Product News
+          embed_docs.news
         </a>
       </li>
       <li>

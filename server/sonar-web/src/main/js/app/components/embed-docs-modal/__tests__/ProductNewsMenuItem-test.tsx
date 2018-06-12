@@ -19,42 +19,30 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import EmbedDocsPopup from '../EmbedDocsPopup';
-import { isSonarCloud } from '../../../../helpers/system';
+import { ProductNewsMenuItem } from '../ProductNewsMenuItem';
+import { fetchPrismicRefs, fetchPrismicNews } from '../../../../api/news';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn().mockReturnValue(false) }));
-
-const suggestions = [{ link: '#', text: 'foo' }, { link: '#', text: 'bar' }];
-
-it('should display suggestion links', () => {
-  const context = {};
-  const wrapper = shallow(
-    <EmbedDocsPopup
-      currentUser={{ isLoggedIn: true }}
-      onClose={jest.fn()}
-      suggestions={suggestions}
-    />,
+jest.mock('../../../../api/news', () => ({
+  fetchPrismicRefs: jest.fn().mockResolvedValue({ id: 'master', ref: 'master-ref' }),
+  fetchPrismicNews: jest.fn().mockResolvedValue([
     {
-      context
+      data: { title: 'My Product News' },
+      last_publication_date: '2018-04-06T12:07:19+0000',
+      uid: 'my-product-news'
     }
-  );
-  wrapper.update();
+  ])
+}));
+
+it('should load the product news', async () => {
+  const wrapper = shallow(<ProductNewsMenuItem accessToken="token" tag="SonarCloud" />);
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should display correct links for SonarCloud', () => {
-  (isSonarCloud as jest.Mock<any>).mockReturnValueOnce(true);
-  const context = {};
-  const wrapper = shallow(
-    <EmbedDocsPopup
-      currentUser={{ isLoggedIn: true }}
-      onClose={jest.fn()}
-      suggestions={suggestions}
-    />,
-    {
-      context
-    }
-  );
-  wrapper.update();
+  await waitAndUpdate(wrapper);
+  expect(fetchPrismicRefs).toHaveBeenCalled();
+  expect(fetchPrismicNews).toHaveBeenCalledWith({
+    accessToken: 'token',
+    ref: 'master-ref',
+    tag: 'SonarCloud'
+  });
   expect(wrapper).toMatchSnapshot();
 });
