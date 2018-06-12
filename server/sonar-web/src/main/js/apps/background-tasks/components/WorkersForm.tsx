@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { times } from 'lodash';
 import { setWorkerCount } from '../../../api/ce';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
@@ -82,7 +81,10 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const options = times(MAX_WORKERS).map((_, i) => ({ label: String(i + 1), value: i + 1 }));
+    const options = [];
+    for (let i = 1; i <= MAX_WORKERS; i++) {
+      options.push({ label: String(i), value: i });
+    }
 
     return (
       <Modal
