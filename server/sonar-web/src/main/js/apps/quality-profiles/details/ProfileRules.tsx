@@ -30,7 +30,7 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
-const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
 interface Props {
   organization: string | null;

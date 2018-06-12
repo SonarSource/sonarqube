@@ -238,6 +238,8 @@ public class TrackerRawInputFactory {
           return RuleType.CODE_SMELL;
         case VULNERABILITY:
           return RuleType.VULNERABILITY;
+        case SECURITY_HOTSPOT:
+          return RuleType.SECURITY_HOTSPOT;
         case UNRECOGNIZED:
         default:
           throw new IllegalStateException("Invalid issue type: " + type);

@@ -21,6 +21,7 @@ import * as React from 'react';
 import BugIcon from '../icons-components/BugIcon';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
 import CodeSmellIcon from '../icons-components/CodeSmellIcon';
+import SecurityHotspotIcon from '../icons-components/SecurityHotspotIcon';
 
 interface Props {
   className?: string;
@@ -46,6 +47,10 @@ export default function IssueTypeIcon({ className, query, size }: Props) {
     case 'code_smells':
     case 'new_code_smells':
       icon = <CodeSmellIcon size={size} />;
+      break;
+    case 'security_hotspot':
+    case 'security_hotspots':
+      icon = <SecurityHotspotIcon size={size} />;
       break;
   }
 

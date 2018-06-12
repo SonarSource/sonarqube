@@ -861,7 +861,8 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(
         tuple("BUG" /* rule2 */, 0L),
         tuple("CODE_SMELL"/* rule1 */, 1L),
-        tuple("VULNERABILITY", 0L));
+        tuple("VULNERABILITY", 0L),
+        tuple("SECURITY_HOTSPOT", 0L));
   }
 
   @Test

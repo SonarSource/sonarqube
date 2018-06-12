@@ -39,13 +39,13 @@ public class RuleTypeTest {
   @Test
   public void valueOf_throws_ISE_if_unsupported_db_constant() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unsupported type value : 4");
-    RuleType.valueOf(4);
+    expectedException.expectMessage("Unsupported type value : 5");
+    RuleType.valueOf(5);
   }
 
   @Test
   public void test_ALL_NAMES() {
-    assertThat(RuleType.names()).containsOnly("BUG", "VULNERABILITY", "CODE_SMELL");
+    assertThat(RuleType.names()).containsOnly("BUG", "VULNERABILITY", "CODE_SMELL", "SECURITY_HOTSPOT");
   }
 
   @Test

@@ -119,6 +119,9 @@ public class EffortAggregator extends IssueVisitor {
           case VULNERABILITY:
             securityEffort += issueEffort;
             break;
+          case SECURITY_HOTSPOT:
+            // Not counted
+            break;
           default:
             throw new IllegalStateException(String.format("Unknown type '%s'", issue.type()));
         }

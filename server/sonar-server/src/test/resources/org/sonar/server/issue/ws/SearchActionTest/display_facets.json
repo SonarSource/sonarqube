@@ -145,6 +145,10 @@
         {
           "val": "VULNERABILITY",
           "count": 0
+        },
+        {
+          "val": "SECURITY_HOTSPOT",
+          "count": 0
         }
       ]
     }

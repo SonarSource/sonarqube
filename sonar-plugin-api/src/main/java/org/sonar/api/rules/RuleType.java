@@ -29,7 +29,7 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toList;
 
 public enum RuleType {
-  CODE_SMELL(1), BUG(2), VULNERABILITY(3);
+  CODE_SMELL(1), BUG(2), VULNERABILITY(3), SECURITY_HOTSPOT(4);
 
   private static final Set<String> ALL_NAMES = unmodifiableSet(new LinkedHashSet<>(stream(values())
     .map(Enum::name)

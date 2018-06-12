@@ -21,7 +21,7 @@ import * as theme from '../app/theme';
 
 export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
-export const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+export const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
 export const CHART_COLORS_RANGE_PERCENT = [

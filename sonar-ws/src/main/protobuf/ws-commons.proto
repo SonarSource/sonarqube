@@ -118,6 +118,7 @@ enum RuleType {
   CODE_SMELL = 1;
   BUG = 2;
   VULNERABILITY = 3;
+  SECURITY_HOTSPOT = 4;
 }
 
 enum BranchType {

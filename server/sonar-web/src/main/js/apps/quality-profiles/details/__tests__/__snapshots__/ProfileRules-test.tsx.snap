@@ -30,7 +30,7 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
           count={68}
           organization="foo"
           qprofile="foo"
-          total={243}
+          total={253}
         />
         <ProfileRulesRowOfType
           count={68}
@@ -55,6 +55,14 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
           qprofile="foo"
           total={168}
           type="CODE_SMELL"
+        />
+        <ProfileRulesRowOfType
+          count={0}
+          key="SECURITY_HOTSPOT"
+          organization="foo"
+          qprofile="foo"
+          total={10}
+          type="SECURITY_HOTSPOT"
         />
       </tbody>
     </table>

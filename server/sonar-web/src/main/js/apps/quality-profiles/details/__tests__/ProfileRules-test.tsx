@@ -43,14 +43,15 @@ const PROFILE = {
 const EDITABLE_PROFILE = { ...PROFILE, actions: { edit: true } };
 
 const apiResponseAll = {
-  total: 243,
+  total: 253,
   facets: [
     {
       property: 'types',
       values: [
         { val: 'CODE_SMELL', count: 168 },
         { val: 'BUG', count: 68 },
-        { val: 'VULNERABILITY', count: 7 }
+        { val: 'VULNERABILITY', count: 7 },
+        { val: 'SECURITY_HOTSPOT', count: 10 }
       ]
     }
   ]
@@ -64,7 +65,8 @@ const apiResponseActive = {
       values: [
         { val: 'BUG', count: 68 },
         { val: 'CODE_SMELL', count: 0 },
-        { val: 'VULNERABILITY', count: 0 }
+        { val: 'VULNERABILITY', count: 0 },
+        { val: 'SECURITY_HOTSPOT', count: 0 }
       ]
     }
   ]

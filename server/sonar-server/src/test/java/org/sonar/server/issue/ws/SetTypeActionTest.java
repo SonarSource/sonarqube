@@ -138,7 +138,7 @@ public class SetTypeActionTest {
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'type' (unknown) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
+    expectedException.expectMessage("Value of parameter 'type' (unknown) must be one of: [CODE_SMELL, BUG, VULNERABILITY, SECURITY_HOTSPOT]");
     call(issueDto.getKey(), "unknown");
   }
 

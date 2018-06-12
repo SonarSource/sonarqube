@@ -95,7 +95,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const types = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+    const types = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
     const values = this.props.types.map(type => translate('issue.type', type));
 
     return (

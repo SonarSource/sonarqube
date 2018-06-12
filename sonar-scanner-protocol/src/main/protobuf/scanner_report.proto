@@ -204,6 +204,7 @@ enum IssueType {
   CODE_SMELL = 0;
   BUG = 1;
   VULNERABILITY = 2;
+  SECURITY_HOTSPOT = 3;
 }
 
 message IssueLocation {

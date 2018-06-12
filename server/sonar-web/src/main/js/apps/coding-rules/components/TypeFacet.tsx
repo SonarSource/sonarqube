@@ -33,7 +33,7 @@ export default class TypeFacet extends React.PureComponent<BasicProps> {
   renderTextName = (type: string) => translate('issue.type', type);
 
   render() {
-    const options = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+    const options = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
     return (
       <Facet
