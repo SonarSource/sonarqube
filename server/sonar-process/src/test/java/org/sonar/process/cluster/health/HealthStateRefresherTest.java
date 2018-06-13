@@ -19,23 +19,32 @@
  */
 package org.sonar.process.cluster.health;
 
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.process.LoggingRule;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.ERROR;
 
 public class HealthStateRefresherTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LoggingRule logging = new LoggingRule(HealthStateRefresher.class);
 
   private Random random = new Random();
   private NodeDetailsTestSupport testSupport = new NodeDetailsTestSupport(random);
@@ -86,5 +95,21 @@ public class HealthStateRefresherTest {
 
     verify(sharedHealthState).clearMine();
     verifyZeroInteractions(executorService, nodeHealthProvider);
+  }
+
+  @Test
+  public void do_not_log_errors_when_hazelcast_is_not_active() {
+    logging.setLevel(DEBUG);
+    doThrow(new HazelcastInstanceNotActiveException()).when(sharedHealthState).writeMine(any());
+
+    ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+    underTest.start();
+
+    verify(executorService).scheduleWithFixedDelay(runnableCaptor.capture(), eq(1L), eq(10L), eq(TimeUnit.SECONDS));
+    Runnable runnable = runnableCaptor.getValue();
+    runnable.run();
+
+    assertThat(logging.getLogs(ERROR)).isEmpty();
+    assertThat(logging.hasLog(DEBUG, "Hazelcast is no more active")).isTrue();
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.process.cluster.health;
 
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,8 @@ public class HealthStateRefresher {
     try {
       NodeHealth nodeHealth = nodeHealthProvider.get();
       sharedHealthState.writeMine(nodeHealth);
+    } catch (HazelcastInstanceNotActiveException e) {
+      LOG.debug("Hazelcast is no more active", e);
     } catch (Throwable t) {
       LOG.error("An error occurred while attempting to refresh HealthState of the current node in the shared state:", t);
     }
