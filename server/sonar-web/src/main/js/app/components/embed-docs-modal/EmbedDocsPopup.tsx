@@ -75,7 +75,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           alt={text}
           className="spacer-right"
           height="18"
-          src={`${getBaseUrl()}/images/embed-doc/${icon}`}
+          src={`${getBaseUrl()}/images/${icon}`}
           width="18"
         />
         {text}
@@ -98,12 +98,16 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
-          {this.renderIconLink('https://twitter.com/sonarcloud', 'twitter-icon.svg', 'Twitter')}
+          {this.renderIconLink(
+            'https://twitter.com/sonarcloud',
+            'embed-doc/twitter-icon.svg',
+            'Twitter'
+          )}
         </li>
         <li>
           {this.renderIconLink(
             'https://blog.sonarsource.com/product/SonarCloud',
-            'sc-icon.svg',
+            'sonarcloud-square-logo.svg',
             translate('embed_docs.news')
           )}
         </li>
@@ -135,12 +139,16 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <li>
           {this.renderIconLink(
             'https://www.sonarsource.com/resources/product-news/',
-            'sq-icon.svg',
+            'embed-doc/sq-icon.svg',
             translate('embed_docs.news')
           )}
         </li>
         <li>
-          {this.renderIconLink('https://twitter.com/SonarQube', 'twitter-icon.svg', 'Twitter')}
+          {this.renderIconLink(
+            'https://twitter.com/SonarQube',
+            'embed-doc/twitter-icon.svg',
+            'Twitter'
+          )}
         </li>
       </React.Fragment>
     );

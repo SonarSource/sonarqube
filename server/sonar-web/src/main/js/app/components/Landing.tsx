@@ -20,16 +20,20 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Location } from 'history';
 import { CurrentUser, isLoggedIn } from '../types';
 import { getCurrentUser } from '../../store/rootReducer';
 import { getHomePageUrl } from '../../helpers/urls';
-import { isSonarCloud } from '../../helpers/system';
 
-interface Props {
+interface StateProps {
   currentUser: CurrentUser | undefined;
 }
 
-class Landing extends React.PureComponent<Props> {
+interface OwnProps {
+  location: Location;
+}
+
+class Landing extends React.PureComponent<StateProps & OwnProps> {
   static contextTypes = {
     router: PropTypes.object.isRequired
   };
@@ -43,8 +47,6 @@ class Landing extends React.PureComponent<Props> {
       } else {
         this.context.router.replace('/projects');
       }
-    } else if (isSonarCloud()) {
-      window.location.href = 'https://about.sonarcloud.io';
     } else {
       this.context.router.replace('/about');
     }
@@ -59,4 +61,4 @@ const mapStateToProps = (state: any) => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect<Props>(mapStateToProps)(Landing);
+export default connect<StateProps, {}, OwnProps>(mapStateToProps)(Landing);

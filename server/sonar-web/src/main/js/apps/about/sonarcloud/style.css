@@ -1,0 +1,266 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,700');
+
+.sc-page {
+  font-family: var(--sonarcloudFontFamily);
+}
+
+.sc-page *:focus,
+.sc-footer *:focus {
+  box-shadow: 0 0 0 3px rgba(230, 92, 0, 0.25);
+}
+
+.sc-page-title {
+  line-height: 56px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  font-size: 40px;
+  font-weight: 300;
+  text-align: center;
+}
+
+.sc-page-subtitle {
+  line-height: 28px;
+  margin-bottom: 40px;
+  font-size: 20px;
+  font-weight: 300;
+  text-align: center;
+}
+
+.sc-features-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.sc-feature {
+  width: 30%;
+  margin-bottom: 30px;
+}
+
+.sc-feature-title {
+  line-height: 28px;
+  margin-bottom: 5px;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.sc-feature-description {
+  line-height: 22px;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.sc-narrow-container {
+  width: 700px;
+  margin: 40px auto;
+}
+
+.sc-pricing {
+  display: flex;
+  justify-content: space-between;
+}
+
+.sc-pricing-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 330px;
+  padding: 20px 20px 30px;
+  border: 1px solid var(--sonarcloudBlack300);
+  border-radius: 10px;
+  box-sizing: border-box;
+  line-height: 20px;
+  font-size: 16px;
+}
+
+.sc-pricing-title {
+  line-height: 34px;
+  margin-bottom: 20px;
+  color: var(--sonarcloudOrange);
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.sc-pricing-price {
+  line-height: 72px;
+  font-size: 65px;
+  font-weight: 700;
+}
+
+.sc-pricing-small {
+  font-size: 14px;
+}
+
+.sc-pricing-about {
+  position: relative;
+  border: none;
+  color: var(--baseFontColor);
+}
+
+.sc-pricing-about::after {
+  content: '→';
+  position: absolute;
+  top: 0;
+  left: calc(100% + 5px);
+  transition: left 0.3s ease;
+}
+
+.sc-pricing-about:hover {
+  color: var(--baseFontColor);
+}
+
+.sc-pricing-about:focus {
+  color: var(--sonarcloudOrange);
+}
+
+.sc-pricing-about:hover::after {
+  left: calc(100% + 10px);
+}
+
+.sc-start {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  line-height: 44px;
+  padding: 0 16px;
+  border-radius: 5px;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  background-color: var(--sonarcloudOrange);
+}
+
+.sc-start:hover,
+.sc-start:focus {
+  background-color: var(--sonarcloudOrangeDark);
+  color: #fff;
+}
+
+.sc-browse {
+  display: inline-flex;
+  align-items: center;
+  height: 33px;
+  line-height: 33px;
+  padding: 0 16px;
+  border-radius: 5px;
+  border: 1px solid var(--sonarcloudOrange);
+  box-sizing: border-box;
+  color: var(--sonarcloudOrange);
+  font-size: 16px;
+  font-weight: 700;
+  transition: box-shadow 0.3s ease;
+}
+
+.sc-browse:hover,
+.sc-browse:focus {
+  background-color: var(--sonarcloudOrange);
+  color: #fff;
+}
+
+.sc-news {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid var(--sonarcloudBlack300);
+  padding-top: 32px;
+}
+
+.sc-news-title {
+  display: inline-block;
+  font-size: 18px;
+}
+
+.sc-news-link {
+  border-bottom-color: var(--sonarcloudBlack300);
+  color: var(--baseFontColor);
+}
+
+.sc-news-link:hover,
+.sc-news-link:focus {
+  border-bottom-color: var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange);
+}
+
+.sc-footer {
+  background-color: var(--sonarcloudBlack800);
+  color: var(--sonarcloudBlack300);
+  font-size: 12px;
+}
+
+.sc-footer-limited {
+  position: relative;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.sc-footer-copy {
+  padding: 20px 0;
+  border-top: 1px solid var(--sonarcloudBlack700);
+  line-height: 16px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.sc-footer-copy-link {
+  text-decoration: underline;
+}
+
+.sc-footer-nav {
+  display: flex;
+  padding: 30px 0;
+}
+
+.sc-footer-nav-column {
+  margin-right: 60px;
+}
+
+.sc-footer-nav-column-title {
+  line-height: 1;
+  margin-bottom: 16px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sc-footer-link {
+  border: none;
+  color: inherit;
+}
+
+.sc-footer-link:hover {
+  color: #fff;
+}
+
+.sc-footer-link:focus {
+  color: var(--sonarcloudOrange);
+}
+
+.sc-footer-logo {
+  position: absolute;
+  top: 30px;
+  right: 20px;
+}

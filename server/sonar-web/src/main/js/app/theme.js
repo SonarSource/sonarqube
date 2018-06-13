@@ -106,5 +106,14 @@ module.exports = {
   modalZIndex: '6001',
   modalOverlayZIndex: '6000',
 
-  popupZIndex: '5000'
+  popupZIndex: '5000',
+
+  // sonarcloud
+  sonarcloudOrange: '#f60',
+  sonarcloudOrangeDark: '#e65c00',
+  sonarcloudFontFamily:
+    "Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+  sonarcloudBlack300: '#cfd3d7',
+  sonarcloudBlack700: '#434447',
+  sonarcloudBlack800: '#2d3032'
 };

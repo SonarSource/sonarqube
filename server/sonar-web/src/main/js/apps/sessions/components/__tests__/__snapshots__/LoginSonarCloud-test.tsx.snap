@@ -11,7 +11,7 @@ exports[`logs in with identity provider 1`] = `
     <img
       alt="SonarCloud logo"
       height={36}
-      src="null/images/sc-icon.svg"
+      src="/images/sonarcloud-square-logo.svg"
       width={36}
     />
     <h1
@@ -49,7 +49,7 @@ exports[`logs in with simple form 1`] = `
     <img
       alt="SonarCloud logo"
       height={36}
-      src="null/images/sc-icon.svg"
+      src="/images/sonarcloud-square-logo.svg"
       width={36}
     />
     <h1
@@ -76,7 +76,7 @@ exports[`logs in with simple form 2`] = `
     <img
       alt="SonarCloud logo"
       height={36}
-      src="null/images/sc-icon.svg"
+      src="/images/sonarcloud-square-logo.svg"
       width={36}
     />
     <h1

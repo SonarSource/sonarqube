@@ -153,9 +153,9 @@ const startReactApp = () => {
 
             <Route path="/" component={App}>
               <IndexRoute component={lazyLoad(() => import('../components/Landing'))} />
+              <Route path="about" childRoutes={aboutRoutes} />
 
               <Route component={GlobalContainer}>
-                <Route path="about" childRoutes={aboutRoutes} />
                 <Route path="account" childRoutes={accountRoutes} />
                 <Route path="coding_rules" childRoutes={codingRulesRoutes} />
                 <Route path="component" childRoutes={componentRoutes} />

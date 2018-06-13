@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from '../../components/lazyLoad';
-import { isSonarCloud } from '../../helpers/system';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Home from '../Home';
 
-const routes = [
-  {
-    indexRoute: {
-      component: lazyLoad(
-        () =>
-          isSonarCloud() ? import('./sonarcloud/HomeContainer') : import('./components/AboutApp')
-      )
-    }
-  }
-];
+jest.mock('Docs/EmbedDocsSuggestions.json', () => ({}), { virtual: true });
 
-export default routes;
+it('should render', () => {
+  expect(
+    shallow(<Home currentUser={{ isLoggedIn: false }} location={{ pathname: '/' }} />)
+  ).toBeDefined();
+});
+
+it('should not render "Start using SonarCloud" button', () => {
+  expect(
+    shallow(<Home currentUser={{ isLoggedIn: true }} location={{ pathname: '/' }} />)
+      .find('.sc-start')
+      .exists()
+  ).toBe(false);
+});

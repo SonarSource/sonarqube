@@ -106,7 +106,7 @@ exports[`should display correct links for SonarCloud 1`] = `
             alt="embed_docs.news"
             className="spacer-right"
             height="18"
-            src="/images/embed-doc/sc-icon.svg"
+            src="/images/sonarcloud-square-logo.svg"
             width="18"
           />
           embed_docs.news

@@ -27,11 +27,13 @@ import Workspace from '../../components/workspace/Workspace';
 
 interface Props {
   children: React.ReactNode;
+  footer?: React.ReactNode;
   location: { pathname: string };
 }
 
 export default function GlobalContainer(props: Props) {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change
+  const { footer = <GlobalFooterContainer /> } = props;
   return (
     <SuggestionsProvider>
       {({ suggestions }) => (
@@ -46,7 +48,7 @@ export default function GlobalContainer(props: Props) {
                 </Workspace>
               </div>
             </div>
-            <GlobalFooterContainer />
+            {footer}
           </div>
         </StartupModal>
       )}

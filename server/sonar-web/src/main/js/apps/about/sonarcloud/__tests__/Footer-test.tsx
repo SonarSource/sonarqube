@@ -17,18 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from '../../components/lazyLoad';
-import { isSonarCloud } from '../../helpers/system';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Footer from '../Footer';
 
-const routes = [
-  {
-    indexRoute: {
-      component: lazyLoad(
-        () =>
-          isSonarCloud() ? import('./sonarcloud/HomeContainer') : import('./components/AboutApp')
-      )
-    }
-  }
-];
-
-export default routes;
+it('should render', () => {
+  expect(shallow(<Footer />)).toBeDefined();
+});

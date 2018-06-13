@@ -22,7 +22,7 @@ import * as classNames from 'classnames';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
 import { IdentityProvider } from '../../../app/types';
-import { getHostUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import './LoginSonarCloud.css';
 
@@ -50,7 +50,7 @@ export default function LoginSonarCloud({
         <img
           alt="SonarCloud logo"
           height={36}
-          src={`${getHostUrl()}/images/sc-icon.svg`}
+          src={`${getBaseUrl()}/images/sonarcloud-square-logo.svg`}
           width={36}
         />
         <h1 className="sonarcloud-login-title">
