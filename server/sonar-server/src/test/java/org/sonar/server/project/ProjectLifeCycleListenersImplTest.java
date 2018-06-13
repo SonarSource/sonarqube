@@ -128,6 +128,82 @@ public class ProjectLifeCycleListenersImplTest {
     inOrder.verifyNoMoreInteractions();
   }
 
+  @Test
+  public void onProjectBranchesDeleted_throws_NPE_if_set_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("projects can't be null");
+
+    underTestWithListeners.onProjectBranchesDeleted(null);
+  }
+
+  @Test
+  public void onProjectBranchesDeleted_throws_NPE_if_set_is_null_even_if_no_listeners() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("projects can't be null");
+
+    underTestNoListeners.onProjectBranchesDeleted(null);
+  }
+
+  @Test
+  public void onProjectBranchesDeleted_has_no_effect_if_set_is_empty() {
+    underTestNoListeners.onProjectBranchesDeleted(Collections.emptySet());
+
+    underTestWithListeners.onProjectBranchesDeleted(Collections.emptySet());
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyProjects")
+  public void onProjectBranchesDeleted_does_not_fail_if_there_is_no_listener(Set<Project> projects) {
+    underTestNoListeners.onProjectBranchesDeleted(projects);
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyProjects")
+  public void onProjectBranchesDeleted_calls_all_listeners_in_order_of_addition_to_constructor(Set<Project> projects) {
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+
+    underTestWithListeners.onProjectBranchesDeleted(projects);
+
+    inOrder.verify(listener1).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener2).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener3).onProjectBranchesDeleted(same(projects));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyProjects")
+  public void onProjectBranchesDeleted_calls_all_listeners_even_if_one_throws_an_Exception(Set<Project> projects) {
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    doThrow(new RuntimeException("Faking listener2 throwing an exception"))
+      .when(listener2)
+      .onProjectBranchesDeleted(any());
+
+    underTestWithListeners.onProjectBranchesDeleted(projects);
+
+    inOrder.verify(listener1).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener2).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener3).onProjectBranchesDeleted(same(projects));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  @UseDataProvider("oneOrManyProjects")
+  public void onProjectBranchesDeleted_calls_all_listeners_even_if_one_throws_an_Error(Set<Project> projects) {
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    doThrow(new Error("Faking listener2 throwing an Error"))
+      .when(listener2)
+      .onProjectBranchesDeleted(any());
+
+    underTestWithListeners.onProjectBranchesDeleted(projects);
+
+    inOrder.verify(listener1).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener2).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener3).onProjectBranchesDeleted(same(projects));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+
   @DataProvider
   public static Object[][] oneOrManyProjects() {
     return new Object[][] {

@@ -58,6 +58,17 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
   }
 
   @Override
+  public void onProjectBranchesDeleted(Set<Project> projects) {
+    checkNotNull(projects, "projects can't be null");
+    if (projects.isEmpty()) {
+      return;
+    }
+
+    Arrays.stream(listeners)
+      .forEach(safelyCallListener(listener -> listener.onProjectBranchesDeleted(projects)));
+  }
+
+  @Override
   public void onProjectsRekeyed(Set<RekeyedProject> rekeyedProjects) {
     checkNotNull(rekeyedProjects, "rekeyedProjects can't be null");
     if (rekeyedProjects.isEmpty()) {

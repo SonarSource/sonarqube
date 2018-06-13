@@ -78,6 +78,7 @@ import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 
@@ -688,26 +689,49 @@ public class SearchActionComponentsTest {
 
   @Test
   public void search_by_application_key_and_branch() {
-    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP));
-    ComponentDto applicationBranch = db.components().insertProjectBranch(application);
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    db.components().insertComponents(newProjectCopy(project1, applicationBranch));
-    db.components().insertComponents(newProjectCopy(project2, applicationBranch));
+    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
+    ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
+    ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+    db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));
+    db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
+    db.components().insertComponents(newProjectCopy(project1Branch2, applicationBranch2));
+
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue1 = db.issues().insert(rule, project1, project1);
-    IssueDto issue2 = db.issues().insert(rule, project2, project2);
+    IssueDto issueOnProject1 = db.issues().insert(rule, project1, project1);
+    IssueDto issueOnProject1Branch1 = db.issues().insert(rule, project1Branch1, project1Branch1);
+    IssueDto issueOnFileOnProject1Branch1 = db.issues().insert(rule, project1Branch1, fileOnProject1Branch1);
+    IssueDto issueOnProject1Branch2 = db.issues().insert(rule, project1Branch2, project1Branch2);
+    IssueDto issueOnProject2 = db.issues().insert(rule, project2, project2);
     allowAnyoneOnProjects(project1, project2, application);
     userSession.addProjectPermission(USER, application);
     indexIssuesAndViews();
 
-    SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, applicationBranch.getKey())
-      .setParam(PARAM_BRANCH, applicationBranch.getBranch())
-      .executeProtobuf(SearchWsResponse.class);
+    // All issues on applicationBranch1
+    assertThat(ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
+      .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
+      .executeProtobuf(SearchWsResponse.class).getIssuesList())
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
+        .containsExactlyInAnyOrder(
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
+          tuple(issueOnProject2.getKey(), project2.getKey(), project2.getKey(), "", false));
 
-    assertThat(result.getIssuesList()).extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey());
+    // Issues on project1Branch1
+    assertThat(ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
+      .setParam(PARAM_PROJECT_UUIDS, project1.uuid())
+      .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
+      .executeProtobuf(SearchWsResponse.class).getIssuesList())
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch()),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getBranch()));
   }
 
   @Test

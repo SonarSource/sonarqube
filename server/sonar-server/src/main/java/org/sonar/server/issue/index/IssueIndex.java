@@ -316,6 +316,7 @@ public class IssueIndex {
     if (onApplicationBranch) {
       filters.put("__view", createViewFilter(singletonList(query.branchUuid())));
     } else {
+      filters.put("__is_main_branch", createTermFilter(IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(true)));
       filters.put("__view", createViewFilter(viewUuids));
     }
   }
@@ -328,7 +329,7 @@ public class IssueIndex {
 
     BoolQueryBuilder viewsFilter = boolQuery();
     for (String viewUuid : viewUuids) {
-      viewsFilter.should(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID,
+      viewsFilter.should(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID,
         new TermsLookup(
           ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(),
           ViewIndexDefinition.INDEX_TYPE_VIEW.getType(),

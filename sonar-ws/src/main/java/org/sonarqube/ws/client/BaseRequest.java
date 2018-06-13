@@ -115,7 +115,6 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
     parameters.setValues(key, values.stream()
       .filter(Objects::nonNull)
       .map(Object::toString)
-      .filter(value -> !value.isEmpty())
       .collect(Collectors.toList()));
 
     return (SELF) this;

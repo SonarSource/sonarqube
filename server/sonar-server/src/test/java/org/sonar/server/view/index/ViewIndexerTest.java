@@ -56,6 +56,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
 
@@ -65,18 +67,15 @@ public class ViewIndexerTest {
 
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
-
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
-
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private ViewIndexer underTest = new ViewIndexer(dbClient, es.client());
@@ -89,7 +88,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_on_startup() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
+    db.prepareDbUnit(getClass(), "index.xml");
 
     underTest.indexOnStartup(emptySet());
 
@@ -106,7 +105,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_root_view() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
+    db.prepareDbUnit(getClass(), "index.xml");
 
     underTest.index("EFGH");
 
@@ -133,9 +132,9 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application() {
-    ComponentDto application = dbTester.components().insertApplication(dbTester.getDefaultOrganization());
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    dbTester.components().insertComponent(newProjectCopy("PC1", project, application));
+    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.index(application.uuid());
     List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
@@ -148,9 +147,9 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application_on_startup() {
-    ComponentDto application = dbTester.components().insertApplication(dbTester.getDefaultOrganization());
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    dbTester.components().insertComponent(newProjectCopy("PC1", project, application));
+    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.indexOnStartup(emptySet());
     List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
@@ -162,6 +161,31 @@ public class ViewIndexerTest {
   }
 
   @Test
+  public void index_application_branch() {
+    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
+    ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1Branch = db.components().insertProjectBranch(project1);
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+    ComponentDto project2Branch = db.components().insertProjectBranch(project2);
+    ComponentDto project3 = db.components().insertPrivateProject(p -> p.setDbKey("prj3"));
+    ComponentDto project3Branch = db.components().insertProjectBranch(project3);
+    db.components().insertComponent(newProjectCopy(project1Branch, applicationBranch1));
+    db.components().insertComponent(newProjectCopy(project2Branch, applicationBranch1));
+    // Technical project of applicationBranch2 should be ignored
+    db.components().insertComponent(newProjectCopy(project3Branch, applicationBranch2));
+
+    underTest.index(applicationBranch1.uuid());
+
+    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    assertThat(result)
+      .extracting(ViewDoc::uuid, ViewDoc::projects)
+      .containsExactlyInAnyOrder(
+        tuple(applicationBranch1.uuid(), asList(project1Branch.uuid(), project2Branch.uuid())));
+  }
+
+  @Test
   public void clear_views_lookup_cache_on_index_view_uuid() {
     IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
     IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
@@ -170,11 +194,11 @@ public class ViewIndexerTest {
 
     RuleDto rule = RuleTesting.newXooX1();
     dbClient.ruleDao().insert(dbSession, rule.getDefinition());
-    ComponentDto project1 = addProjectWithIssue(rule, dbTester.organizations().insert());
+    ComponentDto project1 = addProjectWithIssue(rule, db.organizations().insert());
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
     permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
 
-    OrganizationDto organizationDto = dbTester.organizations().insert();
+    OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto view = ComponentTesting.newView(organizationDto, "ABCD");
     ComponentDto techProject1 = newProjectCopy("CDEF", project1, view);
     dbClient.componentDao().insert(dbSession, view, techProject1);
@@ -250,7 +274,7 @@ public class ViewIndexerTest {
   private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto org) {
     ComponentDto project = ComponentTesting.newPublicProjectDto(org);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
-    dbTester.components().insertComponents(project, file);
+    db.components().insertComponents(project, file);
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     dbClient.issueDao().insert(dbSession, issue);

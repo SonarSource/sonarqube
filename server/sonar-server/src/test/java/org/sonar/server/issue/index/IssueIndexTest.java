@@ -307,6 +307,25 @@ public class IssueIndexTest {
   }
 
   @Test
+  public void do_not_return_issues_from_project_branch_when_filtering_by_portfolios() {
+    ComponentDto portfolio = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto projectBranch = db.components().insertProjectBranch(project);
+    ComponentDto fileOnProjectBranch = db.components().insertComponent(newFileDto(projectBranch));
+    indexView(portfolio.uuid(), singletonList(project.uuid()));
+
+    IssueDoc issueOnProject = newDoc(project);
+    IssueDoc issueOnProjectBranch = newDoc(projectBranch);
+    IssueDoc issueOnFileOnProjectBranch = newDoc(fileOnProjectBranch);
+    indexIssues(issueOnProject, issueOnFileOnProjectBranch, issueOnProjectBranch);
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio.uuid())), issueOnProject.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio.uuid())).projectUuids(singletonList(project.uuid())),
+      issueOnProject.key());
+    assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(singletonList(portfolio.uuid())).projectUuids(singletonList(projectBranch.uuid())));
+  }
+
+  @Test
   public void filter_one_issue_by_project_and_branch() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
@@ -379,20 +398,19 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_application() {
+  public void filter_by_main_application() {
     ComponentDto application1 = db.components().insertPrivateApplication(db.getDefaultOrganization());
     ComponentDto application2 = db.components().insertPrivateApplication(db.getDefaultOrganization());
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project1));
     ComponentDto project2 = db.components().insertPrivateProject();
+    indexView(application1.uuid(), singletonList(project1.uuid()));
+    indexView(application2.uuid(), singletonList(project2.uuid()));
 
     IssueDoc issueOnProject1 = newDoc(project1);
     IssueDoc issueOnFile = newDoc(file);
     IssueDoc issueOnProject2 = newDoc(project2);
-
     indexIssues(issueOnProject1, issueOnFile, issueOnProject2);
-    indexView(application1.uuid(), singletonList(project1.uuid()));
-    indexView(application2.uuid(), singletonList(project2.uuid()));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application1.uuid())), issueOnProject1.key(), issueOnFile.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application2.uuid())), issueOnProject2.key());
@@ -404,30 +422,62 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_application_and_branch() {
+  public void filter_by_application_branch() {
     ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP));
     ComponentDto branch1 = db.components().insertProjectBranch(application);
     ComponentDto branch2 = db.components().insertProjectBranch(application);
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project1));
     ComponentDto project2 = db.components().insertPrivateProject();
+    indexView(branch1.uuid(), singletonList(project1.uuid()));
+    indexView(branch2.uuid(), singletonList(project2.uuid()));
 
     IssueDoc issueOnProject1 = newDoc(project1);
     IssueDoc issueOnFile = newDoc(file);
     IssueDoc issueOnProject2 = newDoc(project2);
     indexIssues(issueOnProject1, issueOnFile, issueOnProject2);
 
-    indexView(branch1.uuid(), singletonList(project1.uuid()));
-    indexView(branch2.uuid(), singletonList(project2.uuid()));
-
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).branchUuid(branch1.uuid()).mainBranch(false), issueOnProject1.key(),
-      issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).branchUuid(branch1.uuid()).mainBranch(false),
+      issueOnProject1.key(), issueOnFile.key());
     assertThatSearchReturnsOnly(
       IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).projectUuids(singletonList(project1.uuid())).branchUuid(branch1.uuid()).mainBranch(false),
       issueOnProject1.key(), issueOnFile.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).fileUuids(singletonList(file.uuid())).branchUuid(branch1.uuid()).mainBranch(false),
       issueOnFile.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().branchUuid("unknown"));
+  }
+
+  @Test
+  public void filter_by_application_branch_having_project_branches() {
+    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
+    ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
+    ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+    indexView(applicationBranch1.uuid(), asList(project1Branch1.uuid(), project2.uuid()));
+    indexView(applicationBranch2.uuid(), singletonList(project1Branch2.uuid()));
+
+    IssueDoc issueOnProject1 = newDoc(project1);
+    IssueDoc issueOnProject1Branch1 = newDoc(project1Branch1);
+    IssueDoc issueOnFileOnProject1Branch1 = newDoc(fileOnProject1Branch1);
+    IssueDoc issueOnProject1Branch2 = newDoc(project1Branch2);
+    IssueDoc issueOnProject2 = newDoc(project2);
+    indexIssues(issueOnProject1, issueOnProject1Branch1, issueOnFileOnProject1Branch1, issueOnProject1Branch2, issueOnProject2);
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(applicationBranch1.uuid())).branchUuid(applicationBranch1.uuid()).mainBranch(false),
+      issueOnProject1Branch1.key(), issueOnFileOnProject1Branch1.key(), issueOnProject2.key());
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().viewUuids(singletonList(applicationBranch1.uuid())).projectUuids(singletonList(project1.uuid())).branchUuid(applicationBranch1.uuid()).mainBranch(false),
+      issueOnProject1Branch1.key(), issueOnFileOnProject1Branch1.key());
+    assertThatSearchReturnsOnly(
+      IssueQuery.builder().viewUuids(singletonList(applicationBranch1.uuid())).fileUuids(singletonList(fileOnProject1Branch1.uuid())).branchUuid(applicationBranch1.uuid())
+        .mainBranch(false),
+      issueOnFileOnProject1Branch1.key());
+    assertThatSearchReturnsEmpty(
+      IssueQuery.builder().viewUuids(singletonList(applicationBranch1.uuid())).projectUuids(singletonList("unknown")).branchUuid(applicationBranch1.uuid()).mainBranch(false));
   }
 
   @Test
