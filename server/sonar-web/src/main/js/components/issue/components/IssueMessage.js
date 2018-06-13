@@ -27,7 +27,8 @@ import { Button } from '../../ui/buttons';
 
 export default class IssueMessage extends React.PureComponent {
   /*:: props: {
-    engine?: string;
+    engine?: string,
+    manualVulnerability: boolean,
     message: string,
     organization: string,
     rule: string
@@ -60,6 +61,13 @@ export default class IssueMessage extends React.PureComponent {
             overlay={translateWithParameters('issue.from_external_rule_engine', this.props.engine)}>
             <div className="outline-badge badge-tiny-height spacer-left vertical-text-top">
               {this.props.engine}
+            </div>
+          </Tooltip>
+        )}
+        {this.props.manualVulnerability && (
+          <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
+            <div className="outline-badge badge-tiny-height spacer-left vertical-text-top">
+              {translate('issue.manual_vulnerability')}
             </div>
           </Tooltip>
         )}

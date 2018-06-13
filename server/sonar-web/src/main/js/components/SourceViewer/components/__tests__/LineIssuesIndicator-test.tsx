@@ -31,6 +31,7 @@ const issueBase: Issue = {
   creationDate: '',
   key: '',
   flows: [],
+  fromHotspot: false,
   message: '',
   organization: '',
   project: '',

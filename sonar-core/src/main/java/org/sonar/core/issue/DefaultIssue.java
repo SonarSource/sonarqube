@@ -83,6 +83,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private Object locations = null;
 
   private boolean isFromExternalRuleEngine;
+
   // FUNCTIONAL DATES
   private Date creationDate;
   private Date updateDate;

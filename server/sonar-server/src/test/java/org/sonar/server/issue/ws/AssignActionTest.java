@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -198,6 +199,21 @@ public class AssignActionTest {
   }
 
   @Test
+  public void fail_when_trying_to_assign_hotspot() {
+    IssueDto issueDto = db.issues().insertIssue(i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    setUserWithBrowsePermission(issueDto);
+    UserDto arthur = insertUser("arthur");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("It is not allowed to assign a security hotspot");
+
+    ws.newRequest()
+      .setParam("issue", issueDto.getKey())
+      .setParam("assignee", "arthur")
+      .execute();
+  }
+
+  @Test
   public void fail_when_assignee_is_disabled() {
     IssueDto issue = newIssueWithBrowsePermission();
     db.users().insertUser(user -> user.setActive(false));
@@ -239,7 +255,7 @@ public class AssignActionTest {
   @Test
   public void fail_when_assignee_is_not_member_of_organization_of_project_issue() {
     OrganizationDto org = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
-    IssueDto issueDto = db.issues().insertIssue(org);
+    IssueDto issueDto = db.issues().insertIssue(org, i -> i.setType(RuleType.CODE_SMELL));
     setUserWithBrowsePermission(issueDto);
     OrganizationDto otherOrganization = db.organizations().insert();
     UserDto assignee = db.users().insertUser("arthur");
@@ -261,11 +277,12 @@ public class AssignActionTest {
   }
 
   private IssueDto newIssue(String assignee) {
-      IssueDto issue = db.issues().insertIssue(
+    IssueDto issue = db.issues().insertIssue(
       issueDto -> issueDto
         .setAssigneeUuid(assignee)
         .setCreatedAt(PAST).setIssueCreationTime(PAST)
-        .setUpdatedAt(PAST).setIssueUpdateTime(PAST));
+        .setUpdatedAt(PAST).setIssueUpdateTime(PAST)
+        .setType(RuleType.CODE_SMELL));
     return issue;
   }
 

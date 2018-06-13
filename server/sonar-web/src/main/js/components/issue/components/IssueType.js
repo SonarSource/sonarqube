@@ -30,7 +30,7 @@ import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {
-  canSetSeverity: boolean,
+  canSetType: boolean,
   isOpen: boolean,
   issue: Issue,
   setIssueProperty: (string, string, apiCall: (Object) => Promise<*>, string) => void,
@@ -55,12 +55,12 @@ export default class IssueType extends React.PureComponent {
 
   render() {
     const { issue } = this.props;
-    if (this.props.canSetSeverity) {
+    if (this.props.canSetType) {
       return (
         <div className="dropdown">
           <Toggler
             onRequestClose={this.handleClose}
-            open={this.props.isOpen && this.props.canSetSeverity}
+            open={this.props.isOpen && this.props.canSetType}
             overlay={<SetTypePopup issue={issue} onSelect={this.setType} />}>
             <Button
               className="button-link issue-action issue-action-with-options js-issue-set-type"

@@ -40,7 +40,8 @@ const issue = {
   status: '',
   type: '',
   secondaryLocations: [],
-  flows: []
+  flows: [],
+  fromHotspot: false
 };
 
 it('should render', () => {

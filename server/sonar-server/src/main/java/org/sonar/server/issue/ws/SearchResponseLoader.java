@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -53,8 +54,8 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.difference;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -267,20 +268,25 @@ public class SearchResponseLoader {
     }
   }
 
-  private List<String> listAvailableActions(IssueDto issue, ComponentDto project) {
-    List<String> availableActions = newArrayList();
+  private Set<String> listAvailableActions(IssueDto issue, ComponentDto project) {
+    Set<String> availableActions = newHashSet();
     String login = userSession.getLogin();
     if (login == null) {
-      return Collections.emptyList();
+      return Collections.emptySet();
     }
+    RuleType ruleType = RuleType.valueOf(issue.getType());
     availableActions.add(COMMENT_KEY);
     if (issue.getResolution() != null) {
       return availableActions;
     }
-    availableActions.add(ASSIGN_KEY);
+    if (ruleType != RuleType.SECURITY_HOTSPOT) {
+      availableActions.add(ASSIGN_KEY);
+    }
     availableActions.add("set_tags");
-    if (userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
+    if (!issue.isFromHotspot() && userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
       availableActions.add(SET_TYPE_KEY);
+    }
+    if ((ruleType != RuleType.SECURITY_HOTSPOT && userSession.hasComponentPermission(ISSUE_ADMIN, project))) {
       availableActions.add(SET_SEVERITY_KEY);
     }
     return availableActions;

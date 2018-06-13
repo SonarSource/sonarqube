@@ -75,6 +75,7 @@ export default function IssueTitleBar(props /*: Props */) {
     <div className="issue-row">
       <IssueMessage
         engine={issue.externalRuleEngine}
+        manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
         message={issue.message}
         organization={issue.organization}
         rule={issue.rule}

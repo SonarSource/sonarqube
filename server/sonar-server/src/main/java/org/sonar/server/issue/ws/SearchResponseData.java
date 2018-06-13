@@ -144,7 +144,7 @@ public class SearchResponseData {
     }
   }
 
-  public void addActions(String issueKey, List<String> actions) {
+  public void addActions(String issueKey, Iterable<String> actions) {
     actionsByIssueKey.putAll(issueKey, actions);
   }
 

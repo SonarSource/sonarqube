@@ -17,19 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import React from 'react';
-import IssueMessage from '../IssueMessage';
+package org.sonar.server.issue.workflow;
 
-it('should render with the message and a link to open the rule', () => {
-  const element = shallow(
-    <IssueMessage
-      manualVulnerability={false}
-      rule="javascript:S1067"
-      message="Reduce the number of conditional operators (4) used in the expression"
-      organization="myorg"
-    />,
-    { context: { workspace: {} } }
-  );
-  expect(element).toMatchSnapshot();
-});
+import java.util.EnumSet;
+import java.util.Set;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.Condition;
+import org.sonar.api.rules.RuleType;
+import org.sonar.core.issue.DefaultIssue;
+
+import static java.util.Arrays.asList;
+
+public class HasType implements Condition {
+
+  private final Set<RuleType> types;
+
+  public HasType(RuleType first, RuleType... others) {
+    this.types = EnumSet.noneOf(RuleType.class);
+    this.types.add(first);
+    this.types.addAll(asList(others));
+  }
+
+  @Override
+  public boolean matches(Issue issue) {
+    return types.contains(((DefaultIssue) issue).type());
+  }
+}

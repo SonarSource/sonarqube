@@ -33,13 +33,13 @@ public class RuleTypeCopier extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
+    Rule rule = ruleRepository.getByKey(issue.ruleKey());
     if (issue.type() == null) {
-      Rule rule = ruleRepository.getByKey(issue.ruleKey());
       if (!rule.isExternal()) {
         // rule type should never be null for rules created by plugins (non-external rules)
         issue.setType(rule.getType());
       }
     }
-    issue.setIsFromHotspot(issue.type() == RuleType.SECURITY_HOTSPOT);
+    issue.setIsFromHotspot(rule.getType() == RuleType.SECURITY_HOTSPOT);
   }
 }

@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
 import java.util.Optional;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -132,9 +131,6 @@ public class IssueLifecycle {
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
     raw.setKey(base.key());
     raw.setNew(false);
-    if (raw.type() == RuleType.SECURITY_HOTSPOT) {
-      raw.setIsFromHotspot(true);
-    }
     copyFields(raw, base);
 
     if (base.manualSeverity()) {

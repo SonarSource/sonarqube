@@ -11,6 +11,7 @@ exports[`should render the titlebar correctly 1`] = `
   className="issue-row"
 >
   <IssueMessage
+    manualVulnerability={false}
     message="Reduce the number of conditional operators (4) used in the expression"
     organization="myorg"
     rule="javascript:S1067"
@@ -31,6 +32,7 @@ exports[`should render the titlebar correctly 1`] = `
             Object {
               "creationDate": "2017-03-01T09:36:01+0100",
               "flows": Array [],
+              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -95,6 +97,7 @@ exports[`should render the titlebar with the filter 1`] = `
   className="issue-row"
 >
   <IssueMessage
+    manualVulnerability={false}
     message="Reduce the number of conditional operators (4) used in the expression"
     organization="myorg"
     rule="javascript:S1067"
@@ -115,6 +118,7 @@ exports[`should render the titlebar with the filter 1`] = `
             Object {
               "creationDate": "2017-03-01T09:36:01+0100",
               "flows": Array [],
+              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -177,6 +181,7 @@ exports[`should render the titlebar with the filter 1`] = `
             Object {
               "creationDate": "2017-03-01T09:36:01+0100",
               "flows": Array [],
+              "fromHotspot": false,
               "key": "AVsae-CQS-9G3txfbFN2",
               "line": 25,
               "message": "Reduce the number of conditional operators (4) used in the expression",

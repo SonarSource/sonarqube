@@ -231,6 +231,7 @@ export interface Issue {
   fromExternalRule?: boolean;
   key: string;
   flows: FlowLocation[][];
+  fromHotspot: boolean;
   line?: number;
   message: string;
   organization: string;

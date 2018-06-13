@@ -179,6 +179,7 @@ public class SearchResponseFormat {
     if (dto.isExternal()) {
       issueBuilder.setExternalRuleEngine(engineNameFrom(dto.getRuleKey()));
     }
+    issueBuilder.setFromHotspot(dto.isFromHotspot());
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
     setNullable(data.getUserByUuid(dto.getAssigneeUuid()), assignee -> issueBuilder.setAssignee(assignee.getLogin()));
     setNullable(emptyToNull(dto.getResolution()), issueBuilder::setResolution);

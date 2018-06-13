@@ -36,7 +36,8 @@ const issue = {
   rule: 'javascript:S1067',
   message: 'Reduce the number of conditional operators (4) used in the expression',
   flows: [],
-  secondaryLocations: []
+  secondaryLocations: [],
+  fromHotspot: false
 };
 
 const issueWithLocations = {

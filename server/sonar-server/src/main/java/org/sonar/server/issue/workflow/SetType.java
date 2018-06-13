@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import React from 'react';
-import IssueMessage from '../IssueMessage';
+package org.sonar.server.issue.workflow;
 
-it('should render with the message and a link to open the rule', () => {
-  const element = shallow(
-    <IssueMessage
-      manualVulnerability={false}
-      rule="javascript:S1067"
-      message="Reduce the number of conditional operators (4) used in the expression"
-      organization="myorg"
-    />,
-    { context: { workspace: {} } }
-  );
-  expect(element).toMatchSnapshot();
-});
+import javax.annotation.Nullable;
+import org.sonar.api.rules.RuleType;
+
+public class SetType implements Function {
+  private final RuleType type;
+
+  public SetType(@Nullable RuleType type) {
+    this.type = type;
+  }
+
+  @Override
+  public void execute(Context context) {
+    context.setType(type);
+  }
+}

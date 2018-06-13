@@ -26,6 +26,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.HasResolution;
 import org.sonar.api.issue.condition.NotCondition;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
@@ -57,52 +58,64 @@ public class IssueWorkflow implements Startable {
 
     buildManualTransitions(builder);
     buildAutomaticTransitions(builder);
+    buildSecurityHotspotTransitions(builder);
     machine = builder.build();
   }
 
   private static void buildManualTransitions(StateMachine.Builder builder) {
-    builder.transition(Transition.builder(DefaultTransitions.CONFIRM)
-      .from(Issue.STATUS_OPEN).to(Issue.STATUS_CONFIRMED)
-      .functions(new SetResolution(null))
-      .build())
+    builder
+      .transition(Transition.builder(DefaultTransitions.CONFIRM)
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_CONFIRMED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
+        .functions(new SetResolution(null))
+        .build())
       .transition(Transition.builder(DefaultTransitions.CONFIRM)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CONFIRMED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(null))
         .build())
       .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_REOPENED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(null))
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_FIXED))
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_FIXED))
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_FIXED))
         .build())
       .transition(Transition.builder(DefaultTransitions.REOPEN)
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(null))
         .build())
 
       // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
@@ -110,18 +123,89 @@ public class IssueWorkflow implements Startable {
       // resolve as won't fix
       .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
+        .conditions(IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build());
+  }
+
+  private static void buildSecurityHotspotTransitions(StateMachine.Builder builder) {
+    builder
+      .transition(Transition.builder(DefaultTransitions.DETECT)
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_OPEN)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
+        .functions(new SetType(RuleType.VULNERABILITY))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.DETECT)
+        .from(Issue.STATUS_REOPENED).to(Issue.STATUS_OPEN)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
+        .functions(new SetType(RuleType.VULNERABILITY))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.DETECT)
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_OPEN)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_WONT_FIX))
+        .functions(new SetType(RuleType.VULNERABILITY), new SetResolution(null))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.DISMISS)
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_REOPENED)
+        .conditions(IsManualVulnerability.INSTANCE)
+        .functions(new SetType(RuleType.SECURITY_HOTSPOT))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.REQUEST_REVIEW)
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
+        .conditions(IsManualVulnerability.INSTANCE)
+        .functions(new SetType(RuleType.SECURITY_HOTSPOT), new SetResolution(Issue.RESOLUTION_FIXED))
+        .build())
+      .transition(Transition.builder(DefaultTransitions.REQUEST_REVIEW)
+        .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .conditions(IsManualVulnerability.INSTANCE)
+        .functions(new SetType(RuleType.SECURITY_HOTSPOT), new SetResolution(Issue.RESOLUTION_FIXED))
+        .build())
+      .transition(Transition.builder(DefaultTransitions.REJECT)
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_FIXED))
+        .functions(new SetType(RuleType.VULNERABILITY), new SetResolution(null))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.ACCEPT)
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_RESOLVED)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_FIXED))
+        .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.CLEAR)
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
+        .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.CLEAR)
+        .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
+        .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .build())
+      .transition(Transition.builder(DefaultTransitions.REOPEN_HOTSPOT)
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_WONT_FIX))
+        .functions(new SetResolution(null))
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
         .build());
 
   }
@@ -157,7 +241,7 @@ public class IssueWorkflow implements Startable {
       // Reopen issues that are marked as resolved but that are still alive.
       .transition(Transition.builder("automaticreopen")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
-        .conditions(new NotCondition(IsBeingClosed.INSTANCE), new HasResolution(Issue.RESOLUTION_FIXED))
+        .conditions(new NotCondition(IsBeingClosed.INSTANCE), new HasResolution(Issue.RESOLUTION_FIXED), IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(null), new SetCloseDate(false))
         .automatic()
         .build());

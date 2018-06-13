@@ -173,7 +173,8 @@ public class SearchAction implements IssuesWsAction {
         new Change("5.5", "parameters 'reporters', 'actionPlans' and 'planned' are dropped and therefore ignored (drop of action plan and manual issue features)"),
         new Change("5.5", "response field 'debt' is renamed 'effort'"),
         new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"),
-        new Change("7.2", format("value '%s' in parameter '%s' is deprecated, it won't have any effect", SORT_BY_ASSIGNEE, Param.SORT)))
+        new Change("7.2", format("value '%s' in parameter '%s' is deprecated, it won't have any effect", SORT_BY_ASSIGNEE, Param.SORT)),
+        new Change("7.3", "response field 'fromHotspot' added to issues that are security hotspots"))
       .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);

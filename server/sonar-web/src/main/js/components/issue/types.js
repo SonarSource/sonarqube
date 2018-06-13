@@ -68,6 +68,7 @@ export type Issue = {
   externalRuleEngine?: string,
   key: string,
   flows: Array<Array<FlowLocation>>,
+  fromHotspot: boolean,
   line?: number,
   message: string,
   organization: string,

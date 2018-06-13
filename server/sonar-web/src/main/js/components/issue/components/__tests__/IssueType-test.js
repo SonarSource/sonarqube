@@ -29,7 +29,7 @@ const issue = {
 it('should render without the action when the correct rights are missing', () => {
   const element = shallow(
     <IssueType
-      canSetSeverity={false}
+      canSetType={false}
       isOpen={false}
       issue={issue}
       setIssueProperty={jest.fn()}
@@ -42,7 +42,7 @@ it('should render without the action when the correct rights are missing', () =>
 it('should render with the action', () => {
   const element = shallow(
     <IssueType
-      canSetSeverity={true}
+      canSetType={true}
       isOpen={false}
       issue={issue}
       setIssueProperty={jest.fn()}
@@ -56,7 +56,7 @@ it('should open the popup when the button is clicked', () => {
   const toggle = jest.fn();
   const element = shallow(
     <IssueType
-      canSetSeverity={true}
+      canSetType={true}
       isOpen={false}
       issue={issue}
       setIssueProperty={jest.fn()}

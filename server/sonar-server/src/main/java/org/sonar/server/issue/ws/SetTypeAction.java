@@ -106,6 +106,9 @@ public class SetTypeAction implements IssuesWsAction {
   private SearchResponseData setType(DbSession session, String issueKey, RuleType ruleType) {
     IssueDto issueDto = issueFinder.getByKey(session, issueKey);
     DefaultIssue issue = issueDto.toDefaultIssue();
+    if (issue.isFromHotspot()) {
+      throw new IllegalArgumentException("Changing type of a security hotspot is not permitted");
+    }
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());

@@ -26,6 +26,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -115,6 +116,7 @@ public class AssignAction implements IssuesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
       DefaultIssue issue = issueDto.toDefaultIssue();
+      checkArgument(issue.type() != RuleType.SECURITY_HOTSPOT,"It is not allowed to assign a security hotspot");
       UserDto user = getUser(dbSession, login);
       if (user != null) {
         checkMembership(dbSession, issueDto, user);

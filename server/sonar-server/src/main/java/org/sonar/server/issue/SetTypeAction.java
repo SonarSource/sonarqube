@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.web.UserRole;
@@ -42,11 +43,11 @@ public class SetTypeAction extends Action {
     super(SET_TYPE_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
-    super.setConditions(new IsUnResolved(), issue -> isCurrentUserIssueAdmin(issue.projectUuid()));
+    super.setConditions(new IsUnResolved(), this::isCurrentUserIssueAdmin);
   }
 
-  private boolean isCurrentUserIssueAdmin(String projectUuid) {
-    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, projectUuid);
+  private boolean isCurrentUserIssueAdmin(Issue issue) {
+    return !((DefaultIssue) issue).isFromHotspot() && userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
   }
 
   @Override

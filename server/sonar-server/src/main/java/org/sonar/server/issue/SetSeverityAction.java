@@ -21,14 +21,16 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 
 @ServerSide
 public class SetSeverityAction extends Action {
@@ -43,11 +45,12 @@ public class SetSeverityAction extends Action {
     super(SET_SEVERITY_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
-    super.setConditions(new IsUnResolved(), issue -> isCurrentUserIssueAdmin(issue.projectUuid()));
+    super.setConditions(new IsUnResolved(), this::isCurrentUserIssueAdminOrSecurityAuditor);
   }
 
-  private boolean isCurrentUserIssueAdmin(String projectUuid) {
-    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, projectUuid);
+  private boolean isCurrentUserIssueAdminOrSecurityAuditor(Issue issue) {
+    DefaultIssue defaultIssue = (DefaultIssue) issue;
+    return ((defaultIssue.type() != RuleType.SECURITY_HOTSPOT && userSession.hasComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid())));
   }
 
   @Override

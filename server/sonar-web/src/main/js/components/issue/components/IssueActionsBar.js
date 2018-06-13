@@ -89,6 +89,7 @@ export default class IssueActionsBar extends React.PureComponent {
     const canAssign = issue.actions.includes('assign');
     const canComment = issue.actions.includes('comment');
     const canSetSeverity = issue.actions.includes('set_severity');
+    const canSetType = issue.actions.includes('set_type');
     const canSetTags = issue.actions.includes('set_tags');
     const hasTransitions = issue.transitions && issue.transitions.length > 0;
 
@@ -97,8 +98,8 @@ export default class IssueActionsBar extends React.PureComponent {
         <ul className="issue-meta-list">
           <li className="issue-meta">
             <IssueType
-              canSetSeverity={canSetSeverity}
-              isOpen={this.props.currentPopup === 'set-type' && canSetSeverity}
+              canSetType={canSetType}
+              isOpen={this.props.currentPopup === 'set-type' && canSetType}
               issue={issue}
               setIssueProperty={this.setIssueProperty}
               togglePopup={this.props.togglePopup}

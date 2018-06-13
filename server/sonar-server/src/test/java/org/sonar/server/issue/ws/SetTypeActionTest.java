@@ -64,6 +64,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -116,6 +117,18 @@ public class SetTypeActionTest {
     assertThat(issueChangePostProcessor.calledComponents())
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(issueDto.getComponentUuid());
+  }
+
+  @Test
+  public void prevent_changing_type_security_hotspot() {
+    long now = 1_999_777_234L;
+    when(system2.now()).thenReturn(now);
+    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(VULNERABILITY).setIsFromHotspot(true));
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Changing type of a security hotspot is not permitted");
+    call(issueDto.getKey(), BUG.name());
   }
 
   @Test

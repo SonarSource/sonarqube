@@ -21,6 +21,7 @@ package org.sonar.server.issue.workflow;
 
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.user.UserDto;
 
 interface Function {
@@ -34,6 +35,8 @@ interface Function {
     Context setCloseDate(boolean b);
 
     Context setLine(@Nullable Integer line);
+
+    Context setType(@Nullable RuleType type);
   }
 
   void execute(Context context);
