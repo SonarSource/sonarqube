@@ -140,7 +140,7 @@ assemble.dependsOn zip
 // the script start.sh unpacks OSS distribution into $buildDir/distributions/sonarqube-oss.
 // This directory should be deleted when the zip is changed.
 task cleanLocalUnzippedDir(dependsOn: zip) {
-  def unzippedDir = file("$buildDir/distributions/sonarqube-oss/sonarqube-$version")
+  def unzippedDir = file("$buildDir/distributions/sonarqube-$version")
   inputs.files(file("$buildDir/distributions/sonar-application-${version}.zip"))
   outputs.upToDateWhen { true }
 

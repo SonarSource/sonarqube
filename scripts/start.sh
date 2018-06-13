@@ -59,14 +59,14 @@ stopAny
 
 cd "$(distributionDirOf "$EDITION")"
 
-TARGET_DIR="$(targetDirOf "$EDITION")"
-SH_FILE="${TARGET_DIR}/sonarqube-*/bin/$OS/sonar.sh"
+SH_FILE="sonarqube-*/bin/$OS/sonar.sh"
 if ! ls ${SH_FILE} &> /dev/null; then
-  echo "Unpacking ${TARGET_DIR}..."
-  ZIP_FILE="$(baseFileNameOf "$EDITION")-*.zip"
-  unzip -qq ${ZIP_FILE} -d "${TARGET_DIR}"
+  BASE_FILE_NAME="$(baseFileNameOf "$EDITION")"
+  echo "Unpacking ${BASE_FILE_NAME}..."
+  ZIP_FILE="${BASE_FILE_NAME}-*.zip"
+  unzip -qq ${ZIP_FILE}
 fi
-cd $(find ${TARGET_DIR}/sonarqube-* -type d | head -1)
+cd $(find sonarqube-* -type d | head -1)
 
 SQ_HOME=$(pwd)
 cd "$ROOT"

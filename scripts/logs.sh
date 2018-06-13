@@ -90,9 +90,9 @@ if [ "$script_name" = "logs.sh" ]; then
   checkEditionArgument "$EDITION"
   checkLogArgument "$LOG"
 
-  SQ_HOME_WILDCARD="$(distributionDirOf "$EDITION")/$(targetDirOf "$EDITION")/sonarqube-*"
+  SQ_HOME_WILDCARD="$(distributionDirOf "$EDITION")/sonarqube-*"
   if ! ls ${SQ_HOME_WILDCARD} &> /dev/null; then
-    echo "$(targetDirOf "$EDITION") is not unpacked"
+    echo "$(baseFileNameOf "$EDITION") is not unpacked"
     exit 1
   fi
   cd ${SQ_HOME_WILDCARD}

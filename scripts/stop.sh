@@ -19,9 +19,9 @@ fi
 
 stopAny() {
   for edition in $EDITIONS; do
-      SONAR_SH="$(distributionDirOf "$edition")/$(targetDirOf "$edition")/sonarqube-*/bin/$OS/sonar.sh"
+      SONAR_SH="$(distributionDirOf "$edition")/sonarqube-*/bin/$OS/sonar.sh"
       if ls $SONAR_SH &> /dev/null; then
-        echo "$(targetDirOf "$edition") is unpacked"
+        echo "$(baseFileNameOf "$edition") is unpacked"
         sh $SONAR_SH stop
       fi
   done

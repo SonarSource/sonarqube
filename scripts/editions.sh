@@ -48,14 +48,3 @@ baseFileNameOf() {
     exit 1
   fi
 }
-
-targetDirOf() {
-  local edition="$1"
-
-  if [ "$edition" = "oss" ]; then
-    echo "sonarqube-oss"
-  else
-    echo "unsupported edition $edition"
-    exit 1
-  fi
-}
