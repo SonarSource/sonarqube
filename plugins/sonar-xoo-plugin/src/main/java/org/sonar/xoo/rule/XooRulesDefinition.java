@@ -151,6 +151,14 @@ public class XooRulesDefinition implements RulesDefinition {
       .setName("Template of rule")
       .setHtmlDescription("Template to be overridden by custom rules");
 
+    NewRule hotspot = repo.createRule(HotspotSensor.RULE_KEY)
+      .setName("Find security hotspots")
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setActivatedByDefault(false)
+      .setHtmlDescription("Search for Security Hotspots in Xoo files");
+    hotspot
+      .setDebtRemediationFunction(hotspot.debtRemediationFunctions().constantPerIssue("2min"));
+
     repo.done();
 
   }

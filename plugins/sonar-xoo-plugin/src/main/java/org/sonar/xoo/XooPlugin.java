@@ -42,6 +42,7 @@ import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.CustomMessageSensor;
 import org.sonar.xoo.rule.HasTagSensor;
+import org.sonar.xoo.rule.HotspotSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.NoSonarSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
@@ -169,6 +170,9 @@ public class XooPlugin implements Plugin {
         OneExternalIssuePerLineSensor.class,
         OneExternalIssueWithDetailsPerLineSensor.class,
         SignificantCodeSensor.class);
+    }
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 3))) {
+      context.addExtension(HotspotSensor.class);
     }
   }
 
