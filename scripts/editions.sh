@@ -2,49 +2,40 @@
 
 set -euo pipefail
 
-DEFAULT_EDITION="oss"
-EDITIONS="oss"
+DEFAULT_EDITION="community"
+EDITIONS="community"
 
 toLower() {
   echo "$1" | tr '[:upper:]' '[:lower:]'
 }
 
-checkEditionArgument() {
-  local editionArg="$1"
-  local lowerEditionArg=$(toLower $editionArg)
-
-  if [ "$lowerEditionArg" = "$DEFAULT_EDITION" ]; then
-    return
-  fi
-
+checkEdition() {
   for t in $EDITIONS; do
-    if [ "$lowerEditionArg" = "$t" ]; then
+    if [ "$1" = "$t" ]; then
       return
     fi
   done
 
-  echo "Unsupported edition $editionArg"
+  echo "Unsupported edition $1"
   exit 1
 }
 
-distributionDirOf() {
-  local edition="$1"
 
-  if [ "$edition" = "oss" ]; then
-    echo "sonar-application/build/distributions/"
-  else
-    echo "unsupported edition $edition"
-    exit 1
-  fi
+resolveAliases() {
+  local lowerEditionAlias=$(toLower "$1")
+
+  case "$lowerEditionAlias" in
+    oss )
+      echo community ;;
+    * )
+      echo "$lowerEditionAlias" ;;
+  esac
+}
+
+distributionDirOf() {
+  echo "sonar-application/build/distributions/"
 }
 
 baseFileNameOf() {
-  local edition="$1"
-
-  if [ "$edition" = "oss" ]; then
-    echo "sonar-application"
-  else
-    echo "unsupported edition $edition"
-    exit 1
-  fi
+  echo "sonar-application"
 }

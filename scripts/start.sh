@@ -2,8 +2,12 @@
 ###############################
 # usage: start.sh [ -e ARG ] [ -p ARG ] [ -l ARG ]
 #  -e ARG: edition to run
-#          valid values are 'oss' (Open Source), 'dev' (Developer), 'ent' (Enterprise) and 'dce' (Data Center) (case insensitive)
-#          default value is 'oss'.
+#          valid values are (case insensitive):
+#             'community', 'oss',
+#             'developer', 'dev',
+#             'enterprise', 'ent',
+#             'datacenter', 'dc', 'dce'.
+#          default value is 'community'.
 #  -p ARG: name(s) of patch separated by colon (name of patch is filename without extension)
 #  -l ARG: name of log file to display.
 #          valid values are 'all', 'sonar', 'web', 'ce' and 'es' (case insensitive).
@@ -39,7 +43,8 @@ while getopts ":e:p:l:" opt; do
   esac
 done
 
-checkEditionArgument "$EDITION"
+EDITION=$(resolveAliases "$EDITION")
+checkEdition "$EDITION"
 checkLogArgument "$LOG"
 
 if [[ "${OSTYPE:-}" == "darwin"* ]]; then
@@ -48,7 +53,7 @@ else
   OS='linux-x86-64'
 fi
 
-OSS_ZIP="$(distributionDirOf "oss")/$(baseFileNameOf "oss")-*.zip"
+OSS_ZIP="$(distributionDirOf "community")/$(baseFileNameOf "community")-*.zip"
 if ! ls ${OSS_ZIP} &> /dev/null; then
   echo 'Sources are not built'
   "$ROOT"/build.sh
