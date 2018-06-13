@@ -19,9 +19,9 @@ Links
 Have Question or Feedback?
 --------------------------
 
-For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarqube.org) and then head to [Stackoverflow](http://stackoverflow.com/questions/tagged/sonarqube). We actively follow the `sonarqube` tag there, and there are chances that we have already answered to a question similar to yours. 
+For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarqube.org) and then head to the [SonarSource forum](https://community.sonarsource.com/). There are chances that a question similar to yours has already been answered. 
 
-To provide feedback (request a feature, report a bug etc.) use the [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Be aware that this group is a community, so the standard pleasantries ("Hi", "Thanks", ...) are expected. And if you don't get an answer to your thread, you should sit on your hands for at least three days before bumping it. Operators are not standing by. :-)
+Be aware that this forum is a community, so the standard pleasantries ("Hi", "Thanks", ...) are expected. And if you don't get an answer to your thread, you should sit on your hands for at least three days before bumping it. Operators are not standing by. :-)
 
 
 Contributing
@@ -29,7 +29,7 @@ Contributing
 
 ### Pull Request
 
-Please create a new thread in [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube) when contributing a new feature. You have to be sure that the feature complies with our roadmap and expectations. 
+Please create a new thread in the forum ["Suggest new features"](https://community.sonarsource.com/c/suggestions/features) when contributing a new feature. You have to be sure that the feature complies with our roadmap and expectations. 
 
 To submit a code contribution, create a pull request for this repository. Please explain your motives to contribute this change (if it's not a new feature): what problem you are trying to fix, what improvement you are trying to make.
 
