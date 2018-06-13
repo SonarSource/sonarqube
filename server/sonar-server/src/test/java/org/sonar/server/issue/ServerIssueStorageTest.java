@@ -21,6 +21,8 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -36,11 +38,15 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ServerIssueStorageTest {
 
@@ -78,21 +84,24 @@ public class ServerIssueStorageTest {
 
   @Test
   public void should_insert_new_issues() {
-    dbTester.prepareDbUnit(getClass(), "should_insert_new_issues.xml");
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(module));
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
+    String issueKey = "ABCDE";
+    DefaultIssueComment comment = DefaultIssueComment.create(issueKey, "user_uuid", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
+      .setKey(issueKey)
       .setType(RuleType.BUG)
       .setNew(true)
-
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setProjectUuid("ABCD")
-      .setComponentUuid("BCDE")
+      .setRuleKey(rule.getKey())
+      .setProjectUuid(project.uuid())
+      .setComponentUuid(file.uuid())
       .setLine(5000)
       .setEffort(Duration.create(10L))
       .setResolution("OPEN")
@@ -106,53 +115,107 @@ public class ServerIssueStorageTest {
 
     underTest.save(issue);
 
-    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(dbTester.selectFirst("select * from issues"))
+      .containsEntry("PROJECT_UUID", project.uuid())
+      .containsEntry("COMPONENT_UUID", file.uuid())
+      .containsEntry("KEE", issue.key())
+      .containsEntry("RESOLUTION", issue.resolution())
+      .containsEntry("STATUS", issue.status())
+      .containsEntry("SEVERITY", issue.severity());
+
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
+    assertThat(dbTester.selectFirst("select * from issue_changes"))
+      .containsEntry("KEE", comment.key())
+      .containsEntry("ISSUE_KEY", issue.key())
+      .containsEntry("CHANGE_DATA", comment.markdownText())
+      .containsEntry("USER_LOGIN", comment.userUuid());
   }
 
   @Test
   public void should_update_issues() {
-    dbTester.prepareDbUnit(getClass(), "should_update_issues.xml");
-
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
-
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
-    // override generated key
-    comment.setKey("FGHIJ");
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(module));
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setType(RuleType.BUG)
+      .setNew(true)
+      .setRuleKey(rule.getKey())
+      .setProjectUuid(project.uuid())
+      .setComponentUuid(file.uuid())
+      .setLine(5000)
+      .setEffort(Duration.create(10L))
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date);
+
+    underTest.save(issue);
+
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(0);
+
+    DefaultIssue updated = new DefaultIssue()
+      .setKey(issue.key())
+      .setType(RuleType.VULNERABILITY)
       .setNew(false)
       .setChanged(true)
 
       // updated fields
-      .setLine(5000)
-      .setProjectUuid("CDEF")
-      .setEffort(Duration.create(10L))
+      .setLine(issue.getLine() + 10)
+      .setProjectUuid("foo")
+      .setEffort(Duration.create(issue.effortInMinutes() + 10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssigneeUuid("loic")
-      .setFieldChange(context, "severity", "INFO", "BLOCKER")
+      .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
+      .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
       .setResolution("FIXED")
       .setStatus("RESOLVED")
-      .setSeverity("BLOCKER")
-      .setAttribute("foo", "bar")
-      .addComment(comment)
-      .setCreationDate(date)
-      .setUpdateDate(date)
-      .setCloseDate(date)
+      .setSeverity("MAJOR")
+      .setAttribute("fox", "bax")
+      .setCreationDate(DateUtils.addDays(date, 1))
+      .setUpdateDate(DateUtils.addDays(date, 1))
+      .setCloseDate(DateUtils.addDays(date, 1))
 
       // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
 
-    underTest.save(issue);
+    underTest.save(updated);
 
-    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml",
-      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(dbTester.selectFirst("select * from issues"))
+      .containsEntry("ASSIGNEE", updated.assignee())
+      .containsEntry("AUTHOR_LOGIN", updated.authorLogin())
+      .containsEntry("CHECKSUM", updated.checksum())
+      .containsEntry("COMPONENT_UUID", issue.componentUuid())
+      .containsEntry("EFFORT", updated.effortInMinutes())
+      .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
+      .containsEntry("ISSUE_TYPE", (byte) 3)
+      .containsEntry("KEE", issue.key())
+      .containsEntry("LINE", (long) updated.line())
+      .containsEntry("PROJECT_UUID", updated.projectUuid())
+      .containsEntry("RESOLUTION", updated.resolution())
+      .containsEntry("STATUS", updated.status())
+      .containsEntry("SEVERITY", updated.severity());
+
+    List<Map<String, Object>> rows = dbTester.select("select * from issue_changes order by id");
+    assertThat(rows).hasSize(2);
+    assertThat(rows.get(0))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("the comment", "comment", "user_uuid");
+    assertThat(rows.get(1))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
   }
 
   static class FakeRuleFinder implements RuleFinder {

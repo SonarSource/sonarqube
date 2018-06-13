@@ -53,11 +53,14 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.source.FileSourceDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -176,13 +179,60 @@ public class PurgeDaoTest {
 
   @Test
   public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
-    dbTester.prepareDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components.xml");
-    when(system2.now()).thenReturn(1450000000000L);
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, THE_PROJECT_UUID, "P1", "EFGH", "GHIJ"), PurgeListener.EMPTY, new PurgeProfiler());
+    // components and issues, updated 31 days ago
+    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch(p -> p.setEnabled(false));
+    dbTester.components().insertSnapshot(project);
+    dbTester.components().insertSnapshot(project);
+    dbTester.components().insertSnapshot(project, s -> s.setLast(false));
+
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project).setEnabled(false));
+    ComponentDto dir = dbTester.components().insertComponent(newDirectory(module, "sub").setEnabled(false));
+    ComponentDto srcFile = dbTester.components().insertComponent(newFileDto(module, dir).setEnabled(false));
+    ComponentDto testFile = dbTester.components().insertComponent(newFileDto(module, dir).setEnabled(false));
+    ComponentDto nonSelectedFile = dbTester.components().insertComponent(newFileDto(module, dir).setEnabled(false));
+    IssueDto openOnFile = dbTester.issues().insert(rule, project, srcFile, issue -> issue.setStatus("OPEN"));
+    IssueDto confirmOnFile = dbTester.issues().insert(rule, project, srcFile, issue -> issue.setStatus("CONFIRM"));
+    IssueDto openOnDir = dbTester.issues().insert(rule, project, dir, issue -> issue.setStatus("OPEN"));
+    IssueDto confirmOnDir = dbTester.issues().insert(rule, project, dir, issue -> issue.setStatus("CONFIRM"));
+    IssueDto openOnNonSelected = dbTester.issues().insert(rule, project, nonSelectedFile, issue -> issue.setStatus("OPEN"));
+    IssueDto confirmOnNonSelected = dbTester.issues().insert(rule, project, nonSelectedFile, issue -> issue.setStatus("CONFIRM"));
+
+    assertThat(dbTester.countSql("select count(*) from snapshots where purge_status = 1")).isEqualTo(0);
+
+    assertThat(dbTester.countSql("select count(*) from issues where status = 'CLOSED'")).isEqualTo(0);
+    assertThat(dbTester.countSql("select count(*) from issues where resolution = 'REMOVED'")).isEqualTo(0);
+
+    dbTester.fileSources().insertFileSource(srcFile);
+    dbTester.fileSources().insertFileSource(testFile, f -> f.setDataType("TEST"));
+    FileSourceDto nonSelectedFileSource = dbTester.fileSources().insertFileSource(nonSelectedFile);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(3);
+
+    // back to present
+    when(system2.now()).thenReturn(new Date().getTime());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), module.uuid(), dir.uuid(), srcFile.uuid(), testFile.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
-    dbTester.assertDbUnit(getClass(), "close_issues_clean_index_and_files_sources_of_specified_components-result.xml",
-      new String[] {"issue_close_date", "issue_update_date"},
-      "projects", "snapshots", "issues");
+
+    // set purge_status=1 for non-last snapshot
+    assertThat(dbTester.countSql("select count(*) from snapshots where purge_status = 1")).isEqualTo(1);
+
+    // close open issues of selected
+    assertThat(dbTester.countSql("select count(*) from issues where status = 'CLOSED'")).isEqualTo(4);
+    for (IssueDto issue : Arrays.asList(openOnFile, confirmOnFile, openOnDir, confirmOnDir)) {
+      assertThat(dbTester.getDbClient().issueDao().selectByKey(dbSession, issue.getKey()).get())
+        .extracting("status", "resolution")
+        .containsExactlyInAnyOrder("CLOSED", "REMOVED");
+    }
+    for (IssueDto issue : Arrays.asList(openOnNonSelected, confirmOnNonSelected)) {
+      assertThat(dbTester.getDbClient().issueDao().selectByKey(dbSession, issue.getKey()).get())
+        .extracting("status", "resolution")
+        .containsExactlyInAnyOrder(issue.getStatus(), null);
+    }
+
+    // delete file sources of selected
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.getDbClient().fileSourceDao().selectSourceByFileUuid(dbSession, nonSelectedFileSource.getFileUuid())).isNotNull();
   }
 
   @Test
@@ -520,31 +570,34 @@ public class PurgeDaoTest {
 
   @Test
   public void should_delete_old_closed_issues() {
-    PurgeListener purgeListener = mock(PurgeListener.class);
-    dbTester.prepareDbUnit(getClass(), "should_delete_old_closed_issues.xml");
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    ComponentDto project = dbTester.components().insertMainBranch();
 
-    underTest.purge(dbSession, newConfigurationWith30Days(), purgeListener, new PurgeProfiler());
+    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(module));
+
+    IssueDto oldClosed = dbTester.issues().insert(rule, project, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(), -31));
+    });
+
+    IssueDto notOldEnoughClosed = dbTester.issues().insert(rule, project, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(new Date());
+    });
+    IssueDto notClosed = dbTester.issues().insert(rule, project, file);
+
+    when(system2.now()).thenReturn(new Date().getTime());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
-    dbTester.assertDbUnit(getClass(), "should_delete_old_closed_issues-result.xml", "issues", "issue_changes");
+    // old closed got deleted
+    assertThat(dbTester.getDbClient().issueDao().selectByKey(dbSession, oldClosed.getKey())).isEmpty();
 
-    Class<ArrayList<String>> listClass = (Class<ArrayList<String>>) (Class) ArrayList.class;
-    ArgumentCaptor<ArrayList<String>> issueKeys = ArgumentCaptor.forClass(listClass);
-    ArgumentCaptor<String> projectUuid = ArgumentCaptor.forClass(String.class);
-
-    verify(purgeListener).onIssuesRemoval(projectUuid.capture(), issueKeys.capture());
-    assertThat(projectUuid.getValue()).isEqualTo(THE_PROJECT_UUID);
-    assertThat(issueKeys.getValue()).containsOnly("ISSUE-1", "ISSUE-2");
-  }
-
-  @Test
-  public void should_delete_all_closed_issues() {
-    dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), emptyList(),
-      0, Optional.empty(), System2.INSTANCE, Collections.emptyList());
-    underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
-    dbSession.commit();
-    dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
+    // others remain
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(2);
+    assertThat(dbTester.getDbClient().issueDao().selectByKey(dbSession, notOldEnoughClosed.getKey())).isNotEmpty();
+    assertThat(dbTester.getDbClient().issueDao().selectByKey(dbSession, notClosed.getKey())).isNotEmpty();
   }
 
   @Test

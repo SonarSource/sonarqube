@@ -21,6 +21,8 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
@@ -39,6 +41,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.rule.RuleDefinitionDto;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class IssueStorageTest {
 
@@ -46,8 +53,6 @@ public class IssueStorageTest {
 
   @org.junit.Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
-  private IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), "user_uuid");
 
   private DbClient dbClient = db.getDbClient();
 
@@ -81,10 +86,13 @@ public class IssueStorageTest {
       .setProjectUuid("uuid-10")
       .setComponentKey("struts:Action");
 
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(0);
+
     saver.save(issue);
 
-    db.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(1);
   }
 
   @Test
@@ -117,11 +125,14 @@ public class IssueStorageTest {
       .setProjectUuid("uuid-10")
       .setComponentKey("struts:Action");
 
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(0);
+
     saver.save(db.getSession(), issue);
     db.getSession().commit();
 
-    db.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(1);
   }
 
   @Test
@@ -156,100 +167,197 @@ public class IssueStorageTest {
       .setComponentUuid("component-uuid")
       .setProjectUuid("project-uuid");
 
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(0);
+
     saver.save(db.getSession(), issue);
     db.getSession().commit();
 
-    db.assertDbUnit(getClass(), "should_insert_new_issues-result.xml", new String[] {"id", "created_at", "updated_at",
-      "issue_change_creation_date"}, "issues", "issue_changes");
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(1);
   }
 
   @Test
   public void batch_update_issues() {
-    db.prepareDbUnit(getClass(), "should_update_issues.xml");
-
     FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
-    // override generated key
-    comment.setKey("FGHIJ");
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setType(RuleType.BUG)
+      .setNew(true)
+      .setRuleKey(rule.getKey())
+      .setProjectUuid(project.uuid())
+      .setComponentUuid(file.uuid())
+      .setLine(5000)
+      .setEffort(Duration.create(10L))
+      .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "first comment"))
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date);
+
+    saver.save(issue);
+
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(1);
+
+    DefaultIssue updated = new DefaultIssue()
+      .setKey(issue.key())
+      .setType(RuleType.VULNERABILITY)
       .setNew(false)
       .setChanged(true)
 
       // updated fields
-      .setLine(5000)
-      .setEffort(Duration.create(10L))
+      .setLine(issue.getLine() + 10)
+      .setProjectUuid("foo")
+      .setEffort(Duration.create(issue.effortInMinutes() + 10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssigneeUuid("loic")
-      .setFieldChange(context, "severity", "INFO", "BLOCKER")
+      .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
+      .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
       .setResolution("FIXED")
       .setStatus("RESOLVED")
-      .setSeverity("BLOCKER")
-      .setAttribute("foo", "bar")
-      .addComment(comment)
-      .setCreationDate(date)
-      .setUpdateDate(date)
-      .setCloseDate(date)
-      .setComponentUuid("uuid-100")
-      .setProjectUuid("uuid-10")
+      .setSeverity("MAJOR")
+      .setAttribute("fox", "bax")
+      .setCreationDate(DateUtils.addDays(date, 1))
+      .setUpdateDate(DateUtils.addDays(date, 1))
+      .setCloseDate(DateUtils.addDays(date, 1))
 
       // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
-      .setComponentKey("not:a:component");
+      .setComponentKey("struts:Action")
+      .setProjectKey("struts");
 
-    saver.save(issue);
+    saver.save(updated);
 
-    db.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.selectFirst("select * from issues"))
+      .containsEntry("ASSIGNEE", updated.assignee())
+      .containsEntry("AUTHOR_LOGIN", updated.authorLogin())
+      .containsEntry("CHECKSUM", updated.checksum())
+      .containsEntry("COMPONENT_UUID", issue.componentUuid())
+      .containsEntry("EFFORT", updated.effortInMinutes())
+      .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
+      .containsEntry("ISSUE_TYPE", (byte) 3)
+      .containsEntry("KEE", issue.key())
+      .containsEntry("LINE", (long) updated.line())
+      .containsEntry("PROJECT_UUID", updated.projectUuid())
+      .containsEntry("RESOLUTION", updated.resolution())
+      .containsEntry("STATUS", updated.status())
+      .containsEntry("SEVERITY", updated.severity());
+
+    List<Map<String, Object>> rows = db.select("select * from issue_changes order by id");
+    assertThat(rows).hasSize(3);
+    assertThat(rows.get(0))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("first comment", "comment", "user_uuid");
+    assertThat(rows.get(1))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("the comment", "comment", "user_uuid");
+    assertThat(rows.get(2))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
   }
 
   @Test
   public void server_update_issues() {
-    db.prepareDbUnit(getClass(), "should_update_issues.xml");
-
     ComponentDto project = new ComponentDto().setId(10L).setUuid("whatever-uuid");
     ComponentDto component = new ComponentDto().setId(100L).setUuid("whatever-uuid-2");
     FakeServerSaver saver = new FakeServerSaver(dbClient, new FakeRuleFinder(), component, project);
 
-    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
-    // override generated key
-    comment.setKey("FGHIJ");
+    RuleDefinitionDto rule = db.rules().insert();
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setType(RuleType.BUG)
+      .setNew(true)
+      .setRuleKey(rule.getKey())
+      .setProjectUuid(project.uuid())
+      .setComponentUuid(component.uuid())
+      .setLine(5000)
+      .setEffort(Duration.create(10L))
+      .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "first comment"))
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date);
+
+    saver.save(issue);
+
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(1);
+
+    DefaultIssue updated = new DefaultIssue()
+      .setKey(issue.key())
+      .setType(RuleType.VULNERABILITY)
       .setNew(false)
       .setChanged(true)
 
       // updated fields
-      .setLine(5000)
-      .setEffort(Duration.create(10L))
+      .setLine(issue.getLine() + 10)
+      .setProjectUuid("foo")
+      .setEffort(Duration.create(issue.effortInMinutes() + 10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssigneeUuid("loic")
-      .setFieldChange(context, "severity", "INFO", "BLOCKER")
+      .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
+      .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
       .setResolution("FIXED")
       .setStatus("RESOLVED")
-      .setSeverity("BLOCKER")
-      .setAttribute("foo", "bar")
-      .addComment(comment)
-      .setCreationDate(date)
-      .setUpdateDate(date)
-      .setCloseDate(date)
-      .setProjectUuid("uuid-10")
+      .setSeverity("MAJOR")
+      .setAttribute("fox", "bax")
+      .setCreationDate(DateUtils.addDays(date, 1))
+      .setUpdateDate(DateUtils.addDays(date, 1))
+      .setCloseDate(DateUtils.addDays(date, 1))
 
       // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
-      .setComponentKey("not:a:component");
+      .setComponentKey("struts:Action")
+      .setProjectKey("struts");
 
-    saver.save(issue);
+    saver.save(updated);
 
-    db.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.selectFirst("select * from issues"))
+      .containsEntry("ASSIGNEE", updated.assignee())
+      .containsEntry("AUTHOR_LOGIN", updated.authorLogin())
+      .containsEntry("CHECKSUM", updated.checksum())
+      .containsEntry("COMPONENT_UUID", issue.componentUuid())
+      .containsEntry("EFFORT", updated.effortInMinutes())
+      .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
+      .containsEntry("ISSUE_TYPE", (byte) 3)
+      .containsEntry("KEE", issue.key())
+      .containsEntry("LINE", (long) updated.line())
+      .containsEntry("PROJECT_UUID", updated.projectUuid())
+      .containsEntry("RESOLUTION", updated.resolution())
+      .containsEntry("STATUS", updated.status())
+      .containsEntry("SEVERITY", updated.severity());
+
+    List<Map<String, Object>> rows = db.select("select * from issue_changes order by id");
+    assertThat(rows).hasSize(3);
+    assertThat(rows.get(0))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("first comment", "comment", "user_uuid");
+    assertThat(rows.get(1))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("the comment", "comment", "user_uuid");
+    assertThat(rows.get(2))
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
   }
 
   static class FakeBatchSaver extends IssueStorage {
