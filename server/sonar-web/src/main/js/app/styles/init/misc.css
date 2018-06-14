@@ -33,6 +33,10 @@
   vertical-align: text-top !important;
 }
 
+.vertical-baseline {
+  vertical-align: baseline !important;
+}
+
 .nowrap {
   white-space: nowrap !important;
 }

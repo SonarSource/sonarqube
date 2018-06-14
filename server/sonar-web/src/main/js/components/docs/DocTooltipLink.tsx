@@ -24,7 +24,7 @@ import DetachIcon from '../../components/icons-components/DetachIcon';
 export default function DocTooltipLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   const { children, href, ...other } = props;
   return (
-    <span className="display-inline-flex-center">
+    <>
       {href && href.startsWith('/') ? (
         <Link
           rel="noopener noreferrer"
@@ -38,7 +38,7 @@ export default function DocTooltipLink(props: React.AnchorHTMLAttributes<HTMLAnc
           {children}
         </a>
       )}
-      <DetachIcon className="little-spacer-left little-spacer-right" size={12} />
-    </span>
+      <DetachIcon className="little-spacer-left little-spacer-right vertical-baseline" size={12} />
+    </>
   );
 }

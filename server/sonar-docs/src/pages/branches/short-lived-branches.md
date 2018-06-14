@@ -14,7 +14,6 @@ For short-lived branches, there is a kind of hard-coded quality gate focusing on
 
 * status: green / OK or red / ERROR
 * error conditions:
-
   * new open bugs > 0
   * new open vulnerabilities > 0
   * new open code smells > 0

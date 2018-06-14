@@ -21,12 +21,54 @@
   max-width: 740px;
 }
 
-.documentation-content > h1 {
-  margin-bottom: calc(4 * var(--gridSize));
-  font-size: 20px;
-}
-
 .documentation-footer div,
 .documentation-footer .page-footer-menu {
   max-width: 740px;
+}
+
+.documentation-content.markdown {
+  font-size: 14px;
+}
+
+.documentation-content.markdown > h1 {
+  font-size: 24px;
+  padding-top: var(--gridSize);
+  margin-bottom: 2em;
+}
+
+.documentation-content.markdown h2 {
+  font-weight: 800;
+  margin-top: 3em;
+}
+
+.documentation-content.markdown h3 {
+  font-size: 14px;
+  margin-bottom: 0.8em;
+}
+
+.documentation-content.markdown pre {
+  border: 1px solid #e6e6e6;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.documentation-content.markdown p,
+.documentation-content.markdown pre,
+.documentation-content.markdown table {
+  margin: 0.8em 0 2em;
+}
+
+.documentation-content.markdown p + ul,
+.documentation-content.markdown p + ol,
+.documentation-content.markdown p + pre {
+  margin: -1em 0 2em;
+}
+
+.documentation-content.markdown li > p {
+  margin: 0;
+}
+
+.documentation-content.markdown li > p + ul,
+.documentation-content.markdown li > p + ol {
+  margin: 0;
 }

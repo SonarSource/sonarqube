@@ -9,19 +9,17 @@ exports[`should render documentation link 1`] = `
 `;
 
 exports[`should render simple link 1`] = `
-<span
-  className="display-inline-flex-center"
->
+<React.Fragment>
   <a
     href="http://sample.com"
     rel="noopener noreferrer"
     target="_blank"
   />
   <DetachIcon
-    className="text-muted little-spacer-left little-spacer-right"
+    className="text-muted little-spacer-left little-spacer-right vertical-baseline"
     size={12}
   />
-</span>
+</React.Fragment>
 `;
 
 exports[`should render sonarcloud link 1`] = `

@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render internal link 1`] = `
-<span
-  className="display-inline-flex-center"
->
+<React.Fragment>
   <Link
     onlyActiveOnIndex={false}
     rel="noopener noreferrer"
@@ -12,24 +10,22 @@ exports[`should render internal link 1`] = `
     to="/documentation/foo/bar"
   />
   <DetachIcon
-    className="little-spacer-left little-spacer-right"
+    className="little-spacer-left little-spacer-right vertical-baseline"
     size={12}
   />
-</span>
+</React.Fragment>
 `;
 
 exports[`should render simple link 1`] = `
-<span
-  className="display-inline-flex-center"
->
+<React.Fragment>
   <a
     href="http://sample.com"
     rel="noopener noreferrer"
     target="_blank"
   />
   <DetachIcon
-    className="little-spacer-left little-spacer-right"
+    className="little-spacer-left little-spacer-right vertical-baseline"
     size={12}
   />
-</span>
+</React.Fragment>
 `;

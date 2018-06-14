@@ -38,11 +38,14 @@ export default function DocLink(props: React.AnchorHTMLAttributes<HTMLAnchorElem
   }
 
   return (
-    <span className="display-inline-flex-center">
+    <>
       <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
         {children}
       </a>
-      <DetachIcon className="text-muted little-spacer-left little-spacer-right" size={12} />
-    </span>
+      <DetachIcon
+        className="text-muted little-spacer-left little-spacer-right vertical-baseline"
+        size={12}
+      />
+    </>
   );
 }
