@@ -59,10 +59,10 @@ public class TaskContainer extends ComponentContainer {
   }
 
   private void addTaskExtensions() {
-    getComponentByType(ExtensionInstaller.class)
-      .install(this, extension -> isScannerSide(extension) && isInstantiationStrategy(extension, PER_TASK));
     getComponentByType(CoreExtensionsInstaller.class)
       .install(this, t -> isInstantiationStrategy(t, PER_TASK));
+    getComponentByType(ExtensionInstaller.class)
+      .install(this, extension -> isScannerSide(extension) && isInstantiationStrategy(extension, PER_TASK));
   }
 
   @Override

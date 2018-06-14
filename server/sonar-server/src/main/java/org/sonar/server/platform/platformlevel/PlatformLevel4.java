@@ -579,11 +579,11 @@ public class PlatformLevel4 extends PlatformLevel {
 
   @Override
   public PlatformLevel start() {
-    ServerExtensionInstaller extensionInstaller = get(ServerExtensionInstaller.class);
-    CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
     ComponentContainer container = getContainer();
-    extensionInstaller.installExtensions(container);
+    CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(container, t -> true);
+    ServerExtensionInstaller extensionInstaller = get(ServerExtensionInstaller.class);
+    extensionInstaller.installExtensions(container);
 
     super.start();
 

@@ -210,10 +210,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     populateLevel4(this.level4, props);
 
     configureFromModules(this.level4);
-    ServerExtensionInstaller extensionInstaller = this.level4.getComponentByType(ServerExtensionInstaller.class);
-    extensionInstaller.installExtensions(this.level4);
     CoreExtensionsInstaller coreExtensionsInstaller = this.level4.getComponentByType(CECoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(this.level4, t -> true);
+    ServerExtensionInstaller extensionInstaller = this.level4.getComponentByType(ServerExtensionInstaller.class);
+    extensionInstaller.installExtensions(this.level4);
     this.level4.startComponents();
     PlatformEditionProvider editionProvider = this.level4.getComponentByType(PlatformEditionProvider.class);
     Loggers.get(ComputeEngineContainerImpl.class)

@@ -168,10 +168,10 @@ public class ModuleScanContainer extends ComponentContainer {
   }
 
   private void addExtensions() {
-    ExtensionInstaller pluginInstaller = getComponentByType(ExtensionInstaller.class);
-    pluginInstaller.install(this, e -> isScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
     CoreExtensionsInstaller coreExtensionsInstaller = getComponentByType(CoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(this, t -> isInstantiationStrategy(t, PER_PROJECT));
+    ExtensionInstaller pluginInstaller = getComponentByType(ExtensionInstaller.class);
+    pluginInstaller.install(this, e -> isScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
   }
 
   @Override

@@ -241,10 +241,10 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void addBatchExtensions() {
-    getComponentByType(ExtensionInstaller.class)
-      .install(this, getBatchPluginExtensionsFilter());
     getComponentByType(CoreExtensionsInstaller.class)
       .install(this, extension -> isInstantiationStrategy(extension, PER_BATCH));
+    getComponentByType(ExtensionInstaller.class)
+      .install(this, getBatchPluginExtensionsFilter());
   }
 
   @VisibleForTesting
