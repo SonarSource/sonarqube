@@ -17,21 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from '../../components/lazyLoad';
-import { isSonarCloud } from '../../helpers/system';
+import * as React from 'react';
+import { Link } from 'react-router';
 
-const routes = [
-  {
-    indexRoute: {
-      component: lazyLoad(
-        () =>
-          isSonarCloud() ? import('./sonarcloud/HomeContainer') : import('./components/AboutApp')
-      )
-    },
-    childRoutes: isSonarCloud
-      ? [{ path: 'sq', component: lazyLoad(() => import('./sonarcloud/SQHomeContainer')) }]
-      : []
-  }
-];
+export default function Pricing() {
+  return (
+    <div className="sc-pricing sc-narrow-container">
+      <div className="sc-pricing-block">
+        <h3 className="sc-pricing-title">Open Source Projects</h3>
+        <span className="sc-pricing-small">&nbsp;</span>
+        <span className="sc-pricing-price">Free</span>
+      </div>
 
-export default routes;
+      <div className="sc-pricing-block">
+        <h3 className="sc-pricing-title">Private Projects</h3>
+        <span className="sc-pricing-small">14 days free trial</span>
+        <strong>
+          From <span className="sc-pricing-price">10€</span>/mo
+        </strong>
+        <Link className="sc-arrow-link sc-pricing-small" to="/documentation/sonarcloud-pricing">
+          see prices
+        </Link>
+      </div>
+    </div>
+  );
+}

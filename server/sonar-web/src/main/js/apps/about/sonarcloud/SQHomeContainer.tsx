@@ -17,21 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from '../../components/lazyLoad';
-import { isSonarCloud } from '../../helpers/system';
+import { connect } from 'react-redux';
+import SQHome from './SQHome';
+import { getCurrentUser } from '../../../store/rootReducer';
 
-const routes = [
-  {
-    indexRoute: {
-      component: lazyLoad(
-        () =>
-          isSonarCloud() ? import('./sonarcloud/HomeContainer') : import('./components/AboutApp')
-      )
-    },
-    childRoutes: isSonarCloud
-      ? [{ path: 'sq', component: lazyLoad(() => import('./sonarcloud/SQHomeContainer')) }]
-      : []
-  }
-];
+const mapStateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state)
+});
 
-export default routes;
+export default connect(mapStateToProps)(SQHome);

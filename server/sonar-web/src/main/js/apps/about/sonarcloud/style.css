@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,700');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
 
 .sc-page {
   font-family: var(--sonarcloudFontFamily);
@@ -49,9 +49,16 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: stretch;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .sc-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: 30%;
   margin-bottom: 30px;
 }
@@ -64,9 +71,22 @@
 }
 
 .sc-feature-description {
+  flex: 1 1 auto;
   line-height: 22px;
   font-size: 16px;
   font-weight: 300;
+}
+
+.sc-feature-link {
+  margin-top: 16px;
+  color: var(--sonarcloudOrange) !important;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.sc-feature-link:hover,
+.sc-feature-link:focus {
+  color: var(--sonarcloudOrangeDark) !important;
 }
 
 .sc-narrow-container {
@@ -102,6 +122,7 @@
 
 .sc-pricing-price {
   line-height: 72px;
+  color: var(--sonarcloudBlack800);
   font-size: 65px;
   font-weight: 700;
 }
@@ -110,13 +131,13 @@
   font-size: 14px;
 }
 
-.sc-pricing-about {
+.sc-arrow-link {
   position: relative;
   border: none;
   color: var(--baseFontColor);
 }
 
-.sc-pricing-about::after {
+.sc-arrow-link::after {
   content: '→';
   position: absolute;
   top: 0;
@@ -124,15 +145,15 @@
   transition: left 0.3s ease;
 }
 
-.sc-pricing-about:hover {
+.sc-arrow-link:hover {
   color: var(--baseFontColor);
 }
 
-.sc-pricing-about:focus {
+.sc-arrow-link:focus {
   color: var(--sonarcloudOrange);
 }
 
-.sc-pricing-about:hover::after {
+.sc-arrow-link:hover::after {
   left: calc(100% + 10px);
 }
 
@@ -263,4 +284,146 @@
   position: absolute;
   top: 30px;
   right: 20px;
+}
+
+.sc-sq-jumbotron {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1160px;
+  margin: 30px auto 0;
+  color: var(--sonarcloudBlack800);
+}
+
+.sc-sq-jumbotron-left {
+  min-width: 500px;
+}
+
+.sc-sq-jumbotron-right {
+  max-width: 725px;
+}
+
+.sc-sq-jumbotron-right img {
+  max-width: 100%;
+  border-radius: 6px;
+  box-shadow: 0px 15px 50px rgba(0, 0, 0, 0.21);
+}
+
+.sc-sq-jumbotron-title {
+  line-height: 61px;
+  margin-top: 90px;
+  margin-bottom: 20px;
+  color: var(--sonarcloudBlack800);
+  font-size: 60px;
+  font-weight: 700;
+}
+
+.sc-sq-jumbotron-title-orange {
+  color: var(--sonarcloudOrange);
+}
+
+.sc-sq-jumbotron-login {
+  line-height: 25px;
+  font-size: 18px;
+}
+
+.sc-sq-login-button {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  margin-top: 16px;
+  margin-right: 16px;
+  padding: 0 15px;
+  line-height: 44px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--sonarcloudBlack800);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.sc-sq-login-button:hover,
+.sc-sq-login-button:focus {
+  color: #fff;
+  background-color: var(--sonarcloudBlack900);
+}
+
+.sc-sq-login-button > img {
+  margin-right: 12px;
+  margin-bottom: 1px;
+}
+
+.sc-sq-header2 {
+  margin: 80px 0 40px;
+  line-height: 45px;
+  font-size: 32px;
+  font-weight: 300;
+  text-align: center;
+}
+
+.sc-sq-dot {
+  vertical-align: super;
+  color: var(--sonarcloudOrange);
+  font-size: 24px;
+}
+
+.sc-languages {
+  margin: 60px 0;
+  text-align: center;
+}
+
+.sc-languages-list {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.sc-languages-list > li {
+  margin: 11px 22px;
+}
+
+.sc-integrations {
+  position: relative;
+  background-color: var(--sonarcloudBlack200);
+  padding: 44px 0px;
+  text-align: center;
+}
+
+.sc-integrations-title {
+  margin-top: 0;
+}
+
+.sc-integrations-list {
+  display: flex;
+  justify-content: center;
+}
+
+.sc-integrations-list > li {
+  width: 170px;
+}
+
+.sc-integrations-list > li + li {
+  border-left: 1px solid var(--sonarcloudBlack300);
+}
+
+.sc-bottom-note {
+  margin: 16px 0;
+  font-size: 16px;
+  font-weight: 300;
+  text-align: center;
+}
+
+.sc-bottom-note > a {
+  font-weight: 500;
+}
+
+.sc-bottom-note-link:hover,
+.sc-bottom-note-link:focus {
+  border-bottom-color: var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange);
+}
+
+.sc-sq-page {
+  background: url(/images/sonarcloud/sq-background.svg) no-repeat top center;
+  background-size: auto 200vh;
 }

@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import Footer from './Footer';
+import Pricing from './Pricing';
+import StartUsing from './StartUsing';
 import GlobalContainer from '../../../app/components/GlobalContainer';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
 import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
@@ -98,43 +100,9 @@ export default class Home extends React.PureComponent<Props> {
             </li>
           </ul>
 
-          <div className="sc-pricing sc-narrow-container">
-            <div className="sc-pricing-block">
-              <h3 className="sc-pricing-title">Open Source Projects</h3>
-              <span className="sc-pricing-small">&nbsp;</span>
-              <span className="sc-pricing-price">Free</span>
-            </div>
+          <Pricing />
 
-            <div className="sc-pricing-block">
-              <h3 className="sc-pricing-title">Private Projects</h3>
-              <span className="sc-pricing-small">14 days free trial</span>
-              <strong>
-                From <span className="sc-pricing-price">10€</span>/mo
-              </strong>
-              <Link
-                className="sc-pricing-about sc-pricing-small"
-                to="/documentation/sonarcloud-pricing">
-                see prices
-              </Link>
-            </div>
-          </div>
-
-          {!isLoggedIn(this.props.currentUser) && (
-            <div className="sc-narrow-container text-center">
-              <Link className="sc-start" to="/sessions/new">
-                Start using SonarCloud <ChevronRightIcon className="spacer-left" />
-              </Link>
-              <div className="big-spacer-top">
-                <a
-                  className="text-muted"
-                  href="https://community.sonarsource.com/c/help/sc"
-                  rel="noopener noreferrer"
-                  target="_blank">
-                  Need help?
-                </a>
-              </div>
-            </div>
-          )}
+          {!isLoggedIn(this.props.currentUser) && <StartUsing />}
 
           <div className="sc-narrow-container text-center">
             <h2 className="sc-feature-title">Explore open source projects on SonarCloud</h2>

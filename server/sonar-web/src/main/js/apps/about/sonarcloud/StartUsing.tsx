@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from '../../components/lazyLoad';
-import { isSonarCloud } from '../../helpers/system';
+import * as React from 'react';
+import { Link } from 'react-router';
+import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
 
-const routes = [
-  {
-    indexRoute: {
-      component: lazyLoad(
-        () =>
-          isSonarCloud() ? import('./sonarcloud/HomeContainer') : import('./components/AboutApp')
-      )
-    },
-    childRoutes: isSonarCloud
-      ? [{ path: 'sq', component: lazyLoad(() => import('./sonarcloud/SQHomeContainer')) }]
-      : []
-  }
-];
-
-export default routes;
+export default function StartUsing() {
+  return (
+    <div className="sc-narrow-container text-center">
+      <Link className="sc-start" to="/sessions/new">
+        Start using SonarCloud <ChevronRightIcon className="spacer-left" />
+      </Link>
+      <div className="big-spacer-top">
+        <a
+          className="text-muted"
+          href="https://community.sonarsource.com/c/help/sc"
+          rel="noopener noreferrer"
+          target="_blank">
+          Need help?
+        </a>
+      </div>
+    </div>
+  );
+}

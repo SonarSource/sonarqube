@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-661.517 -4278.348 19.786 37.022">
+  <defs>
+    <style>
+      .cls-1, .cls-5 {
+        fill: none;
+      }
+
+      .cls-1, .cls-2 {
+        stroke: #f60;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke-width: 1.75px;
+      }
+
+      .cls-2, .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-3 {
+        stroke: #434447;
+      }
+
+      .cls-4 {
+        stroke: none;
+      }
+    </style>
+  </defs>
+  <g id="Groupe_6132" data-name="Groupe 6132" transform="translate(-1234 -5514)">
+    <path id="Tracé_10264" data-name="Tracé 10264" class="cls-1" d="M-1182.043-7730.764v6.537s.38,10.115-11.614,9.954" transform="translate(1770.587 8970.999)"/>
+    <g id="Ellipse_69" data-name="Ellipse 69" class="cls-2" transform="translate(584.619 1235.652)">
+      <ellipse class="cls-4" cx="3.825" cy="3.967" rx="3.825" ry="3.967"/>
+      <ellipse class="cls-5" cx="3.825" cy="3.967" rx="2.95" ry="3.092"/>
+    </g>
+    <path id="Tracé_10265" data-name="Tracé 10265" class="cls-3" d="M-1193.77-7704.575v-26.188" transform="translate(1770.077 8970.999)"/>
+    <g id="Ellipse_70" data-name="Ellipse 70" class="cls-3" transform="translate(572.483 1235.652)">
+      <ellipse class="cls-4" cx="3.825" cy="3.967" rx="3.825" ry="3.967"/>
+      <ellipse class="cls-5" cx="3.825" cy="3.967" rx="2.95" ry="3.092"/>
+    </g>
+    <g id="Ellipse_71" data-name="Ellipse 71" class="cls-3" transform="translate(572.483 1264.741)">
+      <ellipse class="cls-4" cx="3.825" cy="3.967" rx="3.825" ry="3.967"/>
+      <ellipse class="cls-5" cx="3.825" cy="3.967" rx="2.95" ry="3.092"/>
+    </g>
+  </g>
+</svg>
