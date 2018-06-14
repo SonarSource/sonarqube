@@ -122,7 +122,11 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
-          {this.renderIconLink('https://blog.sonarsource.com/', 'sq-icon.svg', 'Product News')}
+          {this.renderIconLink(
+            'https://www.sonarsource.com/resources/product-news/',
+            'sq-icon.svg',
+            'Product News'
+          )}
         </li>
         <li>
           {this.renderIconLink('https://twitter.com/SonarQube', 'twitter-icon.svg', 'Twitter')}

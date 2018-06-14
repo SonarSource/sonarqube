@@ -90,7 +90,7 @@ exports[`should display suggestion links 1`] = `
       </li>
       <li>
         <a
-          href="https://blog.sonarsource.com/"
+          href="https://www.sonarsource.com/resources/product-news/"
           rel="noopener noreferrer"
           target="_blank"
         >
