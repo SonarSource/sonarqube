@@ -73,6 +73,7 @@ import org.sonar.scanner.source.HighlightableBuilder;
 import org.sonar.scanner.source.SymbolizableBuilder;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_PROJECT;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
@@ -169,7 +170,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   private void addExtensions() {
     CoreExtensionsInstaller coreExtensionsInstaller = getComponentByType(CoreExtensionsInstaller.class);
-    coreExtensionsInstaller.install(this, t -> isInstantiationStrategy(t, PER_PROJECT));
+    coreExtensionsInstaller.install(this, noExtensionFilter(), t -> isInstantiationStrategy(t, PER_PROJECT));
     ExtensionInstaller pluginInstaller = getComponentByType(ExtensionInstaller.class);
     pluginInstaller.install(this, e -> isScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
   }

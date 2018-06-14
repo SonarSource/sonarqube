@@ -102,6 +102,7 @@ import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.storage.Storages;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
@@ -242,7 +243,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchExtensions() {
     getComponentByType(CoreExtensionsInstaller.class)
-      .install(this, extension -> isInstantiationStrategy(extension, PER_BATCH));
+      .install(this, noExtensionFilter(), extension -> isInstantiationStrategy(extension, PER_BATCH));
     getComponentByType(ExtensionInstaller.class)
       .install(this, getBatchPluginExtensionsFilter());
   }

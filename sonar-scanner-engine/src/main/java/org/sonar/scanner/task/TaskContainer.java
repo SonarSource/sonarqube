@@ -31,6 +31,7 @@ import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_TASK;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
@@ -60,7 +61,7 @@ public class TaskContainer extends ComponentContainer {
 
   private void addTaskExtensions() {
     getComponentByType(CoreExtensionsInstaller.class)
-      .install(this, t -> isInstantiationStrategy(t, PER_TASK));
+      .install(this, noExtensionFilter(), t -> isInstantiationStrategy(t, PER_TASK));
     getComponentByType(ExtensionInstaller.class)
       .install(this, extension -> isScannerSide(extension) && isInstantiationStrategy(extension, PER_TASK));
   }

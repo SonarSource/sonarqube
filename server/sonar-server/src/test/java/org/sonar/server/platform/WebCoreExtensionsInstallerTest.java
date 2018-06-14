@@ -37,6 +37,8 @@ import org.sonar.core.platform.ComponentContainer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 
 public class WebCoreExtensionsInstallerTest {
   private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
@@ -61,7 +63,7 @@ public class WebCoreExtensionsInstallerTest {
       }));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     assertThat(container.getPicoContainer().getComponentAdapters())
       .hasSize(ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 2);

@@ -44,6 +44,14 @@ public abstract class CoreExtensionsInstaller {
   private final CoreExtensionRepository coreExtensionRepository;
   private final Class<? extends Annotation> supportedAnnotationType;
 
+  public static Predicate<Object> noExtensionFilter() {
+    return t -> true;
+  }
+
+  public static Predicate<Object> noAdditionalSideFilter() {
+    return t -> true;
+  }
+
   protected CoreExtensionsInstaller(SonarRuntime sonarRuntime, CoreExtensionRepository coreExtensionRepository,
     Class<? extends Annotation> supportedAnnotationType) {
     this.sonarRuntime = sonarRuntime;
@@ -51,18 +59,25 @@ public abstract class CoreExtensionsInstaller {
     this.supportedAnnotationType = supportedAnnotationType;
   }
 
-  public void install(ComponentContainer container, Predicate<Object> extensionFilter) {
+  /**
+   * @param container the container into which extensions will be installed
+   * @param extensionFilter filters extensions added to {@link CoreExtension.Context}. When it returns false, the
+   *                        extension is ignored as if it had never been added to the context.
+   * @param additionalSideFilter applied on top of filtering on {@link #supportedAnnotationType} to decide whether
+   *                             extension should be added to container as an object or only as a PropertyDefinition.
+   */
+  public void install(ComponentContainer container, Predicate<Object> extensionFilter, Predicate<Object> additionalSideFilter) {
     coreExtensionRepository.loadedCoreExtensions()
-      .forEach(coreExtension -> install(container, extensionFilter, coreExtension));
+      .forEach(coreExtension -> install(container, extensionFilter, additionalSideFilter, coreExtension));
   }
 
-  private void install(ComponentContainer container, Predicate<Object> extensionFilter, CoreExtension coreExtension) {
+  private void install(ComponentContainer container, Predicate<Object> extensionFilter, Predicate<Object> additionalSideFilter, CoreExtension coreExtension) {
     String coreExtensionName = coreExtension.getName();
     try {
-      List<Object> providerKeys = addDeclaredExtensions(container, extensionFilter, coreExtension);
-      addProvidedExtensions(container, extensionFilter, coreExtensionName, providerKeys);
+      List<Object> providerKeys = addDeclaredExtensions(container, extensionFilter, additionalSideFilter, coreExtension);
+      addProvidedExtensions(container, additionalSideFilter, coreExtensionName, providerKeys);
 
-      LOG.info("Installed core extension: " + coreExtensionName);
+      LOG.debug("Installed core extension: " + coreExtensionName);
       coreExtensionRepository.installed(coreExtension);
     } catch (Exception e) {
       throw new RuntimeException("Failed to load core extension " + coreExtensionName, e);
@@ -70,36 +85,36 @@ public abstract class CoreExtensionsInstaller {
   }
 
   private List<Object> addDeclaredExtensions(ComponentContainer container, Predicate<Object> extensionFilter,
-    CoreExtension coreExtension) {
-    ContextImpl context = new ContextImpl(container, extensionFilter, coreExtension.getName());
+    Predicate<Object> additionalSideFilter, CoreExtension coreExtension) {
+    ContextImpl context = new ContextImpl(container, extensionFilter, additionalSideFilter, coreExtension.getName());
     coreExtension.load(context);
     return context.getProviders();
   }
 
-  private void addProvidedExtensions(ComponentContainer container, Predicate<Object> extensionFilter,
+  private void addProvidedExtensions(ComponentContainer container, Predicate<Object> additionalSideFilter,
     String extensionCategory, List<Object> providerKeys) {
     providerKeys.stream()
       .map(providerKey -> (ExtensionProvider) container.getComponentByKey(providerKey))
-      .forEach(provider -> addFromProvider(container, extensionFilter, extensionCategory, provider));
+      .forEach(provider -> addFromProvider(container, additionalSideFilter, extensionCategory, provider));
   }
 
-  private void addFromProvider(ComponentContainer container, Predicate<Object> extensionFilter,
+  private void addFromProvider(ComponentContainer container, Predicate<Object> additionalSideFilter,
     String extensionCategory, ExtensionProvider provider) {
     Object obj = provider.provide();
     if (obj != null) {
       if (obj instanceof Iterable) {
         for (Object ext : (Iterable) obj) {
-          addSupportedExtension(container, extensionFilter, extensionCategory, ext);
+          addSupportedExtension(container, additionalSideFilter, extensionCategory, ext);
         }
       } else {
-        addSupportedExtension(container, extensionFilter, extensionCategory, obj);
+        addSupportedExtension(container, additionalSideFilter, extensionCategory, obj);
       }
     }
   }
 
-  private <T> boolean addSupportedExtension(ComponentContainer container, Predicate<Object> extensionFilter,
+  private <T> boolean addSupportedExtension(ComponentContainer container, Predicate<Object> additionalSideFilter,
     String extensionCategory, T component) {
-    if (hasSupportedAnnotation(component) && extensionFilter.test(component)) {
+    if (hasSupportedAnnotation(component) && additionalSideFilter.test(component)) {
       container.addExtension(extensionCategory, component);
       return true;
     }
@@ -113,12 +128,15 @@ public abstract class CoreExtensionsInstaller {
   private class ContextImpl implements CoreExtension.Context {
     private final ComponentContainer container;
     private final Predicate<Object> extensionFilter;
+    private final Predicate<Object> additionalSideFilter;
     private final String extensionCategory;
     private final List<Object> providers = new ArrayList<>();
 
-    public ContextImpl(ComponentContainer container, Predicate<Object> extensionFilter, String extensionCategory) {
+    public ContextImpl(ComponentContainer container, Predicate<Object> extensionFilter,
+      Predicate<Object> additionalSideFilter, String extensionCategory) {
       this.container = container;
       this.extensionFilter = extensionFilter;
+      this.additionalSideFilter = additionalSideFilter;
       this.extensionCategory = extensionCategory;
     }
 
@@ -136,8 +154,11 @@ public abstract class CoreExtensionsInstaller {
     @Override
     public CoreExtension.Context addExtension(Object component) {
       requireNonNull(component, "component can't be null");
+      if (!extensionFilter.test(component)) {
+        return this;
+      }
 
-      if (!addSupportedExtension(container, extensionFilter, extensionCategory, component)) {
+      if (!addSupportedExtension(container, additionalSideFilter, extensionCategory, component)) {
         container.declareExtension(extensionCategory, component);
       } else if (ExtensionProviderSupport.isExtensionProvider(component)) {
         providers.add(component);

@@ -55,6 +55,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 @RunWith(DataProviderRunner.class)
@@ -72,7 +74,7 @@ public class CoreExtensionsInstallerTest {
   public void install_has_no_effect_if_CoreExtensionRepository_has_no_loaded_CoreExtension() {
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     assertAddedExtensions(container, 0);
   }
@@ -88,7 +90,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(coreExtensions.stream());
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     inOrder.verify(coreExtension1).load(contextCaptor.capture());
     inOrder.verify(coreExtension2).load(contextCaptor.capture());
@@ -106,7 +108,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension1, coreExtension2));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     verify(coreExtension1).load(contextCaptor.capture());
     verify(coreExtension2).load(contextCaptor.capture());
@@ -122,7 +124,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension1, coreExtension2));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     verify(coreExtension1).load(contextCaptor.capture());
     verify(coreExtension2).load(contextCaptor.capture());
@@ -140,7 +142,7 @@ public class CoreExtensionsInstallerTest {
     ComponentContainer container = new ComponentContainer();
     container.add(configuration);
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     verify(coreExtension1).load(contextCaptor.capture());
     verify(coreExtension2).load(contextCaptor.capture());
@@ -157,7 +159,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     assertAddedExtensions(container, WestSideClass.class, Latitude.class);
     assertPropertyDefinitions(container);
@@ -171,7 +173,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> t != Latitude.class);
+    underTest.install(container, noExtensionFilter(), t -> t != Latitude.class);
 
     assertAddedExtensions(container, WestSideClass.class);
     assertPropertyDefinitions(container);
@@ -186,7 +188,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     assertAddedExtensions(container, WestSidePropertyDefinition.class, LatitudePropertyDefinition.class);
     assertPropertyDefinitions(container, "westKey", "eastKey", "otherKey", "latitudeKey", "blankKey");
@@ -201,7 +203,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> false);
+    underTest.install(container, noExtensionFilter(), t -> false);
 
     assertAddedExtensions(container, 0);
     assertPropertyDefinitions(container, "westKey", "eastKey", "otherKey", "latitudeKey", "blankKey");
@@ -217,7 +219,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     assertAddedExtensions(container, 0);
     assertPropertyDefinitions(container, coreExtension, propertyDefinitionNoCategory, propertyDefinitionWithCategory);
@@ -231,7 +233,7 @@ public class CoreExtensionsInstallerTest {
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ComponentContainer container = new ComponentContainer();
 
-    underTest.install(container, t -> true);
+    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     assertAddedExtensions(container, WestSideProvider.class, WestSideProvided.class, PartiallyWestSideProvider.class);
     assertPropertyDefinitions(container);

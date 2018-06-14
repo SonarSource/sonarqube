@@ -238,6 +238,9 @@ import org.sonar.server.ws.WebServiceFilter;
 import org.sonar.server.ws.WebServiceReroutingFilter;
 import org.sonar.server.ws.ws.WebServicesWsModule;
 
+import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
+import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
+
 public class PlatformLevel4 extends PlatformLevel {
 
   private final List<Object> level4AddedComponents;
@@ -536,7 +539,6 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectBadgesWsModule.class,
 
       // Core Extensions
-      WebCoreExtensionsInstaller.class,
       CoreExtensionBootstraper.class,
       CoreExtensionStopper.class,
 
@@ -581,7 +583,7 @@ public class PlatformLevel4 extends PlatformLevel {
   public PlatformLevel start() {
     ComponentContainer container = getContainer();
     CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
-    coreExtensionsInstaller.install(container, t -> true);
+    coreExtensionsInstaller.install(container, hasPlatformLevel4OrNone(), noAdditionalSideFilter());
     ServerExtensionInstaller extensionInstaller = get(ServerExtensionInstaller.class);
     extensionInstaller.installExtensions(container);
 

@@ -20,9 +20,9 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.Durations;
-import org.sonar.core.extension.CoreExtensionRepositoryImpl;
-import org.sonar.core.extension.CoreExtensionsLoader;
+import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.server.es.MigrationEsClientImpl;
@@ -30,6 +30,7 @@ import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;
+import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationExecutorServiceImpl;
 import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
@@ -45,6 +46,9 @@ import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.WebServerExtensionInstaller;
 import org.sonar.server.startup.ClusterConfigurationCheck;
+
+import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
+import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
 
 public class PlatformLevel2 extends PlatformLevel {
   public PlatformLevel2(PlatformLevel parent) {
@@ -74,8 +78,6 @@ public class PlatformLevel2 extends PlatformLevel {
       PluginClassloaderFactory.class,
       InstalledPluginReferentialFactory.class,
       WebServerExtensionInstaller.class,
-      CoreExtensionRepositoryImpl.class,
-      CoreExtensionsLoader.class,
 
       // depends on plugins
       ServerI18n.class,
@@ -89,8 +91,7 @@ public class PlatformLevel2 extends PlatformLevel {
       DatabaseMigrationExecutorServiceImpl.class);
 
     addIfCluster(
-      ClusterConfigurationCheck.class
-    );
+      ClusterConfigurationCheck.class);
 
     addIfStartupLeader(
       DatabaseCharsetChecker.class,
@@ -101,7 +102,11 @@ public class PlatformLevel2 extends PlatformLevel {
   public PlatformLevel start() {
     // ensuring the HistoryTable exists must be the first thing done when this level is started
     getOptional(MigrationHistoryTable.class).ifPresent(MigrationHistoryTable::start);
-    get(CoreExtensionsLoader.class).load();
+
+    ComponentContainer container = getContainer();
+    CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
+    coreExtensionsInstaller.install(container, hasPlatformLevel(2), noAdditionalSideFilter());
+
     return super.start();
   }
 }

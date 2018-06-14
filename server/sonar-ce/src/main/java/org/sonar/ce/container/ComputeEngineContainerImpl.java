@@ -64,7 +64,6 @@ import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
-import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
@@ -173,6 +172,9 @@ import org.sonar.server.webhook.WebhookModule;
 import org.sonarqube.ws.Rules;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
+import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
+import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
@@ -193,35 +195,62 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     this.level1 = new ComponentContainer();
     populateLevel1(this.level1, props, requireNonNull(computeEngineStatus));
     configureFromModules(this.level1);
-    this.level1.startComponents();
+    startLevel1(this.level1);
 
     ComponentContainer level2 = this.level1.createChild();
     populateLevel2(level2);
     configureFromModules(level2);
-    level2.getComponentByType(CoreExtensionsLoader.class).load();
-    level2.startComponents();
+    startLevel2(level2);
 
     ComponentContainer level3 = level2.createChild();
     populateLevel3(level3);
     configureFromModules(level3);
-    level3.startComponents();
+    startLevel3(level3);
 
     this.level4 = level3.createChild();
     populateLevel4(this.level4, props);
-
     configureFromModules(this.level4);
-    CoreExtensionsInstaller coreExtensionsInstaller = this.level4.getComponentByType(CECoreExtensionsInstaller.class);
-    coreExtensionsInstaller.install(this.level4, t -> true);
-    ServerExtensionInstaller extensionInstaller = this.level4.getComponentByType(ServerExtensionInstaller.class);
-    extensionInstaller.installExtensions(this.level4);
-    this.level4.startComponents();
-    PlatformEditionProvider editionProvider = this.level4.getComponentByType(PlatformEditionProvider.class);
-    Loggers.get(ComputeEngineContainerImpl.class)
-      .info("Running {} edition", editionProvider.get().map(EditionProvider.Edition::getLabel).orElse(""));
+    startLevel4(this.level4);
 
     startupTasks();
 
     return this;
+  }
+
+  private static void startLevel1(ComponentContainer level1) {
+    level1.getComponentByType(CoreExtensionsLoader.class)
+      .load();
+    level1.getComponentByType(CECoreExtensionsInstaller.class)
+      .install(level1, hasPlatformLevel(1), noAdditionalSideFilter());
+
+    level1.startComponents();
+  }
+
+  private static void startLevel2(ComponentContainer level2) {
+    level2.getComponentByType(CECoreExtensionsInstaller.class)
+      .install(level2, hasPlatformLevel(2), noAdditionalSideFilter());
+
+    level2.startComponents();
+  }
+
+  private static void startLevel3(ComponentContainer level3) {
+    level3.getComponentByType(CECoreExtensionsInstaller.class)
+      .install(level3, hasPlatformLevel(3), noAdditionalSideFilter());
+
+    level3.startComponents();
+  }
+
+  private static void startLevel4(ComponentContainer level4) {
+    level4.getComponentByType(CECoreExtensionsInstaller.class)
+      .install(level4, hasPlatformLevel4OrNone(), noAdditionalSideFilter());
+    level4.getComponentByType(ServerExtensionInstaller.class)
+      .installExtensions(level4);
+
+    level4.startComponents();
+
+    PlatformEditionProvider editionProvider = level4.getComponentByType(PlatformEditionProvider.class);
+    Loggers.get(ComputeEngineContainerImpl.class)
+      .info("Running {} edition", editionProvider.get().map(EditionProvider.Edition::getLabel).orElse(""));
   }
 
   private void startupTasks() {
@@ -293,7 +322,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       IssueIndex.class,
 
       new OkHttpClientProvider(),
-      computeEngineStatus);
+      computeEngineStatus,
+
+      CoreExtensionRepositoryImpl.class,
+      CoreExtensionsLoader.class,
+      CECoreExtensionsInstaller.class);
     container.add(toArray(CorePropertyDefinitions.all()));
   }
 
@@ -318,8 +351,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       CePluginRepository.class,
       InstalledPluginReferentialFactory.class,
       ComputeEngineExtensionInstaller.class,
-      CoreExtensionRepositoryImpl.class,
-      CoreExtensionsLoader.class,
 
       // depends on plugins
       ServerI18n.class, // used by RuleI18nManager
@@ -442,7 +473,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       PlatformEditionProvider.class,
 
       // privileged plugins
-      CECoreExtensionsInstaller.class,
       CoreExtensionBootstraper.class,
       CoreExtensionStopper.class,
 

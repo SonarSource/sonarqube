@@ -20,6 +20,8 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
+import org.sonar.core.extension.CoreExtensionsInstaller;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.server.async.AsyncExecutionModule;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
@@ -27,9 +29,13 @@ import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.platform.ServerIdManager;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.StartupMetadataPersister;
+import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
+
+import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
+import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
 
 public class PlatformLevel3 extends PlatformLevel {
   public PlatformLevel3(PlatformLevel parent) {
@@ -50,5 +56,14 @@ public class PlatformLevel3 extends PlatformLevel {
       DefaultOrganizationProviderImpl.class,
       OrganizationFlagsImpl.class,
       AsyncExecutionModule.class);
+  }
+
+  @Override
+  public PlatformLevel start() {
+    ComponentContainer container = getContainer();
+    CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
+    coreExtensionsInstaller.install(container, hasPlatformLevel(3), noAdditionalSideFilter());
+
+    return super.start();
   }
 }

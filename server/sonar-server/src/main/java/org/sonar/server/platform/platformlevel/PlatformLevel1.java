@@ -30,6 +30,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.extension.CoreExtensionRepositoryImpl;
+import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
@@ -51,6 +53,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
+import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.rule.index.RuleIndex;
@@ -58,6 +61,9 @@ import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.SystemPasscodeImpl;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.util.OkHttpClientProvider;
+
+import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
+import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
 
 public class PlatformLevel1 extends PlatformLevel {
   private final Platform platform;
@@ -119,7 +125,11 @@ public class PlatformLevel1 extends PlatformLevel {
       // issues
       IssueIndex.class,
 
-      new OkHttpClientProvider());
+      new OkHttpClientProvider(),
+
+      CoreExtensionRepositoryImpl.class,
+      CoreExtensionsLoader.class,
+      WebCoreExtensionsInstaller.class);
     addAll(CorePropertyDefinitions.all());
 
     // cluster
@@ -132,5 +142,15 @@ public class PlatformLevel1 extends PlatformLevel {
         add(extraRootComponent);
       }
     }
+  }
+
+  @Override
+  public PlatformLevel start() {
+    get(CoreExtensionsLoader.class)
+      .load();
+    get(WebCoreExtensionsInstaller.class)
+      .install(getContainer(), hasPlatformLevel(1), noAdditionalSideFilter());
+
+    return super.start();
   }
 }
