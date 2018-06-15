@@ -5,8 +5,6 @@ scope: sonarcloud
 
 Subscribing to a paid plan on SonarCloud allows you to analyze unlimited private projects. You can make your code visible by members of your organization only.
 
-You can activate the paid plan on the "Administration > Billing" page of your organization.
-
 ## How is SonarCloud priced?
 
 SonarCloud is priced on a monthly basis per lines of code. You pay up front for a maximum number of lines of code to be analyzed in your organization.
@@ -43,6 +41,15 @@ Find your max LOC below to see what it will cost you per month:
 * You choose who can edit your projects
 * Priced by lines of private code
 
+## How do I activate the paid plan?
+
+You can activate the paid plan on the "Administration > Billing" page of your organization. 
+
+## What payment options are available?
+
+Payment is done online by credit card and will happen automatically every month, based on the plan you choose. 
+
+We also accept to receive a purchase order and a wire transfer payment, if ordering a yearly subscription for more than 1M LOCs. In this case, you need to contact us through the Contact form.
 
 ## Can I try a private project on SonarCloud for free?
 
@@ -55,7 +62,11 @@ LOCs are computed by summing up the LOCs of each project analyzed in SonarCloud.
 
 ## How are Lines of Code (LOCs) counted towards billing?
 
-Only LOC from your private projects are counted toward your maximum number of LOCs. If you are getting close to the threshold you will be notified to either upgrade your plan or reduce the number of LOCs in your projects.
+Only LOC from your private projects are counted toward your maximum number of LOCs. 
+
+The count is not related to how frequently the source code is analyzed. If your private project has a 6K LOCs and you analyze it 100 times in the month, this will be counted as 6K for the billing.
+
+If you are getting close to the threshold you will be notified to either upgrade your plan or reduce the number of LOCs in your projects.
 
 ## When will I be invoiced?
 
@@ -63,7 +74,7 @@ You will be invoiced once a month, the day of the month after your trial ends. F
 
 ## Can I stop using the service?
 
-Yes, you can stop using SonarCloud anytime you want.
+Yes, you can stop using SonarCloud anytime you want. You simply need to downgrade your organization to the free plan.
 
 ## Still have more questions?
 
