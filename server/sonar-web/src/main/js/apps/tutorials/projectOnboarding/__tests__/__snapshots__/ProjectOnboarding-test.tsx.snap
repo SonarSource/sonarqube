@@ -1,0 +1,349 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`guides for on-premise 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.project.header"
+    titleTemplate="%s"
+  />
+  <header
+    className="modal-head"
+  >
+    <h2>
+      onboarding.project.header
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      onboarding.project.header.description.2
+    </p>
+    <TokenStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+      stepNumber={1}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={false}
+      stepNumber={2}
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      className="js-skip"
+      onClick={[Function]}
+    >
+      close
+    </ResetButtonLink>
+    <span
+      className="pull-left note"
+    >
+      tutorials.find_tutorial_back_in_help
+    </span>
+  </footer>
+</React.Fragment>
+`;
+
+exports[`guides for on-premise 2`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.project.header"
+    titleTemplate="%s"
+  />
+  <header
+    className="modal-head"
+  >
+    <h2>
+      onboarding.project.header
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      onboarding.project.header.description.2
+    </p>
+    <TokenStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={1}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={true}
+      stepNumber={2}
+      token="abcd1234"
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      className="js-skip"
+      onClick={[Function]}
+    >
+      close
+    </ResetButtonLink>
+    <span
+      className="pull-left note"
+    >
+      tutorials.find_tutorial_back_in_help
+    </span>
+  </footer>
+</React.Fragment>
+`;
+
+exports[`guides for sonarcloud 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.project.header"
+    titleTemplate="%s"
+  />
+  <header
+    className="modal-head"
+  >
+    <h2>
+      onboarding.project.header
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      onboarding.project.header.description.3
+    </p>
+    <OrganizationStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+      stepNumber={1}
+    />
+    <TokenStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={2}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={false}
+      stepNumber={3}
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      className="js-skip"
+      onClick={[Function]}
+    >
+      close
+    </ResetButtonLink>
+    <span
+      className="pull-left note"
+    >
+      tutorials.find_tutorial_back_in_plus
+    </span>
+  </footer>
+</React.Fragment>
+`;
+
+exports[`guides for sonarcloud 2`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.project.header"
+    titleTemplate="%s"
+  />
+  <header
+    className="modal-head"
+  >
+    <h2>
+      onboarding.project.header
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      onboarding.project.header.description.3
+    </p>
+    <OrganizationStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={1}
+    />
+    <TokenStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+      stepNumber={2}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={false}
+      organization="my-org"
+      stepNumber={3}
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      className="js-skip"
+      onClick={[Function]}
+    >
+      close
+    </ResetButtonLink>
+    <span
+      className="pull-left note"
+    >
+      tutorials.find_tutorial_back_in_plus
+    </span>
+  </footer>
+</React.Fragment>
+`;
+
+exports[`guides for sonarcloud 3`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.project.header"
+    titleTemplate="%s"
+  />
+  <header
+    className="modal-head"
+  >
+    <h2>
+      onboarding.project.header
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      onboarding.project.header.description.3
+    </p>
+    <OrganizationStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={1}
+    />
+    <TokenStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
+      }
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={2}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={true}
+      organization="my-org"
+      stepNumber={3}
+      token="abcd1234"
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      className="js-skip"
+      onClick={[Function]}
+    >
+      close
+    </ResetButtonLink>
+    <span
+      className="pull-left note"
+    >
+      tutorials.find_tutorial_back_in_plus
+    </span>
+  </footer>
+</React.Fragment>
+`;

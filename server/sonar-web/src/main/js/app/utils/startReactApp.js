@@ -172,7 +172,7 @@ const startReactApp = () => {
                 <Route
                   path="onboarding"
                   component={lazyLoad(() =>
-                    import('../../apps/tutorials/onboarding/OnboardingPage')
+                    import('../../apps/tutorials/projectOnboarding/ProjectOnboardingPage')
                   )}
                 />
                 <Route path="organizations" childRoutes={organizationsRoutes} />

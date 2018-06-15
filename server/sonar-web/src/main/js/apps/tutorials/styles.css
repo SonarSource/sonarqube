@@ -17,24 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import GlobalNavPlus from '../GlobalNavPlus';
-import { click } from '../../../../../helpers/testUtils';
 
-it('render', () => {
-  const wrapper = shallow(<GlobalNavPlus openProjectOnboarding={jest.fn()} />);
-  expect(wrapper.is('Dropdown')).toBe(true);
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
+.onboarding-step {
+  position: relative;
+  padding-left: 34px;
+}
 
-it('opens onboarding', () => {
-  const openProjectOnboarding = jest.fn();
-  const wrapper = shallow(
-    shallow(<GlobalNavPlus openProjectOnboarding={openProjectOnboarding} />)
-      .find('Dropdown')
-      .prop('overlay')
-  );
-  click(wrapper.find('.js-new-project'));
-  expect(openProjectOnboarding).toBeCalled();
-});
+.onboarding-step:not(.is-open):not(.is-finished) {
+  opacity: 0.4;
+}
+
+.onboarding-step .boxed-group-actions {
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
+}
+
+.onboarding-step-number {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 24px;
+  background-color: #b9b9b9;
+  color: #fff;
+  font-size: var(--mediumFontSize);
+  text-align: center;
+}
+
+.onboarding-step.is-open .onboarding-step-number {
+  background-color: var(--darkBlue);
+}
+
+.onboarding-step.is-finished {
+  cursor: pointer;
+  outline: none;
+}
+
+.onboarding-choices {
+  display: flex;
+  justify-content: space-around;
+  padding: 24px 0 44px;
+}

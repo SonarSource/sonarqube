@@ -17,24 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import GlobalNavPlus from '../GlobalNavPlus';
-import { click } from '../../../../../helpers/testUtils';
+import DotNet from '../DotNet';
 
-it('render', () => {
-  const wrapper = shallow(<GlobalNavPlus openProjectOnboarding={jest.fn()} />);
-  expect(wrapper.is('Dropdown')).toBe(true);
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
-
-it('opens onboarding', () => {
-  const openProjectOnboarding = jest.fn();
-  const wrapper = shallow(
-    shallow(<GlobalNavPlus openProjectOnboarding={openProjectOnboarding} />)
-      .find('Dropdown')
-      .prop('overlay')
-  );
-  click(wrapper.find('.js-new-project'));
-  expect(openProjectOnboarding).toBeCalled();
+it('renders correctly', () => {
+  expect(shallow(<DotNet host="host" projectKey="projectKey" token="token" />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <DotNet host="host" organization="organization" projectKey="projectKey" token="token" />
+    )
+  ).toMatchSnapshot();
 });

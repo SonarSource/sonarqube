@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<Modal
+  contentLabel="onboarding.header"
+  medium={true}
+  onRequestClose={[MockFunction]}
+  shouldCloseOnOverlayClick={false}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      onboarding.header
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      onboarding.header.description
+    </p>
+    <ul
+      className="onboarding-choices"
+    >
+      <li
+        className="text-center"
+      >
+        <p
+          className="big-spacer-bottom"
+        >
+          onboarding.analyze_public_code
+        </p>
+        <Button
+          onClick={[MockFunction]}
+        >
+          onboarding.analyze_public_code.button
+        </Button>
+      </li>
+      <li
+        className="text-center"
+      >
+        <p
+          className="big-spacer-bottom"
+        >
+          onboarding.analyze_private_code
+        </p>
+        <Button
+          onClick={[MockFunction]}
+        >
+          onboarding.analyze_private_code.button
+        </Button>
+      </li>
+      <li
+        className="text-center"
+      >
+        <p
+          className="big-spacer-bottom"
+        >
+          onboarding.contribute_existing_project
+        </p>
+        <Button
+          onClick={[MockFunction]}
+        >
+          onboarding.contribute_existing_project.button
+        </Button>
+      </li>
+    </ul>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      onClick={[MockFunction]}
+    >
+      close
+    </ResetButtonLink>
+  </footer>
+</Modal>
+`;

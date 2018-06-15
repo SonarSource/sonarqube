@@ -18,23 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import GlobalNavPlus from '../GlobalNavPlus';
-import { click } from '../../../../../helpers/testUtils';
+import Modal from '../../../components/controls/Modal';
+import { translate } from '../../../helpers/l10n';
+import { lazyLoad } from '../../../components/lazyLoad';
 
-it('render', () => {
-  const wrapper = shallow(<GlobalNavPlus openProjectOnboarding={jest.fn()} />);
-  expect(wrapper.is('Dropdown')).toBe(true);
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
+interface Props {
+  automatic?: boolean;
+  onFinish: () => void;
+}
 
-it('opens onboarding', () => {
-  const openProjectOnboarding = jest.fn();
-  const wrapper = shallow(
-    shallow(<GlobalNavPlus openProjectOnboarding={openProjectOnboarding} />)
-      .find('Dropdown')
-      .prop('overlay')
+const ProjectOnboarding = lazyLoad(() => import('./ProjectOnboarding'));
+
+export default function ProjectOnboardingModal(props: Props) {
+  return (
+    <Modal contentLabel={translate('tutorials.onboarding')} large={true}>
+      <ProjectOnboarding {...props} />
+    </Modal>
   );
-  click(wrapper.find('.js-new-project'));
-  expect(openProjectOnboarding).toBeCalled();
-});
+}

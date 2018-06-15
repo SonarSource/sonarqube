@@ -44,13 +44,13 @@ export function clickOutside(event = {}): void {
   window.dispatchEvent(dispatchedEvent);
 }
 
-export function submit(element: ShallowWrapper): void {
+export function submit(element: ShallowWrapper | ReactWrapper): void {
   element.simulate('submit', {
     preventDefault() {}
   });
 }
 
-export function change(element: ShallowWrapper, value: string, event = {}): void {
+export function change(element: ShallowWrapper | ReactWrapper, value: string, event = {}): void {
   element.simulate('change', {
     target: { value },
     currentTarget: { value },

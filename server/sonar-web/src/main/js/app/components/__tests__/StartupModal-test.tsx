@@ -119,12 +119,12 @@ it('should render onboarding modal', async () => {
 async function shouldNotHaveModals(wrapper: ShallowWrapper) {
   await waitAndUpdate(wrapper);
   expect(wrapper.find('LicensePromptModal').exists()).toBeFalsy();
-  expect(wrapper.find('OnboardingModal').exists()).toBeFalsy();
+  expect(wrapper.find('ProjectOnboardingModal').exists()).toBeFalsy();
 }
 
 async function shouldDisplayOnboarding(wrapper: ShallowWrapper) {
   await waitAndUpdate(wrapper);
-  expect(wrapper.find('OnboardingModal').exists()).toBeTruthy();
+  expect(wrapper.find('ProjectOnboardingModal').exists()).toBeTruthy();
 }
 
 async function shouldDisplayLicense(wrapper: ShallowWrapper) {
@@ -139,9 +139,10 @@ function getWrapper(props = {}) {
       currentEdition={EditionKey.enterprise}
       currentUser={LOGGED_IN_USER}
       location={{ pathname: 'foo/bar' }}
-      skipOnboarding={jest.fn()}
+      skipOnboardingAction={jest.fn()}
       {...props}>
       <div />
-    </StartupModal>
+    </StartupModal>,
+    { context: { router: { push: jest.fn() } } }
   );
 }

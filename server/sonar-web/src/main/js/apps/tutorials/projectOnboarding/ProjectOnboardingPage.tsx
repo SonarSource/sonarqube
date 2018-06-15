@@ -18,23 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import GlobalNavPlus from '../GlobalNavPlus';
-import { click } from '../../../../../helpers/testUtils';
+import * as PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import ProjectOnboardingModal from './ProjectOnboardingModal';
+import { skipOnboarding } from '../../../store/users/actions';
 
-it('render', () => {
-  const wrapper = shallow(<GlobalNavPlus openProjectOnboarding={jest.fn()} />);
-  expect(wrapper.is('Dropdown')).toBe(true);
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
+interface DispatchProps {
+  skipOnboarding: () => void;
+}
 
-it('opens onboarding', () => {
-  const openProjectOnboarding = jest.fn();
-  const wrapper = shallow(
-    shallow(<GlobalNavPlus openProjectOnboarding={openProjectOnboarding} />)
-      .find('Dropdown')
-      .prop('overlay')
-  );
-  click(wrapper.find('.js-new-project'));
-  expect(openProjectOnboarding).toBeCalled();
-});
+export class ProjectOnboardingPage extends React.PureComponent<DispatchProps> {
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  };
+
+  onSkipOnboardingTutorial = () => {
+    this.props.skipOnboarding();
+    this.context.router.replace('/');
+  };
+
+  render() {
+    return <ProjectOnboardingModal onFinish={this.onSkipOnboardingTutorial} />;
+  }
+}
+
+const mapDispatchToProps: DispatchProps = { skipOnboarding };
+
+export default connect<{}, DispatchProps>(null, mapDispatchToProps)(ProjectOnboardingPage);

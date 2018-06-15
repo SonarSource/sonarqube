@@ -50,7 +50,7 @@ interface OwnProps {
 type Props = StateProps & OwnProps;
 
 class GlobalNav extends React.PureComponent<Props> {
-  static contextTypes = { openOnboardingTutorial: PropTypes.func };
+  static contextTypes = { openProjectOnboarding: PropTypes.func };
 
   render() {
     return (
@@ -69,7 +69,7 @@ class GlobalNav extends React.PureComponent<Props> {
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           {isLoggedIn(this.props.currentUser) &&
             isSonarCloud() && (
-              <GlobalNavPlus openOnboardingTutorial={this.context.openOnboardingTutorial} />
+              <GlobalNavPlus openProjectOnboarding={this.context.openProjectOnboarding} />
             )}
           <GlobalNavUserContainer {...this.props} />
         </ul>

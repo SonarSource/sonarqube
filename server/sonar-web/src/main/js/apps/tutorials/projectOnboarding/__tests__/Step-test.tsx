@@ -19,22 +19,39 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import GlobalNavPlus from '../GlobalNavPlus';
-import { click } from '../../../../../helpers/testUtils';
+import Step from '../Step';
+import { click } from '../../../../helpers/testUtils';
 
-it('render', () => {
-  const wrapper = shallow(<GlobalNavPlus openProjectOnboarding={jest.fn()} />);
-  expect(wrapper.is('Dropdown')).toBe(true);
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
+it('renders', () => {
+  const wrapper = shallow(
+    <Step
+      finished={true}
+      onOpen={jest.fn()}
+      open={true}
+      renderForm={() => <div>form</div>}
+      renderResult={() => <div>result</div>}
+      stepNumber={1}
+      stepTitle="First Step"
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setProps({ open: false });
+  expect(wrapper).toMatchSnapshot();
 });
 
-it('opens onboarding', () => {
-  const openProjectOnboarding = jest.fn();
+it('re-opens', () => {
+  const onOpen = jest.fn();
   const wrapper = shallow(
-    shallow(<GlobalNavPlus openProjectOnboarding={openProjectOnboarding} />)
-      .find('Dropdown')
-      .prop('overlay')
+    <Step
+      finished={true}
+      onOpen={onOpen}
+      open={false}
+      renderForm={() => <div>form</div>}
+      renderResult={() => <div>result</div>}
+      stepNumber={1}
+      stepTitle="First Step"
+    />
   );
-  click(wrapper.find('.js-new-project'));
-  expect(openProjectOnboarding).toBeCalled();
+  click(wrapper);
+  expect(onOpen).toBeCalled();
 });

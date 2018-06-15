@@ -17,24 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import GlobalNavPlus from '../GlobalNavPlus';
-import { click } from '../../../../../helpers/testUtils';
+import { translate } from '../../../../helpers/l10n';
 
-it('render', () => {
-  const wrapper = shallow(<GlobalNavPlus openProjectOnboarding={jest.fn()} />);
-  expect(wrapper.is('Dropdown')).toBe(true);
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
+interface Props {
+  className?: string;
+  os: string;
+}
 
-it('opens onboarding', () => {
-  const openProjectOnboarding = jest.fn();
-  const wrapper = shallow(
-    shallow(<GlobalNavPlus openProjectOnboarding={openProjectOnboarding} />)
-      .find('Dropdown')
-      .prop('overlay')
+export default function SQScanner(props: Props) {
+  return (
+    <div className={props.className}>
+      <h4 className="spacer-bottom">
+        {translate('onboarding.analysis.sq_scanner.header', props.os)}
+      </h4>
+      <p
+        className="spacer-bottom markdown"
+        dangerouslySetInnerHTML={{
+          __html: translate('onboarding.analysis.sq_scanner.text', props.os)
+        }}
+      />
+      <p>
+        <a
+          className="button"
+          href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
+          rel="noopener noreferrer"
+          target="_blank">
+          {translate('download_verb')}
+        </a>
+      </p>
+    </div>
   );
-  click(wrapper.find('.js-new-project'));
-  expect(openProjectOnboarding).toBeCalled();
-});
+}

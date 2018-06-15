@@ -36,13 +36,13 @@ interface Props {
 
 export default class EmbedDocsPopup extends React.PureComponent<Props> {
   static contextTypes = {
-    openOnboardingTutorial: PropTypes.func
+    openProjectOnboarding: PropTypes.func
   };
 
   onAnalyzeProjectClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.context.openOnboardingTutorial();
+    this.context.openProjectOnboarding();
   };
 
   renderTitle(text: string) {

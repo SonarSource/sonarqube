@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<Modal
+  contentLabel="onboarding.team.header"
+  medium={true}
+  onRequestClose={[MockFunction]}
+  shouldCloseOnOverlayClick={false}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      onboarding.team.header
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <div
+      className="alert alert-info modal-alert"
+    >
+      onboarding.team.work_in_progress
+    </div>
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      onboarding.team.first_step
+    </p>
+    <p
+      className="spacer-top big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.team.how_to_join"
+        id="onboarding.team.how_to_join"
+        values={
+          Object {
+            "link": <Link
+              onClick={[MockFunction]}
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/documentation/organizations/manage-team"
+            >
+              as_explained_here
+            </Link>,
+          }
+        }
+      />
+    </p>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      onClick={[MockFunction]}
+    >
+      close
+    </ResetButtonLink>
+  </footer>
+</Modal>
+`;

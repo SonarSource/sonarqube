@@ -36,13 +36,13 @@ interface StateProps {
 
 export class NoFavoriteProjects extends React.PureComponent<StateProps> {
   static contextTypes = {
-    openOnboardingTutorial: PropTypes.func
+    openProjectOnboarding: PropTypes.func
   };
 
   onAnalyzeProjectClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.context.openOnboardingTutorial();
+    this.context.openProjectOnboarding();
   };
 
   render() {

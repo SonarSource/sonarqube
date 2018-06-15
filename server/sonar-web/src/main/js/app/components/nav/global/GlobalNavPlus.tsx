@@ -25,7 +25,7 @@ import Dropdown from '../../../../components/controls/Dropdown';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  openOnboardingTutorial: () => void;
+  openProjectOnboarding: () => void;
 }
 
 interface State {
@@ -44,7 +44,7 @@ export default class GlobalNavPlus extends React.PureComponent<Props, State> {
 
   handleNewProjectClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.openOnboardingTutorial();
+    this.props.openProjectOnboarding();
   };
 
   openCreateOrganizationForm = () => this.setState({ createOrganization: true });

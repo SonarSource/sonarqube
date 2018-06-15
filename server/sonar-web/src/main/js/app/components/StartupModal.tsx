@@ -20,16 +20,21 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import OnboardingModal from '../../apps/tutorials/onboarding/OnboardingModal';
+import Onboarding from '../../apps/tutorials/Onboarding';
+import CreateOrganizationForm from '../../apps/account/organizations/CreateOrganizationForm';
 import LicensePromptModal from '../../apps/marketplace/components/LicensePromptModal';
-import { CurrentUser, isLoggedIn } from '../types';
+import ProjectOnboardingModal from '../../apps/tutorials/projectOnboarding/ProjectOnboardingModal';
+import TeamOnboardingModal from '../../apps/tutorials/teamOnboarding/TeamOnboardingModal';
+import { CurrentUser, isLoggedIn, Organization } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
 import { getCurrentUser, getAppState } from '../../store/rootReducer';
-import { skipOnboarding } from '../../store/users/actions';
+import { skipOnboarding as skipOnboardingAction } from '../../store/users/actions';
 import { showLicense } from '../../api/marketplace';
 import { hasMessage } from '../../helpers/l10n';
 import { save, get } from '../../helpers/storage';
+import { isSonarCloud } from '../../helpers/system';
+import { skipOnboarding } from '../../api/users';
 
 interface StateProps {
   canAdmin: boolean;
@@ -38,7 +43,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  skipOnboarding: () => void;
+  skipOnboardingAction: () => void;
 }
 
 interface OwnProps {
@@ -50,7 +55,10 @@ type Props = StateProps & DispatchProps & OwnProps;
 
 enum ModalKey {
   license,
-  onboarding
+  onboarding,
+  organizationOnboarding,
+  projectOnboarding,
+  teamOnboarding
 }
 
 interface State {
@@ -61,14 +69,18 @@ interface State {
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
 export class StartupModal extends React.PureComponent<Props, State> {
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  };
+
   static childContextTypes = {
-    openOnboardingTutorial: PropTypes.func
+    openProjectOnboarding: PropTypes.func
   };
 
   state: State = { automatic: false };
 
   getChildContext() {
-    return { openOnboardingTutorial: this.openOnboarding };
+    return { openProjectOnboarding: this.openProjectOnboarding };
   }
 
   componentDidMount() {
@@ -77,8 +89,9 @@ export class StartupModal extends React.PureComponent<Props, State> {
 
   closeOnboarding = () => {
     this.setState(state => {
-      if (state.modal === ModalKey.onboarding) {
-        this.props.skipOnboarding();
+      if (state.modal !== ModalKey.license) {
+        skipOnboarding();
+        this.props.skipOnboardingAction();
         return { automatic: false, modal: undefined };
       }
       return undefined;
@@ -94,8 +107,25 @@ export class StartupModal extends React.PureComponent<Props, State> {
     });
   };
 
+  closeOrganizationOnboarding = ({ key }: Pick<Organization, 'key'>) => {
+    this.closeOnboarding();
+    this.context.router.push(`/organizations/${key}`);
+  };
+
   openOnboarding = () => {
     this.setState({ modal: ModalKey.onboarding });
+  };
+
+  openOrganizationOnboarding = () => {
+    this.setState({ modal: ModalKey.organizationOnboarding });
+  };
+
+  openProjectOnboarding = () => {
+    this.setState({ modal: ModalKey.projectOnboarding });
+  };
+
+  openTeamOnboarding = () => {
+    this.setState({ modal: ModalKey.teamOnboarding });
   };
 
   tryAutoOpenLicense = () => {
@@ -124,7 +154,11 @@ export class StartupModal extends React.PureComponent<Props, State> {
     const { currentUser, location } = this.props;
     if (currentUser.showOnboardingTutorial && !location.pathname.startsWith('documentation')) {
       this.setState({ automatic: true });
-      this.openOnboarding();
+      if (isSonarCloud()) {
+        this.openOnboarding();
+      } else {
+        this.openProjectOnboarding();
+      }
     }
   };
 
@@ -135,7 +169,24 @@ export class StartupModal extends React.PureComponent<Props, State> {
         {this.props.children}
         {modal === ModalKey.license && <LicensePromptModal onClose={this.closeLicense} />}
         {modal === ModalKey.onboarding && (
-          <OnboardingModal automatic={automatic} onFinish={this.closeOnboarding} />
+          <Onboarding
+            onFinish={this.closeOnboarding}
+            onOpenOrganizationOnboarding={this.openOrganizationOnboarding}
+            onOpenProjectOnboarding={this.openProjectOnboarding}
+            onOpenTeamOnboarding={this.openTeamOnboarding}
+          />
+        )}
+        {modal === ModalKey.projectOnboarding && (
+          <ProjectOnboardingModal automatic={automatic} onFinish={this.closeOnboarding} />
+        )}
+        {modal === ModalKey.organizationOnboarding && (
+          <CreateOrganizationForm
+            onClose={this.closeOnboarding}
+            onCreate={this.closeOrganizationOnboarding}
+          />
+        )}
+        {modal === ModalKey.teamOnboarding && (
+          <TeamOnboardingModal onFinish={this.closeOnboarding} />
         )}
       </>
     );
@@ -148,7 +199,7 @@ const mapStateToProps = (state: any): StateProps => ({
   currentUser: getCurrentUser(state)
 });
 
-const mapDispatchToProps: DispatchProps = { skipOnboarding };
+const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
   StartupModal
