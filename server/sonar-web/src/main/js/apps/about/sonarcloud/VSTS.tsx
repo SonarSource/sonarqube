@@ -1,0 +1,135 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import * as React from 'react';
+import { Link } from 'react-router';
+import SonarCloudPage from './SonarCloudPage';
+import { isLoggedIn } from '../../../app/types';
+import { getBaseUrl } from '../../../helpers/urls';
+import './style.css';
+
+export default function VSTS() {
+  return (
+    <SonarCloudPage>
+      {({ currentUser }) => (
+        <div className="page page-limited sc-page">
+          <ul className="sc-top-nav">
+            <li className="sc-top-nav-item">
+              <Link className="sc-top-nav-link" to="/about/sq">
+                Home
+              </Link>
+            </li>
+          </ul>
+          <div className="sc-child-header">
+            <h1 className="sc-child-title">Get the full experience in VSTS</h1>
+          </div>
+
+          <ul className="sc-features-list">
+            <li className="sc-feature sc-child-feature">
+              <h3 className="sc-feature-title">Native extension</h3>
+              <p className="sc-feature-description">
+                Using your existing VSTS account and the SonarCloud VSTS build tasks, adding and
+                configuring SonarCloud analysis to an existing build is a matter of minutes.
+              </p>
+            </li>
+            <li className="sc-feature sc-child-feature">
+              <h3 className="sc-feature-title">Branches and PR analysis</h3>
+              <p className="sc-feature-description">
+                SonarCloud comes with a built-in feature to automatically analyze project branches
+                and pull requests as soon as they get created.
+              </p>
+            </li>
+            <li className="sc-feature sc-child-feature">
+              <h3 className="sc-feature-title">Built-in Quality Gate</h3>
+              <p className="sc-feature-description">
+                A quality gate is available out of the box in order to verify code quality criteria
+                at any time, enabling to fail build pipelines but also enabling to notify, through a
+                webhook, any system that code quality criteria are not met.
+              </p>
+            </li>
+            <li className="sc-feature sc-child-feature">
+              <h3 className="sc-feature-title">Dedicated widget</h3>
+              <p className="sc-feature-description">
+                Once a project is in SonarCloud, a configurable widget can be added to the VSTS
+                dashboard in order to add code quality to KPIs already used on the project.
+              </p>
+            </li>
+          </ul>
+
+          <div className="sc-vsts-start-wrapper">
+            <div className="sc-vsts-start">
+              {!isLoggedIn(currentUser) && (
+                <div className="sc-vsts-start-box">
+                  <img
+                    alt="SonarCloud"
+                    height="38"
+                    src={`${getBaseUrl()}/images/sonarcloud-square-logo.svg`}
+                  />
+                  <h3 className="sc-vsts-start-title">Log in or Sign up</h3>
+                  <a className="sc-orange-button" href="/sessions/init/microsoft">
+                    SonarCloud
+                  </a>
+                </div>
+              )}
+              <div className="sc-vsts-start-box">
+                <img
+                  alt="VSTS Extension"
+                  height="38"
+                  src={`${getBaseUrl()}/images/sonarcloud/windows.svg`}
+                />
+                <h3 className="sc-vsts-start-title">Install VSTS Extension</h3>
+                <a
+                  className="sc-black-button"
+                  href="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarcloud"
+                  rel="noopener noreferrer"
+                  target="_blank">
+                  Marketplace
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="sc-integrations">
+            <h2 className="sc-sq-header2 sc-integrations-title">Analyze .NET languages and more</h2>
+            <ul className="sc-languages-list">
+              <li>
+                <img alt="C#" height="60" src={`${getBaseUrl()}/images/languages/c-sharp.svg`} />
+              </li>
+              <li>
+                <img alt="VB" height="60" src={`${getBaseUrl()}/images/languages/vb.svg`} />
+              </li>
+              <li>
+                <img alt="JavaScript" height="60" src={`${getBaseUrl()}/images/languages/js.svg`} />
+              </li>
+              <li>
+                <img alt="TypeScript" height="60" src={`${getBaseUrl()}/images/languages/ts.svg`} />
+              </li>
+              <li>
+                <img alt="T-SQL" height="60" src={`${getBaseUrl()}/images/languages/tsql.svg`} />
+              </li>
+              <li>
+                <img alt="C++" height="60" src={`${getBaseUrl()}/images/languages/c-plus.svg`} />
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </SonarCloudPage>
+  );
+}

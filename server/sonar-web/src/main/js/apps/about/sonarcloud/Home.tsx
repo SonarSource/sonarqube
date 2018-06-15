@@ -19,33 +19,17 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Footer from './Footer';
+import SonarCloudPage from './SonarCloudPage';
 import Pricing from './Pricing';
 import StartUsing from './StartUsing';
-import GlobalContainer from '../../../app/components/GlobalContainer';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { isLoggedIn } from '../../../app/types';
 import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
 import './style.css';
 
-interface Props {
-  currentUser: CurrentUser;
-  location: { pathname: string };
-}
-
-export default class Home extends React.PureComponent<Props> {
-  componentDidMount() {
-    document.documentElement.classList.add('white-page');
-    document.body.classList.add('white-page');
-  }
-
-  componentWillUnmount() {
-    document.documentElement.classList.remove('white-page');
-    document.body.classList.remove('white-page');
-  }
-
-  render() {
-    return (
-      <GlobalContainer footer={<Footer />} location={this.props.location}>
+export default function Home() {
+  return (
+    <SonarCloudPage>
+      {({ currentUser }) => (
         <div className="page page-limited sc-page">
           <h1 className="sc-page-title">Continuous Code Quality Online</h1>
           <p className="sc-page-subtitle">
@@ -102,7 +86,7 @@ export default class Home extends React.PureComponent<Props> {
 
           <Pricing />
 
-          {!isLoggedIn(this.props.currentUser) && <StartUsing />}
+          {!isLoggedIn(currentUser) && <StartUsing />}
 
           <div className="sc-narrow-container text-center">
             <h2 className="sc-feature-title">Explore open source projects on SonarCloud</h2>
@@ -123,20 +107,6 @@ export default class Home extends React.PureComponent<Props> {
             <ChevronRightIcon className="big-spacer-left" fill="#cfd3d7" />
             <a
               className="sc-news-link big-spacer-left"
-              href="http://feedburner.google.com/fb/a/mailverify?uri=NewsSonarCloud&loc=en_US"
-              rel="noopener noreferrer"
-              target="_blank">
-              Subscribe by email
-            </a>
-            <a
-              className="sc-news-link big-spacer-left"
-              href="http://feeds.feedburner.com/NewsSonarCloud"
-              rel="noopener noreferrer"
-              target="_blank">
-              Subscribe by feed
-            </a>
-            <a
-              className="sc-news-link big-spacer-left"
               href="https://blog.sonarsource.com/product/SonarCloud"
               rel="noopener noreferrer"
               target="_blank">
@@ -144,7 +114,7 @@ export default class Home extends React.PureComponent<Props> {
             </a>
           </div>
         </div>
-      </GlobalContainer>
-    );
-  }
+      )}
+    </SonarCloudPage>
+  );
 }

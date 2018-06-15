@@ -41,7 +41,9 @@ export default function GlobalFooterSonarCloud() {
           <a href="https://twitter.com/sonarcloud">{translate('footer.twitter')}</a>
         </li>
         <li className="page-footer-menu-item">
-          <Link to="/terms.pdf">{translate('footer.terms')}</Link>
+          <Link rel="noopener noreferrer" target="_blank" to="/sonarcloud-terms.pdf">
+            {translate('footer.terms')}
+          </Link>
         </li>
         <li className="page-footer-menu-item">
           <Link to="/privacy">{translate('footer.privacy')}</Link>

@@ -24,15 +24,5 @@ import Home from '../Home';
 jest.mock('Docs/EmbedDocsSuggestions.json', () => ({}), { virtual: true });
 
 it('should render', () => {
-  expect(
-    shallow(<Home currentUser={{ isLoggedIn: false }} location={{ pathname: '/' }} />)
-  ).toBeDefined();
-});
-
-it('should not render "Start using SonarCloud" button', () => {
-  expect(
-    shallow(<Home currentUser={{ isLoggedIn: true }} location={{ pathname: '/' }} />)
-      .find('.sc-start')
-      .exists()
-  ).toBe(false);
+  expect(shallow(<Home />)).toBeDefined();
 });

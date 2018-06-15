@@ -24,12 +24,34 @@ const routes = [
   {
     indexRoute: {
       component: lazyLoad(
-        () =>
-          isSonarCloud() ? import('./sonarcloud/HomeContainer') : import('./components/AboutApp')
+        () => (isSonarCloud() ? import('./sonarcloud/Home') : import('./components/AboutApp'))
       )
     },
     childRoutes: isSonarCloud
-      ? [{ path: 'sq', component: lazyLoad(() => import('./sonarcloud/SQHomeContainer')) }]
+      ? [
+          {
+            path: 'sq',
+            childRoutes: [
+              { indexRoute: { component: lazyLoad(() => import('./sonarcloud/SQHome')) } },
+              {
+                path: 'as-a-service',
+                component: lazyLoad(() => import('./sonarcloud/AsAService'))
+              },
+              {
+                path: 'branch-analysis-and-pr-decoration',
+                component: lazyLoad(() => import('./sonarcloud/BranchAnalysis'))
+              },
+              {
+                path: 'sonarlint-integration',
+                component: lazyLoad(() => import('./sonarcloud/SonarLintIntegration'))
+              },
+              {
+                path: 'vsts',
+                component: lazyLoad(() => import('./sonarcloud/VSTS'))
+              }
+            ]
+          }
+        ]
       : []
   }
 ];

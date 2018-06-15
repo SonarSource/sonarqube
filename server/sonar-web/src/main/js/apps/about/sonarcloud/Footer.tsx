@@ -96,10 +96,9 @@ export default function Footer() {
               <li className="spacer-top">
                 <Link
                   className="sc-footer-link"
-                  download="terms.pdf"
                   rel="noopener noreferrer"
                   target="_blank"
-                  to="/terms.pdf">
+                  to="/sonarcloud-terms.pdf">
                   Terms
                 </Link>
               </li>

@@ -19,48 +19,32 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import Footer from './Footer';
+import SonarCloudPage from './SonarCloudPage';
 import Pricing from './Pricing';
 import StartUsing from './StartUsing';
-import GlobalContainer from '../../../app/components/GlobalContainer';
+import { isLoggedIn } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
 
-interface Props {
-  currentUser: CurrentUser;
-  location: { pathname: string };
-}
-
-export default class SQHome extends React.PureComponent<Props> {
-  componentDidMount() {
-    document.documentElement.classList.add('white-page');
-    document.body.classList.add('white-page');
-  }
-
-  componentWillUnmount() {
-    document.documentElement.classList.remove('white-page');
-    document.body.classList.remove('white-page');
-  }
-
-  render() {
-    return (
-      <GlobalContainer footer={<Footer />} location={this.props.location}>
+export default function SQHome() {
+  return (
+    <SonarCloudPage>
+      {({ currentUser }) => (
         <div className="page sc-page sc-sq-page">
           <Jumbotron />
 
           <h2 className="sc-sq-header2">You use the service, we take care of the rest</h2>
           <Pricing />
-          {!isLoggedIn(this.props.currentUser) && <StartUsing />}
+          {!isLoggedIn(currentUser) && <StartUsing />}
 
           <Features />
           <Languages />
           <Integrations />
           <BottomNote />
         </div>
-      </GlobalContainer>
-    );
-  }
+      )}
+    </SonarCloudPage>
+  );
 }
 
 function Jumbotron() {
@@ -76,15 +60,15 @@ function Jumbotron() {
           <br />Log in or sign up with
         </div>
         <div>
-          <Link className="sc-sq-login-button" to="/sessions/init/github">
+          <Link className="sc-black-button sc-sq-login-button" to="/sessions/init/github">
             <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/github-white.svg`} />
             GitHub
           </Link>
-          <Link className="sc-sq-login-button" to="/sessions/init/bitbucket">
+          <Link className="sc-black-button sc-sq-login-button" to="/sessions/init/bitbucket">
             <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/bitbucket-white.svg`} />
             Bitbucket
           </Link>
-          <Link className="sc-sq-login-button" to="/sessions/init/microsoft">
+          <Link className="sc-black-button sc-sq-login-button" to="/sessions/init/microsoft">
             <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/windows-white.svg`} />
             VSTS
           </Link>

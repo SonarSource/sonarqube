@@ -24,7 +24,7 @@ import ChevronRightIcon from '../../../components/icons-components/ChevronRightc
 export default function StartUsing() {
   return (
     <div className="sc-narrow-container text-center">
-      <Link className="sc-start" to="/sessions/new">
+      <Link className="sc-orange-button sc-start" to="/sessions/new">
         Start using SonarCloud <ChevronRightIcon className="spacer-left" />
       </Link>
       <div className="big-spacer-top">

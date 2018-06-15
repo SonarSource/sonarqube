@@ -161,9 +161,9 @@ public class ServletFilterTest {
   @Test
   public void use_include_and_exclude_prefix() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-        .includes("/foo_2")
-        .excludes("/foo")
-        .build();
+      .includes("/foo_2")
+      .excludes("/foo")
+      .build();
     assertThat(pattern.matches("/")).isFalse();
     assertThat(pattern.matches("/foo_2")).isTrue();
     assertThat(pattern.matches("/foo")).isFalse();
@@ -238,6 +238,7 @@ public class ServletFilterTest {
       "*.svg",
       "*.js",
       "*.js.map",
+      "*.pdf",
       "/static/*",
       "/robots.txt",
       "/favicon.ico",

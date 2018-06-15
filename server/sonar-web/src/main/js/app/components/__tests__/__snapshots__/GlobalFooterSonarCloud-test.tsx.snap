@@ -41,8 +41,10 @@ exports[`should render correctly 1`] = `
     >
       <Link
         onlyActiveOnIndex={false}
+        rel="noopener noreferrer"
         style={Object {}}
-        to="/terms.pdf"
+        target="_blank"
+        to="/sonarcloud-terms.pdf"
       >
         footer.terms
       </Link>

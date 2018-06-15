@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import SQHome from './SQHome';
-import { getCurrentUser } from '../../../store/rootReducer';
+import * as React from 'react';
+import { Link } from 'react-router';
 
-const mapStateToProps = (state: any) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(SQHome);
+export default function SQStartUsing() {
+  return (
+    <div className="sc-child-start-using">
+      <div className="sc-child-start-using-text">Start using SonarCloud</div>
+      <Link className="sc-orange-button sc-child-start-using-link" to="/sessions/new">
+        Sign up now
+      </Link>
+    </div>
+  );
+}
