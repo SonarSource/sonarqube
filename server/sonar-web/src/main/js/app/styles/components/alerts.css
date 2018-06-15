@@ -60,6 +60,11 @@
   color: #3c763d;
 }
 
+.alert-big {
+  font-size: var(--mediumFontSize);
+  padding: 10px 16px;
+}
+
 .page-notifs .alert {
   padding: 8px 10px;
 }

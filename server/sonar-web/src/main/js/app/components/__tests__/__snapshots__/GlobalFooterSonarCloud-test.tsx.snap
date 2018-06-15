@@ -75,7 +75,7 @@ exports[`should render correctly 1`] = `
       <Link
         onlyActiveOnIndex={false}
         style={Object {}}
-        to="/contact"
+        to="/about/contact"
       >
         footer.contact_us
       </Link>

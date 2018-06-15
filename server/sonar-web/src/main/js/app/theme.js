@@ -111,11 +111,12 @@ module.exports = {
   // sonarcloud
   sonarcloudOrange: '#f60',
   sonarcloudOrangeDark: '#e65c00',
-  sonarcloudFontFamily:
-    "Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
   sonarcloudBlack200: '#f9f9fb',
   sonarcloudBlack300: '#cfd3d7',
   sonarcloudBlack700: '#434447',
   sonarcloudBlack800: '#2d3032',
-  sonarcloudBlack900: '#070706'
+  sonarcloudBlack900: '#070706',
+  sonarcloudBorderGray: 'rgba(207, 211, 215, 0.5)',
+  sonarcloudFontFamily:
+    "Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"
 };

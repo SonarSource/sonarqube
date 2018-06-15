@@ -43,7 +43,7 @@ export default function Footer() {
                   className="sc-footer-link"
                   rel="noopener noreferrer"
                   target="_blank"
-                  to="/contact">
+                  to="/about/contact">
                   Contact Us
                 </Link>
               </li>

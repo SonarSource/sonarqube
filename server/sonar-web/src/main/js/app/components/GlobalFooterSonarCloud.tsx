@@ -52,7 +52,7 @@ export default function GlobalFooterSonarCloud() {
           <a href="https://community.sonarsource.com/c/help/sc">{translate('footer.help')}</a>
         </li>
         <li className="page-footer-menu-item">
-          <Link to="/contact">{translate('footer.contact_us')}</Link>
+          <Link to="/about/contact">{translate('footer.contact_us')}</Link>
         </li>
         <li className="page-footer-menu-item">
           <a href="https://sonarcloud.statuspage.io/">{translate('footer.status')}</a>
