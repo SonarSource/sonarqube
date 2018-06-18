@@ -212,7 +212,8 @@
     where
     (r.is_external is NULL or r.is_external = ${_false}) and
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
-    i.status &lt;&gt; 'CLOSED'
+    i.status &lt;&gt; 'CLOSED' and
+    i.issue_type &lt;&gt; 4 and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
   </select>
 
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
@@ -266,7 +267,8 @@
     (r.is_external is NULL or r.is_external = ${_false}) and
     i.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
     p.module_uuid_path like  #{likeModuleUuidPath, jdbcType=VARCHAR} escape '/' and
-    i.status &lt;&gt; 'CLOSED'
+    i.status &lt;&gt; 'CLOSED' and
+    i.issue_type &lt;&gt; 4 and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
   </select>
 
   <select id="selectIssueGroupsByBaseComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">

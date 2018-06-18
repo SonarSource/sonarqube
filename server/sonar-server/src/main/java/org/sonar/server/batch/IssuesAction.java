@@ -104,10 +104,10 @@ public class IssuesAction implements BatchWsAction {
       List<IssueDto> issueDtos = new ArrayList<>();
       switch (component.scope()) {
         case Scopes.PROJECT:
-          issueDtos.addAll(dbClient.issueDao().selectNonClosedByModuleOrProjectExcludingExternals(dbSession, component));
+          issueDtos.addAll(dbClient.issueDao().selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(dbSession, component));
           break;
         case Scopes.FILE:
-          issueDtos.addAll(dbClient.issueDao().selectNonClosedByComponentUuidExcludingExternals(dbSession, component.uuid()));
+          issueDtos.addAll(dbClient.issueDao().selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(dbSession, component.uuid()));
           break;
         default:
           // only projects, modules and files are supported. Other types of components are not allowed.

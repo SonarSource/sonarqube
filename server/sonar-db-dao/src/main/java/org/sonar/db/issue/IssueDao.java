@@ -61,11 +61,11 @@ public class IssueDao implements Dao {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
 
-  public List<IssueDto> selectNonClosedByComponentUuidExcludingExternals(DbSession dbSession, String componentUuid) {
+  public List<IssueDto> selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(DbSession dbSession, String componentUuid) {
     return mapper(dbSession).selectNonClosedByComponentUuidExcludingExternals(componentUuid);
   }
 
-  public List<IssueDto> selectNonClosedByModuleOrProjectExcludingExternals(DbSession dbSession, ComponentDto module) {
+  public List<IssueDto> selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(DbSession dbSession, ComponentDto module) {
     String likeModuleUuidPath = buildLikeValue(module.moduleUuidPath(), WildcardPosition.AFTER);
     return mapper(dbSession).selectNonClosedByModuleOrProject(module.projectUuid(), likeModuleUuidPath);
   }
