@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Arrays;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.assertj.core.data.Offset;
@@ -100,6 +101,8 @@ public class IssueCounterTest {
   static final Metric NEW_CODE_SMELLS_METRIC = new MetricImpl(20, CoreMetrics.NEW_CODE_SMELLS_KEY, CoreMetrics.NEW_CODE_SMELLS_KEY, INT);
   static final Metric NEW_BUGS_METRIC = new MetricImpl(21, CoreMetrics.NEW_BUGS_KEY, CoreMetrics.NEW_BUGS_KEY, INT);
   static final Metric NEW_VULNERABILITIES_METRIC = new MetricImpl(22, CoreMetrics.NEW_VULNERABILITIES_KEY, CoreMetrics.NEW_VULNERABILITIES_KEY, INT);
+  static final Metric SECURITY_HOTSPOTS_METRIC = new MetricImpl(24, CoreMetrics.SECURITY_HOTSPOTS_KEY, CoreMetrics.SECURITY_HOTSPOTS_KEY, INT);
+  static final Metric NEW_SECURITY_HOTSPOTS_METRIC = new MetricImpl(25, CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY, CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY, INT);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -134,7 +137,9 @@ public class IssueCounterTest {
     .add(VULNERABILITIES_METRIC)
     .add(NEW_CODE_SMELLS_METRIC)
     .add(NEW_BUGS_METRIC)
-    .add(NEW_VULNERABILITIES_METRIC);
+    .add(NEW_VULNERABILITIES_METRIC)
+    .add(SECURITY_HOTSPOTS_METRIC)
+    .add(NEW_SECURITY_HOTSPOTS_METRIC);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -287,13 +292,13 @@ public class IssueCounterTest {
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(RuleType.CODE_SMELL));
     // created during the first analysis starting the period -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(RuleType.BUG));
     // created after -> 3 new issues but 1 is closed
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(RuleType.BUG));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
@@ -319,25 +324,114 @@ public class IssueCounterTest {
     assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
   }
 
+  @Test
+  public void count_hotspots() {
+    periodsHolder.setPeriod(null);
+
+    // bottom-up traversal -> from files to project
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createSecurityHotspot());
+    underTest.onIssue(FILE1, createSecurityHotspot());
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(FILE2);
+    underTest.onIssue(FILE1, createSecurityHotspot());
+    underTest.afterComponent(FILE2);
+
+    underTest.beforeComponent(FILE3);
+    underTest.afterComponent(FILE3);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertThat(measureRepository.getRawMeasure(FILE1, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getRawMeasure(FILE1, ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getRawMeasure(FILE1, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getRawMeasure(FILE1, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
+
+    assertThat(measureRepository.getRawMeasure(FILE2, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getRawMeasure(FILE2, ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getRawMeasure(FILE2, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getRawMeasure(FILE2, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
+
+    assertThat(measureRepository.getRawMeasure(FILE3, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getRawMeasure(FILE3, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
+
+    assertThat(measureRepository.getRawMeasure(PROJECT, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(3);
+    assertThat(measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC).get().getIntValue()).isEqualTo(3);
+    assertThat(measureRepository.getRawMeasure(PROJECT, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(3);
+    assertThat(measureRepository.getRawMeasure(PROJECT, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
+  }
+
+  @Test
+  public void count_new_hotspots_excluded_from_other_raw_issue_counts() {
+    Period period = newPeriod(1500000000000L);
+    periodsHolder.setPeriod(period);
+
+    underTest.beforeComponent(FILE1);
+    // created before -> existing issues (so ignored)
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() - 1000000L));
+    // created during the first analysis starting the period -> existing issues (so ignored)
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate()));
+
+    // created after, but closed
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() + 100000L).setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+
+    for (String severity : Arrays.asList(CRITICAL, BLOCKER, MAJOR)) {
+      DefaultIssue issue = createSecurityHotspot(period.getSnapshotDate() + 100000L);
+      issue.setSeverity(severity);
+      underTest.onIssue(FILE1, issue);
+    }
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(FILE2);
+    underTest.afterComponent(FILE2);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertVariation(FILE1, NEW_ISSUES_METRIC, 0);
+    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, 0);
+    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, 0);
+    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, 0);
+    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, 0);
+    assertVariation(FILE1, NEW_SECURITY_HOTSPOTS_METRIC, 3);
+
+    assertVariation(PROJECT, NEW_ISSUES_METRIC, 0);
+    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, 0);
+    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, 0);
+    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
+    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
+    assertVariation(PROJECT, NEW_SECURITY_HOTSPOTS_METRIC, 3);
+  }
+
   private void assertVariation(Component component, Metric metric, int expectedVariation) {
     Measure measure = measureRepository.getRawMeasure(component, metric).get();
     assertThat(measure.getVariation()).isEqualTo((double) expectedVariation, Offset.offset(0.01));
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity) {
-    return new DefaultIssue()
-      .setResolution(resolution).setStatus(status)
-      .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
-      .setType(RuleType.CODE_SMELL)
-      .setCreationDate(new Date());
+    return createIssue(resolution, status, severity, RuleType.CODE_SMELL, new Date().getTime());
   }
 
-  private static DefaultIssue createIssueAt(@Nullable String resolution, String status, String severity, long creationDate) {
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity, long creationDate) {
+    return createIssue(resolution, status, severity, RuleType.CODE_SMELL, creationDate);
+  }
+
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity, RuleType ruleType, long creationDate) {
     return new DefaultIssue()
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
-      .setType(RuleType.CODE_SMELL)
+      .setType(ruleType)
       .setCreationDate(new Date(creationDate));
+  }
+
+  private static DefaultIssue createSecurityHotspot() {
+    return createSecurityHotspot(new Date().getTime());
+  }
+
+  private static DefaultIssue createSecurityHotspot(long creationDate) {
+    return createIssue(null, STATUS_OPEN, "MAJOR", RuleType.SECURITY_HOTSPOT, creationDate);
   }
 
   private static Period newPeriod(long date) {
