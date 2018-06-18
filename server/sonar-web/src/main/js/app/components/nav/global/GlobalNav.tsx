@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import GlobalNavBranding from './GlobalNavBranding';
+import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
@@ -55,7 +55,7 @@ class GlobalNav extends React.PureComponent<Props> {
   render() {
     return (
       <NavBar className="navbar-global" height={theme.globalNavHeightRaw} id="global-navigation">
-        <GlobalNavBranding />
+        {isSonarCloud ? <SonarCloudNavBranding /> : <GlobalNavBranding />}
 
         <GlobalNavMenu {...this.props} />
 
