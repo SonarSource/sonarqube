@@ -1,7 +1,0 @@
-/**/package sample;
-/**/
-/**/public class OnlyInChanged {
-/**/	
-/**/	private String anotherMethod() {
-/**/	}
-/**/}

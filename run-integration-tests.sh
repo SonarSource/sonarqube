@@ -17,8 +17,8 @@ ORCHESTRATOR_CONFIG_URL=$2
 shift 2
 
 ./gradlew  \
-  :tests:clean \
-  :tests:integrationTest \
+  :private:it-core:clean \
+  :private:it-core:integrationTest \
   -Dcategory="$CATEGORY" \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL  \
   $*

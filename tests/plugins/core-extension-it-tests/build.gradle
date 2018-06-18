@@ -1,4 +1,0 @@
-dependencies {
-  compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compileOnly project(':server:sonar-server')
-}

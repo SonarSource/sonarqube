@@ -1,7 +1,0 @@
-ncloc:16
-#Used by dashboard/widgets tests
-complexity_in_classes:3
-classes:1
-comment_lines:6
-public_api:5
-public_undocumented_api:2

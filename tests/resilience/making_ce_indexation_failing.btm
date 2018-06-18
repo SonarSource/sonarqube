@@ -1,8 +1,0 @@
-RULE make indexation on ce failing
-CLASS IndexAnalysisStep
-METHOD execute
-COMPILE
-AT ENTRY
-IF TRUE
-DO return
-ENDRULE

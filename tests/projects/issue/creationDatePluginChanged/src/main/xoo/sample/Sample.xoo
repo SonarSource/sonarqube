@@ -1,3 +1,0 @@
-BACKV1 // Raise issue when back plugin V1 is installed
-BACKV2 // Raise issue when back plugin V2 is installed
-BACKCUSTOM // Raise issue when custom plugin is installed, but only when back plugin is updated to V2
