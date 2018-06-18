@@ -102,7 +102,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfGroup(organization, null, publicProject))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -118,7 +118,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyDefault(session, organization.getUuid(), publicProject, null);
 
     assertThat(selectProjectPermissionsOfGroup(organization, null, publicProject))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -134,7 +134,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(privateProject));
 
     assertThat(selectProjectPermissionsOfGroup(organization, group, privateProject))
-      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -151,7 +151,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyDefault(session, organization.getUuid(), privateProject, null);
 
     assertThat(selectProjectPermissionsOfGroup(organization, group, privateProject))
-      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -167,7 +167,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfGroup(organization, group, publicProject))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -184,7 +184,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyDefault(session, organization.getUuid(), publicProject, null);
 
     assertThat(selectProjectPermissionsOfGroup(organization, group, publicProject))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -200,7 +200,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -217,7 +217,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyDefault(session, organization.getUuid(), publicProject, null);
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -233,7 +233,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyAndCommit(session, permissionTemplate, singletonList(privateProject));
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject))
-      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -250,7 +250,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyDefault(session, organization.getUuid(), privateProject, null);
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject))
-      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -267,7 +267,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyDefault(session, organization.getUuid(), publicProject, user.getId());
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject))
-      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
@@ -284,7 +284,7 @@ public class PermissionTemplateServiceTest {
     underTest.applyDefault(session, organization.getUuid(), privateProject, user.getId());
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject))
-      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test

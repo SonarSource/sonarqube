@@ -60,6 +60,8 @@ public class I18nRule implements TestRule, I18n {
     put("projects_role.issueadmin", "Administer Issues");
     put("projects_role.issueadmin.desc", "Grants the permission to perform advanced editing on issues: marking an issue " +
       "False Positive / Won't Fix or changing an Issue's severity. (Users will also need \"Browse\" permission)");
+    put("projects_role.securityhotspotadmin", "Administer Security Hotspots");
+    put("projects_role.securityhotspotadmin.desc", "Detect a Vulnerability from a \"Security Hotspot\". Reject, clear, accept, reopen a \"Security Hotspot\" (users also need \"Browse\" permissions).");
     put("projects_role.user", "Browse");
     put("projects_role.user.desc", "Ability to access a project, browse its measures, and create/edit issues for it.");
     put("projects_role.codeviewer", "See Source Code");

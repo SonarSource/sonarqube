@@ -19,7 +19,14 @@
  */
 import { sortBy } from 'lodash';
 
-export const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin', 'scan'];
+export const PERMISSIONS_ORDER = [
+  'user',
+  'codeviewer',
+  'issueadmin',
+  'securityhotspotadmin',
+  'admin',
+  'scan'
+];
 
 /**
  * Sort list of permissions based on predefined order

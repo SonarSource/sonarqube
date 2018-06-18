@@ -83,9 +83,10 @@ public class RegisterPermissionTemplatesTest {
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
 
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
-    assertThat(groupPermissions).hasSize(4);
+    assertThat(groupPermissions).hasSize(5);
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
 

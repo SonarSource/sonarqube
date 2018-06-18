@@ -26,6 +26,12 @@
           "withProjectCreator": false
         },
         {
+          "key": "securityhotspotadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
           "key": "scan",
           "usersCount": 0,
           "groupsCount": 0,
@@ -63,6 +69,12 @@
           "key": "issueadmin",
           "usersCount": 0,
           "groupsCount": 3,
+          "withProjectCreator": false
+        },
+        {
+          "key": "securityhotspotadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
           "withProjectCreator": false
         },
         {

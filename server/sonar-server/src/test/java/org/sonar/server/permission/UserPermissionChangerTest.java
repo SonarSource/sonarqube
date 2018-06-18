@@ -251,7 +251,7 @@ public class UserPermissionChangerTest {
   @Test
   public void fail_to_add_global_permission_on_project() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Invalid project permission 'gateadmin'. Valid values are [admin, codeviewer, issueadmin, scan, user]");
+    expectedException.expectMessage("Invalid project permission 'gateadmin'. Valid values are [admin, codeviewer, issueadmin, securityhotspotadmin, scan, user]");
 
     UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), QUALITY_GATE_ADMIN, new ProjectId(privateProject), UserId.from(user1));
     apply(change);

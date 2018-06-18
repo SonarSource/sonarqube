@@ -224,6 +224,11 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
           +
           "    }," +
           "    {" +
+          "      \"key\": \"securityhotspotadmin\"," +
+          "      \"name\": \"Administer Security Hotspots\"," +
+          "      \"description\": \"Detect a Vulnerability from a \\\"Security Hotspot\\\". Reject, clear, accept, reopen a \\\"Security Hotspot\\\" (users also need \\\"Browse\\\" permissions).\"" +
+          "    }," +
+          "    {" +
           "      \"key\": \"scan\"," +
           "      \"name\": \"Execute Analysis\"," +
           "      \"description\": \"Ability to execute analyses, and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.\""

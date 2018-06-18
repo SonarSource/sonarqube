@@ -42,6 +42,11 @@ public @interface UserRole {
   String CODEVIEWER = "codeviewer";
   String ISSUE_ADMIN = "issueadmin";
 
+  /**
+   * @since 7.3
+   */
+  String SECURITYHOTSPOT_ADMIN = "securityhotspotadmin";
+
   String[] value() default {};
 
 }

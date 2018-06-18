@@ -59,6 +59,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -229,6 +230,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
     insertGroupPermission(dbSession, permissionTemplateDto, ADMIN, ownerGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, ownerGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, SECURITYHOTSPOT_ADMIN, ownerGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, SCAN.getKey(), ownerGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
@@ -254,6 +256,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, ADMIN, now);
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, ISSUE_ADMIN, now);
+    insertProjectCreatorPermission(dbSession, permissionTemplateDto, SECURITYHOTSPOT_ADMIN, now);
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, SCAN.getKey(), now);
     insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);

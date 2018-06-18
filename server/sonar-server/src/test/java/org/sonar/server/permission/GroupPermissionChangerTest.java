@@ -321,7 +321,7 @@ public class GroupPermissionChangerTest {
           apply(new GroupPermissionChange(PermissionChange.Operation.ADD, perm, new ProjectId(privateProject), groupId));
           fail("a BadRequestException should have been thrown for permission " + perm);
         } catch (BadRequestException e) {
-          assertThat(e).hasMessage("Invalid project permission '" + perm + "'. Valid values are [admin, codeviewer, issueadmin, scan, user]");
+          assertThat(e).hasMessage("Invalid project permission '" + perm + "'. Valid values are [admin, codeviewer, issueadmin, securityhotspotadmin, scan, user]");
         }
       });
   }
@@ -338,7 +338,7 @@ public class GroupPermissionChangerTest {
           apply(new GroupPermissionChange(PermissionChange.Operation.ADD, perm, new ProjectId(publicProject), groupId));
           fail("a BadRequestException should have been thrown for permission " + perm);
         } catch (BadRequestException e) {
-          assertThat(e).hasMessage("Invalid project permission '" + perm + "'. Valid values are [admin, codeviewer, issueadmin, scan, user]");
+          assertThat(e).hasMessage("Invalid project permission '" + perm + "'. Valid values are [admin, codeviewer, issueadmin, securityhotspotadmin, scan, user]");
         }
       });
   }

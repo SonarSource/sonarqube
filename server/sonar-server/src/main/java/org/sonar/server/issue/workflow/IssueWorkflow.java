@@ -147,25 +147,25 @@ public class IssueWorkflow implements Startable {
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_OPEN)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(new SetType(RuleType.VULNERABILITY))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.DETECT)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_OPEN)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(new SetType(RuleType.VULNERABILITY))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.DETECT)
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_OPEN)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_WONT_FIX))
         .functions(new SetType(RuleType.VULNERABILITY), new SetResolution(null))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.DISMISS)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_REOPENED)
         .conditions(IsManualVulnerability.INSTANCE)
         .functions(new SetType(RuleType.SECURITY_HOTSPOT))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.REQUEST_REVIEW)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
@@ -181,31 +181,31 @@ public class IssueWorkflow implements Startable {
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_FIXED))
         .functions(new SetType(RuleType.VULNERABILITY), new SetResolution(null))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.ACCEPT)
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_RESOLVED)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_FIXED))
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.CLEAR)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.CLEAR)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.REOPEN_HOTSPOT)
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(Issue.RESOLUTION_WONT_FIX))
         .functions(new SetResolution(null))
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN) // TODO need to check new permission
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build());
 
   }

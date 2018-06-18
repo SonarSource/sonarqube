@@ -58,6 +58,7 @@ public interface OrganizationUpdater {
    *     <ul>
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link UserRole#ADMIN ADMIN}</li>
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link UserRole#ISSUE_ADMIN ISSUE_ADMIN}</li>
+   *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link UserRole#SECURITYHOTSPOT_ADMIN SECURITYHOTSPOT_ADMIN}</li>
    *       <li>group {@link #OWNERS_GROUP_NAME Owners} : {@link GlobalPermissions#SCAN_EXECUTION SCAN_EXECUTION}</li>
    *       <li>group {@link DefaultGroupCreatorImpl#DEFAULT_GROUP_NAME members} : {@link UserRole#USER USER}</li>
    *       <li>group {@link DefaultGroupCreatorImpl#DEFAULT_GROUP_NAME members} : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
@@ -102,6 +103,7 @@ public interface OrganizationUpdater {
    *     <ul>
    *       <li>project creator : {@link UserRole#ADMIN ADMIN}</li>
    *       <li>project creator : {@link UserRole#ISSUE_ADMIN ISSUE_ADMIN}</li>
+   *       <li>project creator : {@link UserRole#SECURITYHOTSPOT_ADMIN SECURITYHOTSPOT_ADMIN}</li>
    *       <li>project creator : {@link GlobalPermissions#SCAN_EXECUTION SCAN_EXECUTION}</li>
    *       <li>group {@link DefaultGroupCreatorImpl#DEFAULT_GROUP_NAME members} : {@link UserRole#USER USER}</li>
    *       <li>group {@link DefaultGroupCreatorImpl#DEFAULT_GROUP_NAME members} : {@link UserRole#CODEVIEWER CODEVIEWER}</li>
