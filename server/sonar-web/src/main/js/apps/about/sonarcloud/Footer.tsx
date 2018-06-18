@@ -39,11 +39,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="spacer-top">
-                <Link
-                  className="sc-footer-link"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  to="/about/contact">
+                <Link className="sc-footer-link" to="/about/contact">
                   Contact Us
                 </Link>
               </li>
@@ -103,11 +99,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li className="spacer-top">
-                <Link
-                  className="sc-footer-link"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  to="/privacy">
+                <Link className="sc-footer-link" to="/documentation/privacy">
                   Privacy
                 </Link>
               </li>

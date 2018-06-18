@@ -27,7 +27,11 @@ export default function GlobalFooterSonarCloud() {
     <div className="page-footer page-container" id="footer">
       <div>
         {`© 2008-${getYear(new Date())}, SonarCloud by `}
-        <a href="http://www.sonarsource.com" title="SonarSource SA">
+        <a
+          href="http://www.sonarsource.com"
+          rel="noopener noreferrer"
+          target="_blank"
+          title="SonarSource SA">
           SonarSource SA
         </a>
         . All rights reserved.
@@ -35,10 +39,17 @@ export default function GlobalFooterSonarCloud() {
 
       <ul className="page-footer-menu">
         <li className="page-footer-menu-item">
-          <a href="https://blog.sonarsource.com/product/SonarCloud">{translate('footer.news')}</a>
+          <a
+            href="https://blog.sonarsource.com/product/SonarCloud"
+            rel="noopener noreferrer"
+            target="_blank">
+            {translate('footer.news')}
+          </a>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://twitter.com/sonarcloud">{translate('footer.twitter')}</a>
+          <a href="https://twitter.com/sonarcloud" rel="noopener noreferrer" target="_blank">
+            {translate('footer.twitter')}
+          </a>
         </li>
         <li className="page-footer-menu-item">
           <Link rel="noopener noreferrer" target="_blank" to="/sonarcloud-terms.pdf">
@@ -46,16 +57,23 @@ export default function GlobalFooterSonarCloud() {
           </Link>
         </li>
         <li className="page-footer-menu-item">
-          <Link to="/privacy">{translate('footer.privacy')}</Link>
+          <Link to="/documentation/privacy">{translate('footer.privacy')}</Link>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://community.sonarsource.com/c/help/sc">{translate('footer.help')}</a>
+          <a
+            href="https://community.sonarsource.com/c/help/sc"
+            rel="noopener noreferrer"
+            target="_blank">
+            {translate('footer.help')}
+          </a>
         </li>
         <li className="page-footer-menu-item">
           <Link to="/about/contact">{translate('footer.contact_us')}</Link>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://sonarcloud.statuspage.io/">{translate('footer.status')}</a>
+          <a href="https://sonarcloud.statuspage.io/" rel="noopener noreferrer" target="_blank">
+            {translate('footer.status')}
+          </a>
         </li>
         <li className="page-footer-menu-item">
           <Link to="/about">{translate('footer.about')}</Link>
