@@ -31,7 +31,7 @@ export default function TaskDay({ submittedAt, prevSubmittedAt }: Props) {
     !prevSubmittedAt || !isSameDay(parseDate(submittedAt), parseDate(prevSubmittedAt));
 
   return (
-    <td className="thin nowrap text-right">
+    <td className="thin nowrap text-right small">
       {shouldDisplay ? <DateFormatter date={submittedAt} long={true} /> : ''}
     </td>
   );

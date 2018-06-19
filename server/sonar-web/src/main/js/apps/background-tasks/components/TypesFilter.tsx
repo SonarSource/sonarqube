@@ -18,16 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ALL_TYPES } from '../constants';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  submitter?: string;
+  value: string;
+  onChange: Function;
+  types: string[];
 }
 
-export default function TaskSubmitter({ submitter }: Props) {
-  return (
-    <td className="thin note">
-      <span className="text-limited-small text-bottom">{submitter || translate('anonymous')}</span>
-    </td>
-  );
+export default class TypesFilter extends React.PureComponent<Props> {
+  handleChange = ({ value }: { value: string }) => {
+    this.props.onChange(value);
+  };
+
+  render() {
+    const { value, types } = this.props;
+    const options = types.map(t => {
+      return {
+        value: t,
+        label: translate('background_task.type', t)
+      };
+    });
+
+    const allOptions = [
+      { value: ALL_TYPES, label: translate('background_task.type.ALL') },
+      ...options
+    ];
+
+    return (
+      <Select
+        className="input-medium"
+        clearable={false}
+        onChange={this.handleChange}
+        options={allOptions}
+        searchable={false}
+        value={value}
+      />
+    );
+  }
 }

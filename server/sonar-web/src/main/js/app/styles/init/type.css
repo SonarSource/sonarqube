@@ -221,6 +221,14 @@ small,
   white-space: nowrap;
 }
 
+.text-limited-small {
+  display: inline-block;
+  max-width: 8vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .text-limited {
   display: inline-block;
   max-width: 16vw;

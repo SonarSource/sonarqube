@@ -17,41 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
-import { ALL_TYPES } from '../constants';
-import Select from '../../../components/controls/Select';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { Task } from '../types';
 
-const TypesFilter = (
-  { value, onChange, types } /*: {
-  value: string,
-  onChange: Function,
-  types: string[]
-} */
-) => {
-  const options = types.map(t => {
-    return {
-      value: t,
-      label: translate('background_task.type', t)
-    };
-  });
+const LIMIT = 1000;
 
-  const allOptions = [
-    { value: ALL_TYPES, label: translate('background_task.type.ALL') },
-    ...options
-  ];
+interface Props {
+  tasks: Task[];
+}
+
+export default function Footer({ tasks }: Props) {
+  if (tasks.length < LIMIT) {
+    return null;
+  }
 
   return (
-    <Select
-      value={value}
-      onChange={option => onChange(option.value)}
-      className="input-medium"
-      options={allOptions}
-      clearable={false}
-      searchable={false}
-    />
+    <footer className="spacer-top note text-center">
+      {translateWithParameters('max_results_reached', LIMIT)}
+    </footer>
   );
-};
-
-export default TypesFilter;
+}
