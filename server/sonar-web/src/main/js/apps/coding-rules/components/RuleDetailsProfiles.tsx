@@ -118,7 +118,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
     <td className="coding-rules-detail-quality-profile-severity">
       <Tooltip overlay={translate('coding_rules.activation_severity')}>
         <span>
-          <SeverityHelper severity={activation.severity} />
+          <SeverityHelper className="display-inline-flex-center" severity={activation.severity} />
         </span>
       </Tooltip>
       {parentActivation !== undefined &&

@@ -425,7 +425,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       <div className="modal-field">
         <label>{translate('issue.transition')}</label>
         {transitions.map(transition => (
-          <span key={transition.transition}>
+          <span className="clearfix" key={transition.transition}>
             <input
               checked={this.state.transition === transition.transition}
               id={`transition-${transition.transition}`}
