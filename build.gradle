@@ -51,6 +51,8 @@ allprojects {
     def repository = project.hasProperty('cix') ? 'sonarsource-qa' : 'sonarsource'
     maven {
       url "https://repox.sonarsource.com/${repository}"
+      // The environment variables ARTIFACTORY_PRIVATE_USERNAME and ARTIFACTORY_PRIVATE_PASSWORD are used on QA env (Jenkins)
+      // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
       def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
       def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
       if (artifactoryUsername && artifactoryPassword) {

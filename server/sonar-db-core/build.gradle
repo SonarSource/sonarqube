@@ -47,8 +47,6 @@ task createDB(type:JavaExec) {
   classpath = sourceSets.test.runtimeClasspath
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
   systemProperty 'sonar.runtimeVersion', System.getProperty('sonar.runtimeVersion')
-  systemProperty 'orchestrator.artifactory.apiKey', System.getProperty('orchestrator.artifactory.apiKey')
-  systemProperty 'orchestrator.artifactory.repositories', System.getProperty('orchestrator.artifactory.repositories')
 }
 
 test {

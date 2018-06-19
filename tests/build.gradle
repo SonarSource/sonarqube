@@ -92,8 +92,6 @@ task integrationTest(type: Test) {
   jacoco.enabled = false
 
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
-  systemProperty 'orchestrator.artifactory.apiKey', System.getProperty('orchestrator.artifactory.apiKey')
-  systemProperty 'orchestrator.artifactory.repositories', System.getProperty('orchestrator.artifactory.repositories')
   systemProperty 'sonar.runtimeVersion', System.getProperty('sonar.runtimeVersion')
 
   def category = System.getProperty('category')
