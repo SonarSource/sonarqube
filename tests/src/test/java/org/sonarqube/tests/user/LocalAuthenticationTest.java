@@ -22,7 +22,6 @@ package org.sonarqube.tests.user;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.UUID;
-import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,10 +45,10 @@ import org.sonarqube.ws.client.usertokens.SearchRequest;
 import org.sonarqube.ws.client.usertokens.UserTokensService;
 import util.selenium.Selenese;
 
+import static com.codeborne.selenide.WebDriverRunner.url;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
 public class LocalAuthenticationTest {
@@ -59,11 +58,6 @@ public class LocalAuthenticationTest {
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();
-
-  @After
-  public void resetProperties() {
-    resetSettings(orchestrator, null, "sonar.forceAuthentication");
-  }
 
   @Test
   public void log_in_with_correct_credentials_then_log_out() {
@@ -170,16 +164,57 @@ public class LocalAuthenticationTest {
   }
 
   @Test
-  public void test_authentication_redirects_in_ui() {
-    tester.users().generate(u -> u.setLogin("simple-user").setPassword("password"));
-    tester.users().generateAdministrator(u -> u.setLogin("admin-user").setPassword("admin-user"));
-    Selenese.runSelenese(orchestrator,
-      "/user/LocalAuthenticationTest/redirect_to_login_when_not_enough_privilege.html",
-      // SONAR-2132
-      "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
-      "/user/LocalAuthenticationTest/redirect_to_original_url_with_parameters_after_direct_login.html",
-      // SONAR-2009
-      "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html");
+  public void redirect_to_login_when_not_enough_privilege() {
+    User user = tester.users().generate();
+    Navigation navigation = tester.openBrowser()
+      .logIn()
+      .submitCredentials(user.getLogin());
+
+    navigation.open("/settings");
+
+    navigation.shouldBeRedirectedToLogin();
+  }
+
+  @Test
+  public void redirect_to_original_url_after_indirect_login() {
+    User admin = tester.users().generateAdministrator();
+    Navigation navigation = tester.openBrowser();
+
+    navigation.open("/settings");
+    navigation
+      .shouldBeRedirectedToLogin()
+      .submitCredentials(admin.getLogin())
+      .shouldBeLoggedIn();
+
+    assertThat(url()).endsWith("/settings");
+  }
+
+  @Test
+  public void redirect_to_original_url_after_direct_login() {
+    User user = tester.users().generate();
+    Navigation navigation = tester.openBrowser();
+
+    navigation.openQualityGates();
+    navigation
+      .logIn()
+      .submitCredentials(user.getLogin())
+      .shouldBeLoggedIn();
+
+    assertThat(url()).contains("quality_gates");
+  }
+
+  @Test
+  public void redirect_to_original_url_with_parameters_after_direct_login() {
+    User admin = tester.users().generateAdministrator();
+    Navigation navigation = tester.openBrowser();
+
+    navigation.openProjectsWithQuery("gate=OK&reliability=1&security=1");
+    navigation
+      .logIn()
+      .submitCredentials(admin.getLogin())
+      .shouldBeLoggedIn();
+
+    assertThat(url()).endsWith("/projects?gate=OK&reliability=1&security=1");
   }
 
   @Test

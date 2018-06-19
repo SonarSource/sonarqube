@@ -325,9 +325,9 @@ public class Navigation {
     }
   }
 
-  public Navigation shouldBeRedirectedToLogin() {
+  public LoginPage shouldBeRedirectedToLogin() {
     Selenide.$("#login_form").should(Condition.visible);
-    return this;
+    return Selenide.page(LoginPage.class);
   }
 
 }
