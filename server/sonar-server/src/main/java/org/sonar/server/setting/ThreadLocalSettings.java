@@ -33,7 +33,10 @@ import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
@@ -54,8 +57,10 @@ import static java.util.Objects.requireNonNull;
 @ComputeEngineSide
 @ServerSide
 public class ThreadLocalSettings extends Settings {
+  private static final Logger LOG = Loggers.get(ThreadLocalSettings.class);
 
-  private final Properties systemProps;
+  private final Properties overwrittenSystemProps = new Properties();
+  private final Properties systemProps = new Properties();
   private static final ThreadLocal<Map<String, String>> CACHE = new ThreadLocal<>();
   private Map<String, String> getPropertyDbFailureCache = Collections.emptyMap();
   private Map<String, String> getPropertiesDbFailureCache = Collections.emptyMap();
@@ -69,7 +74,6 @@ public class ThreadLocalSettings extends Settings {
   ThreadLocalSettings(PropertyDefinitions definitions, Properties props, SettingLoader settingLoader) {
     super(definitions, new Encryption(null));
     this.settingLoader = settingLoader;
-    this.systemProps = new Properties();
     props.forEach((k, v) -> systemProps.put(k, v == null ? null : v.toString().trim()));
 
     // TODO something wrong about lifecycle here. It could be improved
@@ -88,11 +92,17 @@ public class ThreadLocalSettings extends Settings {
   @Override
   protected Optional<String> get(String key) {
     // search for the first value available in
-    // 1. system properties
-    // 2. thread local cache (if enabled)
-    // 3. db
+    // 1. overwritten system properties
+    // 2. system properties
+    // 3. thread local cache (if enabled)
+    // 4. db
 
-    String value = systemProps.getProperty(key);
+    String value =  overwrittenSystemProps.getProperty(key);
+    if (value != null) {
+      return Optional.of(value);
+    }
+
+    value = systemProps.getProperty(key);
     if (value != null) {
       return Optional.of(value);
     }
@@ -125,14 +135,27 @@ public class ThreadLocalSettings extends Settings {
     }
   }
 
+  public void setSystemProperty(String key, String value) {
+    checkKeyAndValue(key, value);
+    String systemValue = systemProps.getProperty(key);
+    if (LOG.isDebugEnabled() && systemValue != null && !value.equals(systemValue)) {
+      LOG.debug(format("System property '%s' with value '%s' overwritten with value '%s'", key, systemValue, value));
+    }
+    overwrittenSystemProps.put(key, value.trim());
+  }
+
   @Override
   protected void set(String key, String value) {
-    requireNonNull(key, "key can't be null");
-    requireNonNull(value, "value can't be null");
+    checkKeyAndValue(key, value);
     Map<String, String> dbProps = CACHE.get();
     if (dbProps != null) {
       dbProps.put(key, value.trim());
     }
+  }
+
+  private static void checkKeyAndValue(String key, String value) {
+    requireNonNull(key, "key can't be null");
+    requireNonNull(value, "value can't be null");
   }
 
   @Override

@@ -166,6 +166,25 @@ public class ThreadLocalSettingsTest {
   }
 
   @Test
+  public void overwritten_system_settings_have_precedence_over_system_and_databse() {
+    underTest = create(ImmutableMap.of("foo", "from system"));
+
+    underTest.setSystemProperty("foo", "donut");
+
+    assertThat(underTest.get("foo")).hasValue("donut");
+  }
+
+  @Test
+  public void overwritten_system_settings_have_precedence_over_databse() {
+    insertPropertyIntoDb("foo", "from db");
+    underTest = create(Collections.emptyMap());
+
+    underTest.setSystemProperty("foo", "donut");
+
+    assertThat(underTest.get("foo")).hasValue("donut");
+  }
+
+  @Test
   public void system_settings_have_precedence_over_database() {
     insertPropertyIntoDb("foo", "from db");
     underTest = create(ImmutableMap.of("foo", "from system"));
