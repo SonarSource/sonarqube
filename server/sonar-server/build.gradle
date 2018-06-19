@@ -95,21 +95,5 @@ configurations {
 }
 
 artifacts {
-   tests testJar
-}
-
-artifactoryPublish.skip = false
-
-// Used by core plugins
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      from components.java
-      if (release) {
-        artifact sourcesJar
-        artifact javadocJar
-        artifact testJar
-      }
-    }
-  }
+ tests testJar
 }

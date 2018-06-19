@@ -21,14 +21,3 @@ dependencies {
     testCompile 'org.assertj:assertj-core'
     testCompile 'org.mockito:mockito-core'
 }
-
-//artifactoryPublish.skip = false
-
-// Used by core plugins
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-}

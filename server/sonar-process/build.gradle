@@ -28,17 +28,3 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-testing-harness')
 }
-
-artifactoryPublish.skip = false
-
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      from components.java
-      if (release) {
-        artifact sourcesJar
-        artifact javadocJar
-      }
-    }
-  }
-}

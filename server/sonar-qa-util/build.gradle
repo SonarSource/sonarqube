@@ -14,18 +14,3 @@ dependencies {
 
   compileOnly 'com.google.code.findbugs:jsr305'
 }
-
-artifactoryPublish.skip = false
-
-// Required for core plugins
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      from components.java
-      if (release) {
-        artifact sourcesJar
-        artifact javadocJar
-      }
-    }
-  }
-}

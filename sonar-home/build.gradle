@@ -18,7 +18,6 @@ dependencies {
 
 artifactoryPublish.skip = false
 
-// Used by core plugins
 publishing {
   publications {
     mavenJava(MavenPublication) {

@@ -18,7 +18,6 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
 }
 
-// Used by sonar-db-core to run DB Unit Tests
 artifactoryPublish.skip = false
 publishing {
   publications {
