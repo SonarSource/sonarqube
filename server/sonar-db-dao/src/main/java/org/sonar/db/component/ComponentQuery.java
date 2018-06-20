@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -39,6 +40,8 @@ public class ComponentQuery {
   private final Set<String> componentUuids;
   private final Set<String> componentKeys;
   private final Long analyzedBefore;
+  private final Long analyzedAfter;
+  private final Date createdAfter;
   private final boolean onProvisionedOnly;
 
   private ComponentQuery(Builder builder) {
@@ -51,6 +54,8 @@ public class ComponentQuery {
     this.componentKeys = builder.componentKeys;
     this.isPrivate = builder.isPrivate;
     this.analyzedBefore = builder.analyzedBefore;
+    this.analyzedAfter = builder.analyzedAfter;
+    this.createdAfter = builder.createdAfter;
     this.onProvisionedOnly = builder.onProvisionedOnly;
   }
 
@@ -108,6 +113,16 @@ public class ComponentQuery {
     return analyzedBefore;
   }
 
+  @CheckForNull
+  public Long getAnalyzedAfter() {
+    return analyzedAfter;
+  }
+
+  @CheckForNull
+  public Date getCreatedAfter() {
+    return createdAfter;
+  }
+
   public boolean isOnProvisionedOnly() {
     return onProvisionedOnly;
   }
@@ -131,6 +146,8 @@ public class ComponentQuery {
     private Set<String> componentUuids;
     private Set<String> componentKeys;
     private Long analyzedBefore;
+    private Long analyzedAfter;
+    private Date createdAfter;
     private boolean onProvisionedOnly = false;
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
@@ -178,6 +195,21 @@ public class ComponentQuery {
 
     public Builder setAnalyzedBefore(@Nullable Long analyzedBefore) {
       this.analyzedBefore = analyzedBefore;
+      return this;
+    }
+
+    /**
+     * Filter on date of last analysis. On projects, all branches and pull requests are taken into
+     * account. For example the analysis of a short-lived branch is included in the filter
+     * even if the main branch has never been analyzed.
+     */
+    public Builder setAnalyzedAfter(@Nullable Long l) {
+      this.analyzedAfter = l;
+      return this;
+    }
+
+    public Builder setCreatedAfter(@Nullable Date l) {
+      this.createdAfter = l;
       return this;
     }
 

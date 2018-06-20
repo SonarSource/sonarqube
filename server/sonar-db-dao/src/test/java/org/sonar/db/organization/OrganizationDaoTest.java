@@ -29,8 +29,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.assertj.core.groups.Tuple;
 import org.assertj.core.util.Lists;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +42,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.KeyLongValue;
+import org.sonar.db.Pagination;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
@@ -53,6 +59,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.db.organization.OrganizationQuery.Builder;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.organization.OrganizationQuery.returnAll;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
@@ -509,7 +516,7 @@ public class OrganizationDaoTest {
     db.organizations().addMember(organization, user);
     db.organizations().addMember(anotherOrganization, user);
 
-    List<OrganizationDto> result = underTest.selectByQuery(dbSession, OrganizationQuery.newOrganizationQueryBuilder().setMember(user.getId()).build(), forPage(1).andSize(100));
+    List<OrganizationDto> result = underTest.selectByQuery(dbSession, newOrganizationQueryBuilder().setMember(user.getId()).build(), forPage(1).andSize(100));
 
     assertThat(result).extracting(OrganizationDto::getUuid)
       .containsExactlyInAnyOrder(organization.getUuid(), anotherOrganization.getUuid())
@@ -527,13 +534,58 @@ public class OrganizationDaoTest {
     db.organizations().addMember(anotherOrganization, user);
     db.organizations().addMember(organizationWithoutKeyProvided, user);
 
-    List<OrganizationDto> result = underTest.selectByQuery(dbSession, OrganizationQuery.newOrganizationQueryBuilder()
+    List<OrganizationDto> result = underTest.selectByQuery(dbSession, newOrganizationQueryBuilder()
       .setKeys(Arrays.asList(organization.getKey(), anotherOrganization.getKey(), organizationWithoutMember.getKey()))
       .setMember(user.getId()).build(), forPage(1).andSize(100));
 
     assertThat(result).extracting(OrganizationDto::getUuid)
       .containsExactlyInAnyOrder(organization.getUuid(), anotherOrganization.getUuid())
       .doesNotContain(organizationWithoutKeyProvided.getUuid(), organizationWithoutMember.getUuid());
+  }
+
+  @Test
+  public void selectByQuery_filter_on_type() {
+    OrganizationDto personalOrg1 = db.organizations().insert();
+    db.users().insertUser(u -> u.setOrganizationUuid(personalOrg1.getUuid()));
+    OrganizationDto personalOrg2 = db.organizations().insert();
+    db.users().insertUser(u -> u.setOrganizationUuid(personalOrg2.getUuid()));
+    OrganizationDto teamOrg1 = db.organizations().insert();
+
+    assertThat(selectUuidsByQuery(q -> q.setOnlyPersonal(), forPage(1).andSize(100)))
+      .containsExactlyInAnyOrder(personalOrg1.getUuid(), personalOrg2.getUuid());
+    assertThat(selectUuidsByQuery(q -> q.setOnlyTeam(), forPage(1).andSize(100)))
+      .containsExactlyInAnyOrder(teamOrg1.getUuid());
+  }
+
+  @Test
+  public void selectByQuery_filter_on_withAnalyses() {
+    assertThat(selectUuidsByQuery(q -> q.setWithAnalyses(), forPage(1).andSize(100)))
+      .isEmpty();
+
+    // has projects and analyses
+    OrganizationDto orgWithAnalyses = db.organizations().insert();
+    ComponentDto analyzedProject = db.components().insertPrivateProject(orgWithAnalyses);
+    db.components().insertSnapshot(analyzedProject, s -> s.setLast(true));
+    // has projects but no analyses
+    OrganizationDto orgWithProjects = db.organizations().insert();
+    db.components().insertPrivateProject(orgWithProjects);
+    db.components().insertPrivateProject(orgWithProjects, p -> p.setEnabled(false));
+    // has no projects
+    db.organizations().insert();
+    // has only disabled projects
+    OrganizationDto orgWithOnlyDisabledProjects = db.organizations().insert();
+    db.components().insertPrivateProject(orgWithOnlyDisabledProjects, p -> p.setEnabled(false));
+
+    assertThat(selectUuidsByQuery(q -> q.setWithAnalyses(), forPage(1).andSize(100)))
+      .containsExactlyInAnyOrder(orgWithAnalyses.getUuid());
+  }
+
+  private List<String> selectUuidsByQuery(Consumer<Builder> query, Pagination pagination) {
+    Builder builder = newOrganizationQueryBuilder();
+    query.accept(builder);
+    return underTest.selectByQuery(dbSession, builder.build(), pagination).stream()
+      .map(OrganizationDto::getUuid)
+      .collect(Collectors.toList());
   }
 
   @Test
@@ -921,6 +973,46 @@ public class OrganizationDaoTest {
     assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
+  }
+
+  @Test
+  public void countTeamsByMembers() {
+    assertThat(underTest.countTeamsByMembers(dbSession)).isEmpty();
+
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+    OrganizationDto org1 = db.organizations().insert();
+    db.organizations().addMember(org1, user1, user2, user3);
+    OrganizationDto org2 = db.organizations().insert();
+    db.organizations().addMember(org2, user1);
+    OrganizationDto org3 = db.organizations().insert();
+    db.organizations().addMember(org3, user1, user2, user3);
+
+    assertThat(underTest.countTeamsByMembers(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(Tuple.tuple("1", 1L), Tuple.tuple("2-4", 2L));
+
+  }
+
+  @Test
+  public void countTeamsByProjects() {
+    assertThat(underTest.countTeamsByProjects(dbSession)).isEmpty();
+
+    OrganizationDto org1 = db.organizations().insert();
+    db.components().insertPrivateProject(org1);
+    OrganizationDto org2 = db.organizations().insert();
+    db.components().insertPrivateProject(org2);
+    db.components().insertPrivateProject(org2);
+    OrganizationDto org3 = db.organizations().insert();
+    db.components().insertPrivateProject(org3);
+    db.components().insertPrivateProject(org3);
+    db.components().insertPrivateProject(org3);
+
+    assertThat(underTest.countTeamsByProjects(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(Tuple.tuple("1", 1L), Tuple.tuple("2-4", 2L));
+
   }
 
   private void expectDtoCanNotBeNull() {

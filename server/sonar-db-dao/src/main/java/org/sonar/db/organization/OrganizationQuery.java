@@ -28,13 +28,22 @@ import javax.annotation.Nullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 public class OrganizationQuery {
-  private static final OrganizationQuery NO_QUERY = newOrganizationQueryBuilder().build();
+  private static final OrganizationQuery NO_FILTER = newOrganizationQueryBuilder().build();
   private final Set<String> keys;
   private final Integer userId;
+  private final boolean onlyTeam;
+  private final boolean onlyPersonal;
+  private final boolean withAnalyses;
 
   private OrganizationQuery(Builder builder) {
     this.keys = builder.keys;
     this.userId = builder.member;
+    this.onlyPersonal = builder.onlyPersonal;
+    this.onlyTeam = builder.onlyTeam;
+    if (this.onlyPersonal && this.onlyTeam) {
+      throw new IllegalArgumentException("Only one of onlyPersonal and onlyTeam can be true");
+    }
+    this.withAnalyses = builder.withAnalyses;
   }
 
   @CheckForNull
@@ -47,8 +56,20 @@ public class OrganizationQuery {
     return userId;
   }
 
+  public boolean isOnlyTeam() {
+    return onlyTeam;
+  }
+
+  public boolean isOnlyPersonal() {
+    return onlyPersonal;
+  }
+
+  public boolean isWithAnalyses() {
+    return withAnalyses;
+  }
+
   public static OrganizationQuery returnAll() {
-    return NO_QUERY;
+    return NO_FILTER;
   }
 
   public static Builder newOrganizationQueryBuilder() {
@@ -57,7 +78,11 @@ public class OrganizationQuery {
 
   public static class Builder {
     private Set<String> keys;
+    @Nullable
     private Integer member;
+    private boolean onlyTeam = false;
+    private boolean onlyPersonal = false;
+    private boolean withAnalyses = false;
 
     private Builder() {
       // use static factory method
@@ -74,6 +99,21 @@ public class OrganizationQuery {
 
     public Builder setMember(@Nullable Integer userId) {
       this.member = userId;
+      return this;
+    }
+
+    public Builder setOnlyTeam() {
+      this.onlyTeam = true;
+      return this;
+    }
+
+    public Builder setOnlyPersonal() {
+      this.onlyPersonal = true;
+      return this;
+    }
+
+    public Builder setWithAnalyses() {
+      this.withAnalyses = true;
       return this;
     }
 

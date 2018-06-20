@@ -67,6 +67,9 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -76,7 +79,6 @@ import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
-import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 @RunWith(DataProviderRunner.class)
 public class ComponentDaoTest {
@@ -694,7 +696,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] oneOrMoreProjects() {
-    return new Object[][] {
+    return new Object[][]{
       {1},
       {1 + new Random().nextInt(10)}
     };
@@ -923,7 +925,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] portfolioOrApplicationRootViewQualifier() {
-    return new Object[][] {
+    return new Object[][]{
       {Qualifiers.VIEW},
       {Qualifiers.APP},
     };
@@ -1045,7 +1047,7 @@ public class ComponentDaoTest {
       .setEnabled(false));
     SnapshotDto analyzedPortfolio = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization));
 
-    Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setOnProvisionedOnly(true);
+    Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(PROJECT).setOnProvisionedOnly(true);
     assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().build(), 0, 10))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid());
@@ -1055,10 +1057,10 @@ public class ComponentDaoTest {
 
     // filter on qualifiers
     assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers("XXX").build(), 0, 10)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT, "XXX").build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(PROJECT, "XXX").build(), 0, 10))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid());
-    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW).build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build(), 0, 10))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid(), provisionedPortfolio.uuid());
 
@@ -1082,7 +1084,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_onProvisionedOnly_filters_projects_with_analysis_on_branch() {
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
+      .setQualifiers(PROJECT)
       .setOnProvisionedOnly(true);
 
     // the project does not have any analysis
@@ -1109,9 +1111,9 @@ public class ComponentDaoTest {
     db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization));
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setOnProvisionedOnly(true);
 
-    assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT).build())).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(PROJECT).build())).isEqualTo(1);
     assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.VIEW).build())).isEqualTo(0);
-    assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW).build())).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, organization.getUuid(), query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build())).isEqualTo(1);
   }
 
   @Test
@@ -1126,7 +1128,7 @@ public class ComponentDaoTest {
   public void countByQuery_throws_IAE_if_too_many_component_ids() {
     Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
+      .setQualifiers(PROJECT)
       .setComponentIds(ids);
 
     assertThatCountByQueryThrowsIAE(query, "Too many component ids in query");
@@ -1136,7 +1138,7 @@ public class ComponentDaoTest {
   public void countByQuery_throws_IAE_if_too_many_component_keys() {
     Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
+      .setQualifiers(PROJECT)
       .setComponentKeys(keys);
 
     assertThatCountByQueryThrowsIAE(query, "Too many component keys in query");
@@ -1146,7 +1148,7 @@ public class ComponentDaoTest {
   public void countByQuery_throws_IAE_if_too_many_component_uuids() {
     Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
+      .setQualifiers(PROJECT)
       .setComponentUuids(uuids);
 
     assertThatCountByQueryThrowsIAE(query, "Too many component UUIDs in query");
@@ -1392,7 +1394,7 @@ public class ComponentDaoTest {
   public void selectByQuery_throws_IAE_if_too_many_component_ids() {
     Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
+      .setQualifiers(PROJECT)
       .setComponentIds(ids);
 
     assertThatSelectByQueryThrowsIAE(query, "Too many component ids in query");
@@ -1402,7 +1404,7 @@ public class ComponentDaoTest {
   public void selectByQuery_throws_IAE_if_too_many_component_keys() {
     Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
+      .setQualifiers(PROJECT)
       .setComponentKeys(keys);
 
     assertThatSelectByQueryThrowsIAE(query, "Too many component keys in query");
@@ -1412,7 +1414,7 @@ public class ComponentDaoTest {
   public void selectByQuery_throws_IAE_if_too_many_component_uuids() {
     Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT)
+      .setQualifiers(PROJECT)
       .setComponentUuids(uuids);
 
     assertThatSelectByQueryThrowsIAE(query, "Too many component UUIDs in query");
@@ -1434,7 +1436,7 @@ public class ComponentDaoTest {
       db.components().insertProjectAndSnapshot(newPrivateProjectDto(organizationDto).setName("project-" + i));
     }
 
-    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
     int count = underTest.countByQuery(dbSession, query);
 
@@ -1502,7 +1504,7 @@ public class ComponentDaoTest {
   public void selectByQuery_name_with_special_characters() {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
 
-    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
@@ -1514,7 +1516,7 @@ public class ComponentDaoTest {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert()).setDbKey("project-_%-key"));
     db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert()).setDbKey("project-key-that-does-not-match"));
 
-    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
@@ -1528,7 +1530,7 @@ public class ComponentDaoTest {
     ComponentQuery query = ComponentQuery.builder()
       .setNameOrKeyQuery("JECT-K")
       .setPartialMatchOnKey(true)
-      .setQualifiers(Qualifiers.PROJECT).build();
+      .setQualifiers(PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
@@ -1540,7 +1542,7 @@ public class ComponentDaoTest {
     db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("java-project-key").setLanguage("java"));
     db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("cpp-project-key").setLanguage("cpp"));
 
-    ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
@@ -1548,22 +1550,76 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void selectByQuery_filter_on_last_analysis_date() {
+  public void selectByQuery_filter_last_analysis_date() {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
-    ComponentDto oldProject = db.components().insertPublicProject();
-    db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(oldProject).setCreatedAt(aLongTimeAgo));
-    ComponentDto recentProject = db.components().insertPublicProject();
-    db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(recentProject).setCreatedAt(recentTime));
-    db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(recentProject).setCreatedAt(aLongTimeAgo).setLast(false));
-    ComponentQuery.Builder query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT);
+    ComponentDto oldProject = db.components().insertPrivateProject();
+    db.components().insertSnapshot(oldProject, s -> s.setCreatedAt(aLongTimeAgo));
+    ComponentDto recentProject = db.components().insertPrivateProject();
+    db.components().insertSnapshot(recentProject, s -> s.setCreatedAt(recentTime).setLast(true));
+    db.components().insertSnapshot(recentProject, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
-    assertThat(underTest.selectByQuery(dbSession, query.setAnalyzedBefore(recentTime).build(), 0, 10)).extracting(ComponentDto::getKey)
-      .containsExactlyInAnyOrder(oldProject.getKey());
-    assertThat(underTest.selectByQuery(dbSession, query.setAnalyzedBefore(aLongTimeAgo).build(), 0, 10)).extracting(ComponentDto::getKey)
+    // before date
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime), 0, 10))
+      .containsExactlyInAnyOrder(oldProject.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(aLongTimeAgo), 0, 10))
       .isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, query.setAnalyzedBefore(recentTime + 1_000L).build(), 0, 10)).extracting(ComponentDto::getKey)
-      .containsExactlyInAnyOrder(oldProject.getKey(), recentProject.getKey());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime + 1_000L), 0, 10))
+      .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
+
+    // after date
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L), 0, 10))
+      .containsExactlyInAnyOrder(recentProject.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L), 0, 10))
+      .isEmpty();
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo), 0, 10))
+      .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
+  }
+
+  @Test
+  public void selectByQuery_filter_last_analysis_date_on_non_main_branches() {
+    long aLongTimeAgo = 1_000_000_000L;
+    long recentTime = 3_000_000_000L;
+    // project with only a non-main and old analyzed branch
+    ComponentDto oldProject = db.components().insertMainBranch();
+    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProject).setBranchType(BranchType.SHORT));
+    db.components().insertSnapshot(oldProjectBranch, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
+
+    // project with only a old main branch and a recent non-main branch
+    ComponentDto recentProject = db.components().insertMainBranch();
+    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProject).setBranchType(BranchType.SHORT));
+    db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
+    db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
+
+    // after date
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L), 0, 10))
+      .containsExactlyInAnyOrder(recentProject.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L), 0, 10))
+      .isEmpty();
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo), 0, 10))
+      .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
+  }
+
+  @Test
+  public void selectByQuery_filter_created_at() {
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-02-01")));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-06-01")));
+
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2017-12-01")), 0, 10))
+      .containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2018-02-20")), 0, 10))
+      .containsExactlyInAnyOrder(project2.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2019-01-01")), 0, 10))
+      .isEmpty();
+  }
+
+  private List<String> selectProjectUuidsByQuery(Consumer<ComponentQuery.Builder> query, int offset, int limit) {
+    ComponentQuery.Builder builder = ComponentQuery.builder().setQualifiers(PROJECT);
+    query.accept(builder);
+    return underTest.selectByQuery(dbSession, builder.build(), offset, limit)
+      .stream()
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toList());
   }
 
   @Test
@@ -1571,9 +1627,9 @@ public class ComponentDaoTest {
     db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("private-key"));
     db.components().insertComponent(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setDbKey("public-key"));
 
-    ComponentQuery privateProjectsQuery = ComponentQuery.builder().setPrivate(true).setQualifiers(Qualifiers.PROJECT).build();
-    ComponentQuery publicProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(Qualifiers.PROJECT).build();
-    ComponentQuery allProjectsQuery = ComponentQuery.builder().setPrivate(null).setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery privateProjectsQuery = ComponentQuery.builder().setPrivate(true).setQualifiers(PROJECT).build();
+    ComponentQuery publicProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(PROJECT).build();
+    ComponentQuery allProjectsQuery = ComponentQuery.builder().setPrivate(null).setQualifiers(PROJECT).build();
 
     assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, 0, 10)).extracting(ComponentDto::getDbKey).containsExactly("private-key");
     assertThat(underTest.selectByQuery(dbSession, publicProjectsQuery, 0, 10)).extracting(ComponentDto::getDbKey).containsExactly("public-key");
@@ -1583,7 +1639,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_on_empty_list_of_component_id() {
     db.components().insertPrivateProject();
-    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentIds(emptySet()).build();
+    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentIds(emptySet()).build();
 
     List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
     int count = underTest.countByQuery(dbSession, dbQuery);
@@ -1599,7 +1655,7 @@ public class ComponentDaoTest {
     ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto(organizationDto));
     ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto(organizationDto));
 
-    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
+    ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
       .setComponentIds(newHashSet(sonarqube.getId(), jdk8.getId())).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
@@ -1611,7 +1667,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_on_empty_list_of_component_key() {
     db.components().insertPrivateProject();
-    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentKeys(emptySet()).build();
+    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentKeys(emptySet()).build();
 
     List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
     int count = underTest.countByQuery(dbSession, dbQuery);
@@ -1626,7 +1682,7 @@ public class ComponentDaoTest {
     ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto(organizationDto));
     ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto(organizationDto));
     ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto(organizationDto));
-    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
+    ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
       .setComponentKeys(newHashSet(sonarqube.getDbKey(), jdk8.getDbKey())).build();
 
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -1639,7 +1695,7 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_on_empty_list_of_component_uuids() {
     db.components().insertPrivateProject();
-    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentUuids(emptySet()).build();
+    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentUuids(emptySet()).build();
 
     List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
     int count = underTest.countByQuery(dbSession, dbQuery);
@@ -1654,7 +1710,7 @@ public class ComponentDaoTest {
     ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto(organizationDto));
     ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto(organizationDto));
     ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto(organizationDto));
-    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
+    ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
       .setComponentUuids(newHashSet(sonarqube.uuid(), jdk8.uuid())).build();
 
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);

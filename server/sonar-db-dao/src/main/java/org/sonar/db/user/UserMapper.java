@@ -24,6 +24,7 @@ import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.user.UserQuery;
+import org.sonar.db.KeyLongValue;
 
 public interface UserMapper {
 
@@ -68,6 +69,20 @@ public interface UserMapper {
    * Count actives users which are root and which login is not the specified one.
    */
   long countRootUsersButLogin(@Param("login") String login);
+
+  long countTotalUsers();
+
+  long countTeamUsers();
+
+  long countPersonalUsers();
+
+  long countPersonalUsersWithZeroProjects();
+
+  long countNewUsersSince(@Param("since") long since);
+
+  long countActiveUsers();
+
+  List<KeyLongValue> countUsersByIdentityProviders();
 
   void insert(@Param("user") UserDto userDto);
 

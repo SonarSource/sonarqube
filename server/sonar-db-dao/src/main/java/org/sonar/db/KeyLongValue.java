@@ -29,6 +29,15 @@ public class KeyLongValue {
   private String key;
   private Long value;
 
+  public KeyLongValue() {
+    // for MyBatis
+  }
+
+  public KeyLongValue(String key, Long value) {
+    this.key = key;
+    this.value = value;
+  }
+
   public String getKey() {
     return key;
   }

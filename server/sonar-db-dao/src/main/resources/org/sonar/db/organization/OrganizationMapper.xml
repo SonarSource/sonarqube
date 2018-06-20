@@ -108,8 +108,88 @@
             #{key, jdbcType=VARCHAR}
           </foreach>
       </if>
+      <if test="query.onlyTeam">
+        and not exists(
+          select 1
+          from users u
+          where u.organization_uuid = org.uuid
+          and u.active = ${_true}
+        )
+      </if>
+      <if test="query.onlyPersonal">
+        and exists(
+          select 1
+          from users u
+          where u.organization_uuid = org.uuid
+          and u.active = ${_true}
+        )
+      </if>
+      <if test="query.withAnalyses">
+        and exists(
+          select 1
+          from snapshots s
+          inner join projects p on p.uuid = s.component_uuid
+          where p.organization_uuid = org.uuid
+          and p.enabled = ${_true}
+          and s.islast = ${_true}
+        )
+      </if>
     </where>
   </sql>
+
+  <select id="countTeamsByMembers" resultType="org.sonar.db.KeyLongValue">
+    select range as "key", count(1) as "value"
+    from (
+      select case
+          when nb = 0 then '0'
+          when nb = 1 then '1'
+          when nb &gt;= 2 and nb &lt;= 4 then '2-4'
+          when nb &gt;= 5 and nb &lt;= 9 then '5-9'
+          when nb &gt;= 10 and nb &lt;= 24 then '10-24'
+          else '25+'
+        end as range
+      from (
+        select o.uuid, count(om.user_id) as nb
+        from organizations o
+        left join organization_members om on om.organization_uuid = o.uuid
+        where not exists(
+          select 1
+          from users u
+          where u.organization_uuid = o.uuid
+          and u.active = ${_true}
+        )
+        group by o.uuid
+      ) alias1
+    ) alias2
+    group by range
+  </select>
+
+  <select id="countTeamsByProjects" resultType="org.sonar.db.KeyLongValue">
+    select range as "key", count(1) as "value"
+    from (
+      select case
+          when nb = 0 then '0'
+          when nb = 1 then '1'
+          when nb &gt;= 2 and nb &lt;= 4 then '2-4'
+          when nb &gt;= 5 and nb &lt;= 9 then '5-9'
+          when nb &gt;= 10 and nb &lt;= 24 then '10-24'
+          else '25+'
+        end as range
+      from (
+        select o.uuid, count(p.uuid) as nb
+        from organizations o
+        left join projects p on p.organization_uuid = o.uuid
+        where not exists(
+          select 1
+          from users u
+          where u.organization_uuid = o.uuid
+          and u.active = ${_true}
+        )
+        group by o.uuid
+      ) alias1
+    ) alias2
+    group by range
+  </select>
 
   <select id="selectByPermission" parameterType="map" resultType="Organization">
     select

@@ -34,6 +34,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
@@ -114,6 +115,37 @@ public class UserDao implements Dao {
 
   public long countRootUsersButLogin(DbSession dbSession, String login) {
     return mapper(dbSession).countRootUsersButLogin(login);
+  }
+
+  /**
+   * Includes deactivated users
+   */
+  public long countTotalUsers(DbSession dbSession) {
+    return mapper(dbSession).countTotalUsers();
+  }
+
+  public long countTeamUsers(DbSession dbSession) {
+    return mapper(dbSession).countTeamUsers();
+  }
+
+  public long countPersonalUsers(DbSession dbSession) {
+    return mapper(dbSession).countPersonalUsers();
+  }
+
+  public long countPersonalUsersWithZeroProjects(DbSession dbSession) {
+    return mapper(dbSession).countPersonalUsersWithZeroProjects();
+  }
+
+  public long countNewUsersSince(DbSession dbSession, long since) {
+    return mapper(dbSession).countNewUsersSince(since);
+  }
+
+  public long countActiveUsers(DbSession dbSession) {
+    return mapper(dbSession).countActiveUsers();
+  }
+
+  public List<KeyLongValue> countUsersByIdentityProviders(DbSession dbSession) {
+    return mapper(dbSession).countUsersByIdentityProviders();
   }
 
   public UserDto insert(DbSession session, UserDto dto) {

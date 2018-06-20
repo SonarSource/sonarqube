@@ -33,6 +33,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
@@ -299,6 +300,94 @@ public class UserDaoTest {
     session.commit();
 
     assertThat(underTest.countRootUsersButLogin(session, rootLogin)).isEqualTo(2);
+  }
+
+  @Test
+  public void countTotalUsers() {
+    assertThat(underTest.countTotalUsers(session)).isEqualTo(0);
+
+    db.users().insertUser(u -> u.setActive(false));
+    db.users().insertUser(u -> u.setActive(true));
+
+    assertThat(underTest.countTotalUsers(session)).isEqualTo(2);
+  }
+
+  @Test
+  public void countTeamUsers() {
+    assertThat(underTest.countTeamUsers(session)).isEqualTo(0);
+
+    // user 1: with only personal organization
+    OrganizationDto user1Org = db.organizations().insert();
+    insertNonRootUser(newUserDto().setOrganizationUuid(user1Org.getUuid()));
+    assertThat(underTest.countTeamUsers(session)).isEqualTo(0);
+
+    // user 2: with no organizations at all
+    insertNonRootUser(newUserDto().setOrganizationUuid(null));
+    assertThat(underTest.countTeamUsers(session)).isEqualTo(0);
+
+    // user 3: with personal and team organizations
+    OrganizationDto user3Org = db.organizations().insert();
+    OrganizationDto teamOrg = db.organizations().insert();
+    UserDto user3 = insertNonRootUser(newUserDto().setOrganizationUuid(user3Org.getUuid()));
+    db.organizations().addMember(teamOrg, user3);
+    assertThat(underTest.countTeamUsers(session)).isEqualTo(1);
+  }
+
+  @Test
+  public void countPersonalUsers() {
+    assertThat(underTest.countPersonalUsers(session)).isEqualTo(0);
+
+    // user 1: with only personal organization
+    OrganizationDto user1Org = db.organizations().insert();
+    insertNonRootUser(newUserDto().setOrganizationUuid(user1Org.getUuid()));
+    assertThat(underTest.countPersonalUsers(session)).isEqualTo(1);
+
+    // user 2: with no organizations at all
+    insertNonRootUser(newUserDto().setOrganizationUuid(null));
+    assertThat(underTest.countPersonalUsers(session)).isEqualTo(1);
+
+    // user 3: with personal and team organizations
+    OrganizationDto user3Org = db.organizations().insert();
+    OrganizationDto teamOrg = db.organizations().insert();
+    UserDto user3 = insertNonRootUser(newUserDto().setOrganizationUuid(user3Org.getUuid()));
+    db.organizations().addMember(teamOrg, user3);
+    assertThat(underTest.countPersonalUsers(session)).isEqualTo(1);
+
+    // user 4: excluded because deactivated
+    OrganizationDto user4Org = db.organizations().insert();
+    insertNonRootUser(newUserDto().setOrganizationUuid(user4Org.getUuid()).setActive(false));
+    assertThat(underTest.countPersonalUsers(session)).isEqualTo(1);
+  }
+
+  @Test
+  public void countNewUsersSince() {
+    assertThat(underTest.countNewUsersSince(session, 400L)).isEqualTo(0);
+
+    when(system2.now()).thenReturn(100L);
+    insertNonRootUser(newUserDto());
+    when(system2.now()).thenReturn(200L);
+    insertNonRootUser(newUserDto());
+    when(system2.now()).thenReturn(300L);
+    insertNonRootUser(newUserDto());
+
+    assertThat(underTest.countNewUsersSince(session, 50L)).isEqualTo(3);
+    assertThat(underTest.countNewUsersSince(session, 190L)).isEqualTo(2);
+    assertThat(underTest.countNewUsersSince(session, 400L)).isEqualTo(0);
+  }
+
+  @Test
+  public void countUsersByIdentityProviders() {
+    assertThat(underTest.countUsersByIdentityProviders(session)).isEmpty();
+
+    db.users().insertUser(u -> u.setActive(true).setExternalIdentityProvider("bitbucket"));
+    db.users().insertUser(u -> u.setActive(true).setExternalIdentityProvider("github"));
+    db.users().insertUser(u -> u.setActive(true).setExternalIdentityProvider("github"));
+    // this used is excluded because deactivated
+    db.users().insertUser(u -> u.setActive(false).setExternalIdentityProvider("github"));
+
+    assertThat(underTest.countUsersByIdentityProviders(session))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(tuple("bitbucket", 1L), tuple("github", 2L));
   }
 
   private UserDto insertInactiveRootUser(UserDto dto) {

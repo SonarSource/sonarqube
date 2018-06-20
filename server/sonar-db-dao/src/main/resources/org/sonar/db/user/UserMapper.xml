@@ -154,6 +154,72 @@
         and u.login &lt;&gt; #{login}
     </select>
 
+    <select id="countTotalUsers" resultType="long">
+        select count(1) from users
+    </select>
+
+    <select id="countTeamUsers" resultType="long">
+        select count(1)
+        from users
+        where active = ${_true}
+        and exists (
+          select 1
+          from organization_members om
+          where om.user_id = users.id
+          and (users.organization_uuid is null or om.organization_uuid != users.organization_uuid)
+        )
+    </select>
+
+    <select id="countPersonalUsers" resultType="long">
+        select count(1)
+        from users
+        where active = ${_true}
+        and organization_uuid is not null
+        and not exists (
+          select 1
+          from organization_members om
+          where om.user_id = users.id
+          and om.organization_uuid != users.organization_uuid
+        )
+    </select>
+
+    <select id="countPersonalUsersWithZeroProjects" resultType="long">
+        select count(1)
+        from users
+        where active = ${_true}
+        and organization_uuid is not null
+        and not exists (
+          select 1
+          from organization_members om
+          where om.user_id = users.id
+          and om.organization_uuid != users.organization_uuid
+        )
+        and not exists (
+          select 1
+          from projects p
+          where p.organization_uuid = users.organization_uuid
+        )
+    </select>
+
+    <select id="countNewUsersSince" parameterType="long" resultType="long">
+        select count(1)
+        from users
+        where created_at &gt; #{since,jdbcType=BIGINT}
+    </select>
+
+    <select id="countActiveUsers" resultType="long">
+        select count(1)
+        from users
+        where active = ${_true}
+    </select>
+
+    <select id="countUsersByIdentityProviders" resultType="org.sonar.db.KeyLongValue">
+        select external_identity_provider as "key", count(1) as "value"
+        from users
+        where active = ${_true}
+        group by external_identity_provider
+    </select>
+
     <update id="deactivateUser" parameterType="map">
         update users set
         active = ${_false},
