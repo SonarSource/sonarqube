@@ -30,7 +30,9 @@ export default function GlobalNavExplore({ location }: Props) {
 
   return (
     <li>
-      <Link className={active ? 'active' : undefined} to="/explore/projects">
+      <Link
+        className={active ? 'active' : undefined}
+        to={{ pathname: '/explore/projects', query: { sort: '-analysis_date' } }}>
         {translate('explore')}
       </Link>
     </li>
