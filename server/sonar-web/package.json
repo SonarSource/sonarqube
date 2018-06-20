@@ -26,6 +26,7 @@
     "react-day-picker": "7.1.8",
     "react-dom": "16.2.0",
     "react-draggable": "3.0.5",
+    "react-ga": "2.5.3",
     "react-helmet": "5.2.0",
     "react-intl": "2.4.0",
     "react-modal": "3.4.4",

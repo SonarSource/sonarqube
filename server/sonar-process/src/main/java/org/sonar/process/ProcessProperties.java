@@ -108,8 +108,8 @@ public class ProcessProperties {
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
     SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
-
     SONAR_PRISMIC_ACCESS_TOKEN("sonar.prismic.accessToken", ""),
+    SONAR_ANALYTICS_TRACKING_ID("sonar.analytics.trackingId", ""),
 
     BITBUCKETCLOUD_APP_KEY("sonar.bitbucketcloud.appKey", "sonarcloud"),
     BITBUCKETCLOUD_ENDPOINT("sonar.bitbucketcloud.endpoint", "https://api.bitbucket.org"),
@@ -121,8 +121,6 @@ public class ProcessProperties {
 
     // whether the blue/green deployment of server is enabled
     BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", "false");
-
-
 
     private final String key;
     private final String defaultValue;

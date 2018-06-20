@@ -26,7 +26,10 @@ import { CurrentUser } from '../types';
 import { fetchCurrentUser } from '../../store/users/actions';
 import { fetchLanguages, fetchAppState } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
-import { getInstance } from '../../helpers/system';
+import { getInstance, isSonarCloud } from '../../helpers/system';
+import { lazyLoad } from '../../components/lazyLoad';
+
+const PageTracker = lazyLoad(() => import('./PageTracker'));
 
 interface Props {
   children: JSX.Element;
@@ -115,6 +118,7 @@ class App extends React.PureComponent<Props, State> {
     return (
       <>
         <Helmet defaultTitle={getInstance()} />
+        {isSonarCloud() && <PageTracker />}
         {this.props.children}
       </>
     );
