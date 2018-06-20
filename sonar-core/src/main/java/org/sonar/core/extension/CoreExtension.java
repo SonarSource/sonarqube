@@ -23,6 +23,8 @@ import java.util.Collection;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 
+import static java.util.Arrays.asList;
+
 public interface CoreExtension {
 
   /**
@@ -39,9 +41,13 @@ public interface CoreExtension {
 
     Context addExtension(Object component);
 
-    Context addExtensions(Object component, Object... otherComponents);
-
     <T> Context addExtensions(Collection<T> o);
+
+    default Context addExtensions(Object component, Object... otherComponents) {
+      addExtension(component);
+      addExtensions(asList(otherComponents));
+      return this;
+    }
   }
 
   void load(Context context);
