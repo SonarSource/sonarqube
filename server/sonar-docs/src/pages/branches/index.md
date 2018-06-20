@@ -73,3 +73,8 @@ A regular expression is used to determine whether a branch is treated as long-li
 This can be updated globally in **Configuration > General > Detection** of long-lived branches or at project's level in the **Admininstration > Branches**.
 
 Once a branch type has been set, it cannot be changed. Explicitly, you cannot transform a long-lived to short-lived branch, or vice-versa.
+
+## See also
+* [Short-lived Branches](short-lived-branches)
+* [Long-lived Branches](long-lived-branches)
+* [Frequently Asked Questions](branches-faq)
