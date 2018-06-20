@@ -132,7 +132,6 @@ import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerFileSystemImpl;
-import org.sonar.server.platform.ServerIdManager;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.log.ServerLogging;
@@ -145,6 +144,7 @@ import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.monitoring.DbSection;
 import org.sonar.server.platform.monitoring.OfficialDistribution;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
+import org.sonar.server.platform.serverid.ServerIdModule;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.property.InternalPropertiesImpl;
@@ -360,7 +360,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static void populateLevel3(ComponentContainer container) {
     container.add(
       new StartupMetadataProvider(),
-      ServerIdManager.class,
+      ServerIdModule.class,
       UriReader.class,
       ServerImpl.class,
       DefaultOrganizationProviderImpl.class,

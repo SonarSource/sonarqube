@@ -22,8 +22,11 @@ package org.sonar.ce.container;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +43,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.server.platform.ServerIdChecksum;
 import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.valueOf;
@@ -84,7 +86,7 @@ public class ComputeEngineContainerImplTest {
     // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_server_id");
     insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date()));
-    insertInternalProperty(InternalProperties.SERVER_ID_CHECKSUM, ServerIdChecksum.of("a_server_id", db.getUrl()));
+    insertInternalProperty(InternalProperties.SERVER_ID_CHECKSUM, DigestUtils.sha256Hex("a_server_id|" + cleanJdbcUrl()));
 
     underTest
       .start(new Props(properties));
@@ -110,6 +112,7 @@ public class ComputeEngineContainerImplTest {
       assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
         CONTAINER_ITSELF
           + 7 // level 3
+          + 4 // content of ServerIdModule
       );
       assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
         CONTAINER_ITSELF
@@ -138,6 +141,10 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
     assertThat(picoContainer.getLifecycleState().isStopped()).isFalse();
     assertThat(picoContainer.getLifecycleState().isDisposed()).isTrue();
+  }
+
+  private String cleanJdbcUrl() {
+    return StringUtils.lowerCase(StringUtils.substringBefore(db.getUrl(), "?"), Locale.ENGLISH);
   }
 
   private Properties getProperties() throws IOException {
