@@ -125,7 +125,7 @@ public class DumbRule implements Rule {
     return this;
   }
 
-  public DumbRule setIsExtenral(boolean isExternal) {
+  public DumbRule setIsExternal(boolean isExternal) {
     this.isExternal = isExternal;
     return this;
   }

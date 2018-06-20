@@ -71,7 +71,6 @@ import org.sonar.ce.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.ce.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.RuleTagsCopier;
-import org.sonar.ce.task.projectanalysis.issue.RuleTypeCopier;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUserLoader;
 import org.sonar.ce.task.projectanalysis.issue.ShortBranchIssueMerger;
@@ -230,7 +229,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
 
       // order is important: RuleTypeCopier must be the first one. And DebtAggregator must be before NewDebtAggregator (new debt requires
       // debt)
-      RuleTypeCopier.class,
       RuleTagsCopier.class,
       IssueCreationDateCalculator.class,
       DebtCalculator.class,

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -194,6 +195,7 @@ public class TrackerRawInputFactoryTest {
       .setRuleKey("S001")
       .setSeverity(Constants.Severity.BLOCKER)
       .setEffort(20l)
+      .setType(ScannerReport.IssueType.SECURITY_HOTSPOT)
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -208,6 +210,7 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.effort()).isEqualTo(Duration.create(20l));
     assertThat(issue.message()).isEqualTo("the message");
+    assertThat(issue.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
 
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
@@ -224,6 +227,7 @@ public class TrackerRawInputFactoryTest {
       .setRuleRepository("eslint")
       .setRuleKey("S001")
       .setSeverity(Constants.Severity.BLOCKER)
+      .setType(ScannerReport.IssueType.BUG)
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);

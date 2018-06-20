@@ -201,10 +201,11 @@ message ExternalIssue {
 }
 
 enum IssueType {
-  CODE_SMELL = 0;
-  BUG = 1;
-  VULNERABILITY = 2;
-  SECURITY_HOTSPOT = 3;
+  UNSET = 0;
+  CODE_SMELL = 1;
+  BUG = 2;
+  VULNERABILITY = 3;
+  SECURITY_HOTSPOT = 4;
 }
 
 message IssueLocation {

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -48,12 +49,18 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
 public class IssueLifecycleTest {
 
   private static final Date DEFAULT_DATE = new Date();
 
   private static final Duration DEFAULT_DURATION = Duration.create(10);
+
+  DumbRule rule = new DumbRule(XOO_X1);
+
+  @org.junit.Rule
+  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(rule);
 
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
@@ -66,11 +73,31 @@ public class IssueLifecycleTest {
 
   private DebtCalculator debtCalculator = mock(DebtCalculator.class);
 
-  private IssueLifecycle underTest = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, workflow, updater, debtCalculator);
+  private IssueLifecycle underTest = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, workflow, updater, debtCalculator, ruleRepository);
 
   @Test
   public void initNewOpenIssue() {
-    DefaultIssue issue = new DefaultIssue();
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(XOO_X1);
+    when(debtCalculator.calculate(issue)).thenReturn(DEFAULT_DURATION);
+
+    underTest.initNewOpenIssue(issue);
+
+    assertThat(issue.key()).isNotNull();
+    assertThat(issue.creationDate()).isNotNull();
+    assertThat(issue.updateDate()).isNotNull();
+    assertThat(issue.status()).isEqualTo(STATUS_OPEN);
+    assertThat(issue.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(issue.isNew()).isTrue();
+    assertThat(issue.isCopied()).isFalse();
+    assertThat(issue.isFromHotspot()).isFalse();
+  }
+
+  @Test
+  public void initNewOpenHotspot() {
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(XOO_X1);
     when(debtCalculator.calculate(issue)).thenReturn(DEFAULT_DURATION);
 
     underTest.initNewOpenIssue(issue);
@@ -82,6 +109,7 @@ public class IssueLifecycleTest {
     assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
+    assertThat(issue.isFromHotspot()).isTrue();
   }
 
   @Test
@@ -215,6 +243,7 @@ public class IssueLifecycleTest {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
       .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1)
       .setCreationDate(parseDate("2015-10-01"))
       .setUpdateDate(parseDate("2015-10-02"))
       .setCloseDate(parseDate("2015-10-03"));
@@ -259,9 +288,77 @@ public class IssueLifecycleTest {
     assertThat(raw.assignee()).isEqualTo("base assignee uuid");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
+    assertThat(raw.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(raw.isOnDisabledRule()).isTrue();
+    assertThat(raw.selectedAt()).isEqualTo(1000L);
+    assertThat(raw.isChanged()).isFalse();
+
+    verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
+    verify(updater).setPastLine(raw, 10);
+    verify(updater).setPastMessage(raw, "message", issueChangeContext);
+    verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
+    verify(updater).setPastLocations(raw, issueLocations);
+  }
+
+  @Test
+  public void mergeExistingOpenIssue_vulnerability_changed_to_hotspot() {
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1)
+      .setCreationDate(parseDate("2015-10-01"))
+      .setUpdateDate(parseDate("2015-10-02"))
+      .setCloseDate(parseDate("2015-10-03"));
+
+    DbIssues.Locations issueLocations = DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder()
+        .setStartLine(10)
+        .setEndLine(12)
+        .build())
+      .build();
+    DefaultIssue base = new DefaultIssue()
+      .setKey("BASE_KEY")
+      .setType(RuleType.VULNERABILITY)
+      // First analysis before rule was changed to hotspot
+      .setIsFromHotspot(false)
+      .setCreationDate(parseDate("2015-01-01"))
+      .setUpdateDate(parseDate("2015-01-02"))
+      .setCloseDate(parseDate("2015-01-03"))
+      .setResolution(RESOLUTION_FIXED)
+      .setStatus(STATUS_CLOSED)
+      .setSeverity(BLOCKER)
+      .setAssigneeUuid("base assignee uuid")
+      .setAuthorLogin("base author")
+      .setTags(newArrayList("base tag"))
+      .setOnDisabledRule(true)
+      .setSelectedAt(1000L)
+      .setLine(10)
+      .setMessage("message")
+      .setGap(15d)
+      .setEffort(Duration.create(15L))
+      .setManualSeverity(false)
+      .setLocations(issueLocations);
+
+    when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
+
+    underTest.mergeExistingOpenIssue(raw, base);
+
+    assertThat(raw.isNew()).isFalse();
+    assertThat(raw.key()).isEqualTo("BASE_KEY");
+    assertThat(raw.creationDate()).isEqualTo(base.creationDate());
+    assertThat(raw.updateDate()).isEqualTo(base.updateDate());
+    assertThat(raw.closeDate()).isEqualTo(base.closeDate());
+    assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(raw.assignee()).isEqualTo("base assignee uuid");
+    assertThat(raw.authorLogin()).isEqualTo("base author");
+    assertThat(raw.tags()).containsOnly("base tag");
     assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(raw.isOnDisabledRule()).isTrue();
     assertThat(raw.selectedAt()).isEqualTo(1000L);
+    assertThat(raw.isFromHotspot()).isTrue();
+    assertThat(raw.isChanged()).isTrue();
 
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
@@ -274,7 +371,8 @@ public class IssueLifecycleTest {
   public void mergeExistingOpenIssue_with_manual_severity() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
-      .setKey("RAW_KEY");
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1);
     DefaultIssue base = new DefaultIssue()
       .setKey("BASE_KEY")
       .setResolution(RESOLUTION_FIXED)
@@ -294,7 +392,8 @@ public class IssueLifecycleTest {
   public void mergeExistingOpenIssue_with_attributes() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
-      .setKey("RAW_KEY");
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1);
     DefaultIssue base = new DefaultIssue()
       .setKey("BASE_KEY")
       .setResolution(RESOLUTION_FIXED)

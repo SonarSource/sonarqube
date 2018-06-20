@@ -20,9 +20,11 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import java.util.Date;
 import java.util.Optional;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -44,30 +46,43 @@ public class IssueLifecycle {
 
   private final IssueWorkflow workflow;
   private final IssueChangeContext changeContext;
+  private final RuleRepository ruleRepository;
   private final IssueFieldsSetter updater;
   private final DebtCalculator debtCalculator;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueWorkflow workflow, IssueFieldsSetter updater, DebtCalculator debtCalculator) {
-    this(analysisMetadataHolder, IssueChangeContext.createScan(new Date(analysisMetadataHolder.getAnalysisDate())), workflow, updater, debtCalculator);
+  public IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueWorkflow workflow, IssueFieldsSetter updater, DebtCalculator debtCalculator,
+    RuleRepository ruleRepository) {
+    this(analysisMetadataHolder, IssueChangeContext.createScan(new Date(analysisMetadataHolder.getAnalysisDate())), workflow, updater, debtCalculator, ruleRepository);
   }
 
   @VisibleForTesting
   IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueChangeContext changeContext, IssueWorkflow workflow, IssueFieldsSetter updater,
-    DebtCalculator debtCalculator) {
+    DebtCalculator debtCalculator, RuleRepository ruleRepository) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.workflow = workflow;
     this.updater = updater;
     this.debtCalculator = debtCalculator;
     this.changeContext = changeContext;
+    this.ruleRepository = ruleRepository;
   }
 
   public void initNewOpenIssue(DefaultIssue issue) {
+    Preconditions.checkArgument(issue.isFromExternalRuleEngine() != (issue.type() == null), "At this stage issue type should be set for and only for external issues");
     issue.setKey(Uuids.create());
     issue.setCreationDate(changeContext.date());
     issue.setUpdateDate(changeContext.date());
     issue.setStatus(Issue.STATUS_OPEN);
     issue.setEffort(debtCalculator.calculate(issue));
+    setType(issue);
+  }
+
+  private void setType(DefaultIssue issue) {
+    if (!issue.isFromExternalRuleEngine()) {
+      Rule rule = ruleRepository.getByKey(issue.ruleKey());
+      issue.setType(rule.getType());
+    }
+    issue.setIsFromHotspot(issue.type() == RuleType.SECURITY_HOTSPOT);
   }
 
   public void copyExistingOpenIssueFromLongLivingBranch(DefaultIssue raw, DefaultIssue base, String fromLongBranchName) {
@@ -129,8 +144,14 @@ public class IssueLifecycle {
   }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
+    Preconditions.checkArgument(raw.isFromExternalRuleEngine() != (raw.type() == null), "At this stage issue type should be set for and only for external issues");
     raw.setKey(base.key());
     raw.setNew(false);
+    setType(raw);
+    if (raw.isFromHotspot() != base.isFromHotspot()) {
+      // This is to force DB update of the issue
+      raw.setChanged(true);
+    }
     copyFields(raw, base);
 
     if (base.manualSeverity()) {
