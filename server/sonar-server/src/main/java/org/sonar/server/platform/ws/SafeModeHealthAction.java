@@ -42,7 +42,7 @@ public class SafeModeHealthAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    if (!systemPasscode.isConfigured() || !systemPasscode.isValid(request)) {
+    if (!systemPasscode.isValid(request)) {
       throw new ForbiddenException("Insufficient privileges");
     }
 

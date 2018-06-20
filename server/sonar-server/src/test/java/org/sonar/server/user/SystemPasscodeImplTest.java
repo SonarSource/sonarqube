@@ -43,26 +43,6 @@ public class SystemPasscodeImplTest {
   }
 
   @Test
-  public void isConfigured_is_true_if_property_is_not_blank() {
-    verifyIsConfigured("foo", true);
-  }
-
-  @Test
-  public void isConfigured_is_false_if_property_value_is_blank() {
-    verifyIsConfigured("  ", false);
-  }
-
-  @Test
-  public void isConfigured_is_false_if_property_value_is_empty() {
-    verifyIsConfigured("", false);
-  }
-
-  @Test
-  public void isConfigured_is_false_if_property_is_not_defined() {
-    assertThat(underTest.isConfigured()).isFalse();
-  }
-
-  @Test
   public void startup_logs_show_that_feature_is_enabled() {
     configurePasscode("foo");
     underTest.start();
@@ -72,6 +52,14 @@ public class SystemPasscodeImplTest {
 
   @Test
   public void startup_logs_show_that_feature_is_disabled() {
+    underTest.start();
+
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is disabled");
+  }
+
+  @Test
+  public void passcode_is_disabled_if_blank_configuration() {
+    configurePasscode("");
     underTest.start();
 
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("System authentication by passcode is disabled");
@@ -109,11 +97,6 @@ public class SystemPasscodeImplTest {
     request.setHeader("X-Sonar-Passcode", header);
 
     assertThat(underTest.isValid(request)).isEqualTo(expectedResult);
-  }
-
-  private void verifyIsConfigured(String propertyValue, boolean expectedResult) {
-    configurePasscode(propertyValue);
-    assertThat(underTest.isConfigured()).isEqualTo(expectedResult);
   }
 
   private void configurePasscode(String propertyValue) {

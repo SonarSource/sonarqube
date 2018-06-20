@@ -41,11 +41,6 @@ public class SystemPasscodeImpl implements SystemPasscode, Startable {
   }
 
   @Override
-  public boolean isConfigured() {
-    return configuredPasscode != null;
-  }
-
-  @Override
   public boolean isValid(Request request) {
     if (configuredPasscode == null) {
       return false;

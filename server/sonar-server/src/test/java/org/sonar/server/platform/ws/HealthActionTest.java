@@ -32,7 +32,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
@@ -100,7 +99,7 @@ public class HealthActionTest {
 
   @Test
   public void request_fails_with_SystemPasscode_enabled_and_anonymous() {
-    when(systemPasscode.isConfigured()).thenReturn(true);
+    when(systemPasscode.isValid(any())).thenReturn(false);
     TestRequest request = underTest.newRequest();
 
     expectForbiddenException();
@@ -110,8 +109,7 @@ public class HealthActionTest {
 
   @Test
   public void request_fails_with_SystemPasscode_enabled_but_no_passcode_and_user_is_not_system_administrator() {
-    when(systemPasscode.isConfigured()).thenReturn(true);
-    when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
+    when(systemPasscode.isValid(any())).thenReturn(false);
     userSessionRule.logIn();
     when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
     TestRequest request = underTest.newRequest();
@@ -123,8 +121,7 @@ public class HealthActionTest {
 
   @Test
   public void request_succeeds_with_SystemPasscode_enabled_and_passcode() {
-    when(systemPasscode.isConfigured()).thenReturn(true);
-    when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
+    when(systemPasscode.isValid(any())).thenReturn(true);
     when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
     TestRequest request = underTest.newRequest();
 
@@ -132,30 +129,8 @@ public class HealthActionTest {
   }
 
   @Test
-  public void request_succeeds_with_SystemPasscode_disabled_and_user_is_system_administrator() {
-    when(systemPasscode.isConfigured()).thenReturn(false);
-    userSessionRule.logIn().setSystemAdministrator();
-    when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
-    TestRequest request = underTest.newRequest();
-
-    request.execute();
-  }
-
-  @Test
-  public void request_succeeds_with_SystemPasscode_enabled_but_no_passcode_and_user_is_system_administrator() {
-    when(systemPasscode.isConfigured()).thenReturn(true);
-    when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
-    userSessionRule.logIn().setSystemAdministrator();
-    when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
-    TestRequest request = underTest.newRequest();
-
-    request.execute();
-  }
-
-  @Test
-  public void request_succeeds_with_SystemPasscode_enabled_and_passcode_and_user_is_system_administrator() {
-    when(systemPasscode.isConfigured()).thenReturn(true);
-    when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
+  public void request_succeeds_with_SystemPasscode_incorrect_and_user_is_system_administrator() {
+    when(systemPasscode.isValid(any())).thenReturn(false);
     userSessionRule.logIn().setSystemAdministrator();
     when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
     TestRequest request = underTest.newRequest();
@@ -381,11 +356,10 @@ public class HealthActionTest {
    */
   private void authenticateWithRandomMethod() {
     if (random.nextBoolean()) {
-      when(systemPasscode.isConfigured()).thenReturn(true);
       if (random.nextBoolean()) {
-        when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
+        when(systemPasscode.isValid(any())).thenReturn(true);
       } else {
-        when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
+        when(systemPasscode.isValid(any())).thenReturn(false);
         userSessionRule.logIn().setSystemAdministrator();
       }
     } else {

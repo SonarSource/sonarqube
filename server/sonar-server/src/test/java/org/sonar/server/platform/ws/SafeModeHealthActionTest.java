@@ -26,7 +26,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.Health;
@@ -68,9 +67,8 @@ public class SafeModeHealthActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_PassCode_disabled() {
-    when(systemPasscode.isConfigured()).thenReturn(false);
-    when(systemPasscode.isValid(any(Request.class))).thenReturn(random.nextBoolean());
+  public void request_fails_with_ForbiddenException_when_PassCode_disabled_or_incorrect() {
+    when(systemPasscode.isValid(any())).thenReturn(false);
     TestRequest request = underTest.newRequest();
 
     expectForbiddenException();
@@ -79,18 +77,7 @@ public class SafeModeHealthActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_PassCode_enabled_but_no_passcode() {
-    when(systemPasscode.isConfigured()).thenReturn(true);
-    when(systemPasscode.isValid(any(Request.class))).thenReturn(false);
-    TestRequest request = underTest.newRequest();
-
-    expectForbiddenException();
-
-    request.execute();
-  }
-
-  @Test
-  public void request_succeeds_when_PassCode_enabled_and_valid_passcode() {
+  public void request_succeeds_when_valid_passcode() {
     authenticateWithPasscode();
     when(healthChecker.checkNode())
       .thenReturn(newHealthCheckBuilder()
@@ -156,8 +143,7 @@ public class SafeModeHealthActionTest {
   }
 
   private void authenticateWithPasscode() {
-    when(systemPasscode.isConfigured()).thenReturn(true);
-    when(systemPasscode.isValid(any(Request.class))).thenReturn(true);
+    when(systemPasscode.isValid(any())).thenReturn(true);
   }
 
 }

@@ -53,7 +53,7 @@ public class PauseAction implements CeWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    if (!userSession.isSystemAdministrator() && !systemPasscode.isValid(request)) {
+    if (!systemPasscode.isValid(request) && !userSession.isSystemAdministrator()) {
       throw AbstractUserSession.insufficientPrivilegesException();
     }
 

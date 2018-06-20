@@ -48,7 +48,7 @@ public class HealthAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    if (!isPassCodeAuthenticated(request) && !isSystemAdmin()) {
+    if (!systemPasscode.isValid(request) && !isSystemAdmin()) {
       throw new ForbiddenException("Insufficient privileges");
     }
 
@@ -61,10 +61,6 @@ public class HealthAction implements SystemWsAction {
 
   private boolean isSystemAdmin() {
     return userSession.isSystemAdministrator();
-  }
-
-  private boolean isPassCodeAuthenticated(Request request) {
-    return systemPasscode.isConfigured() && systemPasscode.isValid(request);
   }
 
 }

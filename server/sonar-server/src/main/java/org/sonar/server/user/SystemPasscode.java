@@ -25,18 +25,15 @@ import org.sonar.api.server.ws.Request;
  * Passcode for accessing some web services, usually for connecting
  * monitoring tools without using the credentials
  * of a system administrator.
+ *
+ * Important - the web services accepting passcode must be listed in
+ * {@link org.sonar.server.authentication.UserSessionInitializer#URL_USING_PASSCODE}.
  */
 public interface SystemPasscode {
 
   /**
-   * Whether the system passcode is configured in sonar.properties or not.
-   * By default passcode is not defined and {@code false} is returned.
-   */
-  boolean isConfigured();
-
-  /**
-   * Whether the configured system passcode is provided by the HTTP request or not.
-   * Returns {@code false} if {@link #isConfigured()} is {@code false}.
+   * Whether the system passcode is provided by the HTTP request or not.
+   * Returns {@code false} if passcode is not configured.
    */
   boolean isValid(Request request);
 
