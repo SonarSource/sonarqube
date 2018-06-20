@@ -20,14 +20,12 @@
 package org.sonar.ce.taskprocessor;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.configuration.CeConfiguration;
 
 public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController {
   private final ConcurrentHashMap<CeWorker, Status> map = new ConcurrentHashMap<>();
   private final CeConfiguration ceConfiguration;
-  private final AtomicInteger workerCount;
 
   enum Status {
     PROCESSING, PAUSED
@@ -35,21 +33,14 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
 
   public EnabledCeWorkerControllerImpl(CeConfiguration ceConfiguration) {
     this.ceConfiguration = ceConfiguration;
-    this.workerCount = new AtomicInteger(ceConfiguration.getWorkerCount());
     logEnabledWorkerCount();
   }
 
   private void logEnabledWorkerCount() {
-    if (workerCount.get() > 1) {
-      Loggers.get(EnabledCeWorkerController.class).info("Compute Engine will use {} concurrent workers to process tasks", this.workerCount);
+    int workerCount = ceConfiguration.getWorkerCount();
+    if (workerCount > 1) {
+      Loggers.get(EnabledCeWorkerController.class).info("Compute Engine will use {} concurrent workers to process tasks", workerCount);
     }
-  }
-
-  @Override
-  public void refresh() {
-    ceConfiguration.refresh();
-    this.workerCount.set(ceConfiguration.getWorkerCount());
-    logEnabledWorkerCount();
   }
 
   @Override
@@ -70,7 +61,7 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
    */
   @Override
   public boolean isEnabled(CeWorker ceWorker) {
-    return ceWorker.getOrdinal() < workerCount.get();
+    return ceWorker.getOrdinal() < ceConfiguration.getWorkerCount();
   }
 
   private class ProcessingRecorderHookImpl implements ProcessingRecorderHook {

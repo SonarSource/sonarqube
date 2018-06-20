@@ -20,6 +20,7 @@
 package org.sonar.ce.configuration;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
@@ -53,20 +54,22 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   private int workerCount;
 
   public CeConfigurationImpl(Configuration configuration) {
-    this.workerCountProvider = null;
-    this.workerThreadCount = DEFAULT_WORKER_THREAD_COUNT;
-    this.workerCount = DEFAULT_WORKER_COUNT;
-    this.gracefultStopTimeoutInMs = configuration.getInt(SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS).orElse(GRACEFUL_STOP_TIMEOUT);
+    this(configuration, null);
   }
 
-  public CeConfigurationImpl(Configuration configuration, WorkerCountProvider workerCountProvider) {
+  public CeConfigurationImpl(Configuration configuration, @Nullable WorkerCountProvider workerCountProvider) {
     this.workerCountProvider = workerCountProvider;
-    this.workerThreadCount = MAX_WORKER_THREAD_COUNT;
-    this.workerCount = readWorkerCount(workerCountProvider);
     this.gracefultStopTimeoutInMs = configuration.getInt(SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS).orElse(GRACEFUL_STOP_TIMEOUT);
+    if (workerCountProvider == null) {
+      this.workerCount = DEFAULT_WORKER_COUNT;
+      this.workerThreadCount = DEFAULT_WORKER_THREAD_COUNT;
+    } else {
+      this.workerCount = readWorkerCount(workerCountProvider);
+      this.workerThreadCount = MAX_WORKER_THREAD_COUNT;
+    }
   }
 
-  private static int readWorkerCount(WorkerCountProvider workerCountProvider) {
+  private static synchronized int readWorkerCount(WorkerCountProvider workerCountProvider) {
     int value = workerCountProvider.get();
     if (value < DEFAULT_WORKER_COUNT || value > MAX_WORKER_THREAD_COUNT) {
       throw parsingError(value);
@@ -76,25 +79,18 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   private static MessageException parsingError(int value) {
     return MessageException.of(format(
-        "Worker count '%s' is invalid. It must an integer strictly greater than 0 and less or equal to 10",
-        value));
+      "Worker count '%s' is invalid. It must be an integer strictly greater than 0 and less or equal to 10",
+      value));
   }
 
   @Override
   public void start() {
-    //
+    // nothing to do
   }
 
   @Override
   public void stop() {
     // nothing to do
-  }
-
-  @Override
-  public void refresh() {
-    if (workerCountProvider != null) {
-      this.workerCount = readWorkerCount(workerCountProvider);
-    }
   }
 
   @Override
@@ -104,6 +100,9 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   @Override
   public int getWorkerCount() {
+    if (workerCountProvider != null) {
+      workerCount = readWorkerCount(workerCountProvider);
+    }
     return workerCount;
   }
 

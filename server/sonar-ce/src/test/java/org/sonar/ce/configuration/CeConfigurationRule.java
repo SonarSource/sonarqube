@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.configuration;
 
-import java.util.function.Consumer;
 import org.junit.rules.ExternalResource;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -33,18 +32,6 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   private long queuePollingDelay = 2 * 1000L;
   private long cancelWornOutsInitialDelay = 1L;
   private long cancelWornOutsDelay = 10L;
-  private Consumer<CeConfigurationRule> refreshCallHook;
-
-  @Override
-  public void refresh() {
-    if (this.refreshCallHook != null) {
-      this.refreshCallHook.accept(this);
-    }
-  }
-
-  public void setRefreshCallHook(Consumer<CeConfigurationRule> refreshCallHook) {
-    this.refreshCallHook = refreshCallHook;
-  }
 
   @Override
   public int getWorkerMaxCount() {

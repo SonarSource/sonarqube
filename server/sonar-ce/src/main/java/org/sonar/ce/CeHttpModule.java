@@ -22,7 +22,6 @@ package org.sonar.ce;
 import org.sonar.ce.httpd.CeHttpServer;
 import org.sonar.ce.logging.ChangeLogLevelHttpAction;
 import org.sonar.ce.systeminfo.SystemInfoHttpAction;
-import org.sonar.ce.taskprocessor.RefreshWorkerCountAction;
 import org.sonar.core.platform.Module;
 
 public class CeHttpModule extends Module {
@@ -31,7 +30,6 @@ public class CeHttpModule extends Module {
     add(
       CeHttpServer.class,
       SystemInfoHttpAction.class,
-      ChangeLogLevelHttpAction.class,
-      RefreshWorkerCountAction.class);
+      ChangeLogLevelHttpAction.class);
   }
 }

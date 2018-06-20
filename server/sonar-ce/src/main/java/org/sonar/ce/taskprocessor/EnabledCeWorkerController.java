@@ -28,11 +28,6 @@ public interface EnabledCeWorkerController {
   }
 
   /**
-   * Requests the {@link EnabledCeWorkerController} to refresh its state, if it has any.
-   */
-  void refresh();
-
-  /**
    * Returns {@code true} if the specified {@link CeWorker} is enabled
    */
   boolean isEnabled(CeWorker ceWorker);

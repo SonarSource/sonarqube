@@ -93,44 +93,14 @@ public class EnabledCeWorkerControllerImplTest {
   }
 
   @Test
-  public void workerCount_is_loaded_in_constructor() {
-    when(ceWorker.getOrdinal()).thenReturn(randomWorkerCount);
+  public void workerCount_is_always_reloaded() {
+    when(ceWorker.getOrdinal()).thenReturn(1);
+
+    ceConfigurationRule.setWorkerCount(1);
     assertThat(underTest.isEnabled(ceWorker)).isFalse();
 
-    ceConfigurationRule.setWorkerCount(randomWorkerCount + 1);
-    assertThat(underTest.isEnabled(ceWorker)).isFalse();
-  }
-
-  @Test
-  public void refresh_reloads_workerCount() {
-    when(ceWorker.getOrdinal()).thenReturn(randomWorkerCount);
-    assertThat(underTest.isEnabled(ceWorker)).isFalse();
-    ceConfigurationRule.setRefreshCallHook((rule) -> rule.setWorkerCount(randomWorkerCount + 1));
-
-    underTest.refresh();
-
+    ceConfigurationRule.setWorkerCount(2);
     assertThat(underTest.isEnabled(ceWorker)).isTrue();
-  }
-
-  @Test
-  public void refresh_writes_info_log_if_workerCount_is_greater_than_1() {
-    logTester.clear();
-    int newWorkerCount = randomWorkerCount + 1;
-    ceConfigurationRule.setRefreshCallHook((rule) -> rule.setWorkerCount(newWorkerCount));
-
-    underTest.refresh();
-
-    verifyInfoLog(newWorkerCount);
-  }
-
-  @Test
-  public void refresh_writes_no_info_log_if_workerCount_is_1() {
-    logTester.clear();
-    ceConfigurationRule.setRefreshCallHook((rule) -> rule.setWorkerCount(1));
-
-    underTest.refresh();
-
-    assertThat(logTester.logs()).isEmpty();
   }
 
   private void verifyInfoLog(int workerCount) {

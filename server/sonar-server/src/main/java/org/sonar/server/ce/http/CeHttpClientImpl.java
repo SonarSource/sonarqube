@@ -123,44 +123,6 @@ public class CeHttpClientImpl implements CeHttpClient {
     }
   }
 
-  @Override
-  public void refreshCeWorkerCount() {
-    call(RefreshCeWorkerCountActionClient.INSTANCE);
-  }
-
-  private enum RefreshCeWorkerCountActionClient implements ActionClient<Void> {
-    INSTANCE;
-
-    @Override
-    public String getPath() {
-      return "refreshWorkerCount";
-    }
-
-    @Override
-    public Void getDefault() {
-      return null;
-    }
-
-    @Override
-    public Void call(String url) throws Exception {
-      okhttp3.Request request = new okhttp3.Request.Builder()
-        .post(RequestBody.create(null, new byte[0]))
-        .url(url)
-        .build();
-      try (okhttp3.Response response = new OkHttpClient().newCall(request).execute()) {
-        if (response.code() != 200) {
-          throw new IOException(
-            String.format(
-              "Failed to trigger refresh of CE Worker count. Code was '%s' and response was '%s' for url '%s'",
-              response.code(),
-              response.body().string(),
-              url));
-        }
-        return null;
-      }
-    }
-  }
-
   private <T> T call(ActionClient<T> actionClient) {
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(ipcSharedDir, COMPUTE_ENGINE.getIpcIndex())) {
       if (commands.isUp()) {

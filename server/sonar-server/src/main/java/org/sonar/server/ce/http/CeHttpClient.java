@@ -27,6 +27,4 @@ public interface CeHttpClient {
   Optional<ProtobufSystemInfo.SystemInfo> retrieveSystemInfo();
 
   void changeLogLevel(LoggerLevel level);
-
-  void refreshCeWorkerCount();
 }
