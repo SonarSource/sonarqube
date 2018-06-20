@@ -17,32 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.serverid;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.KeyValueFormat;
 
-public class ServerIdChecksum {
-
+public class JdbcUrlSanitizer {
   private static final String SQLSERVER_PREFIX = "jdbc:sqlserver://";
 
-  private ServerIdChecksum() {
-    // only static methods
-  }
-
-  public static String of(String serverId, String jdbcUrl) {
-    return DigestUtils.sha256Hex(serverId + "|" + sanitizeJdbcUrl(jdbcUrl));
-  }
-
-  @VisibleForTesting
-  static String sanitizeJdbcUrl(String jdbcUrl) {
+  public String sanitize(String jdbcUrl) {
     String result;
     if (jdbcUrl.startsWith(SQLSERVER_PREFIX)) {
       result = sanitizeSqlServerUrl(jdbcUrl);

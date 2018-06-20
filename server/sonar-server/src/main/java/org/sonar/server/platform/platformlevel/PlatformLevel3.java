@@ -23,10 +23,10 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.organization.OrganizationFlagsImpl;
-import org.sonar.server.platform.ServerIdManager;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.StartupMetadataPersister;
 import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
+import org.sonar.server.platform.serverid.ServerIdModule;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 
@@ -40,7 +40,7 @@ public class PlatformLevel3 extends PlatformLevel {
     addIfStartupLeader(StartupMetadataPersister.class);
     add(
       NoopDatabaseMigrationImpl.class,
-      ServerIdManager.class,
+      ServerIdModule.class,
       ServerImpl.class,
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,

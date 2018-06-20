@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.serverid;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ServerIdChecksumTest {
-
-  @Test
-  public void test_checksum() {
-    assertThat(ServerIdChecksum.of("id1", "url1"))
-      .isNotEmpty()
-      .isEqualTo(ServerIdChecksum.of("id1", "url1"))
-      .isNotEqualTo(ServerIdChecksum.of("id1", "url2"))
-      .isNotEqualTo(ServerIdChecksum.of("id2", "url1"))
-      .isNotEqualTo(ServerIdChecksum.of("id2", "url2"));
-  }
+public class JdbcUrlSanitizerTest {
+  private JdbcUrlSanitizer underTest = new JdbcUrlSanitizer();
 
   @Test
   public void sanitize_h2_url() {
@@ -89,7 +80,9 @@ public class ServerIdChecksumTest {
     verifyJdbcUrl("jdbc:postgresql://localhost:1234/SONAR?foo", "jdbc:postgresql://localhost:1234/sonar");
   }
 
-  private static void verifyJdbcUrl(String url, String expectedResult) {
-    assertThat(ServerIdChecksum.sanitizeJdbcUrl(url)).isEqualTo(expectedResult);
+  private void verifyJdbcUrl(String url, String expectedResult) {
+    assertThat(underTest.sanitize(url)).isEqualTo(expectedResult);
   }
+
+
 }
