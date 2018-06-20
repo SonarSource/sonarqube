@@ -32,7 +32,7 @@ interface Props {
 
 export default function DotNet(props: Props) {
   const command1 = [
-    'SonarQube.Scanner.MSBuild.exe begin',
+    'SonarScanner.MSBuild.exe begin',
     `/k:"${props.projectKey}"`,
     props.organization && `/d:sonar.organization="${props.organization}"`,
     `/d:sonar.host.url="${props.host}"`,
@@ -41,7 +41,7 @@ export default function DotNet(props: Props) {
 
   const command2 = 'MsBuild.exe /t:Rebuild';
 
-  const command3 = ['SonarQube.Scanner.MSBuild.exe end', `/d:sonar.login="${props.token}"`];
+  const command3 = ['SonarScanner.MSBuild.exe end', `/d:sonar.login="${props.token}"`];
 
   return (
     <div>

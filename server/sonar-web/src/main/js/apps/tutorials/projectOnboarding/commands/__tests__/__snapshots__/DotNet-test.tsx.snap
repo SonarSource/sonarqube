@@ -15,7 +15,7 @@ exports[`renders correctly 1`] = `
     isOneLine={true}
     snippet={
       Array [
-        "SonarQube.Scanner.MSBuild.exe begin",
+        "SonarScanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
         undefined,
         "/d:sonar.host.url=\\"host\\"",
@@ -31,7 +31,7 @@ exports[`renders correctly 1`] = `
     isOneLine={true}
     snippet={
       Array [
-        "SonarQube.Scanner.MSBuild.exe end",
+        "SonarScanner.MSBuild.exe end",
         "/d:sonar.login=\\"token\\"",
       ]
     }
@@ -62,7 +62,7 @@ exports[`renders correctly 2`] = `
     isOneLine={true}
     snippet={
       Array [
-        "SonarQube.Scanner.MSBuild.exe begin",
+        "SonarScanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
         "/d:sonar.organization=\\"organization\\"",
         "/d:sonar.host.url=\\"host\\"",
@@ -78,7 +78,7 @@ exports[`renders correctly 2`] = `
     isOneLine={true}
     snippet={
       Array [
-        "SonarQube.Scanner.MSBuild.exe end",
+        "SonarScanner.MSBuild.exe end",
         "/d:sonar.login=\\"token\\"",
       ]
     }
