@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -44,9 +45,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
@@ -87,7 +90,7 @@ public class IssueLifecycleTest {
     assertThat(issue.creationDate()).isNotNull();
     assertThat(issue.updateDate()).isNotNull();
     assertThat(issue.status()).isEqualTo(STATUS_OPEN);
-    assertThat(issue.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
     assertThat(issue.isFromHotspot()).isFalse();
@@ -258,9 +261,8 @@ public class IssueLifecycleTest {
       .setKey("BASE_KEY")
       .setCreationDate(parseDate("2015-01-01"))
       .setUpdateDate(parseDate("2015-01-02"))
-      .setCloseDate(parseDate("2015-01-03"))
-      .setResolution(RESOLUTION_FIXED)
-      .setStatus(STATUS_CLOSED)
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setStatus(STATUS_RESOLVED)
       .setSeverity(BLOCKER)
       .setAssigneeUuid("base assignee uuid")
       .setAuthorLogin("base author")
@@ -282,13 +284,12 @@ public class IssueLifecycleTest {
     assertThat(raw.key()).isEqualTo("BASE_KEY");
     assertThat(raw.creationDate()).isEqualTo(base.creationDate());
     assertThat(raw.updateDate()).isEqualTo(base.updateDate());
-    assertThat(raw.closeDate()).isEqualTo(base.closeDate());
-    assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(raw.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
+    assertThat(raw.status()).isEqualTo(STATUS_RESOLVED);
     assertThat(raw.assignee()).isEqualTo("base assignee uuid");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
-    assertThat(raw.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(raw.isOnDisabledRule()).isTrue();
     assertThat(raw.selectedAt()).isEqualTo(1000L);
     assertThat(raw.isChanged()).isFalse();
@@ -301,7 +302,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void mergeExistingOpenIssue_vulnerability_changed_to_hotspot() {
+  public void mergeExistingOpenIssue_vulnerability_changed_to_hotspot_should_reopen() {
     rule.setType(RuleType.SECURITY_HOTSPOT);
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
@@ -324,14 +325,12 @@ public class IssueLifecycleTest {
       .setIsFromHotspot(false)
       .setCreationDate(parseDate("2015-01-01"))
       .setUpdateDate(parseDate("2015-01-02"))
-      .setCloseDate(parseDate("2015-01-03"))
-      .setResolution(RESOLUTION_FIXED)
-      .setStatus(STATUS_CLOSED)
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setStatus(STATUS_RESOLVED)
       .setSeverity(BLOCKER)
       .setAssigneeUuid("base assignee uuid")
       .setAuthorLogin("base author")
       .setTags(newArrayList("base tag"))
-      .setOnDisabledRule(true)
       .setSelectedAt(1000L)
       .setLine(10)
       .setMessage("message")
@@ -348,18 +347,17 @@ public class IssueLifecycleTest {
     assertThat(raw.key()).isEqualTo("BASE_KEY");
     assertThat(raw.creationDate()).isEqualTo(base.creationDate());
     assertThat(raw.updateDate()).isEqualTo(base.updateDate());
-    assertThat(raw.closeDate()).isEqualTo(base.closeDate());
-    assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
     assertThat(raw.assignee()).isEqualTo("base assignee uuid");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
     assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
-    assertThat(raw.isOnDisabledRule()).isTrue();
     assertThat(raw.selectedAt()).isEqualTo(1000L);
     assertThat(raw.isFromHotspot()).isTrue();
     assertThat(raw.isChanged()).isTrue();
 
+    verify(updater).setType(raw, RuleType.SECURITY_HOTSPOT, issueChangeContext);
+    verify(updater).setStatus(raw, Issue.STATUS_REOPENED, issueChangeContext);
+    verify(updater).setResolution(raw, null, issueChangeContext);
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
     verify(updater).setPastMessage(raw, "message", issueChangeContext);

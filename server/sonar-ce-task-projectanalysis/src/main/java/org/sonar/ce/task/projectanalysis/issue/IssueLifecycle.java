@@ -148,11 +148,17 @@ public class IssueLifecycle {
     raw.setKey(base.key());
     raw.setNew(false);
     setType(raw);
+    copyFields(raw, base);
     if (raw.isFromHotspot() != base.isFromHotspot()) {
       // This is to force DB update of the issue
       raw.setChanged(true);
     }
-    copyFields(raw, base);
+    if (raw.isFromHotspot() && !base.isFromHotspot()) {
+      // First analysis after rule type was changed to security_hotspot. Issue will be reset to an open hotspot
+      updater.setType(raw, RuleType.SECURITY_HOTSPOT, changeContext);
+      updater.setStatus(raw, Issue.STATUS_REOPENED, changeContext);
+      updater.setResolution(raw, null, changeContext);
+    }
 
     if (base.manualSeverity()) {
       raw.setManualSeverity(true);
