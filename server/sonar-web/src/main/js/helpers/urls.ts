@@ -49,6 +49,10 @@ export function getPathUrlAsString(path: Location): string {
   return `${getBaseUrl()}${path.pathname}?${stringify(omitBy(path.query, isNil))}`;
 }
 
+export function getSonarCloudUrlAsString(location: Location) {
+  return 'https://sonarcloud.io' + getPathUrlAsString(location);
+}
+
 export function getProjectUrl(project: string): Location {
   return { pathname: '/dashboard', query: { id: project } };
 }

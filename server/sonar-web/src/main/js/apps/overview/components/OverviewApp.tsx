@@ -48,7 +48,8 @@ import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike, Component, Metric } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
-import { getPathUrlAsString, getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, getSonarCloudUrlAsString } from '../../../helpers/urls';
+import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
 interface OwnProps {
@@ -239,9 +240,12 @@ export class OverviewApp extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
           <Suggestions suggestions="overview" />
-          <Helmet>
-            <link href={getPathUrlAsString(getProjectUrl(component.key))} rel="canonical" />
-          </Helmet>
+
+          {isSonarCloud() && (
+            <Helmet>
+              <link href={getSonarCloudUrlAsString(getProjectUrl(component.key))} rel="canonical" />
+            </Helmet>
+          )}
 
           {this.renderMain()}
 
