@@ -32,7 +32,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.CeTask;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
 import org.sonar.db.DbTester;

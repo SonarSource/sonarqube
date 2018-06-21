@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 import org.junit.Test;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.PicoContainer;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.CeTask;
 import org.sonar.ce.task.projectanalysis.step.PersistComponentsStep;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;

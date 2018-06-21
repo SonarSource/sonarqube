@@ -29,8 +29,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
+import org.sonar.server.computation.CeTask;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;

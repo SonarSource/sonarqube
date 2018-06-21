@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.log;
+package org.sonar.server.computation.log;
 
 import ch.qos.logback.core.joran.spi.JoranException;
 import org.junit.After;
@@ -26,20 +26,20 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.slf4j.MDC;
-import org.sonar.ce.queue.CeTask;
 import org.sonar.process.logging.LogbackHelper;
+import org.sonar.server.computation.CeTask;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.sonar.ce.log.CeLogging.MDC_CE_TASK_UUID;
+import static org.sonar.server.computation.log.CeTaskLogging.MDC_CE_TASK_UUID;
 
-public class CeLoggingTest {
+public class CeTaskLoggingTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private LogbackHelper helper = new LogbackHelper();
-  private CeLogging underTest = new CeLogging();
+  private CeTaskLogging underTest = new CeTaskLogging();
 
   @After
   public void resetLogback() throws JoranException {

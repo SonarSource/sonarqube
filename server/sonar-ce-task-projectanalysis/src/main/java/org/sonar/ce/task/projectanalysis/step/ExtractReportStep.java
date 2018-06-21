@@ -27,7 +27,7 @@ import java.util.Optional;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskInputDao;

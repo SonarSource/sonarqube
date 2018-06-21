@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.server.ce.queue;
 
 import com.google.common.base.Optional;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.CeTask;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.UuidFactory;

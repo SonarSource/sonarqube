@@ -17,32 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.organization;
+package org.sonar.server.computation.settings;
 
 import org.junit.Test;
-import org.sonar.server.organization.DefaultOrganizationCache;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class DefaultOrganizationLoaderTest {
-  private DefaultOrganizationCache defaultOrganizationCache = mock(DefaultOrganizationCache.class);
-  private DefaultOrganizationLoader underTest = new DefaultOrganizationLoader(defaultOrganizationCache);
+public class SettingsLoaderTest {
+  private ThreadLocalSettings threadLocalSettings = mock(ThreadLocalSettings.class);
+  private SettingsLoader underTest = new SettingsLoader(threadLocalSettings);
 
   @Test
-  public void start_calls_cache_load_method() {
+  public void start_calls_ThreadLocalSettings_load() {
     underTest.start();
 
-    verify(defaultOrganizationCache).load();
-    verifyNoMoreInteractions(defaultOrganizationCache);
+    verify(threadLocalSettings).load();
+    verifyNoMoreInteractions(threadLocalSettings);
   }
 
   @Test
-  public void stop_calls_cache_unload_method() {
+  public void stop_calls_ThreadLocalSettings_remove() {
     underTest.stop();
 
-    verify(defaultOrganizationCache).unload();
-    verifyNoMoreInteractions(defaultOrganizationCache);
+    verify(threadLocalSettings).unload();
+    verifyNoMoreInteractions(threadLocalSettings);
   }
 }

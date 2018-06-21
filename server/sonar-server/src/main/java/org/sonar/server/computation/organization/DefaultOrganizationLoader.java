@@ -17,21 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.log;
+package org.sonar.server.computation.organization;
 
-import org.slf4j.MDC;
-import org.sonar.ce.queue.CeTask;
+import org.picocontainer.Startable;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.server.computation.task.container.EagerStart;
+import org.sonar.server.organization.DefaultOrganizationCache;
 
-public class CeLogging {
+@EagerStart
+@ComputeEngineSide
+public class DefaultOrganizationLoader implements Startable {
+  private final DefaultOrganizationCache defaultOrganizationCache;
 
-  static final String MDC_CE_TASK_UUID = "ceTaskUuid";
-
-  public void initForTask(CeTask task) {
-    MDC.put(MDC_CE_TASK_UUID, task.getUuid());
+  public DefaultOrganizationLoader(DefaultOrganizationCache defaultOrganizationCache) {
+    this.defaultOrganizationCache = defaultOrganizationCache;
   }
 
-  public void clearForTask() {
-    MDC.remove(MDC_CE_TASK_UUID);
+  @Override
+  public void start() {
+    defaultOrganizationCache.load();
   }
 
+  @Override
+  public void stop() {
+    defaultOrganizationCache.unload();
+  }
 }

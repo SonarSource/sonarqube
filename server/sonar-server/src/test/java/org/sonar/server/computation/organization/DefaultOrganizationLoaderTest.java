@@ -17,40 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.server.computation.organization;
 
-import java.util.Random;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.db.ce.CeActivityDto;
+import org.sonar.server.organization.DefaultOrganizationCache;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class CeLoggingWorkerExecutionListenerTest {
-  private CeLogging ceLogging = Mockito.spy(CeLogging.class);
-  private CeLoggingWorkerExecutionListener underTest = new CeLoggingWorkerExecutionListener(ceLogging);
+public class DefaultOrganizationLoaderTest {
+  private DefaultOrganizationCache defaultOrganizationCache = mock(DefaultOrganizationCache.class);
+  private DefaultOrganizationLoader underTest = new DefaultOrganizationLoader(defaultOrganizationCache);
 
   @Test
-  public void onStart_calls_initForTask_with_method_argument() {
-    CeTask ceTask = Mockito.mock(CeTask.class);
+  public void start_calls_cache_load_method() {
+    underTest.start();
 
-    underTest.onStart(ceTask);
-
-    verify(ceLogging).initForTask(ceTask);
-    verifyNoMoreInteractions(ceLogging);
+    verify(defaultOrganizationCache).load();
+    verifyNoMoreInteractions(defaultOrganizationCache);
   }
 
   @Test
-  public void onEnd_calls_clearForTask() {
-    underTest.onEnd(mock(CeTask.class),
-      CeActivityDto.Status.values()[new Random().nextInt(CeActivityDto.Status.values().length)],
-      null, null);
+  public void stop_calls_cache_unload_method() {
+    underTest.stop();
 
-    verify(ceLogging).clearForTask();
-    verifyNoMoreInteractions(ceLogging);
+    verify(defaultOrganizationCache).unload();
+    verifyNoMoreInteractions(defaultOrganizationCache);
   }
 }

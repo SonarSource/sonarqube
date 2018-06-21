@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.ce.task.projectanalysis.purge;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -37,6 +37,7 @@ import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHold
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
+import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
 import org.sonar.db.DbClient;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;

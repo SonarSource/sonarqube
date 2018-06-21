@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.taskprocessor;
 
-import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.server.computation.CeTaskResult;
 
 public interface TaskResultHolder {
   /**

@@ -21,10 +21,8 @@ package org.sonar.ce.task.projectanalysis;
 
 import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
-import org.sonar.server.computation.queue.ReportSubmitter;
+import org.sonar.server.ce.queue.ReportSubmitter;
 import org.sonar.core.platform.Module;
-import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
-import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.server.computation.task.step.ComputationStepExecutor;
 
 public class ProjectAnalysisTaskModule extends Module {

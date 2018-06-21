@@ -64,7 +64,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
   private static final Logger LOG = Loggers.get(PostProjectAnalysisTasksExecutor.class);
 
-  private final org.sonar.ce.queue.CeTask ceTask;
+  private final org.sonar.server.computation.CeTask ceTask;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final QualityGateHolder qualityGateHolder;
   private final QualityGateStatusHolder qualityGateStatusHolder;
@@ -75,18 +75,18 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   /**
    * Constructor used by Pico when there is no {@link PostProjectAnalysisTask} in the container.
    */
-  public PostProjectAnalysisTasksExecutor(org.sonar.ce.queue.CeTask ceTask,
-    AnalysisMetadataHolder analysisMetadataHolder,
-    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
-    BatchReportReader reportReader, System2 system2) {
+  public PostProjectAnalysisTasksExecutor(org.sonar.server.computation.CeTask ceTask,
+                                          AnalysisMetadataHolder analysisMetadataHolder,
+                                          QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
+                                          BatchReportReader reportReader, System2 system2) {
     this(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, system2, null);
   }
 
-  public PostProjectAnalysisTasksExecutor(org.sonar.ce.queue.CeTask ceTask,
-    AnalysisMetadataHolder analysisMetadataHolder,
-    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
-    BatchReportReader reportReader, System2 system2,
-    @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
+  public PostProjectAnalysisTasksExecutor(org.sonar.server.computation.CeTask ceTask,
+                                          AnalysisMetadataHolder analysisMetadataHolder,
+                                          QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
+                                          BatchReportReader reportReader, System2 system2,
+                                          @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.qualityGateHolder = qualityGateHolder;
     this.qualityGateStatusHolder = qualityGateStatusHolder;
@@ -147,7 +147,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     }
   }
 
-  private static Project createProject(org.sonar.ce.queue.CeTask ceTask) {
+  private static Project createProject(org.sonar.server.computation.CeTask ceTask) {
     return new ProjectImpl(
       ceTask.getComponentUuid(),
       ceTask.getComponentKey(),

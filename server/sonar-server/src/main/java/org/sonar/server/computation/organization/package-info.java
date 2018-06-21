@@ -17,20 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.queue;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.organization;
 
-import java.util.Optional;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
-
-/**
- * Represents the result of the processing of a {@link CeTask}.
- *
- * @see {@link CeTaskProcessor#process(CeTask)}
- */
-@FunctionalInterface
-public interface CeTaskResult {
-  /**
-   * The UUID of the analysis created, if any, for the Component in {@link CeTask}
-   */
-  Optional<String> getAnalysisUuid();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -17,32 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.settings;
+package org.sonar.server.computation.log;
 
-import org.junit.Test;
-import org.sonar.server.setting.ThreadLocalSettings;
+import org.slf4j.MDC;
+import org.sonar.server.computation.CeTask;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+public class CeTaskLogging {
 
-public class SettingsLoaderTest {
-  private ThreadLocalSettings threadLocalSettings = mock(ThreadLocalSettings.class);
-  private SettingsLoader underTest = new SettingsLoader(threadLocalSettings);
+  public static final String MDC_CE_TASK_UUID = "ceTaskUuid";
 
-  @Test
-  public void start_calls_ThreadLocalSettings_load() {
-    underTest.start();
-
-    verify(threadLocalSettings).load();
-    verifyNoMoreInteractions(threadLocalSettings);
+  public void initForTask(CeTask task) {
+    MDC.put(MDC_CE_TASK_UUID, task.getUuid());
   }
 
-  @Test
-  public void stop_calls_ThreadLocalSettings_remove() {
-    underTest.stop();
-
-    verify(threadLocalSettings).unload();
-    verifyNoMoreInteractions(threadLocalSettings);
+  public void clearForTask() {
+    MDC.remove(MDC_CE_TASK_UUID);
   }
+
 }

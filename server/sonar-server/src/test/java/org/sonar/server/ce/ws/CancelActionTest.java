@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.CeTask;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;

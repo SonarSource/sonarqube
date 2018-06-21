@@ -17,29 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.organization;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.settings;
 
-import org.picocontainer.Startable;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.server.computation.task.container.EagerStart;
-import org.sonar.server.organization.DefaultOrganizationCache;
-
-@EagerStart
-@ComputeEngineSide
-public class DefaultOrganizationLoader implements Startable {
-  private final DefaultOrganizationCache defaultOrganizationCache;
-
-  public DefaultOrganizationLoader(DefaultOrganizationCache defaultOrganizationCache) {
-    this.defaultOrganizationCache = defaultOrganizationCache;
-  }
-
-  @Override
-  public void start() {
-    defaultOrganizationCache.load();
-  }
-
-  @Override
-  public void stop() {
-    defaultOrganizationCache.unload();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

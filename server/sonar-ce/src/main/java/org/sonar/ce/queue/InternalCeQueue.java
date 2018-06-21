@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.db.ce.CeActivityDto.Status;
+import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.CeTaskResult;
 
 /**
  * Queue of pending Compute Engine tasks. Both producer and consumer actions

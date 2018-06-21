@@ -20,7 +20,7 @@
 package org.sonar.server.computation.task.container;
 
 import org.picocontainer.PicoContainer;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.CeTask;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
 

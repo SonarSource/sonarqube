@@ -22,7 +22,7 @@ package org.sonar.server.ce.ws;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.queue.ReportSubmitter;
+import org.sonar.server.ce.queue.ReportSubmitter;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;

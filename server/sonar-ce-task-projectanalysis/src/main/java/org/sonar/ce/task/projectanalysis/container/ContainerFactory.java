@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.container;
 
 import javax.annotation.Nullable;
-import org.sonar.ce.queue.CeTask;
+import org.sonar.server.computation.CeTask;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 import org.sonar.server.computation.task.container.TaskContainer;

@@ -20,16 +20,16 @@
 package org.sonar.ce;
 
 import org.sonar.ce.http.CeHttpClientImpl;
-import org.sonar.ce.log.CeLogging;
+import org.sonar.server.computation.log.CeTaskLogging;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.taskprocessor.ReportTaskProcessorDeclaration;
 import org.sonar.core.platform.Module;
-import org.sonar.server.computation.queue.ReportSubmitter;
+import org.sonar.server.ce.queue.ReportSubmitter;
 
 public class CeModule extends Module {
   @Override
   protected void configureModule() {
-    add(CeLogging.class,
+    add(CeTaskLogging.class,
       CeHttpClientImpl.class,
 
       // Queue

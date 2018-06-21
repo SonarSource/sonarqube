@@ -20,7 +20,7 @@
 package org.sonar.server.computation.taskprocessor;
 
 import javax.annotation.CheckForNull;
-import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.server.computation.CeTaskResult;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;

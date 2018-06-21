@@ -25,7 +25,7 @@ import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.server.app.ServerProcessLogging;
 
-import static org.sonar.ce.log.CeLogging.MDC_CE_TASK_UUID;
+import static org.sonar.server.computation.log.CeTaskLogging.MDC_CE_TASK_UUID;
 
 /**
  * Configure logback for the Compute Engine process. Logs are written to file "ce.log" in SQ's log directory.

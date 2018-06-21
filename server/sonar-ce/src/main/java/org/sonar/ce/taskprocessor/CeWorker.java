@@ -22,8 +22,8 @@ package org.sonar.ce.taskprocessor;
 import java.util.concurrent.Callable;
 import javax.annotation.Nullable;
 import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.CeTaskResult;
 import org.sonar.db.ce.CeActivityDto;
 
 /**

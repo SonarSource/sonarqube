@@ -20,7 +20,7 @@
 package org.sonar.ce;
 
 import org.sonar.ce.configuration.CeConfigurationImpl;
-import org.sonar.ce.log.CeLogging;
+import org.sonar.server.computation.log.CeTaskLogging;
 import org.sonar.ce.monitoring.CeDatabaseMBeanImpl;
 import org.sonar.core.platform.Module;
 import org.sonar.process.systeminfo.JvmPropertiesSection;
@@ -32,7 +32,7 @@ public class CeConfigurationModule extends Module {
   protected void configureModule() {
     add(
       CeConfigurationImpl.class,
-      CeLogging.class,
+      CeTaskLogging.class,
       CeDatabaseMBeanImpl.class,
       new JvmStateSection("Compute Engine JVM State"),
       new JvmPropertiesSection("Compute Engine JVM Properties"),

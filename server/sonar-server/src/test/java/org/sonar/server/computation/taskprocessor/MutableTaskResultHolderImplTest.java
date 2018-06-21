@@ -23,7 +23,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.server.computation.CeTaskResult;
 
 import static org.mockito.Mockito.mock;
 

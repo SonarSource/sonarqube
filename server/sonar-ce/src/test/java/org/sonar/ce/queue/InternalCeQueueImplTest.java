@@ -44,6 +44,8 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.CeTaskResult;
 import org.sonar.server.computation.task.step.TypedException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;

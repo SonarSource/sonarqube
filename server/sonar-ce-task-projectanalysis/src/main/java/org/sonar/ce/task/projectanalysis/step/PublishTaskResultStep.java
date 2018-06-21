@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.server.computation.CeTaskResult;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolder;

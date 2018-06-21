@@ -19,30 +19,38 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import javax.annotation.Nullable;
+import java.util.Random;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.server.computation.log.CeTaskLogging;
 import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.CeTaskResult;
 import org.sonar.db.ce.CeActivityDto;
 
-/**
- * {@link CeWorker.ExecutionListener} responsible of calling {@link CeTaskLogging#initForTask(CeTask)} and
- * {@link CeTaskLogging#clearForTask()}.
- */
-public class CeLoggingWorkerExecutionListener implements CeWorker.ExecutionListener {
-  private final CeTaskLogging ceTaskLogging;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-  public CeLoggingWorkerExecutionListener(CeTaskLogging ceTaskLogging) {
-    this.ceTaskLogging = ceTaskLogging;
+public class CeTaskLoggingWorkerExecutionListenerTest {
+  private CeTaskLogging ceTaskLogging = Mockito.spy(CeTaskLogging.class);
+  private CeLoggingWorkerExecutionListener underTest = new CeLoggingWorkerExecutionListener(ceTaskLogging);
+
+  @Test
+  public void onStart_calls_initForTask_with_method_argument() {
+    CeTask ceTask = Mockito.mock(CeTask.class);
+
+    underTest.onStart(ceTask);
+
+    verify(ceTaskLogging).initForTask(ceTask);
+    verifyNoMoreInteractions(ceTaskLogging);
   }
 
-  @Override
-  public void onStart(CeTask ceTask) {
-    ceTaskLogging.initForTask(ceTask);
-  }
+  @Test
+  public void onEnd_calls_clearForTask() {
+    underTest.onEnd(mock(CeTask.class),
+      CeActivityDto.Status.values()[new Random().nextInt(CeActivityDto.Status.values().length)],
+      null, null);
 
-  @Override
-  public void onEnd(CeTask ceTask, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
-    ceTaskLogging.clearForTask();
+    verify(ceTaskLogging).clearForTask();
+    verifyNoMoreInteractions(ceTaskLogging);
   }
 }
