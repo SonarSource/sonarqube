@@ -28,7 +28,11 @@ public class DbVersion73 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2200, "Populate PROJECT_BRANCHES with existing main application branches", PopulateMainApplicationBranches.class)
-      .add(2201, "Add 'from hotspot' flag to issues", AddFromHotspotFlagToIssues.class)
+      .add(2201, "Add 'securityhotspotadmin' permission to all permission templates groups already having 'issueadmin'", PopulateHotspotAdminPermissionOnTemplatesGroups.class)
+      .add(2202, "Add 'securityhotspotadmin' permission to all permission templates users already having 'issueadmin'", PopulateHotspotAdminPermissionOnTemplatesUsers.class)
+      .add(2203, "Add 'securityhotspotadmin' permission to all groups already having 'issueadmin'", PopulateHotspotAdminPermissionOnGroups.class)
+      .add(2204, "Add 'securityhotspotadmin' permission to all users already having 'issueadmin'", PopulateHotspotAdminPermissionOnUsers.class)
+      .add(2205, "Add 'from hotspot' flag to issues", AddFromHotspotFlagToIssues.class)
     ;
   }
 }
