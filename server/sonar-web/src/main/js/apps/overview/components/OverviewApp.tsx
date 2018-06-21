@@ -43,7 +43,11 @@ import {
   PROJECT_ACTIVITY_GRAPH,
   PROJECT_ACTIVITY_GRAPH_CUSTOM
 } from '../../projectActivity/utils';
-import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import {
+  isSameBranchLike,
+  getBranchLikeQuery,
+  isLongLivingBranch
+} from '../../../helpers/branches';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike, Component, Metric } from '../../../app/types';
@@ -213,7 +217,10 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     return (
       <div className="overview-main page-main">
         {component.qualifier === 'APP' ? (
-          <ApplicationQualityGate component={component} />
+          <ApplicationQualityGate
+            branch={isLongLivingBranch(branchLike) ? branchLike : undefined}
+            component={component}
+          />
         ) : (
           <QualityGate branchLike={branchLike} component={component} measures={measures} />
         )}

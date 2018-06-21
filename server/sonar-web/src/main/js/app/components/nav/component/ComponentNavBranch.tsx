@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import DocTooltip from '../../../../components/docs/DocTooltip';
 import { BranchLike, Component } from '../../../types';
@@ -53,7 +54,8 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   mounted = false;
 
   static contextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired
+    branchesEnabled: PropTypes.bool.isRequired,
+    canAdmin: PropTypes.bool.isRequired
   };
 
   state: State = {
@@ -125,17 +127,34 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     }
   };
 
+  renderOverlay = () => {
+    const adminLink = {
+      pathname: '/project/admin/extension/governance/console',
+      query: { id: this.props.component.breadcrumbs[0].key, qualifier: 'APP' }
+    };
+    return (
+      <>
+        <p>{translate('application.branches.help')}</p>
+        <hr className="spacer-top spacer-bottom" />
+        <Link className="spacer-left link-no-underline" to={adminLink}>
+          {translate('application.branches.link')}
+        </Link>
+      </>
+    );
+  };
+
   render() {
     const { branchLikes, currentBranchLike } = this.props;
-    const { configuration } = this.props.component;
+    const { configuration, breadcrumbs } = this.props.component;
 
     if (isSonarCloud() && !this.context.branchesEnabled) {
       return null;
     }
 
     const displayName = getBranchLikeDisplayName(currentBranchLike);
+    const isApp = breadcrumbs && breadcrumbs[0] && breadcrumbs[0].qualifier === 'APP';
 
-    if (!this.context.branchesEnabled) {
+    if (isApp && branchLikes.length < 2) {
       return (
         <div className="navbar-context-branches">
           <BranchIcon
@@ -144,23 +163,42 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
             fill={theme.gray80}
           />
           <span className="note">{displayName}</span>
-          <DocTooltip className="spacer-left" doc="branches/no-branch-support">
-            <PlusCircleIcon fill={theme.gray71} size={12} />
-          </DocTooltip>
+          {configuration &&
+            configuration.showSettings && (
+              <HelpTooltip className="spacer-left" overlay={this.renderOverlay()}>
+                <PlusCircleIcon className="vertical-middle" fill={theme.blue} size={12} />
+              </HelpTooltip>
+            )}
         </div>
       );
-    }
+    } else {
+      if (!this.context.branchesEnabled) {
+        return (
+          <div className="navbar-context-branches">
+            <BranchIcon
+              branchLike={currentBranchLike}
+              className="little-spacer-right"
+              fill={theme.gray80}
+            />
+            <span className="note">{displayName}</span>
+            <DocTooltip className="spacer-left" doc="branches/no-branch-support">
+              <PlusCircleIcon fill={theme.gray71} size={12} />
+            </DocTooltip>
+          </div>
+        );
+      }
 
-    if (branchLikes.length < 2) {
-      return (
-        <div className="navbar-context-branches">
-          <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
-          <span className="note">{displayName}</span>
-          <DocTooltip className="spacer-left" doc="branches/single-branch">
-            <PlusCircleIcon fill={theme.blue} size={12} />
-          </DocTooltip>
-        </div>
-      );
+      if (branchLikes.length < 2) {
+        return (
+          <div className="navbar-context-branches">
+            <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
+            <span className="note">{displayName}</span>
+            <DocTooltip className="spacer-left" doc="branches/single-branch">
+              <PlusCircleIcon fill={theme.blue} size={12} />
+            </DocTooltip>
+          </div>
+        );
+      }
     }
 
     return (

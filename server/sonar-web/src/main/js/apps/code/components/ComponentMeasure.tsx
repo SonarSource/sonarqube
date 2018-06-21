@@ -42,5 +42,5 @@ export default function ComponentMeasure({ component, metricKey, metricType }: P
     return <span />;
   }
 
-  return <Measure value={measure.value} metricKey={finalMetricKey} metricType={finalMetricType} />;
+  return <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={measure.value} />;
 }

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { PullRequest, BranchType, ShortLivingBranch } from '../../../app/types';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { fillBranchLike } from '../../../helpers/branches';
 
 interface Props {
   location: {
@@ -54,17 +54,7 @@ export default class App extends React.PureComponent<Props> {
     // TODO find a way to avoid creating this fakeBranchLike
     // probably the best way would be to drop this page completely
     // and redirect to the Code page
-    let fakeBranchLike: ShortLivingBranch | PullRequest | undefined = undefined;
-    if (branch) {
-      fakeBranchLike = {
-        isMain: false,
-        mergeBranch: '',
-        name: branch,
-        type: BranchType.SHORT
-      } as ShortLivingBranch;
-    } else if (pullRequest) {
-      fakeBranchLike = { base: '', branch: '', key: pullRequest, title: '' } as PullRequest;
-    }
+    const fakeBranchLike = fillBranchLike(branch, pullRequest);
 
     return (
       <div className="page page-limited">

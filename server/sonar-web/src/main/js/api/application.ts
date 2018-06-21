@@ -26,6 +26,12 @@ export interface ApplicationLeak {
   projectName: string;
 }
 
-export function getApplicationLeak(application: string): Promise<Array<ApplicationLeak>> {
-  return getJSON('/api/applications/show_leak', { application }).then(r => r.leaks, throwGlobalError);
+export function getApplicationLeak(
+  application: string,
+  branch?: string
+): Promise<Array<ApplicationLeak>> {
+  return getJSON('/api/applications/show_leak', { application, branch }).then(
+    r => r.leaks,
+    throwGlobalError
+  );
 }

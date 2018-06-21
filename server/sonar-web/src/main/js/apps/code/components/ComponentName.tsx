@@ -25,6 +25,8 @@ import * as theme from '../../../app/theme';
 import { BranchLike } from '../../../app/types';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branches';
+import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
+import { translate } from '../../../helpers/l10n';
 
 function getTooltip(component: Component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -77,10 +79,11 @@ export default function ComponentName(props: Props) {
   let inner = null;
 
   if (component.refKey && component.qualifier !== 'SVW') {
+    const branch = rootComponent.qualifier === 'APP' ? { branch: component.branch } : {};
     inner = (
       <Link
-        to={{ pathname: '/dashboard', query: { id: component.refKey } }}
-        className="link-with-icon">
+        className="link-with-icon"
+        to={{ pathname: '/dashboard', query: { id: component.refKey, ...branch } }}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );
@@ -90,7 +93,7 @@ export default function ComponentName(props: Props) {
       Object.assign(query, { selected: component.key });
     }
     inner = (
-      <Link to={{ pathname: '/code', query }} className="link-with-icon">
+      <Link className="link-with-icon" to={{ pathname: '/code', query }}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );
@@ -99,6 +102,22 @@ export default function ComponentName(props: Props) {
       <span>
         <QualifierIcon qualifier={component.qualifier} /> {name}
       </span>
+    );
+  }
+
+  if (rootComponent.qualifier === 'APP') {
+    inner = (
+      <>
+        {inner}
+        {component.branch ? (
+          <>
+            <LongLivingBranchIcon className="spacer-left little-spacer-right" />
+            <span className="note">{component.branch}</span>
+          </>
+        ) : (
+          <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
+        )}
+      </>
     );
   }
 

@@ -62,7 +62,8 @@ import {
   isShortLivingBranch,
   isSameBranchLike,
   getBranchLikeQuery,
-  isPullRequest
+  isPullRequest,
+  fillBranchLike
 } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
@@ -1046,7 +1047,7 @@ export default class App extends React.PureComponent<Props, State> {
             <div>
               {openIssue ? (
                 <IssuesSourceViewer
-                  branchLike={this.props.branchLike}
+                  branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
                   loadIssues={this.fetchIssuesForComponent}
                   locationsNavigator={this.state.locationsNavigator}
                   onIssueChange={this.handleIssueChange}

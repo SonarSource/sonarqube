@@ -873,6 +873,7 @@ exports[`should work with extensions 1`] = `
               "pathname": "/project/extension/component-foo",
               "query": Object {
                 "id": "foo",
+                "qualifier": "TRK",
               },
             }
           }
@@ -954,6 +955,7 @@ exports[`should work with extensions 2`] = `
               "pathname": "/project/admin/extension/foo",
               "query": Object {
                 "id": "foo",
+                "qualifier": "TRK",
               },
             }
           }
@@ -1001,6 +1003,7 @@ exports[`should work with multiple extensions 1`] = `
               "pathname": "/project/extension/component-foo",
               "query": Object {
                 "id": "foo",
+                "qualifier": "TRK",
               },
             }
           }
@@ -1018,6 +1021,7 @@ exports[`should work with multiple extensions 1`] = `
               "pathname": "/project/extension/component-bar",
               "query": Object {
                 "id": "foo",
+                "qualifier": "TRK",
               },
             }
           }
@@ -1099,6 +1103,7 @@ exports[`should work with multiple extensions 2`] = `
               "pathname": "/project/admin/extension/foo",
               "query": Object {
                 "id": "foo",
+                "qualifier": "TRK",
               },
             }
           }
@@ -1116,6 +1121,7 @@ exports[`should work with multiple extensions 2`] = `
               "pathname": "/project/admin/extension/bar",
               "query": Object {
                 "id": "foo",
+                "qualifier": "TRK",
               },
             }
           }

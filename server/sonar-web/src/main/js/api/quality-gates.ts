@@ -160,6 +160,7 @@ export interface ApplicationQualityGate {
 
 export function getApplicationQualityGate(data: {
   application: string;
+  branch?: string;
   organization?: string;
 }): Promise<ApplicationQualityGate> {
   return getJSON('/api/qualitygates/application_status', data).catch(throwGlobalError);

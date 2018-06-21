@@ -21,6 +21,7 @@
 import { Measure } from '../../helpers/measures';
 
 export interface Component extends Breadcrumb {
+  branch?: string;
   measures?: Measure[];
   path?: string;
   refKey?: string;

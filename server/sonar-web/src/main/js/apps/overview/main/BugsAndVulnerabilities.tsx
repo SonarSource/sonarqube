@@ -28,11 +28,11 @@ import VulnerabilityIcon from '../../../components/icons-components/Vulnerabilit
 import { getMetricName } from '../helpers/metrics';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
+import { isLongLivingBranch } from '../../../helpers/branches';
 
 export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
   renderHeader() {
     const { branchLike, component } = this.props;
-
     return (
       <div className="overview-card-header">
         <div className="overview-title">
@@ -62,7 +62,7 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
   }
 
   renderLeak() {
-    const { component, leakPeriod } = this.props;
+    const { branchLike, component, leakPeriod } = this.props;
     if (!leakPeriod) {
       return null;
     }
@@ -70,7 +70,10 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
     return (
       <div className="overview-domain-leak">
         {component.qualifier === 'APP' ? (
-          <ApplicationLeakPeriodLegend component={component.key} />
+          <ApplicationLeakPeriodLegend
+            branch={isLongLivingBranch(branchLike) ? branchLike : undefined}
+            component={component}
+          />
         ) : (
           <LeakPeriodLegend period={leakPeriod} />
         )}

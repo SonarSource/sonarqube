@@ -20,6 +20,7 @@ exports[`renders 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "proj",
           },
         }
@@ -155,6 +156,7 @@ exports[`renders with sub-project 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "proj",
           },
         }
@@ -177,6 +179,7 @@ exports[`renders with sub-project 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "sub-proj",
           },
         }

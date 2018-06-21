@@ -53,8 +53,8 @@ export function getSonarCloudUrlAsString(location: Location) {
   return 'https://sonarcloud.io' + getPathUrlAsString(location);
 }
 
-export function getProjectUrl(project: string): Location {
-  return { pathname: '/dashboard', query: { id: project } };
+export function getProjectUrl(project: string, branch?: string): Location {
+  return { pathname: '/dashboard', query: { id: project, branch } };
 }
 
 export function getPortfolioUrl(key: string): Location {
@@ -231,7 +231,9 @@ export function getOrganizationUrl(organization: string) {
 export function getHomePageUrl(homepage: HomePage) {
   switch (homepage.type) {
     case HomePageType.Application:
-      return getProjectUrl(homepage.component);
+      return homepage.branch
+        ? getProjectUrl(homepage.component, homepage.branch)
+        : getProjectUrl(homepage.component);
     case HomePageType.Project:
       return homepage.branch
         ? getLongLivingBranchUrl(homepage.component, homepage.branch)

@@ -49,7 +49,7 @@ it('renders main branch', () => {
         component={component}
         currentBranchLike={mainBranch}
       />,
-      { context: { branchesEnabled: true } }
+      { context: { branchesEnabled: true, canAdmin: true } }
     )
   ).toMatchSnapshot();
 });
@@ -70,7 +70,7 @@ it('renders short-living branch', () => {
         component={component}
         currentBranchLike={branch}
       />,
-      { context: { branchesEnabled: true } }
+      { context: { branchesEnabled: true, canAdmin: true } }
     )
   ).toMatchSnapshot();
 });
@@ -91,7 +91,7 @@ it('renders pull request', () => {
         component={component}
         currentBranchLike={pullRequest}
       />,
-      { context: { branchesEnabled: true } }
+      { context: { branchesEnabled: true, canAdmin: true } }
     )
   ).toMatchSnapshot();
 });
@@ -104,7 +104,7 @@ it('opens menu', () => {
       component={component}
       currentBranchLike={mainBranch}
     />,
-    { context: { branchesEnabled: true } }
+    { context: { branchesEnabled: true, canAdmin: true } }
   );
   expect(wrapper.find('Toggler').prop('open')).toBe(false);
   click(wrapper.find('a'));
@@ -119,7 +119,7 @@ it('renders single branch popup', () => {
       component={component}
       currentBranchLike={mainBranch}
     />,
-    { context: { branchesEnabled: true } }
+    { context: { branchesEnabled: true, canAdmin: true } }
   );
   expect(wrapper.find('DocTooltip')).toMatchSnapshot();
 });
@@ -132,7 +132,7 @@ it('renders no branch support popup', () => {
       component={component}
       currentBranchLike={mainBranch}
     />,
-    { context: { branchesEnabled: false } }
+    { context: { branchesEnabled: false, canAdmin: true } }
   );
   expect(wrapper.find('DocTooltip')).toMatchSnapshot();
 });
@@ -146,7 +146,7 @@ it('renders nothing on SonarCloud without branch support', () => {
       component={component}
       currentBranchLike={mainBranch}
     />,
-    { context: { branchesEnabled: false, onSonarCloud: true } }
+    { context: { branchesEnabled: false, onSonarCloud: true, canAdmin: true } }
   );
   expect(wrapper.type()).toBeNull();
 });

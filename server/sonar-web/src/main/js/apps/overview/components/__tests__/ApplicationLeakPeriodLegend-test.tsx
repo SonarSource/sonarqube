@@ -32,7 +32,11 @@ jest.mock('../../../../api/application', () => ({
 }));
 
 it('renders', async () => {
-  const wrapper = shallow(<ApplicationLeakPeriodLegend component="foo" />);
+  const wrapper = shallow(
+    <ApplicationLeakPeriodLegend
+      component={{ key: 'foo', organization: 'bar', qualifier: 'APP' }}
+    />
+  );
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);

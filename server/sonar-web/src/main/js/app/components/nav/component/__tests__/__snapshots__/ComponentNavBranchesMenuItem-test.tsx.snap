@@ -13,6 +13,7 @@ exports[`renders main branch 1`] = `
       Object {
         "pathname": "/dashboard",
         "query": Object {
+          "branch": undefined,
           "id": "component",
         },
       }

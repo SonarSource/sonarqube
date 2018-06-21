@@ -21,6 +21,7 @@ exports[`renders favorite 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -69,6 +70,7 @@ exports[`renders match 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -116,6 +118,7 @@ exports[`renders organizations 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -168,6 +171,7 @@ exports[`renders organizations 2`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -215,6 +219,7 @@ exports[`renders projects 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "qwe",
           },
         }
@@ -267,6 +272,7 @@ exports[`renders recently browsed 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -314,6 +320,7 @@ exports[`renders selected 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }
@@ -359,6 +366,7 @@ exports[`renders selected 2`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "foo",
           },
         }

@@ -23,10 +23,11 @@ import ApplicationQualityGateProject from './ApplicationQualityGateProject';
 import Level from '../../../components/ui/Level';
 import { getApplicationQualityGate, ApplicationProject } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
-import { LightComponent, Metric } from '../../../app/types';
+import { LightComponent, Metric, LongLivingBranch } from '../../../app/types';
 import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
+  branch?: LongLivingBranch;
   component: LightComponent;
 }
 
@@ -57,10 +58,11 @@ export default class ApplicationQualityGate extends React.PureComponent<Props, S
   }
 
   fetchDetails = () => {
-    const { component } = this.props;
+    const { branch, component } = this.props;
     this.setState({ loading: true });
     getApplicationQualityGate({
       application: component.key,
+      branch: branch ? branch.name : undefined,
       organization: component.organization
     }).then(
       ({ status, projects, metrics }) => {

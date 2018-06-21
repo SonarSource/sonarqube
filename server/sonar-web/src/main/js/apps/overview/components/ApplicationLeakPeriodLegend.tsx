@@ -25,9 +25,11 @@ import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter'
 import { getApplicationLeak } from '../../../api/application';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import DateFromNow from '../../../components/intl/DateFromNow';
+import { LightComponent, LongLivingBranch } from '../../../app/types';
 
 interface Props {
-  component: string;
+  branch?: LongLivingBranch;
+  component: LightComponent;
 }
 
 interface State {
@@ -44,7 +46,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.component !== this.props.component) {
+    if (nextProps.component.key !== this.props.component.key) {
       this.setState({ leaks: undefined });
     }
   }
@@ -55,7 +57,10 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
 
   fetchLeaks = () => {
     if (!this.state.leaks) {
-      getApplicationLeak(this.props.component).then(
+      getApplicationLeak(
+        this.props.component.key,
+        this.props.branch ? this.props.branch.name : undefined
+      ).then(
         leaks => {
           if (this.mounted) {
             this.setState({

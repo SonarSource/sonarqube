@@ -169,7 +169,7 @@ export interface Group {
 }
 
 export type HomePage =
-  | { type: HomePageType.Application; component: string }
+  | { type: HomePageType.Application; branch: string | undefined; component: string }
   | { type: HomePageType.Issues }
   | { type: HomePageType.MyIssues }
   | { type: HomePageType.MyProjects }
@@ -220,6 +220,7 @@ export interface Issue {
   assigneeLogin?: string;
   assigneeName?: string;
   author?: string;
+  branch?: string;
   comments?: IssueComment[];
   component: string;
   componentLongName: string;
@@ -237,6 +238,7 @@ export interface Issue {
   projectName: string;
   projectOrganization: string;
   projectUuid: string;
+  pullRequest?: string;
   resolution?: string;
   rule: string;
   ruleName: string;

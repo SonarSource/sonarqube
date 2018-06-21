@@ -168,3 +168,21 @@ export function getBranchLikeQuery(branchLike?: BranchLike): BranchParameters {
     return {};
   }
 }
+
+// Create branch object from branch name or pull request key
+export function fillBranchLike(
+  branch?: string,
+  pullRequest?: string
+): ShortLivingBranch | PullRequest | undefined {
+  if (branch) {
+    return {
+      isMain: false,
+      mergeBranch: '',
+      name: branch,
+      type: BranchType.SHORT
+    } as ShortLivingBranch;
+  } else if (pullRequest) {
+    return { base: '', branch: '', key: pullRequest, title: '' } as PullRequest;
+  }
+  return undefined;
+}

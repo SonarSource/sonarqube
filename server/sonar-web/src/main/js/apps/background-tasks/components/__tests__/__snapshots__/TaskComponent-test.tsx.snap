@@ -20,6 +20,7 @@ exports[`renders correctly 1`] = `
       Object {
         "pathname": "/dashboard",
         "query": Object {
+          "branch": undefined,
           "id": "foo",
         },
       }

@@ -22,12 +22,15 @@ import React from 'react';
 import { Link } from 'react-router';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
+import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import { splitPath } from '../../../helpers/path';
 import {
   getPathUrlAsString,
   getBranchLikeUrl,
+  getLongLivingBranchUrl,
   getComponentDrilldownUrlWithSelection
 } from '../../../helpers/urls';
+import { translate } from '../../../helpers/l10n';
 /*:: import type { Component, ComponentEnhanced } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
@@ -56,10 +59,26 @@ export default class ComponentCell extends React.PureComponent {
     const { component } = this.props;
     let head = '';
     let tail = component.name;
+    let branch = null;
 
     if (['DIR', 'FIL', 'UTS'].includes(component.qualifier)) {
       const parts = splitPath(component.path);
       ({ head, tail } = parts);
+    }
+
+    if (this.props.rootComponent.qualifier === 'APP') {
+      branch = (
+        <React.Fragment>
+          {component.branch ? (
+            <React.Fragment>
+              <LongLivingBranchIcon className="spacer-left little-spacer-right" />
+              <span className="note">{component.branch}</span>
+            </React.Fragment>
+          ) : (
+            <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
+          )}
+        </React.Fragment>
+      );
     }
     return (
       <span title={component.refKey || component.key}>
@@ -67,12 +86,17 @@ export default class ComponentCell extends React.PureComponent {
         &nbsp;
         {head.length > 0 && <span className="note">{head}/</span>}
         <span>{tail}</span>
+        {branch}
       </span>
     );
   }
 
   render() {
     const { branchLike, component, metric, rootComponent } = this.props;
+    const to =
+      this.props.rootComponent.qualifier === 'APP'
+        ? getLongLivingBranchUrl(component.refKey, component.branch)
+        : getBranchLikeUrl(component.refKey, branchLike);
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
@@ -95,7 +119,7 @@ export default class ComponentCell extends React.PureComponent {
             <Link
               className="link-no-underline"
               id={'component-measures-component-link-' + component.key}
-              to={getBranchLikeUrl(component.refKey, branchLike)}>
+              to={to}>
               <span className="big-spacer-right">
                 <LinkIcon />
               </span>
