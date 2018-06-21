@@ -21,13 +21,17 @@ package org.sonar.scanner.rule;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
@@ -42,11 +46,23 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt&activation=true";
+  private static final String RULES_SEARCH_NO_HOTSPOT_URL;
+
+  static {
+    // need to use static initializer because of https://bugs.openjdk.java.net/browse/JDK-8077605
+    RULES_SEARCH_NO_HOTSPOT_URL = RULES_SEARCH_URL + "&types="
+      + Arrays.stream(RuleType.values())
+      .filter(t -> t != RuleType.SECURITY_HOTSPOT)
+      .map(Enum::name)
+      .collect(Collectors.joining(","));
+  }
 
   private final ScannerWsClient wsClient;
+  private final BranchConfiguration branchConfiguration;
 
-  public DefaultActiveRulesLoader(ScannerWsClient wsClient) {
+  public DefaultActiveRulesLoader(ScannerWsClient wsClient, BranchConfiguration branchConfiguration) {
     this.wsClient = wsClient;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
@@ -72,9 +88,13 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
     return ruleList;
   }
 
-  private static String getUrl(String qualityProfileKey, int page, int pageSize) {
+  private String getUrl(String qualityProfileKey, int page, int pageSize) {
     StringBuilder builder = new StringBuilder(1024);
-    builder.append(RULES_SEARCH_URL);
+    if (branchConfiguration.isShortOrPullRequest()) {
+      builder.append(RULES_SEARCH_NO_HOTSPOT_URL);
+    } else {
+      builder.append(RULES_SEARCH_URL);
+    }
     builder.append("&qprofile=").append(ScannerUtils.encodeForUrl(qualityProfileKey));
     builder.append("&p=").append(page);
     builder.append("&ps=").append(pageSize);

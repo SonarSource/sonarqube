@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -76,7 +77,9 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
     newIssues.forEach(issue -> {
       issueLifecycle.initNewOpenIssue(issue);
-      list.add(issue);
+      if (analysisMetadataHolder.isLongLivingBranch() || issue.type() != RuleType.SECURITY_HOTSPOT) {
+        list.add(issue);
+      }
     });
 
     if (list.isEmpty()) {
@@ -106,7 +109,9 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
       issueLifecycle.mergeExistingOpenIssue(raw, base);
-      process(component, raw, cacheAppender);
+      if (analysisMetadataHolder.isLongLivingBranch() || raw.type() != RuleType.SECURITY_HOTSPOT) {
+        process(component, raw, cacheAppender);
+      }
     }
   }
 
