@@ -126,6 +126,7 @@ module.exports = ({ production = true }) => ({
       // https://github.com/lodash/lodash-webpack-plugin#feature-sets
       shorthands: true,
       collections: true,
+      exotics: true, // used to compare "exotic" values, like dates
       memoizing: true,
       flattening: true
     }),
