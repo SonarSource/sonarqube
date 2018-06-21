@@ -35,8 +35,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueGroupDto;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.DebtRatingGrid;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
+import org.sonar.server.measure.DebtRatingGrid;
+import org.sonar.server.measure.Rating;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

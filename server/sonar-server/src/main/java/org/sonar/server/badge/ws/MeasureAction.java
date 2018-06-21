@@ -38,7 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
+import org.sonar.server.measure.Rating;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -67,12 +67,12 @@ import static org.sonar.server.badge.ws.ETagUtils.getETag;
 import static org.sonar.server.badge.ws.SvgFormatter.formatDuration;
 import static org.sonar.server.badge.ws.SvgFormatter.formatNumeric;
 import static org.sonar.server.badge.ws.SvgFormatter.formatPercent;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.B;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.E;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.valueOf;
+import static org.sonar.server.measure.Rating.A;
+import static org.sonar.server.measure.Rating.B;
+import static org.sonar.server.measure.Rating.C;
+import static org.sonar.server.measure.Rating.D;
+import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.measure.Rating.valueOf;
 import static org.sonarqube.ws.MediaTypes.SVG;
 
 public class MeasureAction implements ProjectBadgesWsAction {

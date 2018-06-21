@@ -17,15 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.step;
+@ParametersAreNonnullByDefault
+package org.sonar.server.measure;
 
-/**
- * A way of splitting the processing of a task into smaller items which can be executed sequencially
- * by {@link ComputationStepExecutor}.
- */
-public interface ComputationStep {
-
-  void execute();
-
-  String getDescription();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

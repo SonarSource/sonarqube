@@ -47,7 +47,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
+import org.sonar.server.measure.Rating;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;

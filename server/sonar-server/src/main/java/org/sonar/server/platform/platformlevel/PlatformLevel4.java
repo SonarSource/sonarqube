@@ -30,7 +30,6 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.ce.CeModule;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
-import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
@@ -551,7 +550,6 @@ public class PlatformLevel4 extends PlatformLevel {
       PlatformEditionProvider.class,
 
       InternalPropertiesImpl.class,
-      ProjectConfigurationFactory.class,
 
       // UI
       NavigationWsModule.class,

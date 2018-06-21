@@ -29,6 +29,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRe
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
+import org.sonar.server.measure.Rating;
 
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
@@ -37,7 +38,7 @@ import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit.FILE;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.RATING_BY_SEVERITY;
+import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 
 /**
  * Compute following measures for projects and descendants:

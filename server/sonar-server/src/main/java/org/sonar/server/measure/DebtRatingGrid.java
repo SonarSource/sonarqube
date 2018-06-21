@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.qualitymodel;
+package org.sonar.server.measure;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
@@ -29,11 +29,11 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.api.CoreProperties.RATING_GRID_DEF_VALUES;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.B;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.E;
+import static org.sonar.server.measure.Rating.A;
+import static org.sonar.server.measure.Rating.B;
+import static org.sonar.server.measure.Rating.C;
+import static org.sonar.server.measure.Rating.D;
+import static org.sonar.server.measure.Rating.E;
 
 public class DebtRatingGrid {
 
@@ -86,7 +86,7 @@ public class DebtRatingGrid {
   }
 
   @VisibleForTesting
-  double[] getGridValues() {
+  public double[] getGridValues() {
     return gridValues;
   }
 

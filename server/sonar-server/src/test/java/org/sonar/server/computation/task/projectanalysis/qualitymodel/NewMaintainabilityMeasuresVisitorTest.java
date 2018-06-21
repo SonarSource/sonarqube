@@ -43,6 +43,8 @@ import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
+import org.sonar.server.measure.DebtRatingGrid;
+import org.sonar.server.measure.Rating;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.mockito.Mockito.mock;
@@ -63,8 +65,8 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureAssert.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
+import static org.sonar.server.measure.Rating.A;
+import static org.sonar.server.measure.Rating.D;
 
 public class NewMaintainabilityMeasuresVisitorTest {
 

@@ -20,12 +20,17 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.Multimap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,6 +38,7 @@ import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.rule.ExternalRuleCreator;
+import org.sonar.server.rule.NewExternalRule;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -58,7 +64,7 @@ public class RuleRepositoryImpl implements RuleRepository {
     ensureInitialized();
 
     if (!rulesByKey.containsKey(ruleKey)) {
-      rulesByKey.computeIfAbsent(ruleKey, s -> ruleSupplier.get());
+      rulesByKey.computeIfAbsent(ruleKey, s -> new ExternalRuleWrapper(ruleSupplier.get()));
     }
   }
 
@@ -67,12 +73,12 @@ public class RuleRepositoryImpl implements RuleRepository {
     ensureInitialized();
 
     rulesByKey.values().stream()
-      .filter(NewExternalRule.class::isInstance)
-      .forEach(extRule -> persistAndIndex(dbSession, (NewExternalRule) extRule));
+      .filter(ExternalRuleWrapper.class::isInstance)
+      .forEach(extRule -> persistAndIndex(dbSession, (ExternalRuleWrapper) extRule));
   }
 
-  private void persistAndIndex(DbSession dbSession, NewExternalRule external) {
-    Rule rule = creator.persistAndIndex(dbSession, external);
+  private void persistAndIndex(DbSession dbSession, ExternalRuleWrapper external) {
+    Rule rule = new RuleImpl(creator.persistAndIndex(dbSession, external.getDelegate()));
     rulesById.put(rule.getId(), rule);
     rulesByKey.put(external.getKey(), rule);
   }
@@ -139,4 +145,63 @@ public class RuleRepositoryImpl implements RuleRepository {
     }
   }
 
+  private static class ExternalRuleWrapper implements Rule {
+    private final NewExternalRule externalRule;
+
+    private ExternalRuleWrapper(NewExternalRule externalRule) {
+      this.externalRule = externalRule;
+    }
+
+    public NewExternalRule getDelegate() {
+      return externalRule;
+    }
+
+    @Override
+    public int getId() {
+      return 0;
+    }
+
+    @Override
+    public RuleKey getKey() {
+      return externalRule.getKey();
+    }
+
+    @Override
+    public String getName() {
+      return externalRule.getName();
+    }
+
+    @Override
+    public RuleStatus getStatus() {
+      return RuleStatus.defaultStatus();
+    }
+
+    @Override
+    @CheckForNull
+    public RuleType getType() {
+      return null;
+    }
+
+    @Override
+    public boolean isExternal() {
+      return true;
+    }
+
+    @Override
+    public Set<String> getTags() {
+      return Collections.emptySet();
+    }
+
+    @CheckForNull
+    @Override
+    public DebtRemediationFunction getRemediationFunction() {
+      return null;
+    }
+
+    @CheckForNull
+    @Override
+    public String getPluginKey() {
+      return externalRule.getPluginKey();
+    }
+  }
 }

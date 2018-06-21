@@ -31,6 +31,8 @@ import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRe
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.server.measure.DebtRatingGrid;
+import org.sonar.server.measure.Rating;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,9 +58,9 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.E;
+import static org.sonar.server.measure.Rating.A;
+import static org.sonar.server.measure.Rating.C;
+import static org.sonar.server.measure.Rating.E;
 
 public class MaintainabilityMeasuresVisitorTest {
 

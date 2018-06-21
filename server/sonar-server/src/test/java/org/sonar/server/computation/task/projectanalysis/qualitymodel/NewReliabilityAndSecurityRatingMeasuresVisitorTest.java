@@ -39,6 +39,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
+import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -60,11 +61,11 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.B;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.E;
+import static org.sonar.server.measure.Rating.A;
+import static org.sonar.server.measure.Rating.B;
+import static org.sonar.server.measure.Rating.C;
+import static org.sonar.server.measure.Rating.D;
+import static org.sonar.server.measure.Rating.E;
 
 public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 

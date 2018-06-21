@@ -20,13 +20,13 @@
 package org.sonar.server.computation.task.projectanalysis.formula.counter;
 
 import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
+import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.B;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
+import static org.sonar.server.measure.Rating.A;
+import static org.sonar.server.measure.Rating.B;
+import static org.sonar.server.measure.Rating.C;
+import static org.sonar.server.measure.Rating.D;
 
 public class RatingValueTest {
 

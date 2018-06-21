@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.settings;
+package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
@@ -25,7 +25,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.db.DbClient;
 import org.sonar.db.component.BranchType;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.settings.ChildSettings;
 
 import static org.sonar.db.component.ComponentDto.generateBranchKey;

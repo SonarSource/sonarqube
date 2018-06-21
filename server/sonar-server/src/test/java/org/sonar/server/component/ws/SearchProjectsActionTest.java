@@ -83,9 +83,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.DATA;
-import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
-import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.RATING;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_003;
@@ -199,7 +196,7 @@ public class SearchProjectsActionTest {
     OrganizationDto organization1Dto = db.organizations().insert(dto -> dto.setKey("my-org-key-1").setName("Foo"));
     OrganizationDto organization2Dto = db.organizations().insert(dto -> dto.setKey("my-org-key-2").setName("Bar"));
 
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
     ComponentDto project1 = insertProject(organization1Dto, c -> c
         .setDbKey(KEY_PROJECT_EXAMPLE_001)
         .setName("My Project 1")
@@ -302,7 +299,7 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
     MetricDto ncloc = db.measures().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
     ComponentDto project1 = insertProject(organization1, new Measure(coverage, c -> c.setValue(81d)), new Measure(ncloc, c -> c.setValue(10_000d)));
     ComponentDto project2 = insertProject(organization1, new Measure(coverage, c -> c.setValue(80d)), new Measure(ncloc, c -> c.setValue(10_000d)));
@@ -339,7 +336,7 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_languages() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType(DATA.name()));
+    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
     ComponentDto project1 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
     ComponentDto project2 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("java=3;xoo=9")));
     ComponentDto project3 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("xoo=1")));
@@ -397,7 +394,7 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_coverage() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
     ComponentDto project1 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(80d)));
     ComponentDto project2 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(85d)));
     ComponentDto project3 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
@@ -411,7 +408,7 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_new_coverage() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType("PERCENT"));
     ComponentDto project1 = insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(80d)));
     ComponentDto project2 = insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(85d)));
     ComponentDto project3 = insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(10d)));
@@ -425,7 +422,7 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_duplications() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto duplications = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    MetricDto duplications = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
     ComponentDto project1 = insertProject(organizationDto, new Measure(duplications, c -> c.setValue(80d)));
     ComponentDto project2 = insertProject(organizationDto, new Measure(duplications, c -> c.setValue(85d)));
     ComponentDto project3 = insertProject(organizationDto, new Measure(duplications, c -> c.setValue(10d)));
@@ -439,8 +436,8 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_no_duplication() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
-    MetricDto duplications = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
+    MetricDto duplications = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
     ComponentDto project1 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
     ComponentDto project2 = insertProject(organizationDto, new Measure(duplications, c -> c.setValue(0d)));
     ComponentDto project3 = insertProject(organizationDto, new Measure(duplications, c -> c.setValue(79d)));
@@ -454,8 +451,8 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_no_duplication_should_not_return_projects_with_duplication() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
-    MetricDto duplications = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
+    MetricDto duplications = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
     insertProject(organizationDto, new Measure(duplications, c -> c.setValue(10d)), new Measure(coverage, c -> c.setValue(50d)));
 
     SearchProjectsWsResponse result = call(request.setFilter("duplicated_lines_density = NO_DATA"));
@@ -467,7 +464,7 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_new_duplications() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto newDuplications = db.measures().insertMetric(c -> c.setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    MetricDto newDuplications = db.measures().insertMetric(c -> c.setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
     ComponentDto project1 = insertProject(organizationDto, new Measure(newDuplications, c -> c.setVariation(80d)));
     ComponentDto project2 = insertProject(organizationDto, new Measure(newDuplications, c -> c.setVariation(85d)));
     ComponentDto project3 = insertProject(organizationDto, new Measure(newDuplications, c -> c.setVariation(10d)));
@@ -635,7 +632,7 @@ public class SearchProjectsActionTest {
   public void return_languages_facet() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType(DATA.name()));
+    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
     insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
     insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("java=5;xoo=19")));
     insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("xoo=1")));
@@ -658,7 +655,7 @@ public class SearchProjectsActionTest {
   public void return_languages_facet_with_language_having_no_project_if_language_is_in_filter() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType(DATA.name()));
+    MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType("DATA"));
     insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6")));
     insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("java=5")));
 
@@ -723,7 +720,7 @@ public class SearchProjectsActionTest {
   public void return_rating_facet(String ratingMetricKey) {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
-    MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(ratingMetricKey).setValueType(RATING.name()));
+    MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(ratingMetricKey).setValueType("RATING"));
     insertProject(organization, new Measure(ratingMetric, c -> c.setValue(1d)));
     insertProject(organization, new Measure(ratingMetric, c -> c.setValue(1d)));
     insertProject(organization, new Measure(ratingMetric, c -> c.setValue(3d)));
@@ -749,7 +746,7 @@ public class SearchProjectsActionTest {
   public void return_new_rating_facet(String newRatingMetricKey) {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
-    MetricDto newRatingMetric = db.measures().insertMetric(c -> c.setKey(newRatingMetricKey).setValueType(RATING.name()));
+    MetricDto newRatingMetric = db.measures().insertMetric(c -> c.setKey(newRatingMetricKey).setValueType("RATING"));
     insertProject(organization, new Measure(newRatingMetric, c -> c.setVariation(1d)));
     insertProject(organization, new Measure(newRatingMetric, c -> c.setVariation(1d)));
     insertProject(organization, new Measure(newRatingMetric, c -> c.setVariation(3d)));
@@ -774,7 +771,7 @@ public class SearchProjectsActionTest {
   public void return_coverage_facet() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
     insertProject(organizationDto);
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(80d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(85d)));
@@ -800,7 +797,7 @@ public class SearchProjectsActionTest {
   public void return_new_coverage_facet() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType("PERCENT"));
     insertProject(organizationDto);
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(80d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(85d)));
@@ -826,7 +823,7 @@ public class SearchProjectsActionTest {
   public void return_duplications_facet() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(15d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(5d)));
@@ -852,7 +849,7 @@ public class SearchProjectsActionTest {
   public void return_new_duplications_facet() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
     insertProject(organizationDto);
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(10d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(15d)));

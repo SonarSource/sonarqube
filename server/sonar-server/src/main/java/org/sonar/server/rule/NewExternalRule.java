@@ -17,19 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.issue;
+package org.sonar.server.rule;
 
-import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
-import org.sonar.api.server.debt.DebtRemediationFunction;
 
 @Immutable
-public class NewExternalRule implements Rule {
+public class NewExternalRule {
   private final RuleKey key;
   private final String name;
   private final String pluginKey;
@@ -41,47 +36,14 @@ public class NewExternalRule implements Rule {
     this.name = builder.name;
   }
 
-  @Override
-  public int getId() {
-    return 0;
-  }
-
-  @Override
   public RuleKey getKey() {
     return key;
   }
 
-  @Override
   public String getName() {
     return name;
   }
 
-  @Override
-  public RuleStatus getStatus() {
-    return RuleStatus.defaultStatus();
-  }
-
-  @Override
-  public RuleType getType() {
-    return null;
-  }
-
-  @Override
-  public boolean isExternal() {
-    return true;
-  }
-
-  @Override
-  public Set<String> getTags() {
-    return Collections.emptySet();
-  }
-
-  @Override
-  public DebtRemediationFunction getRemediationFunction() {
-    return null;
-  }
-
-  @Override
   public String getPluginKey() {
     return pluginKey;
   }

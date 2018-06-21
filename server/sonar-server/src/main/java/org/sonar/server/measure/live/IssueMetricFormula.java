@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.DebtRatingGrid;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
+import org.sonar.server.measure.DebtRatingGrid;
+import org.sonar.server.measure.Rating;
 
 import static java.util.Collections.emptyList;
 

@@ -33,7 +33,6 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -53,15 +52,14 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
-import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.INT;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentActionTest {
 
@@ -95,7 +93,7 @@ public class ComponentActionTest {
   public void provided_project() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = newRequest(project.getKey(), metric.getKey());
 
@@ -109,7 +107,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     String response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -128,7 +126,7 @@ public class ComponentActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
-    MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType(INT.name()));
+    MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
 
     ComponentWsResponse response = ws.newRequest()
@@ -151,7 +149,7 @@ public class ComponentActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
-    MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType(INT.name()));
+    MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
     LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
 
     ComponentWsResponse response = ws.newRequest()
@@ -174,7 +172,7 @@ public class ComponentActionTest {
     ComponentDto view = db.components().insertView();
     db.components().insertSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-uuid-copy", project, view));
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = newRequest(projectCopy.getKey(), metric.getKey());
 
@@ -187,7 +185,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = newRequest(project.getKey(), metric.getKey());
 
@@ -199,7 +197,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     userSession.addProjectPermission(USER, project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam("componentId", project.uuid())
@@ -214,7 +212,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     userSession.addProjectPermission(USER, project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam("componentKey", project.getKey())
@@ -229,7 +227,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metricWithoutDomain = db.measures().insertMetric(m -> m
-      .setValueType(Measure.ValueType.INT.name())
+      .setValueType("INT")
       .setDomain(null));
     db.measures().insertLiveMeasure(project, metricWithoutDomain);
 
@@ -251,7 +249,7 @@ public class ComponentActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m
-      .setValueType(Measure.ValueType.INT.name())
+      .setValueType("INT")
       .setBestValue(7.0d)
       .setOptimizedBestValue(true)
       .setDomain(null));
@@ -273,7 +271,7 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(project);
 
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("The Developer Cockpit feature has been dropped. The specified developer cannot be found.");
@@ -289,8 +287,8 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(project);
-    db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.name()));
-    db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
+    db.measures().insertMetric(m -> m.setKey("ncloc").setValueType("INT"));
+    db.measures().insertMetric(m -> m.setKey("complexity").setValueType("INT"));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("The following metric keys are not found: unknown-metric, another-unknown-metric");
@@ -315,7 +313,7 @@ public class ComponentActionTest {
     userSession.logIn();
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     expectedException.expect(ForbiddenException.class);
 
@@ -324,7 +322,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_component_does_not_exist() {
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'project-key' not found");
@@ -340,7 +338,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setEnabled(false));
     userSession.addProjectPermission(UserRole.USER, project);
     userSession.addProjectPermission(USER, project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(String.format("Component key '%s' not found", project.getKey()));
@@ -391,7 +389,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
@@ -408,7 +406,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));

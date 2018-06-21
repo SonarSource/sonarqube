@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.issue.NewExternalRule;
+import org.sonar.server.rule.NewExternalRule;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.EsTester;

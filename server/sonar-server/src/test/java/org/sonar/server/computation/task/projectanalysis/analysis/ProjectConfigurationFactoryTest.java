@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.settings;
+package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,7 +25,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;

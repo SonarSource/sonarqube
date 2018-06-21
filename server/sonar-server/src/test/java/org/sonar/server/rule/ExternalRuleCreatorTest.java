@@ -24,8 +24,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.server.computation.task.projectanalysis.issue.NewExternalRule;
-import org.sonar.server.computation.task.projectanalysis.issue.Rule;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.index.RuleIndexer;
 
@@ -51,7 +50,7 @@ public class ExternalRuleCreatorTest {
       .setName("name")
       .build();
 
-    Rule rule1 = underTest.persistAndIndex(dbSession, externalRule);
+    RuleDto rule1 = underTest.persistAndIndex(dbSession, externalRule);
 
     assertThat(rule1).isNotNull();
     assertThat(rule1.isExternal()).isTrue();
@@ -59,7 +58,7 @@ public class ExternalRuleCreatorTest {
     assertThat(rule1.getKey()).isEqualTo(ruleKey);
     assertThat(rule1.getPluginKey()).isEqualTo("eslint");
     assertThat(rule1.getName()).isEqualTo("name");
-    assertThat(rule1.getType()).isNull();
+    assertThat(rule1.getType()).isEqualTo(0);
   }
 
 }

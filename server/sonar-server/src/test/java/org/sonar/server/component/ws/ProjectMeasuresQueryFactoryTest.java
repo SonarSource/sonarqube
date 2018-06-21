@@ -42,7 +42,6 @@ import static org.sonar.server.component.ws.FilterParser.Operator.IN;
 import static org.sonar.server.component.ws.FilterParser.Operator.LT;
 import static org.sonar.server.component.ws.FilterParser.Operator.LTE;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
-import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
 
 public class ProjectMeasuresQueryFactoryTest {
 
@@ -98,7 +97,7 @@ public class ProjectMeasuresQueryFactoryTest {
     ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(EQ).setValue("OK").build()),
       emptySet());
 
-    assertThat(query.getQualityGateStatus().get().name()).isEqualTo(OK.name());
+    assertThat(query.getQualityGateStatus().get().name()).isEqualTo("OK");
   }
 
   @Test

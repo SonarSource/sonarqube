@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.settings.ProjectConfigurationFactory;
+import org.sonar.server.computation.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;

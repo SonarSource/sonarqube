@@ -46,6 +46,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilte
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.rule.CommonRuleKeys;
+import org.sonar.server.rule.NewExternalRule;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 

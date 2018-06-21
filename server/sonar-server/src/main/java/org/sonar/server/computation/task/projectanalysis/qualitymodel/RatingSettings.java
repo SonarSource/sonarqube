@@ -27,6 +27,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
+import org.sonar.server.measure.DebtRatingGrid;
 
 import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.DEVELOPMENT_COST;

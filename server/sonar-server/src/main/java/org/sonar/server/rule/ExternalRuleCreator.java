@@ -24,9 +24,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.computation.task.projectanalysis.issue.NewExternalRule;
-import org.sonar.server.computation.task.projectanalysis.issue.Rule;
-import org.sonar.server.computation.task.projectanalysis.issue.RuleImpl;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.sonar.api.rule.RuleStatus.READY;
@@ -48,21 +46,21 @@ public class ExternalRuleCreator {
    * Persists a rule in the DB and indexes it.
    * @return the rule that was inserted in the DB, which <b>includes the generated ID</b>. 
    */
-  public Rule persistAndIndex(DbSession dbSession, NewExternalRule external) {
+  public RuleDto persistAndIndex(DbSession dbSession, NewExternalRule external) {
     RuleDao dao = dbClient.ruleDao();
     dao.insert(dbSession, new RuleDefinitionDto()
       .setRuleKey(external.getKey())
       .setPluginKey(external.getPluginKey())
-      .setIsExternal(external.isExternal())
+      .setIsExternal(true)
       .setName(external.getName())
       .setScope(ALL)
       .setStatus(READY)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now()));
 
-    Rule newRule = new RuleImpl(dao.selectOrFailByKey(dbSession, external.getKey()));
-    ruleIndexer.commitAndIndex(dbSession, newRule.getId());
-    return newRule;
+    RuleDto ruleDto = dao.selectOrFailByKey(dbSession, external.getKey());
+    ruleIndexer.commitAndIndex(dbSession, ruleDto.getId());
+    return ruleDto;
   }
 
 }

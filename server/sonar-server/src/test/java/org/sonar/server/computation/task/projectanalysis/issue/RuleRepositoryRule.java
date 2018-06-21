@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbSession;
+import org.sonar.server.rule.NewExternalRule;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;

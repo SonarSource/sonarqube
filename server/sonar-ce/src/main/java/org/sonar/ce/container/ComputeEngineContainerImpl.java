@@ -57,7 +57,7 @@ import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
-import org.sonar.ce.settings.ProjectConfigurationFactory;
+import org.sonar.server.computation.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;

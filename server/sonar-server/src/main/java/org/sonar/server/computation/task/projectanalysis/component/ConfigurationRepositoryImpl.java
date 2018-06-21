@@ -22,7 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.component;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import org.sonar.api.config.Configuration;
-import org.sonar.ce.settings.ProjectConfigurationFactory;
+import org.sonar.server.computation.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 /**
