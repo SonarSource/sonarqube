@@ -49,13 +49,13 @@ interface OwnProps {
 
 type Props = StateProps & OwnProps;
 
-class GlobalNav extends React.PureComponent<Props> {
+export class GlobalNav extends React.PureComponent<Props> {
   static contextTypes = { openProjectOnboarding: PropTypes.func };
 
   render() {
     return (
       <NavBar className="navbar-global" height={theme.globalNavHeightRaw} id="global-navigation">
-        {isSonarCloud ? <SonarCloudNavBranding /> : <GlobalNavBranding />}
+        {isSonarCloud() ? <SonarCloudNavBranding /> : <GlobalNavBranding />}
 
         <GlobalNavMenu {...this.props} />
 
