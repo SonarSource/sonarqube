@@ -420,7 +420,8 @@ artifactory {
       'com.sonarsource.sonarqube:sonarcloud:zip,' +
       'com.sonarsource.sonarqube:sonarqube-developer:yguard,' +
       'com.sonarsource.sonarqube:sonarqube-datacenter:yguard,' +
-      'com.sonarsource.sonarqube:sonarqube-enterprise:yguard')
+      'com.sonarsource.sonarqube:sonarqube-enterprise:yguard,' +
+      'com.sonarsource.sonarqube:docs:zip')
   // The name of this variable is important because it's used by the delivery process when extracting version from Artifactory build info.
   clientConfig.info.addEnvironmentProperty('PROJECT_VERSION', "${version}")
 }

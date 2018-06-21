@@ -1,0 +1,62 @@
+/**
+ * This module is building the zip file containing the static web site
+ */
+
+sonarqube {
+  skipProject = true
+}
+
+apply plugin: 'com.moowork.node'
+
+node {
+  version = '8.10.0'
+  yarnVersion = '1.5.1'
+  download = true
+}
+
+yarn_run {
+  inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
+  inputs.files('gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock')
+  outputs.dir('public')
+  outputs.cacheIf { true }
+
+  args = ['build']
+}
+
+task zip(type: Zip) {
+  def archiveDir = "sonarqube-docs-$version"
+  duplicatesStrategy DuplicatesStrategy.EXCLUDE
+  baseName "sonar-docs"
+
+  into("${archiveDir}") {
+    from tasks.getByName('yarn_run').outputs
+  }
+}
+zip.dependsOn yarn_run
+assemble.dependsOn zip
+
+publishing {
+  publications {
+    docs(MavenPublication) {
+      artifactId 'sonar-docs'
+      artifact zip
+    }
+  }
+}
+
+artifactory {
+  publish {
+    contextUrl = System.getenv('ARTIFACTORY_URL')
+    repository {
+      repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO_PRIVATE')
+      username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME_PRIVATE')
+      password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD_PRIVATE')
+    }
+  }
+}
+
+artifactoryPublish {
+  skip = false
+  publishPom = false
+  publications(publishing.publications.docs)
+}
