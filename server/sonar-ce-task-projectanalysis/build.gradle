@@ -1,0 +1,68 @@
+description = 'Code of the Compute Engine task processing project analysis reports'
+
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Compute Engine :: Task :: Project Analysis"
+  }
+}
+
+sourceSets {
+  test {
+    resources {
+      srcDirs += ['src/test/projects']
+    }
+  }
+}
+
+
+import org.apache.tools.ant.filters.ReplaceTokens
+processResources {
+  filesMatching('build.properties') {
+    filter ReplaceTokens, tokens: [
+      'buildNumber': release ? 'git rev-parse HEAD'.execute().text.trim() : 'N/A'
+    ]
+  }
+}
+
+configurations {
+  tests
+  testCompile.extendsFrom compileOnly
+}
+
+dependencies {
+  // please keep the list grouped by configuration and ordered by name
+
+//  compile 'org.picocontainer:picocontainer'
+  compile 'org.slf4j:jul-to-slf4j'
+  compile 'org.slf4j:slf4j-api'
+
+  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly project(':sonar-core')
+  compileOnly project(':server:sonar-db-dao')
+  compileOnly project(':server:sonar-process')
+  compileOnly project(':server:sonar-server-common')
+  compileOnly project(':server:sonar-server')
+  compileOnly project(path: ':sonar-plugin-api')
+
+  testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.h2database:h2'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
+  testCompile 'org.apache.logging.log4j:log4j-api'
+  testCompile 'org.apache.logging.log4j:log4j-core'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.assertj:assertj-guava'
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'org.reflections:reflections'
+  testCompile project(':server:sonar-db-testing')
+  testCompile project(path: ":server:sonar-server", configuration: "tests")
+}
+
+task testJar(type: Jar) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+artifacts {
+ tests testJar
+}
