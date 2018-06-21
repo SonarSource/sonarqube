@@ -21,12 +21,13 @@ package org.sonar.server.platform.db.migration.version.v73;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
+@SupportsBlueGreen
 public class AddFromHotspotFlagToIssues extends DdlChange {
 
   public AddFromHotspotFlagToIssues(Database db) {
