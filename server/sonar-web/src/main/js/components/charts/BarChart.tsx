@@ -21,6 +21,7 @@ import * as React from 'react';
 import { max } from 'd3-array';
 import { scaleLinear, scaleBand, ScaleLinear, ScaleBand } from 'd3-scale';
 import Tooltip from '../controls/Tooltip';
+import './BarChart.css';
 
 interface DataPoint {
   tooltip?: React.ReactNode;
