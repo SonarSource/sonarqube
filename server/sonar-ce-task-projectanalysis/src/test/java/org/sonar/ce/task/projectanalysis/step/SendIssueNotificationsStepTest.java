@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -112,7 +113,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final Random random = new Random();
-  private final RuleType randomRuleType = RuleType.values()[random.nextInt(RuleType.values().length)];
+  private final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Stream.of(RuleType.values()).filter(r -> r != RuleType.SECURITY_HOTSPOT).toArray(RuleType[]::new);
+  private final RuleType randomRuleType = RULE_TYPES_EXCEPT_HOTSPOTS[random.nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)];
   private NotificationService notificationService = mock(NotificationService.class);
   private NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class);
   private NewIssuesNotification newIssuesNotificationMock = createNewIssuesNotificationMock();

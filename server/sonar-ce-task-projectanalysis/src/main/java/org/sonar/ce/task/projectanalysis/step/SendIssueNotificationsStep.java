@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -134,7 +135,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project, Map<String, UserDto> usersDtoByUuids) {
     while (issues.hasNext()) {
       DefaultIssue issue = issues.next();
-      if (issue.isNew() && issue.resolution() == null) {
+      if (issue.isNew() && issue.resolution() == null && issue.type() != RuleType.SECURITY_HOTSPOT) {
         newIssuesStats.add(issue);
       } else if (issue.isChanged() && issue.mustSendNotifications()) {
         sendIssueChangeNotification(issue, project, usersDtoByUuids);
