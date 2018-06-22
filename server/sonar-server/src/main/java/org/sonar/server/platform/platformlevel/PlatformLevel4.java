@@ -115,7 +115,7 @@ import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.log.ServerLogging;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.monitoring.WebSystemInfoModule;

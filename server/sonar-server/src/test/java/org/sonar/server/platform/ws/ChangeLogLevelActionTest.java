@@ -26,7 +26,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.http.CeHttpClient;
 import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.log.ServerLogging;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 

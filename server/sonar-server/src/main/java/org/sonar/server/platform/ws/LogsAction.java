@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessId;
-import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.log.ServerLogging;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 

@@ -26,7 +26,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.httpd.HttpAction;
-import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.log.ServerLogging;
 
 import static fi.iki.elonen.NanoHTTPD.Method.GET;
 import static fi.iki.elonen.NanoHTTPD.Method.POST;

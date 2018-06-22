@@ -29,7 +29,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
-import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.log.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;

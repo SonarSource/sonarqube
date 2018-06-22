@@ -135,7 +135,7 @@ import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.ServerIdManager;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
-import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.log.ServerLogging;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;

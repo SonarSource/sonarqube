@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.log;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -32,7 +32,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.log.ServerProcessLogging;
 
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;

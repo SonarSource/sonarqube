@@ -26,7 +26,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.ServerLogging;
+import org.sonar.server.log.ServerLogging;
 
 @ComputeEngineSide
 @ServerSide
