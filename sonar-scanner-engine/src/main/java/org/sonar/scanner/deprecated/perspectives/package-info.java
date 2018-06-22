@@ -21,3 +21,4 @@
 package org.sonar.scanner.deprecated.perspectives;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+

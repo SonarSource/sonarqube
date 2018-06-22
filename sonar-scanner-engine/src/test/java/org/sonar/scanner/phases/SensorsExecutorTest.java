@@ -25,21 +25,20 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
-import org.sonar.scanner.events.EventBus;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
+import org.sonar.scanner.sensor.SensorWrapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class SensorsExecutorTest {
@@ -48,42 +47,26 @@ public class SensorsExecutorTest {
 
   private SensorsExecutor rootModuleExecutor;
   private SensorsExecutor subModuleExecutor;
-  private SensorContext context;
 
   private SensorStrategy strategy = new SensorStrategy();
 
-  private TestSensor perModuleSensor = new TestSensor(strategy);
-  private TestSensor globalSensor = new TestSensor(strategy);
-
-  static class TestSensor implements Sensor {
-    final SensorStrategy strategy;
-
-    boolean called;
-    boolean global;
-
-    TestSensor(SensorStrategy strategy) {
-      this.strategy = strategy;
-    }
-
-    @Override
-    public boolean shouldExecuteOnProject(Project project) {
-      return true;
-    }
-
-    @Override
-    public void analyse(Project module, SensorContext context) {
-      called = true;
-      global = strategy.isGlobal();
-    }
-  }
+  private SensorWrapper perModuleSensor = mock(SensorWrapper.class);
+  private SensorWrapper globalSensor = mock(SensorWrapper.class);
+  private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
 
   @Before
   public void setUp() throws IOException {
-    context = mock(SensorContext.class);
+    when(perModuleSensor.isGlobal()).thenReturn(false);
+    when(perModuleSensor.shouldExecute()).thenReturn(true);
+    when(perModuleSensor.wrappedSensor()).thenReturn(mock(Sensor.class));
+
+    when(globalSensor.isGlobal()).thenReturn(true);
+    when(globalSensor.shouldExecute()).thenReturn(true);
+    when(globalSensor.wrappedSensor()).thenReturn(mock(Sensor.class));
 
     ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
-    when(selector.selectSensors(any(DefaultInputModule.class), eq(false))).thenReturn(Collections.singleton(perModuleSensor));
-    when(selector.selectSensors(any(DefaultInputModule.class), eq(true))).thenReturn(Collections.singleton(globalSensor));
+    when(selector.selectSensors(false)).thenReturn(Collections.singleton(perModuleSensor));
+    when(selector.selectSensors(true)).thenReturn(Collections.singleton(globalSensor));
 
     ProjectDefinition childDef = ProjectDefinition.create().setKey("sub").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());
     ProjectDefinition rootDef = ProjectDefinition.create().setKey("root").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());
@@ -94,26 +77,31 @@ public class SensorsExecutorTest {
     InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
     when(hierarchy.isRoot(rootModule)).thenReturn(true);
 
-    rootModuleExecutor = new SensorsExecutor(selector, rootModule, hierarchy, mock(EventBus.class), strategy);
-    subModuleExecutor = new SensorsExecutor(selector, subModule, hierarchy, mock(EventBus.class), strategy);
+    rootModuleExecutor = new SensorsExecutor(selector, rootModule, hierarchy, strategy, pluginRepository);
+    subModuleExecutor = new SensorsExecutor(selector, subModule, hierarchy, strategy, pluginRepository);
   }
 
   @Test
   public void should_not_execute_global_sensor_for_submodule() {
-    subModuleExecutor.execute(context);
+    subModuleExecutor.execute();
 
-    assertThat(perModuleSensor.called).isTrue();
-    assertThat(perModuleSensor.global).isFalse();
-    assertThat(globalSensor.called).isFalse();
+    verify(perModuleSensor).analyse();
+    verify(perModuleSensor).wrappedSensor();
+
+    verifyZeroInteractions(globalSensor);
+    verifyNoMoreInteractions(perModuleSensor, globalSensor);
   }
 
   @Test
   public void should_execute_all_sensors_for_root_module() {
-    rootModuleExecutor.execute(context);
+    rootModuleExecutor.execute();
 
-    assertThat(perModuleSensor.called).isTrue();
-    assertThat(perModuleSensor.global).isFalse();
-    assertThat(globalSensor.called).isTrue();
-    assertThat(globalSensor.global).isTrue();
+    verify(globalSensor).wrappedSensor();
+    verify(perModuleSensor).wrappedSensor();
+
+    verify(globalSensor).analyse();
+    verify(perModuleSensor).analyse();
+
+    verifyNoMoreInteractions(perModuleSensor, globalSensor);
   }
 }

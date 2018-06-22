@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.AnnotationUtils;
@@ -39,8 +38,7 @@ public class ExtensionUtils {
   }
   
   public static boolean isScannerSide(Object extension) {
-    return AnnotationUtils.getAnnotation(extension, BatchSide.class) != null ||
-      AnnotationUtils.getAnnotation(extension, ScannerSide.class) != null;
+    return AnnotationUtils.getAnnotation(extension, ScannerSide.class) != null;
   }
 
   public static boolean isType(Object extension, Class<?> extensionClass) {

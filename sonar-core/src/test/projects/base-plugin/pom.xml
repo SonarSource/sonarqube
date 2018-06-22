@@ -13,7 +13,7 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>5.2-SNAPSHOT</version>
+      <version>7.2-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

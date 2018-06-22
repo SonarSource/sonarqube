@@ -70,7 +70,6 @@ public class DefaultFileLinesContext implements FileLinesContext {
     Preconditions.checkArgument(line <= inputFile.lines(), "Line %s is out of range for file %s. File has %s lines.", line, inputFile, inputFile.lines());
   }
 
-  @Override
   public Integer getIntValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
@@ -87,7 +86,6 @@ public class DefaultFileLinesContext implements FileLinesContext {
     setValue(metricKey, line, value);
   }
 
-  @Override
   public String getStringValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
@@ -122,7 +120,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     if (CoreMetrics.NCLOC_DATA_KEY.equals(metricKey) || CoreMetrics.COMMENT_LINES_DATA_KEY.equals(metricKey) || CoreMetrics.EXECUTABLE_LINES_DATA_KEY.equals(metricKey)) {
       return lines.entrySet().stream()
         .filter(entry -> !entry.getValue().equals(0))
-        .collect(toMap(Entry<Integer, Object>::getKey, Entry<Integer, Object>::getValue));
+        .collect(toMap(Entry::getKey, Entry::getValue));
     }
     return lines;
   }

@@ -92,11 +92,6 @@ public class DefaultFilterableIssue implements FilterableIssue {
   }
 
   @Override
-  public Double effortToFix() {
-    return gap();
-  }
-
-  @Override
   public Date creationDate() {
     return projectAnalysisInfo.analysisDate();
   }

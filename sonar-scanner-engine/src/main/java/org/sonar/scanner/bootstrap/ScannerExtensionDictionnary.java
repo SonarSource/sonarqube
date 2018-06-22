@@ -26,27 +26,22 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ClassUtils;
-import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.postjob.PostJobWrapper;
-import org.sonar.scanner.sensor.DefaultSensorContext;
 import org.sonar.scanner.sensor.SensorOptimizer;
 import org.sonar.scanner.sensor.SensorWrapper;
 
@@ -58,101 +53,76 @@ public class ScannerExtensionDictionnary {
   private final ComponentContainer componentContainer;
   private final SensorContext sensorContext;
   private final SensorOptimizer sensorOptimizer;
-  private final PostJobContext postJobContext;
   private final PostJobOptimizer postJobOptimizer;
+  private final PostJobContext postJobContext;
 
-  public ScannerExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext sensorContext,
-    SensorOptimizer sensorOptimizer, PostJobContext postJobContext, PostJobOptimizer postJobOptimizer) {
+  public ScannerExtensionDictionnary(ComponentContainer componentContainer, SensorContext sensorContext, SensorOptimizer sensorOptimizer,
+    PostJobOptimizer postJobOptimizer, PostJobContext postJobContext) {
     this.componentContainer = componentContainer;
     this.sensorContext = sensorContext;
     this.sensorOptimizer = sensorOptimizer;
-    this.postJobContext = postJobContext;
     this.postJobOptimizer = postJobOptimizer;
+    this.postJobContext = postJobContext;
   }
 
-  public <T> Collection<T> select(Class<T> type, @Nullable DefaultInputModule module, boolean sort, @Nullable ExtensionMatcher matcher) {
-    List<T> result = getFilteredExtensions(type, module, matcher);
+  public <T> Collection<T> select(Class<T> type, boolean sort, @Nullable ExtensionMatcher matcher) {
+    List<T> result = getFilteredExtensions(type, matcher);
     if (sort) {
       return sort(result);
     }
     return result;
   }
 
-  public Collection<org.sonar.api.batch.Sensor> selectSensors(@Nullable DefaultInputModule module, boolean global) {
-    List<org.sonar.api.batch.Sensor> result = getFilteredExtensions(org.sonar.api.batch.Sensor.class, module, null);
+  public Collection<SensorWrapper> selectSensors(boolean global) {
+    Collection<Sensor> result = sort(getFilteredExtensions(Sensor.class, null));
+    return result.stream()
+      .map(s -> new SensorWrapper(s, sensorContext, sensorOptimizer))
+      .filter(s -> global == s.isGlobal() && s.shouldExecute())
+      .collect(Collectors.toList());
+  }
 
-    Iterator<org.sonar.api.batch.Sensor> iterator = result.iterator();
-    while (iterator.hasNext()) {
-      org.sonar.api.batch.Sensor sensor = iterator.next();
-      if (sensor instanceof SensorWrapper) {
-        if (global != ((SensorWrapper) sensor).isGlobal()) {
-          iterator.remove();
-        }
-      } else if (global) {
-        // only old sensors are not wrapped, and old sensors are never global -> exclude
-        iterator.remove();
-      }
-    }
-
-    return sort(result);
+  public Collection<PostJobWrapper> selectPostJobs() {
+    Collection<PostJob> result = sort(getFilteredExtensions(PostJob.class, null));
+    return result.stream()
+      .map(j -> new PostJobWrapper(j, postJobContext, postJobOptimizer))
+      .filter(PostJobWrapper::shouldExecute)
+      .collect(Collectors.toList());
   }
 
   private static Phase.Name evaluatePhase(Object extension) {
-    Object extensionToEvaluate;
-    if (extension instanceof SensorWrapper) {
-      extensionToEvaluate = ((SensorWrapper) extension).wrappedSensor();
-    } else if (extension instanceof PostJobWrapper) {
-      extensionToEvaluate = ((PostJobWrapper) extension).wrappedPostJob();
-    } else {
-      extensionToEvaluate = extension;
-    }
-    Phase phaseAnnotation = AnnotationUtils.getAnnotation(extensionToEvaluate, Phase.class);
+    Phase phaseAnnotation = AnnotationUtils.getAnnotation(extension, Phase.class);
     if (phaseAnnotation != null) {
       return phaseAnnotation.name();
     }
     return Phase.Name.DEFAULT;
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
+  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable ExtensionMatcher matcher) {
     List<T> result = new ArrayList<>();
-    List<Object> candidates = new ArrayList<>();
-    candidates.addAll(getExtensions(type));
-    if (org.sonar.api.batch.Sensor.class.equals(type)) {
-      candidates.addAll(getExtensions(Sensor.class));
-    }
-    if (org.sonar.api.batch.PostJob.class.equals(type)) {
-      candidates.addAll(getExtensions(PostJob.class));
-    }
 
-    for (Object extension : candidates) {
-      if (org.sonar.api.batch.Sensor.class.equals(type) && extension instanceof Sensor) {
-        extension = new SensorWrapper((Sensor) extension, sensorContext, sensorOptimizer);
-      }
-      if (org.sonar.api.batch.PostJob.class.equals(type) && extension instanceof PostJob) {
-        extension = new PostJobWrapper((PostJob) extension, postJobContext, postJobOptimizer);
-      }
-      if (shouldKeep(type, extension, module, matcher)) {
+    for (Object extension : getExtensions(type)) {
+      if (shouldKeep(type, extension, matcher)) {
         result.add((T) extension);
       }
     }
     return result;
   }
 
-  protected <T> List<T> getExtensions(Class<T> type) {
+  private <T> List<T> getExtensions(Class<T> type) {
     List<T> extensions = new ArrayList<>();
-    completeBatchExtensions(componentContainer, extensions, type);
+    completeScannerExtensions(componentContainer, extensions, type);
     return extensions;
   }
 
-  private static <T> void completeBatchExtensions(ComponentContainer container, List<T> extensions, Class<T> type) {
+  private static <T> void completeScannerExtensions(ComponentContainer container, List<T> extensions, Class<T> type) {
     extensions.addAll(container.getComponentsByType(type));
     ComponentContainer parentContainer = container.getParent();
     if (parentContainer != null) {
-      completeBatchExtensions(parentContainer, extensions, type);
+      completeScannerExtensions(parentContainer, extensions, type);
     }
   }
 
-  public <T> Collection<T> sort(Collection<T> extensions) {
+  private <T> Collection<T> sort(Collection<T> extensions) {
     DirectAcyclicGraph dag = new DirectAcyclicGraph();
 
     for (T extension : extensions) {
@@ -176,18 +146,14 @@ public class ScannerExtensionDictionnary {
    * Extension dependencies
    */
   private <T> List<Object> getDependencies(T extension) {
-    List<Object> result = new ArrayList<>();
-    result.addAll(evaluateAnnotatedClasses(extension, DependsUpon.class));
-    return result;
+    return new ArrayList<>(evaluateAnnotatedClasses(extension, DependsUpon.class));
   }
 
   /**
    * Objects that depend upon this extension.
    */
-  public <T> List<Object> getDependents(T extension) {
-    List<Object> result = new ArrayList<>();
-    result.addAll(evaluateAnnotatedClasses(extension, DependedUpon.class));
-    return result;
+  private <T> List<Object> getDependents(T extension) {
+    return new ArrayList<>(evaluateAnnotatedClasses(extension, DependedUpon.class));
   }
 
   private static void completePhaseDependencies(DirectAcyclicGraph dag, Object extension) {
@@ -202,9 +168,9 @@ public class ScannerExtensionDictionnary {
     }
   }
 
-  protected List<Object> evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
+  List<Object> evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
     List<Object> results = new ArrayList<>();
-    Class<? extends Object> aClass = extension.getClass();
+    Class<?> aClass = extension.getClass();
     while (aClass != null) {
       evaluateClass(aClass, annotation, results);
 
@@ -270,13 +236,7 @@ public class ScannerExtensionDictionnary {
     }
   }
 
-  private static boolean shouldKeep(Class<?> type, Object extension, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
-    boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
-      || (org.sonar.api.batch.Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
-      && (matcher == null || matcher.accept(extension));
-    if (keep && module != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
-      keep = ((CheckProject) extension).shouldExecuteOnProject(new Project(module));
-    }
-    return keep;
+  private static boolean shouldKeep(Class<?> type, Object extension, @Nullable ExtensionMatcher matcher) {
+    return ClassUtils.isAssignable(extension.getClass(), type) && (matcher == null || matcher.accept(extension));
   }
 }

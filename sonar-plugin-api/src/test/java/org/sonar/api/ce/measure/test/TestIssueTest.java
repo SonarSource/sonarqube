@@ -43,7 +43,7 @@ public class TestIssueTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setType(RuleType.BUG)
       .build();
 
@@ -52,7 +52,7 @@ public class TestIssueTest {
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.status()).isEqualTo(org.sonar.api.issue.Issue.STATUS_RESOLVED);
     assertThat(issue.resolution()).isEqualTo(org.sonar.api.issue.Issue.RESOLUTION_FIXED);
-    assertThat(issue.debt()).isEqualTo(Duration.create(10L));
+    assertThat(issue.effort()).isEqualTo(Duration.create(10L));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class TestIssueTest {
       .build();
 
     assertThat(issue.resolution()).isNull();
-    assertThat(issue.debt()).isNull();
+    assertThat(issue.effort()).isNull();
   }
 
   @Test

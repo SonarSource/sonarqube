@@ -161,8 +161,6 @@ import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.test.index.TestIndexer;
-import org.sonar.server.user.DefaultUserFinder;
-import org.sonar.server.user.DeprecatedUserFinder;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.OkHttpClientProvider;
@@ -404,9 +402,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DefaultMetricFinder.class,
       ProjectMeasuresIndex.class,
 
-      // users
-      DeprecatedUserFinder.class,
-      DefaultUserFinder.class,
       UserIndexer.class,
       UserIndex.class,
 

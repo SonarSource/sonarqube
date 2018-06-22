@@ -43,8 +43,6 @@ public class CpdSettings {
   /**
    * Not applicable to Java, as the {@link BlockChunker} that it uses does not record start and end units of each block. 
    * Also, it uses statements instead of tokens. 
-   * @param languageKey
-   * @return
    */
   int getMinimumTokens(String languageKey) {
     return settings.getInt("sonar.cpd." + languageKey + ".minimumTokens").orElse(100);

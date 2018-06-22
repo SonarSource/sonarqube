@@ -128,7 +128,6 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.ruleKey()).isEqualTo(ruleKey);
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.line()).isEqualTo(2);
-    assertThat(issue.effortToFix()).isEqualTo(3.14);
     assertThat(issue.gap()).isEqualTo(3.14);
     assertThat(issue.message()).isEqualTo("the message");
 
@@ -136,7 +135,7 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
     assertInitializedIssue(issue);
-    assertThat(issue.debt()).isNull();
+    assertThat(issue.effort()).isNull();
   }
 
   // SONAR-10781
@@ -351,7 +350,6 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.authorLogin()).isNull();
     assertThat(issue.effort()).isNull();
     assertThat(issue.effortInMinutes()).isNull();
-    assertThat(issue.debt()).isNull();
   }
 
   private void assertInitializedExternalIssue(DefaultIssue issue) {

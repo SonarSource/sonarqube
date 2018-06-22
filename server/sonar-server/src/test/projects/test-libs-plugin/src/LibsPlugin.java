@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
 import java.util.Collections;
 import java.util.List;
 
-public class LibsPlugin extends SonarPlugin {
+public class LibsPlugin extends Plugin {
 
-  public List getExtensions() {
-    return Collections.emptyList();
+  public void define(Plugin.Context context) {
+
   }
 }

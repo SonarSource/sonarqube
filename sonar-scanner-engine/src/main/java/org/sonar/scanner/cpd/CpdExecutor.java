@@ -20,8 +20,6 @@
 package org.sonar.scanner.cpd;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +28,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
@@ -49,12 +50,10 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
-import static com.google.common.collect.FluentIterable.from;
-
 /**
  * Runs on the root module, at the end of the project analysis.
- * It executes copy paste detection involving all files of all modules, which were indexed during sensors execution for each module
- * by {@link CpdSensor). The sensor is responsible for handling exclusions and block sizes.
+ * It executes copy paste detection involving all files of all modules, which were indexed during sensors execution for each module.
+ * The sensors are responsible for handling exclusions and block sizes.
  */
 public class CpdExecutor {
   private static final Logger LOG = Loggers.get(CpdExecutor.class);
@@ -148,7 +147,9 @@ public class CpdExecutor {
     if (!"java".equalsIgnoreCase(inputFile.language())) {
       int minTokens = settings.getMinimumTokens(inputFile.language());
       Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(minTokens);
-      filtered = from(duplications).filter(minimumTokensPredicate).toList();
+      filtered = duplications.stream()
+        .filter(minimumTokensPredicate)
+        .collect(Collectors.toList());
     } else {
       filtered = duplications;
     }
@@ -156,16 +157,15 @@ public class CpdExecutor {
     saveDuplications(component, filtered);
   }
 
-  @VisibleForTesting
-  final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
+  @VisibleForTesting final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
     if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
       LOG.warn("Too many duplication groups on file " + component + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE +
         " groups.");
     }
-    Iterable<ScannerReport.Duplication> reportDuplications = from(duplications)
+    Iterable<ScannerReport.Duplication> reportDuplications = duplications.stream()
       .limit(MAX_CLONE_GROUP_PER_FILE)
-      .transform(
-        new Function<CloneGroup, ScannerReport.Duplication>() {
+      .map(
+        new Function<CloneGroup, Duplication>() {
           private final ScannerReport.Duplication.Builder dupBuilder = ScannerReport.Duplication.newBuilder();
           private final ScannerReport.Duplicate.Builder blockBuilder = ScannerReport.Duplicate.newBuilder();
 
@@ -174,7 +174,7 @@ public class CpdExecutor {
             return toReportDuplication(component, dupBuilder, blockBuilder, input);
           }
 
-        });
+        })::iterator;
     publisher.getWriter().writeComponentDuplications(component.batchId(), reportDuplications);
   }
 

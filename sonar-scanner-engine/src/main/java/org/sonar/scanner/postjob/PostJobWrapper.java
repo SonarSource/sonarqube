@@ -19,17 +19,11 @@
  */
 package org.sonar.scanner.postjob;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
-import org.sonar.api.resources.Project;
 
-public class PostJobWrapper implements org.sonar.api.batch.PostJob, CheckProject {
-
-  private static final Logger LOG = LoggerFactory.getLogger(PostJobWrapper.class);
+public class PostJobWrapper {
 
   private PostJob wrappedPostJob;
   private PostJobContext adaptor;
@@ -44,22 +38,16 @@ public class PostJobWrapper implements org.sonar.api.batch.PostJob, CheckProject
     this.adaptor = adaptor;
   }
 
-  public PostJob wrappedPostJob() {
-    return wrappedPostJob;
-  }
-
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
+  public boolean shouldExecute() {
     return optimizer.shouldExecute(descriptor);
   }
 
-  @Override
-  public void executeOn(Project project, org.sonar.api.batch.SensorContext context) {
+  public void execute() {
     wrappedPostJob.execute(adaptor);
   }
 
   @Override
   public String toString() {
-    return descriptor.name() + (LOG.isDebugEnabled() ? " (wrapped)" : "");
+    return descriptor.name();
   }
 }

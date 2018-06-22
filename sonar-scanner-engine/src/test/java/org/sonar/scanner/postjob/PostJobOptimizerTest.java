@@ -35,18 +35,18 @@ public class PostJobOptimizerTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private PostJobOptimizer optimizer;
-  private Settings settings;
+  private MapSettings settings;
 
   @Before
   public void prepare() {
     settings = new MapSettings();
-    optimizer = new PostJobOptimizer(settings);
   }
 
   @Test
   public void should_run_analyzer_with_no_metadata() {
     DefaultPostJobDescriptor descriptor = new DefaultPostJobDescriptor();
 
+    optimizer = new PostJobOptimizer(settings.asConfig());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
@@ -54,9 +54,11 @@ public class PostJobOptimizerTest {
   public void should_optimize_on_settings() {
     DefaultPostJobDescriptor descriptor = new DefaultPostJobDescriptor()
       .requireProperty("sonar.foo.reportPath");
+    optimizer = new PostJobOptimizer(settings.asConfig());
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     settings.setProperty("sonar.foo.reportPath", "foo");
+    optimizer = new PostJobOptimizer(settings.asConfig());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 }

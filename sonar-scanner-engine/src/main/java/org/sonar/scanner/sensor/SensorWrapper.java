@@ -22,35 +22,31 @@ package org.sonar.scanner.sensor;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.resources.Project;
 
-public class SensorWrapper implements org.sonar.api.batch.Sensor {
+public class SensorWrapper {
+  private final Sensor wrappedSensor;
+  private final SensorContext context;
+  private final DefaultSensorDescriptor descriptor;
+  private final SensorOptimizer optimizer;
 
-  private Sensor wrappedSensor;
-  private SensorContext adaptor;
-  private DefaultSensorDescriptor descriptor;
-  private SensorOptimizer optimizer;
-
-  public SensorWrapper(Sensor newSensor, SensorContext adaptor, SensorOptimizer optimizer) {
+  public SensorWrapper(Sensor newSensor, SensorContext context, SensorOptimizer optimizer) {
     this.wrappedSensor = newSensor;
     this.optimizer = optimizer;
-    descriptor = new DefaultSensorDescriptor();
-    newSensor.describe(descriptor);
-    this.adaptor = adaptor;
+    this.context = context;
+    this.descriptor = new DefaultSensorDescriptor();
+    newSensor.describe(this.descriptor);
+  }
+
+  public boolean shouldExecute() {
+    return optimizer.shouldExecute(descriptor);
+  }
+
+  public void analyse() {
+    wrappedSensor.execute(context);
   }
 
   public Sensor wrappedSensor() {
     return wrappedSensor;
-  }
-
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return optimizer.shouldExecute(descriptor);
-  }
-
-  @Override
-  public void analyse(Project module, org.sonar.api.batch.SensorContext context) {
-    wrappedSensor.execute(adaptor);
   }
 
   @Override

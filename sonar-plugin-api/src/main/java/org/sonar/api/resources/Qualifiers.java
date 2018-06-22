@@ -20,7 +20,6 @@
 package org.sonar.api.resources;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
@@ -85,56 +84,5 @@ public final class Qualifiers {
 
   private Qualifiers() {
     // only static methods
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isView(final Resource resource, final boolean acceptSubViews) {
-    boolean isView = Objects.equals(VIEW, resource.getQualifier());
-    if (!isView && acceptSubViews) {
-      isView = Objects.equals(SUBVIEW, resource.getQualifier());
-    }
-
-    return isView;
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isSubview(final Resource resource) {
-    return Objects.equals(SUBVIEW, resource.getScope());
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isProject(final Resource resource, final boolean acceptModules) {
-    boolean isProject = Objects.equals(PROJECT, resource.getQualifier());
-    if (!isProject && acceptModules) {
-      isProject = Objects.equals(MODULE, resource.getQualifier());
-    }
-    return isProject;
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isModule(final Resource resource) {
-    return Objects.equals(MODULE, resource.getQualifier());
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isDirectory(final Resource resource) {
-    return Objects.equals(DIRECTORY, resource.getQualifier());
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isFile(final Resource resource) {
-    return Objects.equals(FILE, resource.getQualifier());
   }
 }

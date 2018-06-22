@@ -102,7 +102,7 @@ public class ModuleFileSystemInitializer {
   private static void logPaths(String label, Path baseDir, List<Path> paths) {
     if (!paths.isEmpty()) {
       StringBuilder sb = new StringBuilder(label);
-      for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
+      for (Iterator<Path> it = paths.iterator(); it.hasNext(); ) {
         Path file = it.next();
         Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
         if (!relativePathToBaseDir.isPresent()) {

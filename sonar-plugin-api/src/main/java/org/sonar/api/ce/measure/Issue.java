@@ -52,12 +52,6 @@ public interface Issue {
   String severity();
 
   /**
-   * @deprecated since 5.5, replaced by {@link #effort()}
-   */
-  @Deprecated
-  Duration debt();
-
-  /**
    * @since 5.5
    */
   @CheckForNull

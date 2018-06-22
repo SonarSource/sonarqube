@@ -20,8 +20,6 @@
 package org.sonar.scanner.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -33,8 +31,6 @@ public class ExtensionUtilsTest {
 
   @Test
   public void shouldBeBatchInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_BATCH)).isTrue();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_BATCH)).isTrue();
     assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_BATCH)).isFalse();
     assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_BATCH)).isFalse();
     assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_BATCH)).isFalse();
@@ -46,8 +42,6 @@ public class ExtensionUtilsTest {
 
   @Test
   public void shouldBeProjectInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_PROJECT)).isFalse();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_PROJECT)).isFalse();
     assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_PROJECT)).isTrue();
     assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_PROJECT)).isTrue();
     assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_PROJECT)).isTrue();
@@ -59,21 +53,12 @@ public class ExtensionUtilsTest {
 
   @Test
   public void testIsScannerSide() {
-    assertThat(ExtensionUtils.isScannerSide(BatchService.class)).isTrue();
     assertThat(ExtensionUtils.isScannerSide(ScannerService.class)).isTrue();
-    assertThat(ExtensionUtils.isScannerSide(new BatchService())).isTrue();
-    assertThat(ExtensionUtils.isScannerSide(DeprecatedBatchService.class)).isTrue();
 
     assertThat(ExtensionUtils.isScannerSide(ServerService.class)).isFalse();
     assertThat(ExtensionUtils.isScannerSide(new ServerService())).isFalse();
     assertThat(ExtensionUtils.isScannerSide(new WebServerService())).isFalse();
     assertThat(ExtensionUtils.isScannerSide(new ComputeEngineService())).isFalse();
-  }
-
-  @BatchSide
-  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-  public static class BatchService {
-
   }
 
   @ScannerSide
@@ -82,17 +67,13 @@ public class ExtensionUtilsTest {
 
   }
 
-  public static class DeprecatedBatchService implements BatchComponent {
-
-  }
-
-  @BatchSide
+  @ScannerSide
   @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
   public static class ProjectService {
 
   }
 
-  @BatchSide
+  @ScannerSide
   public static class DefaultService {
 
   }

@@ -19,24 +19,20 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.issue.Issuable;
+import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 
-public class OneBlockerIssuePerFileSensor extends AbstractDeprecatedXooRuleSensor {
+public class OneBlockerIssuePerFileSensor extends AbstractXooRuleSensor {
 
   public static final String RULE_KEY = "OneBlockerIssuePerFile";
 
-  private final ResourcePerspectives perspectives;
-
-  public OneBlockerIssuePerFileSensor(ResourcePerspectives perspectives, FileSystem fs, ActiveRules activeRules) {
+  public OneBlockerIssuePerFileSensor(FileSystem fs, ActiveRules activeRules) {
     super(fs, activeRules);
-    this.perspectives = perspectives;
   }
 
   @Override
@@ -44,14 +40,13 @@ public class OneBlockerIssuePerFileSensor extends AbstractDeprecatedXooRuleSenso
     return RULE_KEY;
   }
 
-  @Override
-  protected void processFile(InputFile inputFile, org.sonar.api.resources.File sonarFile, SensorContext context, RuleKey ruleKey, String languageKey) {
-    Issuable issuable = perspectives.as(Issuable.class, sonarFile);
-    issuable.addIssue(issuable.newIssueBuilder()
-      .ruleKey(ruleKey)
-      .severity(Severity.BLOCKER)
-      .message("This issue is generated on each file. Severity is blocker, whatever quality profile")
-      .build());
+  @Override protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
+    NewIssue newIssue = context.newIssue()
+      .overrideSeverity(Severity.BLOCKER)
+      .forRule(ruleKey);
+    newIssue.at(newIssue.newLocation()
+      .on(inputFile)
+      .message("This issue is generated on each file. Severity is blocker, whatever quality profile"))
+      .save();
   }
-
 }

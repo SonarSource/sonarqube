@@ -24,19 +24,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarPlugin;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class PluginLoaderTest {
@@ -46,29 +41,6 @@ public class PluginLoaderTest {
 
   private PluginClassloaderFactory classloaderFactory = mock(PluginClassloaderFactory.class);
   private PluginLoader loader = new PluginLoader(new FakePluginExploder(), classloaderFactory);
-
-  @Test
-  public void instantiate_plugin_entry_point() {
-    PluginClassLoaderDef def = new PluginClassLoaderDef("fake");
-    def.addMainClass("fake", FakePlugin.class.getName());
-
-    Map<String, Plugin> instances = loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
-    assertThat(instances).containsOnlyKeys("fake");
-    assertThat(instances.get("fake")).isInstanceOf(FakePlugin.class);
-  }
-
-  @Test
-  public void plugin_entry_point_must_be_no_arg_public() {
-    PluginClassLoaderDef def = new PluginClassLoaderDef("fake");
-    def.addMainClass("fake", IncorrectPlugin.class.getName());
-
-    try {
-      loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Fail to instantiate class [org.sonar.core.platform.PluginLoaderTest$IncorrectPlugin] of plugin [fake]");
-    }
-  }
 
   @Test
   public void define_classloader() throws Exception {
@@ -172,27 +144,7 @@ public class PluginLoaderTest {
   private static class FakePluginExploder extends PluginJarExploder {
     @Override
     public ExplodedPlugin explode(PluginInfo info) {
-      return new ExplodedPlugin(info.getKey(), info.getNonNullJarFile(), Collections.<File>emptyList());
-    }
-  }
-
-  public static class FakePlugin extends SonarPlugin {
-    @Override
-    public List getExtensions() {
-      return Collections.emptyList();
-    }
-  }
-
-  /**
-   * No public empty-param constructor
-   */
-  public static class IncorrectPlugin extends SonarPlugin {
-    public IncorrectPlugin(String s) {
-    }
-
-    @Override
-    public List getExtensions() {
-      return Collections.emptyList();
+      return new ExplodedPlugin(info.getKey(), info.getNonNullJarFile(), Collections.emptyList());
     }
   }
 }

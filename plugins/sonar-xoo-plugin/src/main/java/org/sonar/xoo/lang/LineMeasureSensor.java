@@ -65,7 +65,7 @@ public class LineMeasureSensor implements Sensor {
           if (StringUtils.isBlank(line) || line.startsWith("#")) {
             continue;
           }
-          processMeasure(inputFile, linesContext, measureFile, lineNumber, line);
+          processMeasure(linesContext, measureFile, lineNumber, line);
         }
         linesContext.save();
       } catch (IOException e) {
@@ -74,18 +74,18 @@ public class LineMeasureSensor implements Sensor {
     }
   }
 
-  private void processMeasure(InputFile inputFile, FileLinesContext context, File measureFile, int lineNumber, String line) {
+  private void processMeasure(FileLinesContext context, File measureFile, int lineNumber, String line) {
     try {
       String metricKey = StringUtils.substringBefore(line, ":");
       String value = line.substring(metricKey.length() + 1);
-      saveMeasure(context, inputFile, metricKey, KeyValueFormat.parseIntInt(value));
+      saveMeasure(context, metricKey, KeyValueFormat.parseIntInt(value));
     } catch (Exception e) {
       LOG.error("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
     }
   }
 
-  private void saveMeasure(FileLinesContext context, InputFile xooFile, String metricKey, Map<Integer, Integer> values) {
+  private void saveMeasure(FileLinesContext context, String metricKey, Map<Integer, Integer> values) {
     for (Map.Entry<Integer, Integer> entry : values.entrySet()) {
       context.setIntValue(metricKey, entry.getKey(), entry.getValue());
     }

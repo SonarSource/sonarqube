@@ -37,7 +37,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.test.TestCase.Status;
+import org.sonar.api.test.TestCase;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
@@ -88,7 +88,7 @@ public class TestExecutionSensor implements Sensor {
             testCase.setDurationInMs(duration);
             testCase.setMessage(msg);
             testCase.setStackTrace(stack);
-            testCase.setStatus(Status.valueOf(status));
+            testCase.setStatus(TestCase.Status.valueOf(status));
             testCase.setType(type);
           } catch (Exception e) {
             throw new IllegalStateException("Error processing line " + lineNumber + " of file " + testExecutionFile.getAbsolutePath(), e);
@@ -114,5 +114,6 @@ public class TestExecutionSensor implements Sensor {
       processTestFile(file, context);
     }
   }
+
 
 }

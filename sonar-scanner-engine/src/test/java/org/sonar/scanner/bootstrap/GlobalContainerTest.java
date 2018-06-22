@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.core.util.UuidFactory;
 
@@ -71,12 +71,12 @@ public class GlobalContainerTest {
     assertThat(GlobalContainer.formatTime(400)).isEqualTo("0.400 s");
   }
 
-  @BatchSide
+  @ScannerSide
   public static class Foo {
 
   }
 
-  @BatchSide
+  @ScannerSide
   public static class Bar {
 
   }

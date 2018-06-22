@@ -20,13 +20,12 @@
 package org.sonar.scanner.bootstrap;
 
 import java.util.Arrays;
-import java.util.List;
 import org.apache.commons.lang.ClassUtils;
 import org.junit.Test;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
@@ -41,12 +40,8 @@ public class ExtensionInstallerTest {
   private GlobalAnalysisMode mode = mock(GlobalAnalysisMode.class);
   private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
 
-  private static SonarPlugin newPluginInstance(final Object... extensions) {
-    return new SonarPlugin() {
-      public List getExtensions() {
-        return Arrays.asList(extensions);
-      }
-    };
+  private static Plugin newPluginInstance(final Object... extensions) {
+    return desc -> desc.addExtensions(Arrays.asList(extensions));
   }
 
   @Test
@@ -100,29 +95,34 @@ public class ExtensionInstallerTest {
     }
   }
 
-  public static class Foo implements BatchExtension {
+  @ScannerSide
+  public static class Foo {
 
   }
 
-  public static class Bar implements BatchExtension {
+  @ScannerSide
+  public static class Bar {
 
   }
 
-  public static class FooProvider extends ExtensionProvider implements BatchExtension {
+  @ScannerSide
+  public static class FooProvider extends ExtensionProvider {
     @Override
     public Object provide() {
       return new Foo();
     }
   }
 
-  public static class BarProvider extends ExtensionProvider implements BatchExtension {
+  @ScannerSide
+  public static class BarProvider extends ExtensionProvider {
     @Override
     public Object provide() {
       return new Bar();
     }
   }
 
-  public static class FooBarProvider extends ExtensionProvider implements BatchExtension {
+  @ScannerSide
+  public static class FooBarProvider extends ExtensionProvider {
     @Override
     public Object provide() {
       return Arrays.asList(new Foo(), new Bar());

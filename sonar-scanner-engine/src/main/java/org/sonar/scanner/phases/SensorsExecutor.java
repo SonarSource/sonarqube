@@ -19,73 +19,87 @@
  */
 package org.sonar.scanner.phases;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.resources.Project;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
-import org.sonar.scanner.events.EventBus;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
+import org.sonar.scanner.sensor.SensorWrapper;
 
 @ScannerSide
 public class SensorsExecutor {
+  private static final Logger LOG = Loggers.get(SensorsExecutor.class);
+  private static final Profiler profiler = Profiler.create(LOG);
   private final ScannerExtensionDictionnary selector;
-  private final DefaultInputModule module;
-  private final EventBus eventBus;
   private final SensorStrategy strategy;
+  private final ScannerPluginRepository pluginRepo;
   private final boolean isRoot;
 
-  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy, EventBus eventBus, SensorStrategy strategy) {
+  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
+    SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
     this.selector = selector;
-    this.module = module;
-    this.eventBus = eventBus;
     this.strategy = strategy;
+    this.pluginRepo = pluginRepo;
     this.isRoot = hierarchy.isRoot(module);
   }
 
-  public void execute(SensorContext context) {
-    Collection<Sensor> perModuleSensors = selector.selectSensors(module, false);
-    Collection<Sensor> globalSensors;
+  public void execute() {
+    Collection<SensorWrapper> moduleSensors = selector.selectSensors(false);
+    Collection<SensorWrapper> globalSensors = new ArrayList<>();
     if (isRoot) {
-      boolean orig = strategy.isGlobal();
-      strategy.setGlobal(true);
-      globalSensors = selector.selectSensors(module, true);
-      strategy.setGlobal(orig);
-    } else {
-      globalSensors = Collections.emptyList();
+      withGlobalStrategy(() -> globalSensors.addAll(selector.selectSensors(true)));
     }
 
-    Collection<Sensor> allSensors = new ArrayList<>(perModuleSensors);
-    allSensors.addAll(globalSensors);
-    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(allSensors), true));
-
-    execute(context, perModuleSensors);
+    printSensors(moduleSensors, globalSensors);
+    execute(moduleSensors);
 
     if (isRoot) {
-      boolean orig = strategy.isGlobal();
-      strategy.setGlobal(true);
-      execute(context, globalSensors);
-      strategy.setGlobal(orig);
-    }
-
-    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(allSensors), false));
-  }
-
-  private void execute(SensorContext context, Collection<Sensor> sensors) {
-    for (Sensor sensor : sensors) {
-      executeSensor(context, sensor);
+      withGlobalStrategy(() -> execute(globalSensors));
     }
   }
 
-  private void executeSensor(SensorContext context, Sensor sensor) {
-    eventBus.fireEvent(new SensorExecutionEvent(sensor, true));
-    sensor.analyse(new Project(module), context);
-    eventBus.fireEvent(new SensorExecutionEvent(sensor, false));
+  private void printSensors(Collection<SensorWrapper> moduleSensors, Collection<SensorWrapper> globalSensors) {
+    String sensors = Stream
+      .concat(moduleSensors.stream(), globalSensors.stream())
+      .map(Object::toString)
+      .collect(Collectors.joining(" -> "));
+    LOG.debug("Sensors : {}", sensors);
+  }
+
+  private void withGlobalStrategy(Runnable r) {
+    boolean orig = strategy.isGlobal();
+    strategy.setGlobal(true);
+    r.run();
+    strategy.setGlobal(orig);
+  }
+
+  private void execute(Collection<SensorWrapper> sensors) {
+    for (SensorWrapper sensor : sensors) {
+      String sensorName = getSensorName(sensor);
+      profiler.startInfo("Sensor " + sensorName);
+      sensor.analyse();
+      profiler.stopInfo();
+    }
+  }
+
+  private String getSensorName(SensorWrapper sensor) {
+    ClassLoader cl = getSensorClassLoader(sensor);
+    String pluginKey = pluginRepo.getPluginKey(cl);
+    if (pluginKey != null) {
+      return sensor.toString() + " [" + pluginKey + "]";
+    }
+    return sensor.toString();
+  }
+
+  private static ClassLoader getSensorClassLoader(SensorWrapper sensor) {
+    return sensor.wrappedSensor().getClass().getClassLoader();
   }
 }

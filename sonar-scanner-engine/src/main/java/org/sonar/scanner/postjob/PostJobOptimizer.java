@@ -23,16 +23,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 
 @ScannerSide
 public class PostJobOptimizer {
 
   private static final Logger LOG = LoggerFactory.getLogger(PostJobOptimizer.class);
 
-  private final Settings settings;
+  private final Configuration settings;
 
-  public PostJobOptimizer(Settings settings) {
+  public PostJobOptimizer(Configuration settings) {
     this.settings = settings;
   }
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.api;
 
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 

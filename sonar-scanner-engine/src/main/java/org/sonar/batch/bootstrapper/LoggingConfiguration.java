@@ -66,13 +66,11 @@ public final class LoggingConfiguration {
   }
 
   public LoggingConfiguration setProperties(Map<String, String> properties) {
-    setShowSql(properties, null);
     setVerbose(properties, null);
     return this;
   }
 
   public LoggingConfiguration setProperties(Map<String, String> properties, @Nullable Map<String, String> fallback) {
-    setShowSql(properties, fallback);
     setVerbose(properties, fallback);
     return this;
   }
@@ -115,22 +113,6 @@ public final class LoggingConfiguration {
 
   public LoggingConfiguration setRootLevel(String level) {
     return addSubstitutionVariable(PROPERTY_ROOT_LOGGER_LEVEL, level);
-  }
-
-  /**
-   * @deprecated since 5.2 there is no more db access from scanner side
-   */
-  @Deprecated
-  public LoggingConfiguration setShowSql(boolean showSql) {
-    return this;
-  }
-
-  /**
-   * @deprecated since 5.2 there is no more db access from scanner side
-   */
-  @Deprecated
-  public LoggingConfiguration setShowSql(Map<String, String> properties, @Nullable Map<String, String> fallback) {
-    return this;
   }
 
   @VisibleForTesting

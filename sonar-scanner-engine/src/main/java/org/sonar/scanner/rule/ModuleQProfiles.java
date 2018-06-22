@@ -19,18 +19,15 @@
  */
 package org.sonar.scanner.rule;
 
-import org.sonar.api.utils.DateUtils;
-
-import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
-import org.sonar.api.batch.ScannerSide;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.utils.DateUtils;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 /**
  * Lists the Quality profiles enabled on the current module.

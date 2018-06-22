@@ -20,9 +20,9 @@
 package org.sonar.scanner.scan;
 
 import org.junit.Test;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 
@@ -45,16 +45,20 @@ public class ProjectScanContainerTest {
     assertThat(filter.accept(MyTaskExtension.class)).isFalse();
   }
 
+  @ScannerSide
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-  static class MyBatchExtension implements BatchExtension {
+  static class MyBatchExtension  {
 
   }
 
-  static class MyProjectExtension implements BatchExtension {
+  @ScannerSide
+  @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
+  static class MyProjectExtension {
 
   }
 
-  static class MyServerExtension implements ServerExtension {
+  @ServerSide
+  static class MyServerExtension  {
 
   }
 

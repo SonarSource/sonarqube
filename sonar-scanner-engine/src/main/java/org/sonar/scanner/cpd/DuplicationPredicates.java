@@ -19,8 +19,7 @@
  */
 package org.sonar.scanner.cpd;
 
-import com.google.common.base.Predicate;
-import javax.annotation.Nullable;
+import java.util.function.Predicate;
 import org.sonar.duplications.index.CloneGroup;
 
 public final class DuplicationPredicates {
@@ -29,20 +28,6 @@ public final class DuplicationPredicates {
   }
 
   public static Predicate<CloneGroup> numberOfUnitsNotLessThan(int min) {
-    return new NumberOfUnitsNotLessThan(min);
+    return input -> input != null && input.getLengthInUnits() >= min;
   }
-
-  private static class NumberOfUnitsNotLessThan implements Predicate<CloneGroup> {
-    private final int min;
-
-    public NumberOfUnitsNotLessThan(int min) {
-      this.min = min;
-    }
-
-    @Override
-    public boolean apply(@Nullable CloneGroup input) {
-      return input != null && input.getLengthInUnits() >= min;
-    }
-  }
-
 }

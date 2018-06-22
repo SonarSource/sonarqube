@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
@@ -69,15 +68,6 @@ public class TrackedIssueAdapter implements Issue {
     return issue.startLine();
   }
 
-  /**
-   * @deprecated since 5.5, replaced by {@link #gap()}
-   */
-  @Override
-  @Deprecated
-  public Double effortToFix() {
-    return gap();
-  }
-
   @Override
   public Double gap() {
     return issue.gap();
@@ -91,16 +81,6 @@ public class TrackedIssueAdapter implements Issue {
   @Override
   public String resolution() {
     return issue.resolution();
-  }
-
-  /**
-   * @deprecated since 5.5, manual issue feature has been dropped.
-   */
-  @Deprecated
-  @CheckForNull
-  @Override
-  public String reporter() {
-    return null;
   }
 
   @Override
@@ -154,22 +134,8 @@ public class TrackedIssueAdapter implements Issue {
   }
 
   @Override
-  public String actionPlanKey() {
-    return null;
-  }
-
-  @Override
   public List<IssueComment> comments() {
     return new ArrayList<>();
-  }
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #effort()}
-   */
-  @Override
-  @Deprecated
-  public Duration debt() {
-    return null;
   }
 
   @Override

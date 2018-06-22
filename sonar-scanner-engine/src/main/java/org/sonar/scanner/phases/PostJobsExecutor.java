@@ -19,58 +19,43 @@
  */
 package org.sonar.scanner.phases;
 
-import java.util.ArrayList;
 import java.util.Collection;
-
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.PostJob;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
-import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.util.ScannerUtils;
+import org.sonar.scanner.postjob.PostJobWrapper;
 
 @ScannerSide
 public class PostJobsExecutor {
   private static final Logger LOG = Loggers.get(PostJobsExecutor.class);
 
   private final ScannerExtensionDictionnary selector;
-  private final DefaultInputModule module;
-  private final EventBus eventBus;
 
-  public PostJobsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus) {
+  public PostJobsExecutor(ScannerExtensionDictionnary selector) {
     this.selector = selector;
-    this.module = module;
-    this.eventBus = eventBus;
   }
 
-  public void execute(SensorContext context) {
-    Collection<PostJob> postJobs = selector.select(PostJob.class, module, true, null);
-
-    eventBus.fireEvent(new PostJobPhaseEvent(new ArrayList<>(postJobs), true));
-    execute(context, postJobs);
-    eventBus.fireEvent(new PostJobPhaseEvent(new ArrayList<>(postJobs), false));
+  public void execute() {
+    Collection<PostJobWrapper> postJobs = selector.selectPostJobs();
+    execute(postJobs);
   }
 
-  private void execute(SensorContext context, Collection<PostJob> postJobs) {
+  private static void execute(Collection<PostJobWrapper> postJobs) {
     logPostJobs(postJobs);
 
-    Project project = new Project(module);
-    for (PostJob postJob : postJobs) {
-      LOG.info("Executing post-job {}", ScannerUtils.describe(postJob));
-      eventBus.fireEvent(new PostJobExecutionEvent(postJob, true));
-      postJob.executeOn(project, context);
-      eventBus.fireEvent(new PostJobExecutionEvent(postJob, false));
+    for (PostJobWrapper postJob : postJobs) {
+      if (postJob.shouldExecute()) {
+        LOG.info("Executing post-job '{}'", postJob);
+        postJob.execute();
+      }
     }
   }
 
-  private static void logPostJobs(Collection<PostJob> postJobs) {
+  private static void logPostJobs(Collection<PostJobWrapper> postJobs) {
     if (LOG.isDebugEnabled()) {
-      LOG.debug(() -> "Post-jobs : " + StringUtils.join(postJobs, " -> "));
+      LOG.debug(() -> "Post-jobs : " + postJobs.stream().map(Object::toString).collect(Collectors.joining(" -> ")));
     }
   }
 }

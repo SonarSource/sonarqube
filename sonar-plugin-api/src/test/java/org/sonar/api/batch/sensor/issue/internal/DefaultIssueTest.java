@@ -97,12 +97,12 @@ public class DefaultIssueTest {
         .on(inputModule)
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .effortToFix(10.0);
+      .gap(10.0);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputModule);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange()).isNull();
-    assertThat(issue.effortToFix()).isEqualTo(10.0);
+    assertThat(issue.gap()).isEqualTo(10.0);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
 
     issue.save();

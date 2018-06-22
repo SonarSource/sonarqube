@@ -43,8 +43,6 @@ import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scm.ScmConfiguration;
 
-import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
-
 public class MetadataPublisher implements ReportPublisherStep {
 
   private static final Logger LOG = Loggers.get(MetadataPublisher.class);

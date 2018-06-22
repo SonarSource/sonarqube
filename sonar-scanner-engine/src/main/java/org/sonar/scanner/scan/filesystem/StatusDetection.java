@@ -28,7 +28,9 @@ import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
-import static org.sonar.api.batch.fs.InputFile.Status.*;
+import static org.sonar.api.batch.fs.InputFile.Status.ADDED;
+import static org.sonar.api.batch.fs.InputFile.Status.CHANGED;
+import static org.sonar.api.batch.fs.InputFile.Status.SAME;
 
 @Immutable
 public class StatusDetection {
@@ -58,6 +60,7 @@ public class StatusDetection {
 
   /**
    * If possible, get the status of the provided file without initializing metadata of the file.
+   *
    * @return null if it was not possible to get the status without calculating metadata
    */
   @CheckForNull

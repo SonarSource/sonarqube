@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class CoverageMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule

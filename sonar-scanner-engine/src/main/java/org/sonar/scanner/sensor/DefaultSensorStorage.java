@@ -55,7 +55,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
-import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.protocol.output.FileStructure;
@@ -491,7 +490,18 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @VisibleForTesting
   int getBlockSize(String languageKey) {
-    return settings.getInt("sonar.cpd." + languageKey + ".minimumLines").orElse(DefaultCpdBlockIndexer.getDefaultBlockSize(languageKey));
+    return settings.getInt("sonar.cpd." + languageKey + ".minimumLines")
+      .orElse(getDefaultBlockSize(languageKey));
+  }
+
+  public static int getDefaultBlockSize(String languageKey) {
+    if ("cobol".equals(languageKey)) {
+      return 30;
+    } else if ("abap".equals(languageKey)) {
+      return 20;
+    } else {
+      return 10;
+    }
   }
 
   @Override

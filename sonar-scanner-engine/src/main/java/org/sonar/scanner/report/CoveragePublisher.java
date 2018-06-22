@@ -19,10 +19,10 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -57,7 +57,8 @@ public class CoveragePublisher implements ReportPublisherStep {
         (value, builder) -> builder.setConditions(Integer.parseInt(value)));
       applyLineMeasure(inputFile.key(), lineCount, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         (value, builder) -> builder.setCoveredConditions(Integer.parseInt(value)));
-      writer.writeComponentCoverage(inputFile.batchId(), Iterables.transform(coveragePerLine.values(), BuildCoverage.INSTANCE));
+
+      writer.writeComponentCoverage(inputFile.batchId(), coveragePerLine.values().stream().map(BuildCoverage.INSTANCE).collect(Collectors.toList()));
     }
   }
 
@@ -87,7 +88,7 @@ public class CoveragePublisher implements ReportPublisherStep {
     void apply(String value, LineCoverage.Builder builder);
   }
 
-  private enum BuildCoverage implements Function<LineCoverage.Builder, LineCoverage> {
+  private enum BuildCoverage implements Function<Builder, LineCoverage> {
     INSTANCE;
 
     @Override

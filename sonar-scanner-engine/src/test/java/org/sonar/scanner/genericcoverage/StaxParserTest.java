@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils;
+package org.sonar.scanner.genericcoverage;
 
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.junit.Test;
-import org.sonar.api.utils.StaxParser.XmlStreamHandler;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -39,8 +38,8 @@ public class StaxParserTest {
     parser.parse(getClass().getClassLoader().getResourceAsStream("org/sonar/api/utils/StaxParserTest/xml-xsd-test.xml"));
   }
 
-  private XmlStreamHandler getTestHandler() {
-    return new XmlStreamHandler() {
+  private StaxParser.XmlStreamHandler getTestHandler() {
+    return new StaxParser.XmlStreamHandler() {
       public void stream(SMHierarchicCursor rootCursor) throws XMLStreamException {
         rootCursor.advance();
         while (rootCursor.getNext() != null) {

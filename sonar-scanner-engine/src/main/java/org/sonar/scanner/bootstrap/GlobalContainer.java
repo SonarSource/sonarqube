@@ -33,7 +33,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
-import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;

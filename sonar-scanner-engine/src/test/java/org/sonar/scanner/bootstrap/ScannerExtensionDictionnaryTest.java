@@ -20,51 +20,52 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.BuildBreaker;
-import org.sonar.api.batch.CheckProject;
-import org.sonar.api.batch.Decorator;
+import org.picocontainer.behaviors.FieldDecorated;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.PostJob;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.PostJobDescriptor;
+import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 import org.sonar.scanner.sensor.SensorOptimizer;
+import org.sonar.scanner.sensor.SensorWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ScannerExtensionDictionnaryTest {
+  private SensorOptimizer sensorOptimizer = mock(SensorOptimizer.class);
+  private PostJobOptimizer postJobOptimizer = mock(PostJobOptimizer.class);
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @Before
+  public void setUp() {
+    when(sensorOptimizer.shouldExecute(any(DefaultSensorDescriptor.class))).thenReturn(true);
+    when(postJobOptimizer.shouldExecute(any(DefaultPostJobDescriptor.class))).thenReturn(true);
+  }
 
   private ScannerExtensionDictionnary newSelector(Object... extensions) {
     ComponentContainer iocContainer = new ComponentContainer();
     for (Object extension : extensions) {
       iocContainer.addSingleton(extension);
     }
-    return new ScannerExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(SensorOptimizer.class),
-      mock(PostJobContext.class),
-      mock(PostJobOptimizer.class));
+    return new ScannerExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), sensorOptimizer, postJobOptimizer, mock(PostJobContext.class));
   }
 
   @Test
@@ -73,13 +74,7 @@ public class ScannerExtensionDictionnaryTest {
     final Sensor sensor2 = new FakeSensor();
 
     ScannerExtensionDictionnary selector = newSelector(sensor1, sensor2);
-    Collection<Sensor> sensors = selector.select(Sensor.class, null, true, new ExtensionMatcher() {
-      @Override
-      public boolean accept(Object extension) {
-        return extension.equals(sensor1);
-      }
-    });
-
+    Collection<Sensor> sensors = selector.select(Sensor.class, true, extension -> extension.equals(sensor1));
     assertThat(sensors).contains(sensor1);
     assertEquals(1, sensors.size());
   }
@@ -88,10 +83,10 @@ public class ScannerExtensionDictionnaryTest {
   public void testGetFilteredExtensions() {
     Sensor sensor1 = new FakeSensor();
     Sensor sensor2 = new FakeSensor();
-    Decorator decorator = mock(Decorator.class);
+    FieldDecorated.Decorator decorator = mock(FieldDecorated.Decorator.class);
 
     ScannerExtensionDictionnary selector = newSelector(sensor1, sensor2, decorator);
-    Collection<Sensor> sensors = selector.select(Sensor.class, null, true, null);
+    Collection<Sensor> sensors = selector.select(Sensor.class, false, null);
 
     assertThat(sensors).containsOnly(sensor1, sensor2);
   }
@@ -112,19 +107,18 @@ public class ScannerExtensionDictionnaryTest {
     child.addSingleton(c);
 
     ScannerExtensionDictionnary dictionnary = new ScannerExtensionDictionnary(child, mock(DefaultSensorContext.class),
-      mock(SensorOptimizer.class), mock(PostJobContext.class),
-      mock(PostJobOptimizer.class));
-    assertThat(dictionnary.select(Sensor.class, null, true, null)).containsOnly(a, b, c);
+      mock(SensorOptimizer.class), mock(PostJobOptimizer.class), mock(PostJobContext.class));
+    assertThat(dictionnary.select(Sensor.class, true, null)).containsOnly(a, b, c);
   }
 
   @Test
   public void sortExtensionsByDependency() {
-    BatchExtension a = new MethodDependentOf(null);
-    BatchExtension b = new MethodDependentOf(a);
-    BatchExtension c = new MethodDependentOf(b);
+    Object a = new MethodDependentOf(null);
+    Object b = new MethodDependentOf(a);
+    Object c = new MethodDependentOf(b);
 
     ScannerExtensionDictionnary selector = newSelector(b, c, a);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(3);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -134,11 +128,11 @@ public class ScannerExtensionDictionnaryTest {
 
   @Test
   public void useMethodAnnotationsToSortExtensions() {
-    BatchExtension a = new GeneratesSomething("foo");
-    BatchExtension b = new MethodDependentOf("foo");
+    Object a = new GeneratesSomething("foo");
+    Object b = new MethodDependentOf("foo");
 
     ScannerExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions.size()).isEqualTo(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -146,7 +140,7 @@ public class ScannerExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -155,11 +149,11 @@ public class ScannerExtensionDictionnaryTest {
 
   @Test
   public void methodDependsUponCollection() {
-    BatchExtension a = new GeneratesSomething("foo");
-    BatchExtension b = new MethodDependentOf(Arrays.asList("foo"));
+    Object a = new GeneratesSomething("foo");
+    Object b = new MethodDependentOf(Arrays.asList("foo"));
 
     ScannerExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -167,7 +161,7 @@ public class ScannerExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -176,11 +170,11 @@ public class ScannerExtensionDictionnaryTest {
 
   @Test
   public void methodDependsUponArray() {
-    BatchExtension a = new GeneratesSomething("foo");
-    BatchExtension b = new MethodDependentOf(new String[] {"foo"});
+    Object a = new GeneratesSomething("foo");
+    Object b = new MethodDependentOf(new String[] {"foo"});
 
     ScannerExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -188,7 +182,7 @@ public class ScannerExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -197,11 +191,11 @@ public class ScannerExtensionDictionnaryTest {
 
   @Test
   public void useClassAnnotationsToSortExtensions() {
-    BatchExtension a = new ClassDependedUpon();
-    BatchExtension b = new ClassDependsUpon();
+    Object a = new ClassDependedUpon();
+    Object b = new ClassDependsUpon();
 
     ScannerExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -209,7 +203,7 @@ public class ScannerExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -218,13 +212,13 @@ public class ScannerExtensionDictionnaryTest {
 
   @Test
   public void useClassAnnotationsOnInterfaces() {
-    BatchExtension a = new InterfaceDependedUpon() {
+    Object a = new InterfaceDependedUpon() {
     };
-    BatchExtension b = new InterfaceDependsUpon() {
+    Object b = new InterfaceDependsUpon() {
     };
 
     ScannerExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -232,7 +226,7 @@ public class ScannerExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -240,25 +234,12 @@ public class ScannerExtensionDictionnaryTest {
   }
 
   @Test
-  public void checkProject() throws IOException {
-    BatchExtension ok = new CheckProjectOK();
-    BatchExtension ko = new CheckProjectKO();
-
-    ScannerExtensionDictionnary selector = newSelector(ok, ko);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class,
-      new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())), true, null));
-
-    assertThat(extensions).hasSize(1);
-    assertThat(extensions.get(0)).isInstanceOf(CheckProjectOK.class);
-  }
-
-  @Test
   public void inheritAnnotations() {
-    BatchExtension a = new SubClass("foo");
-    BatchExtension b = new MethodDependentOf("foo");
+    Object a = new SubClass("foo");
+    Object b = new MethodDependentOf("foo");
 
     ScannerExtensionDictionnary selector = newSelector(b, a);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -266,7 +247,7 @@ public class ScannerExtensionDictionnaryTest {
 
     // change initial order
     selector = newSelector(a, b);
-    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -276,7 +257,7 @@ public class ScannerExtensionDictionnaryTest {
   @Test(expected = IllegalStateException.class)
   public void annotatedMethodsCanNotBePrivate() {
     ScannerExtensionDictionnary selector = newSelector();
-    BatchExtension wrong = new BatchExtension() {
+    Object wrong = new Object() {
       @DependsUpon
       private Object foo() {
         return "foo";
@@ -286,30 +267,22 @@ public class ScannerExtensionDictionnaryTest {
   }
 
   @Test
-  public void dependsUponPhaseForNewSensors() {
+  public void dependsUponPhaseForSensors() {
     PreSensor pre = new PreSensor();
     NormalSensor normal = new NormalSensor();
     PostSensor post = new PostSensor();
 
     ScannerExtensionDictionnary selector = newSelector(normal, post, pre);
-    List<org.sonar.api.batch.sensor.Sensor> extensions = Lists.newArrayList(selector.select(org.sonar.api.batch.sensor.Sensor.class, null, true, null));
-    assertThat(extensions).containsExactly(pre, normal, post);
-
-    List<Sensor> oldExtensions = Lists.newArrayList(selector.select(Sensor.class, null, true, null));
-    assertThat(oldExtensions).extracting("wrappedSensor").containsExactly(pre, normal, post);
+    assertThat(selector.selectSensors(false)).extracting("wrappedSensor").containsExactly(pre, normal, post);
   }
 
   @Test
-  public void dependsUponPhaseForNewPostJob() {
+  public void dependsUponPhaseForPostJob() {
     PrePostJob pre = new PrePostJob();
     NormalPostJob normal = new NormalPostJob();
 
     ScannerExtensionDictionnary selector = newSelector(normal, pre);
-    List<org.sonar.api.batch.postjob.PostJob> extensions = Lists.newArrayList(selector.select(org.sonar.api.batch.postjob.PostJob.class, null, true, null));
-    assertThat(extensions).containsExactly(pre, normal);
-
-    List<PostJob> oldExtensions = Lists.newArrayList(selector.select(PostJob.class, null, true, null));
-    assertThat(oldExtensions).extracting("wrappedPostJob").containsExactly(pre, normal);
+    assertThat(selector.selectPostJobs()).extracting("wrappedPostJob").containsExactly(pre, normal);
   }
 
   @Test
@@ -319,68 +292,43 @@ public class ScannerExtensionDictionnaryTest {
     PostSensorSubclass post = new PostSensorSubclass();
 
     ScannerExtensionDictionnary selector = newSelector(normal, post, pre);
-    List extensions = Lists.newArrayList(selector.select(org.sonar.api.batch.sensor.Sensor.class, null, true, null));
+    List extensions = Lists.newArrayList(selector.select(Sensor.class, true, null));
 
     assertThat(extensions).containsExactly(pre, normal, post);
   }
 
   @Test
-  public void buildStatusCheckersAreExecutedAfterOtherPostJobs() {
-    BuildBreaker checker = new BuildBreaker() {
-      public void executeOn(Project project, SensorContext context) {
-      }
-    };
-
-    ScannerExtensionDictionnary selector = newSelector(new FakePostJob(), checker, new FakePostJob());
-    List extensions = Lists.newArrayList(selector.select(PostJob.class, null, true, null));
-
-    assertThat(extensions).hasSize(3);
-    assertThat(extensions.get(2)).isEqualTo(checker);
-  }
-
-  @Test
   public void selectSensors() {
-    FakeSensor oldSensor = new FakeSensor();
-    FakeNewSensor nonGlobalSensor = new FakeNewSensor();
-    FakeNewGlobalSensor globalSensor = new FakeNewGlobalSensor();
-    ScannerExtensionDictionnary selector = newSelector(oldSensor, nonGlobalSensor, globalSensor);
+    FakeSensor nonGlobalSensor = new FakeSensor();
+    FakeGlobalSensor globalSensor = new FakeGlobalSensor();
+    ScannerExtensionDictionnary selector = newSelector(nonGlobalSensor, globalSensor);
 
-    // verify non-global sensors
-    Collection<Sensor> extensions = selector.selectSensors(null, false);
-    assertThat(extensions).hasSize(2);
-    assertThat(extensions).contains(oldSensor);
-    extensions.remove(oldSensor);
+    // verify non-global sensor
+    Collection<SensorWrapper> extensions = selector.selectSensors(false);
+    assertThat(extensions).hasSize(1);
     assertThat(extensions).extracting("wrappedSensor").containsExactly(nonGlobalSensor);
 
-    // verify global sensors
-    extensions = selector.selectSensors(null, true);
+    // verify global sensor
+    extensions = selector.selectSensors(true);
     assertThat(extensions).extracting("wrappedSensor").containsExactly(globalSensor);
+  }
+
+  interface Marker {
+
   }
 
   class FakeSensor implements Sensor {
 
-    public void analyse(Project project, SensorContext context) {
+    @Override public void describe(SensorDescriptor descriptor) {
 
     }
 
-    public boolean shouldExecuteOnProject(Project project) {
-      return true;
+    @Override public void execute(SensorContext context) {
+
     }
   }
 
-  class FakeNewSensor implements org.sonar.api.batch.sensor.Sensor {
-
-    @Override
-    public void describe(SensorDescriptor descriptor) {
-    }
-
-    @Override
-    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
-    }
-
-  }
-
-  class FakeNewGlobalSensor implements org.sonar.api.batch.sensor.Sensor {
+  class FakeGlobalSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
@@ -388,12 +336,12 @@ public class ScannerExtensionDictionnaryTest {
     }
 
     @Override
-    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    public void execute(SensorContext context) {
     }
 
   }
 
-  class MethodDependentOf implements BatchExtension {
+  @ScannerSide class MethodDependentOf implements Marker {
     private Object dep;
 
     MethodDependentOf(Object o) {
@@ -406,23 +354,23 @@ public class ScannerExtensionDictionnaryTest {
     }
   }
 
-  @DependsUpon("flag")
-  class ClassDependsUpon implements BatchExtension {
+  @ScannerSide
+  @DependsUpon("flag") class ClassDependsUpon implements Marker {
   }
 
-  @DependedUpon("flag")
-  class ClassDependedUpon implements BatchExtension {
+  @ScannerSide
+  @DependedUpon("flag") class ClassDependedUpon implements Marker {
   }
 
-  @DependsUpon("flag")
-  interface InterfaceDependsUpon extends BatchExtension {
+  @ScannerSide
+  @DependsUpon("flag") interface InterfaceDependsUpon extends Marker {
   }
 
-  @DependedUpon("flag")
-  interface InterfaceDependedUpon extends BatchExtension {
+  @ScannerSide
+  @DependedUpon("flag") interface InterfaceDependedUpon extends Marker {
   }
 
-  class GeneratesSomething implements BatchExtension {
+  @ScannerSide class GeneratesSomething implements Marker {
     private Object gen;
 
     GeneratesSomething(Object o) {
@@ -435,33 +383,32 @@ public class ScannerExtensionDictionnaryTest {
     }
   }
 
-  class SubClass extends GeneratesSomething {
+  class SubClass extends GeneratesSomething implements Marker {
     SubClass(Object o) {
       super(o);
     }
   }
 
-  class NormalSensor implements org.sonar.api.batch.sensor.Sensor {
+  class NormalSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
     }
 
     @Override
-    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    public void execute(SensorContext context) {
     }
 
   }
 
-  @Phase(name = Phase.Name.PRE)
-  class PreSensor implements org.sonar.api.batch.sensor.Sensor {
+  @Phase(name = Phase.Name.PRE) class PreSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
     }
 
     @Override
-    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    public void execute(SensorContext context) {
     }
 
   }
@@ -470,15 +417,14 @@ public class ScannerExtensionDictionnaryTest {
 
   }
 
-  @Phase(name = Phase.Name.POST)
-  class PostSensor implements org.sonar.api.batch.sensor.Sensor {
+  @Phase(name = Phase.Name.POST) class PostSensor implements Sensor {
 
     @Override
     public void describe(SensorDescriptor descriptor) {
     }
 
     @Override
-    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    public void execute(SensorContext context) {
     }
 
   }
@@ -487,24 +433,7 @@ public class ScannerExtensionDictionnaryTest {
 
   }
 
-  class CheckProjectOK implements BatchExtension, CheckProject {
-    public boolean shouldExecuteOnProject(Project project) {
-      return true;
-    }
-  }
-
-  class CheckProjectKO implements BatchExtension, CheckProject {
-    public boolean shouldExecuteOnProject(Project project) {
-      return false;
-    }
-  }
-
-  private class FakePostJob implements PostJob {
-    public void executeOn(Project project, SensorContext context) {
-    }
-  }
-
-  class NormalPostJob implements org.sonar.api.batch.postjob.PostJob {
+  class NormalPostJob implements PostJob {
 
     @Override
     public void describe(PostJobDescriptor descriptor) {
@@ -516,8 +445,7 @@ public class ScannerExtensionDictionnaryTest {
 
   }
 
-  @Phase(name = Phase.Name.PRE)
-  class PrePostJob implements org.sonar.api.batch.postjob.PostJob {
+  @Phase(name = Phase.Name.PRE) class PrePostJob implements PostJob {
 
     @Override
     public void describe(PostJobDescriptor descriptor) {
@@ -528,5 +456,4 @@ public class ScannerExtensionDictionnaryTest {
     }
 
   }
-
 }

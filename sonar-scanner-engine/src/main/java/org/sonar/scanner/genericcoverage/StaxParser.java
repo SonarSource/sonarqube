@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils;
+package org.sonar.scanner.genericcoverage;
 
 import com.ctc.wstx.stax.WstxInputFactory;
 import java.io.File;
@@ -35,11 +35,6 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 
-/**
- * @since 1.10
- * @deprecated since 5.6 plugins should use their own dependencies
- */
-@Deprecated
 public class StaxParser {
 
   private SMInputFactory inf;
@@ -97,7 +92,7 @@ public class StaxParser {
 
   public void parse(Reader xmlReader) throws XMLStreamException {
     if (isoControlCharsAwareParser) {
-      throw new SonarException("Method call not supported when isoControlCharsAwareParser=true");
+      throw new IllegalStateException("Method call not supported when isoControlCharsAwareParser=true");
     }
     parse(inf.rootElementCursor(xmlReader));
   }

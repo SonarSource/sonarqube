@@ -19,23 +19,19 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.issue.Issuable;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 
-public class OneDayDebtPerFileSensor extends AbstractDeprecatedXooRuleSensor {
+public class OneDayDebtPerFileSensor extends AbstractXooRuleSensor {
 
   public static final String RULE_KEY = "OneDayDebtPerFile";
 
-  private final ResourcePerspectives perspectives;
-
-  public OneDayDebtPerFileSensor(ResourcePerspectives perspectives, FileSystem fs, ActiveRules activeRules) {
+  public OneDayDebtPerFileSensor(FileSystem fs, ActiveRules activeRules) {
     super(fs, activeRules);
-    this.perspectives = perspectives;
   }
 
   @Override
@@ -43,15 +39,13 @@ public class OneDayDebtPerFileSensor extends AbstractDeprecatedXooRuleSensor {
     return RULE_KEY;
   }
 
-  @Override
-  protected void processFile(InputFile inputFile, org.sonar.api.resources.File sonarFile, SensorContext context, RuleKey ruleKey, String languageKey) {
-    Issuable issuable = perspectives.as(Issuable.class, sonarFile);
-    if (issuable != null) {
-      issuable.addIssue(issuable.newIssueBuilder()
-        .ruleKey(ruleKey)
-        .message("This issue is generated on each file with a debt of one day")
-        .build());
-    }
+  @Override protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
+    NewIssue newIssue = context.newIssue()
+      .forRule(ruleKey);
+    newIssue.at(newIssue.newLocation()
+      .on(inputFile)
+      .message("This issue is generated on each file with a debt of one day"))
+      .save();
   }
 
 }

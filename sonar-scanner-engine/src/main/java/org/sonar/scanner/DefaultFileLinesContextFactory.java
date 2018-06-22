@@ -20,9 +20,9 @@
 package org.sonar.scanner;
 
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.scanner.scan.measure.MeasureCache;

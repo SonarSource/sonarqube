@@ -21,11 +21,9 @@ package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -48,8 +46,6 @@ import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
-import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.issue.DefaultProjectIssues;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.DefaultServerLineHashesLoader;
@@ -58,8 +54,6 @@ import org.sonar.scanner.issue.tracking.LocalIssueTracking;
 import org.sonar.scanner.issue.tracking.ServerIssueRepository;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.mediumtest.ScanTaskObservers;
-import org.sonar.scanner.phases.PhasesTimeProfiler;
-import org.sonar.scanner.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
@@ -96,7 +90,6 @@ import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
-import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.storage.Storages;
@@ -124,10 +117,6 @@ public class ProjectScanContainer extends ComponentContainer {
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoriesInitializer.class).execute();
-    Settings settings = getComponentByType(Settings.class);
-    if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
-      add(PhasesSumUpTimeProfiler.class);
-    }
     if (isTherePreviousAnalysis()) {
       addIssueTrackingComponents();
     }
@@ -142,13 +131,10 @@ public class ProjectScanContainer extends ComponentContainer {
       new MutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
       ProjectLock.class,
-      EventBus.class,
-      PhasesTimeProfiler.class,
       ResourceTypes.class,
       ProjectReactorValidator.class,
       MetricProvider.class,
       ProjectAnalysisInfo.class,
-      DefaultIndex.class,
       Storages.class,
       new RulesProvider(),
       new BranchConfigurationProvider(),
@@ -181,7 +167,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // metrics
       DefaultMetricFinder.class,
-      DeprecatedMetricFinder.class,
 
       // tests
       TestPlanBuilder.class,

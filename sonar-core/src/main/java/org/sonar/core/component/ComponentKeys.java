@@ -22,8 +22,6 @@ package org.sonar.core.component;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -46,21 +44,6 @@ public final class ComponentKeys {
 
   private ComponentKeys() {
     // only static stuff
-  }
-
-  /**
-   * @return the full key of a component, based on its parent projects' key and own key
-   */
-  public static String createEffectiveKey(String moduleKey, Resource resource) {
-    if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
-      // not a project nor a library
-      return new StringBuilder(MAX_COMPONENT_KEY_LENGTH)
-        .append(moduleKey)
-        .append(':')
-        .append(resource.getKey())
-        .toString();
-    }
-    return resource.getKey();
   }
 
   public static String createEffectiveKey(String moduleKey, InputPath inputPath) {

@@ -22,6 +22,7 @@ package org.sonar.scanner.mediumtest.tests;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -56,7 +57,7 @@ public class CoveragePerTestMediumTest {
     File srcDir = new File(baseDir, "src");
 
     File coverageFile = new File(srcDir, "sample.xoo.coverage");
-    FileUtils.write(coverageFile, "0:2\n");
+    FileUtils.write(coverageFile, "0:2\n", StandardCharsets.UTF_8);
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Error processing line 1 of file");
@@ -84,11 +85,11 @@ public class CoveragePerTestMediumTest {
     File xooTestExecutionFile = new File(testDir, "sampleTest.xoo.test");
     FileUtils.write(xooTestExecutionFile, "some test:4:::OK:UNIT\n" +
       "another test:10:::OK:UNIT\n" +
-      "test without coverage:10:::OK:UNIT\n");
+      "test without coverage:10:::OK:UNIT\n", StandardCharsets.UTF_8);
 
     File xooCoveragePerTestFile = new File(testDir, "sampleTest.xoo.testcoverage");
     FileUtils.write(xooCoveragePerTestFile, "some test;src/sample.xoo,10,11;src/sample2.xoo,1,2\n" +
-      "another test;src/sample.xoo,10,20\n");
+      "another test;src/sample.xoo,10,20\n", StandardCharsets.UTF_8);
 
     TaskResult result = runTask(baseDir);
 
@@ -129,16 +130,16 @@ public class CoveragePerTestMediumTest {
     testDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "foo");
+    FileUtils.write(xooFile, "foo", StandardCharsets.UTF_8);
 
     File xooFile2 = new File(srcDir, "sample2.xoo");
-    FileUtils.write(xooFile2, "foo");
+    FileUtils.write(xooFile2, "foo", StandardCharsets.UTF_8);
 
     File xooTestFile = new File(testDir, "sampleTest.xoo");
-    FileUtils.write(xooTestFile, "failure\nerror\nok\nskipped");
+    FileUtils.write(xooTestFile, "failure\nerror\nok\nskipped", StandardCharsets.UTF_8);
 
     File xooTestFile2 = new File(testDir, "sample2Test.xoo");
-    FileUtils.write(xooTestFile2, "test file tests");
+    FileUtils.write(xooTestFile2, "test file tests", StandardCharsets.UTF_8);
 
     return baseDir;
   }

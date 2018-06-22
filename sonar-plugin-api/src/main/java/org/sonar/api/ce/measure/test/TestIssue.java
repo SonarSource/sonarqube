@@ -79,16 +79,6 @@ public class TestIssue implements Issue {
   }
 
   /**
-   * @deprecated since 5.5, replaced by {@link #effort}
-   */
-  @Override
-  @CheckForNull
-  @Deprecated
-  public Duration debt() {
-    return effort();
-  }
-
-  /**
    * @since 5.5
    */
   @Override
@@ -136,14 +126,6 @@ public class TestIssue implements Issue {
     public Builder setRuleKey(RuleKey ruleKey) {
       this.ruleKey = validateRuleKey(ruleKey);
       return this;
-    }
-
-    /**
-     * @deprecated since 5.5, use {@link #setEffort(Duration)} instead
-     */
-    @Deprecated
-    public Builder setDebt(@Nullable Duration debt) {
-      return setEffort(debt);
     }
 
     /**

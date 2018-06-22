@@ -21,6 +21,7 @@ package org.sonar.server.notification.email;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
@@ -28,10 +29,12 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
@@ -81,19 +84,19 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   private static final String SUBJECT_DEFAULT = "Notification";
 
-  private EmailSettings configuration;
-  private EmailTemplate[] templates;
-  private UserFinder userFinder;
+  private final EmailSettings configuration;
+  private final EmailTemplate[] templates;
+  private final DbClient dbClient;
 
-  public EmailNotificationChannel(EmailSettings configuration, EmailTemplate[] templates, UserFinder userFinder) {
+  public EmailNotificationChannel(EmailSettings configuration, EmailTemplate[] templates, DbClient dbClient) {
     this.configuration = configuration;
     this.templates = templates;
-    this.userFinder = userFinder;
+    this.dbClient = dbClient;
   }
 
   @Override
   public void deliver(Notification notification, String username) {
-    User user = userFinder.findByLogin(username);
+    User user = findByLogin(username);
     if (user == null || StringUtils.isBlank(user.email())) {
       LOG.debug("User does not exist or has no email: {}", username);
       return;
@@ -102,6 +105,14 @@ public class EmailNotificationChannel extends NotificationChannel {
     if (emailMessage != null) {
       emailMessage.setTo(user.email());
       deliver(emailMessage);
+    }
+  }
+
+  @CheckForNull
+  private User findByLogin(String login) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto dto = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+      return dto != null ? dto.toUser() : null;
     }
   }
 

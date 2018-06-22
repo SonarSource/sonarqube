@@ -22,8 +22,7 @@ package org.sonar.scanner.mediumtest.cpd;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -31,11 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.mediumtest.LogOutputRecorder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
@@ -46,16 +41,7 @@ import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public class CpdMediumTest {
-
-  @Parameters(name = "new api: {0}")
-  public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-      {true, false}, {true, true}, {false, false}
-    });
-  }
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -63,6 +49,7 @@ public class CpdMediumTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private LogOutputRecorder logRecorder = new LogOutputRecorder();
+  private File baseDir;
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
@@ -73,23 +60,12 @@ public class CpdMediumTest {
     .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
     .setLogOutput(logRecorder);
 
-  private File baseDir;
-
   private ImmutableMap.Builder<String, String> builder;
 
-  private boolean useNewSensorApi;
-  private boolean useDeprecatedProperty;
-
-  public CpdMediumTest(boolean useNewSensorApi, boolean useDeprecatedProperty) {
-    this.useNewSensorApi = useNewSensorApi;
-    this.useDeprecatedProperty = useDeprecatedProperty;
-  }
-
   @Before
-  public void prepare() throws IOException {
-    logRecorder.getAll().clear();
-
+  public void prepare() {
     baseDir = temp.getRoot();
+    logRecorder.getAll().clear();
 
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")
@@ -98,9 +74,6 @@ public class CpdMediumTest {
       .put("sonar.projectName", "Foo Project")
       .put("sonar.projectVersion", "1.0-SNAPSHOT")
       .put("sonar.projectDescription", "Description of Foo Project");
-    if (useNewSensorApi) {
-      builder.put(CpdTokenizerSensor.ENABLE_PROP + (useDeprecatedProperty ? ".deprecated" : ""), "true");
-    }
   }
 
   @Test
@@ -146,23 +119,23 @@ public class CpdMediumTest {
     InputFile inputFile2 = result.inputFile("module2/sample2.xoo");
 
     // One clone group on each file
-    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    List<ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
     assertThat(duplicationGroupsFile1).hasSize(1);
 
-    org.sonar.scanner.protocol.output.ScannerReport.Duplication cloneGroupFile1 = duplicationGroupsFile1.get(0);
+    ScannerReport.Duplication cloneGroupFile1 = duplicationGroupsFile1.get(0);
     assertThat(cloneGroupFile1.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile1.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile1.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(((DefaultInputFile) inputFile2).key()).getRef());
+    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile2).key()).getRef());
 
-    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).hasSize(1);
 
-    org.sonar.scanner.protocol.output.ScannerReport.Duplication cloneGroupFile2 = duplicationGroupsFile2.get(0);
+    ScannerReport.Duplication cloneGroupFile2 = duplicationGroupsFile2.get(0);
     assertThat(cloneGroupFile2.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile2.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile2.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(((DefaultInputFile) inputFile1).key()).getRef());
+    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile1).key()).getRef());
 
     assertThat(result.duplicationBlocksFor(inputFile1)).isEmpty();
   }
@@ -179,10 +152,10 @@ public class CpdMediumTest {
       + "foo\nbar\ntoto\ntiti";
 
     File xooFile1 = new File(srcDir, "sample1.xoo");
-    FileUtils.write(xooFile1, duplicatedStuff);
+    FileUtils.write(xooFile1, duplicatedStuff, StandardCharsets.UTF_8);
 
     File xooFile2 = new File(srcDir, "sample2.xoo");
-    FileUtils.write(xooFile2, duplicatedStuff);
+    FileUtils.write(xooFile2, duplicatedStuff, StandardCharsets.UTF_8);
 
     TaskResult result = tester.newTask()
       .properties(builder
@@ -198,23 +171,23 @@ public class CpdMediumTest {
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");
 
     // One clone group on each file
-    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    List<ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
     assertThat(duplicationGroupsFile1).hasSize(1);
 
-    org.sonar.scanner.protocol.output.ScannerReport.Duplication cloneGroupFile1 = duplicationGroupsFile1.get(0);
+    ScannerReport.Duplication cloneGroupFile1 = duplicationGroupsFile1.get(0);
     assertThat(cloneGroupFile1.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile1.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile1.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(((DefaultInputFile) inputFile2).key()).getRef());
+    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile2).key()).getRef());
 
-    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).hasSize(1);
 
-    org.sonar.scanner.protocol.output.ScannerReport.Duplication cloneGroupFile2 = duplicationGroupsFile2.get(0);
+    ScannerReport.Duplication cloneGroupFile2 = duplicationGroupsFile2.get(0);
     assertThat(cloneGroupFile2.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile2.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile2.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(((DefaultInputFile) inputFile1).key()).getRef());
+    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile1).key()).getRef());
 
     assertThat(result.duplicationBlocksFor(inputFile1)).isEmpty();
   }
@@ -233,10 +206,10 @@ public class CpdMediumTest {
     String file2 = "string\n";
 
     File xooFile1 = new File(srcDir, "sample1.xoo");
-    FileUtils.write(xooFile1, file1);
+    FileUtils.write(xooFile1, file1, StandardCharsets.UTF_8);
 
     File xooFile2 = new File(srcDir, "sample2.xoo");
-    FileUtils.write(xooFile2, file2);
+    FileUtils.write(xooFile2, file2, StandardCharsets.UTF_8);
 
     TaskResult result = tester.newTask()
       .properties(builder
@@ -283,10 +256,10 @@ public class CpdMediumTest {
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");
 
-    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    List<ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
     assertThat(duplicationGroupsFile1).isEmpty();
 
-    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).isEmpty();
   }
 
@@ -354,10 +327,10 @@ public class CpdMediumTest {
 
     InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group
-    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroups = result.duplicationsFor(inputFile);
+    List<ScannerReport.Duplication> duplicationGroups = result.duplicationsFor(inputFile);
     assertThat(duplicationGroups).hasSize(1);
 
-    org.sonar.scanner.protocol.output.ScannerReport.Duplication cloneGroup = duplicationGroups.get(0);
+    ScannerReport.Duplication cloneGroup = duplicationGroups.get(0);
     assertThat(cloneGroup.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroup.getOriginPosition().getEndLine()).isEqualTo(2);
     assertThat(cloneGroup.getDuplicateList()).hasSize(1);

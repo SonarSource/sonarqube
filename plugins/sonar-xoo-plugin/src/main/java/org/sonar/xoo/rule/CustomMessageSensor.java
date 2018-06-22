@@ -19,27 +19,25 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.config.Settings;
-import org.sonar.api.issue.Issuable;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 
-public class CustomMessageSensor extends AbstractDeprecatedXooRuleSensor {
+public class CustomMessageSensor extends AbstractXooRuleSensor {
 
   public static final String RULE_KEY = "CustomMessage";
 
   private static final String MESSAGE_PROPERTY = "sonar.customMessage.message";
 
-  private final ResourcePerspectives perspectives;
-  private final Settings settings;
+  private final Configuration settings;
 
-  public CustomMessageSensor(ResourcePerspectives perspectives, Settings settings, FileSystem fs, ActiveRules activeRules) {
+  public CustomMessageSensor(Configuration settings, FileSystem fs, ActiveRules activeRules) {
     super(fs, activeRules);
-    this.perspectives = perspectives;
     this.settings = settings;
   }
 
@@ -48,14 +46,15 @@ public class CustomMessageSensor extends AbstractDeprecatedXooRuleSensor {
     return RULE_KEY;
   }
 
-  @Override
-  protected void processFile(InputFile inputFile, org.sonar.api.resources.File sonarFile, SensorContext context, RuleKey ruleKey, String languageKey) {
-    Issuable issuable = perspectives.as(Issuable.class, sonarFile);
-    if (issuable != null) {
-      issuable.addIssue(issuable.newIssueBuilder()
-        .ruleKey(ruleKey)
-        .message(settings.getString(MESSAGE_PROPERTY))
-        .build());
-    }
+  @Override protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
+    NewIssue newIssue = context.newIssue()
+      .forRule(ruleKey);
+
+    NewIssueLocation location = newIssue.newLocation().on(inputFile);
+    settings.get(MESSAGE_PROPERTY).ifPresent(location::message);
+
+    newIssue
+      .at(location)
+      .save();
   }
 }

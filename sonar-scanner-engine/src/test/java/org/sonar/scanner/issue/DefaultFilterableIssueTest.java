@@ -81,7 +81,7 @@ public class DefaultFilterableIssueTest {
     assertThat(issue.textRange().end().line()).isEqualTo(31);
     assertThat(issue.textRange().end().lineOffset()).isEqualTo(3);
     assertThat(issue.projectKey()).isEqualTo("projectKey");
-    assertThat(issue.effortToFix()).isEqualTo(3.0);
+    assertThat(issue.gap()).isEqualTo(3.0);
     assertThat(issue.severity()).isEqualTo("MAJOR");
   }
 
@@ -91,6 +91,6 @@ public class DefaultFilterableIssueTest {
     issue = new DefaultFilterableIssue(mockedProject, projectAnalysisInfo, rawIssue, componentKey);
 
     assertThat(issue.line()).isNull();
-    assertThat(issue.effortToFix()).isNull();
+    assertThat(issue.gap()).isNull();
   }
 }

@@ -34,7 +34,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.StaxParser;
 
 public class GenericCoverageReportParser {
 

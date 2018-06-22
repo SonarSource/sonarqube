@@ -76,7 +76,7 @@ public class OneIssuePerLineSensor implements Sensor {
       if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
         newIssue.gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
       } else {
-        newIssue.effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
+        newIssue.gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
       }
       newIssue.save();
     }

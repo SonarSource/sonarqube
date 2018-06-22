@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.SonarPlugin;
+
+import org.sonar.api.Plugin;
 
 import java.util.Collections;
 import java.util.List;
 
-public class RequirePlugin extends SonarPlugin {
+public class RequirePlugin extends Plugin {
 
   public RequirePlugin() {
     // call a class that is in the api published by the base plugin
     new org.sonar.plugins.testbase.api.BaseApi().doNothing();
   }
 
-  public List getExtensions() {
-    return Collections.emptyList();
+  public void define(Plugin.Context context) {
+
   }
+
 }

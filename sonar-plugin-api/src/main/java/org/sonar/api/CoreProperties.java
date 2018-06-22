@@ -362,6 +362,7 @@ public interface CoreProperties {
   /**
    * @since 3.6
    */
+  //TODO remove?
   String PROFILING_LOG_PROPERTY = "sonar.showProfiling";
 
   /**
