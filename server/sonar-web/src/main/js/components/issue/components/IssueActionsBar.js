@@ -93,85 +93,77 @@ export default class IssueActionsBar extends React.PureComponent {
     const hasTransitions = issue.transitions && issue.transitions.length > 0;
 
     return (
-      <table className="issue-table">
-        <tbody>
-          <tr>
-            <td>
-              <ul className="issue-meta-list">
-                <li className="issue-meta">
-                  <IssueType
-                    isOpen={this.props.currentPopup === 'set-type' && canSetSeverity}
-                    issue={issue}
-                    canSetSeverity={canSetSeverity}
-                    togglePopup={this.props.togglePopup}
-                    setIssueProperty={this.setIssueProperty}
-                  />
-                </li>
-                <li className="issue-meta">
-                  <IssueSeverity
-                    isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
-                    issue={issue}
-                    canSetSeverity={canSetSeverity}
-                    togglePopup={this.props.togglePopup}
-                    setIssueProperty={this.setIssueProperty}
-                  />
-                </li>
-                <li className="issue-meta">
-                  <IssueTransition
-                    isOpen={this.props.currentPopup === 'transition' && hasTransitions}
-                    issue={issue}
-                    hasTransitions={hasTransitions}
-                    onChange={this.handleTransition}
-                    onFail={this.props.onFail}
-                    togglePopup={this.props.togglePopup}
-                  />
-                </li>
-                <li className="issue-meta">
-                  <IssueAssign
-                    isOpen={this.props.currentPopup === 'assign' && canAssign}
-                    issue={issue}
-                    canAssign={canAssign}
-                    onAssign={this.props.onAssign}
-                    onFail={this.props.onFail}
-                    togglePopup={this.props.togglePopup}
-                  />
-                </li>
-                {issue.effort && (
-                  <li className="issue-meta">
-                    <span className="issue-meta-label">
-                      {translateWithParameters('issue.x_effort', issue.effort)}
-                    </span>
-                  </li>
-                )}
-                {canComment && (
-                  <IssueCommentAction
-                    commentPlaceholder={this.state.commentPlaceholder}
-                    currentPopup={this.props.currentPopup}
-                    issueKey={issue.key}
-                    onChange={this.props.onChange}
-                    onFail={this.props.onFail}
-                    toggleComment={this.toggleComment}
-                  />
-                )}
-              </ul>
-            </td>
-            <td className="issue-table-meta-cell">
-              <ul className="list-inline">
-                <li className="issue-meta js-issue-tags">
-                  <IssueTags
-                    isOpen={this.props.currentPopup === 'edit-tags' && canSetTags}
-                    canSetTags={canSetTags}
-                    issue={issue}
-                    onChange={this.props.onChange}
-                    onFail={this.props.onFail}
-                    togglePopup={this.props.togglePopup}
-                  />
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="issue-actions">
+        <ul className="issue-meta-list">
+          <li className="issue-meta">
+            <IssueType
+              canSetSeverity={canSetSeverity}
+              isOpen={this.props.currentPopup === 'set-type' && canSetSeverity}
+              issue={issue}
+              setIssueProperty={this.setIssueProperty}
+              togglePopup={this.props.togglePopup}
+            />
+          </li>
+          <li className="issue-meta">
+            <IssueSeverity
+              canSetSeverity={canSetSeverity}
+              isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
+              issue={issue}
+              setIssueProperty={this.setIssueProperty}
+              togglePopup={this.props.togglePopup}
+            />
+          </li>
+          <li className="issue-meta">
+            <IssueTransition
+              hasTransitions={hasTransitions}
+              isOpen={this.props.currentPopup === 'transition' && hasTransitions}
+              issue={issue}
+              onChange={this.handleTransition}
+              onFail={this.props.onFail}
+              togglePopup={this.props.togglePopup}
+            />
+          </li>
+          <li className="issue-meta">
+            <IssueAssign
+              canAssign={canAssign}
+              isOpen={this.props.currentPopup === 'assign' && canAssign}
+              issue={issue}
+              onAssign={this.props.onAssign}
+              onFail={this.props.onFail}
+              togglePopup={this.props.togglePopup}
+            />
+          </li>
+          {issue.effort && (
+            <li className="issue-meta">
+              <span className="issue-meta-label">
+                {translateWithParameters('issue.x_effort', issue.effort)}
+              </span>
+            </li>
+          )}
+          {canComment && (
+            <IssueCommentAction
+              commentPlaceholder={this.state.commentPlaceholder}
+              currentPopup={this.props.currentPopup}
+              issueKey={issue.key}
+              onChange={this.props.onChange}
+              onFail={this.props.onFail}
+              toggleComment={this.toggleComment}
+            />
+          )}
+        </ul>
+        <ul className="list-inline">
+          <li className="issue-meta js-issue-tags">
+            <IssueTags
+              canSetTags={canSetTags}
+              isOpen={this.props.currentPopup === 'edit-tags' && canSetTags}
+              issue={issue}
+              onChange={this.props.onChange}
+              onFail={this.props.onFail}
+              togglePopup={this.props.togglePopup}
+            />
+          </li>
+        </ul>
+      </div>
     );
   }
 }

@@ -40,14 +40,6 @@
   border-top-color: transparent;
 }
 
-.issue-table {
-  width: 100%;
-}
-
-.issue-table td {
-  vertical-align: top;
-}
-
 .issue-row {
   display: flex;
   margin-bottom: 5px;
@@ -59,16 +51,10 @@
   white-space: nowrap;
 }
 
-.issue-table-meta-cell {
-  width: 1px;
-  padding-right: 5px;
-  white-space: nowrap;
-}
-
 .issue-message {
   flex-grow: 1;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: var(--gridSize);
+  padding-right: var(--gridSize);
   line-height: 1.5;
   font-size: var(--baseFontSize);
   font-weight: 600;
@@ -92,10 +78,17 @@
   background: rgba(75, 159, 213, 0.3);
 }
 
+.issue-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-left: var(--gridSize);
+}
+
 .issue-meta-list {
   display: flex;
   align-items: center;
-  padding-left: 10px;
 }
 
 .issue-meta {
@@ -125,8 +118,7 @@
 
 .issue-comments {
   margin-top: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: var(--gridSize);
   font-size: var(--smallFontSize);
 }
 
