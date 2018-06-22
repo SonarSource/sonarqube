@@ -26,9 +26,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.server.exceptions.BadRequestException;
 
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class FavoriteUpdater {
   static final String PROP_FAVORITE_KEY = "favourite";
@@ -52,7 +51,7 @@ public class FavoriteUpdater {
       .setUserId(userId)
       .setComponentId(componentDto.getId())
       .build(), dbSession);
-    checkRequest(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getDbKey());
+    checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getDbKey());
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
       .setResourceId(componentDto.getId())
@@ -61,7 +60,7 @@ public class FavoriteUpdater {
 
   /**
    * Remove a favorite to the user.
-   * @throws BadRequestException if the component is not a favorite
+   * @throws IllegalArgumentException if the component is not a favorite
    */
   public void remove(DbSession dbSession, ComponentDto component, @Nullable Integer userId) {
     if (userId == null) {
@@ -72,6 +71,6 @@ public class FavoriteUpdater {
       .setKey(PROP_FAVORITE_KEY)
       .setResourceId(component.getId())
       .setUserId(userId));
-    checkRequest(result == 1, "Component '%s' is not a favorite", component.getDbKey());
+    checkArgument(result == 1, "Component '%s' is not a favorite", component.getDbKey());
   }
 }

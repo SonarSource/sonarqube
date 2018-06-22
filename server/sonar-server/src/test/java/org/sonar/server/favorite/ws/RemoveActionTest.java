@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -82,7 +81,7 @@ public class RemoveActionTest {
   public void fail_if_not_already_a_favorite() {
     insertProjectAndPermissions();
 
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component '" + PROJECT_KEY + "' is not a favorite");
 
     call(PROJECT_KEY);

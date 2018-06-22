@@ -30,7 +30,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,9 +43,9 @@ public class FavoriteUpdaterTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
@@ -73,7 +72,7 @@ public class FavoriteUpdaterTest {
     underTest.add(dbSession, COMPONENT, USER_ID);
     assertFavorite();
 
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component 'K1' is already a favorite");
 
     underTest.add(dbSession, COMPONENT, USER_ID);
