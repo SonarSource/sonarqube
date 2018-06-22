@@ -9,46 +9,27 @@ sonarqube {
   }
 }
 
+apply plugin: 'com.moowork.node'
+
 configurations {
   branding
 }
+
 dependencies {
   branding 'com.sonarsource:sonarsource-branding:1.3.0.307@war'
 }
 
 def webappDir = "${buildDir}/webapp"
-def brandingDir = "${buildDir}/branding"
 
-task unzipBranding(type: Copy) {
-  from { zipTree(configurations.branding.singleFile) }
-  into brandingDir
-}
-task copyBrandingSrc(type: Copy, dependsOn: unzipBranding) {
+task copyBranding(type: Copy) {
   into projectDir
-  from file(brandingDir)
-  include '**/*.js'
+  from project(':private:branding').file('.')
   includeEmptyDirs = false
-}
-task copyBrandingWebapp(type: Copy, dependsOn: unzipBranding) {
-  into "${projectDir}/public"
-  from file("${brandingDir}/src/main/webapp")
-  include '**/*.svg'
-  includeEmptyDirs = false
-}
-task copyBrandingFile(type: Copy, dependsOn: unzipBranding) {
-  into "${projectDir}/public"
-  from file(brandingDir)
-  include '**/branding'
-  includeEmptyDirs = false
-}
-task copyBranding() {
-  dependsOn copyBrandingSrc
-  dependsOn copyBrandingWebapp
-  dependsOn copyBrandingFile
 }
 
 yarn_run {
   if (official) { dependsOn copyBranding }
+  
   inputs.property('official', official)
   ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
