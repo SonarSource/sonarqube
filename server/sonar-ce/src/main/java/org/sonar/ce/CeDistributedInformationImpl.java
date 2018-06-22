@@ -19,9 +19,12 @@
  */
 package org.sonar.ce;
 
+import com.hazelcast.spi.exception.RetryableHazelcastException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.common.logging.Loggers;
 import org.picocontainer.Startable;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -34,6 +37,8 @@ import static org.sonar.process.cluster.hz.HazelcastObjects.WORKER_UUIDS;
  * Provide the set of worker's UUID in a clustered SonarQube instance
  */
 public class CeDistributedInformationImpl implements CeDistributedInformation, Startable {
+  private static final Logger LOGGER = Loggers.getLogger(CeDistributedInformationImpl.class);
+
   private final HazelcastMember hazelcastMember;
   private final CeWorkerFactory ceCeWorkerFactory;
 
@@ -74,8 +79,12 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
 
   @Override
   public void stop() {
-    // Removing the worker UUIDs
-    getClusteredWorkerUUIDs().remove(hazelcastMember.getUuid());
+    try {
+      // Removing the worker UUIDs
+      getClusteredWorkerUUIDs().remove(hazelcastMember.getUuid());
+    } catch (RetryableHazelcastException e) {
+      LOGGER.debug("Unable to remove worker UUID from the list of active workers", e.getMessage());
+    }
   }
 
   private Map<String, Set<String>> getClusteredWorkerUUIDs() {
