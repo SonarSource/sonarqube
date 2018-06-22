@@ -24,7 +24,6 @@ import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.app.TomcatContexts;
 
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
@@ -43,7 +42,7 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
     this.homeDir = new File(config.get(PATH_HOME.getKey()).get());
     this.tempDir = new File(config.get(PATH_TEMP.getKey()).get());
     File dataDir = new File(config.get(PATH_DATA.getKey()).get());
-    this.deployDir = new File(dataDir, TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
+    this.deployDir = new File(dataDir, "web/deploy");
     this.uninstallDir = new File(getTempDir(), "uninstalled-plugins");
   }
 
