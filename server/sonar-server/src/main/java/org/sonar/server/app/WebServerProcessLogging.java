@@ -23,6 +23,7 @@ import ch.qos.logback.classic.Level;
 import org.sonar.process.ProcessId;
 import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
+import org.sonar.server.log.ServerProcessLogging;
 
 import static org.sonar.server.platform.web.requestid.RequestIdMDCStorage.HTTP_REQUEST_ID_MDC_KEY;
 

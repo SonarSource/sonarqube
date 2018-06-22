@@ -17,18 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+@ParametersAreNonnullByDefault
+package org.sonar.server.notification;
 
-import java.util.Optional;
-import org.sonar.ce.task.CeTask;
-import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public interface CeTaskProcessorRepository {
-
-  /**
-   * @throws NullPointerException if the specified {@link CeTask} is {@code null}
-   * @throws IllegalStateException if there is no {@link CeTaskProcessor} for the specified {@link CeTask} in the repository
-   */
-  Optional<CeTaskProcessor> getForCeTask(CeTask ceTask);
-
-}

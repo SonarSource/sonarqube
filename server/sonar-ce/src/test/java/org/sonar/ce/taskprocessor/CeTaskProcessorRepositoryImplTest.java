@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
+import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

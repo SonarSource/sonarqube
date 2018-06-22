@@ -26,6 +26,7 @@ import java.util.Set;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
+import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;

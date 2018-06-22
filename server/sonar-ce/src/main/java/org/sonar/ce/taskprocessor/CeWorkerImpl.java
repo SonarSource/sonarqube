@@ -31,6 +31,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
+import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
 

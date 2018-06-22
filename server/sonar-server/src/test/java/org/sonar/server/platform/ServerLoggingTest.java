@@ -37,7 +37,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.Database;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.app.ServerProcessLogging;
+import org.sonar.server.log.ServerProcessLogging;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

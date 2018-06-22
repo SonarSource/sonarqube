@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.log;
+package org.sonar.ce.logging;
 
 import ch.qos.logback.classic.Level;
 import org.sonar.process.ProcessId;
 import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
-import org.sonar.server.app.ServerProcessLogging;
+import org.sonar.server.log.ServerProcessLogging;
 
 import static org.sonar.ce.task.log.CeTaskLogging.MDC_CE_TASK_UUID;
 

@@ -28,7 +28,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.ComputeEngine;
 import org.sonar.ce.ComputeEngineImpl;
 import org.sonar.ce.container.ComputeEngineContainerImpl;
-import org.sonar.ce.log.CeProcessLogging;
+import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;

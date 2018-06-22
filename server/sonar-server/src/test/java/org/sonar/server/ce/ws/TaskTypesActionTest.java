@@ -24,7 +24,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
+import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.sonar.test.JsonAssert.assertJson;

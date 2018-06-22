@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.ce.task.projectanalysis;
 
-import java.util.Collections;
-import java.util.Set;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.CeTask;
-import org.sonar.ce.task.CeTaskResult;
-import org.sonar.db.ce.CeTaskTypes;
 
-/**
- * CeTaskProcessor without any real implementation used to declare the CeTask type to the WebServer only.
- */
-public class ReportTaskProcessorDeclaration implements CeTaskProcessor {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  private static final Set<String> HANDLED_TYPES = Collections.singleton(CeTaskTypes.REPORT);
+public class ReportTaskProcessorDeclarationTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Override
-  public Set<String> getHandledCeTaskTypes() {
-    return HANDLED_TYPES;
+  private ReportTaskProcessorDeclaration underTest = new ReportTaskProcessorDeclaration();
+
+  @Test
+  public void getHandledCeTaskTypes_returns_REPORT() {
+    assertThat(underTest.getHandledCeTaskTypes()).containsOnly("REPORT");
   }
 
-  @Override
-  public CeTaskResult process(CeTask task) {
-    throw new UnsupportedOperationException("process must not be called in WebServer");
+  @Test
+  public void process_throws_UOE() {
+    expectedException.expect(UnsupportedOperationException.class);
+    expectedException.expectMessage("process must not be called in WebServer");
+
+    underTest.process(mock(CeTask.class));
   }
 }

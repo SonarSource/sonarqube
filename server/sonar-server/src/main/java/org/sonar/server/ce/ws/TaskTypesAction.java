@@ -24,7 +24,7 @@ import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
+import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonarqube.ws.Ce;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;

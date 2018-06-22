@@ -28,7 +28,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
-import org.sonar.ce.CeModule;
+import org.sonar.server.ce.CeModule;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;

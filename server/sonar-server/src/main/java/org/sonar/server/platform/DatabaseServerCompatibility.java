@@ -27,7 +27,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
-import static org.sonar.server.app.ServerProcessLogging.STARTUP_LOGGER_NAME;
+import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
 
 public class DatabaseServerCompatibility implements Startable {
 

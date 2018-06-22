@@ -35,7 +35,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
+import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

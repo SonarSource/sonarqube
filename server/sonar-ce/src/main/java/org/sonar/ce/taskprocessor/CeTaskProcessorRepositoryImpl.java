@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;

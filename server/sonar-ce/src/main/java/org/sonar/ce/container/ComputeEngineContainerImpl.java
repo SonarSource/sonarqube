@@ -51,7 +51,7 @@ import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
-import org.sonar.ce.log.CeProcessLogging;
+import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
