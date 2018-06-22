@@ -1,8 +1,8 @@
-description = 'Code of the Compute Engine task processing project analysis reports'
+description = 'Definition of a Compute Engine task and utility "framework" and classes to code one'
 
 sonarqube {
   properties {
-    property 'sonar.projectName', "${projectTitle} :: Compute Engine :: Task :: Project Analysis"
+    property 'sonar.projectName', "${projectTitle} :: Compute Engine :: Task"
   }
 }
 
@@ -24,26 +24,22 @@ processResources {
   }
 }
 
-configurations {
-  tests
-  testCompile.extendsFrom compileOnly
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
+  compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
 
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly project(':sonar-core')
-  compileOnly project(':server:sonar-ce-task')
-  compileOnly project(':server:sonar-db-dao')
-  compileOnly project(':server:sonar-process')
-  compileOnly project(':server:sonar-server-common')
-  compileOnly project(':server:sonar-server')
+  compile project(':server:sonar-process')
+  compile project(':sonar-core')
   compileOnly project(path: ':sonar-plugin-api')
 
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'ch.qos.logback:logback-access'
+  testCompile 'ch.qos.logback:logback-classic'
+  testCompile 'ch.qos.logback:logback-core'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.h2database:h2'
   testCompile 'com.tngtech.java:junit-dataprovider'
@@ -54,14 +50,15 @@ dependencies {
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
-  testCompile project(':server:sonar-db-testing')
-  testCompile project(path: ":server:sonar-ce-task", configuration: "tests")
-  testCompile project(path: ":server:sonar-server", configuration: "tests")
 }
 
 task testJar(type: Jar) {
   classifier = 'tests'
   from sourceSets.test.output
+}
+
+configurations {
+  tests
 }
 
 artifacts {

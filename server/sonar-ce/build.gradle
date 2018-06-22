@@ -11,6 +11,7 @@ dependencies {
 
   compile 'com.google.protobuf:protobuf-java'
   compile 'org.nanohttpd:nanohttpd'
+  compile project(':server:sonar-ce-task')
   compile project(':server:sonar-ce-task-projectanalysis')
   compile project(':server:sonar-server')
 
