@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.webhook.WebhookModule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.project.Project;
@@ -38,6 +39,7 @@ import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import static java.lang.String.format;
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
 
+@ServerSide
 @ComputeEngineSide
 public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 

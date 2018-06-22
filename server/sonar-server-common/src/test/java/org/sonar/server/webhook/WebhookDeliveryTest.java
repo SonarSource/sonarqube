@@ -21,9 +21,6 @@ package org.sonar.server.webhook;
 
 import java.io.IOException;
 import org.junit.Test;
-import org.sonar.server.webhook.Webhook;
-import org.sonar.server.webhook.WebhookDelivery;
-import org.sonar.server.webhook.WebhookPayload;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

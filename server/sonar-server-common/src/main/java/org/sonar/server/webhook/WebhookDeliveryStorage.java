@@ -21,6 +21,7 @@ package org.sonar.server.webhook;
 
 import com.google.common.base.Throwables;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -31,6 +32,7 @@ import org.sonar.db.webhook.WebhookDeliveryDto;
 /**
  * Persist and purge {@link WebhookDelivery} into database
  */
+@ServerSide
 @ComputeEngineSide
 public class WebhookDeliveryStorage {
 

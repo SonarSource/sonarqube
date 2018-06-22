@@ -28,6 +28,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 
 import static java.lang.String.format;
@@ -38,6 +39,7 @@ import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
 import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
+@ServerSide
 @ComputeEngineSide
 public class WebhookCallerImpl implements WebhookCaller {
 

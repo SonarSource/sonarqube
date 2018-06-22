@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -33,9 +35,11 @@ import org.sonar.db.webhook.WebhookDao;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.async.AsyncExecution;
 
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
 
+@ServerSide
+@ComputeEngineSide
 public class WebHooksImpl implements WebHooks {
 
   private static final Logger LOGGER = Loggers.get(WebHooksImpl.class);
@@ -75,6 +79,14 @@ public class WebHooksImpl implements WebHooks {
         dao.selectByProject(dbSession, componentDto).stream(),
         dao.selectByOrganizationUuid(dbSession, componentDto.getOrganizationUuid()).stream());
     }
+  }
+
+  private static <T> T checkStateWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
+    if (!value.isPresent()) {
+      throw new IllegalStateException(format(message, messageArguments));
+    }
+
+    return value.get();
   }
 
   @Override

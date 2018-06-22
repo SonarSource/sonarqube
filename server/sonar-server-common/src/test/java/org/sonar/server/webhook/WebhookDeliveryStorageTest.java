@@ -34,7 +34,6 @@ import org.sonar.db.webhook.WebhookDeliveryDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 import static org.sonar.db.webhook.WebhookDbTesting.selectAllDeliveryUuids;
 
 public class WebhookDeliveryStorageTest {
