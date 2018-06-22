@@ -21,11 +21,10 @@ package org.sonar.ce.queue;
 
 import java.util.Collection;
 import java.util.List;
-
 import java.util.Optional;
+import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.server.computation.CeTask;
 
 /**
  * Queue of pending Compute Engine tasks. Both producer and consumer actions

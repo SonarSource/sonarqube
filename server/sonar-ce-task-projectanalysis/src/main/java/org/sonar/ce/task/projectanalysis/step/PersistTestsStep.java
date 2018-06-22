@@ -35,10 +35,14 @@ import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
+import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -48,14 +52,6 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
-import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 public class PersistTestsStep implements ComputationStep {
 

@@ -41,11 +41,11 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.PastMeasureDto;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;

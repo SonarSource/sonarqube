@@ -23,8 +23,8 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.CeTaskResult;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskResult;
 
 /**
  * This interface is used to provide the processing code for {@link CeTask}s of one or more type to be called by the

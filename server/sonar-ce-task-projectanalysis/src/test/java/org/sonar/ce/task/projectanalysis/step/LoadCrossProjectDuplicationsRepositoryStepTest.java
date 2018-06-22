@@ -39,6 +39,7 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.ce.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -50,7 +51,6 @@ import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

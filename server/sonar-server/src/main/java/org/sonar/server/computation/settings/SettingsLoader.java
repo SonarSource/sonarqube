@@ -21,8 +21,8 @@ package org.sonar.server.computation.settings;
 
 import org.picocontainer.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.server.computation.task.container.EagerStart;
-import org.sonar.server.computation.task.container.TaskContainerImpl;
+import org.sonar.ce.task.container.EagerStart;
+import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.server.setting.ThreadLocalSettings;
 
 /**

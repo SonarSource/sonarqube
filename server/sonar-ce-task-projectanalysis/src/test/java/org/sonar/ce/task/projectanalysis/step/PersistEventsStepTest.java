@@ -32,10 +32,10 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.event.Event;
 import org.sonar.ce.task.projectanalysis.event.EventRepository;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

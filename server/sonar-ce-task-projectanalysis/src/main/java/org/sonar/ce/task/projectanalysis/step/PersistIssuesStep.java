@@ -23,6 +23,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
@@ -30,10 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.ce.task.projectanalysis.issue.IssueCache;
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
-import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
-import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.issue.IssueStorage;
 
 public class PersistIssuesStep implements ComputationStep {

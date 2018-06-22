@@ -25,18 +25,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
-import org.sonar.ce.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
-import org.sonar.core.util.CloseableIterator;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.duplication.DuplicationUnitDto;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.ByteArray;
-import org.sonar.scanner.protocol.output.ScannerReport.CpdTextBlock;
+import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -46,12 +35,17 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.ce.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
-import org.sonar.ce.task.projectanalysis.analysis.Analysis;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.duplication.DuplicationUnitDto;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
+import org.sonar.scanner.protocol.output.ScannerReport.CpdTextBlock;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * Feed the duplications repository from the cross project duplication blocks computed with duplications blocks of the analysis report.

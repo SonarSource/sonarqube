@@ -38,12 +38,12 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;

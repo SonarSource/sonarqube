@@ -24,11 +24,9 @@ import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
-import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
-import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 public class ExecuteVisitorsStep implements ComputationStep {
 

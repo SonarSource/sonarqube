@@ -31,13 +31,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
-import org.sonar.ce.task.projectanalysis.formula.Counter;
-import org.sonar.ce.task.projectanalysis.formula.CreateMeasureContext;
-import org.sonar.ce.task.projectanalysis.formula.Formula;
-import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.formula.Counter;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
@@ -47,7 +40,7 @@ import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static com.google.common.collect.Maps.asMap;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;

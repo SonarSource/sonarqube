@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

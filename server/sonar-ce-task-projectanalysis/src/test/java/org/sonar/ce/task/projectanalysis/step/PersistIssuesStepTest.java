@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -49,7 +50,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.util.cache.DiskCache;
 

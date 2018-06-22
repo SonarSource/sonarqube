@@ -22,8 +22,8 @@ package org.sonar.ce.task.projectanalysis.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
-import org.sonar.server.computation.taskprocessor.MutableTaskResultHolder;
-import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
+import org.sonar.ce.taskprocessor.MutableTaskResultHolder;
+import org.sonar.ce.taskprocessor.MutableTaskResultHolderImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

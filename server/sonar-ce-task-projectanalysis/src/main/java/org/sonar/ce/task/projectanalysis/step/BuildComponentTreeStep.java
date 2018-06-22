@@ -21,17 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
-import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
-import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactory;
-import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
-import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.component.SnapshotQuery;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
@@ -42,7 +31,12 @@ import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
 import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactory;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotQuery;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 /**
  * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}

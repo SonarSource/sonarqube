@@ -42,6 +42,7 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryRule;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -52,7 +53,6 @@ import org.sonar.db.source.LineHashVersion;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;

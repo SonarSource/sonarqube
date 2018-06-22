@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
+import org.sonar.ce.task.dbcleaner.ProjectCleaner;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.DbIdsRepository;
@@ -26,11 +27,10 @@ import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawle
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;

@@ -21,13 +21,13 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
 

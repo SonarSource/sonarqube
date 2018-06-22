@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.dbmigration;
 
 import com.google.common.collect.Iterables;
 import java.sql.SQLException;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
 import org.sonar.db.Database;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.platform.db.migration.step.DataChange;

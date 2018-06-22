@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.batch;
 
 import java.io.File;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
 
 public interface BatchReportDirectoryHolder {
   /**

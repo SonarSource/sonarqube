@@ -22,16 +22,16 @@ package org.sonar.ce.task.projectanalysis.taskprocessor;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.CeTaskResult;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskResult;
+import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.container.ContainerFactory;
+import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
+import org.sonar.ce.taskprocessor.TaskResultHolder;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
-import org.sonar.server.computation.task.container.TaskContainer;
-import org.sonar.server.computation.task.step.ComputationStepExecutor;
-import org.sonar.server.computation.taskprocessor.TaskResultHolder;
 
 public class ReportTaskProcessor implements CeTaskProcessor {
 

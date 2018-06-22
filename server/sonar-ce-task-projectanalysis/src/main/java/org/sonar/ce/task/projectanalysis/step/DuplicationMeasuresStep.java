@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationMeasures;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 /**
  * Computes duplication measures on files and then aggregates them on higher components.

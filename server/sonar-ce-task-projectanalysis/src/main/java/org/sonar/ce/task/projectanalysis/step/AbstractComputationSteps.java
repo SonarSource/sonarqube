@@ -20,9 +20,9 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.collect.Iterables;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationSteps;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.computation.task.step.ComputationSteps;
 
 /**
  * Abstract implementation of {@link ComputationStep} which provides the implementation of {@link ComputationSteps#instances()}

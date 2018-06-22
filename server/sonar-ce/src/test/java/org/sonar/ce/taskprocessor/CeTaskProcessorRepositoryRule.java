@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.rules.ExternalResource;
-import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.CeTaskResult;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskResult;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;

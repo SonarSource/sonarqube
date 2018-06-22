@@ -22,9 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.sql.SQLException;
 import org.sonar.ce.task.projectanalysis.dbmigration.ProjectAnalysisDataChange;
 import org.sonar.ce.task.projectanalysis.dbmigration.ProjectAnalysisDataChanges;
-import org.sonar.ce.task.projectanalysis.dbmigration.ProjectAnalysisDataChange;
-import org.sonar.ce.task.projectanalysis.dbmigration.ProjectAnalysisDataChanges;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 public class DbMigrationsStep implements ComputationStep {
   private final ProjectAnalysisDataChanges dataChanges;

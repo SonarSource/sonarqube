@@ -35,11 +35,11 @@ import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.server.computation.CeTask;
 import org.sonar.ce.queue.InternalCeQueue;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

@@ -53,8 +53,8 @@ import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConvert
 import org.sonar.ce.task.projectanalysis.qualitygate.MutableQualityGateStatusHolder;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolder;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;

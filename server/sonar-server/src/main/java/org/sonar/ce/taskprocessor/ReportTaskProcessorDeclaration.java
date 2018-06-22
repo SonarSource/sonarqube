@@ -21,8 +21,8 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.Collections;
 import java.util.Set;
-import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.CeTaskResult;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskResult;
 import org.sonar.db.ce.CeTaskTypes;
 
 /**

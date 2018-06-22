@@ -46,12 +46,12 @@ import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitor;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Optional.ofNullable;

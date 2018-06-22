@@ -40,6 +40,7 @@ import org.sonar.ce.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -47,7 +48,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.project.Project;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;

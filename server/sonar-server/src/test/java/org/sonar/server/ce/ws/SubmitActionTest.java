@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.ce.queue.ReportSubmitter;
 import org.sonar.server.organization.DefaultOrganizationProvider;

@@ -21,12 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
-import org.sonar.ce.task.projectanalysis.formula.Formula;
-import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredFormula;
-import org.sonar.ce.task.projectanalysis.formula.coverage.SingleWithUncoveredMetricKeys;
-import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.formula.Formula;
 import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
@@ -36,7 +30,7 @@ import org.sonar.ce.task.projectanalysis.formula.coverage.SingleWithUncoveredFor
 import org.sonar.ce.task.projectanalysis.formula.coverage.SingleWithUncoveredMetricKeys;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER_KEY;

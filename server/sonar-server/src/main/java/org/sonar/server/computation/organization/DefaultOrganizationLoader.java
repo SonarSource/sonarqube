@@ -21,7 +21,7 @@ package org.sonar.server.computation.organization;
 
 import org.picocontainer.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.server.computation.task.container.EagerStart;
+import org.sonar.ce.task.container.EagerStart;
 import org.sonar.server.organization.DefaultOrganizationCache;
 
 @EagerStart

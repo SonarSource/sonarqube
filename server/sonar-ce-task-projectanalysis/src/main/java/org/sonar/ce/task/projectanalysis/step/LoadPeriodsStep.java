@@ -22,19 +22,9 @@ package org.sonar.ce.task.projectanalysis.step;
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
-import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
-import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -43,9 +33,10 @@ import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
-import org.sonar.server.computation.task.step.ComputationStep;
-
-import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 
 /**
  * Populates the {@link PeriodHolder}

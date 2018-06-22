@@ -26,18 +26,14 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.ce.task.projectanalysis.issue.Rule;
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
-import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.issue.Rule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class LoadQualityProfilesStep implements ComputationStep {
 

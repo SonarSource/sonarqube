@@ -22,8 +22,8 @@ package org.sonar.ce.taskprocessor;
 import java.util.Random;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.server.computation.log.CeTaskLogging;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.log.CeTaskLogging;
 import org.sonar.db.ce.CeActivityDto;
 
 import static org.mockito.Mockito.mock;

@@ -23,8 +23,8 @@ import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.task.container.TaskContainerImpl;
 
 import static org.mockito.Mockito.mock;
 

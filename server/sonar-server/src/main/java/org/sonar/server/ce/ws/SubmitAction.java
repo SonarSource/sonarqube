@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
 import org.sonar.server.ce.queue.ReportSubmitter;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;

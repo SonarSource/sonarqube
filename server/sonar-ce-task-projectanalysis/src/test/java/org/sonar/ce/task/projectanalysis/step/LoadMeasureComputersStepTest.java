@@ -32,7 +32,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 import org.sonar.ce.task.projectanalysis.measure.MeasureComputersHolderImpl;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;

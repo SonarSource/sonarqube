@@ -24,9 +24,9 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonar.ce.task.util.InitializedProperty;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.computation.util.InitializedProperty;
 import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 

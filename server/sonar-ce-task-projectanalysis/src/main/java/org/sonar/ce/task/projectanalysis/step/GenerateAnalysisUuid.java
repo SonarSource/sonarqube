@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import org.sonar.core.util.UuidFactory;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.UuidFactory;
 
 public class GenerateAnalysisUuid implements ComputationStep {
 

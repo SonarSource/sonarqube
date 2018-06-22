@@ -31,13 +31,13 @@ import javax.annotation.Nullable;
 import org.junit.Test;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.PicoContainer;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.step.PersistComponentsStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.StepsExplorer;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
-import org.sonar.server.computation.task.container.TaskContainer;
-import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.computation.task.step.StepsExplorer;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;

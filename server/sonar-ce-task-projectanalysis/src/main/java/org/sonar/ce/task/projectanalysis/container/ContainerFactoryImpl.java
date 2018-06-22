@@ -20,11 +20,11 @@
 package org.sonar.ce.task.projectanalysis.container;
 
 import javax.annotation.Nullable;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.container.TaskContainer;
+import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
-import org.sonar.server.computation.task.container.TaskContainer;
-import org.sonar.server.computation.task.container.TaskContainerImpl;
 
 public class ContainerFactoryImpl implements ContainerFactory {
   @Override

@@ -21,21 +21,9 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
-import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.duplication.DetailedTextBlock;
-import org.sonar.ce.task.projectanalysis.duplication.Duplicate;
-import org.sonar.ce.task.projectanalysis.duplication.Duplication;
-import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepository;
-import org.sonar.ce.task.projectanalysis.duplication.InProjectDuplicate;
-import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
-import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
-import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -47,11 +35,12 @@ import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepository;
 import org.sonar.ce.task.projectanalysis.duplication.InProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
  * Loads duplication information from the report and loads them into the {@link DuplicationRepository}.

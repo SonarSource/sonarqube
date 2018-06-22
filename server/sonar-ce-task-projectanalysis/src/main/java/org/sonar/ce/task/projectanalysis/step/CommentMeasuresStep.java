@@ -21,13 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
-import org.sonar.ce.task.projectanalysis.formula.Counter;
-import org.sonar.ce.task.projectanalysis.formula.CreateMeasureContext;
-import org.sonar.ce.task.projectanalysis.formula.Formula;
-import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -42,7 +35,7 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DENSITY_KEY;

@@ -20,8 +20,8 @@
 package org.sonar.ce;
 
 import org.sonar.ce.http.CeHttpClientImpl;
-import org.sonar.server.computation.log.CeTaskLogging;
 import org.sonar.ce.queue.CeQueueImpl;
+import org.sonar.ce.task.log.CeTaskLogging;
 import org.sonar.ce.taskprocessor.ReportTaskProcessorDeclaration;
 import org.sonar.core.platform.Module;
 import org.sonar.server.ce.queue.ReportSubmitter;

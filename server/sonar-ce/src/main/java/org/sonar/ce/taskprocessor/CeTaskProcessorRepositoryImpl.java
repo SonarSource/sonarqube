@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;

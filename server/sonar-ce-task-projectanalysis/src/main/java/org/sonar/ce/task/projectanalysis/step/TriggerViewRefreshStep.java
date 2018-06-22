@@ -23,7 +23,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.view.TriggerViewRefreshDelegate;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 /**
  * This step will trigger refresh of Portfolios and Applications that include the current project.

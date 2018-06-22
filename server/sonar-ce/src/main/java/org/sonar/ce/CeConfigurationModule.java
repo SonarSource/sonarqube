@@ -20,8 +20,8 @@
 package org.sonar.ce;
 
 import org.sonar.ce.configuration.CeConfigurationImpl;
-import org.sonar.server.computation.log.CeTaskLogging;
 import org.sonar.ce.monitoring.CeDatabaseMBeanImpl;
+import org.sonar.ce.task.log.CeTaskLogging;
 import org.sonar.core.platform.Module;
 import org.sonar.process.systeminfo.JvmPropertiesSection;
 import org.sonar.process.systeminfo.JvmStateSection;

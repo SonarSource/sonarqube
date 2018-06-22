@@ -22,8 +22,8 @@ package org.sonar.server.ce.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.junit.Test;
-import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.CeTaskResult;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.server.ws.WsActionTester;
 

@@ -21,12 +21,12 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.ce.task.projectanalysis.purge.PurgeDatastoresStep;
-import org.sonar.server.computation.task.container.TaskContainer;
+import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep;
-import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.computation.task.step.ExecuteStatelessInitExtensionsStep;
 import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationChecksStep;
+import org.sonar.ce.task.projectanalysis.purge.PurgeDatastoresStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.ExecuteStatelessInitExtensionsStep;
 
 /**
  * Ordered list of steps classes and instances to be executed for batch processing

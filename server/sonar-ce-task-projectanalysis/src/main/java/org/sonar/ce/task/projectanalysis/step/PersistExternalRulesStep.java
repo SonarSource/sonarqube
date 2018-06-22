@@ -20,10 +20,9 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 public class PersistExternalRulesStep implements ComputationStep {
 

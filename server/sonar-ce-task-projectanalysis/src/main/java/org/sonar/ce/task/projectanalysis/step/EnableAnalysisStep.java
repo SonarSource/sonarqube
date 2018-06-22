@@ -19,13 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 
 public class EnableAnalysisStep implements ComputationStep {
 

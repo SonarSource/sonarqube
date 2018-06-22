@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.dbcleaner;
+package org.sonar.ce.task.dbcleaner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +34,8 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
 import static java.util.Collections.emptyList;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

@@ -38,10 +38,8 @@ import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerDefinitionImpl;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
-import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerDefinitionImpl;
-import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 import org.sonar.ce.task.projectanalysis.measure.MutableMeasureComputersHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;

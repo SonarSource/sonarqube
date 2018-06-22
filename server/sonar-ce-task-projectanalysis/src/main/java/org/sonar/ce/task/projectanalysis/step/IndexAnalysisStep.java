@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.server.es.ProjectIndexer;
 
 public class IndexAnalysisStep implements ComputationStep {

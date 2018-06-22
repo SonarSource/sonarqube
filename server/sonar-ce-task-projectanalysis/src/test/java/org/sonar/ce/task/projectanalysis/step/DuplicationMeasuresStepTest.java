@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationMeasures;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

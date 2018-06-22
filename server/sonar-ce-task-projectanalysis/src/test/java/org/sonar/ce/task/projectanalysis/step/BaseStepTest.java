@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.Test;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

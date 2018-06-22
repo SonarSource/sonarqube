@@ -19,10 +19,10 @@
  */
 package org.sonar.ce;
 
+import org.sonar.ce.task.dbcleaner.IndexPurgeListener;
+import org.sonar.ce.task.dbcleaner.ProjectCleaner;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 
 /**
  * Globally available components in CE for tasks to use.

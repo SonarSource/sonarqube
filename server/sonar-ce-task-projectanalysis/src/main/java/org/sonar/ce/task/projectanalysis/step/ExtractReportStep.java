@@ -27,12 +27,12 @@ import java.util.Optional;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.server.computation.CeTask;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskInputDao;
-import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 /**
  * Extracts the content zip file of the {@link CeTask} to a temp directory and adds a {@link File}

@@ -50,13 +50,13 @@ import org.sonar.ce.task.projectanalysis.filemove.FileSimilarity.File;
 import org.sonar.ce.task.projectanalysis.filemove.FileSimilarity.FileImpl;
 import org.sonar.ce.task.projectanalysis.filemove.FileSimilarity.LazyFileImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.FileMoveRowDto;
 import org.sonar.db.source.LineHashesWithKeyDto;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;

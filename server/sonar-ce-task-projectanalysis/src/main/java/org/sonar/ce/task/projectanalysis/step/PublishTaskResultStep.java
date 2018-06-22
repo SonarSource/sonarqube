@@ -21,10 +21,10 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.server.computation.CeTaskResult;
+import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.computation.taskprocessor.MutableTaskResultHolder;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.taskprocessor.MutableTaskResultHolder;
 
 public class PublishTaskResultStep implements ComputationStep {
   private final MutableTaskResultHolder taskResultHolder;

@@ -21,12 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
-import org.sonar.ce.task.projectanalysis.formula.AverageFormula;
-import org.sonar.ce.task.projectanalysis.formula.DistributionFormula;
-import org.sonar.ce.task.projectanalysis.formula.Formula;
-import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.formula.AverageFormula;
 import org.sonar.ce.task.projectanalysis.formula.DistributionFormula;
@@ -34,7 +28,7 @@ import org.sonar.ce.task.projectanalysis.formula.Formula;
 import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.ce.task.step.ComputationStep;
 
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;

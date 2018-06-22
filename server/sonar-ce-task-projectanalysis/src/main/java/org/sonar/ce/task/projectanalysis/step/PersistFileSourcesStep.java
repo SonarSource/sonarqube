@@ -51,6 +51,7 @@ import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter;
 import org.sonar.ce.task.projectanalysis.source.linereader.ScmLineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.SymbolsLineReader;
+import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -58,7 +59,6 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
