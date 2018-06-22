@@ -59,7 +59,7 @@ export class GlobalNav extends React.PureComponent<Props> {
 
         <GlobalNavMenu {...this.props} />
 
-        <ul className="global-navbar-menu pull-right">
+        <ul className="global-navbar-menu global-navbar-menu-right">
           {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper
             currentUser={this.props.currentUser}

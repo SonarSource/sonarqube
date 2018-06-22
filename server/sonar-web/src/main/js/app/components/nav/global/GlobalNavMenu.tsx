@@ -178,7 +178,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
     const { organizationsEnabled } = this.props.appState;
 
     return (
-      <ul className="global-navbar-menu pull-left">
+      <ul className="global-navbar-menu">
         {this.renderProjects()}
         {governanceInstalled && this.renderPortfolios()}
         {this.renderIssuesLink()}

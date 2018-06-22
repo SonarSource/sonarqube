@@ -23,6 +23,10 @@
   z-index: 421;
 }
 
+.navbar-global .navbar-limited {
+  display: flex;
+}
+
 .navbar-brand {
   display: flex;
   justify-content: center;
@@ -89,6 +93,22 @@
 
 .global-navbar-menu > li > a.active {
   border-bottom-color: #646464;
+}
+
+.global-navbar-menu-right {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.global-navbar-menu-right .navbar-search {
+  flex: 1;
+  max-width: 310px;
+}
+
+.global-navbar-menu-right .navbar-search .search-box,
+.global-navbar-menu-right .navbar-search .search-box-input {
+  min-width: 0;
+  width: 100%;
 }
 
 @media print {

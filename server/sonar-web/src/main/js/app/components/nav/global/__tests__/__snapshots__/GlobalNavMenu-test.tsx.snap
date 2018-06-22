@@ -2,7 +2,7 @@
 
 exports[`should show administration menu if the user has the rights 1`] = `
 <ul
-  className="global-navbar-menu pull-left"
+  className="global-navbar-menu"
 >
   <li>
     <Link

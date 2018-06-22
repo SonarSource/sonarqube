@@ -35,11 +35,9 @@ export function GlobalNavBranding({ customLogoUrl, customLogoWidth }: StateProps
   const width = customLogoUrl ? customLogoWidth || 100 : 83;
 
   return (
-    <div className="pull-left">
-      <Link className="navbar-brand" to="/">
-        <img alt={title} height={30} src={url} title={title} width={width} />
-      </Link>
-    </div>
+    <Link className="navbar-brand" to="/">
+      <img alt={title} height={30} src={url} title={title} width={width} />
+    </Link>
   );
 }
 
