@@ -1,23 +1,42 @@
+description = 'Code shared between the Web Server and the Compute Engine'
+
 sonarqube {
-    properties {
-        property 'sonar.projectName', "${projectTitle} :: Server :: Common"
-    }
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Server :: Common"
+  }
+}
+
+configurations {
+  tests
 }
 
 dependencies {
-    // please keep the list grouped by configuration and ordered by name
+  // please keep the list grouped by configuration and ordered by name
 
-    compile 'com.google.guava:guava'
-    compile 'org.slf4j:slf4j-api'
+  compile 'com.google.guava:guava'
+  compile 'org.slf4j:slf4j-api'
+  compile project(':sonar-core')
+  compile project(':server:sonar-db-dao')
 
-    compile project(':sonar-core')
-    compileOnly project(path: ':sonar-plugin-api')
+  compileOnly project(path: ':sonar-plugin-api')
+  compileOnly project(path: ':server:sonar-process')
 
-    compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly 'com.google.code.findbugs:jsr305'
 
-    testCompile 'com.google.code.findbugs:jsr305'
-    testCompile 'com.tngtech.java:junit-dataprovider'
-    testCompile 'junit:junit'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
+  testCompile 'com.google.code.findbugs:jsr305'
+  testCompile 'com.h2database:h2'
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+  testCompile project(':server:sonar-db-testing')
+}
+
+task testJar(type: Jar) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+artifacts {
+  tests testJar
 }

@@ -47,6 +47,7 @@ dependencies {
   compile 'org.sonarsource.update-center:sonar-update-center-common'
   compile 'org.mindrot:jbcrypt'
 
+  compile project(':server:sonar-ce-common')
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-db-dao')
   compile project(':server:sonar-db-migration')
@@ -83,6 +84,7 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.subethamail:subethasmtp'
   testCompile project(':server:sonar-db-testing')
+  testCompile project(path: ":server:sonar-server-common", configuration: "tests")
 }
 
 task testJar(type: Jar) {
