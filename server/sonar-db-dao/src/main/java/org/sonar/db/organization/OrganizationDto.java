@@ -41,8 +41,6 @@ public class OrganizationDto {
    * Flag indicated whether being root is required to be able to delete this organization.
    */
   private boolean guarded = false;
-  /** If of the user for whom the organization was created, can be null. */
-  private Integer userId;
   private Integer defaultGroupId;
   private String defaultQualityGateUuid;
   private long createdAt;
@@ -175,7 +173,6 @@ public class OrganizationDto {
       ", url='" + url + '\'' +
       ", avatarUrl='" + avatarUrl + '\'' +
       ", guarded=" + guarded +
-      ", userId=" + userId +
       ", defaultQualityGateUuid=" + defaultQualityGateUuid +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
