@@ -34,7 +34,6 @@ public class ComponentQuery {
   private final String nameOrKeyQuery;
   private final boolean partialMatchOnKey;
   private final String[] qualifiers;
-  private final String language;
   private final Boolean isPrivate;
   private final Set<Long> componentIds;
   private final Set<String> componentUuids;
@@ -48,7 +47,6 @@ public class ComponentQuery {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
     this.partialMatchOnKey = builder.partialMatchOnKey == null ? false : builder.partialMatchOnKey;
     this.qualifiers = builder.qualifiers;
-    this.language = builder.language;
     this.componentIds = builder.componentIds;
     this.componentUuids = builder.componentUuids;
     this.componentKeys = builder.componentKeys;
@@ -81,11 +79,6 @@ public class ComponentQuery {
    */
   public boolean isPartialMatchOnKey() {
     return partialMatchOnKey;
-  }
-
-  @CheckForNull
-  public String getLanguage() {
-    return language;
   }
 
   @CheckForNull
@@ -140,7 +133,6 @@ public class ComponentQuery {
     private String nameOrKeyQuery;
     private Boolean partialMatchOnKey;
     private String[] qualifiers;
-    private String language;
     private Boolean isPrivate;
     private Set<Long> componentIds;
     private Set<String> componentUuids;
@@ -165,11 +157,6 @@ public class ComponentQuery {
 
     public Builder setQualifiers(String... qualifiers) {
       this.qualifiers = qualifiers;
-      return this;
-    }
-
-    public Builder setLanguage(@Nullable String language) {
-      this.language = language;
       return this;
     }
 

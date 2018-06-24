@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Date;
 import java.util.function.Supplier;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,15 +39,17 @@ public class ComponentQueryTest {
   public void build_query() {
     ComponentQuery underTest = ComponentQuery.builder()
       .setNameOrKeyQuery("key")
-      .setLanguage("java")
-      .setAnalyzedBefore(1_000_000_000L)
+      .setAnalyzedBefore(100L)
+      .setAnalyzedAfter(200L)
+      .setCreatedAfter(new Date(300L))
       .setQualifiers(PROJECT)
       .build();
 
     assertThat(underTest.getNameOrKeyQuery()).isEqualTo("key");
-    assertThat(underTest.getLanguage()).isEqualTo("java");
     assertThat(underTest.getQualifiers()).containsOnly(PROJECT);
-    assertThat(underTest.getAnalyzedBefore()).isEqualTo(1_000_000_000L);
+    assertThat(underTest.getAnalyzedBefore()).isEqualTo(100L);
+    assertThat(underTest.getAnalyzedAfter()).isEqualTo(200L);
+    assertThat(underTest.getCreatedAfter().getTime()).isEqualTo(300L);
     assertThat(underTest.isOnProvisionedOnly()).isFalse();
     assertThat(underTest.isPartialMatchOnKey()).isFalse();
     assertThat(underTest.hasEmptySetOfComponents()).isFalse();
@@ -59,7 +62,6 @@ public class ComponentQueryTest {
       .build();
 
     assertThat(underTest.getNameOrKeyQuery()).isNull();
-    assertThat(underTest.getLanguage()).isNull();
     assertThat(underTest.getQualifiers()).containsOnly(PROJECT);
   }
 
@@ -90,7 +92,7 @@ public class ComponentQueryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one qualifier must be provided");
 
-    ComponentQuery.builder().setLanguage("java").build();
+    ComponentQuery.builder().build();
   }
 
   @Test

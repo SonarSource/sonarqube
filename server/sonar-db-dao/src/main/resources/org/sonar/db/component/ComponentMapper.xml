@@ -307,9 +307,6 @@
             #{qualifier,jdbcType=VARCHAR}
           </foreach>
       </if>
-      <if test="query.language!=null">
-        and p.language = #{query.language,jdbcType=VARCHAR}
-      </if>
       <if test="query.componentIds!=null">
         and p.id in
         <foreach collection="query.componentIds" item="componentId" open="(" close=")" separator=",">

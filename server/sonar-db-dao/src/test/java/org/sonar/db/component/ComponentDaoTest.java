@@ -1538,18 +1538,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void selectByQuery_filter_on_language() {
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("java-project-key").setLanguage("java"));
-    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("cpp-project-key").setLanguage("cpp"));
-
-    ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(PROJECT).build();
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
-
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getDbKey()).isEqualTo("java-project-key");
-  }
-
-  @Test
   public void selectByQuery_filter_last_analysis_date() {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
@@ -1560,19 +1548,19 @@ public class ComponentDaoTest {
     db.components().insertSnapshot(recentProject, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
     // before date
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime)))
       .containsExactlyInAnyOrder(oldProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(aLongTimeAgo), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(aLongTimeAgo)))
       .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime + 1_000L), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime + 1_000L)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
 
     // after date
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L)))
       .containsExactlyInAnyOrder(recentProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L)))
       .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
   }
 
@@ -1592,11 +1580,11 @@ public class ComponentDaoTest {
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
     // after date
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L)))
       .containsExactlyInAnyOrder(recentProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L)))
       .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
   }
 
@@ -1605,18 +1593,19 @@ public class ComponentDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-02-01")));
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-06-01")));
 
-    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2017-12-01")), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2017-12-01"))))
       .containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2018-02-20")), 0, 10))
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2018-02-20"))))
       .containsExactlyInAnyOrder(project2.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2019-01-01")), 0, 10))
+
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2019-01-01"))))
       .isEmpty();
   }
 
-  private List<String> selectProjectUuidsByQuery(Consumer<ComponentQuery.Builder> query, int offset, int limit) {
+  private List<String> selectProjectUuidsByQuery(Consumer<ComponentQuery.Builder> query) {
     ComponentQuery.Builder builder = ComponentQuery.builder().setQualifiers(PROJECT);
     query.accept(builder);
-    return underTest.selectByQuery(dbSession, builder.build(), offset, limit)
+    return underTest.selectByQuery(dbSession, builder.build(), 0, 5)
       .stream()
       .map(ComponentDto::uuid)
       .collect(Collectors.toList());
