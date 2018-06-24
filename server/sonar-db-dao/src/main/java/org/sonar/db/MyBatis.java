@@ -52,7 +52,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
-import org.sonar.db.debt.RequirementMigrationDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.es.EsQueueMapper;
@@ -182,7 +181,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
-    confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
     confBuilder.loadAlias("Resource", ResourceDto.class);
     confBuilder.loadAlias("RuleParam", RuleParamDto.class);
     confBuilder.loadAlias("Rule", RuleDto.class);
