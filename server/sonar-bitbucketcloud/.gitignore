@@ -24,3 +24,6 @@ build/
 src/test/json/**/*.png
 lcov.info
 .nyc_output
+
+# eslint
+eslint-report.json

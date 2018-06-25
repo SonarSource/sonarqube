@@ -74,6 +74,7 @@
     "coverage": "npm test -- --coverage",
     "format": "prettier --write --list-different 'src/main/js/!(libs)/**/*.{js,ts,tsx,css}'",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
+    "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
     "prettier-check": "prettier --list-different 'src/main/js/!(libs)/**/*.{js,ts,tsx,css}'",
     "ts-check": "tsc --noEmit",
     "validate":

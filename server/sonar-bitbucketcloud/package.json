@@ -86,6 +86,7 @@
     "coverage": "yarn jest --coverage",
     "format": "yarn prettier --write --list-different 'src/main/ts/**/*.{js,ts,tsx,css}'",
     "lint": "yarn eslint --ext js,ts,tsx --quiet src/main/ts",
+    "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/ts",
     "prettier-check": "yarn prettier --list-different 'src/main/ts/**/*.{js,ts,tsx,css}'",
     "ts-check": "yarn tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn prettier-check && NODE_ENV=test jest"

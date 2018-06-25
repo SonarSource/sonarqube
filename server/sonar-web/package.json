@@ -127,6 +127,7 @@
     "coverage": "npm test -- --coverage",
     "format": "prettier --write --list-different 'src/main/js/**/*.{js,ts,tsx,css}'",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
+    "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
     "flow-check": "flow check src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn flow-check && yarn ts-check && NODE_ENV=test jest",
