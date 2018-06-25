@@ -134,6 +134,17 @@
           and s.islast = ${_true}
         )
       </if>
+      <if test="query.analyzedAfter != null">
+        and exists(
+        select 1
+          from snapshots s
+          inner join projects p on p.uuid = s.component_uuid
+          where p.organization_uuid = org.uuid
+          and p.enabled = ${_true}
+          and s.islast = ${_true}
+          and s.created_at &gt;= #{query.analyzedAfter,jdbcType=BIGINT}
+        )
+      </if>
     </where>
   </sql>
 

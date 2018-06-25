@@ -30,10 +30,13 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 public class OrganizationQuery {
   private static final OrganizationQuery NO_FILTER = newOrganizationQueryBuilder().build();
   private final Set<String> keys;
+  @Nullable
   private final Integer userId;
   private final boolean onlyTeam;
   private final boolean onlyPersonal;
   private final boolean withAnalyses;
+  @Nullable
+  private final Long analyzedAfter;
 
   private OrganizationQuery(Builder builder) {
     this.keys = builder.keys;
@@ -44,6 +47,7 @@ public class OrganizationQuery {
       throw new IllegalArgumentException("Only one of onlyPersonal and onlyTeam can be true");
     }
     this.withAnalyses = builder.withAnalyses;
+    this.analyzedAfter = builder.analyzedAfter;
   }
 
   @CheckForNull
@@ -68,6 +72,11 @@ public class OrganizationQuery {
     return withAnalyses;
   }
 
+  @CheckForNull
+  public Long getAnalyzedAfter() {
+    return analyzedAfter;
+  }
+
   public static OrganizationQuery returnAll() {
     return NO_FILTER;
   }
@@ -83,6 +92,8 @@ public class OrganizationQuery {
     private boolean onlyTeam = false;
     private boolean onlyPersonal = false;
     private boolean withAnalyses = false;
+    @Nullable
+    private Long analyzedAfter;
 
     private Builder() {
       // use static factory method
@@ -114,6 +125,11 @@ public class OrganizationQuery {
 
     public Builder setWithAnalyses() {
       this.withAnalyses = true;
+      return this;
+    }
+
+    public Builder setAnalyzedAfter(long l) {
+      this.analyzedAfter = l;
       return this;
     }
 
