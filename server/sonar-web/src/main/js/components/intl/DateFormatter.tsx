@@ -27,7 +27,7 @@ interface Props {
   long?: boolean;
 }
 
-export const formatterOption = { year: 'numeric', month: '2-digit', day: '2-digit' };
+export const formatterOption = { year: 'numeric', month: 'short', day: '2-digit' };
 
 export const longFormatterOption = { year: 'numeric', month: 'long', day: 'numeric' };
 
