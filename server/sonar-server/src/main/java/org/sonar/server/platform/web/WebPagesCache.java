@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Configuration;
+import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.Platform.Status;
 

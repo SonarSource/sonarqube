@@ -29,6 +29,7 @@ import org.sonar.server.es.MigrationEsClientImpl;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
+import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
@@ -81,7 +82,9 @@ public class PlatformLevel2 extends PlatformLevel {
 
       // depends on plugins
       ServerI18n.class,
-      RuleI18nManager.class);
+      RuleI18nManager.class,
+
+      OfficialDistribution.class);
 
     // Migration state must be kept at level2 to survive moving in and then out of safe mode
     // ExecutorService must be kept at level2 because stopping it when stopping safe mode level causes error making SQ fail

@@ -21,7 +21,6 @@ package org.sonar.server.platform.monitoring;
 
 import org.sonar.process.systeminfo.JvmPropertiesSection;
 import org.sonar.process.systeminfo.JvmStateSection;
-import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoaderImpl;
 import org.sonar.server.platform.monitoring.cluster.CeQueueGlobalSection;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
@@ -53,7 +52,6 @@ public class WebSystemInfoModule {
       SettingsSection.class,
       StandaloneSystemSection.class,
 
-      OfficialDistribution.class,
       StandaloneSystemInfoWriter.class,
       InfoAction.class
     };
@@ -73,8 +71,6 @@ public class WebSystemInfoModule {
       NodeSystemSection.class,
       PluginsSection.class,
       SettingsSection.class,
-
-      OfficialDistribution.class,
 
       ProcessInfoProvider.class,
       GlobalInfoLoader.class,

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.Platform;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
