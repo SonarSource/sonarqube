@@ -48,10 +48,11 @@ public class WebPagesCacheTest {
 
   private ServletContext servletContext = mock(ServletContext.class);
 
+  private OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
   private Platform platform = mock(Platform.class);
   private MapSettings mapSettings = new MapSettings();
 
-  private WebPagesCache underTest = new WebPagesCache(platform, mapSettings.asConfig());
+  private WebPagesCache underTest = new WebPagesCache(platform, mapSettings.asConfig(), officialDistribution);
 
   @Before
   public void setUp() throws Exception {

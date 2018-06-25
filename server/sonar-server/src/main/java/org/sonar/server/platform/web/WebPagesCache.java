@@ -43,6 +43,7 @@ public class WebPagesCache {
   private static final String WEB_CONTEXT_PLACEHOLDER = "%WEB_CONTEXT%";
   private static final String SERVER_STATUS_PLACEHOLDER = "%SERVER_STATUS%";
   private static final String INSTANCE_PLACEHOLDER = "%INSTANCE%";
+  private static final String OFFICIAL_PLACEHOLDER = "%OFFICIAL%";
 
   private static final String SONARCLOUD_INSTANCE_VALUE = "SonarCloud";
   private static final String SONARQUBE_INSTANCE_VALUE = "SonarQube";
@@ -53,15 +54,17 @@ public class WebPagesCache {
 
   private final Platform platform;
   private final Configuration configuration;
+  private final OfficialDistribution officialDistribution;
 
   private ServletContext servletContext;
   private Map<String, String> indexHtmlByPath;
   private Status status;
 
-  public WebPagesCache(Platform platform, Configuration configuration) {
+  public WebPagesCache(Platform platform, Configuration configuration, OfficialDistribution officialDistribution) {
     this.platform = platform;
     this.configuration = configuration;
     this.indexHtmlByPath = new HashMap<>();
+    this.officialDistribution = officialDistribution;
   }
 
   public void init(ServletContext servletContext) {
@@ -101,10 +104,10 @@ public class WebPagesCache {
       return template
         .replaceAll(WEB_CONTEXT_PLACEHOLDER, servletContext.getContextPath())
         .replaceAll(SERVER_STATUS_PLACEHOLDER, serverStatus)
-        .replaceAll(INSTANCE_PLACEHOLDER, instance);
+        .replaceAll(INSTANCE_PLACEHOLDER, instance)
+        .replaceAll(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()));
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load file " + path, e);
     }
   }
-
 }
