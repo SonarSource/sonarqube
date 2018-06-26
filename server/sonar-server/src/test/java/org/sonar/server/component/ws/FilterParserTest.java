@@ -29,12 +29,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
-import static org.sonar.server.component.ws.FilterParser.Operator.GT;
-import static org.sonar.server.component.ws.FilterParser.Operator.GTE;
-import static org.sonar.server.component.ws.FilterParser.Operator.IN;
-import static org.sonar.server.component.ws.FilterParser.Operator.LT;
-import static org.sonar.server.component.ws.FilterParser.Operator.LTE;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.GT;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.GTE;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.IN;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LT;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LTE;
 
 public class FilterParserTest {
 

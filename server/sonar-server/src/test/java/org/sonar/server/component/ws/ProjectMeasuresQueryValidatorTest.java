@@ -246,7 +246,7 @@ public class ProjectMeasuresQueryValidatorTest {
 
   private static void validateFilterKeys(String... metricKeys) {
     ProjectMeasuresQuery query = new ProjectMeasuresQuery();
-    Arrays.stream(metricKeys).forEachOrdered(metricKey -> query.addMetricCriterion(create(metricKey, FilterParser.Operator.LT, 80d)));
+    Arrays.stream(metricKeys).forEachOrdered(metricKey -> query.addMetricCriterion(create(metricKey, ProjectMeasuresQuery.Operator.LT, 80d)));
     ProjectMeasuresQueryValidator.validate(query);
   }
 }

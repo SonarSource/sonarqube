@@ -35,12 +35,12 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.component.ws.FilterParser.Operator;
-import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
-import static org.sonar.server.component.ws.FilterParser.Operator.GT;
-import static org.sonar.server.component.ws.FilterParser.Operator.IN;
-import static org.sonar.server.component.ws.FilterParser.Operator.LT;
-import static org.sonar.server.component.ws.FilterParser.Operator.LTE;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.GT;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.IN;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LT;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LTE;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 
 public class ProjectMeasuresQueryFactoryTest {

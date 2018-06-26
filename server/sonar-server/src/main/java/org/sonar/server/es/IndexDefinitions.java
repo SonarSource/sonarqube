@@ -19,10 +19,8 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
@@ -33,60 +31,7 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public class IndexDefinitions implements Startable {
 
-  /**
-   * Immutable copy of {@link org.sonar.server.es.NewIndex}
-   */
-  public static class Index {
-    private final String name;
-    private final Settings settings;
-    private final Map<String, IndexType> types;
-
-    Index(NewIndex newIndex) {
-      this.name = newIndex.getName();
-      this.settings = newIndex.getSettings().build();
-      ImmutableMap.Builder<String, IndexType> builder = ImmutableMap.builder();
-      for (NewIndex.NewIndexType newIndexType : newIndex.getTypes().values()) {
-        IndexType type = new IndexType(newIndexType);
-        builder.put(type.getName(), type);
-      }
-      this.types = builder.build();
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Settings getSettings() {
-      return settings;
-    }
-
-    public Map<String, IndexType> getTypes() {
-      return types;
-    }
-  }
-
-  /**
-   * Immutable copy of {@link org.sonar.server.es.NewIndex.NewIndexType}
-   */
-  public static class IndexType {
-    private final String name;
-    private final Map<String, Object> attributes;
-
-    private IndexType(NewIndex.NewIndexType newType) {
-      this.name = newType.getName();
-      this.attributes = ImmutableMap.copyOf(newType.getAttributes());
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Map<String, Object> getAttributes() {
-      return attributes;
-    }
-  }
-
-  private final Map<String, Index> byKey = Maps.newHashMap();
+  private final Map<String, IndexDefinition.Index> byKey = Maps.newHashMap();
   private final IndexDefinition[] defs;
   private final Configuration config;
 
@@ -95,7 +40,7 @@ public class IndexDefinitions implements Startable {
     this.config = config;
   }
 
-  public Map<String, Index> getIndices() {
+  public Map<String, IndexDefinition.Index> getIndices() {
     return byKey;
   }
 
@@ -110,7 +55,7 @@ public class IndexDefinitions implements Startable {
       }
 
       for (Map.Entry<String, NewIndex> entry : context.getIndices().entrySet()) {
-        byKey.put(entry.getKey(), new Index(entry.getValue()));
+        byKey.put(entry.getKey(), new IndexDefinition.Index(entry.getValue()));
       }
     }
   }

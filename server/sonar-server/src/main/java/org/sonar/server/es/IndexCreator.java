@@ -36,7 +36,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.es.IndexDefinitions.Index;
+import org.sonar.server.es.IndexDefinition.Index;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
@@ -110,7 +110,7 @@ public class IndexCreator implements Startable {
     settings.put(index.getSettings());
     if (useMetadata) {
       metadataIndex.setHash(index.getName(), IndexDefinitionHash.of(index));
-      for (IndexDefinitions.IndexType type : index.getTypes().values()) {
+      for (IndexDefinition.Type type : index.getTypes().values()) {
         metadataIndex.setInitialized(new IndexType(index.getName(), type.getName()), false);
       }
     }
@@ -124,7 +124,7 @@ public class IndexCreator implements Startable {
     client.waitForStatus(ClusterHealthStatus.YELLOW);
 
     // create types
-    for (Map.Entry<String, IndexDefinitions.IndexType> entry : index.getTypes().entrySet()) {
+    for (Map.Entry<String, IndexDefinition.Type> entry : index.getTypes().entrySet()) {
       LOGGER.info(String.format("Create type %s/%s", index.getName(), entry.getKey()));
       PutMappingResponse mappingResponse = client.preparePutMapping(index.getName())
         .setType(entry.getKey())
@@ -165,7 +165,7 @@ public class IndexCreator implements Startable {
   }
 
   private List<String> loadExistingIndicesExceptMetadata(Collection<Index> definitions) {
-    Set<String> definedNames = definitions.stream().map(Index::getName).collect(Collectors.toSet());
+    Set<String> definedNames = definitions.stream().map(IndexDefinition.Index::getName).collect(Collectors.toSet());
     return Arrays.stream(client.nativeClient().admin().indices().prepareGetIndex().get().getIndices())
       .filter(definedNames::contains)
       .filter(index -> !MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex().equals(index))

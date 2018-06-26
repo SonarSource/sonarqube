@@ -28,10 +28,9 @@ import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
 public class FilterParser {
@@ -81,7 +80,7 @@ public class FilterParser {
     String operatorValue = matcher.group(2);
     String value = matcher.group(3);
     if (!isNullOrEmpty(operatorValue) && !isNullOrEmpty(value)) {
-      builder.setOperator(Operator.getByValue(operatorValue));
+      builder.setOperator(ProjectMeasuresQuery.Operator.getByValue(operatorValue));
       builder.setValue(sanitizeValue(value));
     }
     return builder.build();
@@ -95,7 +94,7 @@ public class FilterParser {
     }
     Criterion.Builder builder = new Criterion.Builder();
     builder.setKey(matcher.group(1));
-    builder.setOperator(Operator.IN);
+    builder.setOperator(ProjectMeasuresQuery.Operator.IN);
     builder.setValues(IN_VALUES_SPLITTER.splitToList(matcher.group(3)));
     return builder.build();
   }
@@ -113,7 +112,7 @@ public class FilterParser {
 
   public static class Criterion {
     private final String key;
-    private final Operator operator;
+    private final ProjectMeasuresQuery.Operator operator;
     private final String value;
     private final List<String> values;
 
@@ -129,7 +128,7 @@ public class FilterParser {
     }
 
     @CheckForNull
-    public Operator getOperator() {
+    public ProjectMeasuresQuery.Operator getOperator() {
       return operator;
     }
 
@@ -148,7 +147,7 @@ public class FilterParser {
 
     public static class Builder {
       private String key;
-      private Operator operator;
+      private ProjectMeasuresQuery.Operator operator;
       private String value;
       private List<String> values = new ArrayList<>();
 
@@ -157,7 +156,7 @@ public class FilterParser {
         return this;
       }
 
-      public Builder setOperator(@Nullable Operator operator) {
+      public Builder setOperator(@Nullable ProjectMeasuresQuery.Operator operator) {
         this.operator = operator;
         return this;
       }
@@ -175,27 +174,6 @@ public class FilterParser {
       public Criterion build() {
         return new Criterion(this);
       }
-    }
-  }
-
-  public enum Operator {
-    LT("<"), LTE("<="), GT(">"), GTE(">="), EQ("="), IN("in");
-
-    String value;
-
-    Operator(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public static Operator getByValue(String value) {
-      return stream(Operator.values())
-        .filter(operator -> operator.getValue().equalsIgnoreCase(value))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(format("Unknown operator '%s'", value)));
     }
   }
 
