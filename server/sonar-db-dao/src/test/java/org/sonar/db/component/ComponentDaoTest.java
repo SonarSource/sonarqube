@@ -1164,11 +1164,28 @@ public class ComponentDaoTest {
     underTest.countByQuery(dbSession, query.build());
   }
 
+
   @Test
+  public void countByNclocRanges_on_zero_projects() {
+    db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+
+    assertThat(underTest.countByNclocRanges(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(
+        tuple("1K", 0L),
+        tuple("5K", 0L),
+        tuple("10K", 0L),
+        tuple("20K", 0L),
+        tuple("50K", 0L),
+        tuple("100K", 0L),
+        tuple("250K", 0L),
+        tuple("500K", 0L),
+        tuple("1M", 0L),
+        tuple("+1M", 0L));
+  }
+    @Test
   public void countByNclocRanges() {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
-
-    assertThat(underTest.countByNclocRanges(dbSession)).isEmpty();
 
     // project with highest ncloc in non-main branch
     OrganizationDto org = db.organizations().insert();
@@ -1183,13 +1200,23 @@ public class ComponentDaoTest {
 
     // project with highest ncloc in main branch
     ComponentDto project3 = db.components().insertMainBranch(org);
-    ComponentDto project3Branch = db.components().insertProjectBranch(project1);
+    ComponentDto project3Branch = db.components().insertProjectBranch(project3);
     db.measures().insertLiveMeasure(project3, ncloc, m -> m.setValue(80_000.0));
     db.measures().insertLiveMeasure(project3Branch, ncloc, m -> m.setValue(25_000.0));
 
     assertThat(underTest.countByNclocRanges(dbSession))
       .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
-      .containsExactlyInAnyOrder(tuple("100K", 2L), tuple("1K", 1L));
+      .containsExactlyInAnyOrder(
+        tuple("1K", 1L),
+        tuple("5K", 0L),
+        tuple("10K", 0L),
+        tuple("20K", 0L),
+        tuple("50K", 0L),
+        tuple("100K", 2L),
+        tuple("250K", 0L),
+        tuple("500K", 0L),
+        tuple("1M", 0L),
+        tuple("+1M", 0L));
   }
 
   @Test

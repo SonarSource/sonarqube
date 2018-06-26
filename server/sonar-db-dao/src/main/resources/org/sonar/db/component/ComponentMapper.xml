@@ -277,37 +277,61 @@
   </select>
 
   <select id="countByNclocRanges" resultType="org.sonar.db.KeyLongValue">
-    select range as "key", count(1) as "value"
+    select kee as "key", sum(val) as "value"
     from (
-      select case
-        when locs &lt;= 1000 then '1K'
-        when locs &gt; 1000 and locs &lt;= 5000 then '5K'
-        when locs &gt; 5000 and locs &lt;= 10000 then '10K'
-        when locs &gt; 10000 and locs &lt;= 20000 then '20K'
-        when locs &gt; 20000 and locs &lt;= 50000 then '50K'
-        when locs &gt; 50000 and locs &lt;= 100000 then '100K'
-        when locs &gt; 100000 and locs &lt;= 250000 then '250K'
-        when locs &gt; 250000 and locs &lt;= 500000 then '500K'
-        when locs &gt; 500000 and locs &lt;= 1000000 then '1M'
-        else 'More'
-        end as range
+      select '1K' as kee, 0 as val ${_from_dual}
+      union
+      select '5K' as kee, 0 as val ${_from_dual}
+      union
+      select '10K' as kee, 0 as val ${_from_dual}
+      union
+      select '20K' as kee, 0 as val ${_from_dual}
+      union
+      select '50K' as kee, 0 as val ${_from_dual}
+      union
+      select '100K' as kee, 0 as val ${_from_dual}
+      union
+      select '250K' as kee, 0 as val ${_from_dual}
+      union
+      select '500K' as kee, 0 as val ${_from_dual}
+      union
+      select '1M' as kee, 0 as val ${_from_dual}
+      union
+      select '+1M' as kee, 0 as val ${_from_dual}
+      union
+      select kee, count(1) as val
       from (
-        select b.project_uuid as projectUuid, max(lm.value) as locs
-        from live_measures lm
-        inner join metrics m on m.id = lm.metric_id
-        inner join projects p on p.uuid = lm.component_uuid
-        inner join project_branches b on b.uuid = p.uuid
-        where m.name = 'ncloc'
-          and p.enabled = ${_true}
-          and p.scope = 'PRJ'
-          and p.qualifier = 'TRK'
-          and p.copy_component_uuid is null
-          and b.branch_type = 'LONG'
-          and b.key_type = 'BRANCH'
-          group by b.project_uuid
-      ) alias1
-    ) alias2
-    group by range
+        select case
+          when locs &lt;= 1000 then '1K'
+          when locs &gt; 1000 and locs &lt;= 5000 then '5K'
+          when locs &gt; 5000 and locs &lt;= 10000 then '10K'
+          when locs &gt; 10000 and locs &lt;= 20000 then '20K'
+          when locs &gt; 20000 and locs &lt;= 50000 then '50K'
+          when locs &gt; 50000 and locs &lt;= 100000 then '100K'
+          when locs &gt; 100000 and locs &lt;= 250000 then '250K'
+          when locs &gt; 250000 and locs &lt;= 500000 then '500K'
+          when locs &gt; 500000 and locs &lt;= 1000000 then '1M'
+          else '+1M'
+          end as kee
+        from (
+          select b.project_uuid as projectUuid, max(lm.value) as locs
+          from live_measures lm
+          inner join metrics m on m.id = lm.metric_id
+          inner join projects p on p.uuid = lm.component_uuid
+          inner join project_branches b on b.uuid = p.uuid
+          where m.name = 'ncloc'
+            and p.enabled = ${_true}
+            and p.scope = 'PRJ'
+            and p.qualifier = 'TRK'
+            and p.copy_component_uuid is null
+            and b.branch_type = 'LONG'
+            and b.key_type = 'BRANCH'
+            group by b.project_uuid
+        ) alias1
+      ) alias2
+      group by kee
+    ) alias3
+    group by kee
   </select>
 
   <select id="selectByQuery" resultType="Component">
