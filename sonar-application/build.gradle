@@ -111,6 +111,9 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
     // FIXME use configurations.web with correct artifacts
     from tasks.getByPath(':server:sonar-web:yarn_run').outputs
     from tasks.getByPath(':server:sonar-vsts:yarn_run').outputs
+    if (official) {
+      from project(':private:branding').file('.')
+    }
   }
   into("${archiveDir}/lib/jdbc/mssql/") {
     from configurations.jdbc_mssql
