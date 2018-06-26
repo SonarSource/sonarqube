@@ -299,6 +299,7 @@ export interface LongLivingBranch extends Branch {
 
 export interface MainBranch extends Branch {
   isMain: true;
+  status?: { qualityGateStatus: string };
 }
 
 export interface Metric {

@@ -30,7 +30,8 @@ import {
   getBranchQualityGateColor,
   isShortLivingBranch,
   isPullRequest,
-  isLongLivingBranch
+  isLongLivingBranch,
+  isMainBranch
 } from '../../helpers/branches';
 import { translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
@@ -97,13 +98,12 @@ export default function BranchStatus({ branchLike, concise = false }: Props) {
         )}
       </ul>
     );
-  } else if (isLongLivingBranch(branchLike)) {
+  } else if (isLongLivingBranch(branchLike) || isMainBranch(branchLike)) {
     if (!branchLike.status) {
       return null;
     }
 
     return <Level level={branchLike.status.qualityGateStatus} small={true} />;
-  } else {
-    return null;
   }
+  return null;
 }

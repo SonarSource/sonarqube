@@ -14,6 +14,20 @@ exports[`renders status of long-living branches 2`] = `
 />
 `;
 
+exports[`renders status of main branch 1`] = `
+<Level
+  level="OK"
+  small={true}
+/>
+`;
+
+exports[`renders status of main branch 2`] = `
+<Level
+  level="ERROR"
+  small={true}
+/>
+`;
+
 exports[`renders status of short-living branches 1`] = `
 <ul
   className="branch-status"
