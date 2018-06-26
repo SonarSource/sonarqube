@@ -51,4 +51,9 @@ public class MySql extends AbstractDialect {
   public boolean supportsMigration() {
     return true;
   }
+
+  @Override
+  public String getSqlFromDual() {
+    return "from dual";
+  }
 }

@@ -25,37 +25,42 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MsSqlTest {
 
-  private MsSql msSql = new MsSql();
+  private MsSql underTest = new MsSql();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(msSql.matchesJdbcURL("jdbc:sqlserver://localhost:1433;databasename=sonar")).isTrue();
+    assertThat(underTest.matchesJdbcURL("jdbc:sqlserver://localhost:1433;databasename=sonar")).isTrue();
 
-    assertThat(msSql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
-    assertThat(msSql.matchesJdbcURL("jdbc:mysql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:mysql:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(msSql.getTrueSqlValue()).isEqualTo("1");
-    assertThat(msSql.getFalseSqlValue()).isEqualTo("0");
+    assertThat(underTest.getTrueSqlValue()).isEqualTo("1");
+    assertThat(underTest.getFalseSqlValue()).isEqualTo("0");
   }
 
   @Test
   public void should_configure() {
-    assertThat(msSql.getId()).isEqualTo("mssql");
-    assertThat(msSql.getDefaultDriverClassName()).isEqualTo("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-    assertThat(msSql.getValidationQuery()).isEqualTo("SELECT 1");
+    assertThat(underTest.getId()).isEqualTo("mssql");
+    assertThat(underTest.getDefaultDriverClassName()).isEqualTo("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1");
   }
 
   @Test
   public void do_not_support_jtds_since_5_2() {
-    assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isFalse();
 
   }
 
   @Test
   public void msSql_does_supportMigration() {
-    assertThat(msSql.supportsMigration()).isTrue();
+    assertThat(underTest.supportsMigration()).isTrue();
+  }
+
+  @Test
+  public void getSqlFromDual() {
+    assertThat(underTest.getSqlFromDual()).isEqualTo("");
   }
 }

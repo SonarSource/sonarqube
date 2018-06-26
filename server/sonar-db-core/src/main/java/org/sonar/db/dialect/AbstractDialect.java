@@ -62,6 +62,11 @@ abstract class AbstractDialect implements Dialect {
   }
 
   @Override
+  public String getSqlFromDual() {
+    return "";
+  }
+
+  @Override
   public final String getValidationQuery() {
     return validationQuery;
   }

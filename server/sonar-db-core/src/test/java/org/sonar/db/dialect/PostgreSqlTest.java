@@ -25,39 +25,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PostgreSqlTest {
 
-  PostgreSql dialect = new PostgreSql();
+  private PostgreSql underTest = new PostgreSql();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(dialect.matchesJdbcURL("jdbc:postgresql://localhost/sonar")).isTrue();
-    assertThat(dialect.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:postgresql://localhost/sonar")).isTrue();
+    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
   public void should_set_connection_properties() {
-    assertThat(dialect.getConnectionInitStatements()).isEqualTo(PostgreSql.INIT_STATEMENTS);
+    assertThat(underTest.getConnectionInitStatements()).isEqualTo(PostgreSql.INIT_STATEMENTS);
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(dialect.getTrueSqlValue()).isEqualTo("true");
-    assertThat(dialect.getFalseSqlValue()).isEqualTo("false");
+    assertThat(underTest.getTrueSqlValue()).isEqualTo("true");
+    assertThat(underTest.getFalseSqlValue()).isEqualTo("false");
   }
 
   @Test
   public void should_configure() {
-    assertThat(dialect.getId()).isEqualTo("postgresql");
-    assertThat(dialect.getDefaultDriverClassName()).isEqualTo("org.postgresql.Driver");
-    assertThat(dialect.getValidationQuery()).isEqualTo("SELECT 1");
+    assertThat(underTest.getId()).isEqualTo("postgresql");
+    assertThat(underTest.getDefaultDriverClassName()).isEqualTo("org.postgresql.Driver");
+    assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1");
   }
 
   @Test
   public void testFetchSizeForScrolling() {
-    assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
+    assertThat(underTest.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 
   @Test
   public void postgres_does_supportMigration() {
-    assertThat(dialect.supportsMigration()).isTrue();
+    assertThat(underTest.supportsMigration()).isTrue();
+  }
+
+  @Test
+  public void getSqlFromDual() {
+    assertThat(underTest.getSqlFromDual()).isEqualTo("");
   }
 }

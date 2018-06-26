@@ -46,6 +46,7 @@ class MyBatisConfBuilder {
     this.conf.setDatabaseId(dialect.getId());
     this.conf.getVariables().setProperty("_true", dialect.getTrueSqlValue());
     this.conf.getVariables().setProperty("_false", dialect.getFalseSqlValue());
+    this.conf.getVariables().setProperty("_from_dual", dialect.getSqlFromDual());
     this.conf.getVariables().setProperty("_scrollFetchSize", String.valueOf(dialect.getScrollDefaultFetchSize()));
     this.conf.setLocalCacheScope(LocalCacheScope.STATEMENT);
   }

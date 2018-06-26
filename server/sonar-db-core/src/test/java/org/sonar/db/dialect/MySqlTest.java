@@ -25,38 +25,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MySqlTest {
 
-  private MySql mySql = new MySql();
+  private MySql underTest = new MySql();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(mySql.matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
-    assertThat(mySql.matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
+    assertThat(underTest.matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
+    assertThat(underTest.matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
 
-    assertThat(mySql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
-    assertThat(mySql.matchesJdbcURL("jdbc:oracle:foo")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:oracle:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(mySql.getTrueSqlValue()).isEqualTo("true");
-    assertThat(mySql.getFalseSqlValue()).isEqualTo("false");
+    assertThat(underTest.getTrueSqlValue()).isEqualTo("true");
+    assertThat(underTest.getFalseSqlValue()).isEqualTo("false");
   }
 
   @Test
   public void should_configure() {
-    assertThat(mySql.getId()).isEqualTo("mysql");
-    assertThat(mySql.getDefaultDriverClassName()).isEqualTo("com.mysql.jdbc.Driver");
-    assertThat(mySql.getValidationQuery()).isEqualTo("SELECT 1");
+    assertThat(underTest.getId()).isEqualTo("mysql");
+    assertThat(underTest.getDefaultDriverClassName()).isEqualTo("com.mysql.jdbc.Driver");
+    assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1");
   }
 
   @Test
   public void testFetchSizeForScrolling() {
-    assertThat(mySql.getScrollDefaultFetchSize()).isEqualTo(Integer.MIN_VALUE);
-    assertThat(mySql.getScrollSingleRowFetchSize()).isEqualTo(Integer.MIN_VALUE);
+    assertThat(underTest.getScrollDefaultFetchSize()).isEqualTo(Integer.MIN_VALUE);
+    assertThat(underTest.getScrollSingleRowFetchSize()).isEqualTo(Integer.MIN_VALUE);
   }
 
   @Test
   public void mysql_does_supportMigration() {
-    assertThat(mySql.supportsMigration()).isTrue();
+    assertThat(underTest.supportsMigration()).isTrue();
+  }
+
+  @Test
+  public void getSqlFromDual() {
+    assertThat(underTest.getSqlFromDual()).isEqualTo("from dual");
   }
 }

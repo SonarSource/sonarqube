@@ -34,6 +34,8 @@ public interface OrganizationMapper {
 
   List<KeyLongValue> countTeamsByProjects();
 
+  List<KeyLongValue> countTeamsByNclocRanges();
+
   List<OrganizationDto> selectByQuery(@Param("query") OrganizationQuery organizationQuery,
     @Param("pagination") Pagination pagination);
 

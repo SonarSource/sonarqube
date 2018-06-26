@@ -33,11 +33,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.assertj.core.groups.Tuple;
 import org.assertj.core.util.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,6 +47,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
@@ -976,9 +977,20 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void countTeamsByMembers() {
-    assertThat(underTest.countTeamsByMembers(dbSession)).isEmpty();
+  public void countTeamsByMembers_on_zero_orgs() {
+    assertThat(underTest.countTeamsByMembers(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(
+        tuple("0", 0L),
+        tuple("1", 0L),
+        tuple("2-4", 0L),
+        tuple("5-9", 0L),
+        tuple("10-24", 0L),
+        tuple("+25", 0L));
+  }
 
+  @Test
+  public void countTeamsByMembers() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
@@ -987,18 +999,34 @@ public class OrganizationDaoTest {
     OrganizationDto org2 = db.organizations().insert();
     db.organizations().addMember(org2, user1);
     OrganizationDto org3 = db.organizations().insert();
-    db.organizations().addMember(org3, user1, user2, user3);
+    db.organizations().addMember(org3, user1, user2);
 
     assertThat(underTest.countTeamsByMembers(dbSession))
       .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
-      .containsExactlyInAnyOrder(Tuple.tuple("1", 1L), Tuple.tuple("2-4", 2L));
+      .containsExactlyInAnyOrder(
+        tuple("0", 0L),
+        tuple("1", 1L),
+        tuple("2-4", 2L),
+        tuple("5-9", 0L),
+        tuple("10-24", 0L),
+        tuple("+25", 0L));
+  }
 
+  @Test
+  public void countTeamsByProjects_on_zero_projects() {
+    assertThat(underTest.countTeamsByProjects(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(
+        tuple("0", 0L),
+        tuple("1", 0L),
+        tuple("2-4", 0L),
+        tuple("5-9", 0L),
+        tuple("10-24", 0L),
+        tuple("+25", 0L));
   }
 
   @Test
   public void countTeamsByProjects() {
-    assertThat(underTest.countTeamsByProjects(dbSession)).isEmpty();
-
     OrganizationDto org1 = db.organizations().insert();
     db.components().insertPrivateProject(org1);
     OrganizationDto org2 = db.organizations().insert();
@@ -1011,8 +1039,64 @@ public class OrganizationDaoTest {
 
     assertThat(underTest.countTeamsByProjects(dbSession))
       .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
-      .containsExactlyInAnyOrder(Tuple.tuple("1", 1L), Tuple.tuple("2-4", 2L));
+      .containsExactlyInAnyOrder(
+        tuple("0", 0L),
+        tuple("1", 1L),
+        tuple("2-4", 2L),
+        tuple("5-9", 0L),
+        tuple("10-24", 0L),
+        tuple("+25", 0L));
+  }
 
+  @Test
+  public void countTeamsByNclocRanges() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+
+    OrganizationDto org1 = db.organizations().insert();
+    // project with highest ncloc in non-main branch
+    ComponentDto project1 = db.components().insertMainBranch(org1);
+    ComponentDto project1Branch = db.components().insertProjectBranch(project1);
+    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(1_000.0));
+    db.measures().insertLiveMeasure(project1Branch, ncloc, m -> m.setValue(110_000.0));
+    // project with only main branch
+    ComponentDto project2 = db.components().insertMainBranch(org1);
+    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(400_000.0));
+
+    OrganizationDto org2 = db.organizations().insert();
+    // project with highest ncloc in main branch
+    ComponentDto project3 = db.components().insertMainBranch(org2);
+    ComponentDto project3Branch = db.components().insertProjectBranch(project3);
+    db.measures().insertLiveMeasure(project3, ncloc, m -> m.setValue(5_800_000.0));
+    db.measures().insertLiveMeasure(project3Branch, ncloc, m -> m.setValue(25_000.0));
+
+    assertThat(underTest.countTeamsByNclocRanges(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(
+        tuple("100K", 0L),
+        tuple("500K", 1L),
+        tuple("1M", 0L),
+        tuple("2M", 0L),
+        tuple("5M", 0L),
+        tuple("10M", 1L),
+        tuple("20M", 0L),
+        tuple("50M", 0L),
+        tuple("+50M", 0L));
+  }
+
+  @Test
+  public void countTeamsByNclocRanges_on_zero_orgs() {
+    assertThat(underTest.countTeamsByNclocRanges(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(
+        tuple("100K", 0L),
+        tuple("500K", 0L),
+        tuple("1M", 0L),
+        tuple("2M", 0L),
+        tuple("5M", 0L),
+        tuple("10M", 0L),
+        tuple("20M", 0L),
+        tuple("50M", 0L),
+        tuple("+50M", 0L));
   }
 
   private void expectDtoCanNotBeNull() {

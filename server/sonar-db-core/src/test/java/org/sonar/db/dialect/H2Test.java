@@ -25,34 +25,39 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class H2Test {
 
-  H2 dialect = new H2();
+  private H2 underTest = new H2();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(dialect.matchesJdbcURL("jdbc:h2:foo")).isTrue();
-    assertThat(dialect.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:h2:foo")).isTrue();
+    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(dialect.getTrueSqlValue()).isEqualTo("true");
-    assertThat(dialect.getFalseSqlValue()).isEqualTo("false");
+    assertThat(underTest.getTrueSqlValue()).isEqualTo("true");
+    assertThat(underTest.getFalseSqlValue()).isEqualTo("false");
   }
 
   @Test
   public void should_configure() {
-    assertThat(dialect.getId()).isEqualTo("h2");
-    assertThat(dialect.getDefaultDriverClassName()).isEqualTo("org.h2.Driver");
-    assertThat(dialect.getValidationQuery()).isEqualTo("SELECT 1");
+    assertThat(underTest.getId()).isEqualTo("h2");
+    assertThat(underTest.getDefaultDriverClassName()).isEqualTo("org.h2.Driver");
+    assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1");
   }
 
   @Test
   public void testFetchSizeForScrolling() {
-    assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
+    assertThat(underTest.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 
   @Test
   public void h2_does_not_supportMigration() {
-    assertThat(dialect.supportsMigration()).isFalse();
+    assertThat(underTest.supportsMigration()).isFalse();
+  }
+
+  @Test
+  public void getSqlFromDual() {
+    assertThat(underTest.getSqlFromDual()).isEqualTo("");
   }
 }

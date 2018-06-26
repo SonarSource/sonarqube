@@ -49,4 +49,9 @@ public class Oracle extends AbstractDialect {
   public List<String> getConnectionInitStatements() {
     return INIT_STATEMENTS;
   }
+
+  @Override
+  public String getSqlFromDual() {
+    return "from dual";
+  }
 }

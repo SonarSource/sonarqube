@@ -62,6 +62,10 @@ public class OrganizationDao implements Dao {
     return getMapper(dbSession).countTeamsByProjects();
   }
 
+  public List<KeyLongValue> countTeamsByNclocRanges(DbSession dbSession) {
+    return getMapper(dbSession).countTeamsByNclocRanges();
+  }
+
   public List<OrganizationDto> selectByQuery(DbSession dbSession, OrganizationQuery organizationQuery, Pagination pagination) {
     requireNonNull(organizationQuery, "organizationQuery can't be null");
     return getMapper(dbSession).selectByQuery(organizationQuery, pagination);

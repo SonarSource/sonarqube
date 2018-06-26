@@ -56,6 +56,8 @@ public interface Dialect {
    */
   String getFalseSqlValue();
 
+  String getSqlFromDual();
+
   /**
    * Query used to validate the jdbc connection.
    *
