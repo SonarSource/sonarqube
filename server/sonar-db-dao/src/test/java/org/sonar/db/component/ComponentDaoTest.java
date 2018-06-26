@@ -43,12 +43,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 
@@ -1159,6 +1162,34 @@ public class ComponentDaoTest {
     expectedException.expectMessage(expectedMessage);
 
     underTest.countByQuery(dbSession, query.build());
+  }
+
+  @Test
+  public void countByNclocRanges() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+
+    assertThat(underTest.countByNclocRanges(dbSession)).isEmpty();
+
+    // project with highest ncloc in non-main branch
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project1 = db.components().insertMainBranch(org);
+    ComponentDto project1Branch = db.components().insertProjectBranch(project1);
+    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(100.0));
+    db.measures().insertLiveMeasure(project1Branch, ncloc, m -> m.setValue(90_000.0));
+
+    // project with only main branch
+    ComponentDto project2 = db.components().insertMainBranch(org);
+    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(50.0));
+
+    // project with highest ncloc in main branch
+    ComponentDto project3 = db.components().insertMainBranch(org);
+    ComponentDto project3Branch = db.components().insertProjectBranch(project1);
+    db.measures().insertLiveMeasure(project3, ncloc, m -> m.setValue(80_000.0));
+    db.measures().insertLiveMeasure(project3Branch, ncloc, m -> m.setValue(25_000.0));
+
+    assertThat(underTest.countByNclocRanges(dbSession))
+      .extracting(KeyLongValue::getKey, KeyLongValue::getValue)
+      .containsExactlyInAnyOrder(tuple("100K", 2L), tuple("1K", 1L));
   }
 
   @Test

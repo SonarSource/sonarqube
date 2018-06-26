@@ -38,6 +38,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -134,6 +135,10 @@ public class ComponentDao implements Dao {
   public int countByQuery(DbSession session, String organizationUuid, ComponentQuery query) {
     requireNonNull(organizationUuid, "organizationUuid can't be null");
     return countByQueryImpl(session, organizationUuid, query);
+  }
+
+  public List<KeyLongValue> countByNclocRanges(DbSession dbSession) {
+    return mapper(dbSession).countByNclocRanges();
   }
 
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> uuids) {
