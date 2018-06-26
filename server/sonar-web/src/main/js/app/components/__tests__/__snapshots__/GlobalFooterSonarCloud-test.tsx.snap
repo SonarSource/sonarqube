@@ -69,6 +69,17 @@ exports[`should render correctly 1`] = `
     <li
       className="page-footer-menu-item"
     >
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/documentation/security"
+      >
+        footer.security
+      </Link>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
       <a
         href="https://community.sonarsource.com/c/help/sc"
         rel="noopener noreferrer"

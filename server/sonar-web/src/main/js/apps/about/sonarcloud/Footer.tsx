@@ -103,6 +103,11 @@ export default function Footer() {
                   Privacy
                 </Link>
               </li>
+              <li className="spacer-top">
+                <Link className="sc-footer-link" to="/documentation/security">
+                  Security
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>

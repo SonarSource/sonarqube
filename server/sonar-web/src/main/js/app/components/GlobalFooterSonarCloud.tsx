@@ -60,6 +60,9 @@ export default function GlobalFooterSonarCloud() {
           <Link to="/documentation/privacy">{translate('footer.privacy')}</Link>
         </li>
         <li className="page-footer-menu-item">
+          <Link to="/documentation/security">{translate('footer.security')}</Link>
+        </li>
+        <li className="page-footer-menu-item">
           <a
             href="https://community.sonarsource.com/c/help/sc"
             rel="noopener noreferrer"
