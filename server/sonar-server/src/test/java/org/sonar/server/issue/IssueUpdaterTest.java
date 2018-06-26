@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -46,8 +47,11 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.MAJOR;
@@ -96,7 +100,9 @@ public class IssueUpdaterTest {
     RuleDto rule = db.rules().insertRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file))
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
+      .setType(randomTypeExceptHotspot))
       .setSeverity(MAJOR)
       .setAssigneeUuid(assignee.getUuid())
       .toDefaultIssue();
@@ -122,12 +128,34 @@ public class IssueUpdaterTest {
   }
 
   @Test
+  public void verify_no_notification_on_hotspot() {
+    UserDto assignee = db.users().insertUser();
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
+      .setType(RuleType.SECURITY_HOTSPOT))
+      .setSeverity(MAJOR)
+      .setAssigneeUuid(assignee.getUuid())
+      .toDefaultIssue();
+    UserDto changeAuthor = db.users().insertUser();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
+
+    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+
+    verify(notificationManager, never()).scheduleForSending(any());
+  }
+
+  @Test
   public void verify_notification_on_branch() {
     RuleDto rule = db.rules().insertRule();
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
-    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)).setSeverity(MAJOR).toDefaultIssue();
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)
+      .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
@@ -146,7 +174,9 @@ public class IssueUpdaterTest {
     RuleDto rule = db.rules().insertRule(r -> r.setStatus(RuleStatus.REMOVED));
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)).setSeverity(MAJOR).toDefaultIssue();
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
+    .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
@@ -162,7 +192,9 @@ public class IssueUpdaterTest {
     RuleDto rule = db.rules().insertRule();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file))
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
+    .setType(randomTypeExceptHotspot))
       .setAssigneeUuid(oldAssignee.getUuid())
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();

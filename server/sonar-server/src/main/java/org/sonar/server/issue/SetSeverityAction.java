@@ -45,12 +45,12 @@ public class SetSeverityAction extends Action {
     super(SET_SEVERITY_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
-    super.setConditions(new IsUnResolved(), this::isCurrentUserIssueAdminOrSecurityAuditor);
+    super.setConditions(new IsUnResolved(), this::isCurrentUserIssueAdminAndNotSecurityHotspot);
   }
 
-  private boolean isCurrentUserIssueAdminOrSecurityAuditor(Issue issue) {
+  private boolean isCurrentUserIssueAdminAndNotSecurityHotspot(Issue issue) {
     DefaultIssue defaultIssue = (DefaultIssue) issue;
-    return ((defaultIssue.type() != RuleType.SECURITY_HOTSPOT && userSession.hasComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid())));
+    return (defaultIssue.type() != RuleType.SECURITY_HOTSPOT && userSession.hasComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid()));
   }
 
   @Override

@@ -63,6 +63,7 @@ import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCou
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -710,7 +711,8 @@ public class IssueIndex {
       .setQuery(
         boolQuery()
           .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
-          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, assigneeUuid)))
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID, assigneeUuid))
+          .mustNot(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name())))
       .setSize(0);
     IntStream.range(0, projectUuids.size()).forEach(i -> {
       String projectUuid = projectUuids.get(i);

@@ -24,6 +24,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -91,18 +92,20 @@ public class IssueUpdater {
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment,
     Optional<RuleDefinitionDto> rule, ComponentDto project, ComponentDto component) {
     IssueDto issueDto = issueStorage.save(session, issue);
-    String assigneeUuid = issue.assignee();
-    UserDto assignee = assigneeUuid == null ? null : dbClient.userDao().selectByUuid(session, assigneeUuid);
-    String authorUuid = context.userUuid();
-    UserDto author = authorUuid == null ? null : dbClient.userDao().selectByUuid(session, authorUuid);
-    notificationService.scheduleForSending(new IssueChangeNotification()
-      .setIssue(issue)
-      .setAssignee(assignee)
-      .setChangeAuthor(author)
-      .setRuleName(rule.map(RuleDefinitionDto::getName).orElse(null))
-      .setProject(project)
-      .setComponent(component)
-      .setComment(comment));
+    if (issue.type() != RuleType.SECURITY_HOTSPOT) {
+      String assigneeUuid = issue.assignee();
+      UserDto assignee = assigneeUuid == null ? null : dbClient.userDao().selectByUuid(session, assigneeUuid);
+      String authorUuid = context.userUuid();
+      UserDto author = authorUuid == null ? null : dbClient.userDao().selectByUuid(session, authorUuid);
+      notificationService.scheduleForSending(new IssueChangeNotification()
+        .setIssue(issue)
+        .setAssignee(assignee)
+        .setChangeAuthor(author)
+        .setRuleName(rule.map(RuleDefinitionDto::getName).orElse(null))
+        .setProject(project)
+        .setComponent(component)
+        .setComment(comment));
+    }
     return issueDto;
   }
 

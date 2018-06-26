@@ -135,10 +135,12 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project, Map<String, UserDto> usersDtoByUuids) {
     while (issues.hasNext()) {
       DefaultIssue issue = issues.next();
-      if (issue.isNew() && issue.resolution() == null && issue.type() != RuleType.SECURITY_HOTSPOT) {
-        newIssuesStats.add(issue);
-      } else if (issue.isChanged() && issue.mustSendNotifications()) {
-        sendIssueChangeNotification(issue, project, usersDtoByUuids);
+      if (issue.type() != RuleType.SECURITY_HOTSPOT) {
+        if (issue.isNew() && issue.resolution() == null) {
+          newIssuesStats.add(issue);
+        } else if (issue.isChanged() && issue.mustSendNotifications()) {
+          sendIssueChangeNotification(issue, project, usersDtoByUuids);
+        }
       }
     }
   }

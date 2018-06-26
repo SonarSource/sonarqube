@@ -256,7 +256,7 @@ public class BulkChangeAction implements IssuesWsAction {
 
   private Consumer<DefaultIssue> sendNotification(BulkChangeData bulkChangeData, Map<String, UserDto> userDtoByUuid, UserDto author) {
     return issue -> {
-      if (bulkChangeData.sendNotification) {
+      if (bulkChangeData.sendNotification && issue.type() != RuleType.SECURITY_HOTSPOT) {
         notificationService.scheduleForSending(new IssueChangeNotification()
           .setIssue(issue)
           .setAssignee(userDtoByUuid.get(issue.assignee()))

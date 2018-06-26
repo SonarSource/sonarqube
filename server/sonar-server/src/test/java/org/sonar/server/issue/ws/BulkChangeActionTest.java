@@ -73,7 +73,9 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -82,6 +84,7 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
@@ -284,6 +287,22 @@ public class BulkChangeActionTest {
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isNull();
+  }
+
+  @Test
+  public void no_notification_for_hotspots() {
+    setUserProjectPermissions(USER);
+    IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(SECURITY_HOTSPOT));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(singletonList(issueDto.getKey()))
+      .setDoTransition("dismiss")
+      .setSendNotifications(true)
+      .build());
+
+    checkResponse(response, 1, 1, 0, 0);
+
+    verify(notificationManager, never()).scheduleForSending(any());
   }
 
   @Test

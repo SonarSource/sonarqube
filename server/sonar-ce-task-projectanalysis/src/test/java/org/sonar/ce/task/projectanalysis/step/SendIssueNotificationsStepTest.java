@@ -63,6 +63,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
@@ -395,6 +396,19 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
+  public void dont_send_issues_change_notification_for_hotspot() {
+    UserDto user = db.users().insertUser();
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getKey()).setLongName(PROJECT.getName());
+    ComponentDto file = newFileDto(project).setDbKey(FILE.getKey()).setLongName(FILE.getName());
+    RuleDefinitionDto ruleDefinitionDto = newRule();
+    DefaultIssue issue = prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
+
+    underTest.execute();
+
+    verify(notificationService, never()).deliver(any(IssueChangeNotification.class));
+  }
+
+  @Test
   public void send_issues_change_notification_even_if_issue_is_backdated() {
     sendIssueChangeNotification(ANALYSE_DATE - FIVE_MINUTES_IN_MS);
   }
@@ -404,11 +418,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
-    DefaultIssue issue = newIssue(ruleDefinitionDto, project, file).toDefaultIssue()
-      .setNew(false).setChanged(true).setSendNotifications(true).setCreationDate(new Date(issueCreatedAt)).setAssigneeUuid(user.getUuid());
-    ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
-    issueCache.newAppender().append(issue).close();
-    when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = prepareIssue(issueCreatedAt, user, project, file, ruleDefinitionDto, randomTypeExceptHotspot);
 
     underTest.execute();
 
@@ -423,6 +434,15 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.getKey());
     assertThat(issueChangeNotification.getFieldValue("componentName")).isEqualTo(file.longName());
     assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(user.getLogin());
+  }
+
+  private DefaultIssue prepareIssue(long issueCreatedAt, UserDto user, ComponentDto project, ComponentDto file, RuleDefinitionDto ruleDefinitionDto, RuleType type) {
+    DefaultIssue issue = newIssue(ruleDefinitionDto, project, file).setType(type).toDefaultIssue()
+      .setNew(false).setChanged(true).setSendNotifications(true).setCreationDate(new Date(issueCreatedAt)).setAssigneeUuid(user.getUuid());
+    ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
+    issueCache.newAppender().append(issue).close();
+    when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
+    return issue;
   }
 
   @Test
@@ -442,7 +462,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
     RuleDefinitionDto ruleDefinitionDto = newRule();
-    DefaultIssue issue = newIssue(ruleDefinitionDto, branch, file).toDefaultIssue()
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = newIssue(ruleDefinitionDto, branch, file).setType(randomTypeExceptHotspot).toDefaultIssue()
       .setNew(false)
       .setChanged(true)
       .setSendNotifications(true)
