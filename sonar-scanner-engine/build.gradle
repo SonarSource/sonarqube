@@ -47,7 +47,7 @@ dependencies {
 }
 
 license {
-  excludes(["**/Fake.java", "**/Fake.groovy", "org/sonar/scanner/cpd/deprecated/ManyStatements.java"])
+  excludes(["**/Fake.java", "**/Fake.groovy", "org/sonar/scanner/cpd/ManyStatements.java"])
 }
 
 artifactoryPublish.skip = false
