@@ -13,7 +13,7 @@ apply plugin: 'com.moowork.node'
 
 node {
   version = '8.10.0'
-  yarnVersion = '1.5.1'
+  yarnVersion = '1.7.0'
   download = true
 }
 
