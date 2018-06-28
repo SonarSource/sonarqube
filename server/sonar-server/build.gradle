@@ -36,7 +36,6 @@ dependencies {
   compile 'commons-dbutils:commons-dbutils'
   compile 'io.jsonwebtoken:jjwt'
   compile 'javax.xml.bind:jaxb-api'
-  compile 'org.apache.commons:commons-email'
   compile 'org.apache.httpcomponents:httpclient'
   compile 'org.apache.logging.log4j:log4j-api'
   compile 'org.apache.tomcat.embed:tomcat-embed-core'

@@ -38,7 +38,7 @@ import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 

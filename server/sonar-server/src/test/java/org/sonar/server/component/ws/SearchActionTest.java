@@ -41,7 +41,7 @@ import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.component.ws.SearchAction.SearchRequest;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;

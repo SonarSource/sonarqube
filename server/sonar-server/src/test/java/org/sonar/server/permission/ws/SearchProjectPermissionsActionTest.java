@@ -33,7 +33,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.l18n.I18nRule;
 import org.sonarqube.ws.Permissions;
 
 import static java.lang.String.format;

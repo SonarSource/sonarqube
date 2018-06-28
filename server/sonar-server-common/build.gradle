@@ -13,6 +13,7 @@ configurations {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
+  compile 'org.apache.commons:commons-email'
   compile 'com.google.guava:guava'
   compile 'org.slf4j:slf4j-api'
   compile 'com.squareup.okhttp3:okhttp'

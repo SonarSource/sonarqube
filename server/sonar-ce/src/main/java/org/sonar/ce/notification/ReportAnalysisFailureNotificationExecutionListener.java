@@ -25,6 +25,8 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
+import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotification;
+import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationSerializer;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
