@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders a different message if the license is valid 1`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <span
+    className="little-spacer-right"
+  >
+    component_navigation.status.last_blocked_due_to_bad_license
+  </span>
+</NavBarNotif>
+`;
+
+exports[`renders background task license info correctly 1`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <span
+    className="little-spacer-right"
+  >
+    Foo
+  </span>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/admin/extension/license/app"
+  >
+    license.component_navigation.button.LICENSING
+    .
+  </Link>
+</NavBarNotif>
+`;
+
+exports[`renders background task license info correctly 2`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <span
+    className="little-spacer-right"
+  >
+    Foo
+  </span>
+  please_contact_administrator
+</NavBarNotif>
+`;
+
+exports[`renders correctly for LICENSING_LOC error 1`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <span
+    className="little-spacer-right"
+  >
+    Foo
+  </span>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/admin/extension/license/app"
+  >
+    license.component_navigation.button.LICENSING_LOC
+    .
+  </Link>
+</NavBarNotif>
+`;

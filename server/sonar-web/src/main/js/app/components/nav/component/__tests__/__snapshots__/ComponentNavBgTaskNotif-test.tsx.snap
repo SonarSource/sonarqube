@@ -24,36 +24,15 @@ exports[`renders background task in progress info correctly 1`] = `
 `;
 
 exports[`renders background task license info correctly 1`] = `
-<NavBarNotif
-  className="alert alert-danger"
->
-  <span
-    className="little-spacer-right"
-  >
-    Foo
-  </span>
-  <Link
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to="/admin/extension/license/app"
-  >
-    license.component_navigation.button.LICENSING
-    .
-  </Link>
-</NavBarNotif>
-`;
-
-exports[`renders background task license info correctly 2`] = `
-<NavBarNotif
-  className="alert alert-danger"
->
-  <span
-    className="little-spacer-right"
-  >
-    Foo
-  </span>
-  please_contact_administrator
-</NavBarNotif>
+<ComponentNavLicenseNotif
+  currentTask={
+    Object {
+      "errorMessage": "Foo",
+      "errorType": "LICENSING",
+      "status": "FAILED",
+    }
+  }
+/>
 `;
 
 exports[`renders background task pending info correctly 1`] = `

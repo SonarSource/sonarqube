@@ -64,21 +64,14 @@ it('renders background task license info correctly', () => {
   expect(
     getWrapper({ currentTask: { status: 'FAILED', errorType: 'LICENSING', errorMessage: 'Foo' } })
   ).toMatchSnapshot();
-  expect(
-    getWrapper(
-      { currentTask: { status: 'FAILED', errorType: 'LICENSING', errorMessage: 'Foo' } },
-      { canAdmin: false }
-    )
-  ).toMatchSnapshot();
 });
 
-function getWrapper(props = {}, context = {}) {
+function getWrapper(props = {}) {
   return shallow(
     <ComponentNavBgTaskNotif
       component={component}
       currentTask={{ status: 'FAILED' } as Task}
       {...props}
-    />,
-    { context: { canAdmin: true, ...context } }
+    />
   );
 }

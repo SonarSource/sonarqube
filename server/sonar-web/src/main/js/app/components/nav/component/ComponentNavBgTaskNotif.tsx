@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-import * as PropTypes from 'prop-types';
+import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import PendingIcon from '../../../../components/icons-components/PendingIcon';
 import { Component } from '../../../types';
@@ -37,10 +37,6 @@ interface Props {
 }
 
 export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> {
-  static contextTypes = {
-    canAdmin: PropTypes.bool.isRequired
-  };
-
   renderMessage(messageKey: string, status?: string) {
     const { component } = this.props;
     const canSeeBackgroundTasks =
@@ -82,21 +78,9 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
     } else if (currentTask && currentTask.status === STATUSES.FAILED) {
       if (
         currentTask.errorType &&
-        currentTask.errorType.includes('LICENSING') &&
         hasMessage('license.component_navigation.button', currentTask.errorType)
       ) {
-        return (
-          <NavBarNotif className="alert alert-danger">
-            <span className="little-spacer-right">{currentTask.errorMessage}</span>
-            {this.context.canAdmin ? (
-              <Link to="/admin/extension/license/app">
-                {translate('license.component_navigation.button', currentTask.errorType)}.
-              </Link>
-            ) : (
-              translate('please_contact_administrator')
-            )}
-          </NavBarNotif>
-        );
+        return <ComponentNavLicenseNotif currentTask={currentTask} />;
       }
 
       return (

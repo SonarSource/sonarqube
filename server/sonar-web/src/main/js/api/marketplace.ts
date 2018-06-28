@@ -37,6 +37,10 @@ export interface License {
   type: string;
 }
 
+export function isValidLicense(): Promise<{ isValidLicense: boolean }> {
+  return getJSON('/api/editions/is_valid_license');
+}
+
 export function showLicense(): Promise<License> {
   return getJSON('/api/editions/show_license').catch((e: { response: Response }) => {
     if (e.response && e.response.status === 404) {
