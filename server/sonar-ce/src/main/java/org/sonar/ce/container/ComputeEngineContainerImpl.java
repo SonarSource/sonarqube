@@ -85,8 +85,6 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.debt.DebtModelPluginRepository;
@@ -415,8 +413,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // components,
       FavoriteUpdater.class,
       ProjectIndexersImpl.class,
-      ComponentUpdater.class,
-      ComponentFinder.class, // used in ComponentService
       NewAlerts.class,
       NewAlerts.newMetadata(),
       ProjectMeasuresIndexer.class,
