@@ -22,9 +22,11 @@ package org.sonar.server.platform.db.migration.version.v73;
 import java.sql.SQLException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
+@SupportsBlueGreen
 public class PopulateMainApplicationBranches extends DataChange {
 
   private static final String MAIN_BRANCH_NAME = "master";
