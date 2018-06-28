@@ -57,7 +57,7 @@ node {
 
 yarn_run {
   if (official) { dependsOn copyBranding }
-  ['config', 'public', 'scripts', 'src'].each {
+  ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   ['.babelrc', 'build.gradle', 'package.json', 'tsconfig.json', 'yarn.lock'].each {

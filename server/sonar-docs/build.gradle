@@ -6,6 +6,8 @@ sonarqube {
   skipProject = true
 }
 
+group = 'com.sonarsource'
+
 apply plugin: 'com.moowork.node'
 
 node {
