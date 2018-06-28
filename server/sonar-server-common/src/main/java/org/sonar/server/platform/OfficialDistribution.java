@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.server.platform;
 
 import java.io.File;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.server.platform.ServerFileSystem;
 
 @ServerSide
+@ComputeEngineSide
 public class OfficialDistribution {
   static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
 

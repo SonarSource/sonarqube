@@ -142,7 +142,7 @@ import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.monitoring.DbSection;
-import org.sonar.server.platform.monitoring.OfficialDistribution;
+import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.platform.serverid.ServerIdModule;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;

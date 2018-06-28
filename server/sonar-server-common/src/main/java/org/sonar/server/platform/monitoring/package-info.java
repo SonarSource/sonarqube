@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+@ParametersAreNonnullByDefault
+package org.sonar.server.platform.monitoring;
 
-import org.sonar.ce.configuration.CeConfigurationImpl;
-import org.sonar.ce.monitoring.CeDatabaseMBeanImpl;
-import org.sonar.ce.task.log.CeTaskLogging;
-import org.sonar.core.platform.Module;
-import org.sonar.process.systeminfo.JvmPropertiesSection;
-import org.sonar.process.systeminfo.JvmStateSection;
-import org.sonar.server.platform.monitoring.LoggingSection;
-
-public class CeConfigurationModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeConfigurationImpl.class,
-      CeTaskLogging.class,
-      CeDatabaseMBeanImpl.class,
-      new JvmStateSection("Compute Engine JVM State"),
-      new JvmPropertiesSection("Compute Engine JVM Properties"),
-      LoggingSection.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -24,7 +24,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.platform.monitoring.OfficialDistribution;
+import org.sonar.server.platform.OfficialDistribution;
 
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;

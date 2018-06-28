@@ -21,11 +21,11 @@ package org.sonar.server.platform.monitoring;
 
 import org.sonar.process.systeminfo.JvmPropertiesSection;
 import org.sonar.process.systeminfo.JvmStateSection;
+import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoaderImpl;
 import org.sonar.server.platform.monitoring.cluster.CeQueueGlobalSection;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
-import org.sonar.server.platform.monitoring.cluster.LoggingSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.platform.monitoring.cluster.EsClusterStateSection;

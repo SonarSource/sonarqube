@@ -32,6 +32,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.log.ServerLogging;
+import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;

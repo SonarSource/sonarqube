@@ -27,7 +27,6 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
-import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
 public class DbSectionTest {
 
@@ -39,9 +38,9 @@ public class DbSectionTest {
   @Test
   public void db_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
-    assertThatAttributeIs(section, "Database", "H2");
+    SystemInfoTesting.assertThatAttributeIs(section, "Database", "H2");
     assertThat(attribute(section, "Database Version").getStringValue()).startsWith("1.");
-    assertThatAttributeIs(section, "Username", "SONAR");
+    SystemInfoTesting.assertThatAttributeIs(section, "Username", "SONAR");
     assertThat(attribute(section, "Driver Version").getStringValue()).startsWith("1.");
   }
 }
