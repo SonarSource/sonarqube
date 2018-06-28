@@ -50,7 +50,7 @@ exports[`should render correctly 1`] = `
         rel="noopener noreferrer"
         style={Object {}}
         target="_blank"
-        to="/sonarcloud-terms.pdf"
+        to="/terms.pdf"
       >
         footer.terms
       </Link>

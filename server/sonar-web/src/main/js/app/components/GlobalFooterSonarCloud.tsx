@@ -52,7 +52,7 @@ export default function GlobalFooterSonarCloud() {
           </a>
         </li>
         <li className="page-footer-menu-item">
-          <Link rel="noopener noreferrer" target="_blank" to="/sonarcloud-terms.pdf">
+          <Link rel="noopener noreferrer" target="_blank" to="/terms.pdf">
             {translate('footer.terms')}
           </Link>
         </li>

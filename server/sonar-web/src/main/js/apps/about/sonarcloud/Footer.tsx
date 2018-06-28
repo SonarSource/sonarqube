@@ -94,7 +94,7 @@ export default function Footer() {
                   className="sc-footer-link"
                   rel="noopener noreferrer"
                   target="_blank"
-                  to="/sonarcloud-terms.pdf">
+                  to="/terms.pdf">
                   Terms
                 </Link>
               </li>
