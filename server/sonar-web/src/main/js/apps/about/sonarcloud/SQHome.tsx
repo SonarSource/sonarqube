@@ -60,18 +60,24 @@ function Jumbotron() {
           <br />Log in or sign up with
         </div>
         <div>
-          <Link className="sc-black-button sc-sq-login-button" to="/sessions/init/github">
+          <a
+            className="sc-black-button sc-sq-login-button"
+            href={`${getBaseUrl()}/sessions/init/github`}>
             <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/github-white.svg`} />
             GitHub
-          </Link>
-          <Link className="sc-black-button sc-sq-login-button" to="/sessions/init/bitbucket">
+          </a>
+          <a
+            className="sc-black-button sc-sq-login-button"
+            href={`${getBaseUrl()}/sessions/init/bitbucket`}>
             <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/bitbucket-white.svg`} />
             Bitbucket
-          </Link>
-          <Link className="sc-black-button sc-sq-login-button" to="/sessions/init/microsoft">
+          </a>
+          <a
+            className="sc-black-button sc-sq-login-button"
+            href={`${getBaseUrl()}/sessions/init/microsoft`}>
             <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/windows-white.svg`} />
             VSTS
-          </Link>
+          </a>
         </div>
       </div>
       <div className="sc-sq-jumbotron-right">
