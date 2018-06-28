@@ -39,7 +39,7 @@ public class ComponentQuery {
   private final Set<String> componentUuids;
   private final Set<String> componentKeys;
   private final Long analyzedBefore;
-  private final Long analyzedAfter;
+  private final Long anyBranchAnalyzedAfter;
   private final Date createdAfter;
   private final boolean onProvisionedOnly;
 
@@ -52,7 +52,7 @@ public class ComponentQuery {
     this.componentKeys = builder.componentKeys;
     this.isPrivate = builder.isPrivate;
     this.analyzedBefore = builder.analyzedBefore;
-    this.analyzedAfter = builder.analyzedAfter;
+    this.anyBranchAnalyzedAfter = builder.anyBranchAnalyzedAfter;
     this.createdAfter = builder.createdAfter;
     this.onProvisionedOnly = builder.onProvisionedOnly;
   }
@@ -107,8 +107,8 @@ public class ComponentQuery {
   }
 
   @CheckForNull
-  public Long getAnalyzedAfter() {
-    return analyzedAfter;
+  public Long getAnyBranchAnalyzedAfter() {
+    return anyBranchAnalyzedAfter;
   }
 
   @CheckForNull
@@ -138,7 +138,7 @@ public class ComponentQuery {
     private Set<String> componentUuids;
     private Set<String> componentKeys;
     private Long analyzedBefore;
-    private Long analyzedAfter;
+    private Long anyBranchAnalyzedAfter;
     private Date createdAfter;
     private boolean onProvisionedOnly = false;
 
@@ -190,8 +190,8 @@ public class ComponentQuery {
      * account. For example the analysis of a short-lived branch is included in the filter
      * even if the main branch has never been analyzed.
      */
-    public Builder setAnalyzedAfter(@Nullable Long l) {
-      this.analyzedAfter = l;
+    public Builder setAnyBranchAnalyzedAfter(@Nullable Long l) {
+      this.anyBranchAnalyzedAfter = l;
       return this;
     }
 

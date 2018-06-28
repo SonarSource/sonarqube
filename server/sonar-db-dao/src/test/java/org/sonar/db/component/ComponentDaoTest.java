@@ -1614,11 +1614,11 @@ public class ComponentDaoTest {
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
 
     // after date
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime - 1_000L)))
       .containsExactlyInAnyOrder(recentProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime + 1_000L)))
       .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(aLongTimeAgo)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
   }
 
@@ -1638,11 +1638,11 @@ public class ComponentDaoTest {
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
     // after date
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime - 1_000L)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime - 1_000L)))
       .containsExactlyInAnyOrder(recentProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(recentTime + 1_000L)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime + 1_000L)))
       .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedAfter(aLongTimeAgo)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(aLongTimeAgo)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
   }
 

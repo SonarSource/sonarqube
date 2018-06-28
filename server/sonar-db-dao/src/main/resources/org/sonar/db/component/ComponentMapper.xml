@@ -413,7 +413,7 @@
           where pb.project_uuid = p.uuid
         )
       </if>
-      <if test="query.analyzedAfter != null">
+      <if test="query.anyBranchAnalyzedAfter != null">
         and (
           exists(
             -- branches of projects
@@ -422,7 +422,7 @@
             where pb.project_uuid = p.uuid
             and s.status='P'
             and s.islast = ${_true}
-            and s.created_at &gt;= #{query.analyzedAfter,jdbcType=BIGINT}
+            and s.created_at &gt;= #{query.anyBranchAnalyzedAfter,jdbcType=BIGINT}
           )
           or exists (
             -- applications, portfolios
@@ -430,7 +430,7 @@
             where s.component_uuid = p.uuid
             and s.status='P'
             and s.islast = ${_true}
-            and s.created_at &gt;= #{query.analyzedAfter,jdbcType=BIGINT}
+            and s.created_at &gt;= #{query.anyBranchAnalyzedAfter,jdbcType=BIGINT}
           )
         )
       </if>
