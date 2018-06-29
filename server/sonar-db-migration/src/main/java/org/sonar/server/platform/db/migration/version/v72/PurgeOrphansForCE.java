@@ -24,6 +24,8 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
+import static java.util.Arrays.asList;
+
 /**
  * The migration drops the orphans from tables ce_*. It can be executed
  * when server is up, so it supports blue/green deployments.
@@ -37,43 +39,27 @@ public class PurgeOrphansForCE extends DataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    switch (getDialect().getId()) {
-      case "mssql":
-      case "mysql":
-        executeForMySQLAndMsSQL(context);
-        break;
-      default:
-        executeGeneric(context);
-        break;
+    for (String tableName : asList("ce_task_characteristics", "ce_task_input", "ce_scanner_context")) {
+      deleteOrphansFrom(context, tableName);
     }
   }
 
-  private static void executeGeneric(Context context) throws SQLException {
-    context.prepareUpsert("delete from ce_task_characteristics ctc where not exists (select 1 from ce_activity ca where ca.uuid = ctc.task_uuid)")
-      .execute()
-      .commit();
+  private void deleteOrphansFrom(Context context, String tableName) throws SQLException {
+    String query = buildDeleteFromQuery(tableName, "c",
+      "not exists (select 1 from ce_activity ca where ca.uuid = c.task_uuid)" +
+        "and not exists (select 1 from ce_queue cq where cq.uuid = c.task_uuid)");
 
-    context.prepareUpsert("delete from ce_task_input cti where not exists (select 1 from ce_activity ca where ca.uuid = cti.task_uuid)")
-      .execute()
-      .commit();
-
-    context.prepareUpsert("delete from ce_scanner_context csc where not exists (select 1 from ce_activity ca where ca.uuid = csc.task_uuid)")
+    context.prepareUpsert(query)
       .execute()
       .commit();
   }
 
-  private static void executeForMySQLAndMsSQL(Context context) throws SQLException {
-    context.prepareUpsert("delete ctc from ce_task_characteristics as ctc where not exists (select 1 from ce_activity ca where ca.uuid = ctc.task_uuid)")
-      .execute()
-      .commit();
-
-    context.prepareUpsert("delete cti from ce_task_input as cti where not exists (select 1 from ce_activity ca where ca.uuid = cti.task_uuid)")
-      .execute()
-      .commit();
-
-    context.prepareUpsert("delete csc from ce_scanner_context as csc where not exists (select 1 from ce_activity ca where ca.uuid = csc.task_uuid)")
-      .execute()
-      .commit();
-
+  private String buildDeleteFromQuery(String tableName, String alias, String whereClause) {
+    String dialectId = getDialect().getId();
+    if ("mssql".equals(dialectId) || "mysql".equals(dialectId)) {
+      return "delete " + alias + " from " + tableName + " as " + alias + " where " + whereClause;
+    }
+    return "delete from " + tableName + " " + alias + " where " + whereClause;
   }
+
 }

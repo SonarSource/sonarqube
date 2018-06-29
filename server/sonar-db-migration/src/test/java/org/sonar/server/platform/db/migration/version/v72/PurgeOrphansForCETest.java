@@ -19,7 +19,11 @@
  */
 package org.sonar.server.platform.db.migration.version.v72;
 
+import com.google.common.collect.ImmutableSet;
 import java.sql.SQLException;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
@@ -30,93 +34,120 @@ import static org.sonar.db.CoreDbTester.createForSchema;
 
 public class PurgeOrphansForCETest {
 
+  private static final Set<String> CE_TABLES = ImmutableSet.of("CE_QUEUE", "CE_ACTIVITY");
+  private static final Set<String> CE_CHILD_TABLES = ImmutableSet.of(
+    "CE_TASK_CHARACTERISTICS", "CE_TASK_INPUT", "CE_SCANNER_CONTEXT");
+
   @Rule
   public CoreDbTester db = createForSchema(PurgeOrphansForCETest.class, "ce.sql");
 
+  private Random random = new Random();
   private PurgeOrphansForCE underTest = new PurgeOrphansForCE(db.database());
   private String uuid;
 
   @Test
-  public void test_is_reentrant() throws SQLException {
-    underTest.execute();
+  public void no_effect_on_empty_db() throws SQLException {
     underTest.execute();
   }
 
   @Test
-  public void purge_should_not_delete_data_containing() throws SQLException {
-    for (int i = 0; i < 10 ; i++) {
-      insertCeActivity(randomAlphanumeric(15));
-    }
+  public void delete_rows_from_CE_child_tables_when_ce_tables_are_empty() throws SQLException {
+    int count = 1 + random.nextInt(5);
+    IntStream.range(0, count)
+      .forEach(i -> {
+        String uuid = i + randomAlphanumeric(10);
+        insertInChildTables(uuid);
+      });
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.countRowsOfTable(tableName)).isEqualTo(count));
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable("CE_ACTIVITY")).isEqualTo(10);
-    assertThat(db.countRowsOfTable("CE_TASK_CHARACTERISTICS")).isEqualTo(10 * 10);
-    assertThat(db.countRowsOfTable("CE_TASK_INPUT")).isEqualTo(10);
-    assertThat(db.countRowsOfTable("CE_SCANNER_CONTEXT")).isEqualTo(10);
+    assertThat(db.countRowsOfTable("CE_ACTIVITY")).isZero();
+    assertThat(db.countRowsOfTable("CE_QUEUE")).isZero();
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.countRowsOfTable(tableName)).isZero());
   }
 
   @Test
-  public void purge_should_delete_orphans() throws SQLException {
-    for (int i = 0; i < 10 ; i++) {
-      uuid = randomAlphanumeric(20);
-
-      insertCeCharacteristics(uuid);
-      insertCeScannerContext(uuid);
-      insertCeTaskInput(uuid);
-    }
+  public void do_not_delete_rows_from_CE_child_tables_if_parent_in_CE_ACTIVITY() throws SQLException {
+    int count = 1 + random.nextInt(5);
+    IntStream.range(0, count)
+      .forEach(i -> {
+        String uuid = i + randomAlphanumeric(10);
+        insertCeActivity(uuid);
+        insertInChildTables(uuid);
+      });
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.countRowsOfTable(tableName)).isEqualTo(count));
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable("CE_ACTIVITY")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("CE_TASK_CHARACTERISTICS")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("CE_TASK_INPUT")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("CE_SCANNER_CONTEXT")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("CE_ACTIVITY")).isEqualTo(count);
+    assertThat(db.countRowsOfTable("CE_QUEUE")).isZero();
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.countRowsOfTable(tableName)).isEqualTo(count));
   }
 
   @Test
-  public void purge_should_keep_existant_ce_activity_and_delete_orphans() throws SQLException {
-    for (int i = 0; i < 5 ; i++) {
-      insertCeActivity(randomAlphanumeric(15));
-      uuid = randomAlphanumeric(20);
-
-      insertCeCharacteristics(uuid);
-      insertCeScannerContext(uuid);
-      insertCeTaskInput(uuid);
-    }
+  public void do_not_delete_rows_from_CE_child_tables_if_parent_in_CE_QUEUE() throws SQLException {
+    int count = 1 + random.nextInt(5);
+    IntStream.range(0, count)
+      .forEach(i -> {
+        String uuid = i + randomAlphanumeric(10);
+        insertCeQueue(uuid);
+        insertInChildTables(uuid);
+      });
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.countRowsOfTable(tableName)).isEqualTo(count));
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable("CE_ACTIVITY")).isEqualTo(5);
-    assertThat(db.countRowsOfTable("CE_TASK_CHARACTERISTICS")).isEqualTo(5 * 10);
-    assertThat(db.countRowsOfTable("CE_TASK_INPUT")).isEqualTo(5);
-    assertThat(db.countRowsOfTable("CE_SCANNER_CONTEXT")).isEqualTo(5);
+    assertThat(db.countRowsOfTable("CE_ACTIVITY")).isZero();
+    assertThat(db.countRowsOfTable("CE_QUEUE")).isEqualTo(count);
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.countRowsOfTable(tableName)).isEqualTo(count));
+  }
 
-    assertThat(
-      db.selectFirst("select count(*) as count from ce_task_characteristics ctc where length(task_uuid) = 20")
-        .get("COUNT")
-    ).isEqualTo(0L);
-    assertThat(
-      db.selectFirst("select count(*) as count from ce_task_input ctc where length(task_uuid) = 20")
-        .get("COUNT")
-    ).isEqualTo(0L);
-    assertThat(
-      db.selectFirst("select count(*) as count from ce_scanner_context ctc where length(task_uuid) = 20")
-        .get("COUNT")
-    ).isEqualTo(0L);
+  @Test
+  public void delete_only_orphan_rows_from_ce_child_tables() throws SQLException {
+    int withCeActivityParent = 1 + new Random().nextInt(10);
+    int withCeQueueParent = 1 + new Random().nextInt(10);
+    int orphans = 1 + new Random().nextInt(10);
+    IntStream.range(0, withCeActivityParent)
+      .forEach(i -> {
+        String uuid = "ca_" + i;
+        insertCeActivity(uuid);
+        insertInChildTables(uuid);
+      });
+    IntStream.range(0, withCeQueueParent)
+      .forEach(i -> {
+        String uuid = "cq_" + i;
+        insertCeQueue(uuid);
+        insertInChildTables(uuid);
+      });
+    IntStream.range(0, orphans)
+      .forEach(i -> {
+        String uuid = "orph_" + i;
+        insertInChildTables(uuid);
+      });
 
-    assertThat(
-      db.selectFirst("select count(*) as count from ce_task_characteristics ctc where not exists (select 1 from ce_activity ca where ca.uuid = ctc.task_uuid)")
-        .get("COUNT")
-    ).isEqualTo(0L);
-    assertThat(
-      db.selectFirst("select count(*) as count from ce_task_input cti where not exists (select 1 from ce_activity ca where ca.uuid = cti.task_uuid)")
-        .get("COUNT")
-    ).isEqualTo(0L);
-    assertThat(
-      db.selectFirst("select count(*) as count from ce_scanner_context csc where not exists (select 1 from ce_activity ca where ca.uuid = csc.task_uuid)")
-        .get("COUNT")
-    ).isEqualTo(0L);
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable("CE_ACTIVITY")).isEqualTo(withCeActivityParent);
+    assertThat(db.countRowsOfTable("CE_QUEUE")).isEqualTo(withCeQueueParent);
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.countRowsOfTable(tableName)).isEqualTo(withCeActivityParent + withCeQueueParent));
+    CE_CHILD_TABLES.forEach(tableName -> assertThat(db.select("select task_uuid as \"TASK_UUID\" from " + tableName))
+      .extracting(t -> (String) t.get("TASK_UUID"))
+      .allMatch(t -> t.startsWith("ca_") || t.startsWith("cq_")));
+  }
+
+  @Test
+  public void reentrant_on_empty_db() throws SQLException {
+    underTest.execute();
+
+    underTest.execute();
+  }
+
+  @Test
+  public void reentrant_on_non_empty_db() throws SQLException {
+    delete_only_orphan_rows_from_ce_child_tables();
+
+    underTest.execute();
   }
 
   private void insertCeActivity(String uuid) {
@@ -134,15 +165,25 @@ public class PurgeOrphansForCETest {
       "EXECUTION_COUNT", 0,
       "SUBMITTED_AT", now,
       "CREATED_AT", now,
-      "UPDATED_AT", now
-    );
+      "UPDATED_AT", now);
+  }
 
+  private void insertCeQueue(String uuid) {
+    long now = System.currentTimeMillis();
+
+    db.executeInsert("CE_QUEUE",
+      "UUID", uuid,
+      "TASK_TYPE", randomAlphanumeric(15),
+      "STATUS", randomAlphanumeric(15),
+      "EXECUTION_COUNT", 0,
+      "CREATED_AT", now,
+      "UPDATED_AT", now);
+  }
+
+  private void insertInChildTables(String uuid) {
+    insertCeCharacteristics(uuid);
     insertCeTaskInput(uuid);
     insertCeScannerContext(uuid);
-
-    for (int i = 0; i < 10; i++) {
-      insertCeCharacteristics(uuid);
-    }
   }
 
   private void insertCeCharacteristics(String uuid) {
