@@ -434,6 +434,27 @@
           )
         )
       </if>
+      <if test="query.anyBranchAnalyzedBefore != null">
+        and (
+          exists(
+          -- branches of projects
+          select 1 from snapshots s
+          inner join project_branches pb on s.component_uuid = pb.uuid
+          where pb.project_uuid = p.uuid
+          and s.status='P'
+          and s.islast = ${_true}
+          and s.created_at &lt; #{query.anyBranchAnalyzedBefore,jdbcType=BIGINT}
+          )
+          or exists (
+          -- applications, portfolios
+          select 1 from snapshots s
+          where s.component_uuid = p.uuid
+          and s.status='P'
+          and s.islast = ${_true}
+          and s.created_at &lt; #{query.anyBranchAnalyzedBefore,jdbcType=BIGINT}
+          )
+        )
+      </if>
     <if test="query.createdAfter != null">
       and p.created_at &gt;= #{query.createdAfter,jdbcType=TIMESTAMP}
     </if>

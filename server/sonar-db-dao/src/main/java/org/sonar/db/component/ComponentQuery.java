@@ -39,6 +39,7 @@ public class ComponentQuery {
   private final Set<String> componentUuids;
   private final Set<String> componentKeys;
   private final Long analyzedBefore;
+  private final Long anyBranchAnalyzedBefore;
   private final Long anyBranchAnalyzedAfter;
   private final Date createdAfter;
   private final boolean onProvisionedOnly;
@@ -52,6 +53,7 @@ public class ComponentQuery {
     this.componentKeys = builder.componentKeys;
     this.isPrivate = builder.isPrivate;
     this.analyzedBefore = builder.analyzedBefore;
+    this.anyBranchAnalyzedBefore = builder.anyBranchAnalyzedBefore;
     this.anyBranchAnalyzedAfter = builder.anyBranchAnalyzedAfter;
     this.createdAfter = builder.createdAfter;
     this.onProvisionedOnly = builder.onProvisionedOnly;
@@ -107,6 +109,11 @@ public class ComponentQuery {
   }
 
   @CheckForNull
+  public Long getAnyBranchAnalyzedBefore() {
+    return anyBranchAnalyzedBefore;
+  }
+
+  @CheckForNull
   public Long getAnyBranchAnalyzedAfter() {
     return anyBranchAnalyzedAfter;
   }
@@ -138,6 +145,7 @@ public class ComponentQuery {
     private Set<String> componentUuids;
     private Set<String> componentKeys;
     private Long analyzedBefore;
+    private Long anyBranchAnalyzedBefore;
     private Long anyBranchAnalyzedAfter;
     private Date createdAfter;
     private boolean onProvisionedOnly = false;
@@ -180,8 +188,13 @@ public class ComponentQuery {
       return this;
     }
 
-    public Builder setAnalyzedBefore(@Nullable Long analyzedBefore) {
-      this.analyzedBefore = analyzedBefore;
+    public Builder setAnalyzedBefore(@Nullable Long l) {
+      this.analyzedBefore = l;
+      return this;
+    }
+
+    public Builder setAnyBranchAnalyzedBefore(@Nullable Long l) {
+      this.anyBranchAnalyzedBefore = l;
       return this;
     }
 

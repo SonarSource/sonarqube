@@ -1605,12 +1605,20 @@ public class ComponentDaoTest {
     db.components().insertSnapshot(recentProject, s -> s.setCreatedAt(recentTime).setLast(true));
     db.components().insertSnapshot(recentProject, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
-    // before date
+    // before date on main branch
     assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime)))
       .containsExactlyInAnyOrder(oldProject.uuid());
     assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(aLongTimeAgo)))
       .isEmpty();
     assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime + 1_000L)))
+      .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
+
+    // before date on any branch
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime)))
+      .containsExactlyInAnyOrder(oldProject.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(aLongTimeAgo)))
+      .isEmpty();
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime + 1_000L)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
 
     // after date
@@ -1636,6 +1644,19 @@ public class ComponentDaoTest {
     ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProject).setBranchType(BranchType.SHORT));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
+
+    // before date on main branch only
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime))).isEmpty();
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(aLongTimeAgo))).isEmpty();
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime + 1_000L))).isEmpty();
+
+    // before date on any branch
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime)))
+      .containsExactlyInAnyOrder(oldProject.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(aLongTimeAgo)))
+      .isEmpty();
+    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime + 1_000L)))
+      .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
 
     // after date
     assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime - 1_000L)))
