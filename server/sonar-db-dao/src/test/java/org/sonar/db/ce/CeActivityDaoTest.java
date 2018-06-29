@@ -41,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
+import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
+import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
 public class CeActivityDaoTest {
@@ -64,7 +66,7 @@ public class CeActivityDaoTest {
     assertThat(dto.getComponentUuid()).isEqualTo("PROJECT_1");
     assertThat(dto.getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(dto.getSubmitterUuid()).isEqualTo("submitter uuid");
-    assertThat(dto.getSubmittedAt()).isEqualTo(1_300_000_000_000L);
+    assertThat(dto.getSubmittedAt()).isEqualTo(1_450_000_000_000L);
     assertThat(dto.getWorkerUuid()).isEqualTo("worker uuid");
     assertThat(dto.getIsLast()).isTrue();
     assertThat(dto.getIsLastKey()).isEqualTo("REPORTPROJECT_1");
@@ -344,15 +346,20 @@ public class CeActivityDaoTest {
   }
 
   private CeActivityDto createActivityDto(String uuid, String type, String componentUuid, CeActivityDto.Status status) {
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setUuid(uuid);
-    queueDto.setTaskType(type);
-    queueDto.setComponentUuid(componentUuid);
-    queueDto.setSubmitterUuid("submitter uuid");
-    queueDto.setWorkerUuid("worker uuid");
-    queueDto.setCreatedAt(1_300_000_000_000L);
+    CeQueueDto creating = new CeQueueDto();
+    creating.setUuid(uuid);
+    creating.setStatus(PENDING);
+    creating.setTaskType(type);
+    creating.setComponentUuid(componentUuid);
+    creating.setSubmitterUuid("submitter uuid");
+    creating.setCreatedAt(1_300_000_000_000L);
 
-    CeActivityDto dto = new CeActivityDto(queueDto);
+    db.getDbClient().ceQueueDao().insert(dbSession, creating);
+    makeInProgress(dbSession, "worker uuid", 1_400_000_000_000L, creating);
+
+    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().selectByUuid(dbSession, uuid).get();
+
+    CeActivityDto dto = new CeActivityDto(ceQueueDto);
     dto.setStatus(status);
     dto.setStartedAt(1_500_000_000_000L);
     dto.setExecutedAt(1_500_000_000_500L);
@@ -385,8 +392,8 @@ public class CeActivityDaoTest {
 
   private List<String> selectPageOfUuids(Pagination pagination) {
     return underTest.selectByQuery(db.getSession(), new CeTaskQuery(), pagination).stream()
-        .map(CeActivityToUuid.INSTANCE::apply)
-        .collect(MoreCollectors.toList());
+      .map(CeActivityToUuid.INSTANCE::apply)
+      .collect(MoreCollectors.toList());
   }
 
   private enum CeActivityToUuid implements Function<CeActivityDto, String> {

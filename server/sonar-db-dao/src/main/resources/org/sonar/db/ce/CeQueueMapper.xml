@@ -169,6 +169,7 @@
       ce_queue cq
     where
       cq.status='PENDING'
+      and cq.started_at is null
       and not exists (
         select
           1
@@ -195,6 +196,16 @@
       cq.status = 'PENDING'
   </select>
 
+  <select id="selectWornout" resultType="org.sonar.db.ce.CeQueueDto">
+    select
+      <include refid="columns"/>
+    from
+      ce_queue cq
+    where
+      cq.status = 'PENDING'
+      and cq.started_at is not null
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.ce.CeQueueDto" useGeneratedKeys="false">
     insert into ce_queue
     (
@@ -203,9 +214,7 @@
       component_uuid,
       status,
       submitter_uuid,
-      worker_uuid,
       execution_count,
-      started_at,
       created_at,
       updated_at
     )
@@ -215,9 +224,7 @@
       #{componentUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{submitterUuid,jdbcType=VARCHAR},
-      #{workerUuid,jdbcType=VARCHAR},
       0,
-      #{startedAt,jdbcType=BIGINT},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -226,7 +233,6 @@
   <update id="resetToPendingForWorker">
     update ce_queue set
       status='PENDING',
-      started_at=NULL,
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       status &lt;&gt; 'PENDING'
@@ -255,7 +261,6 @@
     update ce_queue set
       status='PENDING',
       worker_uuid=NULL,
-      started_at=NULL,
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       status = 'IN_PROGRESS'
@@ -272,7 +277,6 @@
     update ce_queue set
       status='PENDING',
       worker_uuid=NULL,
-      started_at=NULL,
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       status = 'IN_PROGRESS'

@@ -48,6 +48,11 @@ public interface CeQueueMapper {
   List<CeQueueDto> selectPending();
 
   /**
+   * Select all pending tasks which have already been started.
+   */
+  List<CeQueueDto> selectWornout();
+
+  /**
    * Select all tasks whose worker UUID is not present in {@code knownWorkerUUIDs}
    */
   void resetTasksWithUnknownWorkerUUIDs(@Param("knownWorkerUUIDs") List<String> knownWorkerUUIDs, @Param("updatedAt") long updatedAt);

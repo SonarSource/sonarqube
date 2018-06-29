@@ -89,6 +89,10 @@ public class CeQueueDao implements Dao {
     return mapper(dbSession).selectPending();
   }
 
+  public List<CeQueueDto> selectWornout(DbSession dbSession) {
+    return mapper(dbSession).selectWornout();
+  }
+
   public void resetTasksWithUnknownWorkerUUIDs(DbSession dbSession, Set<String> knownWorkerUUIDs) {
     if (knownWorkerUUIDs.isEmpty()) {
       mapper(dbSession).resetAllInProgressTasks(system2.now());

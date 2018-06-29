@@ -19,8 +19,15 @@
  */
 package org.sonar.db.ce;
 
+import java.util.stream.Stream;
+import org.sonar.db.DbSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
+import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
 public class CeQueueTesting {
   private CeQueueTesting() {
@@ -35,9 +42,29 @@ public class CeQueueTesting {
       .setTaskType(CeTaskTypes.REPORT)
       .setSubmitterUuid(randomAlphanumeric(255))
       .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong())
-      .setStartedAt(nextLong());
+      .setUpdatedAt(nextLong());
   }
 
+  public static void makeInProgress(DbSession dbSession, String workerUuid, long now, CeQueueDto... ceQueueDtos) {
+    Stream.of(ceQueueDtos).forEach(ceQueueDto -> {
+      CeQueueMapper mapper = dbSession.getMapper(CeQueueMapper.class);
+      int touchedRows = mapper.updateIf(ceQueueDto.getUuid(),
+        new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, now, now),
+        new UpdateIf.OldProperties(PENDING));
+      assertThat(touchedRows).isEqualTo(1);
+    });
+  }
 
+  public static void reset(DbSession dbSession, long now, CeQueueDto... ceQueueDtos) {
+    Stream.of(ceQueueDtos).forEach(ceQueueDto -> {
+      checkArgument(ceQueueDto.getStatus() == IN_PROGRESS);
+      checkArgument(ceQueueDto.getWorkerUuid() != null);
+
+      CeQueueMapper mapper = dbSession.getMapper(CeQueueMapper.class);
+      int touchedRows = mapper.updateIf(ceQueueDto.getUuid(),
+        new UpdateIf.NewProperties(PENDING, ceQueueDto.getUuid(), now, now),
+        new UpdateIf.OldProperties(IN_PROGRESS));
+      assertThat(touchedRows).isEqualTo(1);
+    });
+  }
 }

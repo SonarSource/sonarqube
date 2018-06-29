@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 final class UpdateIf {
@@ -38,7 +39,8 @@ final class UpdateIf {
     private final long updatedAt;
 
     NewProperties(CeQueueDto.Status status, @Nullable String workerUuid,
-      Long startedAt, long updatedAt) {
+      long startedAt, long updatedAt) {
+      checkArgument(workerUuid == null || workerUuid.length() <= 40, "worker uuid is too long: %s", workerUuid);
       this.status = requireNonNull(status, "status can't be null");
       this.workerUuid = workerUuid;
       this.startedAt = startedAt;
@@ -54,7 +56,6 @@ final class UpdateIf {
       return workerUuid;
     }
 
-    @CheckForNull
     public Long getStartedAt() {
       return startedAt;
     }

@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
 
 public class TaskFormatterTest {
 
@@ -85,13 +86,15 @@ public class TaskFormatterTest {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");
     dto.setTaskType("TYPE");
-    dto.setStatus(CeQueueDto.Status.IN_PROGRESS);
+    dto.setStatus(CeQueueDto.Status.PENDING);
     dto.setCreatedAt(1_450_000_000_000L);
-    dto.setStartedAt(1_451_000_000_000L);
     dto.setComponentUuid(uuid);
     dto.setSubmitterUuid(user.getUuid());
+    db.getDbClient().ceQueueDao().insert(db.getSession(), dto);
+    makeInProgress(db.getSession(), "workerUuid", 1_958_000_000_000L, dto);
+    CeQueueDto inProgress = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), dto.getUuid()).get();
 
-    Ce.Task wsTask = underTest.formatQueue(db.getSession(), dto);
+    Ce.Task wsTask = underTest.formatQueue(db.getSession(), inProgress);
 
     assertThat(wsTask.getType()).isEqualTo("TYPE");
     assertThat(wsTask.getId()).isEqualTo("UUID");
@@ -130,12 +133,14 @@ public class TaskFormatterTest {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");
     dto.setTaskType("TYPE");
-    dto.setStatus(CeQueueDto.Status.IN_PROGRESS);
+    dto.setStatus(CeQueueDto.Status.PENDING);
     dto.setCreatedAt(1_450_000_000_000L);
-    dto.setStartedAt(startedAt);
+    db.getDbClient().ceQueueDao().insert(db.getSession(), dto);
+    makeInProgress(db.getSession(), "workerUuid", startedAt, dto);
+    CeQueueDto inProgress = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), dto.getUuid()).get();
     when(system2.now()).thenReturn(now);
 
-    Ce.Task wsTask = underTest.formatQueue(db.getSession(), dto);
+    Ce.Task wsTask = underTest.formatQueue(db.getSession(), inProgress);
 
     assertThat(wsTask.getExecutionTimeMs()).isEqualTo(now - startedAt);
   }

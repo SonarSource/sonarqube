@@ -154,12 +154,11 @@ public class CeQueueImpl implements CeQueue {
     dto.setComponentUuid(submission.getComponentUuid());
     dto.setStatus(PENDING);
     dto.setSubmitterUuid(submission.getSubmitterUuid());
-    dto.setStartedAt(null);
     dbClient.ceQueueDao().insert(dbSession, dto);
     return dto;
   }
 
-  protected CeTask loadTask(DbSession dbSession, CeQueueDto dto) {
+  CeTask loadTask(DbSession dbSession, CeQueueDto dto) {
     String componentUuid = dto.getComponentUuid();
     if (componentUuid == null) {
       return new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid()).apply(dto);

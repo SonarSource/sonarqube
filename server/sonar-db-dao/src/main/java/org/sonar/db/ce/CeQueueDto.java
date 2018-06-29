@@ -98,10 +98,11 @@ public class CeQueueDto {
     return workerUuid;
   }
 
-  public CeQueueDto setWorkerUuid(@Nullable String workerUuid) {
-    checkArgument(workerUuid == null || workerUuid.length() <= 40, "worker uuid is too long: %s", workerUuid);
+  /**
+   * Accessed by MyBatis through reflexion. Field is otherwise read-only.
+   */
+  private  void setWorkerUuid(@Nullable String workerUuid) {
     this.workerUuid = workerUuid;
-    return this;
   }
 
   @CheckForNull
@@ -109,9 +110,11 @@ public class CeQueueDto {
     return startedAt;
   }
 
-  public CeQueueDto setStartedAt(@Nullable Long l) {
+  /**
+   * Accessed by MyBatis through reflexion. Field is otherwise read-only.
+   */
+  private void setStartedAt(@Nullable Long l) {
     this.startedAt = l;
-    return this;
   }
 
   public long getCreatedAt() {

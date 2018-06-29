@@ -56,9 +56,11 @@ public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
     Lock ceCleaningJobLock = ceDistributedInformation.acquireCleanJobLock();
 
     // If we cannot lock that means that another job is running
+    // So we skip resetting and cancelling tasks in queue
     if (ceCleaningJobLock.tryLock()) {
       try {
         resetTasksWithUnknownWorkerUUIDs();
+        cancelWornOuts();
       } finally {
         ceCleaningJobLock.unlock();
       }
@@ -71,6 +73,15 @@ public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
       internalCeQueue.resetTasksWithUnknownWorkerUUIDs(ceDistributedInformation.getWorkerUUIDs());
     } catch (Exception e) {
       LOG.warn("Failed to reset tasks with unknown worker UUIDs", e);
+    }
+  }
+
+  private void cancelWornOuts() {
+    try {
+      LOG.debug("Cancelling any worn out task");
+      internalCeQueue.cancelWornOuts();
+    } catch (Exception e) {
+      LOG.warn("Failed to cancel worn out tasks", e);
     }
   }
 }

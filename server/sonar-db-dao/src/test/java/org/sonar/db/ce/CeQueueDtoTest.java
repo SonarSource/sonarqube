@@ -93,22 +93,4 @@ public class CeQueueDtoTest {
 
     underTest.setSubmitterUuid(str_256_chars);
   }
-
-  @Test
-  public void setWorkerUuid_accepts_null_empty_and_string_40_chars_or_less() {
-    underTest.setWorkerUuid(null);
-    underTest.setWorkerUuid("");
-    underTest.setWorkerUuid("bar");
-    underTest.setWorkerUuid(STR_40_CHARS);
-  }
-
-  @Test
-  public void setWorkerUuid_throws_IAE_if_value_is_41_chars() {
-    String str_41_chars = STR_40_CHARS + "a";
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("worker uuid is too long: " + str_41_chars);
-
-    underTest.setWorkerUuid(str_41_chars);
-  }
 }
