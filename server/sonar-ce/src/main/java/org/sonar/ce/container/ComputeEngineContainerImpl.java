@@ -88,8 +88,6 @@ import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.config.ConfigurationProvider;
-import org.sonar.server.debt.DebtModelPluginRepository;
-import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.event.NewAlerts;
@@ -429,10 +427,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DoNotFixNotificationDispatcher.class,
       DoNotFixNotificationDispatcher.newMetadata(),
       NewIssuesNotificationFactory.class, // used by SendIssueNotificationsStep
-
-      // technical debt
-      DebtModelPluginRepository.class,
-      DebtRulesXMLImporter.class,
 
       // Notifications
       AlertsEmailTemplate.class,

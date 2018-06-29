@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Map;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -45,7 +44,6 @@ import static com.google.common.collect.Lists.newArrayList;
  * </p>
  */
 @ServerSide
-@ComputeEngineSide
 public class DebtModelPluginRepository implements Startable {
 
   public static final String DEFAULT_MODEL = "technical-debt";
