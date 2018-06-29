@@ -123,12 +123,7 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.organization.OrganizationFlagsImpl;
-import org.sonar.server.permission.GroupPermissionChanger;
-import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
-import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -402,13 +397,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       UserIndexer.class,
       UserIndex.class,
-
-      // permissions
-      DefaultTemplatesResolverImpl.class,
-      PermissionTemplateService.class,
-      PermissionUpdater.class,
-      UserPermissionChanger.class,
-      GroupPermissionChanger.class,
 
       // components,
       FavoriteUpdater.class,
