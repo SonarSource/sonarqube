@@ -28,8 +28,8 @@ import static java.lang.String.valueOf;
 
 public class OrganizationFlagsImpl implements OrganizationFlags {
 
-  public static final String FAILURE_MESSAGE_ENABLED = "Organization support is enabled";
-  public static final String FAILURE_MESSAGE_DISABLED = "Organization support is disabled";
+  static final String FAILURE_MESSAGE_ENABLED = "Organization support is enabled";
+  static final String FAILURE_MESSAGE_DISABLED = "Organization support is disabled";
 
   private final DbClient dbClient;
 

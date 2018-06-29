@@ -19,11 +19,16 @@
  */
 package org.sonar.server.organization;
 
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+
 /**
  * The goal of this class is to handle the 2 different use case :
  * - The billing plugin exists, the proxy will redirect method calls to the plugin
  * - No billing plugin, every methods won't do anything
  */
+@ServerSide
+@ComputeEngineSide
 public interface BillingValidationsProxy extends BillingValidations {
 
 }

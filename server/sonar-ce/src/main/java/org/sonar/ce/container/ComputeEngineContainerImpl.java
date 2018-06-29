@@ -54,6 +54,7 @@ import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
+import org.sonar.ce.platform.DatabaseCompatibility;
 import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
 import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
@@ -128,7 +129,6 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
-import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -330,7 +330,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     container.add(
       MigrationConfigurationModule.class,
       DatabaseVersion.class,
-      DatabaseServerCompatibility.class,
+      DatabaseCompatibility.class,
 
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,

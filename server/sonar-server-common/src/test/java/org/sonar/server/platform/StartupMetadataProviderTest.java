@@ -26,7 +26,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.db.DbTester;
@@ -36,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class StartupMetadataProviderTest {
 
@@ -100,14 +100,14 @@ public class StartupMetadataProviderTest {
   }
 
   private void testLoadingFromDatabase(SonarRuntime runtime, boolean isStartupLeader) {
-    new StartupMetadataPersister(new StartupMetadata(A_DATE), dbTester.getDbClient()).start();
+    dbTester.properties().insertProperty(new PropertyDto().setKey(CoreProperties.SERVER_STARTTIME).setValue(formatDateTime(A_DATE)));
     when(webServer.isStartupLeader()).thenReturn(isStartupLeader);
 
     StartupMetadata metadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
 
     // still in database
-    assertPersistedProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(A_DATE));
+    assertPersistedProperty(CoreProperties.SERVER_STARTTIME, formatDateTime(A_DATE));
 
     // keep a cache
     StartupMetadata secondMetadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());

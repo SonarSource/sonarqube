@@ -43,8 +43,8 @@ import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
  */
 public class TomcatContexts {
 
-  public static final String PROPERTY_CONTEXT = "sonar.web.context";
-  public static final String WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR = "web/deploy";
+  private static final String PROPERTY_CONTEXT = "sonar.web.context";
+  private static final String WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR = "web/deploy";
 
   private final Fs fs;
 

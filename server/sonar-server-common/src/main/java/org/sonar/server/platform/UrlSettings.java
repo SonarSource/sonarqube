@@ -26,11 +26,11 @@ import org.sonar.api.server.ServerSide;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
-import static org.sonar.server.app.TomcatContexts.PROPERTY_CONTEXT;
 
 @ComputeEngineSide
 @ServerSide
 public class UrlSettings {
+  private static final String PROPERTY_CONTEXT = "sonar.web.context";
 
   private static final int DEFAULT_PORT = 9000;
   private static final int DEFAULT_HTTP_PORT = 80;

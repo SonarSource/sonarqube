@@ -64,6 +64,7 @@ public class ComputeEngineContainerImplTest {
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
   @Rule
+
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private ComputeEngineContainerImpl underTest;
