@@ -4,25 +4,13 @@ exports[`renders 1`] = `
 <div
   className="projects-list"
 >
-  <ProjectCard
-    key="foo"
-    project={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
-    type="overall"
-  />
-  <ProjectCard
-    key="bar"
-    project={
-      Object {
-        "key": "bar",
-        "name": "Bar",
-      }
-    }
-    type="overall"
+  <WindowScroller
+    onResize={[Function]}
+    onScroll={[Function]}
+    scrollElement={[Window]}
+    scrollingResetTimeInterval={150}
+    serverHeight={0}
+    serverWidth={0}
   />
 </div>
 `;

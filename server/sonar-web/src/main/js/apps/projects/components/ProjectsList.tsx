@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
+import { WindowScroller } from 'react-virtualized/dist/commonjs/WindowScroller';
 import ProjectCard from './ProjectCard';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import EmptyInstance from './EmptyInstance';
@@ -36,6 +39,10 @@ interface Props {
 }
 
 export default class ProjectsList extends React.PureComponent<Props> {
+  getCardHeight = () => {
+    return this.props.cardType === 'leak' ? 159 : 143;
+  };
+
   renderNoProjects() {
     const { isFavorite, isFiltered, query } = this.props;
     if (isFiltered) {
@@ -44,21 +51,57 @@ export default class ProjectsList extends React.PureComponent<Props> {
     return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance />;
   }
 
+  renderRow = ({ index, key, style }: ListRowProps) => {
+    const project = this.props.projects[index];
+    const height = this.getCardHeight();
+    return (
+      <div key={key} style={{ ...style, height }}>
+        <ProjectCard
+          height={height}
+          key={project.key}
+          organization={this.props.organization}
+          project={project}
+          type={this.props.cardType}
+        />
+      </div>
+    );
+  };
+
+  renderList() {
+    const cardHeight = this.getCardHeight();
+    return (
+      <WindowScroller>
+        {({ height, isScrolling, registerChild, onChildScroll, scrollTop }) => (
+          <AutoSizer disableHeight={true}>
+            {({ width }) => (
+              <div ref={registerChild as any}>
+                <List
+                  autoHeight={true}
+                  height={height}
+                  isScrolling={isScrolling}
+                  onScroll={onChildScroll}
+                  overscanRowCount={2}
+                  rowCount={this.props.projects.length}
+                  rowHeight={cardHeight + 20}
+                  rowRenderer={this.renderRow}
+                  scrollTop={scrollTop}
+                  style={{ outline: 'none' }}
+                  width={width}
+                />
+              </div>
+            )}
+          </AutoSizer>
+        )}
+      </WindowScroller>
+    );
+  }
+
   render() {
     const { projects } = this.props;
 
     return (
       <div className="projects-list">
-        {projects.length > 0
-          ? projects.map(project => (
-              <ProjectCard
-                key={project.key}
-                organization={this.props.organization}
-                project={project}
-                type={this.props.cardType}
-              />
-            ))
-          : this.renderNoProjects()}
+        {projects.length > 0 ? this.renderList() : this.renderNoProjects()}
       </div>
     );
   }

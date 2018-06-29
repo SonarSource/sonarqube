@@ -4,6 +4,11 @@ exports[`should display the overall measures and quality gate 1`] = `
 <div
   className="boxed-group project-card"
   data-key="foo"
+  style={
+    Object {
+      "height": 100,
+    }
+  }
 >
   <div
     className="boxed-group-header clearfix"

@@ -40,12 +40,12 @@ const PROJECT = {
 
 it('should display analysis date (and not leak period) when defined', () => {
   expect(
-    shallow(<ProjectCardOverall project={PROJECT} />)
+    shallow(<ProjectCardOverall height={100} project={PROJECT} />)
       .find('.project-card-dates')
       .exists()
   ).toBeTruthy();
   expect(
-    shallow(<ProjectCardOverall project={{ ...PROJECT, analysisDate: undefined }} />)
+    shallow(<ProjectCardOverall height={100} project={{ ...PROJECT, analysisDate: undefined }} />)
       .find('.project-card-dates')
       .exists()
   ).toBeFalsy();
@@ -54,7 +54,7 @@ it('should display analysis date (and not leak period) when defined', () => {
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   expect(
-    shallow(<ProjectCardOverall project={project} />)
+    shallow(<ProjectCardOverall height={100} project={project} />)
       .find('ProjectCardOverallQualityGate')
       .exists()
   ).toBeFalsy();
@@ -63,7 +63,7 @@ it('should not display the quality gate', () => {
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   expect(
-    shallow(<ProjectCardOverall project={project} />)
+    shallow(<ProjectCardOverall height={100} project={project} />)
       .find('TagsList')
       .exists()
   ).toBeTruthy();
@@ -72,12 +72,12 @@ it('should display tags', () => {
 it('should private badge', () => {
   const project = { ...PROJECT, visibility: 'private' };
   expect(
-    shallow(<ProjectCardOverall project={project} />)
+    shallow(<ProjectCardOverall height={100} project={project} />)
       .find('PrivateBadge')
       .exists()
   ).toBeTruthy();
 });
 
 it('should display the overall measures and quality gate', () => {
-  expect(shallow(<ProjectCardOverall project={PROJECT} />)).toMatchSnapshot();
+  expect(shallow(<ProjectCardOverall height={100} project={PROJECT} />)).toMatchSnapshot();
 });

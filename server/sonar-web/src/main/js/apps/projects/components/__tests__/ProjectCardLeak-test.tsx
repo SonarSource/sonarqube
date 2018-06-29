@@ -40,7 +40,7 @@ const PROJECT = {
 };
 
 it('should display analysis date and leak start date', () => {
-  const card = shallow(<ProjectCardLeak project={PROJECT} />);
+  const card = shallow(<ProjectCardLeak height={100} project={PROJECT} />);
   expect(card.find('.project-card-dates').exists()).toBeTruthy();
   expect(card.find('.project-card-dates').find('DateFromNow')).toHaveLength(1);
   expect(card.find('.project-card-dates').find('DateTimeFormatter')).toHaveLength(1);
@@ -48,14 +48,14 @@ it('should display analysis date and leak start date', () => {
 
 it('should not display analysis date or leak start date', () => {
   const project = { ...PROJECT, analysisDate: undefined };
-  const card = shallow(<ProjectCardLeak project={project} />);
+  const card = shallow(<ProjectCardLeak height={100} project={project} />);
   expect(card.find('.project-card-dates').exists()).toBeFalsy();
 });
 
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   expect(
-    shallow(<ProjectCardLeak project={project} />)
+    shallow(<ProjectCardLeak height={100} project={project} />)
       .find('TagsList')
       .exists()
   ).toBeTruthy();
@@ -64,12 +64,12 @@ it('should display tags', () => {
 it('should private badge', () => {
   const project = { ...PROJECT, visibility: 'private' };
   expect(
-    shallow(<ProjectCardLeak project={project} />)
+    shallow(<ProjectCardLeak height={100} project={project} />)
       .find('PrivateBadge')
       .exists()
   ).toBeTruthy();
 });
 
 it('should display the leak measures and quality gate', () => {
-  expect(shallow(<ProjectCardLeak project={PROJECT} />)).toMatchSnapshot();
+  expect(shallow(<ProjectCardLeak height={100} project={PROJECT} />)).toMatchSnapshot();
 });

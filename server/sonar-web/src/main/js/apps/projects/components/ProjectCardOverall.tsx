@@ -30,18 +30,19 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 
 interface Props {
+  height: number;
   organization?: { key: string };
   project: Project;
 }
 
-export default function ProjectCardOverall({ organization, project }: Props) {
+export default function ProjectCardOverall({ height, organization, project }: Props) {
   const { measures } = project;
 
   const isPrivate = project.visibility === 'private';
   const hasTags = project.tags.length > 0;
 
   return (
-    <div className="boxed-group project-card" data-key={project.key}>
+    <div className="boxed-group project-card" data-key={project.key} style={{ height }}>
       <div className="boxed-group-header clearfix">
         <div className="project-card-header">
           {project.isFavorite !== undefined && (

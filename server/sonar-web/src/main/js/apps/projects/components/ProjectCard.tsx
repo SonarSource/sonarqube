@@ -23,6 +23,7 @@ import ProjectCardOverall from './ProjectCardOverall';
 import { Project } from '../types';
 
 interface Props {
+  height: number;
   organization?: { key: string };
   project: Project;
   type?: string;
