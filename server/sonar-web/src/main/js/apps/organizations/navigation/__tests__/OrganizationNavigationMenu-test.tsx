@@ -21,19 +21,27 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigationMenu from '../OrganizationNavigationMenu';
 import { Visibility } from '../../../../app/types';
+import { isCurrentUserMemberOf, hasPrivateAccess } from '../../../../helpers/organizations';
+
+jest.mock('../../../../helpers/organizations', () => ({
+  isCurrentUserMemberOf: jest.fn().mockReturnValue(true),
+  hasPrivateAccess: jest.fn().mockReturnValue(true)
+}));
+
+const organization = {
+  key: 'foo',
+  name: 'Foo',
+  projectVisibility: Visibility.Public
+};
+
+beforeEach(() => {
+  (isCurrentUserMemberOf as jest.Mock<any>).mockClear();
+  (hasPrivateAccess as jest.Mock<any>).mockClear();
+});
 
 it('renders', () => {
   expect(
-    shallow(
-      <OrganizationNavigationMenu
-        location={{ pathname: '' }}
-        organization={{
-          key: 'foo',
-          name: 'Foo',
-          projectVisibility: Visibility.Public
-        }}
-      />
-    )
+    shallow(<OrganizationNavigationMenu location={{ pathname: '' }} organization={organization} />)
   ).toMatchSnapshot();
 });
 
@@ -42,12 +50,7 @@ it('renders for admin', () => {
     shallow(
       <OrganizationNavigationMenu
         location={{ pathname: '' }}
-        organization={{
-          canAdmin: true,
-          key: 'foo',
-          name: 'Foo',
-          projectVisibility: Visibility.Public
-        }}
+        organization={{ ...organization, canAdmin: true }}
       />
     )
   ).toMatchSnapshot();

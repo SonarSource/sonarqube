@@ -30,7 +30,7 @@ exports[`should render 1`] = `
   >
     <WorkspaceRuleDetails
       onLoad={[Function]}
-      organization="org"
+      organizationKey="org"
       ruleKey="foo"
     />
   </div>

@@ -26,14 +26,14 @@ import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
 import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
-/*:: import type { Organization, OrgGroup } from '../../../../store/organizations/duck'; */
+/*:: import type { Organization, Group } from '../../../../app/types'; */
 
 /*::
 type Props = {
   onClose: () => void;
   member: Member,
   organization: Organization,
-  organizationGroups: Array<OrgGroup>,
+  organizationGroups: Array<Group>,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
 */

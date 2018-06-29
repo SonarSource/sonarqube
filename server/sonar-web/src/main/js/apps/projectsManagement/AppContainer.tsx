@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import App from './App';
 import forSingleOrganization from '../organizations/forSingleOrganization';
-import { Organization, LoggedInUser } from '../../app/types';
+import { Organization, LoggedInUser, Visibility } from '../../app/types';
 import { getAppState, getOrganizationByKey, getCurrentUser } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations/duck';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
@@ -85,7 +85,7 @@ const mapStateToProps = (state: any, ownProps: any) => ({
     ownProps.organization || getOrganizationByKey(state, getAppState(state).defaultOrganization)
 });
 
-const onVisibilityChange = (organization: Organization, visibility: string) => (
+const onVisibilityChange = (organization: Organization, visibility: Visibility) => (
   dispatch: Function
 ) => {
   const currentVisibility = organization.projectVisibility;
@@ -97,7 +97,7 @@ const onVisibilityChange = (organization: Organization, visibility: string) => (
 
 const mapDispatchToProps = (dispatch: Function) => ({
   fetchOrganization: (key: string) => dispatch(fetchOrganization(key)),
-  onVisibilityChange: (organization: Organization, visibility: string) =>
+  onVisibilityChange: (organization: Organization, visibility: Visibility) =>
     dispatch(onVisibilityChange(organization, visibility))
 });
 

@@ -23,7 +23,7 @@ import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
-/*:: import type { Organization } from '../../../../store/organizations/duck'; */
+/*:: import type { Organization } from '../../../../app/types'; */
 
 /*::
 type Props = {

@@ -20,11 +20,11 @@
 //@flow
 import React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
-/*:: import type { OrgGroup } from '../../../store/organizations/duck'; */
+/*:: import type { Group } from '../../../app/types'; */
 
 /*::
 type Props = {
-  group: OrgGroup,
+  group: Group,
   checked: boolean,
   onCheck: (string, boolean) => void
 };

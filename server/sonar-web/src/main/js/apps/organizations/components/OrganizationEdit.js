@@ -23,10 +23,9 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
-import { getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
 import { SubmitButton } from '../../../components/ui/buttons';
+/*:: import type { Organization } from '../../../app/types'; */
 
 /*::
 type Props = {

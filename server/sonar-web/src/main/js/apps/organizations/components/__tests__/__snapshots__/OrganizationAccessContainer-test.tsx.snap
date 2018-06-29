@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render children 1`] = `
+exports[`component should render children 1`] = `
 <div
   location={Object {}}
   organization={

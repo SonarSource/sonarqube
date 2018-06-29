@@ -27,7 +27,7 @@ import { onFail } from '../../store/rootActions';
 import { getOrganizationMembersState } from '../../store/rootReducer';
 import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-/*:: import type { Organization } from '../../store/organizations/duck'; */
+/*:: import type { Organization } from '../../app/types'; */
 /*:: import type { Member } from '../../store/organizationsMembers/actions'; */
 
 const PAGE_SIZE = 50;

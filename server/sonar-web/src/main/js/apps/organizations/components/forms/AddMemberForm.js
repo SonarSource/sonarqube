@@ -24,7 +24,7 @@ import { searchMembers } from '../../../../api/organizations';
 import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
 import { SubmitButton, ResetButtonLink, Button } from '../../../../components/ui/buttons';
-/*:: import type { Organization } from '../../../../store/organizations/duck'; */
+/*:: import type { Organization } from '../../../../app/types'; */
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 
 /*::

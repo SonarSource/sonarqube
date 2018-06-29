@@ -25,10 +25,11 @@ import DeferredSpinner from '../common/DeferredSpinner';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import '../../apps/coding-rules/styles.css';
+import { hasPrivateAccess } from '../../helpers/organizations';
 
 interface Props {
   onLoad: (details: { name: string }) => void;
-  organization: string | undefined;
+  organizationKey: string | undefined;
   ruleKey: string;
 }
 
@@ -50,7 +51,7 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
   componentDidUpdate(prevProps: Props) {
     if (
       prevProps.ruleKey !== this.props.ruleKey ||
-      prevProps.organization !== this.props.organization
+      prevProps.organizationKey !== this.props.organizationKey
     ) {
       this.fetchRuleDetails();
     }
@@ -63,8 +64,8 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
   fetchRuleDetails = () => {
     this.setState({ loading: true });
     Promise.all([
-      getRulesApp({ organization: this.props.organization }),
-      getRuleDetails({ key: this.props.ruleKey, organization: this.props.organization })
+      getRulesApp({ organization: this.props.organizationKey }),
+      getRuleDetails({ key: this.props.ruleKey, organization: this.props.organizationKey })
     ]).then(
       ([{ repositories }, { rule }]) => {
         if (this.mounted) {
@@ -87,23 +88,26 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
   noOp = () => {};
 
   render() {
+    const { organizationKey } = this.props;
+
     return (
       <DeferredSpinner loading={this.state.loading}>
         {this.state.ruleDetails && (
           <>
             <RuleDetailsMeta
               canWrite={false}
+              hidePermalink={!hasPrivateAccess(organizationKey)}
               hideSimilarRulesFilter={true}
               onFilterChange={this.noOp}
               onTagsChange={this.noOp}
-              organization={this.props.organization}
+              organization={organizationKey}
               referencedRepositories={this.state.referencedRepositories}
               ruleDetails={this.state.ruleDetails}
             />
             <RuleDetailsDescription
               canWrite={false}
               onChange={this.noOp}
-              organization={this.props.organization}
+              organization={organizationKey}
               ruleDetails={this.state.ruleDetails}
             />
           </>

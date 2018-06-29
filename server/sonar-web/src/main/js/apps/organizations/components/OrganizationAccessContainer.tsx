@@ -20,11 +20,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from 'react-router';
-import { getOrganizationByKey } from '../../../store/rootReducer';
+import { getOrganizationByKey, getCurrentUser } from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
-import { Organization } from '../../../app/types';
+import { Organization, CurrentUser, isLoggedIn } from '../../../app/types';
+import { isCurrentUserMemberOf, hasPrivateAccess } from '../../../helpers/organizations';
 
 interface StateToProps {
+  currentUser: CurrentUser;
   organization?: Organization;
 }
 
@@ -32,9 +34,11 @@ interface OwnProps extends RouterState {
   children: JSX.Element;
 }
 
-interface Props extends StateToProps, Pick<OwnProps, 'children' | 'location'> {}
+interface Props extends StateToProps, Pick<OwnProps, 'children' | 'location'> {
+  hasAccess: (props: Props) => boolean;
+}
 
-export class OrganizationAdmin extends React.PureComponent<Props> {
+export class OrganizationAccess extends React.PureComponent<Props> {
   componentDidMount() {
     this.checkPermissions();
   }
@@ -43,16 +47,14 @@ export class OrganizationAdmin extends React.PureComponent<Props> {
     this.checkPermissions();
   }
 
-  isOrganizationAdmin = () => this.props.organization && this.props.organization.canAdmin;
-
   checkPermissions = () => {
-    if (!this.isOrganizationAdmin()) {
+    if (!this.props.hasAccess(this.props)) {
       handleRequiredAuthorization();
     }
   };
 
   render() {
-    if (!this.isOrganizationAdmin()) {
+    if (!this.props.hasAccess(this.props)) {
       return null;
     }
     return React.cloneElement(this.props.children, {
@@ -63,7 +65,40 @@ export class OrganizationAdmin extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: any, ownProps: OwnProps) => ({
+  currentUser: getCurrentUser(state),
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
-export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(OrganizationAdmin);
+const OrganizationAccessContainer = connect<StateToProps, {}, OwnProps>(mapStateToProps)(
+  OrganizationAccess
+);
+
+export function OrganizationPrivateAccess(props: OwnProps) {
+  return (
+    <OrganizationAccessContainer
+      hasAccess={({ organization }: StateToProps) => hasPrivateAccess(organization)}
+      {...props}
+    />
+  );
+}
+
+export function OrganizationMembersAccess(props: OwnProps) {
+  return (
+    <OrganizationAccessContainer
+      hasAccess={({ organization }: StateToProps) => isCurrentUserMemberOf(organization)}
+      {...props}
+    />
+  );
+}
+
+export function hasAdminAccess({
+  currentUser,
+  organization
+}: Pick<StateToProps, 'currentUser' | 'organization'>) {
+  const isAdmin = isLoggedIn(currentUser) && organization && organization.canAdmin;
+  return Boolean(isAdmin);
+}
+
+export function OrganizationAdminAccess(props: OwnProps) {
+  return <OrganizationAccessContainer hasAccess={hasAdminAccess} {...props} />;
+}

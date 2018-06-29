@@ -28,14 +28,14 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../../components/controls/ListFooter';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
+/*:: import type { Organization, Group } from '../../../app/types'; */
 /*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
 
 /*::
 type Props = {
   members: Array<Member>,
   memberLogins: Array<string>,
-  organizationGroups: Array<OrgGroup>,
+  organizationGroups: Array<Group>,
   status: { loading?: boolean, total?: number, pageIndex?: number, query?: string },
   organization: Organization,
   fetchOrganizationMembers: (organizationKey: string, query?: string) => void,

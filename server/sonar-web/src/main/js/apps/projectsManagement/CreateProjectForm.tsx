@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { createProject } from '../../api/components';
-import { Organization } from '../../app/types';
+import { Organization, Visibility } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import Modal from '../../components/controls/Modal';
@@ -40,7 +40,7 @@ interface State {
   key: string;
   loading: boolean;
   name: string;
-  visibility: string;
+  visibility?: Visibility;
   // add index declaration to be able to do `this.setState({ [name]: value });`
   [x: string]: any;
 }
@@ -81,7 +81,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
     this.setState({ [name]: value });
   };
 
-  handleVisibilityChange = (visibility: string) => {
+  handleVisibilityChange = (visibility: Visibility) => {
     this.setState({ visibility });
   };
 

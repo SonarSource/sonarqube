@@ -25,6 +25,7 @@ import { Organization } from '../../../app/types';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
+import { hasPrivateAccess, isCurrentUserMemberOf } from '../../../helpers/organizations';
 
 interface Props {
   location: { pathname: string };
@@ -49,26 +50,36 @@ export default function OrganizationNavigationMenu({ location, organization }: P
           {translate('issues.page')}
         </Link>
       </li>
-      <li>
-        <Link activeClassName="active" to={`/organizations/${organization.key}/quality_profiles`}>
-          {translate('quality_profiles.page')}
-        </Link>
-      </li>
-      <li>
-        <Link activeClassName="active" to={`/organizations/${organization.key}/rules`}>
-          {translate('coding_rules.page')}
-        </Link>
-      </li>
-      <li>
-        <Link activeClassName="active" to={getQualityGatesUrl(organization.key)}>
-          {translate('quality_gates.page')}
-        </Link>
-      </li>
-      <li>
-        <Link activeClassName="active" to={`/organizations/${organization.key}/members`}>
-          {translate('organization.members.page')}
-        </Link>
-      </li>
+      {hasPrivateAccess(organization) && (
+        <>
+          <li>
+            <Link
+              activeClassName="active"
+              to={`/organizations/${organization.key}/quality_profiles`}>
+              {translate('quality_profiles.page')}
+            </Link>
+          </li>
+          <li>
+            <Link activeClassName="active" to={`/organizations/${organization.key}/rules`}>
+              {translate('coding_rules.page')}
+            </Link>
+          </li>
+          <li>
+            <Link activeClassName="active" to={getQualityGatesUrl(organization.key)}>
+              {translate('quality_gates.page')}
+            </Link>
+          </li>
+        </>
+      )}
+
+      {isCurrentUserMemberOf(organization) && (
+        <li>
+          <Link activeClassName="active" to={`/organizations/${organization.key}/members`}>
+            {translate('organization.members.page')}
+          </Link>
+        </li>
+      )}
+
       <OrganizationNavigationExtensions location={location} organization={organization} />
       {organization.canAdmin && (
         <OrganizationNavigationAdministration location={location} organization={organization} />

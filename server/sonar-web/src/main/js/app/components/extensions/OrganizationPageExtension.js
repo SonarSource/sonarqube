@@ -24,7 +24,7 @@ import ExtensionContainer from './ExtensionContainer';
 import ExtensionNotFound from './ExtensionNotFound';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { fetchOrganization } from '../../../apps/organizations/actions';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+/*:: import type { Organization } from '../../../app/types'; */
 
 /*::
 type Props = {

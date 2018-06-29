@@ -54,25 +54,47 @@ const routes = [
         ]
       },
       {
-        path: 'members',
-        component: lazyLoad(() => import('./components/OrganizationMembersContainer'))
+        component: lazyLoad(() =>
+          import('./components/OrganizationAccessContainer').then(lib => ({
+            default: lib.OrganizationMembersAccess
+          }))
+        ),
+        childRoutes: [
+          {
+            path: 'members',
+            component: lazyLoad(() => import('./components/OrganizationMembersContainer'))
+          }
+        ]
       },
       {
-        path: 'rules',  
-        component: OrganizationContainer,
-        childRoutes: codingRulesRoutes
+        component: lazyLoad(() =>
+          import('./components/OrganizationAccessContainer').then(lib => ({
+            default: lib.OrganizationPrivateAccess
+          }))
+        ),
+        childRoutes: [
+          {
+            path: 'rules',
+            component: OrganizationContainer,
+            childRoutes: codingRulesRoutes
+          },
+          {
+            path: 'quality_profiles',
+            childRoutes: qualityProfilesRoutes
+          },
+          {
+            path: 'quality_gates',
+            component: OrganizationContainer,
+            childRoutes: qualityGatesRoutes
+          }
+        ]
       },
       {
-        path: 'quality_profiles',
-        childRoutes: qualityProfilesRoutes
-      },
-      {
-        path: 'quality_gates',
-        component: OrganizationContainer,
-        childRoutes: qualityGatesRoutes
-      },
-      {
-        component: lazyLoad(() => import('./components/OrganizationAdminContainer')),
+        component: lazyLoad(() =>
+          import('./components/OrganizationAccessContainer').then(lib => ({
+            default: lib.OrganizationAdminAccess
+          }))
+        ),
         childRoutes: [
           { path: 'delete', component: lazyLoad(() => import('./components/OrganizationDelete')) },
           { path: 'edit', component: lazyLoad(() => import('./components/OrganizationEdit')) },

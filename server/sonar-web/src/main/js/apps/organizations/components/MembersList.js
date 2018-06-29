@@ -21,12 +21,12 @@
 import React from 'react';
 import MembersListItem from './MembersListItem';
 /*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
-/*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
+/*:: import type { Organization, Group } from '../../../app/types'; */
 
 /*::
 type Props = {
   members: Array<Member>,
-  organizationGroups: Array<OrgGroup>,
+  organizationGroups: Array<Group>,
   organization: Organization,
   removeMember: Member => void,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void

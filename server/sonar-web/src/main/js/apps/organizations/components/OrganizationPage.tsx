@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import OrganizationNavigation from '../navigation/OrganizationNavigation';
@@ -26,41 +25,38 @@ import NotFound from '../../../app/components/NotFound';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchOrganization } from '../actions';
 import { getOrganizationByKey } from '../../../store/rootReducer';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import { Organization } from '../../../app/types';
 
-/*::
-type OwnProps = {
-  params: { organizationKey: string }
-};
-*/
+interface OwnProps {
+  children?: React.ReactNode;
+  location: { pathname: string };
+  params: { organizationKey: string };
+}
 
-/*::
-type Props = {
-  children?: React.Element<*>,
-  location: Object,
-  organization: null | Organization,
-  params: { organizationKey: string },
-  fetchOrganization: string => Promise<*>
-};
-*/
+interface StateProps {
+  organization?: Organization;
+}
 
-/*::
-type State = {
-  loading: boolean
-};
-*/
+interface DispatchToProps {
+  fetchOrganization: (organizationKey: string) => Promise<void>;
+}
 
-export class OrganizationPage extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = { loading: true };
+type Props = OwnProps & StateProps & DispatchToProps;
+
+interface State {
+  loading: boolean;
+}
+
+export class OrganizationPage extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
     this.updateOrganization(this.props.params.organizationKey);
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.params.organizationKey !== this.props.params.organizationKey) {
       this.updateOrganization(nextProps.params.organizationKey);
     }
@@ -76,7 +72,7 @@ export class OrganizationPage extends React.PureComponent {
     }
   };
 
-  updateOrganization = (organizationKey /*: string */) => {
+  updateOrganization = (organizationKey: string) => {
     this.setState({ loading: true });
     this.props.fetchOrganization(organizationKey).then(this.stopLoading, this.stopLoading);
   };
@@ -103,10 +99,12 @@ export class OrganizationPage extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state, ownProps /*: OwnProps */) => ({
+const mapStateToProps = (state: any, ownProps: OwnProps) => ({
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
-const mapDispatchToProps = { fetchOrganization };
+const mapDispatchToProps = { fetchOrganization: fetchOrganization as any };
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrganizationPage);
+export default connect<StateProps, DispatchToProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
+  OrganizationPage
+);

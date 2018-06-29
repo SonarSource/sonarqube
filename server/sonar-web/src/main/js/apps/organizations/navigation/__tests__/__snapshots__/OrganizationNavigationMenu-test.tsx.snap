@@ -31,40 +31,42 @@ exports[`renders 1`] = `
       issues.page
     </Link>
   </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/organizations/foo/quality_profiles"
-    >
-      quality_profiles.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/organizations/foo/rules"
-    >
-      coding_rules.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/organizations/foo/quality_gates",
+  <React.Fragment>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/quality_profiles"
+      >
+        quality_profiles.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/rules"
+      >
+        coding_rules.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/organizations/foo/quality_gates",
+          }
         }
-      }
-    >
-      quality_gates.page
-    </Link>
-  </li>
+      >
+        quality_gates.page
+      </Link>
+    </li>
+  </React.Fragment>
   <li>
     <Link
       activeClassName="active"
@@ -123,40 +125,42 @@ exports[`renders for admin 1`] = `
       issues.page
     </Link>
   </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/organizations/foo/quality_profiles"
-    >
-      quality_profiles.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/organizations/foo/rules"
-    >
-      coding_rules.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/organizations/foo/quality_gates",
+  <React.Fragment>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/quality_profiles"
+      >
+        quality_profiles.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/rules"
+      >
+        coding_rules.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/organizations/foo/quality_gates",
+          }
         }
-      }
-    >
-      quality_gates.page
-    </Link>
-  </li>
+      >
+        quality_gates.page
+      </Link>
+    </li>
+  </React.Fragment>
   <li>
     <Link
       activeClassName="active"

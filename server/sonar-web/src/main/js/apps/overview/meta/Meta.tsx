@@ -32,6 +32,7 @@ import { Visibility, Component, Metric, BranchLike } from '../../../app/types';
 import { History } from '../../../api/time-machine';
 import { translate } from '../../../helpers/l10n';
 import { MeasureEnhanced } from '../../../helpers/measures';
+import { hasPrivateAccess } from '../../../helpers/organizations';
 
 interface Props {
   branchLike?: BranchLike;
@@ -47,10 +48,40 @@ export default class Meta extends React.PureComponent<Props> {
     organizationsEnabled: PropTypes.bool
   };
 
+  renderQualityInfos() {
+    const { organizationsEnabled } = this.context;
+    const { organization, qualifier, qualityProfiles, qualityGate } = this.props.component;
+    const isProject = qualifier === 'TRK';
+
+    if (!isProject || (organizationsEnabled && !hasPrivateAccess(organization))) {
+      return null;
+    }
+
+    return (
+      <div className="overview-meta-card">
+        {qualityGate && (
+          <MetaQualityGate
+            organization={organizationsEnabled ? organization : undefined}
+            qualityGate={qualityGate}
+          />
+        )}
+
+        {qualityProfiles &&
+          qualityProfiles.length > 0 && (
+            <MetaQualityProfiles
+              headerClassName={qualityGate ? 'big-spacer-top' : undefined}
+              organization={organizationsEnabled ? organization : undefined}
+              profiles={qualityProfiles}
+            />
+          )}
+      </div>
+    );
+  }
+
   render() {
     const { organizationsEnabled } = this.context;
     const { branchLike, component, metrics } = this.props;
-    const { qualifier, description, qualityProfiles, qualityGate, visibility } = component;
+    const { qualifier, description, visibility } = component;
 
     const isProject = qualifier === 'TRK';
     const isApp = qualifier === 'APP';
@@ -77,25 +108,7 @@ export default class Meta extends React.PureComponent<Props> {
           qualifier={component.qualifier}
         />
 
-        {isProject && (
-          <div className="overview-meta-card">
-            {qualityGate && (
-              <MetaQualityGate
-                organization={organizationsEnabled ? component.organization : undefined}
-                qualityGate={qualityGate}
-              />
-            )}
-
-            {qualityProfiles &&
-              qualityProfiles.length > 0 && (
-                <MetaQualityProfiles
-                  headerClassName={qualityGate ? 'big-spacer-top' : undefined}
-                  organization={organizationsEnabled ? component.organization : undefined}
-                  profiles={qualityProfiles}
-                />
-              )}
-          </div>
-        )}
+        {this.renderQualityInfos()}
 
         {isProject && <MetaLinks component={component} />}
 

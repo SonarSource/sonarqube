@@ -17,118 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { combineReducers } from 'redux';
 import { omit, uniq, without } from 'lodash';
+import { Group, Organization } from '../../app/types';
 
-/*::
-export type Organization = {
-  adminPages?: Array<{ key: string, name: string }>,
-  avatar?: string,
-  canAdmin?: boolean,
-  canDelete?: boolean,
-  canProvisionProjects?: boolean,
-  canUpdateProjectsVisibilityToPrivate?: boolean,
-  description?: string,
-  isAdmin: bool,
-  key: string,
-  name: string,
-  pages?: Array<{ key: string, name: string }>,
-  projectVisibility: string,
-  url?: string
-};
-*/
+interface ReceiveOrganizationsAction {
+  type: 'RECEIVE_ORGANIZATIONS';
+  organizations: Organization[];
+}
 
-/*::
-export type OrgGroup = {
-  id: string,
-  default: boolean,
-  description: string,
-  membersCount: number,
-  name: string
-};
-*/
+interface ReceiveMyOrganizationsAction {
+  type: 'RECEIVE_MY_ORGANIZATIONS';
+  organizations: Organization[];
+}
 
-/*::
-type ReceiveOrganizationsAction = {
-  type: 'RECEIVE_ORGANIZATIONS',
-  organizations: Array<Organization>
-};
-*/
+interface ReceiveOrganizationGroups {
+  type: 'RECEIVE_ORGANIZATION_GROUPS';
+  key: string;
+  groups: Group[];
+}
 
-/*::
-type ReceiveMyOrganizationsAction = {
-  type: 'RECEIVE_MY_ORGANIZATIONS',
-  organizations: Array<Organization>
-};
-*/
+interface CreateOrganizationAction {
+  type: 'CREATE_ORGANIZATION';
+  organization: Organization;
+}
 
-/*::
-type ReceiveOrganizationGroups = {
-  type: 'RECEIVE_ORGANIZATION_GROUPS',
-  key: string,
-  groups: Array<OrgGroup>
-};
-*/
+interface UpdateOrganizationAction {
+  type: 'UPDATE_ORGANIZATION';
+  key: string;
+  changes: {};
+}
 
-/*::
-type CreateOrganizationAction = {
-  type: 'CREATE_ORGANIZATION',
-  organization: Organization
-};
-*/
+interface DeleteOrganizationAction {
+  type: 'DELETE_ORGANIZATION';
+  key: string;
+}
 
-/*::
-type UpdateOrganizationAction = {
-  type: 'UPDATE_ORGANIZATION',
-  key: string,
-  changes: {}
-};
-*/
-
-/*::
-type DeleteOrganizationAction = {
-  type: 'DELETE_ORGANIZATION',
-  key: string
-};
-*/
-
-/*::
 type Action =
   | ReceiveOrganizationsAction
   | ReceiveMyOrganizationsAction
   | ReceiveOrganizationGroups
   | CreateOrganizationAction
   | UpdateOrganizationAction
-  | DeleteOrganizationAction; */
+  | DeleteOrganizationAction;
 
-/*::
-type ByKeyState = {
-  [key: string]: Organization
-};
-*/
+interface ByKeyState {
+  [key: string]: Organization;
+}
 
-/*::
-type GroupsState = {
-  [key: string]: Array<OrgGroup>
-};
-*/
+interface GroupsState {
+  [key: string]: Group[];
+}
 
-/*::
-type MyState = Array<string>;
-*/
+type MyState = string[];
 
-/*::
-type State = {
-  byKey: ByKeyState,
-  my: MyState,
-  groups: GroupsState
-};
-*/
+interface State {
+  byKey: ByKeyState;
+  my: MyState;
+  groups: GroupsState;
+}
 
-export function receiveOrganizations(
-  organizations /*: Array<Organization> */
-) /*: ReceiveOrganizationsAction */ {
+export function receiveOrganizations(organizations: Organization[]): ReceiveOrganizationsAction {
   return {
     type: 'RECEIVE_ORGANIZATIONS',
     organizations
@@ -136,18 +85,15 @@ export function receiveOrganizations(
 }
 
 export function receiveMyOrganizations(
-  organizations /*: Array<Organization> */
-) /*: ReceiveMyOrganizationsAction */ {
+  organizations: Organization[]
+): ReceiveMyOrganizationsAction {
   return {
     type: 'RECEIVE_MY_ORGANIZATIONS',
     organizations
   };
 }
 
-export function receiveOrganizationGroups(
-  key /*: string */,
-  groups /*: Array<OrgGroup> */
-) /*: receiveOrganizationGroups */ {
+export function receiveOrganizationGroups(key: string, groups: Group[]): ReceiveOrganizationGroups {
   return {
     type: 'RECEIVE_ORGANIZATION_GROUPS',
     key,
@@ -155,19 +101,14 @@ export function receiveOrganizationGroups(
   };
 }
 
-export function createOrganization(
-  organization /*: Organization */
-) /*: CreateOrganizationAction */ {
+export function createOrganization(organization: Organization): CreateOrganizationAction {
   return {
     type: 'CREATE_ORGANIZATION',
     organization
   };
 }
 
-export function updateOrganization(
-  key /*: string */,
-  changes /*: {} */
-) /*: UpdateOrganizationAction */ {
+export function updateOrganization(key: string, changes: {}): UpdateOrganizationAction {
   return {
     type: 'UPDATE_ORGANIZATION',
     key,
@@ -175,7 +116,7 @@ export function updateOrganization(
   };
 }
 
-export function deleteOrganization(key /*: string */) /*: DeleteOrganizationAction */ {
+export function deleteOrganization(key: string): DeleteOrganizationAction {
   return {
     type: 'DELETE_ORGANIZATION',
     key
@@ -183,9 +124,9 @@ export function deleteOrganization(key /*: string */) /*: DeleteOrganizationActi
 }
 
 function onReceiveOrganizations(
-  state /*: ByKeyState */,
-  action /*: ReceiveOrganizationsAction | ReceiveMyOrganizationsAction */
-) /*: ByKeyState */ {
+  state: ByKeyState,
+  action: ReceiveOrganizationsAction | ReceiveMyOrganizationsAction
+): ByKeyState {
   const nextState = { ...state };
   action.organizations.forEach(organization => {
     nextState[organization.key] = { ...state[organization.key], ...organization };
@@ -193,7 +134,7 @@ function onReceiveOrganizations(
   return nextState;
 }
 
-function byKey(state /*: ByKeyState */ = {}, action /*: Action */) {
+function byKey(state: ByKeyState = {}, action: Action) {
   switch (action.type) {
     case 'RECEIVE_ORGANIZATIONS':
     case 'RECEIVE_MY_ORGANIZATIONS':
@@ -216,7 +157,7 @@ function byKey(state /*: ByKeyState */ = {}, action /*: Action */) {
   }
 }
 
-function my(state /*: MyState */ = [], action /*: Action */) {
+function my(state: MyState = [], action: Action) {
   switch (action.type) {
     case 'RECEIVE_MY_ORGANIZATIONS':
       return uniq([...state, ...action.organizations.map(o => o.key)]);
@@ -229,7 +170,7 @@ function my(state /*: MyState */ = [], action /*: Action */) {
   }
 }
 
-function groups(state /*: GroupsState */ = {}, action /*: Action */) {
+function groups(state: GroupsState = {}, action: Action) {
   if (action.type === 'RECEIVE_ORGANIZATION_GROUPS') {
     return { ...state, [action.key]: action.groups };
   }
@@ -238,21 +179,18 @@ function groups(state /*: GroupsState */ = {}, action /*: Action */) {
 
 export default combineReducers({ byKey, my, groups });
 
-export function getOrganizationByKey(state /*: State */, key /*: string */) /*: Organization */ {
+export function getOrganizationByKey(state: State, key: string): Organization | undefined {
   return state.byKey[key];
 }
 
-export function getOrganizationGroupsByKey(
-  state /*: State */,
-  key /*: string */
-) /*: Array<OrgGroup> */ {
+export function getOrganizationGroupsByKey(state: State, key: string): Group[] {
   return state.groups[key] || [];
 }
 
-export function getMyOrganizations(state /*: State */) /*: Array<Organization> */ {
-  return state.my.map(key => getOrganizationByKey(state, key));
+export function getMyOrganizations(state: State): Organization[] {
+  return state.my.map(key => getOrganizationByKey(state, key) as Organization);
 }
 
-export function areThereCustomOrganizations(state /*: State */) /*: boolean */ {
+export function areThereCustomOrganizations(state: State): boolean {
   return Object.keys(state.byKey).length > 1;
 }

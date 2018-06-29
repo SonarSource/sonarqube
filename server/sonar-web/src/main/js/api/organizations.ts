@@ -19,33 +19,15 @@
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging } from '../app/types';
+import { LightOrganization, Paging } from '../app/types';
 
-interface GetOrganizationsParameters {
+export function getOrganizations(data: {
   organizations?: string;
   member?: boolean;
-}
-
-interface GetOrganizationsResponse {
-  organizations: Array<{
-    avatar?: string;
-    description?: string;
-    guarded: boolean;
-    isAdmin: boolean;
-    key: string;
-    name: string;
-    url?: string;
-  }>;
-  paging: {
-    pageIndex: number;
-    pageSize: number;
-    total: number;
-  };
-}
-
-export function getOrganizations(
-  data: GetOrganizationsParameters
-): Promise<GetOrganizationsResponse> {
+}): Promise<{
+  organizations: LightOrganization[];
+  paging: Paging;
+}> {
   return getJSON('/api/organizations/search', data);
 }
 

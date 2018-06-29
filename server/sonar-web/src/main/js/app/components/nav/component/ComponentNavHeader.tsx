@@ -105,8 +105,7 @@ function renderBreadcrumbs(breadcrumbs: Breadcrumb[]) {
 }
 
 const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => ({
-  organization:
-    ownProps.component.organization && getOrganizationByKey(state, ownProps.component.organization),
+  organization: getOrganizationByKey(state, ownProps.component.organization),
   shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
 });
 

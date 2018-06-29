@@ -58,7 +58,7 @@ export default class WorkspaceRuleViewer extends React.PureComponent<Props> {
         <div className="workspace-viewer-container" style={{ height: this.props.height }}>
           <WorkspaceRuleDetails
             onLoad={this.handleLoaded}
-            organization={rule.organization}
+            organizationKey={rule.organization}
             ruleKey={rule.key}
           />
         </div>

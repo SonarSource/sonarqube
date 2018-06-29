@@ -337,22 +337,32 @@ export interface Notification {
   projectName?: string;
   type: string;
 }
-
-export interface Organization {
-  adminPages?: { key: string; name: string }[];
+export interface LightOrganization {
   avatar?: string;
+  description?: string;
+  guarded?: boolean;
+  isAdmin?: boolean;
+  key: string;
+  name: string;
+  subscription?: OrganizationSubscription;
+  url?: string;
+}
+
+export interface Organization extends LightOrganization {
+  adminPages?: { key: string; name: string }[];
   canAdmin?: boolean;
   canDelete?: boolean;
   canProvisionProjects?: boolean;
   canUpdateProjectsVisibilityToPrivate?: boolean;
-  description?: string;
-  isAdmin?: boolean;
   isDefault?: boolean;
-  key: string;
-  name: string;
   pages?: { key: string; name: string }[];
-  projectVisibility: Visibility;
-  url?: string;
+  projectVisibility?: Visibility;
+}
+
+export enum OrganizationSubscription {
+  Free = 'FREE',
+  Paid = 'PAID',
+  SonarQube = 'SONARQUBE'
 }
 
 export interface Paging {
