@@ -141,11 +141,8 @@ import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
-import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.ExternalRuleCreator;
-import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
@@ -378,9 +375,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
-      DeprecatedRulesDefinitionLoader.class,
-      CommonRuleDefinitionsImpl.class,
-      RuleDefinitionsLoader.class,
       RulesDefinitionXmlLoader.class,
       ExternalRuleCreator.class,
       RuleIndexer.class,
