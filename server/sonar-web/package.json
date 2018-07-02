@@ -123,14 +123,13 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "build-fast": "node scripts/build.js --fast",
-    "test": "node scripts/test.js",
-    "coverage": "npm test -- --coverage",
+    "test": "jest",
     "format": "prettier --write --list-different 'src/main/js/**/*.{js,ts,tsx,css}'",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
     "flow-check": "flow check src/main/js",
     "ts-check": "tsc --noEmit",
-    "validate": "yarn lint && yarn flow-check && yarn ts-check && NODE_ENV=test jest",
+    "validate": "yarn lint && yarn flow-check && yarn ts-check && yarn test",
     "precommit": "yarn ts-check && lint-staged && yarn flow-check"
   },
   "engines": {
