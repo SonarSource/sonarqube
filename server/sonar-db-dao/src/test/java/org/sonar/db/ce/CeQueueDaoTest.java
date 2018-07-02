@@ -187,12 +187,45 @@ public class CeQueueDaoTest {
   @Test
   public void test_delete() {
     insertPending(TASK_UUID_1, COMPONENT_UUID_1);
+    insertPending(TASK_UUID_2, COMPONENT_UUID_1);
 
-    underTest.deleteByUuid(db.getSession(), "UNKNOWN");
+    int deletedCount = underTest.deleteByUuid(db.getSession(), "UNKNOWN");
+    assertThat(deletedCount).isEqualTo(0);
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
 
-    underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
-    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1).isPresent()).isFalse();
+    deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isEmpty();
+
+    deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_2, null);
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).isEmpty();
+  }
+
+  @Test
+  public void test_delete_with_expected_status() {
+    insertPending(TASK_UUID_1, COMPONENT_UUID_1);
+    insertInProgress(TASK_UUID_2, COMPONENT_UUID_1);
+
+    int deletedCount = underTest.deleteByUuid(db.getSession(), "UNKNOWN", null);
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
+
+    deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1, new DeleteIf(IN_PROGRESS));
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
+
+    deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_2, new DeleteIf(PENDING));
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).isPresent();
+
+    deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1, new DeleteIf(PENDING));
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isEmpty();
+
+    deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_2, new DeleteIf(IN_PROGRESS));
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).isEmpty();
   }
 
   @Test
@@ -547,6 +580,12 @@ public class CeQueueDaoTest {
     underTest.insert(db.getSession(), dto);
     db.getSession().commit();
     return dto;
+  }
+
+  private CeQueueDto insertInProgress(String uuid, String componentUuid) {
+    CeQueueDto ceQueueDto = insertPending(uuid);
+    CeQueueTesting.makeInProgress(db.getSession(), "workerUuid", System2.INSTANCE.now(), ceQueueDto);
+    return underTest.selectByUuid(db.getSession(), uuid).get();
   }
 
   private static Iterable<Map<String, Object>> upperizeKeys(List<Map<String, Object>> select) {

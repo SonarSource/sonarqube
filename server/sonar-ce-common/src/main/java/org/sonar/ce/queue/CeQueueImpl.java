@@ -34,6 +34,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTask;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -41,6 +42,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.DeleteIf;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.property.InternalProperties;
@@ -196,6 +198,24 @@ public class CeQueueImpl implements CeQueue {
     remove(dbSession, q, activityDto);
   }
 
+  protected void remove(DbSession dbSession, CeQueueDto queueDto, CeActivityDto activityDto) {
+    String taskUuid = queueDto.getUuid();
+    CeQueueDto.Status expectedQueueDtoStatus = queueDto.getStatus();
+
+    dbClient.ceActivityDao().insert(dbSession, activityDto);
+    dbClient.ceTaskInputDao().deleteByUuids(dbSession, singleton(taskUuid));
+    int deletedTasks = dbClient.ceQueueDao().deleteByUuid(dbSession, taskUuid, new DeleteIf(expectedQueueDtoStatus));
+
+    if (deletedTasks == 1) {
+      dbSession.commit();
+    } else {
+      Loggers.get(CeQueueImpl.class).debug(
+        "Remove rolled back because task in queue with uuid {} and status {} could not be deleted",
+        taskUuid, expectedQueueDtoStatus);
+      dbSession.rollback();
+    }
+  }
+
   @Override
   public int cancelAll() {
     return cancelAll(false);
@@ -243,13 +263,6 @@ public class CeQueueImpl implements CeQueue {
       }
       return WorkersPauseStatus.PAUSED;
     }
-  }
-
-  protected void remove(DbSession dbSession, CeQueueDto queueDto, CeActivityDto activityDto) {
-    dbClient.ceActivityDao().insert(dbSession, activityDto);
-    dbClient.ceQueueDao().deleteByUuid(dbSession, queueDto.getUuid());
-    dbClient.ceTaskInputDao().deleteByUuids(dbSession, singleton(queueDto.getUuid()));
-    dbSession.commit();
   }
 
   private static class CeQueueDtoToCeTask implements Function<CeQueueDto, CeTask> {

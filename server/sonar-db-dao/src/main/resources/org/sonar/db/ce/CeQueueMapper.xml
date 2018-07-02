@@ -255,6 +255,9 @@
       ce_queue
     where
       uuid=#{uuid,jdbcType=VARCHAR}
+      <if test="deleteIf != null">
+        and status = #{deleteIf.expectedStatus,jdbcType=VARCHAR}
+      </if>
   </delete>
 
   <update id="resetTasksWithUnknownWorkerUUIDs">

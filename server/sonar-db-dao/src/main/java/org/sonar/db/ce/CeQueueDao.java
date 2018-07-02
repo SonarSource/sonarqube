@@ -114,8 +114,12 @@ public class CeQueueDao implements Dao {
     return dto;
   }
 
-  public void deleteByUuid(DbSession session, String uuid) {
-    mapper(session).deleteByUuid(uuid);
+  public int deleteByUuid(DbSession session, String uuid) {
+    return deleteByUuid(session, uuid, null);
+  }
+
+  public int deleteByUuid(DbSession session, String uuid, @Nullable DeleteIf deleteIf) {
+    return mapper(session).deleteByUuid(uuid, deleteIf);
   }
 
   /**
