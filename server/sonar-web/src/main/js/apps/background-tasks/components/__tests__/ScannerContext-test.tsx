@@ -23,8 +23,6 @@ import { shallow } from 'enzyme';
 import ScannerContext from '../ScannerContext';
 import { click } from '../../../../helpers/testUtils';
 
-jest.mock('react-dom');
-
 jest.mock('../../../../api/ce', () => ({
   getTask: jest.fn(() => Promise.resolve({ scannerContext: 'context' }))
 }));

@@ -22,8 +22,6 @@ import { shallow } from 'enzyme';
 import { click } from '../../../../../helpers/testUtils';
 import AddMemberForm from '../AddMemberForm';
 
-jest.mock('react-dom');
-
 const memberLogins = ['admin'];
 
 it('should render and open the modal', () => {
