@@ -100,21 +100,21 @@ public class CeConfigurationImplTest {
   }
 
   @Test
-  public void getCleanCeTasksInitialDelay_returns_1() {
+  public void getCleanCeTasksInitialDelay_returns_0() {
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanCeTasksInitialDelay())
-      .isEqualTo(1L);
+      .isEqualTo(0L);
     workerCountProvider.set(1);
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanCeTasksInitialDelay())
-      .isEqualTo(1L);
+      .isEqualTo(0L);
   }
 
   @Test
-  public void getCleanCeTasksDelay_returns_10() {
+  public void getCleanCeTasksDelay_returns_2() {
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanCeTasksDelay())
-      .isEqualTo(10L);
+      .isEqualTo(2L);
     workerCountProvider.set(1);
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanCeTasksDelay())
-      .isEqualTo(10L);
+      .isEqualTo(2L);
   }
 
   @Test

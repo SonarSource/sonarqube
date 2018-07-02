@@ -38,10 +38,10 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   private static final int DEFAULT_WORKER_COUNT = 1;
   // 2 seconds
   private static final long DEFAULT_QUEUE_POLLING_DELAY = 2 * 1000L;
-  // 1 minute
-  private static final long CANCEL_WORN_OUTS_INITIAL_DELAY = 1;
-  // 10 minutes
-  private static final long CANCEL_WORN_OUTS_DELAY = 10;
+  // 0 minute
+  private static final long CANCEL_WORN_OUTS_INITIAL_DELAY = 0;
+  // 2 minutes
+  private static final long CANCEL_WORN_OUTS_DELAY = 2;
   // 40 seconds
   private static final int GRACEFUL_STOP_TIMEOUT = 40;
   public static final String SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS = "sonar.ce.gracefulStopTimeOutInMs";
