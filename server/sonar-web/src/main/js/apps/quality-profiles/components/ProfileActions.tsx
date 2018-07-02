@@ -88,6 +88,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleProfileCopy = (name: string) => {
+    this.closeCopyForm();
     this.props.updateProfiles().then(
       () => {
         this.context.router.push(

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProfileActions from '../ProfileActions';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 const PROFILE = {
   activeRuleCount: 68,
@@ -83,4 +84,31 @@ it('renders with all permissions', () => {
       />
     )
   ).toMatchSnapshot();
+});
+
+it('should copy profile', async () => {
+  const updateProfiles = jest.fn(() => Promise.resolve());
+  const push = jest.fn();
+  const wrapper = shallow(
+    <ProfileActions
+      onRequestFail={jest.fn()}
+      organization="org"
+      profile={{ ...PROFILE, actions: { copy: true } }}
+      updateProfiles={updateProfiles}
+    />,
+    { context: { router: { push } } }
+  );
+
+  click(wrapper.find('[id="quality-profile-copy"]'));
+  expect(wrapper.find('CopyProfileForm').exists()).toBe(true);
+
+  wrapper.find('CopyProfileForm').prop<Function>('onCopy')('new-name');
+  expect(updateProfiles).toBeCalled();
+  await waitAndUpdate(wrapper);
+
+  expect(push).toBeCalledWith({
+    pathname: '/organizations/org/quality_profiles/show',
+    query: { language: 'java', name: 'new-name' }
+  });
+  expect(wrapper.find('CopyProfileForm').exists()).toBe(false);
 });
