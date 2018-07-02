@@ -35,7 +35,6 @@ import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
@@ -52,13 +51,11 @@ public class SearchAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
+  public SearchAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
   }
 
@@ -99,7 +96,7 @@ public class SearchAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, request.mandatoryParamAsLong(PARAM_GATE_ID));
+      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, request.mandatoryParamAsLong(PARAM_GATE_ID));
       Association associations = find(dbSession,
         ProjectQgateAssociationQuery.builder()
           .qualityGate(qualityGate)

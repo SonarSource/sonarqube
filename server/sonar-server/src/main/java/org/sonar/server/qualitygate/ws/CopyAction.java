@@ -26,7 +26,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
@@ -43,15 +42,13 @@ public class CopyAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
-  private final QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
 
   public CopyAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
-    QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
+    QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.qualityGateUpdater = qualityGateUpdater;
-    this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
   }
 
@@ -88,7 +85,7 @@ public class CopyAction implements QualityGatesWsAction {
 
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
-      QualityGateDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, id);
+      QualityGateDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, id);
       QualityGateDto copy = qualityGateUpdater.copy(dbSession, organization, qualityGate, destinationName);
       dbSession.commit();
 

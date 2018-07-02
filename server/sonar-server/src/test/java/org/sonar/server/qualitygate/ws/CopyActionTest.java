@@ -36,7 +36,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -66,10 +65,9 @@ public class CopyActionTest {
   private DbSession dbSession = db.getSession();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
-  private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
   private QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
-  private CopyAction underTest = new CopyAction(dbClient, userSession, qualityGateUpdater, qualityGateFinder, wsSupport);
+  private CopyAction underTest = new CopyAction(dbClient, userSession, qualityGateUpdater, wsSupport);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test

@@ -31,7 +31,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.SearchResponse;
@@ -66,7 +65,7 @@ public class SearchActionTest {
   private DbClient dbClient = db.getDbClient();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private SearchAction underTest = new SearchAction(dbClient, userSession, new QualityGateFinder(dbClient),
+  private SearchAction underTest = new SearchAction(dbClient, userSession,
     new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider));
   private WsActionTester ws = new WsActionTester(underTest);
 

@@ -26,7 +26,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
@@ -37,14 +36,11 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
 
-  public SetAsDefaultAction(DbClient dbClient, UserSession userSession,
-    QualityGateFinder qualityGateFinder, QualityGatesWsSupport qualityGatesWsSupport) {
+  public SetAsDefaultAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport qualityGatesWsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = qualityGatesWsSupport;
   }
 
@@ -72,7 +68,7 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
-      QualityGateDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, id);
+      QualityGateDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, id);
       organization.setDefaultQualityGateUuid(qualityGate.getUuid());
       dbClient.organizationDao().update(dbSession, organization);
       dbSession.commit();

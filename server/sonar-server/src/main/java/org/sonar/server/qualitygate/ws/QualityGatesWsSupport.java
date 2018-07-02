@@ -57,6 +57,12 @@ public class QualityGatesWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
+  public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
+    return checkFound(
+      dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGateId),
+      "No quality gate has been found for id %s in organization %s", qualityGateId, organization.getName());
+  }
+
   QualityGateConditionDto getCondition(DbSession dbSession, long id) {
     return checkFound(dbClient.gateConditionDao().selectById(id, dbSession), "No quality gate condition with id '%d'", id);
   }

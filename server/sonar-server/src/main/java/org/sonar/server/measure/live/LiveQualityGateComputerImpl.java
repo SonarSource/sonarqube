@@ -46,6 +46,7 @@ import org.sonar.server.qualitygate.QualityGateEvaluator;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
+import static java.lang.String.format;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
@@ -68,7 +69,9 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     }
 
     ComponentDto mainProject = project.getMainBranchProjectUuid() == null ? project : dbClient.componentDao().selectOrFailByKey(dbSession, project.getKey());
-    QualityGateDto gateDto = qGateFinder.getQualityGate(dbSession, organization, mainProject).getQualityGate();
+    QualityGateDto gateDto = qGateFinder.getQualityGate(dbSession, organization, mainProject)
+      .orElseThrow(() -> new IllegalStateException(format("Quality Gate not found for project %s", mainProject.getKey())))
+      .getQualityGate();
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, gateDto.getId());
     Set<Integer> metricIds = conditionDtos.stream().map(c -> (int) c.getMetricId())
       .collect(toHashSet(conditionDtos.size()));

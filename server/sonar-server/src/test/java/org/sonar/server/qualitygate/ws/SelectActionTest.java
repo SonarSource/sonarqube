@@ -33,7 +33,6 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -55,8 +54,7 @@ public class SelectActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private SelectAction underTest = new SelectAction(dbClient, TestComponentFinder.from(db),
-    new QualityGatesWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)),
-    new QualityGateFinder(db.getDbClient()));
+    new QualityGatesWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test

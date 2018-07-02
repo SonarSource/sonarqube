@@ -50,6 +50,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.project.Visibility;
@@ -59,6 +60,7 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -221,7 +223,8 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeQualityGate(JsonWriter json, DbSession session, OrganizationDto organization, ComponentDto component) {
-    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, organization, component);
+    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, organization, component)
+      .orElseThrow(() -> new NotFoundException(format("Quality Gate not found for %s", component.getKey())));
     QualityGateDto qualityGateDto = qualityGateData.getQualityGate();
     json.name("qualityGate").beginObject()
       .prop("key", qualityGateDto.getId())

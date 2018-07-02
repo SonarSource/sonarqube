@@ -66,7 +66,7 @@ public class DestroyAction implements QualityGatesWsAction {
     long qualityGateId = request.mandatoryParamAsLong(QualityGatesWsParameters.PARAM_ID);
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = finder.getByOrganizationAndId(dbSession, organization, qualityGateId);
+      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, qualityGateId);
       QualityGateDto defaultQualityGate = finder.getDefault(dbSession, organization);
       checkArgument(!defaultQualityGate.getId().equals(qualityGate.getId()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);

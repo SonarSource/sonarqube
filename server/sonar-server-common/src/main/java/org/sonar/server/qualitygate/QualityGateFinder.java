@@ -28,7 +28,7 @@ import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static java.util.Optional.ofNullable;
 
 public class QualityGateFinder {
 
@@ -45,20 +45,15 @@ public class QualityGateFinder {
    *
    * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate of the organization
    */
-  public QualityGateData getQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto component) {
-    Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, component.getId());
-    if (qualityGateId.isPresent()) {
-      QualityGateDto qualityGate = checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId.get()), "No quality gate has been found for id %s", qualityGateId);
-      return new QualityGateData(qualityGate, false);
+  public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto component) {
+    Optional<QualityGateData> res = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, component.getId())
+      .map(qualityGateId -> dbClient.qualityGateDao().selectById(dbSession, qualityGateId))
+      .map(qualityGateDto -> new QualityGateData(qualityGateDto, false));
+    if (res.isPresent()) {
+      return res;
     }
-    QualityGateDto defaultQualityGate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
-    checkState(defaultQualityGate != null, "Unable to find the quality gate [%s] for organization [%s]", organization.getDefaultQualityGateUuid(), organization.getUuid());
-    return new QualityGateData(defaultQualityGate, true);
-  }
-
-  public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
-    return checkFound(dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGateId),
-      "No quality gate has been found for id %s in organization %s", qualityGateId, organization.getName());
+    return ofNullable(dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid()))
+      .map(qualityGateDto -> new QualityGateData(qualityGateDto, true));
   }
 
   public QualityGateDto getDefault(DbSession dbSession, OrganizationDto organization) {

@@ -28,7 +28,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
 import static com.google.common.base.Strings.emptyToNull;
@@ -47,13 +46,11 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
-  private final QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
 
-  public CreateConditionAction(DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
+  public CreateConditionAction(DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
-    this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
   }
 
@@ -88,7 +85,7 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, gateId);
+      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
       wsSupport.checkCanEdit(qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, emptyToNull(warning), emptyToNull(error), period);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()

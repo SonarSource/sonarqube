@@ -29,11 +29,13 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
 
+import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
@@ -75,8 +77,7 @@ public class GetByProjectAction implements QualityGatesWsAction {
       .setChangelog(
         new Change("6.6", "The parameter 'projectId' has been removed"),
         new Change("6.6", "The parameter 'projectKey' has been renamed to 'project'"),
-        new Change("6.6", "This webservice is now part of the public API")
-      );
+        new Change("6.6", "This webservice is now part of the public API"));
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
@@ -99,7 +100,8 @@ public class GetByProjectAction implements QualityGatesWsAction {
         throw insufficientPrivilegesException();
       }
 
-      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, organization, project);
+      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, organization, project)
+        .orElseThrow(() -> new NotFoundException(format("Quality gate not found for project %s", project.getKey())));
 
       writeProtobuf(buildResponse(data), request, response);
     }

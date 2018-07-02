@@ -139,7 +139,8 @@ import org.sonar.server.platform.serverid.ServerIdModule;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.property.InternalPropertiesImpl;
-import org.sonar.server.qualitygate.QualityGateModule;
+import org.sonar.server.qualitygate.QualityGateEvaluatorImpl;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.ExternalRuleCreator;
@@ -458,7 +459,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // webhooks
       WebhookModule.class,
 
-      QualityGateModule.class,
+      QualityGateFinder.class,
+      QualityGateEvaluatorImpl.class,
 
       // cleaning
       CeCleaningModule.class);

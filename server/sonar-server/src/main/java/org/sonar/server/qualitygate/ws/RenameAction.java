@@ -27,7 +27,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -41,12 +40,10 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class RenameAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
-  private final QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
 
-  public RenameAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
+  public RenameAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
-    this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
   }
 
@@ -87,7 +84,7 @@ public class RenameAction implements QualityGatesWsAction {
   }
 
   private QualityGateDto rename(DbSession dbSession, OrganizationDto organization, long id, String name) {
-    QGateWithOrgDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, id);
+    QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, id);
     wsSupport.checkCanEdit(qualityGate);
     checkArgument(!isNullOrEmpty(name), CANT_BE_EMPTY_MESSAGE, "Name");
     checkNotAlreadyExists(dbSession, organization, qualityGate, name);

@@ -33,7 +33,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
-import org.sonar.server.qualitygate.QualityGateFinder;
 
 import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
@@ -46,13 +45,11 @@ public class SelectAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final QualityGatesWsSupport wsSupport;
-  private final QualityGateFinder qualityGateFinder;
 
-  public SelectAction(DbClient dbClient, ComponentFinder componentFinder, QualityGatesWsSupport wsSupport, QualityGateFinder qualityGateFinder) {
+  public SelectAction(DbClient dbClient, ComponentFinder componentFinder, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.wsSupport = wsSupport;
-    this.qualityGateFinder = qualityGateFinder;
   }
 
   @Override
@@ -93,7 +90,7 @@ public class SelectAction implements QualityGatesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, gateId);
+      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
       ComponentDto project = getProject(dbSession, organization, projectId, projectKey);
       wsSupport.checkCanAdminProject(organization, project);
 
