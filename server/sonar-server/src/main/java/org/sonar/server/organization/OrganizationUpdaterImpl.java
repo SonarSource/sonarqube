@@ -62,6 +62,7 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.newOrganizationBuilder;
 
@@ -206,7 +207,8 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       .setDescription(newOrganization.getDescription())
       .setUrl(newOrganization.getUrl())
       .setDefaultQualityGateUuid(builtInQualityGate.getUuid())
-      .setAvatarUrl(newOrganization.getAvatar());
+      .setAvatarUrl(newOrganization.getAvatar())
+      .setSubscription(FREE);
     Arrays.stream(extendCreation).forEach(c -> c.accept(res));
     dbClient.organizationDao().insert(dbSession, res, false);
     return res;

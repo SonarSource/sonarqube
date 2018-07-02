@@ -39,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationDto.Subscription;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
@@ -108,84 +109,6 @@ public class OrganizationUpdaterImplTest {
     builtInQProfileRepositoryRule, defaultGroupCreator);
 
   @Test
-  public void create_throws_NPE_if_NewOrganization_arg_is_null() throws OrganizationUpdater.KeyConflictException {
-    UserDto user = db.users().insertUser();
-
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("newOrganization can't be null");
-
-    underTest.create(dbSession, user, null);
-  }
-
-  @Test
-  public void create_throws_exception_thrown_by_checkValidKey() throws OrganizationUpdater.KeyConflictException {
-    UserDto user = db.users().insertUser();
-
-    when(organizationValidation.checkKey(FULL_POPULATED_NEW_ORGANIZATION.getKey()))
-      .thenThrow(exceptionThrownByOrganizationValidation);
-
-    createThrowsExceptionThrownByOrganizationValidation(user);
-  }
-
-  @Test
-  public void create_throws_exception_thrown_by_checkValidDescription() throws OrganizationUpdater.KeyConflictException {
-    UserDto user = db.users().insertUser();
-
-    when(organizationValidation.checkDescription(FULL_POPULATED_NEW_ORGANIZATION.getDescription())).thenThrow(exceptionThrownByOrganizationValidation);
-
-    createThrowsExceptionThrownByOrganizationValidation(user);
-  }
-
-  @Test
-  public void create_throws_exception_thrown_by_checkValidUrl() throws OrganizationUpdater.KeyConflictException {
-    UserDto user = db.users().insertUser();
-
-    when(organizationValidation.checkUrl(FULL_POPULATED_NEW_ORGANIZATION.getUrl())).thenThrow(exceptionThrownByOrganizationValidation);
-
-    createThrowsExceptionThrownByOrganizationValidation(user);
-  }
-
-  @Test
-  public void create_throws_exception_thrown_by_checkValidAvatar() throws OrganizationUpdater.KeyConflictException {
-    UserDto user = db.users().insertUser();
-
-    when(organizationValidation.checkAvatar(FULL_POPULATED_NEW_ORGANIZATION.getAvatar())).thenThrow(exceptionThrownByOrganizationValidation);
-
-    createThrowsExceptionThrownByOrganizationValidation(user);
-  }
-
-  private void createThrowsExceptionThrownByOrganizationValidation(UserDto user) throws OrganizationUpdater.KeyConflictException {
-    try {
-      underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
-      fail(exceptionThrownByOrganizationValidation + " should have been thrown");
-    } catch (IllegalArgumentException e) {
-      assertThat(e).isSameAs(exceptionThrownByOrganizationValidation);
-    }
-  }
-
-  @Test
-  public void create_fails_with_ISE_if_BuiltInQProfileRepository_has_not_been_initialized() throws OrganizationUpdater.KeyConflictException {
-    UserDto user = db.users().insertUser();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("initialize must be called first");
-
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
-  }
-
-  @Test
-  public void create_fails_with_KeyConflictException_if_org_with_key_in_NewOrganization_arg_already_exists_in_db() throws OrganizationUpdater.KeyConflictException {
-    db.organizations().insertForKey(FULL_POPULATED_NEW_ORGANIZATION.getKey());
-    UserDto user = db.users().insertUser();
-
-    expectedException.expect(OrganizationUpdater.KeyConflictException.class);
-    expectedException.expectMessage("Organization key '" + FULL_POPULATED_NEW_ORGANIZATION.getKey() + "' is already used");
-
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
-  }
-
-  @Test
   public void create_creates_unguarded_organization_with_properties_from_NewOrganization_arg() throws OrganizationUpdater.KeyConflictException {
     builtInQProfileRepositoryRule.initialize();
     UserDto user = db.users().insertUser();
@@ -201,6 +124,7 @@ public class OrganizationUpdaterImplTest {
     assertThat(organization.getUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getUrl());
     assertThat(organization.getAvatarUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getAvatar());
     assertThat(organization.isGuarded()).isFalse();
+    assertThat(organization.getSubscription()).isEqualTo(Subscription.FREE);
     assertThat(organization.getCreatedAt()).isEqualTo(A_DATE);
     assertThat(organization.getUpdatedAt()).isEqualTo(A_DATE);
   }
@@ -326,32 +250,81 @@ public class OrganizationUpdaterImplTest {
   }
 
   @Test
-  public void createForUser_has_no_effect_if_setting_for_feature_is_not_set() {
-    checkSizeOfTables();
+  public void create_throws_NPE_if_NewOrganization_arg_is_null() throws OrganizationUpdater.KeyConflictException {
+    UserDto user = db.users().insertUser();
 
-    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("newOrganization can't be null");
 
-    checkSizeOfTables();
+    underTest.create(dbSession, user, null);
   }
 
   @Test
-  public void createForUser_has_no_effect_if_setting_for_feature_is_disabled() {
-    enableCreatePersonalOrg(false);
+  public void create_throws_exception_thrown_by_checkValidKey() throws OrganizationUpdater.KeyConflictException {
+    UserDto user = db.users().insertUser();
 
-    checkSizeOfTables();
+    when(organizationValidation.checkKey(FULL_POPULATED_NEW_ORGANIZATION.getKey()))
+      .thenThrow(exceptionThrownByOrganizationValidation);
 
-    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
-
-    checkSizeOfTables();
+    createThrowsExceptionThrownByOrganizationValidation(user);
   }
 
-  private void checkSizeOfTables() {
-    assertThat(db.countRowsOfTable("organizations")).isEqualTo(1);
-    assertThat(db.countRowsOfTable("groups")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("groups_users")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("permission_templates")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("perm_templates_users")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
+  @Test
+  public void create_throws_exception_thrown_by_checkValidDescription() throws OrganizationUpdater.KeyConflictException {
+    UserDto user = db.users().insertUser();
+
+    when(organizationValidation.checkDescription(FULL_POPULATED_NEW_ORGANIZATION.getDescription())).thenThrow(exceptionThrownByOrganizationValidation);
+
+    createThrowsExceptionThrownByOrganizationValidation(user);
+  }
+
+  @Test
+  public void create_throws_exception_thrown_by_checkValidUrl() throws OrganizationUpdater.KeyConflictException {
+    UserDto user = db.users().insertUser();
+
+    when(organizationValidation.checkUrl(FULL_POPULATED_NEW_ORGANIZATION.getUrl())).thenThrow(exceptionThrownByOrganizationValidation);
+
+    createThrowsExceptionThrownByOrganizationValidation(user);
+  }
+
+  @Test
+  public void create_throws_exception_thrown_by_checkValidAvatar() throws OrganizationUpdater.KeyConflictException {
+    UserDto user = db.users().insertUser();
+
+    when(organizationValidation.checkAvatar(FULL_POPULATED_NEW_ORGANIZATION.getAvatar())).thenThrow(exceptionThrownByOrganizationValidation);
+
+    createThrowsExceptionThrownByOrganizationValidation(user);
+  }
+
+  private void createThrowsExceptionThrownByOrganizationValidation(UserDto user) throws OrganizationUpdater.KeyConflictException {
+    try {
+      underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+      fail(exceptionThrownByOrganizationValidation + " should have been thrown");
+    } catch (IllegalArgumentException e) {
+      assertThat(e).isSameAs(exceptionThrownByOrganizationValidation);
+    }
+  }
+
+  @Test
+  public void create_fails_with_ISE_if_BuiltInQProfileRepository_has_not_been_initialized() throws OrganizationUpdater.KeyConflictException {
+    UserDto user = db.users().insertUser();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("initialize must be called first");
+
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+  }
+
+  @Test
+  public void create_fails_with_KeyConflictException_if_org_with_key_in_NewOrganization_arg_already_exists_in_db() throws OrganizationUpdater.KeyConflictException {
+    db.organizations().insertForKey(FULL_POPULATED_NEW_ORGANIZATION.getKey());
+    UserDto user = db.users().insertUser();
+
+    expectedException.expect(OrganizationUpdater.KeyConflictException.class);
+    expectedException.expectMessage("Organization key '" + FULL_POPULATED_NEW_ORGANIZATION.getKey() + "' is already used");
+
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
   }
 
   @Test
@@ -372,6 +345,7 @@ public class OrganizationUpdaterImplTest {
     assertThat(organization.getUrl()).isNull();
     assertThat(organization.getAvatarUrl()).isNull();
     assertThat(organization.isGuarded()).isTrue();
+    assertThat(organization.getSubscription()).isEqualTo(Subscription.FREE);
     assertThat(organization.getCreatedAt()).isEqualTo(A_DATE);
     assertThat(organization.getUpdatedAt()).isEqualTo(A_DATE);
 
@@ -543,6 +517,36 @@ public class OrganizationUpdaterImplTest {
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(builtInQualityGate.getUuid());
   }
+
+  @Test
+  public void createForUser_has_no_effect_if_setting_for_feature_is_not_set() {
+    checkSizeOfTables();
+
+    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
+
+    checkSizeOfTables();
+  }
+
+  @Test
+  public void createForUser_has_no_effect_if_setting_for_feature_is_disabled() {
+    enableCreatePersonalOrg(false);
+
+    checkSizeOfTables();
+
+    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
+
+    checkSizeOfTables();
+  }
+
+  private void checkSizeOfTables() {
+    assertThat(db.countRowsOfTable("organizations")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("groups")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("groups_users")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("permission_templates")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("perm_templates_users")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
+  }
+
 
   @Test
   public void update_personal_organization() {

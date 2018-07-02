@@ -20,6 +20,7 @@
 package org.sonar.db.organization;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 
 public class OrganizationTesting {
 
@@ -39,6 +40,7 @@ public class OrganizationTesting {
       .setAvatarUrl(randomAlphanumeric(256))
       // Default quality gate should be set explicitly when needed in tests
       .setDefaultQualityGateUuid("_NOT_SET_")
+      .setSubscription(FREE)
       .setUrl(randomAlphanumeric(256));
   }
 }

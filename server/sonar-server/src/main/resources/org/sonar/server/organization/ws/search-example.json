@@ -9,7 +9,8 @@
       "key": "foo-company",
       "name": "Foo Company",
       "guarded": true,
-      "isAdmin": false
+      "isAdmin": false,
+      "subscription": "FREE"
     },
     {
       "key": "bar-company",
@@ -18,7 +19,8 @@
       "url": "https://www.bar.com",
       "avatar": "https://www.bar.com/logo.png",
       "guarded": false,
-      "isAdmin": true
+      "isAdmin": true,
+      "subscription": "PAID"
     }
   ]
 }

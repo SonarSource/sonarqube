@@ -11,6 +11,7 @@
     org.url as "url",
     org.avatar_url as "avatarUrl",
     org.guarded as "guarded",
+    org.subscription as "subscription",
     org.created_at as "createdAt",
     org.updated_at as "updatedAt"
   </sql>
@@ -350,6 +351,7 @@
       guarded,
       new_project_private,
       default_quality_gate_uuid,
+      subscription,
       created_at,
       updated_at
     )
@@ -364,6 +366,7 @@
       #{organization.guarded, jdbcType=BOOLEAN},
       #{newProjectPrivate, jdbcType=BOOLEAN},
       #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
+      #{organization.subscription, jdbcType=VARCHAR},
       #{organization.createdAt, jdbcType=BIGINT},
       #{organization.updatedAt, jdbcType=BIGINT}
     )
@@ -377,6 +380,7 @@
       description = #{organization.description, jdbcType=VARCHAR},
       url = #{organization.url, jdbcType=VARCHAR},
       default_quality_gate_uuid = #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
+      subscription = #{organization.subscription, jdbcType=VARCHAR},
       avatar_url = #{organization.avatarUrl, jdbcType=VARCHAR},
       updated_at = #{organization.updatedAt, jdbcType=BIGINT}
     where

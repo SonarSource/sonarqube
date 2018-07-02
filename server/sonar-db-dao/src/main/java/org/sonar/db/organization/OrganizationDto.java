@@ -24,6 +24,24 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class OrganizationDto {
+
+  public enum Subscription {
+    /**
+     * Subscription of the default organization, only for SonarQube
+     */
+    SONARQUBE,
+
+    /**
+     * Organization that has not subscribed to a paid subscription, only for SonarCloud
+     */
+    FREE,
+
+    /**
+     * Organization that subscribed to paid plan subscription, only for SonarCloud
+     */
+    PAID
+  }
+
   /** Technical unique identifier, can't be null */
   private String uuid;
   /** Functional unique identifier, can't be null */
@@ -36,6 +54,8 @@ public class OrganizationDto {
   private String url;
   /** avatar url can be null */
   private String avatarUrl;
+
+  private Subscription subscription;
 
   /**
    * Flag indicated whether being root is required to be able to delete this organization.
@@ -119,6 +139,16 @@ public class OrganizationDto {
     return this;
   }
 
+  public Subscription getSubscription() {
+    // TODO directly return subscription when column will be NOT NULLABLE (SONAR-10965)
+    return subscription == null ? Subscription.FREE : subscription;
+  }
+
+  public OrganizationDto setSubscription(Subscription subscription) {
+    this.subscription = subscription;
+    return this;
+  }
+
   public long getCreatedAt() {
     return createdAt;
   }
@@ -174,6 +204,7 @@ public class OrganizationDto {
       ", avatarUrl='" + avatarUrl + '\'' +
       ", guarded=" + guarded +
       ", defaultQualityGateUuid=" + defaultQualityGateUuid +
+      ", subscription=" + subscription +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
       '}';

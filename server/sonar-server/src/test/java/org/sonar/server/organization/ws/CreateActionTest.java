@@ -54,7 +54,6 @@ import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
@@ -87,18 +86,17 @@ public class CreateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
+  public DbTester db = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
   public EsTester es = EsTester.create();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
   private MapSettings settings = new MapSettings().setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(dbClient, system2, UuidFactoryFast.getInstance(), organizationValidation, settings.asConfig(),
     userIndexer,
     mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient));
@@ -110,192 +108,42 @@ public class CreateActionTest {
       organizationUpdater, organizationFlags));
 
   @Test
-  public void verify_define() {
-    WebService.Action action = wsTester.getDef();
-    assertThat(action.key()).isEqualTo("create");
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.description()).isEqualTo("Create an organization.<br />" +
-      "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization support must be enabled.");
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.since()).isEqualTo("6.2");
-    assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(5);
-    assertThat(action.responseExample()).isEqualTo(getClass().getResource("create-example.json"));
-    assertThat(action.param("name"))
-      .matches(WebService.Param::isRequired)
-      .matches(param -> "Foo Company".equals(param.exampleValue()))
-      .matches(param -> param.description() != null);
-    assertThat(action.param("key"))
-      .matches(param -> !param.isRequired())
-      .matches(param -> "foo-company".equals(param.exampleValue()))
-      .matches(param -> param.description() != null);
-    assertThat(action.param("description"))
-      .matches(param -> !param.isRequired())
-      .matches(param -> "The Foo company produces quality software for Bar.".equals(param.exampleValue()))
-      .matches(param -> param.description() != null);
-    assertThat(action.param("url"))
-      .matches(param -> !param.isRequired())
-      .matches(param -> "https://www.foo.com".equals(param.exampleValue()))
-      .matches(param -> param.description() != null);
-    assertThat(action.param("avatar"))
-      .matches(param -> !param.isRequired())
-      .matches(param -> "https://www.foo.com/foo.png".equals(param.exampleValue()))
-      .matches(param -> param.description() != null);
-  }
-
-  @Test
-  public void verify_response_example() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    String response = executeJsonRequest("Foo Company", "foo-company", "The Foo company produces quality software for Bar.", "https://www.foo.com", "https://www.foo.com/foo.png");
-
-    assertJson(response).isSimilarTo(wsTester.getDef().responseExampleAsString());
-  }
-
-  @Test
-  public void request_succeeds_if_user_is_system_administrator_and_logged_in_users_cannot_create_organizations() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    verifyResponseAndDb(executeRequest("foo"), "foo", "foo", NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_user_is_system_administrator_and_logged_in_users_can_create_organizations() {
-    createUserAndLogInAsSystemAdministrator();
+  public void create_organization() {
     settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    verifyResponseAndDb(executeRequest("foo"), "foo", "foo", NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_user_is_not_system_administrator_and_logged_in_users_can_create_organizations() {
-    UserDto user = dbTester.users().insertUser();
+    db.qualityGates().insertBuiltInQualityGate();
+    UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
-    dbTester.qualityGates().insertBuiltInQualityGate();
 
-    verifyResponseAndDb(executeRequest("foo"), "foo", "foo", NOW);
-  }
+    CreateWsResponse response = wsTester.newRequest()
+      .setParam("name", "orgFoo")
+      .setParam("description", "My org desc")
+      .setParam("url", "my url")
+      .setParam("avatar", "my avatar")
+      .executeProtobuf(CreateWsResponse.class);
 
-  @Test
-  public void request_succeeds_if_name_is_two_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    verifyResponseAndDb(executeRequest("ab"), "ab", "ab", NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_name_is_64_char_long() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    String name = STRING_65_CHARS_LONG.substring(0, 64);
-
-    verifyResponseAndDb(executeRequest(name), name, name.substring(0, 32), NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_key_is_2_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    verifyResponseAndDb(executeRequest("foo", "ab"), "foo", "ab", NOW);
-  }
-
-  @Test
-  public void requests_succeeds_if_key_is_32_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    String key = STRING_65_CHARS_LONG.substring(0, 32);
-
-    verifyResponseAndDb(executeRequest("foo", key), "foo", key, NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_description_url_and_avatar_are_not_specified() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    CreateWsResponse response = executeRequest("foo", "bar", null, null, null);
-
-    verifyResponseAndDb(response, "foo", "bar", null, null, null, NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_description_url_and_avatar_are_specified() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    CreateWsResponse response = executeRequest("foo", "bar", "moo", "doo", "boo");
-    verifyResponseAndDb(response, "foo", "bar", "moo", "doo", "boo", NOW);
-  }
-
-  @Test
-  public void request_succeeds_to_generate_key_from_name_more_then_32_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    String name = STRING_65_CHARS_LONG.substring(0, 33);
-
-    CreateWsResponse response = executeRequest(name);
-    verifyResponseAndDb(response, name, name.substring(0, 32), NOW);
-  }
-
-  @Test
-  public void request_generates_key_ignoring_multiple_following_spaces() {
-    createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    String name = "ab   cd";
-
-    CreateWsResponse response = executeRequest(name);
-    verifyResponseAndDb(response, name, "ab-cd", NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_description_is_256_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    String description = STRING_257_CHARS_LONG.substring(0, 256);
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    CreateWsResponse response = executeRequest("foo", "bar", description, null, null);
-    verifyResponseAndDb(response, "foo", "bar", description, null, null, NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_url_is_256_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    String url = STRING_257_CHARS_LONG.substring(0, 256);
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    CreateWsResponse response = executeRequest("foo", "bar", null, url, null);
-    verifyResponseAndDb(response, "foo", "bar", null, url, null, NOW);
-  }
-
-  @Test
-  public void request_succeeds_if_avatar_is_256_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    String avatar = STRING_257_CHARS_LONG.substring(0, 256);
-    dbTester.qualityGates().insertBuiltInQualityGate();
-
-    CreateWsResponse response = executeRequest("foo", "bar", null, null, avatar);
-    verifyResponseAndDb(response, "foo", "bar", null, null, avatar, NOW);
+    assertThat(response.getOrganization().getKey()).isEqualTo("orgfoo");
+    assertThat(response.getOrganization().getName()).isEqualTo("orgFoo");
+    assertThat(response.getOrganization().getDescription()).isEqualTo("My org desc");
+    assertThat(response.getOrganization().getUrl()).isEqualTo("my url");
+    assertThat(response.getOrganization().getAvatar()).isEqualTo("my avatar");
+    assertThat(response.getOrganization().getSubscription()).isEqualTo(OrganizationDto.Subscription.FREE.name());
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
+    assertThat(organization.getName()).isEqualTo("orgFoo");
+    assertThat(organization.getDescription()).isEqualTo("My org desc");
+    assertThat(organization.getUrl()).isEqualTo("my url");
+    assertThat(organization.getAvatarUrl()).isEqualTo("my avatar");
+    assertThat(organization.getSubscription()).isEqualTo(OrganizationDto.Subscription.FREE);
   }
 
   @Test
   public void request_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() {
-    UserDto user = dbTester.users().insertUser();
+    UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
+    db.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("orgFoo");
 
-    DbSession dbSession = dbTester.getSession();
+    DbSession dbSession = db.getSession();
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
     Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
     assertThat(groupDtoOptional).isNotEmpty();
@@ -317,13 +165,13 @@ public class CreateActionTest {
 
   @Test
   public void request_creates_members_group_and_add_current_user_to_it() {
-    UserDto user = dbTester.users().insertUser();
+    UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
+    db.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("orgFoo");
 
-    DbSession dbSession = dbTester.getSession();
+    DbSession dbSession = db.getSession();
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
     Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Members");
     assertThat(groupDtoOptional).isNotEmpty();
@@ -344,9 +192,9 @@ public class CreateActionTest {
 
   @Test
   public void request_creates_default_template_for_owner_group() {
-    UserDto user = dbTester.users().insertUser();
+    UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
+    db.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("orgFoo");
 
@@ -368,9 +216,9 @@ public class CreateActionTest {
 
   @Test
   public void set_user_as_member_of_organization() {
-    UserDto user = dbTester.users().insertUser();
+    UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
+    db.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("foo", "bar");
 
@@ -385,15 +233,149 @@ public class CreateActionTest {
   @Test
   public void create_organization_with_name_having_one_character() {
     createUserAndLogInAsSystemAdministrator();
-    dbTester.qualityGates().insertBuiltInQualityGate();
+    db.qualityGates().insertBuiltInQualityGate();
 
     wsTester.newRequest()
       .setParam(PARAM_NAME, "a")
       .execute();
 
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbTester.getSession(), "a").get();
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(db.getSession(), "a").get();
     assertThat(organization.getKey()).isEqualTo("a");
     assertThat(organization.getName()).isEqualTo("a");
+  }
+
+  @Test
+  public void request_succeeds_if_user_is_system_administrator_and_logged_in_users_cannot_create_organizations() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    verifyResponseAndDb(executeRequest("foo"), "foo", "foo", NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_user_is_system_administrator_and_logged_in_users_can_create_organizations() {
+    createUserAndLogInAsSystemAdministrator();
+    settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
+    db.qualityGates().insertBuiltInQualityGate();
+
+    verifyResponseAndDb(executeRequest("foo"), "foo", "foo", NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_user_is_not_system_administrator_and_logged_in_users_can_create_organizations() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
+    db.qualityGates().insertBuiltInQualityGate();
+
+    verifyResponseAndDb(executeRequest("foo"), "foo", "foo", NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_name_is_two_chars_long() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    verifyResponseAndDb(executeRequest("ab"), "ab", "ab", NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_name_is_64_char_long() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    String name = STRING_65_CHARS_LONG.substring(0, 64);
+
+    verifyResponseAndDb(executeRequest(name), name, name.substring(0, 32), NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_key_is_2_chars_long() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    verifyResponseAndDb(executeRequest("foo", "ab"), "foo", "ab", NOW);
+  }
+
+  @Test
+  public void requests_succeeds_if_key_is_32_chars_long() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    String key = STRING_65_CHARS_LONG.substring(0, 32);
+
+    verifyResponseAndDb(executeRequest("foo", key), "foo", key, NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_description_url_and_avatar_are_not_specified() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    CreateWsResponse response = executeRequest("foo", "bar", null, null, null);
+
+    verifyResponseAndDb(response, "foo", "bar", null, null, null, NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_description_url_and_avatar_are_specified() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    CreateWsResponse response = executeRequest("foo", "bar", "moo", "doo", "boo");
+    verifyResponseAndDb(response, "foo", "bar", "moo", "doo", "boo", NOW);
+  }
+
+  @Test
+  public void request_succeeds_to_generate_key_from_name_more_then_32_chars_long() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    String name = STRING_65_CHARS_LONG.substring(0, 33);
+
+    CreateWsResponse response = executeRequest(name);
+    verifyResponseAndDb(response, name, name.substring(0, 32), NOW);
+  }
+
+  @Test
+  public void request_generates_key_ignoring_multiple_following_spaces() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    String name = "ab   cd";
+
+    CreateWsResponse response = executeRequest(name);
+    verifyResponseAndDb(response, name, "ab-cd", NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_description_is_256_chars_long() {
+    createUserAndLogInAsSystemAdministrator();
+    String description = STRING_257_CHARS_LONG.substring(0, 256);
+    db.qualityGates().insertBuiltInQualityGate();
+
+    CreateWsResponse response = executeRequest("foo", "bar", description, null, null);
+    verifyResponseAndDb(response, "foo", "bar", description, null, null, NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_url_is_256_chars_long() {
+    createUserAndLogInAsSystemAdministrator();
+    String url = STRING_257_CHARS_LONG.substring(0, 256);
+    db.qualityGates().insertBuiltInQualityGate();
+
+    CreateWsResponse response = executeRequest("foo", "bar", null, url, null);
+    verifyResponseAndDb(response, "foo", "bar", null, url, null, NOW);
+  }
+
+  @Test
+  public void request_succeeds_if_avatar_is_256_chars_long() {
+    createUserAndLogInAsSystemAdministrator();
+    String avatar = STRING_257_CHARS_LONG.substring(0, 256);
+    db.qualityGates().insertBuiltInQualityGate();
+
+    CreateWsResponse response = executeRequest("foo", "bar", null, null, avatar);
+    verifyResponseAndDb(response, "foo", "bar", null, null, avatar, NOW);
   }
 
   @Test
@@ -496,7 +478,7 @@ public class CreateActionTest {
   @Test
   public void request_fails_if_key_is_specified_and_already_exists_in_DB() {
     createUserAndLogInAsSystemAdministrator();
-    OrganizationDto org = dbTester.organizations().insert(o -> o.setKey("the-key"));
+    OrganizationDto org = db.organizations().insert(o -> o.setKey("the-key"));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Key '" + org.getKey() + "' is already used. Specify another one.");
@@ -508,7 +490,7 @@ public class CreateActionTest {
   public void request_fails_if_key_computed_from_name_already_exists_in_DB() {
     createUserAndLogInAsSystemAdministrator();
     String key = STRING_65_CHARS_LONG.substring(0, 32);
-    dbTester.organizations().insert(o -> o.setKey(key));
+    db.organizations().insert(o -> o.setKey(key));
     String name = STRING_65_CHARS_LONG.substring(0, 64);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -589,6 +571,50 @@ public class CreateActionTest {
     executeJsonRequest("Foo Company", "foo-company", "The Foo company produces quality software for Bar.", "https://www.foo.com", "https://www.foo.com/foo.png");
   }
 
+  @Test
+  public void verify_define() {
+    WebService.Action action = wsTester.getDef();
+    assertThat(action.key()).isEqualTo("create");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.description()).isEqualTo("Create an organization.<br />" +
+      "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization support must be enabled.");
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.since()).isEqualTo("6.2");
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.params()).hasSize(5);
+    assertThat(action.responseExample()).isEqualTo(getClass().getResource("create-example.json"));
+    assertThat(action.param("name"))
+      .matches(WebService.Param::isRequired)
+      .matches(param -> "Foo Company".equals(param.exampleValue()))
+      .matches(param -> param.description() != null);
+    assertThat(action.param("key"))
+      .matches(param -> !param.isRequired())
+      .matches(param -> "foo-company".equals(param.exampleValue()))
+      .matches(param -> param.description() != null);
+    assertThat(action.param("description"))
+      .matches(param -> !param.isRequired())
+      .matches(param -> "The Foo company produces quality software for Bar.".equals(param.exampleValue()))
+      .matches(param -> param.description() != null);
+    assertThat(action.param("url"))
+      .matches(param -> !param.isRequired())
+      .matches(param -> "https://www.foo.com".equals(param.exampleValue()))
+      .matches(param -> param.description() != null);
+    assertThat(action.param("avatar"))
+      .matches(param -> !param.isRequired())
+      .matches(param -> "https://www.foo.com/foo.png".equals(param.exampleValue()))
+      .matches(param -> param.description() != null);
+  }
+
+  @Test
+  public void verify_response_example() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    String response = executeJsonRequest("Foo Company", "foo-company", "The Foo company produces quality software for Bar.", "https://www.foo.com", "https://www.foo.com/foo.png");
+
+    assertJson(response).isSimilarTo(wsTester.getDef().responseExampleAsString());
+  }
+
   private CreateWsResponse executeRequest(@Nullable String name, @Nullable String key) {
     return executeRequest(name, key, null, null, null);
   }
@@ -644,7 +670,7 @@ public class CreateActionTest {
       assertThat(organization.getAvatar()).isEqualTo(avatar);
     }
 
-    OrganizationDto dto = dbClient.organizationDao().selectByKey(dbTester.getSession(), key).get();
+    OrganizationDto dto = dbClient.organizationDao().selectByKey(db.getSession(), key).get();
     assertThat(dto.getUuid()).isNotNull();
     assertThat(dto.getKey()).isEqualTo(key);
     assertThat(dto.getName()).isEqualTo(name);
@@ -656,7 +682,7 @@ public class CreateActionTest {
   }
 
   private void createUserAndLogInAsSystemAdministrator() {
-    UserDto user = dbTester.users().insertUser();
+    UserDto user = db.users().insertUser();
     userIndexer.indexOnStartup(new HashSet<>());
     userSession.logIn(user).setSystemAdministrator();
   }

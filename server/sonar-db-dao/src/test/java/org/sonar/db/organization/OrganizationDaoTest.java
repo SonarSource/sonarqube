@@ -60,6 +60,8 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.organization.OrganizationQuery.Builder;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.organization.OrganizationQuery.returnAll;
@@ -124,18 +126,20 @@ public class OrganizationDaoTest {
 
   @Test
   public void insert_persists_properties_of_OrganizationDto() {
-    insertOrganization(ORGANIZATION_DTO_1);
+    OrganizationDto organization = newOrganizationDto();
+    insertOrganization(organization);
 
     Map<String, Object> row = selectSingleRow();
-    assertThat(row.get("uuid")).isEqualTo(ORGANIZATION_DTO_1.getUuid());
-    assertThat(row.get("key")).isEqualTo(ORGANIZATION_DTO_1.getKey());
-    assertThat(row.get("name")).isEqualTo(ORGANIZATION_DTO_1.getName());
-    assertThat(row.get("description")).isEqualTo(ORGANIZATION_DTO_1.getDescription());
-    assertThat(row.get("url")).isEqualTo(ORGANIZATION_DTO_1.getUrl());
-    assertThat(row.get("avatarUrl")).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
-    assertThat(row.get("createdAt")).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
-    assertThat(row.get("updatedAt")).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
-    assertThat(row.get("guarded")).isEqualTo(toBool(ORGANIZATION_DTO_1.isGuarded()));
+    assertThat(row.get("uuid")).isEqualTo(organization.getUuid());
+    assertThat(row.get("key")).isEqualTo(organization.getKey());
+    assertThat(row.get("name")).isEqualTo(organization.getName());
+    assertThat(row.get("description")).isEqualTo(organization.getDescription());
+    assertThat(row.get("url")).isEqualTo(organization.getUrl());
+    assertThat(row.get("avatarUrl")).isEqualTo(organization.getAvatarUrl());
+    assertThat(row.get("createdAt")).isEqualTo(organization.getCreatedAt());
+    assertThat(row.get("updatedAt")).isEqualTo(organization.getUpdatedAt());
+    assertThat(row.get("guarded")).isEqualTo(toBool(organization.isGuarded()));
+    assertThat(row.get("subscription")).isEqualTo(organization.getSubscription().name());
     assertThat(row.get("defaultTemplate")).isNull();
     assertThat(row.get("projectDefaultTemplate")).isNull();
     assertThat(row.get("viewDefaultTemplate")).isNull();
@@ -201,10 +205,11 @@ public class OrganizationDaoTest {
 
   @Test
   public void selectByKey_returns_row_data_when_key_exists() {
-    insertOrganization(ORGANIZATION_DTO_1);
+    OrganizationDto organizationDto = newOrganizationDto();
+    insertOrganization(organizationDto);
 
-    Optional<OrganizationDto> optional = underTest.selectByKey(dbSession, ORGANIZATION_DTO_1.getKey());
-    verifyOrganization1(optional);
+    Optional<OrganizationDto> optional = underTest.selectByKey(dbSession, organizationDto.getKey());
+    verifyOrganization(optional.get(), organizationDto);
   }
 
   @Test
@@ -744,20 +749,22 @@ public class OrganizationDaoTest {
 
   @Test
   public void update_with_same_information_succeeds_but_has_no_effect() {
-    insertOrganization(ORGANIZATION_DTO_1);
+    OrganizationDto organizationDto = newOrganizationDto();
+    insertOrganization(organizationDto);
 
-    underTest.update(dbSession, ORGANIZATION_DTO_1);
+    underTest.update(dbSession, organizationDto);
     dbSession.commit();
 
     Map<String, Object> row = selectSingleRow();
-    assertThat(row.get("uuid")).isEqualTo(ORGANIZATION_DTO_1.getUuid());
-    assertThat(row.get("key")).isEqualTo(ORGANIZATION_DTO_1.getKey());
-    assertThat(row.get("name")).isEqualTo(ORGANIZATION_DTO_1.getName());
-    assertThat(row.get("description")).isEqualTo(ORGANIZATION_DTO_1.getDescription());
-    assertThat(row.get("url")).isEqualTo(ORGANIZATION_DTO_1.getUrl());
-    assertThat(row.get("avatarUrl")).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
-    assertThat(row.get("createdAt")).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
-    assertThat(row.get("updatedAt")).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
+    assertThat(row.get("uuid")).isEqualTo(organizationDto.getUuid());
+    assertThat(row.get("key")).isEqualTo(organizationDto.getKey());
+    assertThat(row.get("name")).isEqualTo(organizationDto.getName());
+    assertThat(row.get("description")).isEqualTo(organizationDto.getDescription());
+    assertThat(row.get("url")).isEqualTo(organizationDto.getUrl());
+    assertThat(row.get("avatarUrl")).isEqualTo(organizationDto.getAvatarUrl());
+    assertThat(row.get("subscription")).isEqualTo(organizationDto.getSubscription().name());
+    assertThat(row.get("createdAt")).isEqualTo(organizationDto.getCreatedAt());
+    assertThat(row.get("updatedAt")).isEqualTo(organizationDto.getUpdatedAt());
   }
 
   @Test
@@ -776,29 +783,41 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void update_does_not_update_createdAt() {
+  public void update() {
     when(system2.now()).thenReturn(DATE_1);
-    insertOrganization(ORGANIZATION_DTO_1);
+    OrganizationDto oldOrganization = newOrganizationDto()
+      .setUuid("new_uuid")
+      .setKey("old_key")
+      .setName("old_name")
+      .setDescription("old_desc")
+      .setAvatarUrl("old_avatar")
+      .setSubscription(FREE)
+      .setUrl("old_url");
+    insertOrganization(oldOrganization);
 
     when(system2.now()).thenReturn(DATE_3);
-    underTest.update(dbSession, newOrganizationDto()
-      .setUuid(ORGANIZATION_DTO_1.getUuid())
-      .setKey("new key")
-      .setName("new name")
-      .setDescription("new description")
-      .setUrl("new url")
-      .setAvatarUrl("new avatar url")
+    OrganizationDto updatedOrganization = newOrganizationDto()
+      .setUuid("new_uuid")
+      .setKey("new_key")
+      .setName("new_name")
+      .setDescription("new_desc")
+      .setAvatarUrl("new_avatar")
+      .setDefaultGroupId(11)
+      .setSubscription(PAID)
+      .setUrl("new_url")
       .setCreatedAt(2_000L)
-      .setUpdatedAt(3_000L));
+      .setUpdatedAt(3_000L);
+    underTest.update(dbSession, updatedOrganization);
     dbSession.commit();
 
     Map<String, Object> row = selectSingleRow();
-    assertThat(row.get("uuid")).isEqualTo(ORGANIZATION_DTO_1.getUuid());
-    assertThat(row.get("key")).isEqualTo("new key");
-    assertThat(row.get("name")).isEqualTo("new name");
-    assertThat(row.get("description")).isEqualTo("new description");
-    assertThat(row.get("url")).isEqualTo("new url");
-    assertThat(row.get("avatarUrl")).isEqualTo("new avatar url");
+    assertThat(row.get("uuid")).isEqualTo(updatedOrganization.getUuid());
+    assertThat(row.get("key")).isEqualTo(updatedOrganization.getKey());
+    assertThat(row.get("name")).isEqualTo(updatedOrganization.getName());
+    assertThat(row.get("description")).isEqualTo(updatedOrganization.getDescription());
+    assertThat(row.get("url")).isEqualTo(updatedOrganization.getUrl());
+    assertThat(row.get("avatarUrl")).isEqualTo(updatedOrganization.getAvatarUrl());
+    assertThat(row.get("subscription")).isEqualTo(updatedOrganization.getSubscription().name());
     assertThat(row.get("createdAt")).isEqualTo(DATE_1);
     assertThat(row.get("updatedAt")).isEqualTo(DATE_3);
   }
@@ -1122,11 +1141,13 @@ public class OrganizationDaoTest {
           "      new_project_private," +
           "      guarded," +
           "      default_quality_gate_uuid," +
+          "      subscription," +
           "      created_at," +
           "      updated_at" +
           "    )" +
           "    values" +
           "    (" +
+          "      ?," +
           "      ?," +
           "      ?," +
           "      ?," +
@@ -1146,8 +1167,9 @@ public class OrganizationDaoTest {
       preparedStatement.setBoolean(6, false);
       preparedStatement.setBoolean(7, false);
       preparedStatement.setString(8, "1"); // TODO check ok ?
-      preparedStatement.setLong(9, 1000L);
-      preparedStatement.setLong(10, 2000L);
+      preparedStatement.setString(9, FREE.name()); // TODO check ok ?
+      preparedStatement.setLong(10, 1000L);
+      preparedStatement.setLong(11, 2000L);
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new RuntimeException("dirty insert failed", e);
@@ -1184,6 +1206,7 @@ public class OrganizationDaoTest {
     assertThat(dto.getUrl()).isEqualTo(expected.getUrl());
     assertThat(dto.isGuarded()).isEqualTo(expected.isGuarded());
     assertThat(dto.getAvatarUrl()).isEqualTo(expected.getAvatarUrl());
+    assertThat(dto.getSubscription()).isEqualTo(expected.getSubscription());
     assertThat(dto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
   }
@@ -1192,6 +1215,7 @@ public class OrganizationDaoTest {
     List<Map<String, Object>> rows = db.select("select" +
       " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
       " guarded as \"guarded\"," +
+      " subscription as \"subscription\"," +
       " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
       " default_perm_template_project as \"projectDefaultPermTemplate\"," +
       " default_perm_template_view as \"viewDefaultPermTemplate\"," +

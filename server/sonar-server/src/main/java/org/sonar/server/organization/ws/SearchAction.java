@@ -44,7 +44,8 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Common.Paging;
 
 public class SearchAction implements OrganizationsWsAction {
-  static final String PARAM_ORGANIZATIONS = "organizations";
+
+  private static final String PARAM_ORGANIZATIONS = "organizations";
   static final String PARAM_MEMBER = "member";
   private static final String ACTION = "search";
   private static final int MAX_SIZE = 500;

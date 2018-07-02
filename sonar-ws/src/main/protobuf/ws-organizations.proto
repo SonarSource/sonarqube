@@ -61,6 +61,7 @@ message Organization {
   optional string avatar = 5;
   optional bool guarded = 6;
   optional bool isAdmin = 7;
+  optional string subscription = 8;
 }
 
 message User {

@@ -19,32 +19,30 @@
  */
 package org.sonar.server.source.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-
-@RunWith(MockitoJUnitRunner.class)
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class HashActionTest {
-
-  final static String COMPONENT_KEY = "Action.java";
-  final static String PROJECT_UUID = "ABCD";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -53,76 +51,80 @@ public class HashActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  WsTester tester;
+  private WsActionTester tester = new WsActionTester(new HashAction(db.getDbClient(), userSessionRule, TestComponentFinder.from(db)));
 
-  @Before
-  public void before() {
-    DbClient dbClient = db.getDbClient();
+  @Test
+  public void show_hashes() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource = db.fileSources().insertFileSource(file, f -> f.setLineHashes(singletonList("ABC")));
+    loginAsProjectViewer(project);
 
-    tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule, TestComponentFinder.from(db))));
+    TestRequest request = tester.newRequest().setParam("key", file.getDbKey());
+
+    assertThat(request.execute().getInput()).isEqualTo("ABC");
   }
 
   @Test
-  public void show_hashes() throws Exception {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    loginAndRegisterComponent(PROJECT_UUID);
+  public void show_hashes_on_test_file() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto test = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
+    FileSourceDto fileSource = db.fileSources().insertFileSource(test, f -> f.setLineHashes(singletonList("ABC")));
+    FileSourceDto fileTest = db.fileSources().insertFileSource(test, f -> f.setTestData(singletonList(DbFileSources.Test.newBuilder().build())));
+    loginAsProjectViewer(project);
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
-    assertThat(request.execute().outputAsString()).isEqualTo("987654");
+    TestRequest request = tester.newRequest().setParam("key", test.getKey());
+
+    assertThat(request.execute().getInput()).isEqualTo("ABC");
   }
 
   @Test
-  public void show_hashes_on_test_file() throws Exception {
-    db.prepareDbUnit(getClass(), "show_hashes_on_test_file.xml");
-    loginAndRegisterComponent(PROJECT_UUID);
+  public void hashes_empty_if_no_source() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    loginAsProjectViewer(project);
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", "ActionTest.java");
-    assertThat(request.execute().outputAsString()).isEqualTo("987654");
-  }
+    TestRequest request = tester.newRequest().setParam("key", file.getKey());
 
-  @Test
-  public void hashes_empty_if_no_source() throws Exception {
-    db.prepareDbUnit(getClass(), "no_source.xml");
-    loginAndRegisterComponent(PROJECT_UUID);
-
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
-    request.execute().assertNoContent();
+    assertThat(request.execute().getStatus()).isEqualTo(204);
   }
 
   @Test
   public void fail_to_show_hashes_if_file_does_not_exist() {
-    try {
-      WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
-      request.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
+    expectedException.expect(NotFoundException.class);
+
+    tester.newRequest().setParam("key", "unknown").execute();
   }
 
   @Test
-  public void fail_when_using_branch_db_key() throws Exception {
+  public void fail_when_using_branch_db_key() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    loginAndRegisterComponent(project.uuid());
+    loginAsProjectViewer(project);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
-    tester.newGetRequest("api/sources", "hash")
-      .setParam("key", branch.getDbKey())
-      .execute();
+    tester.newRequest().setParam("key", branch.getDbKey()).execute();
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_on_missing_permission() throws Exception {
-    db.prepareDbUnit(getClass(), "shared.xml");
+  @Test
+  public void fail_on_missing_permission() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    FileSourceDto fileSource = db.fileSources().insertFileSource(file);
+    userSessionRule.logIn(db.users().insertUser());
 
-    userSessionRule.logIn("polop");
-    tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY).execute();
+    expectedException.expect(ForbiddenException.class);
+
+    tester.newRequest().setParam("key", file.getKey()).execute();
   }
 
-  private void loginAndRegisterComponent(String componentUuid) {
-    userSessionRule.logIn("polop").registerComponents(db.getDbClient().componentDao().selectByUuid(db.getSession(), componentUuid).get());
+  private void loginAsProjectViewer(ComponentDto project) {
+    userSessionRule.logIn(db.users().insertUser()).addProjectPermission(USER, project);
   }
 }

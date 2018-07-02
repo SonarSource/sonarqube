@@ -39,7 +39,6 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -55,9 +54,9 @@ public class WebIssueStorageTest {
   private System2 system2 = mock(System2.class);
 
   @org.junit.Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
 
   private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new FakeRuleFinder(), mock(IssueIndexer.class));
 
@@ -68,32 +67,32 @@ public class WebIssueStorageTest {
 
   @Test
   public void load_component_id_from_db() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    long componentId = underTest.component(dbTester.getSession(), new DefaultIssue().setComponentUuid(file.uuid())).getId();
+    long componentId = underTest.component(db.getSession(), new DefaultIssue().setComponentUuid(file.uuid())).getId();
 
     assertThat(componentId).isEqualTo(file.getId());
   }
 
   @Test
   public void load_project_id_from_db() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    long projectId = underTest.project(dbTester.getSession(), new DefaultIssue().setProjectUuid(project.uuid())).getId();
+    long projectId = underTest.project(db.getSession(), new DefaultIssue().setProjectUuid(project.uuid())).getId();
 
     assertThat(projectId).isEqualTo(project.getId());
   }
 
   @Test
-  public void should_insert_new_issues() {
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    ComponentDto project = dbTester.components().insertMainBranch();
-    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(module));
+  public void insert_new_issues() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
 
     String issueKey = "ABCDE";
     DefaultIssueComment comment = DefaultIssueComment.create(issueKey, "user_uuid", "the comment");
@@ -121,29 +120,29 @@ public class WebIssueStorageTest {
 
     underTest.save(issue);
 
-    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
-    assertThat(dbTester.selectFirst("select * from issues"))
-        .containsEntry("PROJECT_UUID", project.uuid())
-        .containsEntry("COMPONENT_UUID", file.uuid())
-        .containsEntry("KEE", issue.key())
-        .containsEntry("RESOLUTION", issue.resolution())
-        .containsEntry("STATUS", issue.status())
-        .containsEntry("SEVERITY", issue.severity());
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.selectFirst("select * from issues"))
+      .containsEntry("PROJECT_UUID", project.uuid())
+      .containsEntry("COMPONENT_UUID", file.uuid())
+      .containsEntry("KEE", issue.key())
+      .containsEntry("RESOLUTION", issue.resolution())
+      .containsEntry("STATUS", issue.status())
+      .containsEntry("SEVERITY", issue.severity());
 
-    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
-    assertThat(dbTester.selectFirst("select * from issue_changes"))
-        .containsEntry("KEE", comment.key())
-        .containsEntry("ISSUE_KEY", issue.key())
-        .containsEntry("CHANGE_DATA", comment.markdownText())
-        .containsEntry("USER_LOGIN", comment.userUuid());
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(1);
+    assertThat(db.selectFirst("select * from issue_changes"))
+      .containsEntry("KEE", comment.key())
+      .containsEntry("ISSUE_KEY", issue.key())
+      .containsEntry("CHANGE_DATA", comment.markdownText())
+      .containsEntry("USER_LOGIN", comment.userUuid());
   }
 
   @Test
-  public void should_update_issues() {
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    ComponentDto project = dbTester.components().insertMainBranch();
-    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(module));
+  public void update_issues() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
@@ -165,8 +164,8 @@ public class WebIssueStorageTest {
 
     underTest.save(issue);
 
-    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(0);
 
     DefaultIssue updated = new DefaultIssue()
         .setKey(issue.key())
@@ -198,23 +197,23 @@ public class WebIssueStorageTest {
 
     underTest.save(updated);
 
-    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
-    assertThat(dbTester.selectFirst("select * from issues"))
-        .containsEntry("ASSIGNEE", updated.assignee())
-        .containsEntry("AUTHOR_LOGIN", updated.authorLogin())
-        .containsEntry("CHECKSUM", updated.checksum())
-        .containsEntry("COMPONENT_UUID", issue.componentUuid())
-        .containsEntry("EFFORT", updated.effortInMinutes())
-        .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
-        .containsEntry("ISSUE_TYPE", (byte) 3)
-        .containsEntry("KEE", issue.key())
-        .containsEntry("LINE", (long) updated.line())
-        .containsEntry("PROJECT_UUID", updated.projectUuid())
-        .containsEntry("RESOLUTION", updated.resolution())
-        .containsEntry("STATUS", updated.status())
-        .containsEntry("SEVERITY", updated.severity());
+    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.selectFirst("select * from issues"))
+      .containsEntry("ASSIGNEE", updated.assignee())
+      .containsEntry("AUTHOR_LOGIN", updated.authorLogin())
+      .containsEntry("CHECKSUM", updated.checksum())
+      .containsEntry("COMPONENT_UUID", issue.componentUuid())
+      .containsEntry("EFFORT", updated.effortInMinutes())
+      .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
+      .containsEntry("ISSUE_TYPE", (byte) 3)
+      .containsEntry("KEE", issue.key())
+      .containsEntry("LINE", (long) updated.line())
+      .containsEntry("PROJECT_UUID", updated.projectUuid())
+      .containsEntry("RESOLUTION", updated.resolution())
+      .containsEntry("STATUS", updated.status())
+      .containsEntry("SEVERITY", updated.severity());
 
-    List<Map<String, Object>> rows = dbTester.select("select * from issue_changes order by id");
+    List<Map<String, Object>> rows = db.select("select * from issue_changes order by id");
     assertThat(rows).hasSize(2);
     assertThat(rows.get(0))
         .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")

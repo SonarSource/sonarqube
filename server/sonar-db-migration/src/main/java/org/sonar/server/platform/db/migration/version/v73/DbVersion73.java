@@ -33,6 +33,8 @@ public class DbVersion73 implements DbVersion {
       .add(2203, "Add 'securityhotspotadmin' permission to all groups already having 'issueadmin'", PopulateHotspotAdminPermissionOnGroups.class)
       .add(2204, "Add 'securityhotspotadmin' permission to all users already having 'issueadmin'", PopulateHotspotAdminPermissionOnUsers.class)
       .add(2205, "Add 'from hotspot' flag to issues", AddFromHotspotFlagToIssues.class)
+      .add(2206, "Add SUBSCRIPTION column to ORGANIZATIONS table", AddSubscriptionToOrganizations.class)
+      .add(2207, "Populate SUBSCRIPTION in ORGANIZATIONS", PopulateSubscriptionOnOrganizations.class)
     ;
   }
 }

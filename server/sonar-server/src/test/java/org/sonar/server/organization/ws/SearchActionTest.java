@@ -49,6 +49,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
+import static org.sonar.db.organization.OrganizationDto.Subscription.SONARQUBE;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.SearchAction.PARAM_MEMBER;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -68,77 +71,6 @@ public class SearchActionTest {
 
   private SearchAction underTest = new SearchAction(db.getDbClient(), userSession, new OrganizationsWsSupport(new OrganizationValidationImpl()));
   private WsActionTester ws = new WsActionTester(underTest);
-
-  @Test
-  public void definition() {
-    WebService.Action action = ws.getDef();
-    assertThat(action.key()).isEqualTo("search");
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.description()).isEqualTo("Search for organizations");
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.since()).isEqualTo("6.2");
-    assertThat(action.handler()).isEqualTo(underTest);
-    assertThat(action.params()).hasSize(4);
-    assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
-
-    WebService.Param organizations = action.param("organizations");
-    assertThat(organizations.isRequired()).isFalse();
-    assertThat(organizations.defaultValue()).isNull();
-    assertThat(organizations.description()).isEqualTo("Comma-separated list of organization keys");
-    assertThat(organizations.exampleValue()).isEqualTo("my-org-1,foocorp");
-    assertThat(organizations.since()).isEqualTo("6.3");
-    assertThat(organizations.maxValuesAllowed()).isEqualTo(500);
-
-    WebService.Param page = action.param("p");
-    assertThat(page.isRequired()).isFalse();
-    assertThat(page.defaultValue()).isEqualTo("1");
-    assertThat(page.description()).isEqualTo("1-based page number");
-
-    WebService.Param pageSize = action.param("ps");
-    assertThat(pageSize.isRequired()).isFalse();
-    assertThat(pageSize.defaultValue()).isEqualTo("100");
-    assertThat(pageSize.maximumValue()).isEqualTo(500);
-    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less or equal than 500");
-
-    WebService.Param member = action.param("member");
-    assertThat(member.since()).isEqualTo("7.0");
-    assertThat(member.defaultValue()).isEqualTo(String.valueOf(false));
-    assertThat(member.isRequired()).isFalse();
-  }
-
-  @Test
-  public void json_example() {
-    when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1000);
-    OrganizationDto barOrganization = db.organizations().insert(organization -> organization
-      .setUuid(Uuids.UUID_EXAMPLE_02)
-      .setKey("bar-company")
-      .setName("Bar Company")
-      .setDescription("The Bar company produces quality software too.")
-      .setUrl("https://www.bar.com")
-      .setAvatarUrl("https://www.bar.com/logo.png")
-      .setGuarded(false));
-    OrganizationDto fooOrganization = db.organizations().insert(organization -> organization
-      .setUuid(Uuids.UUID_EXAMPLE_01)
-      .setKey("foo-company")
-      .setName("Foo Company")
-      .setDescription(null)
-      .setUrl(null)
-      .setAvatarUrl(null)
-      .setGuarded(true));
-    UserDto user = db.users().insertUser();
-    db.organizations().addMember(barOrganization, user);
-    db.organizations().addMember(fooOrganization, user);
-    db.users().insertPermissionOnUser(barOrganization, user, ADMINISTER);
-    userSession.logIn(user).addPermission(ADMINISTER, barOrganization);
-
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.JSON);
-    populateRequest(request, null, 25);
-    String result = request.execute().getInput();
-
-    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
-    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
-  }
 
   @Test
   public void is_admin_available_for_each_organization() {
@@ -161,13 +93,28 @@ public class SearchActionTest {
   }
 
   @Test
-  public void request_on_empty_db_returns_an_empty_organization_list() {
-    assertThat(executeRequestAndReturnList(null, null)).isEmpty();
-    assertThat(executeRequestAndReturnList(null, 1)).isEmpty();
-    assertThat(executeRequestAndReturnList(1, null)).isEmpty();
-    assertThat(executeRequestAndReturnList(1, 10)).isEmpty();
-    assertThat(executeRequestAndReturnList(2, null)).isEmpty();
-    assertThat(executeRequestAndReturnList(2, 1)).isEmpty();
+  public void return_sonarcloud_subscription() {
+    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+    OrganizationDto freeOrganization = db.organizations().insert(o -> o.setSubscription(FREE));
+    // Organization without subscription should be considered as free
+    OrganizationDto organizationWithoutSubscription = db.organizations().insert(o -> o.setSubscription(null));
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getOrganizationsList()).extracting(Organization::getKey, Organization::getSubscription).containsExactlyInAnyOrder(
+      tuple(paidOrganization.getKey(), PAID.name()),
+      tuple(freeOrganization.getKey(), FREE.name()),
+      tuple(organizationWithoutSubscription.getKey(), FREE.name()));
+  }
+
+  @Test
+  public void return_sonarqube_subscription() {
+    OrganizationDto sonarQubeOrganization = db.organizations().insert(o -> o.setSubscription(SONARQUBE));
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getOrganizationsList()).extracting(Organization::getKey, Organization::getSubscription).containsExactlyInAnyOrder(
+      tuple(sonarQubeOrganization.getKey(), SONARQUBE.name()));
   }
 
   @Test
@@ -292,7 +239,17 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_if_member_is_set_to_true_but_user_is_not_authenticated(){
+  public void request_on_empty_db_returns_an_empty_organization_list() {
+    assertThat(executeRequestAndReturnList(null, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(null, 1)).isEmpty();
+    assertThat(executeRequestAndReturnList(1, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(1, 10)).isEmpty();
+    assertThat(executeRequestAndReturnList(2, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(2, 1)).isEmpty();
+  }
+
+  @Test
+  public void fail_if_member_is_set_to_true_but_user_is_not_authenticated() {
     UserDto user = db.users().insertUser();
     OrganizationDto organization = db.organizations().insert();
     db.organizations().addMember(organization, user);
@@ -305,6 +262,78 @@ public class SearchActionTest {
     call(ws.newRequest().setParam(PARAM_MEMBER, String.valueOf(true)));
   }
 
+  @Test
+  public void definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action.key()).isEqualTo("search");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.description()).isEqualTo("Search for organizations");
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.since()).isEqualTo("6.2");
+    assertThat(action.handler()).isEqualTo(underTest);
+    assertThat(action.params()).hasSize(4);
+    assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
+
+    WebService.Param organizations = action.param("organizations");
+    assertThat(organizations.isRequired()).isFalse();
+    assertThat(organizations.defaultValue()).isNull();
+    assertThat(organizations.description()).isEqualTo("Comma-separated list of organization keys");
+    assertThat(organizations.exampleValue()).isEqualTo("my-org-1,foocorp");
+    assertThat(organizations.since()).isEqualTo("6.3");
+    assertThat(organizations.maxValuesAllowed()).isEqualTo(500);
+
+    WebService.Param page = action.param("p");
+    assertThat(page.isRequired()).isFalse();
+    assertThat(page.defaultValue()).isEqualTo("1");
+    assertThat(page.description()).isEqualTo("1-based page number");
+
+    WebService.Param pageSize = action.param("ps");
+    assertThat(pageSize.isRequired()).isFalse();
+    assertThat(pageSize.defaultValue()).isEqualTo("100");
+    assertThat(pageSize.maximumValue()).isEqualTo(500);
+    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less or equal than 500");
+
+    WebService.Param member = action.param("member");
+    assertThat(member.since()).isEqualTo("7.0");
+    assertThat(member.defaultValue()).isEqualTo(String.valueOf(false));
+    assertThat(member.isRequired()).isFalse();
+  }
+
+  @Test
+  public void json_example() {
+    when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1000);
+    OrganizationDto barOrganization = db.organizations().insert(organization -> organization
+      .setUuid(Uuids.UUID_EXAMPLE_02)
+      .setKey("bar-company")
+      .setName("Bar Company")
+      .setDescription("The Bar company produces quality software too.")
+      .setUrl("https://www.bar.com")
+      .setAvatarUrl("https://www.bar.com/logo.png")
+      .setSubscription(PAID)
+      .setGuarded(false));
+    OrganizationDto fooOrganization = db.organizations().insert(organization -> organization
+      .setUuid(Uuids.UUID_EXAMPLE_01)
+      .setKey("foo-company")
+      .setName("Foo Company")
+      .setSubscription(FREE)
+      .setDescription(null)
+      .setUrl(null)
+      .setAvatarUrl(null)
+      .setGuarded(true));
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(barOrganization, user);
+    db.organizations().addMember(fooOrganization, user);
+    db.users().insertPermissionOnUser(barOrganization, user, ADMINISTER);
+    userSession.logIn(user).addPermission(ADMINISTER, barOrganization);
+
+    TestRequest request = ws.newRequest()
+      .setMediaType(MediaTypes.JSON);
+    populateRequest(request, null, 25);
+    String result = request.execute().getInput();
+
+    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
 
   private List<Organization> executeRequestAndReturnList(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
     return call(page, pageSize, keys).getOrganizationsList();
