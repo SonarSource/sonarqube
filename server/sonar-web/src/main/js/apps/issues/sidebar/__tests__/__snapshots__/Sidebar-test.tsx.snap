@@ -8,6 +8,7 @@ Array [
   "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
+  "LanguageFacet",
   "RuleFacet",
   "TagFacet",
   "ProjectFacet",
@@ -15,7 +16,6 @@ Array [
   "DirectoryFacet",
   "FileFacet",
   "AssigneeFacet",
-  "LanguageFacet",
 ]
 `;
 
@@ -27,12 +27,12 @@ Array [
   "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
+  "LanguageFacet",
   "RuleFacet",
   "TagFacet",
   "FileFacet",
   "AssigneeFacet",
   "AuthorFacet",
-  "LanguageFacet",
 ]
 `;
 
@@ -44,12 +44,12 @@ Array [
   "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
+  "LanguageFacet",
   "RuleFacet",
   "TagFacet",
   "ProjectFacet",
   "AssigneeFacet",
   "AuthorFacet",
-  "LanguageFacet",
 ]
 `;
 
@@ -61,6 +61,7 @@ Array [
   "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
+  "LanguageFacet",
   "RuleFacet",
   "TagFacet",
   "ModuleFacet",
@@ -68,7 +69,6 @@ Array [
   "FileFacet",
   "AssigneeFacet",
   "AuthorFacet",
-  "LanguageFacet",
 ]
 `;
 
@@ -80,6 +80,7 @@ Array [
   "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
+  "LanguageFacet",
   "RuleFacet",
   "TagFacet",
   "ModuleFacet",
@@ -87,7 +88,6 @@ Array [
   "FileFacet",
   "AssigneeFacet",
   "AuthorFacet",
-  "LanguageFacet",
 ]
 `;
 
@@ -99,10 +99,10 @@ Array [
   "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
+  "LanguageFacet",
   "RuleFacet",
   "TagFacet",
   "ProjectFacet",
   "AuthorFacet",
-  "LanguageFacet",
 ]
 `;

@@ -121,6 +121,16 @@ export default class Sidebar extends React.PureComponent<Props> {
           sinceLeakPeriod={query.sinceLeakPeriod}
           stats={facets.createdAt}
         />
+        <LanguageFacet
+          facetMode={query.facetMode}
+          languages={query.languages}
+          loading={this.props.loading}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets.languages}
+          referencedLanguages={this.props.referencedLanguages}
+          stats={facets.languages}
+        />
         <RuleFacet
           facetMode={query.facetMode}
           languages={query.languages}
@@ -220,16 +230,6 @@ export default class Sidebar extends React.PureComponent<Props> {
             stats={facets.authors}
           />
         )}
-        <LanguageFacet
-          facetMode={query.facetMode}
-          languages={query.languages}
-          loading={this.props.loading}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.languages}
-          referencedLanguages={this.props.referencedLanguages}
-          stats={facets.languages}
-        />
       </div>
     );
   }
