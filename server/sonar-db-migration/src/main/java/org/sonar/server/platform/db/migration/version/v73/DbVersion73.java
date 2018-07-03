@@ -35,6 +35,7 @@ public class DbVersion73 implements DbVersion {
       .add(2205, "Add 'from hotspot' flag to issues", AddFromHotspotFlagToIssues.class)
       .add(2206, "Add SUBSCRIPTION column to ORGANIZATIONS table", AddSubscriptionToOrganizations.class)
       .add(2207, "Populate SUBSCRIPTION in ORGANIZATIONS", PopulateSubscriptionOnOrganizations.class)
+      .add(2208, "Add rules.security_standards", AddSecurityStandardsToRules.class)
     ;
   }
 }

@@ -55,6 +55,7 @@ public class RuleDefinitionDto {
   private String defRemediationBaseEffort;
   private String gapDescription;
   private String systemTags;
+  private String securityStandards;
   private int type;
   private Scope scope;
 
@@ -274,6 +275,23 @@ public class RuleDefinitionDto {
 
   public RuleDefinitionDto setSystemTags(Set<String> tags) {
     this.systemTags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
+    return this;
+  }
+
+  public Set<String> getSecurityStandards() {
+    return securityStandards == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(securityStandards, ',')));
+  }
+
+  private String getSecurityStandardsField() {
+    return securityStandards;
+  }
+
+  void setSecurityStandardsField(String s) {
+    securityStandards = s;
+  }
+
+  public RuleDefinitionDto setSecurityStandards(Set<String> standards) {
+    this.securityStandards = standards.isEmpty() ? null : StringUtils.join(standards, ',');
     return this;
   }
 

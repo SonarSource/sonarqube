@@ -370,6 +370,7 @@ public class RuleDaoTest {
     assertThat(actual.getDefRemediationBaseEffort()).isEqualTo(expected.getDefRemediationBaseEffort());
     assertThat(actual.getGapDescription()).isEqualTo(expected.getGapDescription());
     assertThat(actual.getSystemTags()).isEqualTo(expected.getSystemTags());
+    assertThat(actual.getSecurityStandards()).isEqualTo(expected.getSecurityStandards());
     assertThat(actual.getType()).isEqualTo(expected.getType());
     assertThat(actual.getCreatedAt()).isEqualTo(expected.getCreatedAt());
     assertThat(actual.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
@@ -490,6 +491,7 @@ public class RuleDaoTest {
       .setDefRemediationBaseEffort("10h")
       .setGapDescription("squid.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
+      .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setType(RuleType.BUG)
       .setScope(Scope.ALL)
       .setCreatedAt(1_500_000_000_000L)
@@ -516,6 +518,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
@@ -544,6 +547,7 @@ public class RuleDaoTest {
       .setDefRemediationBaseEffort("10h")
       .setGapDescription("squid.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
+      .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setScope(Scope.ALL)
       .setType(RuleType.BUG)
       .setUpdatedAt(2_000_000_000_000L);
@@ -569,6 +573,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
     assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(ruleDto.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
     assertThat(ruleDto.getScope()).isEqualTo(Scope.ALL);
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1_500_000_000_000L);
@@ -623,6 +628,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getGapDescription()).isNull();
     assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
     assertThat(ruleDto.getSystemTags()).isEmpty();
+    assertThat(ruleDto.getSecurityStandards()).isEmpty();
     assertThat(ruleDto.getType()).isEqualTo(0);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(3_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(4_000_000_000_000L);
@@ -681,6 +687,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getGapDescription()).isNull();
     assertThat(ruleDto.getTags()).isEmpty();
     assertThat(ruleDto.getSystemTags()).isEmpty();
+    assertThat(ruleDto.getSecurityStandards()).isEmpty();
     assertThat(ruleDto.getType()).isEqualTo(0);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(3_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(4_000_000_000_000L);
@@ -713,6 +720,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getGapDescription()).isNull();
     assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
     assertThat(ruleDto.getSystemTags()).isEmpty();
+    assertThat(ruleDto.getSecurityStandards()).isEmpty();
     assertThat(ruleDto.getType()).isEqualTo(0);
     assertThat(ruleDto.getCreatedAt()).isEqualTo(3_500_000_000_000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(7_000_000_000_000L);
@@ -848,6 +856,7 @@ public class RuleDaoTest {
     assertThat(firstRule.isExternal()).isFalse();
     assertThat(firstRule.isTemplate()).isEqualTo(r1.isTemplate());
     assertThat(firstRule.getSystemTagsAsSet()).isEqualTo(r1.getSystemTags());
+    assertThat(firstRule.getSecurityStandardsAsSet()).isEqualTo(r1.getSecurityStandards());
     assertThat(firstRule.getTemplateRuleKey()).isNull();
     assertThat(firstRule.getTemplateRepository()).isNull();
     assertThat(firstRule.getInternalKey()).isEqualTo(r1.getConfigKey());
@@ -927,6 +936,7 @@ public class RuleDaoTest {
     assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
     assertThat(firstRule.isTemplate()).isEqualTo(r1.isTemplate());
     assertThat(firstRule.getSystemTagsAsSet()).isEqualTo(r1.getSystemTags());
+    assertThat(firstRule.getSecurityStandardsAsSet()).isEqualTo(r1.getSecurityStandards());
     assertThat(firstRule.getInternalKey()).isEqualTo(r1.getConfigKey());
     assertThat(firstRule.getLanguage()).isEqualTo(r1.getLanguage());
     assertThat(firstRule.getType()).isEqualTo(r1.getType());

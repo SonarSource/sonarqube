@@ -170,6 +170,7 @@ public class RuleCreator {
       .setGapDescription(templateRuleDto.getGapDescription())
       .setScope(templateRuleDto.getScope())
       .setSystemTags(templateRuleDto.getSystemTags())
+      .setSecurityStandards(templateRuleDto.getSecurityStandards())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDefinition);

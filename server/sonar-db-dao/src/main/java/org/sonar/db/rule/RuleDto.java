@@ -260,6 +260,11 @@ public class RuleDto {
     return this;
   }
 
+  public RuleDto setSecurityStandards(Set<String> standards) {
+    this.definition.setSecurityStandards(standards);
+    return this;
+  }
+
   public int getType() {
     return definition.getType();
   }
@@ -283,6 +288,17 @@ public class RuleDto {
    */
   private void setSystemTagsField(String s) {
     definition.setSystemTagsField(s);
+  }
+
+  public Set<String> getSecurityStandards() {
+    return definition.getSecurityStandards();
+  }
+
+  /**
+   * Used in MyBatis mapping.
+   */
+  private void setSecurityStandardsField(String s) {
+    definition.setSecurityStandardsField(s);
   }
 
   public long getCreatedAt() {

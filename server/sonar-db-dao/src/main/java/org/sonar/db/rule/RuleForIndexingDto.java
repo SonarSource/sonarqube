@@ -39,6 +39,7 @@ public class RuleForIndexingDto {
   private RuleStatus status;
   private boolean isTemplate;
   private String systemTags;
+  private String securityStandards;
   private String templateRuleKey;
   private String templateRepository;
   private String internalKey;
@@ -49,6 +50,7 @@ public class RuleForIndexingDto {
   private long updatedAt;
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+  private static final Splitter SECURITY_STANDARDS_SPLITTER = TAGS_SPLITTER;
 
   public Integer getId() {
     return id;
@@ -88,6 +90,10 @@ public class RuleForIndexingDto {
 
   public String getSystemTags() {
     return systemTags;
+  }
+
+  public String getSecurityStandards() {
+    return securityStandards;
   }
 
   public String getTemplateRuleKey() {
@@ -137,5 +143,9 @@ public class RuleForIndexingDto {
 
   public Set<String> getSystemTagsAsSet() {
     return ImmutableSet.copyOf(TAGS_SPLITTER.split(systemTags == null ? "" : systemTags));
+  }
+
+  public Set<String> getSecurityStandardsAsSet() {
+    return ImmutableSet.copyOf(SECURITY_STANDARDS_SPLITTER.split(securityStandards == null ? "" : securityStandards));
   }
 }
