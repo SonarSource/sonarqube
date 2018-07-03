@@ -80,7 +80,7 @@ public class IssueUpdaterTest {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), notificationManager, issueChangePostProcessor);
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), notificationManager, issueChangePostProcessor);
 
   @Test
   public void update_issue() {

@@ -55,7 +55,7 @@ import org.sonar.server.issue.Action;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.IssueChangePostProcessor;
-import org.sonar.server.issue.IssueStorage;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.notification.NotificationManager;
@@ -107,12 +107,12 @@ public class BulkChangeAction implements IssuesWsAction {
   private final System2 system2;
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final IssueStorage issueStorage;
+  private final WebIssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final List<Action> actions;
   private final IssueChangePostProcessor issueChangePostProcessor;
 
-  public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage,
+  public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, WebIssueStorage issueStorage,
     NotificationManager notificationService, List<Action> actions,
     IssueChangePostProcessor issueChangePostProcessor) {
     this.system2 = system2;

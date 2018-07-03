@@ -38,8 +38,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -85,7 +85,7 @@ public class AssignActionTest {
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private AssignAction underTest = new AssignAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer),
       mock(NotificationManager.class), issueChangePostProcessor),
     responseWriter);
   private WsActionTester ws = new WsActionTester(underTest);

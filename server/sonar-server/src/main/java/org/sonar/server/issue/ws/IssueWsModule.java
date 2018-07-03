@@ -23,8 +23,8 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueQueryFactory;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
@@ -40,7 +40,7 @@ public class IssueWsModule extends Module {
       IssueUpdater.class,
       IssueFinder.class,
       TransitionService.class,
-      ServerIssueStorage.class,
+      WebIssueStorage.class,
       IssueFieldsSetter.class,
       FunctionExecutor.class,
       IssueWorkflow.class,

@@ -48,8 +48,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.IssueStorage;
-import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -115,7 +114,7 @@ public class BulkChangeActionTest {
 
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private IssueStorage issueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient,
+  private WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider),
     new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient)));
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();

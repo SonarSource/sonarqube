@@ -50,6 +50,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.rule.ExternalRuleCreator;
 import org.sonar.server.util.cache.DiskCache;
 
@@ -79,7 +80,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   private DbSession session = db.getSession();
   private DbClient dbClient = db.getDbClient();
-  private System2 system2;
   private IssueCache issueCache;
   private ComputationStep step;
 
@@ -93,11 +93,11 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Before
   public void setup() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    system2 = mock(System2.class);
+    System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache);
+    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache, new IssueStorage());
   }
 
   @After

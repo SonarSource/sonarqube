@@ -29,16 +29,16 @@ import java.util.stream.StreamSupport;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.issue.IssueChangeDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.server.issue.index.IssueIndexer;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.newArrayList;
@@ -51,19 +51,20 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
  * <li>once at the end of scan, even on multi-module projects</li>
  * <li>on each server-side action initiated by UI or web service</li>
  * </ul>
- *
- * @since 3.6
  */
-public abstract class IssueStorage {
+@ServerSide
+public class WebIssueStorage extends IssueStorage {
 
   private final System2 system2;
   private final RuleFinder ruleFinder;
   private final DbClient dbClient;
+  private final IssueIndexer indexer;
 
-  protected IssueStorage(System2 system2, DbClient dbClient, RuleFinder ruleFinder) {
+  public WebIssueStorage(System2 system2, DbClient dbClient, RuleFinder ruleFinder, IssueIndexer indexer) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
+    this.indexer = indexer;
   }
 
   protected DbClient getDbClient() {
@@ -103,8 +104,8 @@ public abstract class IssueStorage {
       .collect(toSet(issuesToInsert.size() + issuesToUpdate.size()));
   }
 
-  protected void doAfterSave(DbSession dbSession, Collection<IssueDto> issues) {
-    // overridden on server-side to index ES
+  private void doAfterSave(DbSession dbSession, Collection<IssueDto> issues) {
+    indexer.commitAndIndexIssues(dbSession, issues);
   }
 
   /**
@@ -128,7 +129,23 @@ public abstract class IssueStorage {
     return inserted;
   }
 
-  protected abstract IssueDto doInsert(DbSession batchSession, long now, DefaultIssue issue);
+  private IssueDto doInsert(DbSession session, long now, DefaultIssue issue) {
+    ComponentDto component = component(session, issue);
+    ComponentDto project = project(session, issue);
+    int ruleId = rule(issue).getId();
+    IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
+
+    getDbClient().issueDao().insert(session, dto);
+    return dto;
+  }
+
+  ComponentDto component(DbSession session, DefaultIssue issue) {
+    return getDbClient().componentDao().selectOrFailByUuid(session, issue.componentUuid());
+  }
+
+  ComponentDto project(DbSession session, DefaultIssue issue) {
+    return getDbClient().componentDao().selectOrFailByUuid(session, issue.projectUuid());
+  }
 
   /**
    * @return the keys of the updated issues
@@ -149,25 +166,10 @@ public abstract class IssueStorage {
     return updated;
   }
 
-  protected abstract IssueDto doUpdate(DbSession batchSession, long now, DefaultIssue issue);
-
-  public static void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
-    for (DefaultIssueComment comment : issue.defaultIssueComments()) {
-      if (comment.isNew()) {
-        IssueChangeDto changeDto = IssueChangeDto.of(comment);
-        mapper.insert(changeDto);
-      }
-    }
-    FieldDiffs diffs = issue.currentChange();
-    if (issue.isCopied()) {
-      for (FieldDiffs d : issue.changes()) {
-        IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), d);
-        mapper.insert(changeDto);
-      }
-    } else if (!issue.isNew() && diffs != null) {
-      IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
-      mapper.insert(changeDto);
-    }
+  private IssueDto doUpdate(DbSession session, long now, DefaultIssue issue) {
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
+    getDbClient().issueDao().update(session, dto);
+    return dto;
   }
 
   protected Rule rule(Issue issue) {

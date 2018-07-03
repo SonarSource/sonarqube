@@ -44,8 +44,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -108,7 +108,7 @@ public class DoTransitionActionTest {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class),
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class),
     issueChangePostProcessor);
   private ComponentDto project;
   private ComponentDto file;

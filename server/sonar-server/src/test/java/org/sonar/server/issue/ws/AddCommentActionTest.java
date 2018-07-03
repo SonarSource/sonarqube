@@ -42,8 +42,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -92,7 +92,7 @@ public class AddCommentActionTest {
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private ServerIssueStorage serverIssueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer);
+  private WebIssueStorage serverIssueStorage = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);

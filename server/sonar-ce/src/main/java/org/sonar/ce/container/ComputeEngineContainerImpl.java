@@ -95,6 +95,7 @@ import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -404,6 +405,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ViewIndex.class,
 
       // issues
+      IssueStorage.class,
       IssueIndexer.class,
       IssueIteratorFactory.class,
       PermissionIndexer.class,

@@ -39,6 +39,8 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueIndexer;
 
@@ -48,7 +50,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
-public class ServerIssueStorageTest {
+public class WebIssueStorageTest {
 
   private System2 system2 = mock(System2.class);
 
@@ -57,7 +59,7 @@ public class ServerIssueStorageTest {
 
   private DbClient dbClient = dbTester.getDbClient();
 
-  private ServerIssueStorage underTest = new ServerIssueStorage(system2, new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
+  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new FakeRuleFinder(), mock(IssueIndexer.class));
 
   @Before
   public void setupDbClient() {
@@ -66,20 +68,24 @@ public class ServerIssueStorageTest {
 
   @Test
   public void load_component_id_from_db() {
-    dbTester.prepareDbUnit(getClass(), "load_component_id_from_db.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
 
-    long componentId = underTest.component(dbTester.getSession(), new DefaultIssue().setComponentUuid("BCDE")).getId();
+    long componentId = underTest.component(dbTester.getSession(), new DefaultIssue().setComponentUuid(file.uuid())).getId();
 
-    assertThat(componentId).isEqualTo(100);
+    assertThat(componentId).isEqualTo(file.getId());
   }
 
   @Test
   public void load_project_id_from_db() {
-    dbTester.prepareDbUnit(getClass(), "load_project_id_from_db.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
 
-    long projectId = underTest.project(dbTester.getSession(), new DefaultIssue().setProjectUuid("ABCD")).getId();
+    long projectId = underTest.project(dbTester.getSession(), new DefaultIssue().setProjectUuid(project.uuid())).getId();
 
-    assertThat(projectId).isEqualTo(1);
+    assertThat(projectId).isEqualTo(project.getId());
   }
 
   @Test
@@ -96,40 +102,40 @@ public class ServerIssueStorageTest {
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setType(RuleType.BUG)
-      .setNew(true)
-      .setRuleKey(rule.getKey())
-      .setProjectUuid(project.uuid())
-      .setComponentUuid(file.uuid())
-      .setLine(5000)
-      .setEffort(Duration.create(10L))
-      .setResolution("OPEN")
-      .setStatus("OPEN")
-      .setSeverity("BLOCKER")
-      .setAttribute("foo", "bar")
-      .addComment(comment)
-      .setCreationDate(date)
-      .setUpdateDate(date)
-      .setCloseDate(date);
+        .setKey(issueKey)
+        .setType(RuleType.BUG)
+        .setNew(true)
+        .setRuleKey(rule.getKey())
+        .setProjectUuid(project.uuid())
+        .setComponentUuid(file.uuid())
+        .setLine(5000)
+        .setEffort(Duration.create(10L))
+        .setResolution("OPEN")
+        .setStatus("OPEN")
+        .setSeverity("BLOCKER")
+        .setAttribute("foo", "bar")
+        .addComment(comment)
+        .setCreationDate(date)
+        .setUpdateDate(date)
+        .setCloseDate(date);
 
     underTest.save(issue);
 
     assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(dbTester.selectFirst("select * from issues"))
-      .containsEntry("PROJECT_UUID", project.uuid())
-      .containsEntry("COMPONENT_UUID", file.uuid())
-      .containsEntry("KEE", issue.key())
-      .containsEntry("RESOLUTION", issue.resolution())
-      .containsEntry("STATUS", issue.status())
-      .containsEntry("SEVERITY", issue.severity());
+        .containsEntry("PROJECT_UUID", project.uuid())
+        .containsEntry("COMPONENT_UUID", file.uuid())
+        .containsEntry("KEE", issue.key())
+        .containsEntry("RESOLUTION", issue.resolution())
+        .containsEntry("STATUS", issue.status())
+        .containsEntry("SEVERITY", issue.severity());
 
     assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
     assertThat(dbTester.selectFirst("select * from issue_changes"))
-      .containsEntry("KEE", comment.key())
-      .containsEntry("ISSUE_KEY", issue.key())
-      .containsEntry("CHANGE_DATA", comment.markdownText())
-      .containsEntry("USER_LOGIN", comment.userUuid());
+        .containsEntry("KEE", comment.key())
+        .containsEntry("ISSUE_KEY", issue.key())
+        .containsEntry("CHANGE_DATA", comment.markdownText())
+        .containsEntry("USER_LOGIN", comment.userUuid());
   }
 
   @Test
@@ -141,21 +147,21 @@ public class ServerIssueStorageTest {
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setType(RuleType.BUG)
-      .setNew(true)
-      .setRuleKey(rule.getKey())
-      .setProjectUuid(project.uuid())
-      .setComponentUuid(file.uuid())
-      .setLine(5000)
-      .setEffort(Duration.create(10L))
-      .setResolution("OPEN")
-      .setStatus("OPEN")
-      .setSeverity("BLOCKER")
-      .setAttribute("foo", "bar")
-      .setCreationDate(date)
-      .setUpdateDate(date)
-      .setCloseDate(date);
+        .setKey("ABCDE")
+        .setType(RuleType.BUG)
+        .setNew(true)
+        .setRuleKey(rule.getKey())
+        .setProjectUuid(project.uuid())
+        .setComponentUuid(file.uuid())
+        .setLine(5000)
+        .setEffort(Duration.create(10L))
+        .setResolution("OPEN")
+        .setStatus("OPEN")
+        .setSeverity("BLOCKER")
+        .setAttribute("foo", "bar")
+        .setCreationDate(date)
+        .setUpdateDate(date)
+        .setCloseDate(date);
 
     underTest.save(issue);
 
@@ -163,59 +169,59 @@ public class ServerIssueStorageTest {
     assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(0);
 
     DefaultIssue updated = new DefaultIssue()
-      .setKey(issue.key())
-      .setType(RuleType.VULNERABILITY)
-      .setNew(false)
-      .setChanged(true)
+        .setKey(issue.key())
+        .setType(RuleType.VULNERABILITY)
+        .setNew(false)
+        .setChanged(true)
 
-      // updated fields
-      .setLine(issue.getLine() + 10)
-      .setProjectUuid("foo")
-      .setEffort(Duration.create(issue.effortInMinutes() + 10L))
-      .setChecksum("FFFFF")
-      .setAuthorLogin("simon")
-      .setAssigneeUuid("loic")
-      .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
-      .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
-      .setResolution("FIXED")
-      .setStatus("RESOLVED")
-      .setSeverity("MAJOR")
-      .setAttribute("fox", "bax")
-      .setCreationDate(DateUtils.addDays(date, 1))
-      .setUpdateDate(DateUtils.addDays(date, 1))
-      .setCloseDate(DateUtils.addDays(date, 1))
+        // updated fields
+        .setLine(issue.getLine() + 10)
+        .setProjectUuid("foo")
+        .setEffort(Duration.create(issue.effortInMinutes() + 10L))
+        .setChecksum("FFFFF")
+        .setAuthorLogin("simon")
+        .setAssigneeUuid("loic")
+        .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
+        .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
+        .setResolution("FIXED")
+        .setStatus("RESOLVED")
+        .setSeverity("MAJOR")
+        .setAttribute("fox", "bax")
+        .setCreationDate(DateUtils.addDays(date, 1))
+        .setUpdateDate(DateUtils.addDays(date, 1))
+        .setCloseDate(DateUtils.addDays(date, 1))
 
-      // unmodifiable fields
-      .setRuleKey(RuleKey.of("xxx", "unknown"))
-      .setComponentKey("struts:Action")
-      .setProjectKey("struts");
+        // unmodifiable fields
+        .setRuleKey(RuleKey.of("xxx", "unknown"))
+        .setComponentKey("struts:Action")
+        .setProjectKey("struts");
 
     underTest.save(updated);
 
     assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(dbTester.selectFirst("select * from issues"))
-      .containsEntry("ASSIGNEE", updated.assignee())
-      .containsEntry("AUTHOR_LOGIN", updated.authorLogin())
-      .containsEntry("CHECKSUM", updated.checksum())
-      .containsEntry("COMPONENT_UUID", issue.componentUuid())
-      .containsEntry("EFFORT", updated.effortInMinutes())
-      .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
-      .containsEntry("ISSUE_TYPE", (byte) 3)
-      .containsEntry("KEE", issue.key())
-      .containsEntry("LINE", (long) updated.line())
-      .containsEntry("PROJECT_UUID", updated.projectUuid())
-      .containsEntry("RESOLUTION", updated.resolution())
-      .containsEntry("STATUS", updated.status())
-      .containsEntry("SEVERITY", updated.severity());
+        .containsEntry("ASSIGNEE", updated.assignee())
+        .containsEntry("AUTHOR_LOGIN", updated.authorLogin())
+        .containsEntry("CHECKSUM", updated.checksum())
+        .containsEntry("COMPONENT_UUID", issue.componentUuid())
+        .containsEntry("EFFORT", updated.effortInMinutes())
+        .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
+        .containsEntry("ISSUE_TYPE", (byte) 3)
+        .containsEntry("KEE", issue.key())
+        .containsEntry("LINE", (long) updated.line())
+        .containsEntry("PROJECT_UUID", updated.projectUuid())
+        .containsEntry("RESOLUTION", updated.resolution())
+        .containsEntry("STATUS", updated.status())
+        .containsEntry("SEVERITY", updated.severity());
 
     List<Map<String, Object>> rows = dbTester.select("select * from issue_changes order by id");
     assertThat(rows).hasSize(2);
     assertThat(rows.get(0))
-      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
-      .containsExactlyInAnyOrder("the comment", "comment", "user_uuid");
+        .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+        .containsExactlyInAnyOrder("the comment", "comment", "user_uuid");
     assertThat(rows.get(1))
-      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
-      .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
+        .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+        .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
   }
 
   static class FakeRuleFinder implements RuleFinder {

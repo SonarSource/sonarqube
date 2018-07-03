@@ -40,14 +40,16 @@ public class PersistIssuesStep implements ComputationStep {
   private final UpdateConflictResolver conflictResolver;
   private final RuleRepository ruleRepository;
   private final IssueCache issueCache;
+  private final IssueStorage issueStorage;
 
   public PersistIssuesStep(DbClient dbClient, System2 system2, UpdateConflictResolver conflictResolver,
-    RuleRepository ruleRepository, IssueCache issueCache) {
+    RuleRepository ruleRepository, IssueCache issueCache, IssueStorage issueStorage) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.conflictResolver = conflictResolver;
     this.ruleRepository = ruleRepository;
     this.issueCache = issueCache;
+    this.issueStorage = issueStorage;
   }
 
   @Override
@@ -61,7 +63,7 @@ public class PersistIssuesStep implements ComputationStep {
         DefaultIssue issue = issues.next();
         boolean saved = persistIssueIfRequired(mapper, issue);
         if (saved) {
-          IssueStorage.insertChanges(changeMapper, issue);
+          issueStorage.insertChanges(changeMapper, issue);
         }
       }
       dbSession.flushStatements();

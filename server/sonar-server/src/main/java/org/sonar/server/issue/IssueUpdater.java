@@ -45,12 +45,12 @@ import static java.util.Collections.singletonList;
 public class IssueUpdater {
 
   private final DbClient dbClient;
-  private final IssueStorage issueStorage;
+  private final WebIssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final IssueChangePostProcessor issueChangePostProcessor;
 
-  public IssueUpdater(DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService,
-    IssueChangePostProcessor issueChangePostProcessor) {
+  public IssueUpdater(DbClient dbClient, WebIssueStorage issueStorage, NotificationManager notificationService,
+                      IssueChangePostProcessor issueChangePostProcessor) {
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.notificationService = notificationService;
