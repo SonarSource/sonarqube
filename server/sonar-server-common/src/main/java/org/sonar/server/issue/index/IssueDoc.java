@@ -290,4 +290,34 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
+  public Collection<String> getOwaspTop10() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10);
+  }
+
+  public IssueDoc setOwaspTop10(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, o);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getSansTop25() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25);
+  }
+
+  public IssueDoc setSansTop25(@Nullable Collection<String> s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25, s);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getCwe() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CWE);
+  }
+
+  public IssueDoc setCwe(@Nullable Collection<String> c) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CWE, c);
+    return this;
+  }
+
 }

@@ -74,6 +74,9 @@ public class IssueQuery {
   private final Collection<String> languages;
   private final Collection<String> tags;
   private final Collection<String> types;
+  private final Collection<String> owaspTop10;
+  private final Collection<String> sansTop25;
+  private final Collection<String> cwe;
   private final Map<String, PeriodStart> createdAfterByProjectUuids;
   private final Boolean onComponentOnly;
   private final Boolean assigned;
@@ -107,6 +110,9 @@ public class IssueQuery {
     this.languages = defaultCollection(builder.languages);
     this.tags = defaultCollection(builder.tags);
     this.types = defaultCollection(builder.types);
+    this.owaspTop10 = defaultCollection(builder.owaspTop10);
+    this.sansTop25 = defaultCollection(builder.sansTop25);
+    this.cwe = defaultCollection(builder.cwe);
     this.createdAfterByProjectUuids = defaultMap(builder.createdAfterByProjectUuids);
     this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
@@ -189,6 +195,18 @@ public class IssueQuery {
 
   public Collection<String> types() {
     return types;
+  }
+
+  public Collection<String> owaspTop10() {
+    return owaspTop10;
+  }
+
+  public Collection<String> sansTop25() {
+    return sansTop25;
+  }
+
+  public Collection<String> cwe() {
+    return cwe;
   }
 
   public Map<String, PeriodStart> createdAfterByProjectUuids() {
@@ -284,6 +302,9 @@ public class IssueQuery {
     private Collection<String> languages;
     private Collection<String> tags;
     private Collection<String> types;
+    private Collection<String> owaspTop10;
+    private Collection<String> sansTop25;
+    private Collection<String> cwe;
     private Map<String, PeriodStart> createdAfterByProjectUuids;
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
@@ -385,6 +406,21 @@ public class IssueQuery {
 
     public Builder types(@Nullable Collection<String> t) {
       this.types = t;
+      return this;
+    }
+
+    public Builder owaspTop10(@Nullable Collection<String> o) {
+      this.owaspTop10 = o;
+      return this;
+    }
+
+    public Builder sansTop25(@Nullable Collection<String> s) {
+      this.sansTop25 = s;
+      return this;
+    }
+
+    public Builder cwe(@Nullable Collection<String> cwe) {
+      this.cwe = cwe;
       return this;
     }
 

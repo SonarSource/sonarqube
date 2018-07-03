@@ -64,6 +64,9 @@ public class SearchRequest {
   private List<String> statuses;
   private List<String> tags;
   private List<String> types;
+  private List<String> owaspTop10;
+  private List<String> sansTop25;
+  private List<String> cwe;
 
   @CheckForNull
   public List<String> getActionPlans() {
@@ -402,6 +405,36 @@ public class SearchRequest {
 
   public SearchRequest setTypes(@Nullable List<String> types) {
     this.types = types;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getOwaspTop10() {
+    return owaspTop10;
+  }
+
+  public SearchRequest setOwaspTop10(@Nullable List<String> owaspTop10) {
+    this.owaspTop10 = owaspTop10;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getSansTop25() {
+    return sansTop25;
+  }
+
+  public SearchRequest setSansTop25(@Nullable List<String> sansTop25) {
+    this.sansTop25 = sansTop25;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getCwe() {
+    return cwe;
+  }
+
+  public SearchRequest setCwe(@Nullable List<String> cwe) {
+    this.cwe = cwe;
     return this;
   }
 

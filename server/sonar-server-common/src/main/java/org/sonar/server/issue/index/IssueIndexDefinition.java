@@ -92,6 +92,9 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_STATUS = "status";
   public static final String FIELD_ISSUE_TAGS = "tags";
   public static final String FIELD_ISSUE_TYPE = "type";
+  public static final String FIELD_ISSUE_OWASP_TOP_10 = "owaspTop10";
+  public static final String FIELD_ISSUE_SANS_TOP_25 = "sansTop25";
+  public static final String FIELD_ISSUE_CWE = "cwe";
 
   private final Configuration config;
   private final boolean enableSource;
@@ -151,5 +154,8 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.keywordFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     type.keywordFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
     type.keywordFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_OWASP_TOP_10).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_SANS_TOP_25).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_CWE).disableNorms().build();
   }
 }

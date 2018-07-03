@@ -52,6 +52,9 @@ public class IssueQueryTest {
       .languages(newArrayList("xoo"))
       .tags(newArrayList("tag1", "tag2"))
       .types(newArrayList("RELIABILITY", "SECURITY"))
+      .owaspTop10(newArrayList("a1", "a2"))
+      .sansTop25(newArrayList("insecure-interaction", "porous-defenses"))
+      .cwe(newArrayList("12", "125"))
       .organizationUuid("orga")
       .branchUuid("my_branch")
       .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", filterDate))
@@ -74,6 +77,9 @@ public class IssueQueryTest {
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
+    assertThat(query.owaspTop10()).containsOnly("a1", "a2");
+    assertThat(query.sansTop25()).containsOnly("insecure-interaction", "porous-defenses");
+    assertThat(query.cwe()).containsOnly("12", "125");
     assertThat(query.organizationUuid()).isEqualTo("orga");
     assertThat(query.branchUuid()).isEqualTo("my_branch");
     assertThat(query.createdAfterByProjectUuids()).containsOnly(entry("PROJECT", filterDate));
@@ -128,6 +134,9 @@ public class IssueQueryTest {
       .languages(null)
       .tags(null)
       .types(null)
+      .owaspTop10(null)
+      .sansTop25(null)
+      .cwe(null)
       .createdAfterByProjectUuids(null)
       .build();
     assertThat(query.issueKeys()).isEmpty();
@@ -142,6 +151,9 @@ public class IssueQueryTest {
     assertThat(query.languages()).isEmpty();
     assertThat(query.tags()).isEmpty();
     assertThat(query.types()).isEmpty();
+    assertThat(query.owaspTop10()).isEmpty();
+    assertThat(query.sansTop25()).isEmpty();
+    assertThat(query.cwe()).isEmpty();
     assertThat(query.createdAfterByProjectUuids()).isEmpty();
   }
 

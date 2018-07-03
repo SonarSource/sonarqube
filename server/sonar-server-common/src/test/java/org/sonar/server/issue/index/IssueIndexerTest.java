@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -56,6 +57,8 @@ import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
+import static org.sonar.server.issue.ws.SearchAction.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.issue.ws.SearchAction.UNKNOWN_STANDARD;
 import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AUTHORIZATION;
 
 public class IssueIndexerTest {
@@ -134,6 +137,25 @@ public class IssueIndexerTest {
     assertThat(doc.line()).isEqualTo(issue.getLine());
     // functional date
     assertThat(doc.updateDate()).isEqualToIgnoringMillis(new Date(issue.getIssueUpdateTime()));
+    assertThat(doc.getCwe()).containsExactlyInAnyOrder(UNKNOWN_STANDARD);
+    assertThat(doc.getOwaspTop10()).containsExactlyInAnyOrder(UNKNOWN_STANDARD);
+    assertThat(doc.getSansTop25()).isEmpty();
+  }
+
+  @Test
+  public void verify_security_standards_indexation() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123,owaspTop10:a3,cwe:863"))));
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
+    IssueDto issue = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
+
+    underTest.indexOnStartup(emptySet());
+
+    IssueDoc doc = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class).get(0);
+    assertThat(doc.getCwe()).containsExactlyInAnyOrder("123", "863");
+    assertThat(doc.getOwaspTop10()).containsExactlyInAnyOrder("a3");
+    assertThat(doc.getSansTop25()).containsExactlyInAnyOrder(SANS_TOP_25_POROUS_DEFENSES);
   }
 
   @Test

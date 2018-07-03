@@ -103,6 +103,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_BEFORE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
@@ -110,6 +111,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLANNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
@@ -119,6 +121,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REPORTERS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLVED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
@@ -128,6 +131,10 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 public class SearchAction implements IssuesWsAction {
 
   public static final String LOGIN_MYSELF = "__me__";
+  public static final String UNKNOWN_STANDARD = "unknown";
+  public static final String SANS_TOP_25_INSECURE_INTERACTION = "insecure-interaction";
+  public static final String SANS_TOP_25_RISKY_RESOURCE = "risky-resource";
+  public static final String SANS_TOP_25_POROUS_DEFENSES = "porous-defenses";
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);
@@ -174,7 +181,8 @@ public class SearchAction implements IssuesWsAction {
         new Change("5.5", "response field 'debt' is renamed 'effort'"),
         new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"),
         new Change("7.2", format("value '%s' in parameter '%s' is deprecated, it won't have any effect", SORT_BY_ASSIGNEE, Param.SORT)),
-        new Change("7.3", "response field 'fromHotspot' added to issues that are security hotspots"))
+        new Change("7.3", "response field 'fromHotspot' added to issues that are security hotspots"),
+        new Change("7.3", "added facets 'sansTop25', 'owaspTop10' and 'cwe'"))
       .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
@@ -223,6 +231,17 @@ public class SearchAction implements IssuesWsAction {
       .setSince("5.5")
       .setPossibleValues((Object[]) RuleType.values())
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
+    action.createParam(PARAM_OWASP_TOP_10)
+      .setDescription("Comma-separated list of OWASP Top 10 lowercase categories. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any OWASP Top 10 category.")
+      .setSince("7.3")
+      .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", UNKNOWN_STANDARD);
+    action.createParam(PARAM_SANS_TOP_25)
+      .setDescription("Comma-separated list of SANS Top 25 categories.")
+      .setSince("7.3")
+      .setPossibleValues(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES);
+    action.createParam(PARAM_CWE)
+      .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any CWE.")
+      .setExampleValue("12,125," + UNKNOWN_STANDARD);
     action.createParam(PARAM_AUTHORS)
       .setDescription("Comma-separated list of SCM accounts")
       .setExampleValue("torvalds@linux-foundation.org");
@@ -556,6 +575,9 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
     addMandatoryValuesToFacet(facets, PARAM_TYPES, RuleType.names());
+    addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
+    addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
+    addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
     addMandatoryValuesToFacet(facets, PARAM_COMPONENT_UUIDS, request.getComponentUuids());
 
     List<String> requestedFacets = request.getFacets();
@@ -655,6 +677,9 @@ public class SearchAction implements IssuesWsAction {
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
-      .setTypes(request.paramAsStrings(PARAM_TYPES));
+      .setTypes(request.paramAsStrings(PARAM_TYPES))
+      .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
+      .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
+      .setCwe(request.paramAsStrings(PARAM_CWE));
   }
 }

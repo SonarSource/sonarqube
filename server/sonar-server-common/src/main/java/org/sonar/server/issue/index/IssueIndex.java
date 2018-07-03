@@ -104,14 +104,17 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REPORTERS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
@@ -140,6 +143,9 @@ public class IssueIndex {
     PARAM_LANGUAGES,
     PARAM_TAGS,
     PARAM_TYPES,
+    PARAM_OWASP_TOP_10,
+    PARAM_SANS_TOP_25,
+    PARAM_CWE,
     PARAM_CREATED_AT);
   public static final String AGGREGATION_NAME_FOR_TAGS = "tags__issues";
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
@@ -521,6 +527,15 @@ public class IssueIndex {
       }
       if (options.getFacets().contains(PARAM_TYPES)) {
         esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TYPE, PARAM_TYPES, query.types().toArray()));
+      }
+      if (options.getFacets().contains(PARAM_OWASP_TOP_10)) {
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, PARAM_OWASP_TOP_10, query.owaspTop10().toArray()));
+      }
+      if (options.getFacets().contains(PARAM_SANS_TOP_25)) {
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25, PARAM_SANS_TOP_25, query.sansTop25().toArray()));
+      }
+      if (options.getFacets().contains(PARAM_CWE)) {
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_CWE, PARAM_CWE, query.cwe().toArray()));
       }
       if (options.getFacets().contains(PARAM_RESOLUTIONS)) {
         esSearch.addAggregation(createResolutionFacet(query, filters, esQuery));
