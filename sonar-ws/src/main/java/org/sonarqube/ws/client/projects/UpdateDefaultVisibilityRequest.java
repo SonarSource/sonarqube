@@ -17,35 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.organizations;
+package org.sonarqube.ws.client.projects;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/update_project_visibility">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/update_default_visibility">Further information about this action online (including a response example)</a>
  * @since 6.4
  */
 @Generated("sonar-ws-generator")
-public class UpdateProjectVisibilityRequest {
+public class UpdateDefaultVisibilityRequest {
 
-  private String organization;
   private String projectVisibility;
-
-  /**
-   * This is a mandatory parameter.
-   * Example value: "foo-company"
-   */
-  public UpdateProjectVisibilityRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 
   /**
    * This is a mandatory parameter.
@@ -55,7 +40,7 @@ public class UpdateProjectVisibilityRequest {
    *   <li>"public"</li>
    * </ul>
    */
-  public UpdateProjectVisibilityRequest setProjectVisibility(String projectVisibility) {
+  public UpdateDefaultVisibilityRequest setProjectVisibility(String projectVisibility) {
     this.projectVisibility = projectVisibility;
     return this;
   }

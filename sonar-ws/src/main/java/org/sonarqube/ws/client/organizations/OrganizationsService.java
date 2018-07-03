@@ -172,20 +172,4 @@ public class OrganizationsService extends BaseService {
         .setParam("url", request.getUrl()),
       UpdateWsResponse.parser());
   }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/update_project_visibility">Further information about this action online (including a response example)</a>
-   * @since 6.4
-   */
-  public void updateProjectVisibility(UpdateProjectVisibilityRequest request) {
-    call(
-      new PostRequest(path("update_project_visibility"))
-        .setParam("organization", request.getOrganization())
-        .setParam("projectVisibility", request.getProjectVisibility())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
 }

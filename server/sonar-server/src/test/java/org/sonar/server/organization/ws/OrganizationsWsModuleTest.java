@@ -33,23 +33,23 @@ public class OrganizationsWsModuleTest {
   private OrganizationsWsModule underTest = new OrganizationsWsModule(mapSettings.asConfig());
 
   @Test
-  public void verify_component_count_when_not_on_sonar_cloud() {
+  public void verify_component_count_when_on_SonarQube() {
     mapSettings.setProperty("sonar.sonarcloud.enabled", false);
 
     underTest.configure(container);
 
     assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 5);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 4);
   }
 
   @Test
-  public void verify_component_count_when_on_sonar_cloud() {
+  public void verify_component_count_when_on_SonarCloud() {
     mapSettings.setProperty("sonar.sonarcloud.enabled", true);
 
     underTest.configure(container);
 
     assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 11);
   }
 
 }

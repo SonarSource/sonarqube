@@ -17,51 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.organization.ws;
+package org.sonar.server.project.ws;
 
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.organization.BillingValidations;
-import org.sonar.server.organization.BillingValidationsProxy;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
-public class UpdateProjectVisibilityAction implements OrganizationsWsAction {
-  static final String ACTION = "update_project_visibility";
+public class UpdateDefaultVisibilityAction implements ProjectsWsAction {
+  static final String ACTION = "update_default_visibility";
   static final String PARAM_PROJECT_VISIBILITY = "projectVisibility";
 
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final BillingValidationsProxy billingValidations;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UpdateProjectVisibilityAction(UserSession userSession, DbClient dbClient, BillingValidationsProxy billingValidations) {
+  public UpdateDefaultVisibilityAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.billingValidations = billingValidations;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
-      .setDescription("Update the default visibility for new projects of the specified organization.")
+      .setDescription("Update the default visibility for new projects.<br/>Requires System Administrator privileges")
+      .setChangelog(
+        new Change("7.3", "This WS used to be located at /api/organizations/update_project_visibility"))
       .setInternal(true)
       .setSince("6.4")
       .setHandler(this);
-
-    action.createParam(PARAM_ORGANIZATION)
-      .setRequired(true)
-      .setDescription("Organization key")
-      .setExampleValue("foo-company");
 
     action.createParam(PARAM_PROJECT_VISIBILITY)
       .setRequired(true)
@@ -71,24 +67,17 @@ public class UpdateProjectVisibilityAction implements OrganizationsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
     boolean newProjectsPrivate = Visibility.isPrivate(request.mandatoryParam(PARAM_PROJECT_VISIBILITY));
+
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<OrganizationDto> optionalOrganization = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
-      OrganizationDto organization = checkFoundWithOptional(optionalOrganization, "No organization with key '" + organizationKey + "' can be found.");
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization.getUuid());
-      checkCanUpdateProjectsVisibility(organization, newProjectsPrivate);
+      Optional<OrganizationDto> optionalOrganization = dbClient.organizationDao().selectByKey(dbSession, defaultOrganizationProvider.get().getKey());
+      OrganizationDto organization = checkFoundWithOptional(optionalOrganization, "No default organization.");
+      if (!userSession.isSystemAdministrator()) {
+        throw insufficientPrivilegesException();
+      }
       dbClient.organizationDao().setNewProjectPrivate(dbSession, organization, newProjectsPrivate);
       dbSession.commit();
     }
     response.noContent();
-  }
-
-  private void checkCanUpdateProjectsVisibility(OrganizationDto organization, boolean newProjectsPrivate) {
-    try {
-      billingValidations.checkCanUpdateProjectVisibility(new BillingValidations.Organization(organization.getKey(), organization.getUuid()), newProjectsPrivate);
-    } catch (BillingValidations.BillingValidationsException e) {
-      throw new IllegalArgumentException(e.getMessage());
-    }
   }
 }

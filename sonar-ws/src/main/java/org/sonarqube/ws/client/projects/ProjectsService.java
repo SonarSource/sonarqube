@@ -22,14 +22,14 @@ package org.sonarqube.ws.client.projects;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.Projects.CreateWsResponse;
+import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
+import org.sonarqube.ws.Projects.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
-import org.sonarqube.ws.Projects.CreateWsResponse;
-import org.sonarqube.ws.Projects.SearchWsResponse;
-import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects">Further information about this web service online</a>
@@ -250,5 +250,20 @@ public class ProjectsService extends BaseService {
         .setParam("visibility", request.getVisibility())
         .setMediaType(MediaTypes.JSON)
       ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/update_default_visibility">Further information about this action online (including a response example)</a>
+   * @since 6.4
+   */
+  public void updateDefaultVisibility(UpdateDefaultVisibilityRequest request) {
+    call(
+      new PostRequest(path("update_default_visibility"))
+        .setParam("projectVisibility", request.getProjectVisibility())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
   }
 }

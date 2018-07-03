@@ -19,10 +19,18 @@
  */
 package org.sonar.server.project.ws;
 
+import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.Module;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.project.ProjectLifeCycleListenersImpl;
 
 public class ProjectsWsModule extends Module {
+
+  private final Configuration configuration;
+
+  public ProjectsWsModule(Configuration configuration) {
+    this.configuration = configuration;
+  }
 
   @Override
   protected void configureModule() {
@@ -41,5 +49,10 @@ public class ProjectsWsModule extends Module {
       SearchMyProjectsAction.class,
       SearchAction.class,
       UpdateVisibilityAction.class);
+
+    if (!configuration.getBoolean(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey()).orElse(false)) {
+      // Updating default visibility is not available in SonarCloud
+      add(UpdateDefaultVisibilityAction.class);
+    }
   }
 }
