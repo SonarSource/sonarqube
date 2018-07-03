@@ -21,7 +21,7 @@ package org.sonar.server.platform.ws;
 
 import java.util.List;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.ce.http.CeHttpClient;
+import org.sonar.server.ce.http.CeHttpClient;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;

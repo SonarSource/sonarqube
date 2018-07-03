@@ -60,6 +60,14 @@ public class ReportTaskProcessor implements CeTaskProcessor {
     this.componentProviders = null;
   }
 
+  /**
+   * Used when loaded in WebServer where none of the dependencies are available and where only
+   * {@link #getHandledCeTaskTypes()} will be called.
+   */
+  public ReportTaskProcessor() {
+    this(null, null, null);
+  }
+
   @Override
   public Set<String> getHandledCeTaskTypes() {
     return HANDLED_TYPES;

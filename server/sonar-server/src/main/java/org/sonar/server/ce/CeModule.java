@@ -19,11 +19,11 @@
  */
 package org.sonar.server.ce;
 
-import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.task.log.CeTaskLogging;
-import org.sonar.ce.task.projectanalysis.ReportTaskProcessorDeclaration;
+import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.core.platform.Module;
+import org.sonar.server.ce.http.CeHttpClientImpl;
 import org.sonar.server.ce.queue.ReportSubmitter;
 
 public class CeModule extends Module {
@@ -37,6 +37,6 @@ public class CeModule extends Module {
       ReportSubmitter.class,
 
       // Core tasks processors
-      ReportTaskProcessorDeclaration.class);
+      ReportTaskProcessor.class);
   }
 }

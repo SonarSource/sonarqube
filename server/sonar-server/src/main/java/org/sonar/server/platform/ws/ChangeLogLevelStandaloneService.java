@@ -20,7 +20,7 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.ce.http.CeHttpClient;
+import org.sonar.server.ce.http.CeHttpClient;
 import org.sonar.server.log.ServerLogging;
 
 public class ChangeLogLevelStandaloneService implements ChangeLogLevelService {
