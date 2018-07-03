@@ -17,7 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.util.cache;
+package org.sonar.ce.task.projectanalysis.util.cache;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.base.Throwables;
+import org.apache.commons.io.IOUtils;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import org.sonar.core.util.CloseableIterator;
+
+public class ObjectInputStreamIterator<E> extends CloseableIterator<E> {
+
+  private ObjectInputStream stream;
+
+  public ObjectInputStreamIterator(InputStream stream) throws IOException {
+    this.stream = new ObjectInputStream(stream);
+  }
+
+  @Override
+  protected E doNext() {
+    try {
+      return (E) stream.readObject();
+    } catch (EOFException e) {
+      return null;
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  @Override
+  protected void doClose() {
+    IOUtils.closeQuietly(stream);
+  }
+}

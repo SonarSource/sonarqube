@@ -23,7 +23,6 @@ import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.core.platform.Module;
-import org.sonar.server.ce.queue.ReportSubmitter;
 
 public class ProjectAnalysisTaskModule extends Module {
   @Override
@@ -32,7 +31,6 @@ public class ProjectAnalysisTaskModule extends Module {
       // task
       ContainerFactoryImpl.class,
       ComputationStepExecutor.class,
-      ReportTaskProcessor.class,
-      ReportSubmitter.class);
+      ReportTaskProcessor.class);
   }
 }

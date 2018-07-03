@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.util.cache;
+package org.sonar.ce.task.projectanalysis.util.cache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.server.exceptions.NotFoundException;
 
 /**
- * This in-memory cache relies on {@link org.sonar.server.util.cache.CacheLoader} to
+ * This in-memory cache relies on {@link CacheLoader} to
  * load missing elements.
  * Warning - all searches are kept in memory, even when elements are not found.
  */
@@ -53,7 +52,7 @@ public class MemoryCache<K, V> {
   public V get(K key) {
     V value = getNullable(key);
     if (value == null) {
-      throw new NotFoundException("Not found: " + key);
+      throw new IllegalStateException("No cache entry found for key: " + key);
     }
     return value;
   }

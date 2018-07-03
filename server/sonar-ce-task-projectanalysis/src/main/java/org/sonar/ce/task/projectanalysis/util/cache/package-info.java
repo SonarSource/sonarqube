@@ -17,24 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.util.cache;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.task.projectanalysis.util.cache;
 
-import javax.annotation.CheckForNull;
-
-import java.util.Collection;
-import java.util.Map;
-
-public interface CacheLoader<K, V> {
-
-  /**
-   * Value associated with the requested key. Null if key is not found.
-   */
-  @CheckForNull
-  V load(K key);
-
-  /**
-   * All the requested keys must be included in the map result. Value in map is null when
-   * the key is not found.
-   */
-  Map<K, V> loadAll(Collection<? extends K> keys);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

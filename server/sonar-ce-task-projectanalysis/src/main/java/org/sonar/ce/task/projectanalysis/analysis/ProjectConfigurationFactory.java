@@ -25,7 +25,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.db.DbClient;
 import org.sonar.db.component.BranchType;
-import org.sonar.server.settings.ChildSettings;
+import org.sonar.server.setting.ChildSettings;
 
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
 import static org.sonar.db.component.ComponentDto.generatePullRequestKey;

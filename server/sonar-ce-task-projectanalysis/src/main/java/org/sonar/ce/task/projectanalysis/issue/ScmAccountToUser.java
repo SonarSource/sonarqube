@@ -19,13 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import org.sonar.server.util.cache.MemoryCache;
+import org.sonar.ce.task.projectanalysis.util.cache.MemoryCache;
 
 /**
  * Cache of dictionary {SCM account -> SQ user uuid}. Kept in memory
  * during the execution of Compute Engine.
  */
-public class ScmAccountToUser extends MemoryCache<String,String> {
+public class ScmAccountToUser extends MemoryCache<String, String> {
   public ScmAccountToUser(ScmAccountToUserLoader loader) {
     super(loader);
   }

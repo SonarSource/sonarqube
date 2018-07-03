@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.util.cache;
+package org.sonar.ce.task.projectanalysis.util.cache;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +29,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.server.util.ObjectInputStreamIterator;
 
 /**
  * Serialize and deserialize objects on disk. No search capabilities, only traversal (full scan).

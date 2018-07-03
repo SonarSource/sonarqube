@@ -119,6 +119,7 @@ import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.step.ReportComputationSteps;
 import org.sonar.ce.task.projectanalysis.step.SmallChangesetQualityGateSpecialCase;
 import org.sonar.ce.task.projectanalysis.webhook.WebhookPostTask;
+import org.sonar.ce.task.setting.SettingsLoader;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.step.ComputationSteps;
 import org.sonar.ce.taskprocessor.MutableTaskResultHolderImpl;
@@ -126,7 +127,6 @@ import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 import org.sonar.server.computation.organization.DefaultOrganizationLoader;
-import org.sonar.server.computation.settings.SettingsLoader;
 import org.sonar.server.view.index.ViewIndex;
 
 public final class ProjectAnalysisTaskContainerPopulator implements ContainerPopulator<TaskContainer> {

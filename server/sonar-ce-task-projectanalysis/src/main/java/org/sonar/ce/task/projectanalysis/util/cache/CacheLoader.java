@@ -17,38 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.util;
+package org.sonar.ce.task.projectanalysis.util.cache;
 
-import com.google.common.base.Throwables;
-import org.apache.commons.io.IOUtils;
+import javax.annotation.CheckForNull;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import org.sonar.core.util.CloseableIterator;
+import java.util.Collection;
+import java.util.Map;
 
-public class ObjectInputStreamIterator<E> extends CloseableIterator<E> {
+public interface CacheLoader<K, V> {
 
-  private ObjectInputStream stream;
+  /**
+   * Value associated with the requested key. Null if key is not found.
+   */
+  @CheckForNull
+  V load(K key);
 
-  public ObjectInputStreamIterator(InputStream stream) throws IOException {
-    this.stream = new ObjectInputStream(stream);
-  }
-
-  @Override
-  protected E doNext() {
-    try {
-      return (E) stream.readObject();
-    } catch (EOFException e) {
-      return null;
-    } catch (Exception e) {
-      throw Throwables.propagate(e);
-    }
-  }
-
-  @Override
-  protected void doClose() {
-    IOUtils.closeQuietly(stream);
-  }
+  /**
+   * All the requested keys must be included in the map result. Value in map is null when
+   * the key is not found.
+   */
+  Map<K, V> loadAll(Collection<? extends K> keys);
 }

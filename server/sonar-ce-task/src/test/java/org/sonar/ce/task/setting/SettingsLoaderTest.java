@@ -17,34 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.settings;
+package org.sonar.ce.task.setting;
 
-import org.picocontainer.Startable;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.ce.task.container.EagerStart;
-import org.sonar.ce.task.container.TaskContainerImpl;
+import org.junit.Test;
 import org.sonar.server.setting.ThreadLocalSettings;
 
-/**
- * Add this class as the first components in the {@link TaskContainerImpl}
- * to trigger loading of Thread local specific {@link org.sonar.api.config.Settings} in {@link ThreadLocalSettings}.
- */
-@EagerStart
-@ComputeEngineSide
-public class SettingsLoader implements Startable {
-  private final ThreadLocalSettings threadLocalSettings;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-  public SettingsLoader(ThreadLocalSettings threadLocalSettings) {
-    this.threadLocalSettings = threadLocalSettings;
+public class SettingsLoaderTest {
+  private ThreadLocalSettings threadLocalSettings = mock(ThreadLocalSettings.class);
+  private SettingsLoader underTest = new SettingsLoader(threadLocalSettings);
+
+  @Test
+  public void start_calls_ThreadLocalSettings_load() {
+    underTest.start();
+
+    verify(threadLocalSettings).load();
+    verifyNoMoreInteractions(threadLocalSettings);
   }
 
-  @Override
-  public void start() {
-    threadLocalSettings.load();
-  }
+  @Test
+  public void stop_calls_ThreadLocalSettings_remove() {
+    underTest.stop();
 
-  @Override
-  public void stop() {
-    threadLocalSettings.unload();
+    verify(threadLocalSettings).unload();
+    verifyNoMoreInteractions(threadLocalSettings);
   }
 }

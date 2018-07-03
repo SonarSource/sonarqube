@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
+import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
@@ -52,7 +53,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.rule.ExternalRuleCreator;
-import org.sonar.server.util.cache.DiskCache;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;

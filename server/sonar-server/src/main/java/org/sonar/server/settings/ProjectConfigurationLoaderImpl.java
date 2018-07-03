@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.server.setting.ChildSettings;
 
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 

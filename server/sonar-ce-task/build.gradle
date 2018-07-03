@@ -32,6 +32,7 @@ dependencies {
   compile 'org.slf4j:slf4j-api'
 
   compile project(':server:sonar-process')
+  compile project(':server:sonar-server-common')
   compile project(':sonar-core')
   compileOnly project(path: ':sonar-plugin-api')
 

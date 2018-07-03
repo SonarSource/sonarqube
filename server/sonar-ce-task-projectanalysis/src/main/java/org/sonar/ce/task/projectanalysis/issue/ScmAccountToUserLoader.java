@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.util.cache.CacheLoader;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.util.cache.CacheLoader;
 
 /**
  * Loads the association between a SCM account and a SQ user

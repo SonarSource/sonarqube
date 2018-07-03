@@ -44,6 +44,7 @@ import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryRule;
+import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbTester;
@@ -57,7 +58,6 @@ import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
-import org.sonar.server.util.cache.DiskCache;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
