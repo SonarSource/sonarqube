@@ -114,6 +114,7 @@ public class CreateActionTest {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(Param::key)
       .containsExactlyInAnyOrder("language", "organization", "name", "backup_with_messages", "backup_with_errors", "backup_xoo_lint");
     Param name = definition.param("name");

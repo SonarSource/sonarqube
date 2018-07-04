@@ -28,7 +28,8 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -39,7 +40,10 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class BackupActionTest {
@@ -58,27 +62,6 @@ public class BackupActionTest {
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
   private WsActionTester tester = new WsActionTester(new BackupAction(db.getDbClient(), backuper, wsSupport, languages));
-
-  @Test
-  public void test_definition() {
-    WebService.Action definition = tester.getDef();
-
-    assertThat(definition.key()).isEqualTo("backup");
-    assertThat(definition.responseExampleAsString()).isNotEmpty();
-    assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.isPost()).isFalse();
-
-    // parameters
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "organization", "qualityProfile", "language");
-    Param key = definition.param("key");
-    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
-    assertThat(key.deprecatedSince()).isEqualTo("6.6");
-    Param language = definition.param("language");
-    assertThat(language.deprecatedSince()).isNullOrEmpty();
-    Param profileName = definition.param("qualityProfile");
-    Param orgParam = definition.param("organization");
-    assertThat(orgParam.since()).isEqualTo("6.4");
-  }
 
   @Test
   public void returns_backup_of_profile_with_specified_key() {
@@ -111,6 +94,37 @@ public class BackupActionTest {
       .setParam("language", profile.getLanguage())
       .setParam("qualityProfile", profile.getName())
       .execute();
+    assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
+  }
+
+  @Test
+  public void returns_backup_of_profile_on_free_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(FREE));
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+
+    TestResponse response = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .setParam("language", profile.getLanguage())
+      .setParam("qualityProfile", profile.getName())
+      .execute();
+
+    assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
+  }
+
+  @Test
+  public void returns_backup_of_profile_on_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    userSession.logIn(user);
+
+    TestResponse response = tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .setParam("language", profile.getLanguage())
+      .setParam("qualityProfile", profile.getName())
+      .execute();
+
     assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
   }
 
@@ -158,6 +172,57 @@ public class BackupActionTest {
     tester.newRequest().execute();
   }
 
+  @Test
+  public void fail_on_paid_organization_when_not_member() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
+
+    tester.newRequest()
+      .setParam("organization", organization.getKey())
+      .setParam("language", profile.getLanguage())
+      .setParam("qualityProfile", profile.getName())
+      .execute();
+  }
+
+  @Test
+  public void fail_on_paid_organization_when_not_member_using_deprecated_profile_key() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
+
+    tester.newRequest()
+      .setParam("key", profile.getKee())
+      .execute();
+  }
+
+  @Test
+  public void test_definition() {
+    WebService.Action definition = tester.getDef();
+
+    assertThat(definition.key()).isEqualTo("backup");
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.isInternal()).isFalse();
+    assertThat(definition.isPost()).isFalse();
+
+    // parameters
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("key", "organization", "qualityProfile", "language");
+    Param key = definition.param("key");
+    assertThat(key.deprecatedKey()).isEqualTo("profileKey");
+    assertThat(key.deprecatedSince()).isEqualTo("6.6");
+    Param language = definition.param("language");
+    assertThat(language.deprecatedSince()).isNullOrEmpty();
+    Param profileName = definition.param("qualityProfile");
+    Param orgParam = definition.param("organization");
+    assertThat(orgParam.since()).isEqualTo("6.4");
+  }
+
   private static String xmlForProfileWithoutRules(QProfileDto profile) {
     return "<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
@@ -167,9 +232,4 @@ public class BackupActionTest {
       "</profile>";
   }
 
-  private static QProfileDto newProfile(OrganizationDto org) {
-    return QualityProfileTesting.newQualityProfileDto()
-      .setLanguage(A_LANGUAGE)
-      .setOrganizationUuid(org.getUuid());
-  }
 }

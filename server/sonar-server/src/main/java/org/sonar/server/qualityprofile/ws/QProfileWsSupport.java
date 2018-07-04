@@ -33,13 +33,14 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -71,16 +72,20 @@ public class QProfileWsSupport {
   public OrganizationDto getOrganization(DbSession dbSession, QProfileDto profile) {
     requireNonNull(profile);
     String organizationUuid = profile.getOrganizationUuid();
-    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+    OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
       .orElseThrow(() -> new IllegalStateException("Cannot load organization with uuid=" + organizationUuid));
+    checkMembershipOnPaidOrganization(dbSession, organization);
+    return organization;
   }
 
   public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
     String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
       .orElseGet(defaultOrganizationProvider.get()::getKey);
-    return WsUtils.checkFoundWithOptional(
+    OrganizationDto organization = checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organization with key '%s'", organizationOrDefaultKey);
+    checkMembershipOnPaidOrganization(dbSession, organization);
+    return organization;
   }
 
   public RuleDefinitionDto getRule(DbSession dbSession, RuleKey ruleKey) {
@@ -100,6 +105,8 @@ public class QProfileWsSupport {
     if (ref.hasKey()) {
       profile = dbClient.qualityProfileDao().selectByUuid(dbSession, ref.getKey());
       checkFound(profile, "Quality Profile with key '%s' does not exist", ref.getKey());
+      // Load organization to execute various checks (existence, membership if paid organization, etc.)
+      getOrganization(dbSession, profile);
     } else {
       OrganizationDto org = getOrganizationByKey(dbSession, ref.getOrganizationKey().orElse(null));
       profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, org, ref.getName(), ref.getLanguage());
@@ -122,7 +129,7 @@ public class QProfileWsSupport {
     return user;
   }
 
-  public GroupDto getGroup(DbSession dbSession, OrganizationDto organization, String groupName) {
+  GroupDto getGroup(DbSession dbSession, OrganizationDto organization, String groupName) {
     Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), groupName);
     checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", groupName, organization.getKey());
     return group.get();
@@ -148,18 +155,34 @@ public class QProfileWsSupport {
   }
 
   public void checkCanEdit(DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
-    checkNotBuiltInt(profile);
+    checkNotBuiltIn(profile);
     if (!canEdit(dbSession, organization, profile)) {
       throw insufficientPrivilegesException();
     }
   }
 
-  public void checkNotBuiltInt(QProfileDto profile) {
+  void checkNotBuiltIn(QProfileDto profile) {
     checkRequest(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
   }
 
-  public void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId()).isPresent(),
+  private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
+    checkArgument(isMember(dbSession, organization, user.getId()),
       "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
   }
+
+  private boolean isMember(DbSession dbSession, OrganizationDto organization, int userId) {
+    return dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), userId).isPresent();
+  }
+
+  private void checkMembershipOnPaidOrganization(DbSession dbSession, OrganizationDto organization) {
+    if (!organization.getSubscription().equals(PAID)) {
+      return;
+    }
+    Integer userId = userSession.getUserId();
+    if (userId != null && isMember(dbSession, organization, userId)) {
+      return;
+    }
+    throw new ForbiddenException(String.format("You're not member of organization '%s'", organization.getKey()));
+  }
+
 }

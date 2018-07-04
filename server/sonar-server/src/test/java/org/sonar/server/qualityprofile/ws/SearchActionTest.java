@@ -41,6 +41,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -58,6 +59,8 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -86,46 +89,6 @@ public class SearchActionTest {
 
   private SearchAction underTest = new SearchAction(userSession, LANGUAGES, dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null));
   private WsActionTester ws = new WsActionTester(underTest);
-
-  @Test
-  public void definition() {
-    WebService.Action definition = ws.getDef();
-
-    assertThat(definition.key()).isEqualTo("search");
-    assertThat(definition.responseExampleAsString()).isNotEmpty();
-    assertThat(definition.isPost()).isFalse();
-
-    assertThat(definition.changelog())
-      .extracting(Change::getVersion, Change::getDescription)
-      .containsExactlyInAnyOrder(
-        tuple("6.5", "The parameters 'defaults', 'project' and 'language' can be combined without any constraint"),
-        tuple("6.6", "Add available actions 'edit', 'copy' and 'setAsDefault' and global action 'create'"),
-        tuple("7.0", "Add available actions 'delete' and 'associateProjects'"));
-
-    WebService.Param organization = definition.param("organization");
-    assertThat(organization).isNotNull();
-    assertThat(organization.isRequired()).isFalse();
-    assertThat(organization.isInternal()).isTrue();
-    assertThat(organization.description()).isNotEmpty();
-    assertThat(organization.since()).isEqualTo("6.4");
-
-    WebService.Param defaults = definition.param("defaults");
-    assertThat(defaults.defaultValue()).isEqualTo("false");
-    assertThat(defaults.description()).isEqualTo("If set to true, return only the quality profiles marked as default for each language");
-
-    WebService.Param projectKey = definition.param("project");
-    assertThat(projectKey.description()).isEqualTo("Project key");
-    assertThat(projectKey.deprecatedKey()).isEqualTo("projectKey");
-
-    WebService.Param language = definition.param("language");
-    assertThat(language.possibleValues()).containsExactly("xoo1", "xoo2");
-    assertThat(language.deprecatedSince()).isNull();
-    assertThat(language.description()).isEqualTo("Language key. If provided, only profiles for the given language are returned.");
-
-    WebService.Param profileName = definition.param("qualityProfile");
-    assertThat(profileName.deprecatedSince()).isNull();
-    assertThat(profileName.description()).isEqualTo("Quality profile name");
-  }
 
   @Test
   public void no_profile() {
@@ -393,39 +356,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_if_project_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown-project' not found");
-
-    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, "unknown-project"));
-  }
-
-  @Test
-  public void fail_if_project_of_module_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project).setProjectUuid("unknown"));
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Project uuid of component uuid '%s' does not exist", module.uuid()));
-
-    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.getDbKey()));
-  }
-
-  @Test
-  public void fail_if_project_is_on_another_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(anotherOrganization);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", project.getDbKey()));
-
-    call(ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey()));
-  }
-
-  @Test
   public void statistics_on_active_rules() {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
     RuleDefinitionDto rule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
@@ -479,6 +409,83 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_qprofile_on_free_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(FREE));
+    QProfileDto qProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_ORGANIZATION, organization.getKey()));
+
+    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey)
+      .containsExactlyInAnyOrder(qProfile.getKee());
+  }
+
+  @Test
+  public void return_qprofile_on_paid_organization_when_user_is_member() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QProfileDto qProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    userSession.logIn(user);
+
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_ORGANIZATION, organization.getKey()));
+
+    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey)
+      .containsExactlyInAnyOrder(qProfile.getKee());
+  }
+
+  @Test
+  public void fail_if_project_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'unknown-project' not found");
+
+    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, "unknown-project"));
+  }
+
+  @Test
+  public void fail_if_project_of_module_does_not_exist() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project).setProjectUuid("unknown"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(format("Project uuid of component uuid '%s' does not exist", module.uuid()));
+
+    call(ws.newRequest().setParam(PARAM_PROJECT_KEY, module.getDbKey()));
+  }
+
+  @Test
+  public void fail_if_project_is_on_another_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(anotherOrganization);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("Component key '%s' not found", project.getDbKey()));
+
+    call(ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey()));
+  }
+
+  @Test
+  public void fail_if_organization_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization with key 'unknown-organization'");
+
+    call(ws.newRequest().setParam(PARAM_ORGANIZATION, "unknown-organization"));
+  }
+
+  @Test
+  public void fail_on_paid_organization_when_not_member() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
+
+    call(ws.newRequest().setParam(PARAM_ORGANIZATION, organization.getKey()));
+  }
+
+  @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insertForKey("My Organization");
     // languages
@@ -526,6 +533,46 @@ public class SearchActionTest {
     String result = ws.newRequest().setParam(PARAM_ORGANIZATION, organization.getKey()).execute().getInput();
     assertJson(result).ignoreFields("ruleUpdatedAt", "lastUsed", "userUpdatedAt")
       .isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("search");
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.isPost()).isFalse();
+
+    assertThat(definition.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(
+        tuple("6.5", "The parameters 'defaults', 'project' and 'language' can be combined without any constraint"),
+        tuple("6.6", "Add available actions 'edit', 'copy' and 'setAsDefault' and global action 'create'"),
+        tuple("7.0", "Add available actions 'delete' and 'associateProjects'"));
+
+    WebService.Param organization = definition.param("organization");
+    assertThat(organization).isNotNull();
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.isInternal()).isTrue();
+    assertThat(organization.description()).isNotEmpty();
+    assertThat(organization.since()).isEqualTo("6.4");
+
+    WebService.Param defaults = definition.param("defaults");
+    assertThat(defaults.defaultValue()).isEqualTo("false");
+    assertThat(defaults.description()).isEqualTo("If set to true, return only the quality profiles marked as default for each language");
+
+    WebService.Param projectKey = definition.param("project");
+    assertThat(projectKey.description()).isEqualTo("Project key");
+    assertThat(projectKey.deprecatedKey()).isEqualTo("projectKey");
+
+    WebService.Param language = definition.param("language");
+    assertThat(language.possibleValues()).containsExactly("xoo1", "xoo2");
+    assertThat(language.deprecatedSince()).isNull();
+    assertThat(language.description()).isEqualTo("Language key. If provided, only profiles for the given language are returned.");
+
+    WebService.Param profileName = definition.param("qualityProfile");
+    assertThat(profileName.deprecatedSince()).isNull();
+    assertThat(profileName.description()).isEqualTo("Quality profile name");
   }
 
   private SearchWsResponse call(TestRequest request) {

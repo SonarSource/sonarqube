@@ -28,9 +28,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -40,15 +43,16 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.CompareToSonarWay;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
 
+import static java.lang.String.format;
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
@@ -77,31 +81,10 @@ public class ShowActionTest {
     new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), LANGUAGES, ruleIndex));
 
   @Test
-  public void test_definition() {
-    WebService.Action action = ws.getDef();
-    assertThat(action.key()).isEqualTo("show");
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.since()).isEqualTo("6.5");
-
-    WebService.Param profile = action.param("key");
-    assertThat(profile.isRequired()).isTrue();
-    assertThat(profile.isInternal()).isFalse();
-    assertThat(profile.description()).isNotEmpty();
-
-    WebService.Param compareToSonarWay = action.param("compareToSonarWay");
-    assertThat(compareToSonarWay.isRequired()).isFalse();
-    assertThat(compareToSonarWay.isInternal()).isTrue();
-    assertThat(compareToSonarWay.description()).isNotEmpty();
-    assertThat(compareToSonarWay.defaultValue()).isEqualTo("false");
-    assertThat(compareToSonarWay.possibleValues()).contains("true", "false");
-  }
-
-  @Test
   public void profile_info() {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
-    Qualityprofiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
+    ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
 
     assertThat(result.getProfile())
       .extracting(QualityProfile::getKey, QualityProfile::getName, QualityProfile::getIsBuiltIn, QualityProfile::getLanguage, QualityProfile::getLanguageName,
@@ -114,7 +97,7 @@ public class ShowActionTest {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
     db.qualityProfiles().setAsDefault(profile);
 
-    Qualityprofiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
+    ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
 
     assertThat(result.getProfile().getIsDefault()).isTrue();
   }
@@ -139,7 +122,7 @@ public class ShowActionTest {
       .setLastUsed(time)
       .setUserUpdatedAt(time));
 
-    Qualityprofiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
+    ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
 
     assertThat(result.getProfile().getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+0100");
     assertThat(parseDateTime(result.getProfile().getLastUsed()).getTime()).isEqualTo(time);
@@ -162,7 +145,7 @@ public class ShowActionTest {
       .mapToObj(i -> db.components().insertPrivateProject())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
-    Qualityprofiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
+    ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
 
     assertThat(result.getProfile())
       .extracting(QualityProfile::getActiveRuleCount, QualityProfile::getActiveDeprecatedRuleCount, QualityProfile::getProjectCount)
@@ -192,7 +175,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -212,7 +195,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -237,7 +220,7 @@ public class ShowActionTest {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto anotherBuiltInProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setLanguage(XOO1.getKey()));
 
-    Qualityprofiles.ShowResponse result = call(ws.newRequest()
+    ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, anotherBuiltInProfile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
 
@@ -249,7 +232,7 @@ public class ShowActionTest {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(false).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
-    Qualityprofiles.ShowResponse result = call(ws.newRequest()
+    ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
 
@@ -261,7 +244,7 @@ public class ShowActionTest {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
-    Qualityprofiles.ShowResponse result = call(ws.newRequest()
+    ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "false"));
 
@@ -276,7 +259,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -292,11 +275,26 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
       .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName());
+  }
+
+  @Test
+  public void show_on_paid_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+    userSession.logIn(user);
+
+    ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, qualityProfile.getKee()));
+
+    assertThat(result.getProfile())
+      .extracting(QualityProfile::getKey)
+      .containsExactly(qualityProfile.getKee());
   }
 
   @Test
@@ -315,6 +313,17 @@ public class ShowActionTest {
     expectedException.expectMessage("Quality Profile with key 'unknown-profile' does not exist");
 
     call(ws.newRequest().setParam(PARAM_KEY, "unknown-profile"));
+  }
+
+  @Test
+  public void fail_on_paid_organization_when_not_member() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
+
+    call(ws.newRequest().setParam(PARAM_KEY, qualityProfile.getKee()));
   }
 
   @Test
@@ -347,8 +356,29 @@ public class ShowActionTest {
     assertJson(result).ignoreFields("rulesUpdatedAt", "lastUsed", "userUpdatedAt").isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
+  @Test
+  public void test_definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action.key()).isEqualTo("show");
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.since()).isEqualTo("6.5");
+
+    WebService.Param profile = action.param("key");
+    assertThat(profile.isRequired()).isTrue();
+    assertThat(profile.isInternal()).isFalse();
+    assertThat(profile.description()).isNotEmpty();
+
+    WebService.Param compareToSonarWay = action.param("compareToSonarWay");
+    assertThat(compareToSonarWay.isRequired()).isFalse();
+    assertThat(compareToSonarWay.isInternal()).isTrue();
+    assertThat(compareToSonarWay.description()).isNotEmpty();
+    assertThat(compareToSonarWay.defaultValue()).isEqualTo("false");
+    assertThat(compareToSonarWay.possibleValues()).contains("true", "false");
+  }
+
   private ShowResponse call(TestRequest request) {
     TestRequest wsRequest = request.setMediaType(MediaTypes.PROTOBUF);
-    return wsRequest.executeProtobuf(Qualityprofiles.ShowResponse.class);
+    return wsRequest.executeProtobuf(ShowResponse.class);
   }
 }

@@ -23,14 +23,25 @@ import java.io.Reader;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ImportersActionTest {
 
   private WsActionTester ws = new WsActionTester(new ImportersAction(createImporters()));
+
+  @Test
+  public void empty_importers() {
+    ws = new WsActionTester(new ImportersAction());
+
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo("{ \"importers\": [] }");
+  }
 
   @Test
   public void json_example() {
@@ -40,12 +51,12 @@ public class ImportersActionTest {
   }
 
   @Test
-  public void empty_importers() {
-    ws = new WsActionTester(new ImportersAction());
-
-    String result = ws.newRequest().execute().getInput();
-
-    assertJson(result).isSimilarTo("{ \"importers\": [] }");
+  public void define_importers_action() {
+    WebService.Action importers = ws.getDef();
+    assertThat(importers).isNotNull();
+    assertThat(importers.isPost()).isFalse();
+    assertThat(importers.params()).isEmpty();
+    assertThat(importers.responseExampleAsString()).isNotEmpty();
   }
 
   private ProfileImporter[] createImporters() {

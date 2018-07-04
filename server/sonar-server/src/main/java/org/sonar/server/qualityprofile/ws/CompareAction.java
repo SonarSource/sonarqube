@@ -72,11 +72,13 @@ public class CompareAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileComparison comparator;
   private final Languages languages;
+  private final QProfileWsSupport wsSupport;
 
-  public CompareAction(DbClient dbClient, QProfileComparison comparator, Languages languages) {
+  public CompareAction(DbClient dbClient, QProfileComparison comparator, Languages languages, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.comparator = comparator;
     this.languages = languages;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -112,7 +114,9 @@ public class CompareAction implements QProfileWsAction {
 
       checkArgument(Objects.equals(left.getOrganizationUuid(), right.getOrganizationUuid()),
         "Cannot compare quality profiles of different organizations. Quality profile left with key '%s' belongs to organization '%s', " +
-          "quality profile right with key '%s' belongs to organization '%s'.", leftKey, left.getOrganizationUuid(), rightKey, right.getOrganizationUuid());
+          "quality profile right with key '%s' belongs to organization '%s'.",
+        leftKey, left.getOrganizationUuid(), rightKey, right.getOrganizationUuid());
+      wsSupport.getOrganization(dbSession, left);
 
       QProfileComparisonResult result = comparator.compare(dbSession, left, right);
 

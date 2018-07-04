@@ -312,6 +312,7 @@ public class DeleteActionTest {
   public void definition() {
     WebService.Action definition = ws.getDef();
 
+    assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "organization", "key", "qualityProfile");
     Param key = definition.param("key");
     assertThat(key.deprecatedKey()).isEqualTo("profileKey");

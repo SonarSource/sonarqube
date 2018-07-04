@@ -331,7 +331,7 @@ public class SearchAction implements QProfileWsAction {
       return organizationKey;
     }
 
-    public SearchRequest setOrganizationKey(String organizationKey) {
+    public SearchRequest setOrganizationKey(@Nullable String organizationKey) {
       this.organizationKey = organizationKey;
       return this;
     }
