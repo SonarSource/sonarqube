@@ -29,6 +29,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -36,8 +38,10 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -58,40 +62,6 @@ public class ListActionTest {
 
   private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(),
     new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider), qualityGateFinder));
-
-  @Test
-  public void verify_definition() {
-    WebService.Action action = ws.getDef();
-    assertThat(action.since()).isEqualTo("4.3");
-    assertThat(action.key()).isEqualTo("list");
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.isInternal()).isFalse();
-    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
-      .containsExactlyInAnyOrder(
-        tuple("7.0", "'isDefault' field is added on quality gate"),
-        tuple("7.0", "'default' field on root level is deprecated"),
-        tuple("7.0", "'isBuiltIn' field is added in the response"),
-        tuple("7.0", "'actions' fields are added in the response"));
-    assertThat(action.params()).extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("organization", false));
-  }
-
-  @Test
-  public void json_example() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way").setBuiltIn(true));
-    db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
-    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
-
-    String response = ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute()
-      .getInput();
-
-    assertJson(response).ignoreFields("id", "default")
-      .isSimilarTo(getClass().getResource("list-example.json"));
-  }
 
   @Test
   public void list_quality_gates() {
@@ -220,4 +190,69 @@ public class ListActionTest {
         tuple(defaultQualityGate.getName(), false, false, false, false, false, false),
         tuple(otherQualityGate.getName(), false, false, false, false, false, false));
   }
+
+  @Test
+  public void list_quality_gates_on_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addMembership(organization);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getName)
+      .containsExactlyInAnyOrder(qualityGate.getName());
+  }
+
+  @Test
+  public void fail_on_paid_organization_when_not_member() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
+
+    ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
+
+  @Test
+  public void json_example() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way").setBuiltIn(true));
+    db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
+    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
+
+    String response = ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(response).ignoreFields("id", "default")
+      .isSimilarTo(getClass().getResource("list-example.json"));
+  }
+
+  @Test
+  public void verify_definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action.since()).isEqualTo("4.3");
+    assertThat(action.key()).isEqualTo("list");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(
+        tuple("7.0", "'isDefault' field is added on quality gate"),
+        tuple("7.0", "'default' field on root level is deprecated"),
+        tuple("7.0", "'isBuiltIn' field is added in the response"),
+        tuple("7.0", "'actions' fields are added in the response"));
+    assertThat(action.params()).extracting(WebService.Param::key, WebService.Param::isRequired)
+      .containsExactlyInAnyOrder(tuple("organization", false));
+  }
+
 }

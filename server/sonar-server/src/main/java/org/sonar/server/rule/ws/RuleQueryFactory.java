@@ -34,16 +34,13 @@ import org.sonar.server.rule.index.RuleQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.util.EnumUtils.toEnums;
-import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
@@ -54,6 +51,9 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
+import static org.sonar.server.util.EnumUtils.toEnums;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 @ServerSide
 public class RuleQueryFactory {
@@ -139,6 +139,7 @@ public class RuleQueryFactory {
       checkArgument(organization.getUuid().equals(inputOrganization.getUuid()),
         format("The specified quality profile '%s' is not part of the specified organization '%s'", profile.getKee(), organizationKey));
     }
+    wsSupport.checkMembershipOnPaidOrganization(organization);
     query.setOrganization(organization);
   }
 

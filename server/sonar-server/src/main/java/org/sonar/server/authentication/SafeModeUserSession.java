@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.AbstractUserSession;
@@ -87,6 +88,11 @@ public class SafeModeUserSession extends AbstractUserSession {
 
   @Override
   public boolean isSystemAdministrator() {
+    return false;
+  }
+
+  @Override
+  public boolean hasMembershipImpl(OrganizationDto organization) {
     return false;
   }
 }

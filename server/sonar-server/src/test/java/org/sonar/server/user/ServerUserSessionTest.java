@@ -639,6 +639,62 @@ public class ServerUserSessionTest {
     assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", fileInBranch)).isTrue();
   }
 
+  @Test
+  public void hasMembership() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto notMember = db.users().insertUser();
+    UserDto member = db.users().insertUser();
+    db.organizations().addMember(organization, member);
+    UserDto root = db.users().makeRoot(db.users().insertUser());
+
+    assertThat(newUserSession(member).hasMembership(organization)).isTrue();
+    assertThat(newUserSession(notMember).hasMembership(organization)).isFalse();
+    assertThat(newUserSession(root).hasMembership(organization)).isTrue();
+  }
+
+  @Test
+  public void hasMembership_keeps_membership_in_cache() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization, user);
+
+    ServerUserSession session = newUserSession(user);
+    assertThat(session.hasMembership(organization)).isTrue();
+
+    // membership updated but not cache
+    db.getDbClient().organizationMemberDao().delete(db.getSession(), organization.getUuid(), user.getId());
+    db.commit();
+    assertThat(session.hasMembership(organization)).isTrue();
+  }
+
+  @Test
+  public void checkMembership_throws_ForbiddenException_when_user_is_not_member_of_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto notMember = db.users().insertUser();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(String.format("You're not member of organization '%s'", organization.getKey()));
+
+    newUserSession(notMember).checkMembership(organization);
+  }
+
+  @Test
+  public void checkMembership_succeeds_when_user_is_member_of_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto member = db.users().insertUser();
+    db.organizations().addMember(organization, member);
+
+    newUserSession(member).checkMembership(organization);
+  }
+
+  @Test
+  public void checkMembership_succeeds_when_user_is_not_member_of_organization_but_root() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto root = db.users().makeRoot(db.users().insertUser());
+
+    newUserSession(root).checkMembership(organization);
+  }
+
   private ServerUserSession newUserSession(@Nullable UserDto userDto) {
     return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, userDto);
   }

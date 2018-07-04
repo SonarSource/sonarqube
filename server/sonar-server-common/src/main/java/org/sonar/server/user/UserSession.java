@@ -173,4 +173,20 @@ public interface UserSession {
    */
   UserSession checkIsSystemAdministrator();
 
+  /**
+   * Returns {@code true} if the user is member of the organization, otherwise {@code false}.
+   *
+   * If the organization does not exist, then returns {@code false}.
+   *
+   * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
+   * organization does not exist.
+   */
+  boolean hasMembership(OrganizationDto organization);
+
+  /**
+   * Ensures that {@link #hasMembership(OrganizationDto)} is {@code true},
+   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkMembership(OrganizationDto organization);
+
 }

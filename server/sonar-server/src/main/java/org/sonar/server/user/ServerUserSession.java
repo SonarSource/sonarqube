@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,13 +37,15 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 /**
@@ -56,9 +59,10 @@ public class ServerUserSession extends AbstractUserSession {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final Supplier<Collection<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
   private final Supplier<Boolean> isSystemAdministratorSupplier = Suppliers.memoize(this::loadIsSystemAdministrator);
-  private final Map<String, String> projectUuidByComponentUuid = newHashMap();
+  private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private Map<String, Set<OrganizationPermission>> permissionsByOrganizationUuid;
   private Map<String, Set<String>> permissionsByProjectUuid;
+  private Set<String> organizationMembership = new HashSet<>();
 
   ServerUserSession(DbClient dbClient, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, @Nullable UserDto userDto) {
@@ -220,6 +224,31 @@ public class ServerUserSession extends AbstractUserSession {
       }
       // organization feature is enabled -> requires to be root
       return false;
+    }
+  }
+
+  @Override
+  public boolean hasMembershipImpl(OrganizationDto organization) {
+    return isMember(organization);
+  }
+
+  private boolean isMember(OrganizationDto organization) {
+    if (!isLoggedIn()) {
+      return false;
+    }
+    if (isRoot()) {
+      return true;
+    }
+    String organizationUuid = organization.getUuid();
+    if (organizationMembership.contains(organizationUuid)) {
+      return true;
+    }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<OrganizationMemberDto> organizationMemberDto = dbClient.organizationMemberDao().select(dbSession, organizationUuid, requireNonNull(getUserId()));
+      if (organizationMemberDto.isPresent()) {
+        organizationMembership.add(organizationUuid);
+      }
+      return organizationMembership.contains(organizationUuid);
     }
   }
 }

@@ -424,8 +424,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
     QProfileDto qProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    userSession.logIn(user);
+    userSession.logIn(user).addMembership(organization);
 
     SearchWsResponse result = call(ws.newRequest().setParam(PARAM_ORGANIZATION, organization.getKey()));
 

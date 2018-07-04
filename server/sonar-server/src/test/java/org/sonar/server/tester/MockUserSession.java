@@ -113,4 +113,5 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     this.groups = asList(groups);
     return this;
   }
+
 }

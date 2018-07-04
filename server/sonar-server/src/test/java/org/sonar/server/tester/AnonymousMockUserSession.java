@@ -21,6 +21,7 @@ package org.sonar.server.tester;
 
 import java.util.Collection;
 import java.util.Collections;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
 public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousMockUserSession> {
@@ -61,5 +62,10 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   @Override
   public Collection<GroupDto> getGroups() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public boolean hasMembershipImpl(OrganizationDto organization) {
+    return false;
   }
 }

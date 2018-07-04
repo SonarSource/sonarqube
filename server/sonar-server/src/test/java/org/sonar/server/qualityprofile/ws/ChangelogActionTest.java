@@ -368,8 +368,7 @@ public class ChangelogActionTest {
   public void changelog_on_paid_organization() {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    userSession.logIn(user);
+    userSession.logIn(user).addMembership(organization);
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     RuleDefinitionDto rule = db.rules().insert();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, db.users().insertUser(),

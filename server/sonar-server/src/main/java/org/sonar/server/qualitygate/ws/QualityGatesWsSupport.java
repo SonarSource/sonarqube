@@ -39,6 +39,7 @@ import org.sonarqube.ws.Qualitygates;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -100,7 +101,9 @@ public class QualityGatesWsSupport {
     String organizationKey = Optional.ofNullable(request.param(PARAM_ORGANIZATION))
       .orElseGet(() -> defaultOrganizationProvider.get().getKey());
     Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
-    return checkFoundWithOptional(organizationDto, "No organization with key '%s'", organizationKey);
+    OrganizationDto organization = checkFoundWithOptional(organizationDto, "No organization with key '%s'", organizationKey);
+    checkMembershipOnPaidOrganization(organization);
+    return organization;
   }
 
   void checkCanEdit(QGateWithOrgDto qualityGate) {
@@ -125,6 +128,13 @@ public class QualityGatesWsSupport {
 
   private static void checkNotBuiltIn(QualityGateDto qualityGate) {
     checkArgument(!qualityGate.isBuiltIn(), "Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName());
+  }
+
+  private void checkMembershipOnPaidOrganization(OrganizationDto organization) {
+    if (!organization.getSubscription().equals(PAID)) {
+      return;
+    }
+    userSession.checkMembership(organization);
   }
 
 }

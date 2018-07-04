@@ -69,6 +69,13 @@ public abstract class BaseUserSession implements UserSession {
   protected abstract boolean hasProjectUuidPermission(String permission, String projectUuid);
 
   @Override
+  public final boolean hasMembership(OrganizationDto organization) {
+    return isRoot() || hasMembershipImpl(organization);
+  }
+
+  protected abstract boolean hasMembershipImpl(OrganizationDto organization);
+
+  @Override
   public final List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     if (isRoot()) {
       return new ArrayList<>(components);

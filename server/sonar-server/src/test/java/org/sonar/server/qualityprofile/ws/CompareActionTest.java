@@ -154,8 +154,7 @@ public class CompareActionTest {
     QProfileDto left = db.qualityProfiles().insert(organization);
     QProfileDto right = db.qualityProfiles().insert(organization);
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    userSession.logIn(user);
+    userSession.logIn(user).addMembership(organization);
 
     ws.newRequest()
       .setParam("leftKey", left.getKee())

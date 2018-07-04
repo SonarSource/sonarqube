@@ -45,6 +45,7 @@ import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -69,6 +70,7 @@ import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
@@ -81,6 +83,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
@@ -440,7 +443,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void should_return_specified_fields() throws Exception {
+  public void should_return_specified_fields() {
     RuleDefinitionDto rule = createJavaRule();
     indexRules();
 
@@ -916,6 +919,37 @@ public class SearchActionTest {
     assertThat(result.getRulesList())
       .extracting(Rule::getKey)
       .containsExactlyInAnyOrder(anotherProfileRule1.getKey().toString(), anotherProfileRule2.getKey().toString());
+  }
+
+  @Test
+  public void returns_rules_on_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    RuleDefinitionDto rule = db.rules().insert();
+    indexRules();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addMembership(organization);
+
+    SearchResponse result = ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesList())
+      .extracting(Rule::getKey)
+      .containsExactlyInAnyOrder(rule.getKey().toString());
+  }
+
+  @Test
+  public void fail_on_paid_organization_when_not_member() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    db.rules().insert();
+    indexRules();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
+
+    ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .executeProtobuf(SearchResponse.class);
   }
 
   @SafeVarargs

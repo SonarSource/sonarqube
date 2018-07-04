@@ -116,8 +116,7 @@ public class BackupActionTest {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    userSession.logIn(user);
+    userSession.logIn(user).addMembership(organization);
 
     TestResponse response = tester.newRequest()
       .setParam("organization", organization.getKey())

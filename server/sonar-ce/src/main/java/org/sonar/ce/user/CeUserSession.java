@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -42,7 +42,8 @@ public class CeUserSession implements UserSession {
     throw notImplemented();
   }
 
-  @Override public String getUuid() {
+  @Override
+  public String getUuid() {
     throw notImplemented();
   }
 
@@ -133,6 +134,16 @@ public class CeUserSession implements UserSession {
 
   @Override
   public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    throw notImplemented();
+  }
+
+  @Override
+  public boolean hasMembership(OrganizationDto organization) {
+    throw notImplemented();
+  }
+
+  @Override
+  public UserSession checkMembership(OrganizationDto organization) {
     throw notImplemented();
   }
 

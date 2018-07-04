@@ -333,4 +333,21 @@ public class UserSessionRule implements TestRule, UserSession {
     currentUserSession.checkIsSystemAdministrator();
     return this;
   }
+
+  @Override
+  public boolean hasMembership(OrganizationDto organization) {
+    return currentUserSession.hasMembership(organization);
+  }
+
+  @Override
+  public UserSession checkMembership(OrganizationDto organization) {
+    currentUserSession.checkMembership(organization);
+    return this;
+  }
+
+  public UserSessionRule addMembership(OrganizationDto organization) {
+    ensureAbstractMockUserSession().addOrganizationMembership(organization);
+    return this;
+  }
+
 }

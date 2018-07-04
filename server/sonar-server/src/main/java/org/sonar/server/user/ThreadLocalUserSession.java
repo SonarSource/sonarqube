@@ -24,9 +24,9 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.db.permission.OrganizationPermission;
 
 /**
  * Part of the current HTTP session
@@ -163,5 +163,16 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     return get().keepAuthorizedComponents(permission, components);
+  }
+
+  @Override
+  public boolean hasMembership(OrganizationDto organization) {
+    return get().hasMembership(organization);
+  }
+
+  @Override
+  public UserSession checkMembership(OrganizationDto organization) {
+    get().checkMembership(organization);
+    return this;
   }
 }

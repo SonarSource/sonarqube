@@ -146,6 +146,11 @@ public class LightUserSessionRule extends BaseUserSession implements TestRule {
   }
 
   @Override
+  protected boolean hasMembershipImpl(OrganizationDto organization) {
+    throw new UnsupportedOperationException("hasMembershipImpl not implemented");
+  }
+
+  @Override
   protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
     return Optional.ofNullable(projectUuidByComponentUuid.get(componentUuid));
   }
@@ -232,5 +237,10 @@ public class LightUserSessionRule extends BaseUserSession implements TestRule {
   @Override
   public UserSession checkIsSystemAdministrator() {
     throw new UnsupportedOperationException("checkIsSystemAdministrator not implemented");
+  }
+
+  @Override
+  public UserSession checkMembership(OrganizationDto organization) {
+    throw new UnsupportedOperationException("checkMembership not implemented");
   }
 }

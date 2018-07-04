@@ -33,11 +33,12 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 @ServerSide
 public class RuleWsSupport {
@@ -61,14 +62,23 @@ public class RuleWsSupport {
   public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
     String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
       .orElseGet(defaultOrganizationProvider.get()::getKey);
-    return WsUtils.checkFoundWithOptional(
+    OrganizationDto organization = checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organization with key '%s'", organizationOrDefaultKey);
+    checkMembershipOnPaidOrganization(organization);
+    return organization;
   }
 
   Map<String, UserDto> getUsersByUuid(DbSession dbSession, List<RuleDto> rules) {
     Set<String> userUuids = rules.stream().map(RuleDto::getNoteUserUuid).filter(Objects::nonNull).collect(toSet());
     return dbClient.userDao().selectByUuids(dbSession, userUuids).stream().collect(uniqueIndex(UserDto::getUuid));
+  }
+
+  void checkMembershipOnPaidOrganization(OrganizationDto organization) {
+    if (!organization.getSubscription().equals(PAID)) {
+      return;
+    }
+    userSession.checkMembership(organization);
   }
 
 }

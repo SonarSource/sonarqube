@@ -217,8 +217,7 @@ public class InheritanceActionTest {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    userSession.logIn(user);
+    userSession.logIn(user).addMembership(organization);
 
     ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())

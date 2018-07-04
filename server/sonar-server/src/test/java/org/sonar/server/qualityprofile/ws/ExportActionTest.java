@@ -185,8 +185,7 @@ public class ExportActionTest {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
     QProfileDto profile = createProfile(organization, false);
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    userSession.logIn(user);
+    userSession.logIn(user).addMembership(organization);
 
     WsActionTester tester = newWsActionTester(newExporter("polop"));
     String result = tester.newRequest()

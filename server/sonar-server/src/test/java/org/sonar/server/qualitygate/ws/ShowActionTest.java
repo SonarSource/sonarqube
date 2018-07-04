@@ -32,6 +32,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -44,6 +46,7 @@ import org.sonarqube.ws.Qualitygates.ShowWsResponse.Condition;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -63,44 +66,6 @@ public class ShowActionTest {
   private WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
       new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
-
-  @Test
-  public void verify_definition() {
-    WebService.Action action = ws.getDef();
-    assertThat(action.since()).isEqualTo("4.3");
-    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
-      .containsExactlyInAnyOrder(
-        tuple("7.0", "'isBuiltIn' field is added to the response"),
-        tuple("7.0", "'actions' field is added in the response"));
-    assertThat(action.params())
-      .extracting(Param::key, Param::isRequired)
-      .containsExactlyInAnyOrder(
-        tuple("id", false),
-        tuple("name", false),
-        tuple("organization", false));
-  }
-
-  @Test
-  public void json_example() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate"));
-    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate 2"));
-    db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
-    MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
-    MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("critical_violations"));
-    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setPeriod(null).setErrorThreshold("0").setWarningThreshold(null));
-    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setPeriod(1).setErrorThreshold(null).setWarningThreshold("0"));
-
-    String response = ws.newRequest()
-      .setParam("name", qualityGate.getName())
-      .setParam("organization", organization.getKey())
-      .execute()
-      .getInput();
-
-    assertJson(response).ignoreFields("id")
-      .isSimilarTo(getClass().getResource("show-example.json"));
-  }
 
   @Test
   public void show() {
@@ -273,6 +238,24 @@ public class ShowActionTest {
   }
 
   @Test
+  public void show_on_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
+    MetricDto metric = db.measures().insertMetric();
+    db.qualityGates().addCondition(qualityGate, metric);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addMembership(organization);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getConditionsList()).hasSize(1);
+  }
+
+  @Test
   public void fail_when_no_name_or_id() {
     OrganizationDto organization = db.organizations().insert();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -390,4 +373,57 @@ public class ShowActionTest {
       .setParam("organization", organization.getKey())
       .execute();
   }
+
+  @Test
+  public void fail_on_paid_organization_when_not_member() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
+
+    ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
+
+  @Test
+  public void json_example() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate"));
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate 2"));
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
+    MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
+    MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("critical_violations"));
+    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setPeriod(null).setErrorThreshold("0").setWarningThreshold(null));
+    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setPeriod(1).setErrorThreshold(null).setWarningThreshold("0"));
+
+    String response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(response).ignoreFields("id")
+      .isSimilarTo(getClass().getResource("show-example.json"));
+  }
+
+  @Test
+  public void verify_definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action.since()).isEqualTo("4.3");
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(
+        tuple("7.0", "'isBuiltIn' field is added to the response"),
+        tuple("7.0", "'actions' field is added in the response"));
+    assertThat(action.params())
+      .extracting(Param::key, Param::isRequired)
+      .containsExactlyInAnyOrder(
+        tuple("id", false),
+        tuple("name", false),
+        tuple("organization", false));
+  }
+
 }

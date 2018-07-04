@@ -33,7 +33,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
@@ -74,7 +73,7 @@ public class QProfileWsSupport {
     String organizationUuid = profile.getOrganizationUuid();
     OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
       .orElseThrow(() -> new IllegalStateException("Cannot load organization with uuid=" + organizationUuid));
-    checkMembershipOnPaidOrganization(dbSession, organization);
+    checkMembershipOnPaidOrganization(organization);
     return organization;
   }
 
@@ -84,7 +83,7 @@ public class QProfileWsSupport {
     OrganizationDto organization = checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organization with key '%s'", organizationOrDefaultKey);
-    checkMembershipOnPaidOrganization(dbSession, organization);
+    checkMembershipOnPaidOrganization(organization);
     return organization;
   }
 
@@ -174,15 +173,11 @@ public class QProfileWsSupport {
     return dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), userId).isPresent();
   }
 
-  private void checkMembershipOnPaidOrganization(DbSession dbSession, OrganizationDto organization) {
+  private void checkMembershipOnPaidOrganization(OrganizationDto organization) {
     if (!organization.getSubscription().equals(PAID)) {
       return;
     }
-    Integer userId = userSession.getUserId();
-    if (userId != null && isMember(dbSession, organization, userId)) {
-      return;
-    }
-    throw new ForbiddenException(String.format("You're not member of organization '%s'", organization.getKey()));
+    userSession.checkMembership(organization);
   }
 
 }

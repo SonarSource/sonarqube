@@ -25,6 +25,8 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
+import static java.lang.String.format;
+
 public abstract class AbstractUserSession extends BaseUserSession {
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
   private static final ForbiddenException INSUFFICIENT_PRIVILEGES_EXCEPTION = new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
@@ -86,4 +88,13 @@ public abstract class AbstractUserSession extends BaseUserSession {
     }
     return this;
   }
+
+  @Override
+  public UserSession checkMembership(OrganizationDto organization) {
+    if (!hasMembership(organization)) {
+      throw new ForbiddenException(format("You're not member of organization '%s'", organization.getKey()));
+    }
+    return this;
+  }
+
 }
