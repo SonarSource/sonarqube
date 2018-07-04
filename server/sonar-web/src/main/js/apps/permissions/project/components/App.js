@@ -127,19 +127,11 @@ export default class App extends React.PureComponent {
             )
           : Promise.resolve([]);
 
-      Promise.all([getUsers, getGroups]).then(
-        responses => {
-          if (this.mounted) {
-            this.setState({ loading: false, groups: responses[1], users: responses[0] });
-          }
-        },
-        error => {
-          if (this.mounted) {
-            this.props.onRequestFail(error);
-            this.setState({ loading: false });
-          }
+      Promise.all([getUsers, getGroups]).then(responses => {
+        if (this.mounted) {
+          this.setState({ loading: false, groups: responses[1], users: responses[0] });
         }
-      );
+      }, this.stopLoading);
     }
   };
 
@@ -307,7 +299,6 @@ export default class App extends React.PureComponent {
       },
       error => {
         this.props.onComponentChange({ visibility: 'private' });
-        this.props.onRequestFail(error);
       }
     );
   };
@@ -320,7 +311,6 @@ export default class App extends React.PureComponent {
       },
       error => {
         this.props.onComponentChange({ visibility: 'public' });
-        this.props.onRequestFail(error);
       }
     );
   };

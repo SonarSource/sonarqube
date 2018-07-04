@@ -22,6 +22,7 @@ import ChangeVisibilityForm from './ChangeVisibilityForm';
 import { Organization, Visibility } from '../../app/types';
 import { EditButton, Button } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
+import { isSonarCloud } from '../../helpers/system';
 
 export interface Props {
   hasProvisionPermission?: boolean;
@@ -53,16 +54,18 @@ export default class Header extends React.PureComponent<Props, State> {
         <h1 className="page-title">{translate('projects_management')}</h1>
 
         <div className="page-actions">
-          <span className="big-spacer-right">
-            <span className="text-middle">
-              {translate('organization.default_visibility_of_new_projects')}{' '}
-              <strong>{translate('visibility', organization.projectVisibility)}</strong>
+          {!isSonarCloud() && (
+            <span className="big-spacer-right">
+              <span className="text-middle">
+                {translate('organization.default_visibility_of_new_projects')}{' '}
+                <strong>{translate('visibility', organization.projectVisibility)}</strong>
+              </span>
+              <EditButton
+                className="js-change-visibility spacer-left button-small"
+                onClick={this.handleChangeVisibilityClick}
+              />
             </span>
-            <EditButton
-              className="js-change-visibility spacer-left button-small"
-              onClick={this.handleChangeVisibilityClick}
-            />
-          </span>
+          )}
           {this.props.hasProvisionPermission && (
             <Button id="create-project" onClick={this.props.onProjectCreate}>
               {translate('qualifiers.create.TRK')}

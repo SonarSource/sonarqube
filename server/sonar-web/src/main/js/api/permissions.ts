@@ -189,7 +189,7 @@ export function getPermissionsUsersForComponent(
   if (organization) {
     data.organization = organization;
   }
-  return getJSON('/api/permissions/users', data).then(r => r.users);
+  return getJSON('/api/permissions/users', data).then(r => r.users, throwGlobalError);
 }
 
 export interface PermissionGroup {
@@ -215,7 +215,7 @@ export function getPermissionsGroupsForComponent(
   if (organization) {
     data.organization = organization;
   }
-  return getJSON('/api/permissions/groups', data).then(r => r.groups);
+  return getJSON('/api/permissions/groups', data).then(r => r.groups, throwGlobalError);
 }
 
 export function getGlobalPermissionsUsers(
@@ -292,6 +292,18 @@ export function getPermissionTemplateGroups(
   return getJSON('/api/permissions/template_groups', data).then(r => r.groups);
 }
 
-export function changeProjectVisibility(project: string, visibility: string): Promise<void> {
-  return post('/api/projects/update_visibility', { project, visibility });
+export function changeProjectVisibility(
+  project: string,
+  visibility: string
+): Promise<void | Response> {
+  return post('/api/projects/update_visibility', { project, visibility }).catch(throwGlobalError);
+}
+
+export function changeProjectDefaultVisibility(
+  organization: string,
+  projectVisibility: string
+): Promise<void | Response> {
+  return post('/api/projects/update_default_visibility', { organization, projectVisibility }).catch(
+    throwGlobalError
+  );
 }

@@ -98,13 +98,6 @@ export function removeMember(data: { login: string; organization: string }): Pro
   return post('/api/organizations/remove_member', data);
 }
 
-export function changeProjectVisibility(
-  organization: string,
-  projectVisibility: string
-): Promise<void> {
-  return post('/api/organizations/update_project_visibility', { organization, projectVisibility });
-}
-
 export interface OrganizationBilling {
   nclocCount: number;
   subscription: {

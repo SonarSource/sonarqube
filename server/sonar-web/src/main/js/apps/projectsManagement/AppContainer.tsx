@@ -22,10 +22,9 @@ import { connect } from 'react-redux';
 import App from './App';
 import forSingleOrganization from '../organizations/forSingleOrganization';
 import { Organization, LoggedInUser } from '../../app/types';
-import { onFail } from '../../store/rootActions';
 import { getAppState, getOrganizationByKey, getCurrentUser } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations/duck';
-import { changeProjectVisibility } from '../../api/organizations';
+import { changeProjectDefaultVisibility } from '../../api/permissions';
 import { fetchOrganization } from '../../apps/organizations/actions';
 
 interface StateProps {
@@ -91,8 +90,7 @@ const onVisibilityChange = (organization: Organization, visibility: string) => (
 ) => {
   const currentVisibility = organization.projectVisibility;
   dispatch(receiveOrganizations([{ ...organization, projectVisibility: visibility }]));
-  changeProjectVisibility(organization.key, visibility).catch(error => {
-    onFail(dispatch)(error);
+  changeProjectDefaultVisibility(organization.key, visibility).catch(() => {
     dispatch(receiveOrganizations([{ ...organization, projectVisibility: currentVisibility }]));
   });
 };
