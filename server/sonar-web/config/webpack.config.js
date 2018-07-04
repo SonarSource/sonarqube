@@ -153,8 +153,8 @@ module.exports = ({ production = true }) => ({
   performance: production
     ? {
         hints: 'error',
-        maxEntrypointSize: 710000, // ~700kb, recommended: 250kb
-        maxAssetSize: 400000 // ~400kb, recommended: 250kb
+        maxEntrypointSize: 600000, // recommended: 250kb
+        maxAssetSize: 320000 // recommended: 250kb
       }
     : undefined
 });

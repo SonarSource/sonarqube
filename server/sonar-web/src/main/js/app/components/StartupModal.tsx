@@ -20,11 +20,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Onboarding from '../../apps/tutorials/Onboarding';
-import CreateOrganizationForm from '../../apps/account/organizations/CreateOrganizationForm';
-import LicensePromptModal from '../../apps/marketplace/components/LicensePromptModal';
-import ProjectOnboardingModal from '../../apps/tutorials/projectOnboarding/ProjectOnboardingModal';
-import TeamOnboardingModal from '../../apps/tutorials/teamOnboarding/TeamOnboardingModal';
 import { CurrentUser, isLoggedIn, Organization } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
@@ -35,6 +30,23 @@ import { hasMessage } from '../../helpers/l10n';
 import { save, get } from '../../helpers/storage';
 import { isSonarCloud } from '../../helpers/system';
 import { skipOnboarding } from '../../api/users';
+import { lazyLoad } from '../../components/lazyLoad';
+
+const CreateOrganizationForm = lazyLoad(() =>
+  import('../../apps/account/organizations/CreateOrganizationForm')
+);
+const Onboarding = lazyLoad(() => import('../../apps/tutorials/Onboarding'));
+const LicensePromptModal = lazyLoad(
+  () => import('../../apps/marketplace/components/LicensePromptModal'),
+  'LicensePromptModal'
+);
+const ProjectOnboardingModal = lazyLoad(
+  () => import('../../apps/tutorials/projectOnboarding/ProjectOnboardingModal'),
+  'ProjectOnboardingModal'
+);
+const TeamOnboardingModal = lazyLoad(() =>
+  import('../../apps/tutorials/teamOnboarding/TeamOnboardingModal')
+);
 
 interface StateProps {
   canAdmin: boolean;

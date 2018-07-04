@@ -23,21 +23,23 @@ import PropTypes from 'prop-types';
 import key from 'keymaster';
 import { debounce, keyBy, uniqBy } from 'lodash';
 import { FormattedMessage } from 'react-intl';
-import SearchResults from './SearchResults';
-import SearchResult from './SearchResult';
 import { sortQualifiers } from './utils';
 /*:: import type { Component, More, Results } from './utils'; */
 import RecentHistory from '../../components/RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import ClockIcon from '../../../components/icons-components/ClockIcon';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import SearchBox from '../../../components/controls/SearchBox';
+import { lazyLoad } from '../../../components/lazyLoad';
 import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
 import './Search.css';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
+
+const SearchResults = lazyLoad(() => import('./SearchResults'));
+const SearchResult = lazyLoad(() => import('./SearchResult'));
 
 /*::
 type Props = {|

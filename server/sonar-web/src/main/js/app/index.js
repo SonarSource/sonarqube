@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import exposeLibraries from './utils/exposeLibraries';
 import startReactApp from './utils/startReactApp';
 import installExtensionsHandler from './utils/installExtensionsHandler';
 import { installGlobal } from '../helpers/l10n';
@@ -26,5 +25,4 @@ import './styles/sonar.css';
 
 installGlobal();
 startReactApp();
-exposeLibraries();
 installExtensionsHandler();

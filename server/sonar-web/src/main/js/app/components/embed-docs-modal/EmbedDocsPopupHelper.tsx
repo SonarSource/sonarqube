@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import EmbedDocsPopup from './EmbedDocsPopup';
 import { SuggestionLink } from './SuggestionsProvider';
 import { CurrentUser } from '../../types';
 import Toggler from '../../../components/controls/Toggler';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
+import { lazyLoad } from '../../../components/lazyLoad';
+
+const EmbedDocsPopup = lazyLoad(() => import('./EmbedDocsPopup'));
 
 interface Props {
   currentUser: CurrentUser;

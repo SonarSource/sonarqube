@@ -29,7 +29,7 @@ interface Loader<P> {
 
 export const LAST_FAILED_CHUNK_STORAGE_KEY = 'sonarqube.last_failed_chunk';
 
-export function lazyLoad<P>(loader: Loader<P>) {
+export function lazyLoad<P>(loader: Loader<P>, displayName?: string) {
   interface ImportError {
     request?: string;
   }
@@ -43,6 +43,7 @@ export function lazyLoad<P>(loader: Loader<P>) {
   // and let the child component decide if it needs to change
   return class LazyLoader extends React.Component<any, State> {
     mounted = false;
+    static displayName = displayName;
     state: State = {};
 
     componentDidMount() {

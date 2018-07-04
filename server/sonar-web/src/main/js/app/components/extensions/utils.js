@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+import exposeLibraries from './exposeLibraries';
 import { getExtensionFromCache } from '../../utils/installExtensionsHandler';
 
 function installScript(key /*: string */) {
   return new Promise(resolve => {
+    exposeLibraries();
     const scriptTag = document.createElement('script');
     scriptTag.src = `${window.baseUrl}/static/${key}.js`;
     scriptTag.onload = resolve;
@@ -33,7 +35,8 @@ export function getExtensionStart(key /*: string */) {
   return new Promise((resolve, reject) => {
     const fromCache = getExtensionFromCache(key);
     if (fromCache) {
-      return resolve(fromCache);
+      resolve(fromCache);
+      return;
     }
 
     installScript(key).then(() => {
@@ -43,6 +46,6 @@ export function getExtensionStart(key /*: string */) {
       } else {
         reject();
       }
-    });
+    }, reject);
   });
 }

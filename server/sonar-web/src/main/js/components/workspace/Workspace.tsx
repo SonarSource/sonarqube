@@ -21,13 +21,13 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { omit, uniqBy } from 'lodash';
 import { WorkspaceContext, ComponentDescriptor, RuleDescriptor } from './context';
-import WorkspaceNav from './WorkspaceNav';
 import WorkspacePortal from './WorkspacePortal';
 import { get, save } from '../../helpers/storage';
 import { lazyLoad } from '../lazyLoad';
 import './styles.css';
 
 const WORKSPACE = 'sonarqube-workspace';
+const WorkspaceNav = lazyLoad(() => import('./WorkspaceNav'));
 const WorkspaceRuleViewer = lazyLoad(() => import('./WorkspaceRuleViewer'));
 const WorkspaceComponentViewer = lazyLoad(() => import('./WorkspaceComponentViewer'));
 
@@ -190,15 +190,17 @@ export default class Workspace extends React.PureComponent<{}, State> {
       <>
         {this.props.children}
         <WorkspacePortal>
-          <WorkspaceNav
-            components={components}
-            onComponentClose={this.closeComponent}
-            onComponentOpen={this.reopenComponent}
-            onRuleClose={this.closeRule}
-            onRuleOpen={this.reopenRule}
-            open={this.state.open}
-            rules={this.state.rules}
-          />
+          {(components.length > 0 || rules.length > 0) && (
+            <WorkspaceNav
+              components={components}
+              onComponentClose={this.closeComponent}
+              onComponentOpen={this.reopenComponent}
+              onRuleClose={this.closeRule}
+              onRuleOpen={this.reopenRule}
+              open={this.state.open}
+              rules={rules}
+            />
+          )}
           {openComponent && (
             <WorkspaceComponentViewer
               component={openComponent}
