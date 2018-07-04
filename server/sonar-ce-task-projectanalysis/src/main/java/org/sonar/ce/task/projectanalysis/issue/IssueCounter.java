@@ -30,7 +30,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -97,13 +96,11 @@ public class IssueCounter extends IssueVisitor {
     .put(RuleType.CODE_SMELL, CoreMetrics.CODE_SMELLS_KEY)
     .put(RuleType.BUG, CoreMetrics.BUGS_KEY)
     .put(RuleType.VULNERABILITY, CoreMetrics.VULNERABILITIES_KEY)
-    .put(RuleType.SECURITY_HOTSPOT, CoreMetrics.SECURITY_HOTSPOTS_KEY)
     .build();
   private static final Map<RuleType, String> TYPE_TO_NEW_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
     .put(RuleType.CODE_SMELL, CoreMetrics.NEW_CODE_SMELLS_KEY)
     .put(RuleType.BUG, CoreMetrics.NEW_BUGS_KEY)
     .put(RuleType.VULNERABILITY, CoreMetrics.NEW_VULNERABILITIES_KEY)
-    .put(RuleType.SECURITY_HOTSPOT, CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY)
     .build();
 
   private final PeriodHolder periodHolder;
@@ -264,12 +261,6 @@ public class IssueCounter extends IssueVisitor {
           // Other statuses are ignored
       }
     }
-
-    void addNewSecurityHotspot(DefaultIssue issue) {
-      if (issue.resolution() == null) {
-        typeBag.add(issue.type());
-      }
-    }
   }
 
   /**
@@ -289,8 +280,6 @@ public class IssueCounter extends IssueVisitor {
     void addOnPeriod(DefaultIssue issue) {
       if (issue.type() != RuleType.SECURITY_HOTSPOT) {
         counterForPeriod.add(issue);
-      } else {
-        counterForPeriod.addNewSecurityHotspot(issue);
       }
     }
 

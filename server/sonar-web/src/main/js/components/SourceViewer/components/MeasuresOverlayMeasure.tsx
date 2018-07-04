@@ -39,7 +39,7 @@ export default function MeasuresOverlayMeasure({ measure }: Props) {
       data-metric={measure.metric.key}
       key={measure.metric.key}>
       <span className="measure-name">
-        {['bugs', 'vulnerabilities', 'code_smells', 'security_hotspots'].includes(measure.metric.key) && (
+        {['bugs', 'vulnerabilities', 'code_smells'].includes(measure.metric.key) && (
           <IssueTypeIcon className="little-spacer-right" query={measure.metric.key} />
         )}
         {getLocalizedMetricName(measure.metric)}

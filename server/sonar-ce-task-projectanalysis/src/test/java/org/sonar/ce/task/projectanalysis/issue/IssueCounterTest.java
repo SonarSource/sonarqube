@@ -101,8 +101,6 @@ public class IssueCounterTest {
   static final Metric NEW_CODE_SMELLS_METRIC = new MetricImpl(20, CoreMetrics.NEW_CODE_SMELLS_KEY, CoreMetrics.NEW_CODE_SMELLS_KEY, INT);
   static final Metric NEW_BUGS_METRIC = new MetricImpl(21, CoreMetrics.NEW_BUGS_KEY, CoreMetrics.NEW_BUGS_KEY, INT);
   static final Metric NEW_VULNERABILITIES_METRIC = new MetricImpl(22, CoreMetrics.NEW_VULNERABILITIES_KEY, CoreMetrics.NEW_VULNERABILITIES_KEY, INT);
-  static final Metric SECURITY_HOTSPOTS_METRIC = new MetricImpl(24, CoreMetrics.SECURITY_HOTSPOTS_KEY, CoreMetrics.SECURITY_HOTSPOTS_KEY, INT);
-  static final Metric NEW_SECURITY_HOTSPOTS_METRIC = new MetricImpl(25, CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY, CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY, INT);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -137,9 +135,7 @@ public class IssueCounterTest {
     .add(VULNERABILITIES_METRIC)
     .add(NEW_CODE_SMELLS_METRIC)
     .add(NEW_BUGS_METRIC)
-    .add(NEW_VULNERABILITIES_METRIC)
-    .add(SECURITY_HOTSPOTS_METRIC)
-    .add(NEW_SECURITY_HOTSPOTS_METRIC);
+    .add(NEW_VULNERABILITIES_METRIC);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -325,7 +321,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_hotspots() {
+  public void exclude_hotspots_from_issue_counts() {
     periodsHolder.setPeriod(null);
 
     // bottom-up traversal -> from files to project
@@ -344,27 +340,23 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertThat(measureRepository.getRawMeasure(FILE1, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(2);
     assertThat(measureRepository.getRawMeasure(FILE1, ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
     assertThat(measureRepository.getRawMeasure(FILE1, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
     assertThat(measureRepository.getRawMeasure(FILE1, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
 
-    assertThat(measureRepository.getRawMeasure(FILE2, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getRawMeasure(FILE2, ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getRawMeasure(FILE2, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getRawMeasure(FILE2, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
 
-    assertThat(measureRepository.getRawMeasure(FILE3, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(0);
     assertThat(measureRepository.getRawMeasure(FILE3, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
 
-    assertThat(measureRepository.getRawMeasure(PROJECT, SECURITY_HOTSPOTS_METRIC).get().getIntValue()).isEqualTo(3);
     assertThat(measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC).get().getIntValue()).isEqualTo(3);
     assertThat(measureRepository.getRawMeasure(PROJECT, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(3);
     assertThat(measureRepository.getRawMeasure(PROJECT, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
   }
 
   @Test
-  public void count_new_hotspots_excluded_from_other_raw_issue_counts() {
+  public void exclude_new_hotspots_from_issue_counts() {
     Period period = newPeriod(1500000000000L);
     periodsHolder.setPeriod(period);
 
@@ -395,14 +387,12 @@ public class IssueCounterTest {
     assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, 0);
     assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, 0);
     assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, 0);
-    assertVariation(FILE1, NEW_SECURITY_HOTSPOTS_METRIC, 3);
 
     assertVariation(PROJECT, NEW_ISSUES_METRIC, 0);
     assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, 0);
     assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, 0);
     assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
     assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
-    assertVariation(PROJECT, NEW_SECURITY_HOTSPOTS_METRIC, 3);
   }
 
   private void assertVariation(Component component, Metric metric, int expectedVariation) {

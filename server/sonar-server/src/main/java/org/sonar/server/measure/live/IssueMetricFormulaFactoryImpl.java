@@ -44,9 +44,6 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
     new IssueMetricFormula(CoreMetrics.VULNERABILITIES, false,
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.VULNERABILITY, false))),
 
-    new IssueMetricFormula(CoreMetrics.SECURITY_HOTSPOTS, false,
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),
-
     new IssueMetricFormula(CoreMetrics.VIOLATIONS, false,
       (context, issues) -> context.setValue(issues.countUnresolved(false))),
 
@@ -115,9 +112,6 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
 
     new IssueMetricFormula(CoreMetrics.NEW_VULNERABILITIES, true,
       (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.VULNERABILITY, true))),
-
-    new IssueMetricFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS, true,
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, true))),
 
     new IssueMetricFormula(CoreMetrics.NEW_VIOLATIONS, true,
       (context, issues) -> context.setLeakValue(issues.countUnresolved(true))),

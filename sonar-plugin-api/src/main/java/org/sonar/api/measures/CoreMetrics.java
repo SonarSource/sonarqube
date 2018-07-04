@@ -1978,45 +1978,6 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
-  /**
-   * SonarQube Quality Model
-   * @since 7.3
-   */
-  public static final String SECURITY_HOTSPOTS_KEY = "security_hotspots";
-
-  /**
-   * SonarQube Quality Model
-   * @since 7.3
-   */
-  public static final Metric<Integer> SECURITY_HOTSPOTS = new Metric.Builder(SECURITY_HOTSPOTS_KEY, "Security Hotspots", Metric.ValueType.INT)
-    .setDescription("Security Hotspots")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_SECURITY)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .create();
-
-  /**
-   * SonarQube Quality Model
-   * @since 7.3
-   */
-  public static final String NEW_SECURITY_HOTSPOTS_KEY = "new_security_hotspots";
-
-  /**
-   * SonarQube Quality Model
-   * @since 7.3
-   */
-  public static final Metric<Integer> NEW_SECURITY_HOTSPOTS = new Metric.Builder(NEW_SECURITY_HOTSPOTS_KEY, "New Security Hotspots", Metric.ValueType.INT)
-    .setDescription("New Security Hotspots")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setDomain(DOMAIN_SECURITY)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setDeleteHistoricalData(true)
-    .create();
-
   // --------------------------------------------------------------------------------------------------------------------
   //
   // DESIGN
