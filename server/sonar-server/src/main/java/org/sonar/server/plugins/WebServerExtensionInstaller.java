@@ -23,9 +23,11 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginRepository;
 
+import static java.util.Collections.singleton;
+
 @ServerSide
 public class WebServerExtensionInstaller extends ServerExtensionInstaller {
   public WebServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository) {
-    super(sonarRuntime, pluginRepository, ServerSide.class);
+    super(sonarRuntime, pluginRepository, singleton(ServerSide.class));
   }
 }

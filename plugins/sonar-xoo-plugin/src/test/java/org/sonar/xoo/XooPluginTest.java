@@ -19,6 +19,7 @@
  */
 package org.sonar.xoo;
 
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarQubeSide;
@@ -26,7 +27,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
-import org.sonar.xoo.lang.CpdTokenizerSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.XooBuiltInQualityProfilesDefinition;
 
@@ -39,7 +39,9 @@ public class XooPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(Version.parse("5.4"));
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(46).doesNotContain(XooBuiltInQualityProfilesDefinition.class);
+    assertThat(getExtensions(context))
+      .hasSize(46)
+      .doesNotContain(XooBuiltInQualityProfilesDefinition.class);
   }
 
   @Test
@@ -47,15 +49,19 @@ public class XooPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.6"), SonarQubeSide.SCANNER);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(49).contains(XooBuiltInQualityProfilesDefinition.class);
+    assertThat(getExtensions(context))
+      .hasSize(49)
+      .contains(XooBuiltInQualityProfilesDefinition.class);
   }
-  
+
   @Test
   public void provide_extensions_for_7_2() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.2"), SonarQubeSide.SCANNER);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(52).contains(OneExternalIssuePerLineSensor.class);
+    assertThat(getExtensions(context))
+      .hasSize(52)
+      .contains(OneExternalIssuePerLineSensor.class);
   }
 
   @Test
@@ -63,6 +69,13 @@ public class XooPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.3"), SonarQubeSide.SCANNER);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(53).contains(OneExternalIssuePerLineSensor.class);
+    assertThat(getExtensions(context))
+      .hasSize(53)
+      .contains(OneExternalIssuePerLineSensor.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<Object> getExtensions(Plugin.Context context) {
+    return (List<Object>) context.getExtensions();
   }
 }

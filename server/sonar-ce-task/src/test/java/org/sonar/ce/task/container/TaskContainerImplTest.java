@@ -25,16 +25,16 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class TaskContainerImplTest {
   private ComponentContainer parent = new ComponentContainer();
-  private ContainerPopulator populator = mock(ContainerPopulator.class);
+  private ContainerPopulator<TaskContainer> populator = spy(new DummyContainerPopulator());
 
   @Test(expected = NullPointerException.class)
   public void constructor_fails_fast_on_null_container() {
-    new TaskContainerImpl(null, mock(ContainerPopulator.class));
+    new TaskContainerImpl(null, populator);
   }
 
   @Test(expected = NullPointerException.class)
@@ -111,4 +111,10 @@ public class TaskContainerImplTest {
   }
 
 
+  private static class DummyContainerPopulator implements ContainerPopulator<TaskContainer> {
+    @Override
+    public void populateContainer(TaskContainer container) {
+
+    }
+  }
 }

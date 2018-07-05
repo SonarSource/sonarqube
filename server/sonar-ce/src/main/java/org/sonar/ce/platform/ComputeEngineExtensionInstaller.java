@@ -24,9 +24,11 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 
+import static java.util.Collections.singleton;
+
 public class ComputeEngineExtensionInstaller extends ServerExtensionInstaller {
   public ComputeEngineExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository) {
-    super(sonarRuntime, pluginRepository, ComputeEngineSide.class);
+    super(sonarRuntime, pluginRepository, singleton(ComputeEngineSide.class));
   }
 
 }

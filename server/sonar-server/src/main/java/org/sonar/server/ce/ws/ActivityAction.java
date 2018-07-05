@@ -52,6 +52,7 @@ import org.sonarqube.ws.Ce.ActivityResponse;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
@@ -128,8 +129,8 @@ public class ActivityAction implements CeWsAction {
     action.createParam(PARAM_STATUS)
       .setDescription("Comma separated list of task statuses")
       .setPossibleValues(ImmutableList.builder()
-        .add(CeActivityDto.Status.values())
-        .add(CeQueueDto.Status.values()).build())
+        .addAll(asList(CeActivityDto.Status.values()))
+        .addAll(asList(CeQueueDto.Status.values())).build())
       .setExampleValue(Joiner.on(",").join(CeQueueDto.Status.IN_PROGRESS, CeActivityDto.Status.SUCCESS))
       // activity statuses by default to be backward compatible
       // queued tasks have been added in 5.5

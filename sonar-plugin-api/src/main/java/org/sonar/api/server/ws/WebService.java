@@ -756,7 +756,7 @@ public interface WebService extends Definable<WebService.Context> {
      * @since 4.4
      * @see Param#possibleValues()
      */
-    public NewParam setPossibleValues(@Nullable Object... values) {
+    public <T> NewParam setPossibleValues(@Nullable T... values) {
       return setPossibleValues(values == null ? Collections.emptyList() : asList(values));
     }
 
@@ -775,7 +775,7 @@ public interface WebService extends Definable<WebService.Context> {
      * @since 4.4
      * @see Param#possibleValues()
      */
-    public NewParam setPossibleValues(@Nullable Collection<?> values) {
+    public <T> NewParam setPossibleValues(@Nullable Collection<T> values) {
       if (values == null || values.isEmpty()) {
         this.possibleValues = null;
       } else {

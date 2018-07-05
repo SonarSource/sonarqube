@@ -23,6 +23,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.ExtensionProvider;
@@ -48,7 +49,7 @@ public abstract class ServerExtensionInstaller {
   private final Set<Class<? extends Annotation>> supportedAnnotationTypes;
 
   protected ServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository,
-    Class<? extends Annotation>... supportedAnnotationTypes) {
+    Collection<Class<? extends Annotation>> supportedAnnotationTypes) {
     requireNonNull(supportedAnnotationTypes, "At least one supported annotation type must be specified");
     this.sonarRuntime = sonarRuntime;
     this.pluginRepository = pluginRepository;

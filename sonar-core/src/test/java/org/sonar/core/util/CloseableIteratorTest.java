@@ -19,7 +19,6 @@
  */
 package org.sonar.core.util;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -204,7 +203,7 @@ public class CloseableIteratorTest {
     CloseableIterator.from(Collections.<String>emptyList().iterator()).next();
   }
 
-  static class SimpleCloseableIterator extends CloseableIterator {
+  static class SimpleCloseableIterator extends CloseableIterator<Object> {
     int count = 0;
     boolean isClosed = false;
 
