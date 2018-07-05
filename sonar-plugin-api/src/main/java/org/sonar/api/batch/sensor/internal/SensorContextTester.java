@@ -53,6 +53,7 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.cpd.internal.TokensLine;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.error.internal.DefaultAnalysisError;
@@ -80,7 +81,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-import org.sonar.duplications.internal.pmd.TokensLine;
 
 import static java.util.Collections.unmodifiableMap;
 

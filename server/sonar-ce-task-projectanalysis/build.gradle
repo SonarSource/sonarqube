@@ -42,7 +42,8 @@ dependencies {
   compileOnly project(':server:sonar-db-dao')
   compileOnly project(':server:sonar-process')
   compileOnly project(':server:sonar-server-common')
-  compileOnly project(path: ':sonar-plugin-api')
+  compileOnly project(':sonar-plugin-api')
+  compileOnly project(':sonar-duplications')
 
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.h2database:h2'

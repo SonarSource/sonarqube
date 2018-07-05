@@ -4,10 +4,6 @@ sonarqube {
   }
 }
 
-configurations {
-  includeInResources
-}
-
 dependencies {
   // please keep list ordered
 
@@ -24,8 +20,6 @@ dependencies {
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  includeInResources project(path: ':sonar-plugin-api-deps', configuration: 'shadow')
-
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
@@ -34,14 +28,6 @@ dependencies {
   testCompile project(':sonar-testing-harness')
 
   testCompileOnly 'com.google.code.findbugs:jsr305'
-}
-
-// sonar-plugin-api.jar is copied into target JAR file
-processResources {
-  into('/') {
-    from configurations.includeInResources
-    rename '(.*)-' + project.version + '-all.jar', '$1.jar'
-  }
 }
 
 // Used by sonar-db-core to run DB Unit Tests
