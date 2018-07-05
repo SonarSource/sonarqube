@@ -1,5 +1,5 @@
 ---
-title: Pull Request analysis
+title: Pull Request Analysis
 ---
 
 <!-- sonarqube -->
@@ -21,6 +21,11 @@ When PR decoration is enabled, SonarQube publishes the status of the analysis (Q
 When "Confirm", "Resolved as False Positive" or "Won't Fix" actions are performed on issues in SonarQube UI, the status of the PR is updated accordingly. This means, if you want to get a green status on the PR, you can either fix the issues for real or "Confirm", "Resolved as False Positive" or "Won't Fix" any remaining issues available on the PR.
 
 PR analyses on SonarQube are deleted automatically after 30 days with no analysis. This can be updated in **Configuration > General > Number of days before purging inactive short living branches**. 
+
+<!-- sonarcloud -->
+## Integrations for GitHub, Bitbucket Cloud and VSTS
+If your repositories are hosted on GitHub, Bitbucket Cloud or VSTS, check out first the dedicated ["Integrations" pages](/integrations). Chances are that you do not need to read this page further since those integrations handle the configuration and analysis parameters for you.
+<!-- /sonarcloud -->
 
 ## Analysis Parameters
 ### Pull Request Analysis in SonarQube
@@ -56,9 +61,3 @@ For GitHub Enterprise or GitHub.com, you need to configure the **Authentication 
 | `sonar.pullrequest.github.endpoint` | The API url for your GitHub instance.<br/> Ex.: `https://api.github.com/` or `https://github.company.com/api/v3/` |
 
 Note: if you were relying on the GitHub Plugin, its properties are no longer required and they must be removed from your configuration: `sonar.analysis.mode`, `sonar.github.repository`, `sonar.github.pullRequest`, `sonar.github.oauth`.
-
-<!-- sonarcloud -->
-## TravisCI + GitHub.com + SonarCloud
-All the analysis parameters are automatically populated if you are relying on the SonarCloud add-on. See https://blog.sonarsource.com/sonarcloud-loves-your-build-pipeline for more details.
-<!-- /sonarcloud -->
-
