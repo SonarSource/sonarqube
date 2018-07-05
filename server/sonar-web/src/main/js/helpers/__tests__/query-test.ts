@@ -47,15 +47,6 @@ describe('parseAsBoolean', () => {
   });
 });
 
-describe('parseAsFacetMode', () => {
-  it('should facets modes correctly', () => {
-    expect(query.parseAsFacetMode('debt')).toBe('effort');
-    expect(query.parseAsFacetMode('effort')).toBe('effort');
-    expect(query.parseAsFacetMode('count')).toBe('count');
-    expect(query.parseAsFacetMode('random')).toBe('count');
-  });
-});
-
 describe('parseAsString', () => {
   it('should parse strings correctly', () => {
     expect(query.parseAsString('random')).toBe('random');

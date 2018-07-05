@@ -22,7 +22,6 @@ import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';
 import CreationDateFacet from './CreationDateFacet';
 import DirectoryFacet from './DirectoryFacet';
-import FacetMode from './FacetMode';
 import FileFacet from './FileFacet';
 import LanguageFacet from './LanguageFacet';
 import ModuleFacet from './ModuleFacet';
@@ -77,9 +76,7 @@ export default class Sidebar extends React.PureComponent<Props> {
 
     return (
       <div className="search-navigator-facets-list">
-        <FacetMode facetMode={query.facetMode} onChange={this.props.onFilterChange} />
         <TypeFacet
-          facetMode={query.facetMode}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
@@ -88,7 +85,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           types={query.types}
         />
         <SeverityFacet
-          facetMode={query.facetMode}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
@@ -97,7 +93,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           stats={facets.severities}
         />
         <ResolutionFacet
-          facetMode={query.facetMode}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
@@ -107,7 +102,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           stats={facets.resolutions}
         />
         <StatusFacet
-          facetMode={query.facetMode}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
@@ -121,7 +115,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           createdAt={query.createdAt}
           createdBefore={query.createdBefore}
           createdInLast={query.createdInLast}
-          facetMode={query.facetMode}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
@@ -130,7 +123,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           stats={facets.createdAt}
         />
         <LanguageFacet
-          facetMode={query.facetMode}
           languages={query.languages}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
@@ -140,7 +132,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           stats={facets.languages}
         />
         <RuleFacet
-          facetMode={query.facetMode}
           languages={query.languages}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
@@ -168,7 +159,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         />
         <TagFacet
           component={component}
-          facetMode={query.facetMode}
           loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
@@ -180,7 +170,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         {displayProjectsFacet && (
           <ProjectFacet
             component={component}
-            facetMode={query.facetMode}
             loading={this.props.loading}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
@@ -193,7 +182,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         )}
         {displayModulesFacet && (
           <ModuleFacet
-            facetMode={query.facetMode}
             loading={this.props.loading}
             modules={query.modules}
             onChange={this.props.onFilterChange}
@@ -206,7 +194,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         {displayDirectoriesFacet && (
           <DirectoryFacet
             directories={query.directories}
-            facetMode={query.facetMode}
             loading={this.props.loading}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
@@ -217,7 +204,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         )}
         {displayFilesFacet && (
           <FileFacet
-            facetMode={query.facetMode}
             files={query.files}
             loading={this.props.loading}
             onChange={this.props.onFilterChange}
@@ -232,7 +218,6 @@ export default class Sidebar extends React.PureComponent<Props> {
             assigned={query.assigned}
             assignees={query.assignees}
             component={component}
-            facetMode={query.facetMode}
             loading={this.props.loading}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
@@ -245,7 +230,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         {displayAuthorFacet && (
           <AuthorFacet
             authors={query.authors}
-            facetMode={query.facetMode}
             loading={this.props.loading}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}

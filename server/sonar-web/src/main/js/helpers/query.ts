@@ -63,10 +63,6 @@ export function parseAsDate(value?: string): Date | undefined {
   return undefined;
 }
 
-export function parseAsFacetMode(facetMode: string): string {
-  return facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count';
-}
-
 export function parseAsString(value: string | undefined): string {
   return value || '';
 }

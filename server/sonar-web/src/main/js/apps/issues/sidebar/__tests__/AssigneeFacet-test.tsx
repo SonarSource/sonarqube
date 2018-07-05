@@ -29,7 +29,6 @@ const renderAssigneeFacet = (props?: Partial<Props>) =>
       assigned={true}
       assignees={[]}
       component={undefined}
-      facetMode="count"
       onChange={jest.fn()}
       onToggle={jest.fn()}
       open={true}

@@ -30,7 +30,6 @@ import { collapsePath } from '../../../helpers/path';
 
 interface Props {
   directories: string[];
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -103,7 +102,7 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={this.renderName(directory)}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(directory), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(directory))}
             tooltip={
               this.props.directories.length === 1 && !this.props.directories.includes(directory)
             }

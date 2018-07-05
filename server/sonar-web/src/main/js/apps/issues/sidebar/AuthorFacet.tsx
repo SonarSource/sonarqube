@@ -27,7 +27,6 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -88,7 +87,7 @@ export default class AuthorFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={author}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(author), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(author))}
             tooltip={this.props.authors.length === 1 && !this.props.authors.includes(author)}
             value={author}
           />

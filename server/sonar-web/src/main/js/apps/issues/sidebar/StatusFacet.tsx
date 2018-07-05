@@ -28,7 +28,6 @@ import StatusHelper from '../../../components/shared/StatusHelper';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -84,7 +83,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
         loading={this.props.loading}
         name={<StatusHelper resolution={undefined} status={status} />}
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat, this.props.facetMode)}
+        stat={formatFacetStat(stat)}
         tooltip={this.props.statuses.length === 1 && !this.props.statuses.includes(status)}
         value={status}
       />

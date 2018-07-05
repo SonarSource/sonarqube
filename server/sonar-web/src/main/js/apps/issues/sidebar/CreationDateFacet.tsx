@@ -40,7 +40,6 @@ interface Props {
   createdAt: string;
   createdBefore: Date | undefined;
   createdInLast: string;
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -180,8 +179,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
     const width = barsWidth * data.length - 1 + 10;
 
     const maxValue = max(data.map(d => d.y));
-    const format = this.props.facetMode === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
-    const xValues = data.map(d => (d.y === maxValue ? formatMeasure(maxValue, format) : ''));
+    const xValues = data.map(d => (d.y === maxValue ? formatMeasure(maxValue, 'SHORT_INT') : ''));
 
     return (
       <BarChart

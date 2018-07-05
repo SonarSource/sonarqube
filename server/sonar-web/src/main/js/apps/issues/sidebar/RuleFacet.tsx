@@ -29,7 +29,6 @@ import FacetFooter from '../../../components/facet/FacetFooter';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   languages: string[];
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -116,7 +115,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={this.getRuleName(rule)}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(rule), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(rule))}
             tooltip={this.props.rules.length === 1 && !this.props.rules.includes(rule)}
             value={rule}
           />

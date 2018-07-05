@@ -26,7 +26,6 @@ import {
   queriesEqual,
   cleanQuery,
   parseAsBoolean,
-  parseAsFacetMode,
   parseAsArray,
   parseAsString,
   serializeString,
@@ -46,7 +45,6 @@ export interface Query {
   createdInLast: string;
   cwe: string[];
   directories: string[];
-  facetMode: string;
   files: string[];
   issues: string[];
   languages: string[];
@@ -82,7 +80,6 @@ export function parseQuery(query: RawQuery): Query {
     createdInLast: parseAsString(query.createdInLast),
     cwe: parseAsArray(query.cwe, parseAsString),
     directories: parseAsArray(query.directories, parseAsString),
-    facetMode: parseAsFacetMode(query.facetMode),
     files: parseAsArray(query.fileUuids, parseAsString),
     issues: parseAsArray(query.issues, parseAsString),
     languages: parseAsArray(query.languages, parseAsString),
@@ -119,7 +116,6 @@ export function serializeQuery(query: Query): RawQuery {
     createdInLast: serializeString(query.createdInLast),
     cwe: serializeStringArray(query.cwe),
     directories: serializeStringArray(query.directories),
-    facetMode: query.facetMode === 'effort' ? serializeString(query.facetMode) : undefined,
     fileUuids: serializeStringArray(query.files),
     issues: serializeStringArray(query.issues),
     languages: serializeStringArray(query.languages),
@@ -181,8 +177,8 @@ export function parseFacets(facets: RawFacet[]) {
   return result;
 }
 
-export function formatFacetStat(stat: number | undefined, mode: string) {
-  return stat && formatMeasure(stat, mode === 'effort' ? 'SHORT_WORK_DUR' : 'SHORT_INT');
+export function formatFacetStat(stat: number | undefined) {
+  return stat && formatMeasure(stat, 'SHORT_INT');
 }
 
 export interface ReferencedComponent {

@@ -29,7 +29,6 @@ import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 
 interface Props {
-  facetMode: string;
   files: string[];
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -106,7 +105,7 @@ export default class FileFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={this.renderName(file)}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(file), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(file))}
             tooltip={this.props.files.length === 1 && !this.props.files.includes(file)}
             value={file}
           />

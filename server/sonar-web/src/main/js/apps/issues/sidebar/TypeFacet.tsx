@@ -28,7 +28,6 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -87,7 +86,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
           </span>
         }
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat, this.props.facetMode)}
+        stat={formatFacetStat(stat)}
         tooltip={this.props.types.length === 1 && !this.props.types.includes(type)}
         value={type}
       />

@@ -28,7 +28,6 @@ import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   loading?: boolean;
   modules: string[];
   onChange: (changes: Partial<Query>) => void;
@@ -104,7 +103,7 @@ export default class ModuleFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={this.renderName(module)}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(module), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(module))}
             tooltip={this.props.modules.length === 1 && !this.props.modules.includes(module)}
             value={module}
           />

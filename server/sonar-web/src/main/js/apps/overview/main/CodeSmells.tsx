@@ -18,40 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import enhance, { ComposedProps } from './enhance';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../helpers/measures';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import DrilldownLink from '../../../components/shared/DrilldownLink';
 
 export class CodeSmells extends React.PureComponent<ComposedProps> {
   renderHeader() {
     return this.props.renderHeader('Maintainability', translate('metric.code_smells.name'));
   }
 
-  renderDebt(metric: string, type: string) {
+  renderDebt(metric: string) {
     const { branchLike, measures, component } = this.props;
     const measure = measures.find(measure => measure.metric.key === metric);
     const value = measure ? this.props.getValue(measure) : undefined;
-    const params = {
-      ...getBranchLikeQuery(branchLike),
-      resolved: 'false',
-      facetMode: 'effort',
-      types: type
-    };
-
-    if (isDiffMetric(metric)) {
-      Object.assign(params, { sinceLeakPeriod: 'true' });
-    }
 
     return (
-      <Link to={getComponentIssuesUrl(component.key, params)}>
+      <DrilldownLink branchLike={branchLike} component={component.key} metric={metric}>
         {formatMeasure(value, 'SHORT_WORK_DUR')}
-      </Link>
+      </DrilldownLink>
     );
   }
 
@@ -89,9 +77,7 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              <span style={{ marginLeft: 30 }}>
-                {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
-              </span>
+              <span style={{ marginLeft: 30 }}>{this.renderDebt('new_technical_debt')}</span>
               {this.props.renderRating('new_maintainability_rating')}
             </div>
             <div className="overview-domain-measure-label">{getMetricName('new_effort')}</div>
@@ -118,7 +104,7 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              {this.renderDebt('sqale_index', 'CODE_SMELL')}
+              {this.renderDebt('sqale_index')}
               {this.props.renderRating('sqale_rating')}
             </div>
             <div className="overview-domain-measure-label">

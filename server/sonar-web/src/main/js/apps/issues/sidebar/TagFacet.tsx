@@ -33,7 +33,6 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component: Component | undefined;
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -116,7 +115,7 @@ export default class TagFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={this.renderTag(tag)}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(tag), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(tag))}
             tooltip={this.props.tags.length === 1 && !this.props.tags.includes(tag)}
             value={tag}
           />

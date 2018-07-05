@@ -108,13 +108,6 @@ export function getProjects(query: RequestData) {
   return getFacet(query, 'projectUuids').then(r => extractProjects(r.facet, r.response));
 }
 
-export function getIssuesCount(query: RequestData): Promise<any> {
-  const data = { ...query, ps: 1, facetMode: 'effort' };
-  return searchIssues(data).then(r => {
-    return { issues: r.paging.total, debt: r.debtTotal };
-  });
-}
-
 export function searchIssueTags(
   data: { organization?: string; ps?: number; q?: string } = { ps: 100 }
 ): Promise<string[]> {

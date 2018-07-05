@@ -204,7 +204,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             loading={this.props.loading}
             name={renderName(category)}
             onClick={onClick}
-            stat={formatFacetStat(getStat(category), '')}
+            stat={formatFacetStat(getStat(category))}
             tooltip={values.length === 1 && !values.includes(category)}
             value={category}
           />

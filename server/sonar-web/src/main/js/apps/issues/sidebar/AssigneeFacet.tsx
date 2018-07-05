@@ -33,7 +33,6 @@ export interface Props {
   assigned: boolean;
   assignees: string[];
   component: Component | undefined;
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -168,7 +167,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={this.getAssigneeName(assignee)}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(assignee), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(assignee))}
             tooltip={this.props.assignees.length === 1 && !this.isAssigneeActive(assignee)}
             value={assignee}
           />

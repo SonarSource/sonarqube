@@ -28,7 +28,6 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   languages: string[];
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -100,7 +99,7 @@ export default class LanguageFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={this.getLanguageName(language)}
             onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(language), this.props.facetMode)}
+            stat={formatFacetStat(this.getStat(language))}
             tooltip={this.props.languages.length === 1 && !this.props.languages.includes(language)}
             value={language}
           />

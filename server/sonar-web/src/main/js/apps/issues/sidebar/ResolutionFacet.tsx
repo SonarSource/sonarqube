@@ -27,7 +27,6 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -99,7 +98,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
         loading={this.props.loading}
         name={this.getFacetItemName(resolution)}
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat, this.props.facetMode)}
+        stat={formatFacetStat(stat)}
         tooltip={
           this.props.resolutions.length === 1 &&
           resolution !== '' &&

@@ -28,7 +28,6 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  facetMode: string;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -84,7 +83,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
         loading={this.props.loading}
         name={<SeverityHelper severity={severity} />}
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat, this.props.facetMode)}
+        stat={formatFacetStat(stat)}
         tooltip={this.props.severities.length === 1 && !this.props.severities.includes(severity)}
         value={severity}
       />
