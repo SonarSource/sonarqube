@@ -19,12 +19,12 @@
  */
 package org.sonar.duplications.internal.pmd;
 
-import org.junit.Test;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.ByteArray;
-
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Test;
+import org.sonar.api.batch.sensor.cpd.internal.TokensLine;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

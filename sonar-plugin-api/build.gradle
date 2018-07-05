@@ -17,9 +17,6 @@ dependencies {
 
   // shaded, but not relocated
   compile project(':sonar-check-api')
-  compile(project(':sonar-duplications')) {
-    exclude group: 'org.slf4', module: 'slf4j-api'
-  }
 
   shadow 'org.codehaus.staxmate:staxmate'
   shadow 'org.codehaus.woodstox:stax2-api'

@@ -30,7 +30,6 @@ import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Configuration;
-import org.sonar.duplications.internal.pmd.TokensLine;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.unmodifiableList;
@@ -39,7 +38,7 @@ import static java.util.Objects.requireNonNull;
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   private final Configuration config;
-  private final ArrayList<TokensLine> result = new ArrayList<>();
+  private final List<TokensLine> result = new ArrayList<>();
   private InputFile inputFile;
   private int startLine = Integer.MIN_VALUE;
   private int startIndex = 0;

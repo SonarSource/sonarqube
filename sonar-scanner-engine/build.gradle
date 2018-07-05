@@ -30,6 +30,7 @@ dependencies {
   compile project(':sonar-core')
   compile project(':sonar-scanner-protocol')
   compile project(':sonar-ws')
+  compile project(':sonar-duplications')
   runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly project(path: ':sonar-plugin-api')
 

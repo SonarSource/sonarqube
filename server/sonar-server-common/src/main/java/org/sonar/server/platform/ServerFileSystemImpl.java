@@ -20,6 +20,8 @@
 package org.sonar.server.platform;
 
 import java.io.File;
+import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
@@ -39,9 +41,9 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   private final File uninstallDir;
 
   public ServerFileSystemImpl(Configuration config) {
-    this.homeDir = new File(config.get(PATH_HOME.getKey()).get());
-    this.tempDir = new File(config.get(PATH_TEMP.getKey()).get());
-    File dataDir = new File(config.get(PATH_DATA.getKey()).get());
+    this.homeDir = createDir(new File(config.get(PATH_HOME.getKey()).get()));
+    this.tempDir = createDir(new File(config.get(PATH_TEMP.getKey()).get()));
+    File dataDir = createDir(new File(config.get(PATH_DATA.getKey()).get()));
     this.deployDir = new File(dataDir, "web/deploy");
     this.uninstallDir = new File(getTempDir(), "uninstalled-plugins");
   }
@@ -91,4 +93,12 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
     return uninstallDir;
   }
 
+  private static File createDir(File dir) {
+    try {
+      FileUtils.forceMkdir(dir);
+      return dir;
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to create directory " + dir, e);
+    }
+  }
 }

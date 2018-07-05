@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.duplications.internal.pmd;
-
-import org.sonar.duplications.CodeFragment;
+package org.sonar.api.batch.sensor.cpd.internal;
 
 /**
  * Immutable code fragment, which formed from tokens of one line.
  */
-public class TokensLine implements CodeFragment {
+public class TokensLine {
 
   private final String value;
 
@@ -51,7 +49,6 @@ public class TokensLine implements CodeFragment {
     return value;
   }
 
-  @Override
   public int getStartLine() {
     return startLine;
   }
@@ -59,7 +56,6 @@ public class TokensLine implements CodeFragment {
   /**
    * Same as {@link #getStartLine()}
    */
-  @Override
   public int getEndLine() {
     return startLine;
   }

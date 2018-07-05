@@ -150,7 +150,9 @@ public class ComputeEngineContainerImplTest {
     Properties properties = ProcessProperties.defaults();
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
+    dataDir.mkdirs();
     File tmpDir = new File(homeDir, "tmp");
+    tmpDir.mkdirs();
     properties.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     properties.setProperty(PATH_DATA.getKey(), dataDir.getAbsolutePath());
     properties.setProperty(PATH_TEMP.getKey(), tmpDir.getAbsolutePath());

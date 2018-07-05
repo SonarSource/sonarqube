@@ -21,10 +21,9 @@ package org.sonar.duplications.statement;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.duplications.CodeFragment;
 import org.sonar.duplications.token.Token;
 
-public class Statement implements CodeFragment {
+public class Statement {
 
   private final int startLine;
   private final int endLine;
@@ -54,12 +53,10 @@ public class Statement implements CodeFragment {
     this.endLine = tokens.get(tokens.size() - 1).getLine();
   }
 
-  @Override
   public int getStartLine() {
     return startLine;
   }
 
-  @Override
   public int getEndLine() {
     return endLine;
   }
