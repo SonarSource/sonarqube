@@ -24,6 +24,7 @@ import com.google.common.collect.Ordering;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,7 +34,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -49,8 +49,11 @@ import org.sonarqube.ws.Organizations.User;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -73,22 +76,25 @@ public class SearchMembersAction implements OrganizationsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("search_members")
-      .setDescription("Search members of an organization")
+      .setDescription("Search members of an organization.<br/>" +
+        "Require organization membership.")
       .setResponseExample(getClass().getResource("search_members-example.json"))
       .setSince("6.4")
       .setInternal(true)
+      .setChangelog(new Change("7.3", "This action now requires organization membership"))
       .setHandler(this);
 
-    action.addSearchQuery("orwe", "names", "logins");
+    action.createSearchQuery("orwe", "names", "logins")
+      .setMinimumLength(2);
     action.addPagingParams(50, MAX_LIMIT);
 
     action.createParam(Param.SELECTED)
       .setDescription("Depending on the value, show only selected items (selected=selected) or deselected items (selected=deselected).")
       .setInternal(true)
-      .setDefaultValue(SelectionMode.SELECTED.value())
-      .setPossibleValues(SelectionMode.SELECTED.value(), SelectionMode.DESELECTED.value());
+      .setDefaultValue(SELECTED.value())
+      .setPossibleValues(SELECTED.value(), SelectionMode.DESELECTED.value());
 
-    action.createParam("organization")
+    action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setInternal(true)
       .setRequired(false);
@@ -98,6 +104,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = getOrganization(dbSession, request.param("organization"));
+      userSession.checkMembership(organization);
 
       UserQuery.Builder userQuery = buildUserQuery(request, organization);
       SearchOptions searchOptions = buildSearchOptions(request);
@@ -110,7 +117,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
         .collect(MoreCollectors.toList());
 
       Multiset<String> groupCountByLogin = null;
-      if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organization)) {
+      if (userSession.hasPermission(ADMINISTER, organization)) {
         groupCountByLogin = dbClient.groupMembershipDao().countGroupByLoginsAndOrganization(dbSession, orderedLogins, organization.getUuid());
       }
 
