@@ -43,6 +43,17 @@
   border: 1px solid var(--leakBorderColor);
 }
 
+.search-navigator-facet-box.is-inner {
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 1px solid var(--barBorderColor);
+}
+
+.search-navigator-facet-box.is-inner .search-navigator-facet-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
 .leak-facet-box:not(.hidden) + .leak-facet-box {
   border-top: none;
 }

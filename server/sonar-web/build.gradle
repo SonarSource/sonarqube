@@ -73,6 +73,7 @@ def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "c
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
   source = sources
+  exclude 'main/js/helpers/standards.json'
   if (official) exclude 'main/js/app/components/GlobalFooterBranding.js'
 }
 licenseMain.dependsOn licenseCheckWeb

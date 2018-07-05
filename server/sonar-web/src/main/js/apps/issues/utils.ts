@@ -44,23 +44,28 @@ export interface Query {
   createdAt: string;
   createdBefore: Date | undefined;
   createdInLast: string;
+  cwe: string[];
   directories: string[];
   facetMode: string;
   files: string[];
   issues: string[];
   languages: string[];
   modules: string[];
+  owaspTop10: string[];
   projects: string[];
-  resolved: boolean;
   resolutions: string[];
+  resolved: boolean;
   rules: string[];
-  sort: string;
+  sansTop25: string[];
   severities: string[];
   sinceLeakPeriod: boolean;
+  sort: string;
   statuses: string[];
   tags: string[];
   types: string[];
 }
+
+export const STANDARDS = 'standards';
 
 // allow sorting by CREATION_DATE only
 const parseAsSort = (sort: string) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
@@ -75,19 +80,22 @@ export function parseQuery(query: RawQuery): Query {
     createdAt: parseAsString(query.createdAt),
     createdBefore: parseAsDate(query.createdBefore),
     createdInLast: parseAsString(query.createdInLast),
+    cwe: parseAsArray(query.cwe, parseAsString),
     directories: parseAsArray(query.directories, parseAsString),
     facetMode: parseAsFacetMode(query.facetMode),
     files: parseAsArray(query.fileUuids, parseAsString),
     issues: parseAsArray(query.issues, parseAsString),
     languages: parseAsArray(query.languages, parseAsString),
     modules: parseAsArray(query.moduleUuids, parseAsString),
+    owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
     projects: parseAsArray(query.projectUuids, parseAsString),
-    resolved: parseAsBoolean(query.resolved),
     resolutions: parseAsArray(query.resolutions, parseAsString),
+    resolved: parseAsBoolean(query.resolved),
     rules: parseAsArray(query.rules, parseAsString),
-    sort: parseAsSort(query.s),
+    sansTop25: parseAsArray(query.sansTop25, parseAsString),
     severities: parseAsArray(query.severities, parseAsString),
     sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
+    sort: parseAsSort(query.s),
     statuses: parseAsArray(query.statuses, parseAsString),
     tags: parseAsArray(query.tags, parseAsString),
     types: parseAsArray(query.types, parseAsString)
@@ -109,20 +117,23 @@ export function serializeQuery(query: Query): RawQuery {
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeDateShort(query.createdBefore),
     createdInLast: serializeString(query.createdInLast),
+    cwe: serializeStringArray(query.cwe),
     directories: serializeStringArray(query.directories),
     facetMode: query.facetMode === 'effort' ? serializeString(query.facetMode) : undefined,
     fileUuids: serializeStringArray(query.files),
     issues: serializeStringArray(query.issues),
     languages: serializeStringArray(query.languages),
     moduleUuids: serializeStringArray(query.modules),
+    owaspTop10: serializeStringArray(query.owaspTop10),
     projectUuids: serializeStringArray(query.projects),
-    resolved: query.resolved ? undefined : 'false',
     resolutions: serializeStringArray(query.resolutions),
+    resolved: query.resolved ? undefined : 'false',
+    rules: serializeStringArray(query.rules),
     s: serializeString(query.sort),
+    sansTop25: serializeStringArray(query.sansTop25),
     severities: serializeStringArray(query.severities),
     sinceLeakPeriod: query.sinceLeakPeriod ? 'true' : undefined,
     statuses: serializeStringArray(query.statuses),
-    rules: serializeStringArray(query.rules),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types)
   };

@@ -30,10 +30,18 @@ import ProjectFacet from './ProjectFacet';
 import ResolutionFacet from './ResolutionFacet';
 import RuleFacet from './RuleFacet';
 import SeverityFacet from './SeverityFacet';
+import StandardFacet from './StandardFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TypeFacet from './TypeFacet';
-import { Query, Facet, ReferencedComponent, ReferencedUser, ReferencedLanguage } from '../utils';
+import {
+  Query,
+  Facet,
+  ReferencedComponent,
+  ReferencedUser,
+  ReferencedLanguage,
+  STANDARDS
+} from '../utils';
 import { Component } from '../../../app/types';
 
 export interface Props {
@@ -142,6 +150,21 @@ export default class Sidebar extends React.PureComponent<Props> {
           referencedRules={this.props.referencedRules}
           rules={query.rules}
           stats={facets.rules}
+        />
+        <StandardFacet
+          cwe={query.cwe}
+          cweOpen={!!openFacets.cwe}
+          cweStats={facets.cwe}
+          loading={this.props.loading}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets[STANDARDS]}
+          owaspTop10={query.owaspTop10}
+          owaspTop10Open={!!openFacets.owaspTop10}
+          owaspTop10Stats={facets.owaspTop10}
+          sansTop25={query.sansTop25}
+          sansTop25Open={!!openFacets.sansTop25}
+          sansTop25Stats={facets.sansTop25}
         />
         <TagFacet
           component={component}

@@ -49,7 +49,8 @@ import {
   ReferencedLanguage,
   ReferencedUser,
   saveMyIssues,
-  serializeQuery
+  serializeQuery,
+  STANDARDS
 } from '../utils';
 import { Component, CurrentUser, Issue, Paging, BranchLike } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
@@ -409,6 +410,7 @@ export default class App extends React.PureComponent<Props, State> {
     const facets = requestFacets
       ? Object.keys(openFacets)
           .filter(facet => openFacets[facet])
+          .filter(facet => facet !== STANDARDS)
           .map(mapFacet)
           .join(',')
       : undefined;
@@ -640,7 +642,7 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState(state => ({
       openFacets: { ...state.openFacets, [property]: !state.openFacets[property] }
     }));
-    if (!this.state.facets[property]) {
+    if (property !== STANDARDS && !this.state.facets[property]) {
       this.fetchFacet(property);
     }
   };
