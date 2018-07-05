@@ -158,11 +158,11 @@ export default class Issue extends React.PureComponent {
         displayLocationsLink={this.props.displayLocationsLink}
         issue={this.props.issue}
         onAssign={this.handleAssignement}
+        onChange={this.props.onChange}
         onCheck={this.props.onCheck}
         onClick={this.props.onClick}
         onFail={this.handleFail}
         onFilter={this.props.onFilter}
-        onChange={this.props.onChange}
         selected={this.props.selected}
         togglePopup={this.togglePopup}
       />

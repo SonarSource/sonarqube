@@ -92,6 +92,7 @@ export default class IssueActionsBar extends React.PureComponent {
     const canSetType = issue.actions.includes('set_type');
     const canSetTags = issue.actions.includes('set_tags');
     const hasTransitions = issue.transitions && issue.transitions.length > 0;
+    const isSecurityHotspot = issue.type === 'SECURITY_HOTSPOT';
 
     return (
       <div className="issue-actions">
@@ -105,15 +106,17 @@ export default class IssueActionsBar extends React.PureComponent {
               togglePopup={this.props.togglePopup}
             />
           </li>
-          <li className="issue-meta">
-            <IssueSeverity
-              canSetSeverity={canSetSeverity}
-              isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
-              issue={issue}
-              setIssueProperty={this.setIssueProperty}
-              togglePopup={this.props.togglePopup}
-            />
-          </li>
+          {!isSecurityHotspot && (
+            <li className="issue-meta">
+              <IssueSeverity
+                canSetSeverity={canSetSeverity}
+                isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
+                issue={issue}
+                setIssueProperty={this.setIssueProperty}
+                togglePopup={this.props.togglePopup}
+              />
+            </li>
+          )}
           <li className="issue-meta">
             <IssueTransition
               hasTransitions={hasTransitions}
@@ -124,23 +127,26 @@ export default class IssueActionsBar extends React.PureComponent {
               togglePopup={this.props.togglePopup}
             />
           </li>
-          <li className="issue-meta">
-            <IssueAssign
-              canAssign={canAssign}
-              isOpen={this.props.currentPopup === 'assign' && canAssign}
-              issue={issue}
-              onAssign={this.props.onAssign}
-              onFail={this.props.onFail}
-              togglePopup={this.props.togglePopup}
-            />
-          </li>
-          {issue.effort && (
+          {!isSecurityHotspot && (
             <li className="issue-meta">
-              <span className="issue-meta-label">
-                {translateWithParameters('issue.x_effort', issue.effort)}
-              </span>
+              <IssueAssign
+                canAssign={canAssign}
+                isOpen={this.props.currentPopup === 'assign' && canAssign}
+                issue={issue}
+                onAssign={this.props.onAssign}
+                onFail={this.props.onFail}
+                togglePopup={this.props.togglePopup}
+              />
             </li>
           )}
+          {!isSecurityHotspot &&
+            issue.effort && (
+              <li className="issue-meta">
+                <span className="issue-meta-label">
+                  {translateWithParameters('issue.x_effort', issue.effort)}
+                </span>
+              </li>
+            )}
           {canComment && (
             <IssueCommentAction
               commentPlaceholder={this.state.commentPlaceholder}
