@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 
 public interface ContainerFactory {
 

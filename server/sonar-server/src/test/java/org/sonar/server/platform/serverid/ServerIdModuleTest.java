@@ -19,24 +19,20 @@
  */
 package org.sonar.server.platform.serverid;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.sonar.api.config.Configuration;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class ServerIdChecksum {
+public class ServerIdModuleTest {
+  private ServerIdModule underTest = new ServerIdModule();
 
-  private final Configuration config;
-  private final JdbcUrlSanitizer jdbcUrlSanitizer;
-
-  public ServerIdChecksum(Configuration config, JdbcUrlSanitizer jdbcUrlSanitizer) {
-    this.config = config;
-    this.jdbcUrlSanitizer = jdbcUrlSanitizer;
-  }
-
-  public String computeFor(String serverId) {
-    String jdbcUrl = config.get(JDBC_URL.getKey()).orElseThrow(() -> new IllegalStateException("Missing JDBC URL"));
-    return DigestUtils.sha256Hex(serverId + "|" + jdbcUrlSanitizer.sanitize(jdbcUrl));
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    underTest.configure(container);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 4);
   }
 
 }

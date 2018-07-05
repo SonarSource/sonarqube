@@ -125,7 +125,6 @@ import org.sonar.ce.task.step.ComputationSteps;
 import org.sonar.ce.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 import org.sonar.server.computation.organization.DefaultOrganizationLoader;
 import org.sonar.server.view.index.ViewIndex;
 

@@ -24,7 +24,6 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 
 public class ContainerFactoryImpl implements ContainerFactory {
   @Override

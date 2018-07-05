@@ -136,7 +136,8 @@ import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.monitoring.DbSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
-import org.sonar.server.platform.serverid.ServerIdModule;
+import org.sonar.server.platform.serverid.JdbcUrlSanitizer;
+import org.sonar.server.platform.serverid.ServerIdChecksum;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.property.InternalPropertiesImpl;
@@ -350,7 +351,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static void populateLevel3(ComponentContainer container) {
     container.add(
       new StartupMetadataProvider(),
-      ServerIdModule.class,
+      JdbcUrlSanitizer.class,
+      ServerIdChecksum.class,
       UriReader.class,
       ServerImpl.class,
       DefaultOrganizationProviderImpl.class,

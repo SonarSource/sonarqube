@@ -40,7 +40,6 @@ dependencies {
   compileOnly project(':sonar-core')
   compileOnly project(':server:sonar-ce-task')
   compileOnly project(':server:sonar-db-dao')
-  compileOnly project(':server:sonar-plugin-bridge')
   compileOnly project(':server:sonar-process')
   compileOnly project(':server:sonar-server-common')
   compileOnly project(path: ':sonar-plugin-api')

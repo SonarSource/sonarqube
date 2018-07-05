@@ -31,7 +31,7 @@ import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.ce.taskprocessor.TaskResultHolder;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
+import org.sonar.ce.task.projectanalysis.container.ReportAnalysisComponentProvider;
 
 public class ReportTaskProcessor implements CeTaskProcessor {
 

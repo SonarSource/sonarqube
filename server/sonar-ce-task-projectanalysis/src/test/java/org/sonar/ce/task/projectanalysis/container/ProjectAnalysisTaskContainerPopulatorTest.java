@@ -37,7 +37,6 @@ import org.sonar.ce.task.projectanalysis.step.PersistComponentsStep;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.StepsExplorer;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;

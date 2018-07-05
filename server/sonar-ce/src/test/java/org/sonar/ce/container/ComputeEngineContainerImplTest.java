@@ -111,8 +111,7 @@ public class ComputeEngineContainerImplTest {
       );
       assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
         CONTAINER_ITSELF
-          + 7 // level 3
-          + 4 // content of ServerIdModule
+          + 8 // level 3
       );
       assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
         CONTAINER_ITSELF
