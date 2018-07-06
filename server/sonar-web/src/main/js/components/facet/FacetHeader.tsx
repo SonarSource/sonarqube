@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
   children?: React.ReactNode;
+  clearLabel?: string;
   helper?: string;
   name: React.ReactNode;
   onClear?: () => void;
@@ -94,7 +95,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
           <Button
             className="search-navigator-facet-header-button button-small button-red"
             onClick={this.props.onClear}>
-            {translate('clear')}
+            {translate(this.props.clearLabel || 'clear')}
           </Button>
         )}
       </div>

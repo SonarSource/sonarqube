@@ -70,8 +70,18 @@ export default class TypeFacet extends React.PureComponent<Props> {
     return stats ? stats[type] : undefined;
   }
 
+  isFacetItemActive(type: string) {
+    const { types } = this.props;
+    return (
+      // type is selected explicitly
+      types.includes(type) ||
+      // bugs, vulnerabilities and code smells are selected implicitly by default
+      (types.length === 0 && ['BUG', 'VULNERABILITY', 'CODE_SMELL'].includes(type))
+    );
+  }
+
   renderItem = (type: string) => {
-    const active = this.props.types.includes(type);
+    const active = this.isFacetItemActive(type);
     const stat = this.getStat(type);
 
     return (
@@ -100,6 +110,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
+          clearLabel="reset_verb"
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}

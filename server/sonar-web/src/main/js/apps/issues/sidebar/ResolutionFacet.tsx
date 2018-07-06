@@ -116,6 +116,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
+          clearLabel="reset_verb"
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
