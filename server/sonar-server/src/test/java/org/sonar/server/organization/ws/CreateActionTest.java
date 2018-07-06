@@ -126,7 +126,6 @@ public class CreateActionTest {
     assertThat(response.getOrganization().getDescription()).isEqualTo("My org desc");
     assertThat(response.getOrganization().getUrl()).isEqualTo("my url");
     assertThat(response.getOrganization().getAvatar()).isEqualTo("my avatar");
-    assertThat(response.getOrganization().getSubscription()).isEqualTo(OrganizationDto.Subscription.FREE.name());
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
     assertThat(organization.getName()).isEqualTo("orgFoo");
     assertThat(organization.getDescription()).isEqualTo("My org desc");
@@ -210,7 +209,8 @@ public class CreateActionTest {
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), UserRole.SECURITYHOTSPOT_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), UserRole.SECURITYHOTSPOT_ADMIN),
+        tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
         tuple(defaultGroup.getId(), UserRole.USER), tuple(defaultGroup.getId(), UserRole.CODEVIEWER));
   }
 
@@ -227,7 +227,8 @@ public class CreateActionTest {
     assertThat(es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_ORGANIZATION_UUIDS, organization.getUuid()))
-        .must(termQuery(FIELD_UUID, user.getUuid()))).get().getHits().getHits()).hasSize(1);
+        .must(termQuery(FIELD_UUID, user.getUuid())))
+      .get().getHits().getHits()).hasSize(1);
   }
 
   @Test

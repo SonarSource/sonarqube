@@ -115,8 +115,7 @@ public class OrganizationsWsSupport {
     builder
       .setName(dto.getName())
       .setKey(dto.getKey())
-      .setGuarded(dto.isGuarded())
-      .setSubscription(dto.getSubscription().name());
+      .setGuarded(dto.isGuarded());
     setNullable(dto.getDescription(), builder::setDescription);
     setNullable(dto.getUrl(), builder::setUrl);
     setNullable(dto.getAvatarUrl(), builder::setAvatar);

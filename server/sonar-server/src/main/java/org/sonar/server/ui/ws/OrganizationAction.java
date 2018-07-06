@@ -97,11 +97,12 @@ public class OrganizationAction implements NavigationWsAction {
   private void writeOrganization(JsonWriter json, OrganizationDto organization, boolean newProjectPrivate) {
     json.name("organization")
       .beginObject()
+      .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
+      .prop("projectVisibility", Visibility.getLabel(newProjectPrivate))
+      .prop("subscription", organization.getSubscription().name())
       .prop("canAdmin", userSession.hasPermission(ADMINISTER, organization))
       .prop("canProvisionProjects", userSession.hasPermission(PROVISION_PROJECTS, organization))
       .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasPermission(ADMINISTER, organization))
-      .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
-      .prop("projectVisibility", Visibility.getLabel(newProjectPrivate))
       .prop("canUpdateProjectsVisibilityToPrivate",
         userSession.hasPermission(ADMINISTER, organization) &&
           billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid())));

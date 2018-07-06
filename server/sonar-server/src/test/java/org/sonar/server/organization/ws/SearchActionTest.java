@@ -51,7 +51,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
-import static org.sonar.db.organization.OrganizationDto.Subscription.SONARQUBE;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.SearchAction.PARAM_MEMBER;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -90,31 +89,6 @@ public class SearchActionTest {
       tuple(userAdminOrganization.getKey(), true),
       tuple(browseOrganization.getKey(), false),
       tuple(groupAdminOrganization.getKey(), true));
-  }
-
-  @Test
-  public void return_sonarcloud_subscription() {
-    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
-    OrganizationDto freeOrganization = db.organizations().insert(o -> o.setSubscription(FREE));
-    // Organization without subscription should be considered as free
-    OrganizationDto organizationWithoutSubscription = db.organizations().insert(o -> o.setSubscription(null));
-
-    SearchWsResponse result = call(ws.newRequest());
-
-    assertThat(result.getOrganizationsList()).extracting(Organization::getKey, Organization::getSubscription).containsExactlyInAnyOrder(
-      tuple(paidOrganization.getKey(), PAID.name()),
-      tuple(freeOrganization.getKey(), FREE.name()),
-      tuple(organizationWithoutSubscription.getKey(), FREE.name()));
-  }
-
-  @Test
-  public void return_sonarqube_subscription() {
-    OrganizationDto sonarQubeOrganization = db.organizations().insert(o -> o.setSubscription(SONARQUBE));
-
-    SearchWsResponse result = call(ws.newRequest());
-
-    assertThat(result.getOrganizationsList()).extracting(Organization::getKey, Organization::getSubscription).containsExactlyInAnyOrder(
-      tuple(sonarQubeOrganization.getKey(), SONARQUBE.name()));
   }
 
   @Test

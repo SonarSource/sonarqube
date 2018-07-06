@@ -28,12 +28,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -51,24 +51,197 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
+import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
+import static org.sonar.db.organization.OrganizationDto.Subscription.SONARQUBE;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class OrganizationActionTest {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private DbClient dbClient = db.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private PageRepository pageRepository = mock(PageRepository.class);
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
   private WsActionTester ws = new WsActionTester(new OrganizationAction(dbClient, defaultOrganizationProvider, userSession, pageRepository, billingValidations));
+
+  @Test
+  public void filter_out_admin_pages_when_user_is_not_admin() {
+    initWithPages(
+      Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
+      Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
+    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn()
+      .addPermission(PROVISION_PROJECTS, organization);
+
+    TestResponse response = executeRequest(organization);
+
+    assertThat(response.getInput())
+      .contains("my-plugin/org-page")
+      .doesNotContain("my-plugin/org-admin-page");
+  }
+
+  @Test
+  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_the_default_organization() {
+    TestResponse response = executeRequest(db.getDefaultOrganization());
+
+    verifyResponse(response, false, false, false);
+  }
+
+  @Test
+  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_the_default_organization() {
+    userSession.logIn();
+
+    TestResponse response = executeRequest(db.getDefaultOrganization());
+
+    verifyResponse(response, false, false, false);
+  }
+
+  @Test
+  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_the_default_organization() {
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
+
+    TestResponse response = executeRequest(defaultOrganization);
+
+    verifyResponse(response, true, false, true);
+  }
+
+  @Test
+  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_not_the_default_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    TestResponse response = executeRequest(organization);
+
+    verifyResponse(response, false, false, false);
+  }
+
+  @Test
+  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_not_the_default_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn();
+
+    TestResponse response = executeRequest(organization);
+
+    verifyResponse(response, false, false, false);
+  }
+
+  @Test
+  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_not_the_default_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn().addPermission(ADMINISTER, organization);
+
+    TestResponse response = executeRequest(organization);
+
+    verifyResponse(response, true, false, true);
+  }
+
+  @Test
+  public void returns_admin_and_canDelete_false_when_user_logged_in_and_admin_and_key_is_guarded_organization() {
+    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn().addPermission(ADMINISTER, organization);
+
+    TestResponse response = executeRequest(organization);
+
+    verifyResponse(response, true, false, false);
+  }
+
+  @Test
+  public void returns_only_canDelete_true_when_user_is_system_administrator_and_key_is_guarded_organization() {
+    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn().setSystemAdministrator();
+
+    TestResponse response = executeRequest(organization);
+
+    verifyResponse(response, false, false, true);
+  }
+
+  @Test
+  public void returns_provisioning_true_when_user_can_provision_projects_in_organization() {
+    // user can provision projects in org2 but not in org1
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    userSession.logIn().addPermission(PROVISION_PROJECTS, org2);
+
+    verifyResponse(executeRequest(org1), false, false, false);
+    verifyResponse(executeRequest(org2), false, true, false);
+  }
+
+  @Test
+  public void returns_project_visibility_private() {
+    OrganizationDto organization = db.organizations().insert();
+    db.organizations().setNewProjectPrivate(organization, true);
+    userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
+    assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"private\"}}");
+  }
+
+  @Test
+  public void returns_project_visibility_public() {
+    OrganizationDto organization = db.organizations().insert();
+    db.organizations().setNewProjectPrivate(organization, false);
+    userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
+    assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"public\"}}");
+  }
+
+  @Test
+  public void returns_non_admin_and_canUpdateProjectsVisibilityToPrivate_false_when_user_logged_in_but_not_admin_and_extension_returns_true() {
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+
+    userSession.logIn();
+    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
+    verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(db.getDefaultOrganization()), false);
+
+    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
+    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(false);
+    verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(db.getDefaultOrganization()), false);
+
+    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
+    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
+    verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(db.getDefaultOrganization()), true);
+  }
+
+  @Test
+  public void return_subscription_flag() {
+    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+
+    OrganizationDto freeOrganization = db.organizations().insert(o -> o.setSubscription(FREE));
+    assertJson(executeRequest(freeOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"FREE\"}}");
+
+    OrganizationDto sonarQubeOrganization = db.organizations().insert(o -> o.setSubscription(SONARQUBE));
+    assertJson(executeRequest(sonarQubeOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"SONARQUBE\"}}");
+  }
+
+  @Test
+  public void fails_with_IAE_if_parameter_organization_is_not_specified() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'organization' parameter is missing");
+
+    executeRequest(null);
+  }
+
+  @Test
+  public void json_example() {
+    initWithPages(
+      Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
+      Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
+    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn()
+      .addPermission(ADMINISTER, organization)
+      .addPermission(PROVISION_PROJECTS, organization);
+
+    TestResponse response = executeRequest(organization);
+
+    assertJson(response.getInput())
+      .isSimilarTo(ws.getDef().responseExampleAsString());
+  }
 
   @Test
   public void verify_definition() {
@@ -85,164 +258,6 @@ public class OrganizationActionTest {
     assertThat(organization.description()).isEqualTo("the organization key");
     assertThat(organization.isRequired()).isTrue();
     assertThat(organization.exampleValue()).isEqualTo("my-org");
-  }
-
-  @Test
-  public void fails_with_IAE_if_parameter_organization_is_not_specified() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'organization' parameter is missing");
-
-    executeRequest(null);
-  }
-
-  @Test
-  public void json_example() {
-    initWithPages(
-      Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
-      Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
-    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
-    userSession.logIn()
-      .addPermission(ADMINISTER, organization)
-      .addPermission(PROVISION_PROJECTS, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    assertJson(response.getInput())
-      .isSimilarTo(ws.getDef().responseExampleAsString());
-  }
-
-  @Test
-  public void filter_out_admin_pages_when_user_is_not_admin() {
-    initWithPages(
-      Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
-      Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
-    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
-    userSession.logIn()
-      .addPermission(PROVISION_PROJECTS, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    assertThat(response.getInput())
-      .contains("my-plugin/org-page")
-      .doesNotContain("my-plugin/org-admin-page");
-  }
-
-  @Test
-  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_the_default_organization() {
-    TestResponse response = executeRequest(dbTester.getDefaultOrganization());
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_the_default_organization() {
-    userSession.logIn();
-
-    TestResponse response = executeRequest(dbTester.getDefaultOrganization());
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_the_default_organization() {
-    OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
-
-    TestResponse response = executeRequest(defaultOrganization);
-
-    verifyResponse(response, true, false, true);
-  }
-
-  @Test
-  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_not_the_default_organization() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_not_the_default_organization() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    userSession.logIn();
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_not_the_default_organization() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, true, false, true);
-  }
-
-  @Test
-  public void returns_admin_and_canDelete_false_when_user_logged_in_and_admin_and_key_is_guarded_organization() {
-    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, true, false, false);
-  }
-
-  @Test
-  public void returns_only_canDelete_true_when_user_is_system_administrator_and_key_is_guarded_organization() {
-    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
-    userSession.logIn().setSystemAdministrator();
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, false, false, true);
-  }
-
-  @Test
-  public void returns_provisioning_true_when_user_can_provision_projects_in_organization() {
-    // user can provision projects in org2 but not in org1
-    OrganizationDto org1 = dbTester.organizations().insert();
-    OrganizationDto org2 = dbTester.organizations().insert();
-    userSession.logIn().addPermission(PROVISION_PROJECTS, org2);
-
-    verifyResponse(executeRequest(org1), false, false, false);
-    verifyResponse(executeRequest(org2), false, true, false);
-  }
-
-  @Test
-  public void returns_project_visibility_private() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    dbTester.organizations().setNewProjectPrivate(organization, true);
-    userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
-    assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"private\"}}");
-  }
-
-  @Test
-  public void returns_project_visibility_public() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    dbTester.organizations().setNewProjectPrivate(organization, false);
-    userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
-    assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"public\"}}");
-  }
-
-  @Test
-  public void returns_non_admin_and_canUpdateProjectsVisibilityToPrivate_false_when_user_logged_in_but_not_admin_and_extension_returns_true() {
-    OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
-
-    userSession.logIn();
-    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
-    verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(dbTester.getDefaultOrganization()), false);
-
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
-    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(false);
-    verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(dbTester.getDefaultOrganization()), false);
-
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
-    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
-    verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(dbTester.getDefaultOrganization()), true);
   }
 
   private void initWithPages(Page... pages) {
