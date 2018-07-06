@@ -191,6 +191,15 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     }
 
     const categories = sortBy(Object.keys(stats), key => -stats[key]);
+
+    if (!categories.length) {
+      return (
+        <div className="search-navigator-facet-empty little-spacer-top">
+          {translate('no_results')}
+        </div>
+      );
+    }
+
     const getStat = (category: string) => {
       return stats ? stats[category] : undefined;
     };

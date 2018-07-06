@@ -14,6 +14,25 @@ exports[`should render closed 1`] = `
 </FacetBox>
 `;
 
+exports[`should render empty sub-facet 1`] = `
+<FacetBox
+  className="is-inner"
+  property="sansTop25"
+>
+  <FacetHeader
+    name="issues.facet.sansTop25"
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <div
+    className="search-navigator-facet-empty little-spacer-top"
+  >
+    no_results
+  </div>
+</FacetBox>
+`;
+
 exports[`should render sub-facets 1`] = `
 <FacetBox
   property="standards"

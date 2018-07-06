@@ -57,6 +57,14 @@ it('should render sub-facets', () => {
   ).toMatchSnapshot();
 });
 
+it('should render empty sub-facet', () => {
+  expect(
+    shallowRender({ open: true, sansTop25: [], sansTop25Open: true, sansTop25Stats: {} }).find(
+      'FacetBox[property="sansTop25"]'
+    )
+  ).toMatchSnapshot();
+});
+
 it('should select items', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({
