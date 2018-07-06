@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Visibility } from '../../app/types';
+
 export interface Project {
   analysisDate?: string;
   isFavorite?: boolean;
@@ -26,7 +28,7 @@ export interface Project {
   name: string;
   organization?: { key: string; name: string };
   tags: string[];
-  visibility: string;
+  visibility: Visibility;
 }
 
 export interface Facet {

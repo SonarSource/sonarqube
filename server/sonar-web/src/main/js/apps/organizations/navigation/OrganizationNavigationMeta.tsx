@@ -18,16 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Organization, HomePageType } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
+import { hasPrivateAccess, isPaidOrganization } from '../../../helpers/organizations';
+import { CurrentUser, HomePageType, Organization } from '../../../app/types';
 
 interface Props {
+  currentUser: CurrentUser;
   organization: Organization;
+  userOrganizations: Organization[];
 }
 
-export default function OrganizationNavigationMeta({ organization }: Props) {
+export default function OrganizationNavigationMeta({
+  currentUser,
+  organization,
+  userOrganizations
+}: Props) {
+  const onSonarCloud = isSonarCloud();
   return (
     <div className="navbar-context-meta">
       {organization.url != null && (
@@ -39,10 +48,17 @@ export default function OrganizationNavigationMeta({ organization }: Props) {
           {organization.url}
         </a>
       )}
+      {onSonarCloud &&
+        isPaidOrganization(organization) &&
+        hasPrivateAccess(currentUser, organization, userOrganizations) && (
+          <DocTooltip className="spacer-right" doc="organizations/subscription-paid-plan">
+            <div className="outline-badge">{translate('organization.paid_plan.badge')}</div>
+          </DocTooltip>
+        )}
       <div className="text-muted">
         <strong>{translate('organization.key')}:</strong> {organization.key}
       </div>
-      {isSonarCloud() && (
+      {onSonarCloud && (
         <div className="navbar-context-meta-secondary">
           <HomePageSelect
             currentPage={{ type: HomePageType.Organization, organization: organization.key }}

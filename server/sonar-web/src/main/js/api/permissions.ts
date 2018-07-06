@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BaseSearchProjectsParameters } from './components';
-import { PermissionTemplate } from '../app/types';
+import { PermissionTemplate, Visibility } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 
@@ -294,14 +294,14 @@ export function getPermissionTemplateGroups(
 
 export function changeProjectVisibility(
   project: string,
-  visibility: string
+  visibility: Visibility
 ): Promise<void | Response> {
   return post('/api/projects/update_visibility', { project, visibility }).catch(throwGlobalError);
 }
 
 export function changeProjectDefaultVisibility(
   organization: string,
-  projectVisibility: string
+  projectVisibility: Visibility
 ): Promise<void | Response> {
   return post('/api/projects/update_default_visibility', { organization, projectVisibility }).catch(
     throwGlobalError

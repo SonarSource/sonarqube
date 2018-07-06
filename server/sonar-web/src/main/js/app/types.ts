@@ -67,7 +67,7 @@ export interface Component extends LightComponent {
   qualityGate?: { isDefault?: boolean; key: string; name: string };
   tags?: string[];
   version?: string;
-  visibility?: string;
+  visibility?: Visibility;
 }
 
 interface ComponentConfiguration {

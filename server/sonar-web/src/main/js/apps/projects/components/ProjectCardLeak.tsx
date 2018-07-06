@@ -26,20 +26,19 @@ import Favorite from '../../../components/controls/Favorite';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
-import PrivateBadge from '../../../components/common/PrivateBadge';
+import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
+import { Organization } from '../../../app/types';
 
 interface Props {
   height: number;
-  organization?: { key: string };
+  organization: Organization | undefined;
   project: Project;
 }
 
 export default function ProjectCardLeak({ height, organization, project }: Props) {
   const { measures } = project;
-
-  const isPrivate = project.visibility === 'private';
   const hasTags = project.tags.length > 0;
 
   return (
@@ -60,23 +59,30 @@ export default function ProjectCardLeak({ height, organization, project }: Props
             )}
             <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
           </h2>
-          {project.analysisDate && <ProjectCardQualityGate status={measures!['alert_status']} />}
+          {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
           <div className="project-card-header-right">
-            {isPrivate && <PrivateBadge className="spacer-left" qualifier="TRK" />}
+            <PrivacyBadgeContainer
+              className="spacer-left"
+              organization={organization || project.organization}
+              qualifier="TRK"
+              tooltipProps={{ projectKey: project.key }}
+              visibility={project.visibility}
+            />
+
             {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
           </div>
         </div>
         {project.analysisDate &&
           project.leakPeriodDate && (
             <div className="project-card-dates note text-right pull-right">
-              <DateFromNow date={project.leakPeriodDate!}>
+              <DateFromNow date={project.leakPeriodDate}>
                 {fromNow => (
                   <span className="project-card-leak-date pull-right">
                     {translateWithParameters('projects.leak_period_x', fromNow)}
                   </span>
                 )}
               </DateFromNow>
-              <DateTimeFormatter date={project.analysisDate!}>
+              <DateTimeFormatter date={project.analysisDate}>
                 {formattedDate => (
                   <span>
                     {translateWithParameters('projects.last_analysis_on_x', formattedDate)}

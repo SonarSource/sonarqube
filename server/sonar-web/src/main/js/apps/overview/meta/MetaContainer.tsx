@@ -46,6 +46,7 @@ import {
   getMyOrganizations,
   getOrganizationByKey
 } from '../../../store/rootReducer';
+import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
 interface StateToProps {
   currentUser: CurrentUser;
@@ -105,18 +106,26 @@ export class Meta extends React.PureComponent<Props> {
 
   render() {
     const { organizationsEnabled } = this.context;
-    const { branchLike, component, metrics } = this.props;
+    const { branchLike, component, metrics, organization } = this.props;
     const { qualifier, description, visibility } = component;
 
     const isProject = qualifier === 'TRK';
     const isApp = qualifier === 'APP';
     const isPrivate = visibility === Visibility.Private;
-
     return (
       <div className="overview-meta">
         <div className="overview-meta-card">
           <h4 className="overview-meta-header">
             {translate('overview.about_this_project', qualifier)}
+            {component.visibility && (
+              <PrivacyBadgeContainer
+                className="spacer-left pull-right"
+                organization={organization}
+                qualifier={component.qualifier}
+                tooltipProps={{ projectKey: component.key }}
+                visibility={component.visibility}
+              />
+            )}
           </h4>
           {description !== undefined && <p className="overview-meta-description">{description}</p>}
           {isProject && (

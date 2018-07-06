@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`do not render 1`] = `""`;
+
+exports[`renders 1`] = `
+<Tooltip
+  overlay="visibility.private.description.TRK"
+>
+  <div
+    className="outline-badge"
+  >
+    visibility.private
+  </div>
+</Tooltip>
+`;
+
+exports[`renders public 1`] = `
+<DocTooltip
+  doc="project/visibility-public"
+  overlayProps={
+    Object {
+      "organization": "foo",
+    }
+  }
+>
+  <div
+    className="outline-badge"
+  >
+    visibility.public
+  </div>
+</DocTooltip>
+`;
+
+exports[`renders public with icon 1`] = `
+<DocTooltip
+  doc="project/visibility-public-paid-org-admin"
+  overlayProps={
+    Object {
+      "organization": "foo",
+    }
+  }
+>
+  <div
+    className="outline-badge badge-info badge-icon"
+  >
+    <VisibleIcon
+      className="little-spacer-right"
+      fill="#4b9fd5"
+    />
+    visibility.public
+  </div>
+</DocTooltip>
+`;

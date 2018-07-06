@@ -18,6 +18,11 @@ exports[`render 1`] = `
       }
     />
     <OrganizationNavigationMeta
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
       organization={
         Object {
           "key": "foo",
@@ -25,6 +30,7 @@ exports[`render 1`] = `
           "projectVisibility": "public",
         }
       }
+      userOrganizations={Array []}
     />
   </div>
   <Connect(OrganizationNavigationMenu)

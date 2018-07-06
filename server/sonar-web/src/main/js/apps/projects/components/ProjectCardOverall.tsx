@@ -25,20 +25,20 @@ import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer
 import Favorite from '../../../components/controls/Favorite';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
-import PrivateBadge from '../../../components/common/PrivateBadge';
+import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
+import { Organization } from '../../../app/types';
 
 interface Props {
   height: number;
-  organization?: { key: string };
+  organization: Organization | undefined;
   project: Project;
 }
 
 export default function ProjectCardOverall({ height, organization, project }: Props) {
   const { measures } = project;
 
-  const isPrivate = project.visibility === 'private';
   const hasTags = project.tags.length > 0;
 
   return (
@@ -61,7 +61,13 @@ export default function ProjectCardOverall({ height, organization, project }: Pr
           </h2>
           {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
           <div className="project-card-header-right">
-            {isPrivate && <PrivateBadge className="spacer-left" qualifier="TRK" />}
+            <PrivacyBadgeContainer
+              className="spacer-left"
+              organization={organization || project.organization}
+              qualifier="TRK"
+              tooltipProps={{ projectKey: project.key }}
+              visibility={project.visibility}
+            />
             {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
           </div>
         </div>

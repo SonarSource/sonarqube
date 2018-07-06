@@ -29,7 +29,7 @@ it('should not render breadcrumbs with one element', () => {
     name: 'My Project',
     organization: 'org',
     qualifier: 'TRK',
-    visibility: 'public'
+    visibility: Visibility.Public
   };
   const result = shallow(
     <ComponentNavHeader
@@ -49,7 +49,7 @@ it('should render organization', () => {
     name: 'My Project',
     organization: 'foo',
     qualifier: 'TRK',
-    visibility: 'public'
+    visibility: Visibility.Public
   };
   const organization = {
     key: 'foo',
@@ -66,24 +66,4 @@ it('should render organization', () => {
     />
   );
   expect(result).toMatchSnapshot();
-});
-
-it('renders private badge', () => {
-  const component = {
-    breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
-    key: 'my-project',
-    name: 'My Project',
-    organization: 'org',
-    qualifier: 'TRK',
-    visibility: 'private'
-  };
-  const result = shallow(
-    <ComponentNavHeader
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      shouldOrganizationBeDisplayed={false}
-    />
-  );
-  expect(result.find('PrivateBadge')).toHaveLength(1);
 });

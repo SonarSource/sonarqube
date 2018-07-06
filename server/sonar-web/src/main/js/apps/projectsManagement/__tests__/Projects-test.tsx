@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import Projects from '../Projects';
 import { Visibility } from '../../../app/types';
 
-const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
+const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
 const projects = [
   { key: 'a', name: 'A', qualifier: 'TRK', visibility: Visibility.Public },
   { key: 'b', name: 'B', qualifier: 'TRK', visibility: Visibility.Public }

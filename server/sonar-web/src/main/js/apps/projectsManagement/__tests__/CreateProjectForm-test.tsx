@@ -51,7 +51,7 @@ it('creates project', async () => {
   change(wrapper.find('input[name="key"]'), 'key', {
     currentTarget: { name: 'key', value: 'key' }
   });
-  wrapper.find('VisibilitySelector').prop<Function>('onChange')('private');
+  wrapper.find('VisibilitySelector').prop<Function>('onChange')(Visibility.Private);
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
@@ -60,7 +60,7 @@ it('creates project', async () => {
     name: 'name',
     organization: 'org',
     project: 'key',
-    visibility: 'private'
+    visibility: Visibility.Private
   });
   expect(wrapper).toMatchSnapshot();
 

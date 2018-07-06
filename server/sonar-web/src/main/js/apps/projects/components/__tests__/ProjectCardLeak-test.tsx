@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardLeak from '../ProjectCardLeak';
+import { Visibility } from '../../../../app/types';
 
 const MEASURES = {
   alert_status: 'OK',
@@ -36,11 +37,11 @@ const PROJECT = {
   name: 'Foo',
   organization: { key: 'org', name: 'org' },
   tags: [],
-  visibility: 'public'
+  visibility: Visibility.Public
 };
 
 it('should display analysis date and leak start date', () => {
-  const card = shallow(<ProjectCardLeak height={100} project={PROJECT} />);
+  const card = shallow(<ProjectCardLeak height={100} organization={undefined} project={PROJECT} />);
   expect(card.find('.project-card-dates').exists()).toBeTruthy();
   expect(card.find('.project-card-dates').find('DateFromNow')).toHaveLength(1);
   expect(card.find('.project-card-dates').find('DateTimeFormatter')).toHaveLength(1);
@@ -48,28 +49,30 @@ it('should display analysis date and leak start date', () => {
 
 it('should not display analysis date or leak start date', () => {
   const project = { ...PROJECT, analysisDate: undefined };
-  const card = shallow(<ProjectCardLeak height={100} project={project} />);
+  const card = shallow(<ProjectCardLeak height={100} organization={undefined} project={project} />);
   expect(card.find('.project-card-dates').exists()).toBeFalsy();
 });
 
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   expect(
-    shallow(<ProjectCardLeak height={100} project={project} />)
+    shallow(<ProjectCardLeak height={100} organization={undefined} project={project} />)
       .find('TagsList')
       .exists()
   ).toBeTruthy();
 });
 
-it('should private badge', () => {
-  const project = { ...PROJECT, visibility: 'private' };
+it('should display private badge', () => {
+  const project = { ...PROJECT, visibility: Visibility.Private };
   expect(
-    shallow(<ProjectCardLeak height={100} project={project} />)
-      .find('PrivateBadge')
+    shallow(<ProjectCardLeak height={100} organization={undefined} project={project} />)
+      .find('Connect(PrivacyBadge)')
       .exists()
   ).toBeTruthy();
 });
 
 it('should display the leak measures and quality gate', () => {
-  expect(shallow(<ProjectCardLeak height={100} project={PROJECT} />)).toMatchSnapshot();
+  expect(
+    shallow(<ProjectCardLeak height={100} organization={undefined} project={PROJECT} />)
+  ).toMatchSnapshot();
 });

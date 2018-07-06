@@ -148,6 +148,18 @@ a.badge-focus:active {
 
 .outline-badge.active {
   color: var(--baseFontColor);
-  border: 1px solid var(--blue);
+  border-color: var(--blue);
   background-color: var(--lightBlue);
+}
+
+.outline-badge.badge-info {
+  border-color: var(--blue);
+}
+
+.outline-badge.badge-icon {
+  padding-left: calc(var(--gridSize) / 2);
+}
+
+.outline-badge.badge-icon svg {
+  height: calc(var(--smallControlHeight) - 2px);
 }

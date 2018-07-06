@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Risk from '../Risk';
+import { Visibility } from '../../../../app/types';
 
 it('renders', () => {
   const project1 = {
@@ -27,7 +28,7 @@ it('renders', () => {
     measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734' },
     name: 'Foo',
     tags: [],
-    visibility: 'public'
+    visibility: Visibility.Public
   };
   expect(
     shallow(<Risk displayOrganizations={false} helpText="foobar" projects={[project1]} />)

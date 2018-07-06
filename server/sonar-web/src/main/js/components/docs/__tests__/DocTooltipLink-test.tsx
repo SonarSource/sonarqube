@@ -28,3 +28,9 @@ it('should render simple link', () => {
 it('should render internal link', () => {
   expect(shallow(<DocTooltipLink href="/foo/bar" />)).toMatchSnapshot();
 });
+
+it('should render links with custom props', () => {
+  expect(
+    shallow(<DocTooltipLink customProps={{ bar: 'baz' }} href="/#sonarcloud#/foo/#bar#" />)
+  ).toMatchSnapshot();
+});

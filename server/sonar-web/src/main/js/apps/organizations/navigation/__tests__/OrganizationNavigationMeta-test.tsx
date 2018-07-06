@@ -20,20 +20,34 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigationMeta from '../OrganizationNavigationMeta';
-import { Visibility } from '../../../../app/types';
+import { OrganizationSubscription } from '../../../../app/types';
 
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: () => true }));
+
+const organization = { key: 'foo', name: 'Foo', subscription: OrganizationSubscription.Free };
 
 it('renders', () => {
   expect(
     shallow(
       <OrganizationNavigationMeta
-        organization={{
-          key: 'foo',
-          name: 'Foo',
-          projectVisibility: Visibility.Public
-        }}
+        currentUser={{ isLoggedIn: false }}
+        organization={organization}
+        userOrganizations={[]}
       />
     )
   ).toMatchSnapshot();
+});
+
+it('renders with private badge', () => {
+  expect(
+    shallow(
+      <OrganizationNavigationMeta
+        currentUser={{ isLoggedIn: true }}
+        organization={{ ...organization, subscription: OrganizationSubscription.Paid }}
+        userOrganizations={[organization]}
+      />
+    )
+      .find('DocTooltip')
+      .exists()
+  ).toBeTruthy();
 });

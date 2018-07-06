@@ -162,7 +162,7 @@ export interface Component {
   isFavorite?: boolean;
   analysisDate?: string;
   tags: string[];
-  visibility: string;
+  visibility: Visibility;
   leakPeriodDate?: string;
 }
 

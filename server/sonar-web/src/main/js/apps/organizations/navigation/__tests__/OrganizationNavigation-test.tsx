@@ -26,12 +26,14 @@ it('render', () => {
   expect(
     shallow(
       <OrganizationNavigation
+        currentUser={{ isLoggedIn: false }}
         location={{ pathname: '/organizations/foo' }}
         organization={{
           key: 'foo',
           name: 'Foo',
           projectVisibility: Visibility.Public
         }}
+        userOrganizations={[]}
       />
     )
   ).toMatchSnapshot();

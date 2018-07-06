@@ -24,6 +24,7 @@ import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
 import { translate } from '../../../../helpers/l10n';
 import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
+import { Visibility } from '../../../../app/types';
 
 /*::
 type Props = {|
@@ -89,7 +90,7 @@ export default class AllHoldersList extends React.PureComponent {
 
   render() {
     let order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
-    if (this.props.visibility === 'public') {
+    if (this.props.visibility === Visibility.Public) {
       order = without(order, 'user', 'codeviewer');
     }
 

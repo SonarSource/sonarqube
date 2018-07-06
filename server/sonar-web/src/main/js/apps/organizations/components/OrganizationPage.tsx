@@ -21,11 +21,15 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import OrganizationNavigation from '../navigation/OrganizationNavigation';
+import { fetchOrganization } from '../actions';
 import NotFound from '../../../app/components/NotFound';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { fetchOrganization } from '../actions';
-import { getOrganizationByKey } from '../../../store/rootReducer';
-import { Organization } from '../../../app/types';
+import { Organization, CurrentUser } from '../../../app/types';
+import {
+  getOrganizationByKey,
+  getCurrentUser,
+  getMyOrganizations
+} from '../../../store/rootReducer';
 
 interface OwnProps {
   children?: React.ReactNode;
@@ -34,7 +38,9 @@ interface OwnProps {
 }
 
 interface StateProps {
+  currentUser: CurrentUser;
   organization?: Organization;
+  userOrganizations: Organization[];
 }
 
 interface DispatchToProps {
@@ -92,7 +98,12 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
       <div>
         <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name} />
         <Suggestions suggestions="organization_space" />
-        <OrganizationNavigation location={this.props.location} organization={organization} />
+        <OrganizationNavigation
+          currentUser={this.props.currentUser}
+          location={this.props.location}
+          organization={organization}
+          userOrganizations={this.props.userOrganizations}
+        />
         {this.props.children}
       </div>
     );
@@ -100,7 +111,9 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: any, ownProps: OwnProps) => ({
-  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
+  currentUser: getCurrentUser(state),
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey),
+  userOrganizations: getMyOrganizations(state)
 });
 
 const mapDispatchToProps = { fetchOrganization: fetchOrganization as any };

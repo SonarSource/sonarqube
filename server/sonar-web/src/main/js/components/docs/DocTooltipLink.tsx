@@ -19,25 +19,45 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { forEach } from 'lodash';
 import DetachIcon from '../../components/icons-components/DetachIcon';
 
-export default function DocTooltipLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { children, href, ...other } = props;
+interface OwnProps {
+  customProps?: { [k: string]: string };
+}
+
+type Props = OwnProps & React.AnchorHTMLAttributes<HTMLAnchorElement>;
+
+const SONARCLOUD_LINK = '/#sonarcloud#/';
+
+export default function DocTooltipLink({ children, customProps, href, ...other }: Props) {
+  if (customProps) {
+    forEach(customProps, (value, key) => {
+      if (href) {
+        href = href.replace(`#${key}#`, encodeURIComponent(value));
+      }
+    });
+  }
+
+  if (href && href.startsWith('/')) {
+    if (href.startsWith(SONARCLOUD_LINK)) {
+      href = `/${href.substr(SONARCLOUD_LINK.length)}`;
+    } else {
+      href = `/documentation/${href.substr(1)}`;
+    }
+
+    return (
+      <Link rel="noopener noreferrer" target="_blank" to={href} {...other}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
     <>
-      {href && href.startsWith('/') ? (
-        <Link
-          rel="noopener noreferrer"
-          target="_blank"
-          to={`/documentation/${href.substr(1)}`}
-          {...other}>
-          {children}
-        </Link>
-      ) : (
-        <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
-          {children}
-        </a>
-      )}
+      <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
+        {children}
+      </a>
       <DetachIcon className="little-spacer-left little-spacer-right vertical-baseline" size={12} />
     </>
   );

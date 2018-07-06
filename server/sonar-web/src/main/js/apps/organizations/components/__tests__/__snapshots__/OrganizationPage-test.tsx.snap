@@ -25,6 +25,11 @@ exports[`smoke test 1`] = `
     suggestions="organization_space"
   />
   <OrganizationNavigation
+    currentUser={
+      Object {
+        "isLoggedIn": false,
+      }
+    }
     location={
       Object {
         "pathname": "foo",
@@ -38,6 +43,7 @@ exports[`smoke test 1`] = `
         "name": "Foo",
       }
     }
+    userOrganizations={Array []}
   />
   <div>
     hello

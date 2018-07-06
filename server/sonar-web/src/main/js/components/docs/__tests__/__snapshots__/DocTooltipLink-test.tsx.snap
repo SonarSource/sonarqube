@@ -1,19 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render internal link 1`] = `
-<React.Fragment>
-  <Link
-    onlyActiveOnIndex={false}
-    rel="noopener noreferrer"
-    style={Object {}}
-    target="_blank"
-    to="/documentation/foo/bar"
-  />
-  <DetachIcon
-    className="little-spacer-left little-spacer-right vertical-baseline"
-    size={12}
-  />
-</React.Fragment>
+<Link
+  onlyActiveOnIndex={false}
+  rel="noopener noreferrer"
+  style={Object {}}
+  target="_blank"
+  to="/documentation/foo/bar"
+/>
+`;
+
+exports[`should render links with custom props 1`] = `
+<Link
+  onlyActiveOnIndex={false}
+  rel="noopener noreferrer"
+  style={Object {}}
+  target="_blank"
+  to="/foo/baz"
+/>
 `;
 
 exports[`should render simple link 1`] = `

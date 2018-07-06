@@ -27,7 +27,6 @@ import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../s
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
-import PrivateBadge from '../../../../components/common/PrivateBadge';
 import { collapsePath, limitComponentName } from '../../../../helpers/path';
 import { getProjectUrl } from '../../../../helpers/urls';
 
@@ -67,9 +66,6 @@ export function ComponentNavHeader(props: Props) {
           </>
         )}
       {renderBreadcrumbs(component.breadcrumbs)}
-      {component.visibility === 'private' && (
-        <PrivateBadge className="spacer-left" qualifier={component.qualifier} />
-      )}
       {props.currentBranchLike && (
         <ComponentNavBranch
           branchLikes={props.branchLikes}

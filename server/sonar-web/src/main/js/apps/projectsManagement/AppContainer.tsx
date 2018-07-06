@@ -35,7 +35,7 @@ interface StateProps {
 
 interface DispatchProps {
   fetchOrganization: (organization: string) => void;
-  onVisibilityChange: (organization: Organization, visibility: string) => void;
+  onVisibilityChange: (organization: Organization, visibility: Visibility) => void;
 }
 
 interface OwnProps {
@@ -51,7 +51,7 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
     }
   }
 
-  handleVisibilityChange = (visibility: string) => {
+  handleVisibilityChange = (visibility: Visibility) => {
     if (this.props.organization) {
       this.props.onVisibilityChange(this.props.organization, visibility);
     }

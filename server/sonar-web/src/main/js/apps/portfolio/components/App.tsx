@@ -36,6 +36,7 @@ import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { Metric, Component } from '../../../app/types';
 import '../styles.css';
+import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
 interface OwnProps {
   component: Component;
@@ -190,6 +191,15 @@ export class App extends React.PureComponent<Props, State> {
             <div className="portfolio-meta-card">
               <h4 className="portfolio-meta-header">
                 {translate('overview.about_this_portfolio')}
+                {component.visibility && (
+                  <PrivacyBadgeContainer
+                    className="spacer-left pull-right"
+                    organization={component.organization}
+                    qualifier={component.qualifier}
+                    tooltipProps={{ projectKey: component.key }}
+                    visibility={component.visibility}
+                  />
+                )}
               </h4>
               <Summary component={component} measures={measures || {}} />
             </div>

@@ -30,6 +30,7 @@ import PageError from '../../shared/components/PageError';
 import * as api from '../../../../api/permissions';
 import { translate } from '../../../../helpers/l10n';
 import '../../styles.css';
+import { Visibility } from '../../../../app/types';
 
 /*::
 export type Props = {|
@@ -284,7 +285,7 @@ export default class App extends React.PureComponent {
   };
 
   handleVisibilityChange = (visibility /*: string */) => {
-    if (visibility === 'public') {
+    if (visibility === Visibility.Public) {
       this.openDisclaimer();
     } else {
       this.turnProjectToPrivate();
@@ -292,25 +293,25 @@ export default class App extends React.PureComponent {
   };
 
   turnProjectToPublic = () => {
-    this.props.onComponentChange({ visibility: 'public' });
-    api.changeProjectVisibility(this.props.component.key, 'public').then(
+    this.props.onComponentChange({ visibility: Visibility.Public });
+    api.changeProjectVisibility(this.props.component.key, Visibility.Public).then(
       () => {
         this.loadHolders();
       },
       error => {
-        this.props.onComponentChange({ visibility: 'private' });
+        this.props.onComponentChange({ visibility: Visibility.Private });
       }
     );
   };
 
   turnProjectToPrivate = () => {
-    this.props.onComponentChange({ visibility: 'private' });
-    api.changeProjectVisibility(this.props.component.key, 'private').then(
+    this.props.onComponentChange({ visibility: Visibility.Private });
+    api.changeProjectVisibility(this.props.component.key, Visibility.Private).then(
       () => {
         this.loadHolders();
       },
       error => {
-        this.props.onComponentChange({ visibility: 'public' });
+        this.props.onComponentChange({ visibility: Visibility.Public });
       }
     );
   };

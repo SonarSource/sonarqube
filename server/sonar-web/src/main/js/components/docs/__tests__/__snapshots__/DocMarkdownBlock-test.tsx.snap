@@ -104,3 +104,12 @@ exports[`should render use custom component for links 1`] = `
   link
 </DocLink>
 `;
+
+exports[`should render with custom props for links 1`] = `
+<withChildProps
+  href="#quality-profiles"
+  key="h-3"
+>
+  link
+</withChildProps>
+`;

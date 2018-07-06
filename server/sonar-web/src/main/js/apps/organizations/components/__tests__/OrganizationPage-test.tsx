@@ -21,17 +21,14 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationPage } from '../OrganizationPage';
 
-const fetchOrganization = () => Promise.resolve();
+const fetchOrganization = jest.fn().mockResolvedValue(undefined);
+
+beforeEach(() => {
+  fetchOrganization.mockClear();
+});
 
 it('smoke test', () => {
-  const wrapper = shallow(
-    <OrganizationPage
-      fetchOrganization={fetchOrganization}
-      location={{ pathname: 'foo' }}
-      params={{ organizationKey: 'foo' }}>
-      <div>hello</div>
-    </OrganizationPage>
-  );
+  const wrapper = getWrapper();
   expect(wrapper.type()).toBeNull();
 
   const organization = { key: 'foo', name: 'Foo', isDefault: false, canAdmin: false };
@@ -40,29 +37,28 @@ it('smoke test', () => {
 });
 
 it('not found', () => {
-  const wrapper = shallow(
-    <OrganizationPage
-      fetchOrganization={fetchOrganization}
-      location={{ pathname: 'foo' }}
-      params={{ organizationKey: 'foo' }}>
-      <div>hello</div>
-    </OrganizationPage>
-  );
+  const wrapper = getWrapper();
   wrapper.setState({ loading: false });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should correctly update when the organization changes', () => {
-  const fetchOrganization = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(
-    <OrganizationPage
-      fetchOrganization={fetchOrganization}
-      location={{ pathname: 'foo' }}
-      params={{ organizationKey: 'foo' }}>
-      <div>hello</div>
-    </OrganizationPage>
-  );
+  const wrapper = getWrapper();
   wrapper.setProps({ params: { organizationKey: 'bar' } });
   expect(fetchOrganization).toHaveBeenCalledTimes(2);
   expect(fetchOrganization.mock.calls).toMatchSnapshot();
 });
+
+function getWrapper(props = {}) {
+  return shallow(
+    <OrganizationPage
+      currentUser={{ isLoggedIn: false }}
+      fetchOrganization={fetchOrganization}
+      location={{ pathname: 'foo' }}
+      params={{ organizationKey: 'foo' }}
+      userOrganizations={[]}
+      {...props}>
+      <div>hello</div>
+    </OrganizationPage>
+  );
+}

@@ -35,7 +35,7 @@ import { translate } from '../../helpers/l10n';
 export interface Props {
   currentUser: { login: string };
   hasProvisionPermission?: boolean;
-  onVisibilityChange: (visibility: string) => void;
+  onVisibilityChange: (visibility: Visibility) => void;
   organization: Organization;
   topLevelQualifiers: string[];
 }
@@ -215,19 +215,19 @@ export default class App extends React.PureComponent<Props, State> {
 
         <Projects
           currentUser={this.props.currentUser}
-          ready={this.state.ready}
-          projects={this.state.projects}
-          selection={this.state.selection}
-          onProjectSelected={this.onProjectSelected}
           onProjectDeselected={this.onProjectDeselected}
+          onProjectSelected={this.onProjectSelected}
           organization={this.props.organization}
+          projects={this.state.projects}
+          ready={this.state.ready}
+          selection={this.state.selection}
         />
 
         <ListFooter
-          ready={this.state.ready}
           count={this.state.projects.length}
-          total={this.state.total}
           loadMore={this.loadMore}
+          ready={this.state.ready}
+          total={this.state.total}
         />
 
         {this.state.createProjectForm && (

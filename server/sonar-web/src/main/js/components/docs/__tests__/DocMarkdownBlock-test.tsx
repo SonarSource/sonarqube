@@ -71,3 +71,15 @@ text`;
   (isSonarCloud as jest.Mock).mockImplementation(() => true);
   expect(shallow(<DocMarkdownBlock content={content} />)).toMatchSnapshot();
 });
+
+it('should render with custom props for links', () => {
+  expect(
+    shallow(
+      <DocMarkdownBlock
+        childProps={{ foo: 'bar' }}
+        content="some [link](#quality-profiles)"
+        isTooltip={true}
+      />
+    ).find('withChildProps')
+  ).toMatchSnapshot();
+});

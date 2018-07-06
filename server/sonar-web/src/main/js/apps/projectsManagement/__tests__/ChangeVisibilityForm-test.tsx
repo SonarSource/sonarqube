@@ -53,13 +53,13 @@ it('changes visibility', () => {
   click(wrapper.find('a[data-visibility="private"]'), {
     currentTarget: {
       blur() {},
-      dataset: { visibility: 'private' }
+      dataset: { visibility: Visibility.Private }
     }
   });
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-confirm'));
-  expect(onConfirm).toBeCalledWith('private');
+  expect(onConfirm).toBeCalledWith(Visibility.Private);
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {

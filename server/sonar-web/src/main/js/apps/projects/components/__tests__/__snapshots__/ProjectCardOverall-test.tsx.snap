@@ -47,7 +47,24 @@ exports[`should display the overall measures and quality gate 1`] = `
       />
       <div
         className="project-card-header-right"
-      />
+      >
+        <Connect(PrivacyBadge)
+          className="spacer-left"
+          organization={
+            Object {
+              "key": "org",
+              "name": "org",
+            }
+          }
+          qualifier="TRK"
+          tooltipProps={
+            Object {
+              "projectKey": "foo",
+            }
+          }
+          visibility="public"
+        />
+      </div>
     </div>
     <div
       className="project-card-dates note text-right"

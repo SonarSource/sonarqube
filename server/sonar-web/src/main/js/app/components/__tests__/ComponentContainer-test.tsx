@@ -29,7 +29,8 @@ import {
   MainBranch,
   LongLivingBranch,
   PullRequest,
-  BranchType
+  BranchType,
+  Visibility
 } from '../../types';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
@@ -80,12 +81,12 @@ it('changes component', () => {
   (wrapper.instance() as ComponentContainer).mounted = true;
   wrapper.setState({
     branches: [{ isMain: true }],
-    component: { qualifier: 'TRK', visibility: 'public' },
+    component: { qualifier: 'TRK', visibility: Visibility.Public },
     loading: false
   });
 
-  (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: 'private' });
-  expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
+  (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: Visibility.Private });
+  expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: Visibility.Private });
 });
 
 it("loads branches for module's project", async () => {

@@ -23,19 +23,30 @@ import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import OrganizationNavigationMenuContainer from './OrganizationNavigationMenuContainer';
 import * as theme from '../../../app/theme';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
-import { Organization } from '../../../app/types';
+import { Organization, CurrentUser } from '../../../app/types';
 
 interface Props {
+  currentUser: CurrentUser;
   location: { pathname: string };
   organization: Organization;
+  userOrganizations: Organization[];
 }
 
-export default function OrganizationNavigation({ location, organization }: Props) {
+export default function OrganizationNavigation({
+  currentUser,
+  location,
+  organization,
+  userOrganizations
+}: Props) {
   return (
     <ContextNavBar height={theme.contextNavHeightRaw} id="context-navigation">
       <div className="navbar-context-justified">
         <OrganizationNavigationHeaderContainer organization={organization} />
-        <OrganizationNavigationMeta organization={organization} />
+        <OrganizationNavigationMeta
+          currentUser={currentUser}
+          organization={organization}
+          userOrganizations={userOrganizations}
+        />
       </div>
       <OrganizationNavigationMenuContainer location={location} organization={organization} />
     </ContextNavBar>

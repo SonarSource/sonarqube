@@ -129,8 +129,8 @@ it('creates project', () => {
 it('changes default project visibility', () => {
   const onVisibilityChange = jest.fn();
   const wrapper = shallowRender({ onVisibilityChange });
-  wrapper.find('Header').prop<Function>('onVisibilityChange')('private');
-  expect(onVisibilityChange).toBeCalledWith('private');
+  wrapper.find('Header').prop<Function>('onVisibilityChange')(Visibility.Private);
+  expect(onVisibilityChange).toBeCalledWith(Visibility.Private);
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {

@@ -28,6 +28,7 @@ interface Props {
   children?: React.ReactNode;
   /** Key of the documentation chunk */
   doc: string;
+  overlayProps?: { [k: string]: string };
 }
 
 interface State {
@@ -82,7 +83,12 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
         {this.state.loading ? (
           <i className="spinner" />
         ) : (
-          <DocMarkdownBlock className="cut-margins" content={this.state.content} isTooltip={true} />
+          <DocMarkdownBlock
+            childProps={this.props.overlayProps}
+            className="cut-margins"
+            content={this.state.content}
+            isTooltip={true}
+          />
         )}
       </div>
     );
