@@ -27,7 +27,7 @@ exports[`render 1`] = `
       }
     />
   </div>
-  <OrganizationNavigationMenu
+  <Connect(OrganizationNavigationMenu)
     location={
       Object {
         "pathname": "/organizations/foo",

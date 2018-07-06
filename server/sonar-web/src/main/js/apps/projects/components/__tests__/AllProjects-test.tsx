@@ -171,6 +171,7 @@ function shallowRender(
       currentUser={{ isLoggedIn: true }}
       isFavorite={false}
       location={{ pathname: '/projects', query: {} }}
+      organization={undefined}
       organizationsEnabled={false}
       {...props}
     />,

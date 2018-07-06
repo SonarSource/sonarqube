@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should be able to toggle check 1`] = `
+<li
+  className="capitalize list-item-checkable-link"
+  onClick={[Function]}
+>
+  <Checkbox
+    checked={true}
+    onCheck={[Function]}
+    thirdState={false}
+  />
+   
+  professionals
+</li>
+`;
+
+exports[`should be able to toggle check 2`] = `
+Array [
+  Array [
+    "professionals",
+    false,
+  ],
+]
+`;
+
+exports[`should be able to toggle check 3`] = `
+<li
+  className="capitalize list-item-checkable-link"
+  onClick={[Function]}
+>
+  <Checkbox
+    checked={false}
+    onCheck={[Function]}
+    thirdState={false}
+  />
+   
+  professionals
+</li>
+`;
+
+exports[`should disabled default groups 1`] = `
+<li
+  className="capitalize list-item-checkable-link disabled"
+  onClick={[Function]}
+>
+  <Checkbox
+    checked={true}
+    onCheck={[Function]}
+    thirdState={false}
+  />
+   
+  professionals
+</li>
+`;
+
+exports[`should render unchecked 1`] = `
+<li
+  className="capitalize list-item-checkable-link"
+  onClick={[Function]}
+>
+  <Checkbox
+    checked={false}
+    onCheck={[Function]}
+    thirdState={false}
+  />
+   
+  professionals
+</li>
+`;

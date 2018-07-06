@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { LightOrganization, Paging } from '../app/types';
+import { Organization, OrganizationBase, Paging } from '../app/types';
 
 export function getOrganizations(data: {
   organizations?: string;
   member?: boolean;
 }): Promise<{
-  organizations: LightOrganization[];
+  organizations: Organization[];
   paging: Paging;
 }> {
   return getJSON('/api/organizations/search', data);
 }
 
-export function getOrganization(key: string): Promise<any> {
-  return getOrganizations({ organizations: key })
-    .then(r => r.organizations.find((o: any) => o.key === key))
-    .catch(throwGlobalError);
+export function getOrganization(key: string): Promise<Organization | undefined> {
+  return getJSON('/api/organizations/search', { organizations: key }).then(
+    r => r.organizations.find((o: Organization) => o.key === key),
+    throwGlobalError
+  );
 }
 
 interface GetOrganizationNavigation {
@@ -50,11 +51,11 @@ export function getOrganizationNavigation(key: string): Promise<GetOrganizationN
   return getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
 }
 
-export function createOrganization(data: RequestData): Promise<any> {
+export function createOrganization(data: OrganizationBase): Promise<Organization> {
   return postJSON('/api/organizations/create', data).then(r => r.organization, throwGlobalError);
 }
 
-export function updateOrganization(key: string, changes: RequestData): Promise<void> {
+export function updateOrganization(key: string, changes: OrganizationBase): Promise<void> {
   return post('/api/organizations/update', { key, ...changes });
 }
 

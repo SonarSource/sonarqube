@@ -17,25 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization } from '../../../app/types';
+import getStore from '../../app/utils/getStore';
+import {
+  getOrganizationByKey,
+  areThereCustomOrganizations as customOrganizations
+} from '../rootReducer';
 
-interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: Organization;
+export function getOrganization(key: string) {
+  const store = getStore();
+  const state = store.getState();
+  return getOrganizationByKey(state, key);
 }
 
-export default function OrganizationProjects(props: Props) {
-  return (
-    <>
-      <AllProjectsContainer
-        isFavorite={false}
-        location={props.location}
-        organization={props.organization}
-      />
-      <Suggestions suggestions="organization_projects" />
-    </>
-  );
+export function areThereCustomOrganizations() {
+  const store = getStore();
+  const state = store.getState();
+  return customOrganizations(state);
 }

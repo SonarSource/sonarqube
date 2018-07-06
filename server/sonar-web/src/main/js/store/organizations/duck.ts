@@ -19,7 +19,7 @@
  */
 import { combineReducers } from 'redux';
 import { omit, uniq, without } from 'lodash';
-import { Group, Organization } from '../../app/types';
+import { Group, Organization, OrganizationBase } from '../../app/types';
 
 interface ReceiveOrganizationsAction {
   type: 'RECEIVE_ORGANIZATIONS';
@@ -108,7 +108,10 @@ export function createOrganization(organization: Organization): CreateOrganizati
   };
 }
 
-export function updateOrganization(key: string, changes: {}): UpdateOrganizationAction {
+export function updateOrganization(
+  key: string,
+  changes: OrganizationBase
+): UpdateOrganizationAction {
   return {
     type: 'UPDATE_ORGANIZATION',
     key,
@@ -177,7 +180,7 @@ function groups(state: GroupsState = {}, action: Action) {
   return state;
 }
 
-export default combineReducers({ byKey, my, groups });
+export default combineReducers<State>({ byKey, my, groups });
 
 export function getOrganizationByKey(state: State, key: string): Organization | undefined {
   return state.byKey[key];

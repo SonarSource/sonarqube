@@ -18,24 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization } from '../../../app/types';
+import { shallow } from 'enzyme';
+import { OrganizationEdit } from '../OrganizationEdit';
 
-interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: Organization;
-}
-
-export default function OrganizationProjects(props: Props) {
-  return (
-    <>
-      <AllProjectsContainer
-        isFavorite={false}
-        location={props.location}
-        organization={props.organization}
-      />
-      <Suggestions suggestions="organization_projects" />
-    </>
+it('smoke test', () => {
+  const organization = { key: 'foo', name: 'Foo' };
+  const wrapper = shallow(
+    <OrganizationEdit organization={organization} updateOrganization={jest.fn()} />
   );
-}
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.setState({
+    avatar: 'foo-avatar',
+    avatarImage: 'foo-avatar-image',
+    description: 'foo-description',
+    name: 'New Foo',
+    url: 'foo-url'
+  });
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.setState({ loading: true });
+  expect(wrapper).toMatchSnapshot();
+});

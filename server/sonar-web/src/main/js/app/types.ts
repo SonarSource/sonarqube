@@ -337,26 +337,36 @@ export interface Notification {
   projectName?: string;
   type: string;
 }
-export interface LightOrganization {
-  avatar?: string;
-  description?: string;
-  guarded?: boolean;
-  isAdmin?: boolean;
-  key: string;
-  name: string;
-  subscription?: OrganizationSubscription;
-  url?: string;
-}
 
-export interface Organization extends LightOrganization {
-  adminPages?: { key: string; name: string }[];
+export interface Organization extends OrganizationBase {
+  adminPages?: Extension[];
   canAdmin?: boolean;
   canDelete?: boolean;
   canProvisionProjects?: boolean;
   canUpdateProjectsVisibilityToPrivate?: boolean;
+  guarded?: boolean;
+  isAdmin?: boolean;
   isDefault?: boolean;
-  pages?: { key: string; name: string }[];
+  key: string;
+  pages?: Extension[];
   projectVisibility?: Visibility;
+  subscription?: OrganizationSubscription;
+}
+
+export interface OrganizationBase {
+  avatar?: string;
+  description?: string;
+  key?: string;
+  name: string;
+  url?: string;
+}
+
+export interface OrganizationMember {
+  login: string;
+  name: string;
+  avatar?: string;
+  email?: string;
+  groupCount?: number;
 }
 
 export enum OrganizationSubscription {

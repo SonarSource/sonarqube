@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render  1`] = `
+<Modal
+  contentLabel="users.remove"
+  key="remove-member-modal"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      users.remove
+    </h2>
+  </header>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      organization.members.remove_x.Admin Istrator.MyOrg
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <div>
+        <SubmitButton
+          autoFocus={true}
+          className="button-red"
+        >
+          remove
+        </SubmitButton>
+        <ResetButtonLink
+          onClick={[MockFunction]}
+        >
+          cancel
+        </ResetButtonLink>
+      </div>
+    </footer>
+  </form>
+</Modal>
+`;

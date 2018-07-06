@@ -18,52 +18,45 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { debounce } from 'lodash';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import * as PropTypes from 'prop-types';
-import { createOrganization } from '../../organizations/actions';
-import { Organization, OrganizationBase } from '../../../app/types';
-import Modal from '../../../components/controls/Modal';
-import DocTooltip from '../../../components/docs/DocTooltip';
+import { debounce } from 'lodash';
 import { translate } from '../../../helpers/l10n';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { updateOrganization } from '../actions';
+import { SubmitButton } from '../../../components/ui/buttons';
+import { Organization, OrganizationBase } from '../../../app/types';
 
 interface DispatchProps {
-  createOrganization: (fields: OrganizationBase) => Promise<Organization>;
+  updateOrganization: (organization: string, changes: OrganizationBase) => Promise<any>;
 }
 
-interface Props extends DispatchProps {
-  onClose: () => void;
-  onCreate: (organization: { key: string }) => void;
+interface OwnProps {
+  organization: Organization;
 }
+
+type Props = OwnProps & DispatchProps;
 
 interface State {
+  loading: boolean;
   avatar: string;
   avatarImage: string;
   description: string;
-  key: string;
-  loading: boolean;
   name: string;
   url: string;
 }
 
-class CreateOrganizationForm extends React.PureComponent<Props, State> {
+export class OrganizationEdit extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object
-  };
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      avatar: '',
-      avatarImage: '',
-      description: '',
-      key: '',
       loading: false,
-      name: '',
-      url: ''
+      avatar: props.organization.avatar || '',
+      avatarImage: props.organization.avatar || '',
+      description: props.organization.description || '',
+      name: props.organization.name,
+      url: props.organization.url || ''
     };
     this.changeAvatarImage = debounce(this.changeAvatarImage, 500);
   }
@@ -76,14 +69,8 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  stopProcessing = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
-
-  handleAvatarInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    const { value } = event.currentTarget;
+  handleAvatarInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
     this.setState({ avatar: value });
     this.changeAvatarImage(value);
   };
@@ -92,84 +79,55 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
     this.setState({ avatarImage: value });
   };
 
-  handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ name: event.currentTarget.value });
-
-  handleKeyChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ key: event.currentTarget.value });
-
-  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) =>
-    this.setState({ description: event.currentTarget.value });
-
-  handleUrlChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ url: event.currentTarget.value });
-
-  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const organization = { name: this.state.name };
-    if (this.state.avatar) {
-      Object.assign(organization, { avatar: this.state.avatar });
-    }
-    if (this.state.description) {
-      Object.assign(organization, { description: this.state.description });
-    }
-    if (this.state.key) {
-      Object.assign(organization, { key: this.state.key });
-    }
-    if (this.state.url) {
-      Object.assign(organization, { url: this.state.url });
-    }
+    const changes = {
+      avatar: this.state.avatar,
+      description: this.state.description,
+      name: this.state.name,
+      url: this.state.url
+    };
     this.setState({ loading: true });
-    this.props.createOrganization(organization).then(this.props.onCreate, this.stopProcessing);
+    this.props
+      .updateOrganization(this.props.organization.key, changes)
+      .then(this.stopLoading, this.stopLoading);
+  };
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
   };
 
   render() {
+    const title = translate('organization.edit');
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>
-            {translate('my_account.create_organization')}
-            <DocTooltip className="spacer-left" doc="organizations/organization" />
-          </h2>
+      <div className="page page-limited">
+        <Helmet title={title} />
+
+        <header className="page-header">
+          <h1 className="page-title">{title}</h1>
         </header>
 
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
+        <div className="boxed-group boxed-group-inner">
+          <form onSubmit={this.handleSubmit}>
             <div className="modal-field">
               <label htmlFor="organization-name">
                 {translate('organization.name')}
                 <em className="mandatory">*</em>
               </label>
               <input
-                autoFocus={true}
                 disabled={this.state.loading}
                 id="organization-name"
                 maxLength={64}
-                minLength={2}
                 name="name"
-                onChange={this.handleNameChange}
+                onChange={e => this.setState({ name: e.target.value })}
                 required={true}
                 type="text"
                 value={this.state.name}
               />
               <div className="modal-field-description">
                 {translate('organization.name.description')}
-              </div>
-            </div>
-            <div className="modal-field">
-              <label htmlFor="organization-key">{translate('organization.key')}</label>
-              <input
-                disabled={this.state.loading}
-                id="organization-key"
-                maxLength={64}
-                minLength={2}
-                name="key"
-                onChange={this.handleKeyChange}
-                type="text"
-                value={this.state.key}
-              />
-              <div className="modal-field-description">
-                {translate('organization.key.description')}
               </div>
             </div>
             <div className="modal-field">
@@ -203,7 +161,7 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
                 id="organization-description"
                 maxLength={256}
                 name="description"
-                onChange={this.handleDescriptionChange}
+                onChange={e => this.setState({ description: e.target.value })}
                 rows={3}
                 value={this.state.description}
               />
@@ -218,7 +176,7 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
                 id="organization-url"
                 maxLength={256}
                 name="url"
-                onChange={this.handleUrlChange}
+                onChange={e => this.setState({ url: e.target.value })}
                 type="text"
                 value={this.state.url}
               />
@@ -226,21 +184,17 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
                 {translate('organization.url.description')}
               </div>
             </div>
-          </div>
-
-          <footer className="modal-foot">
-            <div>
-              {this.state.loading && <i className="spinner spacer-right" />}
-              <SubmitButton disabled={this.state.loading}>{translate('create')}</SubmitButton>
-              <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
+            <div className="modal-field">
+              <SubmitButton disabled={this.state.loading}>{translate('save')}</SubmitButton>
+              {this.state.loading && <i className="spinner spacer-left" />}
             </div>
-          </footer>
-        </form>
-      </Modal>
+          </form>
+        </div>
+      </div>
     );
   }
 }
 
-const mapDispatchToProps: DispatchProps = { createOrganization: createOrganization as any };
+const mapDispatchToProps = { updateOrganization: updateOrganization as any };
 
-export default connect(null, mapDispatchToProps)(CreateOrganizationForm);
+export default connect<{}, DispatchProps, OwnProps>(null, mapDispatchToProps)(OrganizationEdit);

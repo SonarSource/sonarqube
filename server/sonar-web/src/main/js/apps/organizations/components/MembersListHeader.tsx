@@ -18,24 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization } from '../../../app/types';
+import SearchBox from '../../../components/controls/SearchBox';
+import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: Organization;
+  handleSearch: (query?: string) => void;
+  total?: number;
 }
 
-export default function OrganizationProjects(props: Props) {
+export default function MembersListHeader({ handleSearch, total }: Props) {
   return (
-    <>
-      <AllProjectsContainer
-        isFavorite={false}
-        location={props.location}
-        organization={props.organization}
+    <div className="panel panel-vertical bordered-bottom spacer-bottom">
+      <SearchBox
+        minLength={2}
+        onChange={handleSearch}
+        placeholder={translate('search.search_for_users')}
       />
-      <Suggestions suggestions="organization_projects" />
-    </>
+      {total != null && (
+        <span className="pull-right little-spacer-top">
+          <strong>{formatMeasure(total, 'INT')}</strong> {translate('organization.members.members')}
+        </span>
+      )}
+    </div>
   );
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { CurrentUser } from '../../../app/types';
+import { CurrentUser, Organization } from '../../../app/types';
 import { lazyLoad } from '../../../components/lazyLoad';
 import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 import { RawQuery } from '../../../helpers/query';
@@ -31,7 +31,7 @@ interface StateProps {
 interface OwnProps {
   isFavorite: boolean;
   location: { pathname: string; query: RawQuery };
-  organization?: { key: string };
+  organization: Organization | undefined;
   storageOptionsSuffix?: string;
 }
 

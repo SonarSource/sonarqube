@@ -26,7 +26,7 @@ import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import Visualizations from '../visualizations/Visualizations';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { CurrentUser, isLoggedIn, Organization } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -44,7 +44,7 @@ export interface Props {
   currentUser: CurrentUser;
   isFavorite: boolean;
   location: { pathname: string; query: RawQuery };
-  organization?: { key: string };
+  organization: Organization | undefined;
   organizationsEnabled: boolean;
   storageOptionsSuffix?: string;
 }

@@ -114,7 +114,13 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
 
   render() {
     if (isSonarCloud() && isLoggedIn(this.props.currentUser)) {
-      return <AllProjectsContainer isFavorite={true} location={this.props.location} />;
+      return (
+        <AllProjectsContainer
+          isFavorite={true}
+          location={this.props.location}
+          organization={undefined}
+        />
+      );
     }
 
     const { shouldBeRedirected, shouldForceSorting } = this.state;
@@ -124,7 +130,13 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
       shouldBeRedirected !== true &&
       shouldForceSorting === undefined
     ) {
-      return <AllProjectsContainer isFavorite={false} location={this.props.location} />;
+      return (
+        <AllProjectsContainer
+          isFavorite={false}
+          location={this.props.location}
+          organization={undefined}
+        />
+      );
     }
 
     return null;

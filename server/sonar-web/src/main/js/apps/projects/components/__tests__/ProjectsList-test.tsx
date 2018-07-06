@@ -37,6 +37,7 @@ function shallowRender(props?: any) {
       cardType="overall"
       isFavorite={false}
       isFiltered={false}
+      organization={undefined}
       projects={[{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]}
       {...props}
     />

@@ -18,24 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization } from '../../../app/types';
+import { shallow } from 'enzyme';
+import MembersListHeader from '../MembersListHeader';
 
-interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: Organization;
-}
+it('should render without the total', () => {
+  const wrapper = shallow(<MembersListHeader handleSearch={jest.fn()} />);
+  expect(wrapper).toMatchSnapshot();
+});
 
-export default function OrganizationProjects(props: Props) {
-  return (
-    <>
-      <AllProjectsContainer
-        isFavorite={false}
-        location={props.location}
-        organization={props.organization}
-      />
-      <Suggestions suggestions="organization_projects" />
-    </>
-  );
-}
+it('should render with the total', () => {
+  const wrapper = shallow(<MembersListHeader handleSearch={jest.fn()} total={8} />);
+  expect(wrapper).toMatchSnapshot();
+});

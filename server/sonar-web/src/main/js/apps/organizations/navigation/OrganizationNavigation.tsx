@@ -20,7 +20,7 @@
 import * as React from 'react';
 import OrganizationNavigationHeaderContainer from './OrganizationNavigationHeaderContainer';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
-import OrganizationNavigationMenu from './OrganizationNavigationMenu';
+import OrganizationNavigationMenuContainer from './OrganizationNavigationMenuContainer';
 import * as theme from '../../../app/theme';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
 import { Organization } from '../../../app/types';
@@ -37,7 +37,7 @@ export default function OrganizationNavigation({ location, organization }: Props
         <OrganizationNavigationHeaderContainer organization={organization} />
         <OrganizationNavigationMeta organization={organization} />
       </div>
-      <OrganizationNavigationMenu location={location} organization={organization} />
+      <OrganizationNavigationMenuContainer location={location} organization={organization} />
     </ContextNavBar>
   );
 }

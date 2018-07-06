@@ -21,10 +21,11 @@ import * as React from 'react';
 import ProjectCardLeak from './ProjectCardLeak';
 import ProjectCardOverall from './ProjectCardOverall';
 import { Project } from '../types';
+import { Organization } from '../../../app/types';
 
 interface Props {
   height: number;
-  organization?: { key: string };
+  organization: Organization | undefined;
   project: Project;
   type?: string;
 }

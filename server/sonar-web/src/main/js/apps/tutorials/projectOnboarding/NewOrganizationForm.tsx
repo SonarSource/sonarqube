@@ -70,11 +70,14 @@ export default class NewOrganizationForm extends React.PureComponent<Props, Stat
   };
 
   validateOrganization = (organization: string) => {
-    getOrganization(organization).then(response => {
-      if (this.mounted) {
-        this.setState({ unique: response == null });
-      }
-    });
+    getOrganization(organization).then(
+      response => {
+        if (this.mounted) {
+          this.setState({ unique: response == null });
+        }
+      },
+      () => {}
+    );
   };
 
   sanitizeOrganization = (organization: string) =>

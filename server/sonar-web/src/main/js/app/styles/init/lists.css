@@ -66,11 +66,11 @@ ol.list-styled {
   outline: none;
 }
 
-.list-item-checkable-link[disabled] {
+.list-item-checkable-link.disabled {
   opacity: 0.7;
 }
 
-.list-item-checkable-link[disabled] a::before {
+.list-item-checkable-link.disabled a::before {
   background-color: var(--gray80);
   border-color: var(--gray80);
 }

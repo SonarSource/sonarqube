@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly handle the submit event and close the modal 1`] = `
+Array [
+  Array [
+    Object {
+      "avatar": "",
+      "groupCount": 3,
+      "login": "admin",
+      "name": "Admin Istrator",
+    },
+    Array [
+      "7",
+    ],
+    Array [
+      "11",
+    ],
+  ],
+]
+`;
+
+exports[`should correctly handle the submit event and close the modal 2`] = `
+Object {
+  "loading": false,
+  "userGroups": Object {
+    "11": Object {
+      "description": "Technical accounts",
+      "id": 11,
+      "name": "pull-request-analysers",
+      "selected": true,
+      "status": "remove",
+    },
+    "7": Object {
+      "status": "add",
+    },
+  },
+}
+`;
+
+exports[`should correctly select the groups 1`] = `
+Object {
+  "11": Object {
+    "description": "Technical accounts",
+    "id": 11,
+    "name": "pull-request-analysers",
+    "selected": true,
+    "status": "remove",
+  },
+  "7": Object {
+    "status": "add",
+  },
+}
+`;
+
+exports[`should render 1`] = `
+<Modal
+  contentLabel="organization.members.manage_groups"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      organization.members.manage_groups
+    </h2>
+  </header>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      <strong>
+        organization.members.members_groups.Admin Istrator
+      </strong>
+       
+      <i
+        className="spinner"
+      />
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <div>
+        <SubmitButton>
+          save
+        </SubmitButton>
+        <ResetButtonLink
+          onClick={[MockFunction]}
+        >
+          cancel
+        </ResetButtonLink>
+      </div>
+    </footer>
+  </form>
+</Modal>
+`;

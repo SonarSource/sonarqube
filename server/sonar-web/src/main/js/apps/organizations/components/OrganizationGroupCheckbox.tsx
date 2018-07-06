@@ -18,24 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization } from '../../../app/types';
+import * as classNames from 'classnames';
+import Checkbox from '../../../components/controls/Checkbox';
+import { Group } from '../../../app/types';
 
 interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: Organization;
+  group: Group;
+  checked: boolean;
+  onCheck: (name: string, checked: boolean) => void;
 }
 
-export default function OrganizationProjects(props: Props) {
-  return (
-    <>
-      <AllProjectsContainer
-        isFavorite={false}
-        location={props.location}
-        organization={props.organization}
-      />
-      <Suggestions suggestions="organization_projects" />
-    </>
-  );
+export default class OrganizationGroupCheckbox extends React.PureComponent<Props> {
+  onCheck = (checked: boolean) => {
+    const { group } = this.props;
+    if (!group.default) {
+      this.props.onCheck(group.name, checked);
+    }
+  };
+
+  toggleCheck = () => {
+    this.onCheck(!this.props.checked);
+  };
+
+  render() {
+    const { group } = this.props;
+    return (
+      <li
+        className={classNames('capitalize list-item-checkable-link', { disabled: group.default })}
+        onClick={this.toggleCheck}>
+        <Checkbox checked={this.props.checked} onCheck={this.onCheck} /> {group.name}
+      </li>
+    );
+  }
 }

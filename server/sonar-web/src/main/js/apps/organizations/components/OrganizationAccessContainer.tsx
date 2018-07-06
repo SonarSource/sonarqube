@@ -24,10 +24,12 @@ import { getOrganizationByKey, getCurrentUser } from '../../../store/rootReducer
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { Organization, CurrentUser, isLoggedIn } from '../../../app/types';
 import { isCurrentUserMemberOf, hasPrivateAccess } from '../../../helpers/organizations';
+import { getMyOrganizations } from '../../../store/organizations/duck';
 
 interface StateToProps {
   currentUser: CurrentUser;
   organization?: Organization;
+  userOrganizations: Organization[];
 }
 
 interface OwnProps extends RouterState {
@@ -66,7 +68,8 @@ export class OrganizationAccess extends React.PureComponent<Props> {
 
 const mapStateToProps = (state: any, ownProps: OwnProps) => ({
   currentUser: getCurrentUser(state),
-  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey),
+  userOrganizations: getMyOrganizations(state)
 });
 
 const OrganizationAccessContainer = connect<StateToProps, {}, OwnProps>(mapStateToProps)(
@@ -76,7 +79,9 @@ const OrganizationAccessContainer = connect<StateToProps, {}, OwnProps>(mapState
 export function OrganizationPrivateAccess(props: OwnProps) {
   return (
     <OrganizationAccessContainer
-      hasAccess={({ organization }: StateToProps) => hasPrivateAccess(organization)}
+      hasAccess={({ currentUser, organization, userOrganizations }: StateToProps) =>
+        hasPrivateAccess(currentUser, organization, userOrganizations)
+      }
       {...props}
     />
   );
@@ -85,7 +90,9 @@ export function OrganizationPrivateAccess(props: OwnProps) {
 export function OrganizationMembersAccess(props: OwnProps) {
   return (
     <OrganizationAccessContainer
-      hasAccess={({ organization }: StateToProps) => isCurrentUserMemberOf(organization)}
+      hasAccess={({ currentUser, organization, userOrganizations }: StateToProps) =>
+        isCurrentUserMemberOf(currentUser, organization, userOrganizations)
+      }
       {...props}
     />
   );

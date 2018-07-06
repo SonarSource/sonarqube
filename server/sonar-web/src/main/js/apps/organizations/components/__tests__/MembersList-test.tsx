@@ -18,24 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization } from '../../../app/types';
+import { shallow } from 'enzyme';
+import MembersList from '../MembersList';
 
-interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: Organization;
-}
+const organization = { key: 'foo', name: 'Foo' };
+const members = [
+  { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 },
+  { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af', groupCount: 1 }
+];
 
-export default function OrganizationProjects(props: Props) {
-  return (
-    <>
-      <AllProjectsContainer
-        isFavorite={false}
-        location={props.location}
-        organization={props.organization}
-      />
-      <Suggestions suggestions="organization_projects" />
-    </>
+it('should render a list of members of an organization', () => {
+  const wrapper = shallow(
+    <MembersList
+      members={members}
+      organization={organization}
+      organizationGroups={[]}
+      removeMember={jest.fn()}
+      updateMemberGroups={jest.fn()}
+    />
   );
-}
+  expect(wrapper).toMatchSnapshot();
+});
