@@ -17,40 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Organization, isLoggedIn, OrganizationSubscription, CurrentUser } from '../app/types';
 
-import getStore from '../app/utils/getStore';
-import { Organization, isLoggedIn, OrganizationSubscription } from '../app/types';
-import { getCurrentUser, getMyOrganizations, getOrganizationByKey } from '../store/rootReducer';
-
-function getRealOrganization(
-  organization?: Organization | string,
-  state?: any
-): Organization | undefined {
-  if (typeof organization === 'string') {
-    state = state || getStore().getState();
-    return getOrganizationByKey(state, organization);
-  }
-
-  return organization;
-}
-
-function isPaidOrganization(organization: Organization | undefined): boolean {
+export function isPaidOrganization(organization: Organization | undefined): boolean {
   return Boolean(organization && organization.subscription === OrganizationSubscription.Paid);
 }
 
-export function hasPrivateAccess(organization: Organization | string | undefined): boolean {
-  const realOrg = getRealOrganization(organization);
-  return !isPaidOrganization(realOrg) || isCurrentUserMemberOf(realOrg);
+export function hasPrivateAccess(
+  currentUser: CurrentUser,
+  organization: Organization | undefined,
+  userOrganizations: Organization[]
+): boolean {
+  return (
+    !isPaidOrganization(organization) ||
+    isCurrentUserMemberOf(currentUser, organization, userOrganizations)
+  );
 }
 
-export function isCurrentUserMemberOf(organization: Organization | string | undefined): boolean {
-  const state = getStore().getState();
-  const currentUser = getCurrentUser(state);
-  const userOrganizations = getMyOrganizations(state);
-  const realOrg = getRealOrganization(organization, state);
+export function isCurrentUserMemberOf(
+  currentUser: CurrentUser,
+  organization: Organization | undefined,
+  userOrganizations: Organization[]
+): boolean {
   return Boolean(
-    realOrg &&
+    organization &&
       isLoggedIn(currentUser) &&
-      (realOrg.canAdmin || userOrganizations.some(org => org.key === realOrg.key))
+      (organization.canAdmin || userOrganizations.some(org => org.key === organization.key))
   );
 }

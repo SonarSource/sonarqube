@@ -85,14 +85,6 @@ it('should edit tags', () => {
   expect(onTagsChange).toBeCalledWith(['foo', 'bar']);
 });
 
-it('should not display rule permalink', () => {
-  expect(
-    getWrapper({ hidePermalink: true })
-      .find('.coding-rules-detail-permalink')
-      .exists()
-  ).toBeFalsy();
-});
-
 function getWrapper(props = {}) {
   return shallow(
     <RuleDetailsMeta

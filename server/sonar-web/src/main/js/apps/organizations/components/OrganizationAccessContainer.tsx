@@ -20,11 +20,15 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from 'react-router';
-import { getOrganizationByKey, getCurrentUser } from '../../../store/rootReducer';
+import {
+  getCurrentUser,
+  getMyOrganizations,
+  getOrganizationByKey
+} from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { Organization, CurrentUser, isLoggedIn } from '../../../app/types';
 import { isCurrentUserMemberOf, hasPrivateAccess } from '../../../helpers/organizations';
-import { getMyOrganizations } from '../../../store/organizations/duck';
+import {} from '../../../store/organizations/duck';
 
 interface StateToProps {
   currentUser: CurrentUser;

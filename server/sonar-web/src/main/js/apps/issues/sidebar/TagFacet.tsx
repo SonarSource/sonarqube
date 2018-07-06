@@ -38,7 +38,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  organization: { key: string } | undefined;
+  organization: string | undefined;
   stats: { [x: string]: number } | undefined;
   tags: string[];
 }
@@ -74,11 +74,7 @@ export default class TagFacet extends React.PureComponent<Props> {
   };
 
   handleSearch = (query: string) => {
-    let organization = this.props.component && this.props.component.organization;
-    if (this.props.organization && !organization) {
-      organization = this.props.organization.key;
-    }
-    return searchIssueTags({ organization, ps: 50, q: query }).then(tags =>
+    return searchIssueTags({ organization: this.props.organization, ps: 50, q: query }).then(tags =>
       tags.map(tag => ({ label: tag, value: tag }))
     );
   };

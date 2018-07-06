@@ -38,6 +38,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 interface Props {
   allowCustomRules?: boolean;
   canWrite?: boolean;
+  hideQualityProfiles?: boolean;
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
@@ -148,7 +149,13 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
       return <div className="coding-rule-details" />;
     }
 
-    const { allowCustomRules, canWrite, organization, referencedProfiles } = this.props;
+    const {
+      allowCustomRules,
+      canWrite,
+      hideQualityProfiles,
+      organization,
+      referencedProfiles
+    } = this.props;
     const { params = [] } = ruleDetails;
 
     const isCustom = !!ruleDetails.templateKey;
@@ -225,17 +232,18 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             />
           )}
 
-          {!ruleDetails.isTemplate && (
-            <RuleDetailsProfiles
-              activations={this.state.actives}
-              canWrite={canWrite}
-              onActivate={this.handleActivate}
-              onDeactivate={this.handleDeactivate}
-              organization={organization}
-              referencedProfiles={referencedProfiles}
-              ruleDetails={ruleDetails}
-            />
-          )}
+          {!ruleDetails.isTemplate &&
+            !hideQualityProfiles && (
+              <RuleDetailsProfiles
+                activations={this.state.actives}
+                canWrite={canWrite}
+                onActivate={this.handleActivate}
+                onDeactivate={this.handleDeactivate}
+                organization={organization}
+                referencedProfiles={referencedProfiles}
+                ruleDetails={ruleDetails}
+              />
+            )}
 
           {!ruleDetails.isTemplate && (
             <RuleDetailsIssues organization={organization} ruleKey={ruleDetails.key} />

@@ -18,67 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { hasPrivateAccess, isCurrentUserMemberOf } from '../organizations';
-import { getCurrentUser, getMyOrganizations } from '../../store/rootReducer';
 import { OrganizationSubscription } from '../../app/types';
 
-jest.mock('../../app/utils/getStore', () => ({
-  default: () => ({
-    getState: jest.fn()
-  })
-}));
+const org = { key: 'foo', name: 'Foo', subscription: OrganizationSubscription.Paid };
+const adminOrg = { key: 'bar', name: 'Bar', canAdmin: true };
+const randomOrg = { key: 'bar', name: 'Bar' };
 
-jest.mock('../../store/rootReducer', () => ({
-  getCurrentUser: jest.fn().mockReturnValue({
-    isLoggedIn: true,
-    login: 'luke',
-    name: 'Skywalker',
-    showOnboardingTutorial: false
-  }),
-  getMyOrganizations: jest.fn().mockReturnValue([])
-}));
-
-const organization = {
-  key: 'foo',
-  name: 'Foo',
-  subscription: OrganizationSubscription.Paid
+const loggedIn = {
+  isLoggedIn: true,
+  login: 'luke',
+  name: 'Skywalker'
 };
-
 const loggedOut = { isLoggedIn: false };
-
-beforeEach(() => {
-  (getCurrentUser as jest.Mock<any>).mockClear();
-  (getMyOrganizations as jest.Mock<any>).mockClear();
-});
 
 describe('isCurrentUserMemberOf', () => {
   it('should be a member', () => {
-    expect(isCurrentUserMemberOf({ key: 'bar', name: 'Bar', canAdmin: true })).toBeTruthy();
-
-    (getMyOrganizations as jest.Mock<any>).mockReturnValueOnce([organization]);
-    expect(isCurrentUserMemberOf(organization)).toBeTruthy();
+    expect(isCurrentUserMemberOf(loggedIn, adminOrg, [])).toBeTruthy();
+    expect(isCurrentUserMemberOf(loggedIn, org, [org])).toBeTruthy();
   });
 
   it('should not be a member', () => {
-    expect(isCurrentUserMemberOf(undefined)).toBeFalsy();
-    expect(isCurrentUserMemberOf(organization)).toBeFalsy();
-
-    (getMyOrganizations as jest.Mock<any>).mockReturnValueOnce([{ key: 'bar', name: 'Bar' }]);
-    expect(isCurrentUserMemberOf(organization)).toBeFalsy();
-
-    (getCurrentUser as jest.Mock<any>).mockReturnValueOnce(loggedOut);
-    expect(isCurrentUserMemberOf(organization)).toBeFalsy();
+    expect(isCurrentUserMemberOf(loggedIn, undefined, [])).toBeFalsy();
+    expect(isCurrentUserMemberOf(loggedIn, org, [])).toBeFalsy();
+    expect(isCurrentUserMemberOf(loggedIn, org, [randomOrg])).toBeFalsy();
+    expect(isCurrentUserMemberOf(loggedOut, org, [org])).toBeFalsy();
   });
 });
 
 describe('hasPrivateAccess', () => {
   it('should have access', () => {
-    expect(hasPrivateAccess({ key: 'bar', name: 'Bar' })).toBeTruthy();
-
-    (getMyOrganizations as jest.Mock<any>).mockReturnValueOnce([organization]);
-    expect(hasPrivateAccess(organization)).toBeTruthy();
+    expect(hasPrivateAccess(loggedIn, randomOrg, [])).toBeTruthy();
+    expect(hasPrivateAccess(loggedIn, org, [org])).toBeTruthy();
   });
 
   it('should not have access', () => {
-    expect(hasPrivateAccess(organization)).toBeFalsy();
+    expect(hasPrivateAccess(loggedIn, org, [])).toBeFalsy();
   });
 });

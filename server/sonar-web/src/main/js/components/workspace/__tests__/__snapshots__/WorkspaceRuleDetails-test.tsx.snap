@@ -15,7 +15,6 @@ exports[`should render 2`] = `
   <React.Fragment>
     <RuleDetailsMeta
       canWrite={false}
-      hidePermalink={false}
       hideSimilarRulesFilter={true}
       onFilterChange={[Function]}
       onTagsChange={[Function]}

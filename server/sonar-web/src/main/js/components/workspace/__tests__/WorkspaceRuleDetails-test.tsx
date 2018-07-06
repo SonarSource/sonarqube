@@ -21,12 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import WorkspaceRuleDetails from '../WorkspaceRuleDetails';
 import { waitAndUpdate } from '../../../helpers/testUtils';
-import { OrganizationSubscription, Visibility } from '../../../app/types';
-import { hasPrivateAccess } from '../../../helpers/organizations';
-
-jest.mock('../../../helpers/organizations', () => ({
-  hasPrivateAccess: jest.fn().mockReturnValue(true)
-}));
 
 jest.mock('../../../api/rules', () => ({
   getRulesApp: jest.fn(() =>
@@ -34,17 +28,6 @@ jest.mock('../../../api/rules', () => ({
   ),
   getRuleDetails: jest.fn(() => Promise.resolve({ rule: { key: 'foo', name: 'Foo' } }))
 }));
-
-const organization = {
-  key: 'foo',
-  name: 'Foo',
-  projectVisibility: Visibility.Public,
-  subscription: OrganizationSubscription.Paid
-};
-
-beforeEach(() => {
-  (hasPrivateAccess as jest.Mock<any>).mockClear();
-});
 
 it('should render', async () => {
   const wrapper = shallow(
@@ -63,14 +46,4 @@ it('should call back on load', async () => {
   );
   await waitAndUpdate(wrapper);
   expect(onLoad).toBeCalledWith({ name: 'Foo' });
-});
-
-it('should render without permalink', async () => {
-  (hasPrivateAccess as jest.Mock<any>).mockReturnValueOnce(false);
-  const wrapper = shallow(
-    <WorkspaceRuleDetails onLoad={jest.fn()} organizationKey={organization.key} ruleKey="foo" />
-  );
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find('RuleDetailsMeta').prop('hidePermalink')).toBeTruthy();
 });

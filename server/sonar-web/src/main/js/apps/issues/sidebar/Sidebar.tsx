@@ -63,6 +63,10 @@ export default class Sidebar extends React.PureComponent<Props> {
     const displayFilesFacet = component !== undefined;
     const displayAuthorFacet = !component || component.qualifier !== 'DEV';
 
+    const organizationKey =
+      (component && component.organization) ||
+      (this.props.organization && this.props.organization.key);
+
     return (
       <div className="search-navigator-facets-list">
         <FacetMode facetMode={query.facetMode} onChange={this.props.onFilterChange} />
@@ -124,7 +128,7 @@ export default class Sidebar extends React.PureComponent<Props> {
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.rules}
-          organization={this.props.organization && this.props.organization.key}
+          organization={organizationKey}
           referencedRules={this.props.referencedRules}
           rules={query.rules}
           stats={facets.rules}
@@ -136,7 +140,7 @@ export default class Sidebar extends React.PureComponent<Props> {
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.tags}
-          organization={this.props.organization}
+          organization={organizationKey}
           stats={facets.tags}
           tags={query.tags}
         />
@@ -200,7 +204,7 @@ export default class Sidebar extends React.PureComponent<Props> {
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.assignees}
-            organization={this.props.organization}
+            organization={organizationKey}
             referencedUsers={this.props.referencedUsers}
             stats={facets.assignees}
           />

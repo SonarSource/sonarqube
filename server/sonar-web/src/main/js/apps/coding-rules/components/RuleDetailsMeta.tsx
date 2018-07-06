@@ -39,7 +39,6 @@ import { PopupPlacement } from '../../../components/ui/popups';
 
 interface Props {
   canWrite: boolean | undefined;
-  hidePermalink?: boolean;
   hideSimilarRulesFilter?: boolean;
   onFilterChange: (changes: Partial<Query>) => void;
   onTagsChange: (tags: string[]) => void;
@@ -231,22 +230,21 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
   };
 
   render() {
-    const { hidePermalink, ruleDetails } = this.props;
+    const { ruleDetails } = this.props;
     const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
     return (
       <div className="js-rule-meta">
         <header className="page-header">
           <div className="pull-right">
             <span className="note text-middle">{ruleDetails.key}</span>
-            {!ruleDetails.isExternal &&
-              !hidePermalink && (
-                <Link
-                  className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
-                  title={translate('permalink')}
-                  to={getRuleUrl(ruleDetails.key, this.props.organization)}>
-                  <LinkIcon />
-                </Link>
-              )}
+            {!ruleDetails.isExternal && (
+              <Link
+                className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
+                title={translate('permalink')}
+                to={getRuleUrl(ruleDetails.key, this.props.organization)}>
+                <LinkIcon />
+              </Link>
+            )}
             {!this.props.hideSimilarRulesFilter && (
               <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={ruleDetails} />
             )}

@@ -47,6 +47,7 @@ export function OrganizationNavigationMenu({
   organization,
   userOrganizations
 }: Props) {
+  const hasPrivateRights = hasPrivateAccess(currentUser, organization, userOrganizations);
   return (
     <NavBarTabs className="navbar-context-tabs">
       <li>
@@ -64,28 +65,25 @@ export function OrganizationNavigationMenu({
           {translate('issues.page')}
         </Link>
       </li>
-      {hasPrivateAccess(currentUser, organization, userOrganizations) && (
-        <>
-          <li>
-            <Link
-              activeClassName="active"
-              to={`/organizations/${organization.key}/quality_profiles`}>
-              {translate('quality_profiles.page')}
-            </Link>
-          </li>
-          <li>
-            <Link activeClassName="active" to={`/organizations/${organization.key}/rules`}>
-              {translate('coding_rules.page')}
-            </Link>
-          </li>
-          <li>
-            <Link activeClassName="active" to={getQualityGatesUrl(organization.key)}>
-              {translate('quality_gates.page')}
-            </Link>
-          </li>
-        </>
+      {hasPrivateRights && (
+        <li>
+          <Link activeClassName="active" to={`/organizations/${organization.key}/quality_profiles`}>
+            {translate('quality_profiles.page')}
+          </Link>
+        </li>
       )}
-
+      <li>
+        <Link activeClassName="active" to={`/organizations/${organization.key}/rules`}>
+          {translate('coding_rules.page')}
+        </Link>
+      </li>
+      {hasPrivateRights && (
+        <li>
+          <Link activeClassName="active" to={getQualityGatesUrl(organization.key)}>
+            {translate('quality_gates.page')}
+          </Link>
+        </li>
+      )}
       {isCurrentUserMemberOf(currentUser, organization, userOrganizations) && (
         <li>
           <Link activeClassName="active" to={`/organizations/${organization.key}/members`}>
@@ -93,7 +91,6 @@ export function OrganizationNavigationMenu({
           </Link>
         </li>
       )}
-
       <OrganizationNavigationExtensions location={location} organization={organization} />
       {organization.canAdmin && (
         <OrganizationNavigationAdministration location={location} organization={organization} />

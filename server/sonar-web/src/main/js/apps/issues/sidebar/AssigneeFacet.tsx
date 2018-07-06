@@ -38,7 +38,7 @@ export interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  organization: { key: string } | undefined;
+  organization: string | undefined;
   stats: { [x: string]: number } | undefined;
   referencedUsers: { [login: string]: ReferencedUser };
 }
@@ -77,11 +77,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
   };
 
   handleSearch = (query: string) => {
-    let organization = this.props.component && this.props.component.organization;
-    if (this.props.organization && !organization) {
-      organization = this.props.organization.key;
-    }
-    return searchAssignees(query, organization);
+    return searchAssignees(query, this.props.organization);
   };
 
   handleSelect = (option: { value: string }) => {

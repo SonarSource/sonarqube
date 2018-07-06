@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import MetaKey from './MetaKey';
 import MetaOrganizationKey from './MetaOrganizationKey';
 import MetaLinks from './MetaLinks';
@@ -28,13 +29,31 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import BadgesModal from '../badges/BadgesModal';
 import AnalysesList from '../events/AnalysesList';
-import { Visibility, Component, Metric, BranchLike } from '../../../app/types';
+import {
+  Visibility,
+  Component,
+  Metric,
+  BranchLike,
+  CurrentUser,
+  Organization
+} from '../../../app/types';
 import { History } from '../../../api/time-machine';
 import { translate } from '../../../helpers/l10n';
 import { MeasureEnhanced } from '../../../helpers/measures';
 import { hasPrivateAccess } from '../../../helpers/organizations';
+import {
+  getCurrentUser,
+  getMyOrganizations,
+  getOrganizationByKey
+} from '../../../store/rootReducer';
 
-interface Props {
+interface StateToProps {
+  currentUser: CurrentUser;
+  organization?: Organization;
+  userOrganizations: Organization[];
+}
+
+interface OwnProps {
   branchLike?: BranchLike;
   component: Component;
   history?: History;
@@ -43,17 +62,23 @@ interface Props {
   onComponentChange: (changes: {}) => void;
 }
 
-export default class Meta extends React.PureComponent<Props> {
+type Props = OwnProps & StateToProps;
+
+export class Meta extends React.PureComponent<Props> {
   static contextTypes = {
     organizationsEnabled: PropTypes.bool
   };
 
   renderQualityInfos() {
     const { organizationsEnabled } = this.context;
-    const { organization, qualifier, qualityProfiles, qualityGate } = this.props.component;
+    const { component, currentUser, organization, userOrganizations } = this.props;
+    const { qualifier, qualityProfiles, qualityGate } = component;
     const isProject = qualifier === 'TRK';
 
-    if (!isProject || (organizationsEnabled && !hasPrivateAccess(organization))) {
+    if (
+      !isProject ||
+      (organizationsEnabled && !hasPrivateAccess(currentUser, organization, userOrganizations))
+    ) {
       return null;
     }
 
@@ -61,7 +86,7 @@ export default class Meta extends React.PureComponent<Props> {
       <div className="overview-meta-card">
         {qualityGate && (
           <MetaQualityGate
-            organization={organizationsEnabled ? organization : undefined}
+            organization={organizationsEnabled ? component.organization : undefined}
             qualityGate={qualityGate}
           />
         )}
@@ -70,7 +95,7 @@ export default class Meta extends React.PureComponent<Props> {
           qualityProfiles.length > 0 && (
             <MetaQualityProfiles
               headerClassName={qualityGate ? 'big-spacer-top' : undefined}
-              organization={organizationsEnabled ? organization : undefined}
+              organization={organizationsEnabled ? component.organization : undefined}
               profiles={qualityProfiles}
             />
           )}
@@ -130,3 +155,11 @@ export default class Meta extends React.PureComponent<Props> {
     );
   }
 }
+
+const mapStateToProps = (state: any, { component }: OwnProps) => ({
+  currentUser: getCurrentUser(state),
+  organization: getOrganizationByKey(state, component.organization),
+  userOrganizations: getMyOrganizations(state)
+});
+
+export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(Meta);

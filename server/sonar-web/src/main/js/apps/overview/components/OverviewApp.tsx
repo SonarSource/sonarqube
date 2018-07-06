@@ -27,7 +27,7 @@ import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
 import CodeSmells from '../main/CodeSmells';
 import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
-import Meta from '../meta/Meta';
+import MetaContainer from '../meta/MetaContainer';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { getMeasuresAndMeta } from '../../../api/measures';
@@ -257,7 +257,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
           {this.renderMain()}
 
           <div className="overview-sidebar page-sidebar-fixed">
-            <Meta
+            <MetaContainer
               branchLike={branchLike}
               component={component}
               history={history}

@@ -54,6 +54,11 @@ const routes = [
         ]
       },
       {
+        path: 'rules',
+        component: OrganizationContainer,
+        childRoutes: codingRulesRoutes
+      },
+      {
         component: lazyLoad(() =>
           import('./components/OrganizationAccessContainer').then(lib => ({
             default: lib.OrganizationMembersAccess
@@ -73,11 +78,6 @@ const routes = [
           }))
         ),
         childRoutes: [
-          {
-            path: 'rules',
-            component: OrganizationContainer,
-            childRoutes: codingRulesRoutes
-          },
           {
             path: 'quality_profiles',
             childRoutes: qualityProfilesRoutes
