@@ -82,7 +82,7 @@ public class CreateAction implements RulesWsAction {
       .setPost(true)
       .setDescription("Create a custom rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
-      .setResponseExample(Resources.getResource(getClass(), "example-create.json"))
+      .setResponseExample(Resources.getResource(getClass(), "create-example.json"))
       .setSince("4.4")
       .setChangelog(
         new Change("5.5", "Creating manual rule is not more possible"))

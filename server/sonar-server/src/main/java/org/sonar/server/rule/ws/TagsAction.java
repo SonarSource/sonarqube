@@ -57,7 +57,7 @@ public class TagsAction implements RulesWsAction {
       .setDescription("List rule tags")
       .setSince("4.4")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(getClass(), "example-tags.json"));
+      .setResponseExample(Resources.getResource(getClass(), "tags-example.json"));
 
     action.createSearchQuery("misra", "tags");
     action.createPageSize(10, 100);

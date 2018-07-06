@@ -76,7 +76,7 @@ public class ShowAction implements RulesWsAction {
         "</ul>" +
         "In 7.1, the field 'scope' has been added.")
       .setSince("4.2")
-      .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
+      .setResponseExample(Resources.getResource(getClass(), "show-example.json"))
       .setHandler(this);
 
     action
