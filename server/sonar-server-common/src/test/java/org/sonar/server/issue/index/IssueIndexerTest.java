@@ -56,9 +56,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
-import static org.sonar.server.issue.ws.SearchAction.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.issue.ws.SearchAction.UNKNOWN_STANDARD;
 import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AUTHORIZATION;
 
 public class IssueIndexerTest {

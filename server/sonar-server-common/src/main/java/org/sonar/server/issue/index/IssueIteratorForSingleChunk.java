@@ -50,10 +50,10 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
-import static org.sonar.server.issue.ws.SearchAction.SANS_TOP_25_INSECURE_INTERACTION;
-import static org.sonar.server.issue.ws.SearchAction.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.issue.ws.SearchAction.SANS_TOP_25_RISKY_RESOURCE;
-import static org.sonar.server.issue.ws.SearchAction.UNKNOWN_STANDARD;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_RISKY_RESOURCE;
+import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
 
 /**
  * Scrolls over table ISSUES and reads documents to populate

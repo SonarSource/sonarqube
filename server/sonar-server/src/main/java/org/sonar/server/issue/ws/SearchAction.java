@@ -75,7 +75,11 @@ import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.issue.IssueQuery.SORT_BY_ASSIGNEE;
+import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
 import static org.sonar.server.issue.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -131,10 +135,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 public class SearchAction implements IssuesWsAction {
 
   public static final String LOGIN_MYSELF = "__me__";
-  public static final String UNKNOWN_STANDARD = "unknown";
-  public static final String SANS_TOP_25_INSECURE_INTERACTION = "insecure-interaction";
-  public static final String SANS_TOP_25_RISKY_RESOURCE = "risky-resource";
-  public static final String SANS_TOP_25_POROUS_DEFENSES = "porous-defenses";
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);

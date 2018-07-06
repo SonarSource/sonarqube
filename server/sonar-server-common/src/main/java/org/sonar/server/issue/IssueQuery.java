@@ -57,6 +57,11 @@ public class IssueQuery {
   public static final Set<String> SORTS = ImmutableSet.of(SORT_BY_CREATION_DATE, SORT_BY_UPDATE_DATE, SORT_BY_CLOSE_DATE, SORT_BY_ASSIGNEE, SORT_BY_SEVERITY,
     SORT_BY_STATUS, SORT_BY_FILE_LINE);
 
+  public static final String UNKNOWN_STANDARD = "unknown";
+  public static final String SANS_TOP_25_INSECURE_INTERACTION = "insecure-interaction";
+  public static final String SANS_TOP_25_RISKY_RESOURCE = "risky-resource";
+  public static final String SANS_TOP_25_POROUS_DEFENSES = "porous-defenses";
+
   private final Collection<String> issueKeys;
   private final Collection<String> severities;
   private final Collection<String> statuses;
