@@ -6,7 +6,7 @@ sonarqube {
   skipProject = true
 }
 
-group = 'com.sonarsource'
+group = 'com.sonarsource.sonarqube'
 
 apply plugin: 'com.moowork.node'
 
