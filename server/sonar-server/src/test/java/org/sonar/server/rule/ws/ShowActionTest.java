@@ -51,6 +51,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
@@ -352,6 +353,39 @@ public class ShowActionTest {
     ShowResponse result = ws.newRequest()
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(PARAM_ACTIVES, "false")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(ShowResponse.class);
+
+    assertThat(result.getActivesList()).isEmpty();
+  }
+
+  @Test
+  public void active_rules_are_returned_when_member_of_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    RuleDefinitionDto rule = db.rules().insert();
+    QProfileDto qProfile = db.qualityProfiles().insert(organization);
+    ActiveRuleDto activeRule = db.qualityProfiles().activateRule(qProfile, rule);
+    userSession.logIn(db.users().insertUser()).addMembership(organization);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_ACTIVES, "true")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(ShowResponse.class);
+
+    assertThat(result.getActivesList()).isNotEmpty();
+  }
+
+  @Test
+  public void active_rules_are_not_returned_when_not_member_of_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    RuleDefinitionDto rule = db.rules().insert();
+    QProfileDto qProfile = db.qualityProfiles().insert(organization);
+    ActiveRuleDto activeRule = db.qualityProfiles().activateRule(qProfile, rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_ACTIVES, "true")
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ShowResponse.class);
 

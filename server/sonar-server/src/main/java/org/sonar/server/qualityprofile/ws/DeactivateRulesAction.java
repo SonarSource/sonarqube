@@ -34,12 +34,11 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_04;
 import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
-import static org.sonar.server.rule.ws.SearchAction.defineGenericRuleSearchParameters;
+import static org.sonar.server.rule.ws.RuleWsSupport.defineGenericRuleSearchParameters;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 
 public class DeactivateRulesAction implements QProfileWsAction {
-  public static final String SEVERITY = "activation_severity";
 
   private final RuleQueryFactory ruleQueryFactory;
   private final UserSession userSession;

@@ -30,20 +30,15 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Rules;
 
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class AppActionTest {
@@ -111,24 +106,6 @@ public class AppActionTest {
   }
 
   @Test
-  public void response_on_paid_organization() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
-
-    String json = ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();;
-
-    assertJson(json).isSimilarTo("{" +
-      "\"languages\": {" +
-      "    \"xoo\": \"Xoo\"," +
-      "    \"ws\": \"Whitespace\"" +
-      "  }" +
-      "}");
-  }
-
-  @Test
   public void canWrite_is_true_if_user_is_profile_administrator_of_default_organization() {
     userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
@@ -180,19 +157,6 @@ public class AppActionTest {
     ws.newRequest()
       .setParam("organization", "does_not_exist")
       .execute();
-  }
-
-  @Test
-  public void fail_on_paid_organization_when_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    db.rules().insert();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .executeProtobuf(Rules.SearchResponse.class);
   }
 
   private void insertRules() {

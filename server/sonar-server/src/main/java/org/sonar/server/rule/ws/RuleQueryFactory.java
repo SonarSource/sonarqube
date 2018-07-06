@@ -88,8 +88,6 @@ public class RuleQueryFactory {
     Date availableSince = request.paramAsDate(PARAM_AVAILABLE_SINCE);
     query.setAvailableSince(availableSince != null ? availableSince.getTime() : null);
     query.setStatuses(toEnums(request.paramAsStrings(PARAM_STATUSES), RuleStatus.class));
-    Boolean activation = request.paramAsBoolean(PARAM_ACTIVATION);
-    query.setActivation(activation);
 
     // Order is important : 1. Load profile, 2. Load organization either from parameter or from profile, 3. Load compare to profile
     setProfile(dbSession, query, request);
@@ -97,7 +95,9 @@ public class RuleQueryFactory {
     setCompareToProfile(dbSession, query, request);
     QProfileDto profile = query.getQProfile();
     query.setLanguages(profile == null ? request.paramAsStrings(PARAM_LANGUAGES) : ImmutableList.of(profile.getLanguage()));
-
+    if (wsSupport.areActiveRulesVisible(query.getOrganization())) {
+      query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
+    }
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
@@ -139,7 +139,6 @@ public class RuleQueryFactory {
       checkArgument(organization.getUuid().equals(inputOrganization.getUuid()),
         format("The specified quality profile '%s' is not part of the specified organization '%s'", profile.getKee(), organizationKey));
     }
-    wsSupport.checkMembershipOnPaidOrganization(organization);
     query.setOrganization(organization);
   }
 

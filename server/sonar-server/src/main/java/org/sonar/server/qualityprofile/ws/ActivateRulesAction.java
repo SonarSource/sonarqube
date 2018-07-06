@@ -36,7 +36,7 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
 import static org.sonar.server.qualityprofile.ws.QProfileReference.fromKey;
-import static org.sonar.server.rule.ws.SearchAction.defineGenericRuleSearchParameters;
+import static org.sonar.server.rule.ws.RuleWsSupport.defineGenericRuleSearchParameters;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;

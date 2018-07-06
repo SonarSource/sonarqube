@@ -45,7 +45,6 @@ import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -70,7 +69,6 @@ import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
 
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
@@ -83,6 +81,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
@@ -159,8 +158,8 @@ public class SearchActionTest {
 
   @Test
   public void return_all_rules() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java"));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setLanguage("java"));
     indexRules();
 
     verify(r -> {
@@ -192,8 +191,8 @@ public class SearchActionTest {
 
   @Test
   public void filter_by_rule_key() {
-    RuleDefinitionDto rule1 = createJavaRule();
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDefinitionDto rule1 = db.rules().insert(r1 -> r1.setLanguage("java"));
+    RuleDefinitionDto rule2 = db.rules().insert(r1 -> r1.setLanguage("java"));
     indexRules();
 
     verify(r -> r.setParam(PARAM_RULE_KEY, rule1.getKey().toString()), rule1);
@@ -263,7 +262,7 @@ public class SearchActionTest {
 
   @Test
   public void return_all_rule_fields_by_default() {
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
     indexRules();
 
     Rules.SearchResponse response = ws.newRequest().executeProtobuf(Rules.SearchResponse.class);
@@ -282,7 +281,7 @@ public class SearchActionTest {
 
   @Test
   public void return_subset_of_fields() {
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
     indexRules();
 
     Rules.SearchResponse response = ws.newRequest()
@@ -311,9 +310,9 @@ public class SearchActionTest {
   @Test
   public void should_filter_on_organization_specific_tags() {
     OrganizationDto organization = db.organizations().insert();
-    RuleDefinitionDto rule1 = createJavaRule();
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
     RuleMetadataDto metadata1 = insertMetadata(organization, rule1, setTags("tag1", "tag2"));
-    RuleDefinitionDto rule2 = createJavaRule();
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("java"));
     RuleMetadataDto metadata2 = insertMetadata(organization, rule2);
     indexRules();
 
@@ -327,13 +326,13 @@ public class SearchActionTest {
   @Test
   public void when_searching_for_several_tags_combine_them_with_OR() {
     OrganizationDto organization = db.organizations().insert();
-    RuleDefinitionDto bothTagsRule = createJavaRule();
+    RuleDefinitionDto bothTagsRule = db.rules().insert(r -> r.setLanguage("java"));
     insertMetadata(organization, bothTagsRule, setTags("tag1", "tag2"));
-    RuleDefinitionDto oneTagRule = createJavaRule();
+    RuleDefinitionDto oneTagRule = db.rules().insert(r -> r.setLanguage("java"));
     insertMetadata(organization, oneTagRule, setTags("tag1"));
-    RuleDefinitionDto otherTagRule = createJavaRule();
+    RuleDefinitionDto otherTagRule = db.rules().insert(r -> r.setLanguage("java"));
     insertMetadata(organization, otherTagRule, setTags("tag2"));
-    RuleDefinitionDto noTagRule = createJavaRule();
+    RuleDefinitionDto noTagRule = db.rules().insert(r -> r.setLanguage("java"));
     insertMetadata(organization, noTagRule, setTags());
     indexRules();
 
@@ -406,7 +405,7 @@ public class SearchActionTest {
   @Test
   public void should_return_organization_specific_tags() {
     OrganizationDto organization = db.organizations().insert();
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
     indexRules();
 
@@ -444,7 +443,7 @@ public class SearchActionTest {
 
   @Test
   public void should_return_specified_fields() {
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDefinitionDto rule = db.rules().insert(r1 -> r1.setLanguage("java"));
     indexRules();
 
     checkField(rule, "repo", Rule::getRepo, rule.getRepositoryKey());
@@ -632,14 +631,13 @@ public class SearchActionTest {
   public void search_all_active_rules() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
     RuleActivation activation = RuleActivation.create(rule.getId(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     indexRules();
 
     SearchResponse result = ws.newRequest()
-      .setParam("f", "")
       .setParam("q", rule.getName())
       .setParam("activation", "true")
       .setParam("organization", organization.getKey())
@@ -658,9 +656,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     QProfileDto waterproofProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
-
-    RuleDefinitionDto rule = createJavaRule();
-
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
     RuleParamDto ruleParam1 = db.rules().insertRuleParam(rule, p -> p.setDefaultValue("some value")
       .setType("STRING")
       .setDescription("My small description")
@@ -680,11 +676,7 @@ public class SearchActionTest {
     RuleActivation activation = RuleActivation.create(rule.getId());
     List<ActiveRuleChange> activeRuleChanges1 = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
     qProfileRules.activateAndCommit(db.getSession(), waterproofProfile, singleton(activation));
-
     assertThat(activeRuleChanges1).hasSize(1);
-
-    db.commit();
-
     indexRules();
     indexActiveRules();
 
@@ -701,9 +693,8 @@ public class SearchActionTest {
     assertThat(result.getActives().getActives().get(rule.getKey().toString())).isNotNull();
     assertThat(result.getActives().getActives().get(rule.getKey().toString()).getActiveListList()).hasSize(1);
 
-    Rules.Active activeList = result.getActives().getActives().get(rule.getKey().toString()).getActiveList(0);
-
     // The rule without value is not inserted
+    Rules.Active activeList = result.getActives().getActives().get(rule.getKey().toString()).getActiveList(0);
     assertThat(activeList.getParamsCount()).isEqualTo(2);
     assertThat(activeList.getParamsList()).extracting("key", "value").containsExactlyInAnyOrder(
       tuple(ruleParam1.getName(), ruleParam1.getDefaultValue()),
@@ -724,7 +715,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
 
-    RuleDefinitionDto rule = createJavaRule();
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
 
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setDefaultValue("some value")
       .setType("STRING")
@@ -922,34 +913,92 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_rules_on_paid_organization() {
+  public void active_rules_are_returned_when_member_of_paid_organization() {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    RuleDefinitionDto rule = db.rules().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
+    RuleActivation activation = RuleActivation.create(rule.getId(), BLOCKER, null);
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
+    userSession.logIn(db.users().insertUser()).addMembership(organization);
+
     indexRules();
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
 
     SearchResponse result = ws.newRequest()
-      .setParam("organization", organization.getKey())
+      .setParam(FIELDS, "actives")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(SearchResponse.class);
 
-    assertThat(result.getRulesList())
-      .extracting(Rule::getKey)
-      .containsExactlyInAnyOrder(rule.getKey().toString());
+    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getActives().getActivesMap()).isNotEmpty();
   }
 
   @Test
-  public void fail_on_paid_organization_when_not_member() {
+  public void active_rules_are_not_returned_when_not_member_of_paid_organization() {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    db.rules().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
+    RuleActivation activation = RuleActivation.create(rule.getId(), BLOCKER, null);
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
+
     indexRules();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    ws.newRequest()
-      .setParam("organization", organization.getKey())
+    SearchResponse result = ws.newRequest()
+      .setParam(FIELDS, "actives")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getActives().getActivesMap()).isEmpty();
+  }
+
+  @Test
+  public void search_for_active_rules_when_member_of_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+    // Rule1 is activated on profile
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
+    RuleActivation activation = RuleActivation.create(rule1.getId(), BLOCKER, null);
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
+    // Rule2 is not activated
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("java"));
+    userSession.logIn(db.users().insertUser()).addMembership(organization);
+
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam(FIELDS, "actives")
+      .setParam(PARAM_QPROFILE, profile.getKee())
+      .setParam(PARAM_ACTIVATION, "true")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesList()).extracting(Rule::getKey)
+      .containsExactlyInAnyOrder(rule1.getKey().toString());
+  }
+
+  @Test
+  public void search_for_active_rules_is_ignored_when_not_member_of_paid_organization() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+    // Rule1 is activated on profile
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
+    RuleActivation activation = RuleActivation.create(rule1.getId(), BLOCKER, null);
+    qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
+    // Rule2 is not activated
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("java"));
+
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam(FIELDS, "actives")
+      .setParam(PARAM_QPROFILE, profile.getKee())
+      .setParam(PARAM_ACTIVATION, "true")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(SearchResponse.class);
+
+    // the 2 rules are returned as filter on profile is ignored
+    assertThat(result.getRulesList()).extracting(Rule::getKey)
+      .containsExactlyInAnyOrder(rule1.getKey().toString(), rule2.getKey().toString());
   }
 
   @SafeVarargs
@@ -995,7 +1044,4 @@ public class SearchActionTest {
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
   }
 
-  private RuleDefinitionDto createJavaRule() {
-    return db.rules().insert(r -> r.setLanguage("java"));
-  }
 }

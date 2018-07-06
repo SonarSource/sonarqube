@@ -31,8 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleQuery;
@@ -41,7 +39,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.rule.RuleStatus.READY;
@@ -56,6 +53,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
+import static org.sonar.server.rule.ws.RuleWsSupport.defineGenericRuleSearchParameters;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
@@ -73,7 +71,6 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
-import static org.sonar.server.rule.ws.SearchAction.defineGenericRuleSearchParameters;
 
 public class RuleQueryFactoryTest {
 
@@ -257,27 +254,28 @@ public class RuleQueryFactoryTest {
   }
 
   @Test
-  public void filter_by_qprofile_when_subscription_is_paid_and_user_is_member() {
+  public void activation_is_kept_when_member_of_paid_organization() {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
+    userSession.logIn(db.users().insertUser()).addMembership(organization);
 
-    RuleQuery result = execute(PARAM_QPROFILE, qualityProfile.getKee());
+    RuleQuery result = execute(
+      PARAM_ACTIVATION, "true",
+      PARAM_QPROFILE, profile.getKee());
 
-    assertThat(result.getOrganization().getUuid()).isEqualTo(organization.getUuid());
+    assertThat(result.getActivation()).isTrue();
   }
 
   @Test
-  public void filter_by_organization_when_subscription_is_paid_and_user_is_member() {
+  public void activation_is_set_to_null_when_not_member_of_paid_organization() {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
 
-    RuleQuery result = execute(PARAM_ORGANIZATION, organization.getKey());
+    RuleQuery result = execute(
+      PARAM_ACTIVATION, "true",
+      PARAM_QPROFILE, profile.getKee());
 
-    assertThat(result.getOrganization().getUuid()).isEqualTo(organization.getUuid());
+    assertThat(result.getActivation()).isNull();
   }
 
   @Test
@@ -345,27 +343,6 @@ public class RuleQueryFactoryTest {
 
     execute(PARAM_QPROFILE, qualityProfile.getKee(),
       PARAM_COMPARE_TO_PROFILE, "unknown");
-  }
-
-  @Test
-  public void fail_when_searching_by_organization_when_subscription_is_paid_and_user_is_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    execute(PARAM_ORGANIZATION, organization.getKey());
-  }
-
-  @Test
-  public void fail_when_searching_by_qprofile_when_subscription_is_paid_and_user_is_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    execute(PARAM_QPROFILE, qualityProfile.getKee());
   }
 
   private void assertResult(RuleQuery result, QProfileDto qualityProfile, QProfileDto compareToQualityProfile) {

@@ -1,31 +1,5 @@
 {
   "canWrite": false,
-  "qualityprofiles": [
-    {
-      "key": "java-top-profile-without-formatting-conventions-50037",
-      "name": "Default - Top",
-      "lang": "java",
-      "isBuiltIn": false
-    },
-    {
-      "key": "java-sonar-way-80423",
-      "name": "Sonar way",
-      "lang": "java",
-      "isBuiltIn": true
-    },
-    {
-      "key": "js-sonar-way",
-      "name": "Sonar way",
-      "lang": "js",
-      "isBuiltIn": true
-    },
-    {
-      "key": "php-sonar-way-05548",
-      "name": "Sonar way",
-      "lang": "php",
-      "isBuiltIn": true
-    }
-  ],
   "languages": {
     "js": "JavaScript",
     "java": "Java",

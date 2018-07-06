@@ -127,7 +127,7 @@ public class ShowAction implements RulesWsAction {
     RuleDto rule = searchResult.getRules().get(0);
     responseBuilder.setRule(mapper.toWsRule(rule.getDefinition(), searchResult, Collections.emptySet(), rule.getMetadata(),
       ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules())));
-    if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
+    if (request.mandatoryParamAsBoolean(PARAM_ACTIVES) && ruleWsSupport.areActiveRulesVisible(organization)) {
       activeRuleCompleter.completeShow(dbSession, organization, rule.getDefinition()).forEach(responseBuilder::addActives);
     }
     return responseBuilder.build();
