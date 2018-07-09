@@ -96,6 +96,8 @@ public class RulesDefinitionTest {
       .setStatus(RuleStatus.BETA)
       .setTags("one", "two")
       .setScope(RuleScope.ALL)
+      .addOwaspTop10(RulesDefinition.OwaspTop10.A1, RulesDefinition.OwaspTop10.A3)
+      .addCwe(1, 2, 123)
       .addTags("two", "three", "four");
 
     newRepo.createRule("ABC").setName("ABC").setMarkdownDescription("ABC");
@@ -113,6 +115,7 @@ public class RulesDefinitionTest {
     assertThat(rule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
     assertThat(rule.markdownDescription()).isNull();
     assertThat(rule.tags()).containsOnly("one", "two", "three", "four");
+    assertThat(rule.securityStandards()).containsOnly("cwe:1", "cwe:123", "cwe:2", "owaspTop10:a1", "owaspTop10:a3");
     assertThat(rule.params()).isEmpty();
     assertThat(rule.internalKey()).isEqualTo("/something");
     assertThat(rule.template()).isFalse();
@@ -163,6 +166,7 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
+    assertThat(rule.securityStandards()).isEmpty();
     assertThat(rule.debtRemediationFunction()).isNull();
   }
 
@@ -177,6 +181,8 @@ public class RulesDefinitionTest {
       .setStatus(RuleStatus.BETA)
       .setTags("one", "two")
       .setScope(RuleScope.ALL)
+      .addOwaspTop10(RulesDefinition.OwaspTop10.A1, RulesDefinition.OwaspTop10.A3)
+      .addCwe(1, 2, 123)
       .addTags("two", "three", "four");
 
     newRepo.createRule("ABC").setName("ABC").setMarkdownDescription("ABC");
@@ -195,6 +201,7 @@ public class RulesDefinitionTest {
     assertThat(rule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
     assertThat(rule.markdownDescription()).isNull();
     assertThat(rule.tags()).containsOnly("one", "two", "three", "four");
+    assertThat(rule.securityStandards()).containsOnly("cwe:1", "cwe:123", "cwe:2", "owaspTop10:a1", "owaspTop10:a3");
     assertThat(rule.params()).isEmpty();
     assertThat(rule.internalKey()).isEqualTo("/something");
     assertThat(rule.template()).isFalse();

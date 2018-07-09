@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -489,6 +490,10 @@ public interface RulesDefinition {
     boolean isExternal();
   }
 
+  enum OwaspTop10 {
+    A1, A2, A3, A4, A5, A6, A7, A8, A9, A10;
+  }
+
   class NewRepositoryImpl implements NewRepository {
     private final Context context;
     private final String key;
@@ -726,6 +731,7 @@ public interface RulesDefinition {
     private DebtRemediationFunction debtRemediationFunction;
     private String gapDescription;
     private final Set<String> tags = new TreeSet<>();
+    private final Set<String> securityStandards = new TreeSet<>();
     private final Map<String, NewParam> paramsByKey = new HashMap<>();
     private final DebtRemediationFunctions functions;
     private boolean activatedByDefault;
@@ -961,6 +967,28 @@ public interface RulesDefinition {
     }
 
     /**
+     * @since 7.3
+     */
+    public NewRule addOwaspTop10(OwaspTop10... standards) {
+      for (OwaspTop10 owaspTop10 : standards) {
+        String standard = "owaspTop10:" + owaspTop10.name().toLowerCase(Locale.ENGLISH);
+        securityStandards.add(standard);
+      }
+      return this;
+    }
+
+    /**
+     * @since 7.3
+     */
+    public NewRule addCwe(int... nums) {
+      for (int num : nums) {
+        String standard = "cwe:" + num;
+        securityStandards.add(standard);
+      }
+      return this;
+    }
+
+    /**
      * Optional key that can be used by the rule engine. Not displayed
      * in webapp. For example the Java Checkstyle plugin feeds this field
      * with the internal path ("Checker/TreeWalker/AnnotationUseStyle").
@@ -1016,6 +1044,7 @@ public interface RulesDefinition {
     private final DebtRemediationFunction debtRemediationFunction;
     private final String gapDescription;
     private final Set<String> tags;
+    private final Set<String> securityStandards;
     private final Map<String, Param> params;
     private final RuleStatus status;
     private final boolean activatedByDefault;
@@ -1039,6 +1068,7 @@ public interface RulesDefinition {
       this.scope = newRule.scope == null ? RuleScope.MAIN : newRule.scope;
       this.type = newRule.type == null ? RuleTagsToTypeConverter.convert(newRule.tags) : newRule.type;
       this.tags = ImmutableSortedSet.copyOf(Sets.difference(newRule.tags, RuleTagsToTypeConverter.RESERVED_TAGS));
+      this.securityStandards = ImmutableSortedSet.copyOf(newRule.securityStandards);
       Map<String, Param> paramsBuilder = new HashMap<>();
       for (NewParam newParam : newRule.paramsByKey.values()) {
         paramsBuilder.put(newParam.key, new Param(newParam));
@@ -1155,6 +1185,10 @@ public interface RulesDefinition {
 
     public Set<String> tags() {
       return tags;
+    }
+
+    public Set<String> securityStandards() {
+      return securityStandards;
     }
 
     /**
