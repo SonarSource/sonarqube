@@ -46,6 +46,7 @@ public class SearchRequest {
   private String createdAt;
   private String createdBefore;
   private String createdInLast;
+  private List<String> cwe;
   private List<String> directories;
   private String facetMode;
   private List<String> facets;
@@ -55,6 +56,7 @@ public class SearchRequest {
   private List<String> moduleUuids;
   private String onComponentOnly;
   private String organization;
+  private List<String> owaspTop10;
   private String p;
   private List<String> projectUuids;
   private List<String> projects;
@@ -64,6 +66,7 @@ public class SearchRequest {
   private String resolved;
   private List<String> rules;
   private String s;
+  private List<String> sansTop25;
   private List<String> severities;
   private String sinceLeakPeriod;
   private List<String> statuses;
@@ -279,6 +282,18 @@ public class SearchRequest {
   }
 
   /**
+   * Example value: "12,125,unknown"
+   */
+  public SearchRequest setCwe(List<String> cwe) {
+    this.cwe = cwe;
+    return this;
+  }
+
+  public List<String> getCwe() {
+    return cwe;
+  }
+
+  /**
    * This is part of the internal API.
    * Example value: "src/main/java/org/sonar/server/"
    */
@@ -327,6 +342,9 @@ public class SearchRequest {
    *   <li>"languages"</li>
    *   <li>"tags"</li>
    *   <li>"types"</li>
+   *   <li>"owaspTop10"</li>
+   *   <li>"sansTop25"</li>
+   *   <li>"cwe"</li>
    *   <li>"createdAt"</li>
    * </ul>
    */
@@ -418,6 +436,31 @@ public class SearchRequest {
 
   public String getOrganization() {
     return organization;
+  }
+
+  /**
+   * Possible values:
+   * <ul>
+   *   <li>"a1"</li>
+   *   <li>"a2"</li>
+   *   <li>"a3"</li>
+   *   <li>"a4"</li>
+   *   <li>"a5"</li>
+   *   <li>"a6"</li>
+   *   <li>"a7"</li>
+   *   <li>"a8"</li>
+   *   <li>"a9"</li>
+   *   <li>"a10"</li>
+   *   <li>"unknown"</li>
+   * </ul>
+   */
+  public SearchRequest setOwaspTop10(List<String> owaspTop10) {
+    this.owaspTop10 = owaspTop10;
+    return this;
+  }
+
+  public List<String> getOwaspTop10() {
+    return owaspTop10;
   }
 
   /**
@@ -554,6 +597,23 @@ public class SearchRequest {
   }
 
   /**
+   * Possible values:
+   * <ul>
+   *   <li>"insecure-interaction"</li>
+   *   <li>"risky-resource"</li>
+   *   <li>"porous-defenses"</li>
+   * </ul>
+   */
+  public SearchRequest setSansTop25(List<String> sansTop25) {
+    this.sansTop25 = sansTop25;
+    return this;
+  }
+
+  public List<String> getSansTop25() {
+    return sansTop25;
+  }
+
+  /**
    * Example value: "BLOCKER,CRITICAL"
    * Possible values:
    * <ul>
@@ -630,6 +690,7 @@ public class SearchRequest {
    *   <li>"CODE_SMELL"</li>
    *   <li>"BUG"</li>
    *   <li>"VULNERABILITY"</li>
+   *   <li>"SECURITY_HOTSPOT"</li>
    * </ul>
    */
   public SearchRequest setTypes(List<String> types) {

@@ -368,6 +368,10 @@ public class RegisterRules implements Startable {
       context.updated(ruleDefinitionDto);
     }
 
+    if (mergeSecurityStandards(ruleDef, ruleDefinitionDto)) {
+      context.updated(ruleDefinitionDto);
+    }
+
     if (context.isUpdated(ruleDefinitionDto) || context.isRenamed(ruleDefinitionDto)) {
       update(session, ruleDefinitionDto);
     } else if (!context.isCreated(ruleDefinitionDto)) {
@@ -390,6 +394,7 @@ public class RegisterRules implements Startable {
       .setStatus(ruleDef.status())
       .setGapDescription(ruleDef.gapDescription())
       .setSystemTags(ruleDef.tags())
+      .setSecurityStandards(ruleDef.securityStandards())
       .setType(RuleType.valueOf(ruleDef.type().name()))
       .setScope(toDtoScope(ruleDef.scope()))
       .setIsExternal(ruleDef.repository().isExternal())
@@ -623,6 +628,20 @@ public class RegisterRules implements Startable {
       dto.setSystemTags(ruleDef.tags());
       // FIXME this can't be implemented easily with organization support: remove end-user tags that are now declared as system
       // RuleTagHelper.applyTags(dto, ImmutableSet.copyOf(dto.getTags()));
+      changed = true;
+    }
+    return changed;
+  }
+
+  private static boolean mergeSecurityStandards(RulesDefinition.Rule ruleDef, RuleDefinitionDto dto) {
+    boolean changed = false;
+
+    if (RuleStatus.REMOVED == ruleDef.status()) {
+      dto.setSecurityStandards(emptySet());
+      changed = true;
+    } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
+      !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
+      dto.setSecurityStandards(ruleDef.securityStandards());
       changed = true;
     }
     return changed;

@@ -21,8 +21,12 @@ package org.sonar.xoo.rule;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +35,7 @@ public class XooRulesDefinitionTest {
 
   @Before
   public void setUp() {
-    XooRulesDefinition def = new XooRulesDefinition();
+    XooRulesDefinition def = new XooRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SCANNER));
     context = new RulesDefinition.Context();
     def.define(context);
   }
@@ -52,6 +56,21 @@ public class XooRulesDefinitionTest {
     assertThat(rule.gapDescription()).isNotEmpty();
   }
   
+  @Test
+  public void define_xoo_hotspot_rule() {
+    RulesDefinition.Repository repo = context.repository("xoo");
+    assertThat(repo).isNotNull();
+    assertThat(repo.name()).isEqualTo("Xoo");
+    assertThat(repo.language()).isEqualTo("xoo");
+    assertThat(repo.rules()).hasSize(19);
+
+    RulesDefinition.Rule rule = repo.rule(HotspotSensor.RULE_KEY);
+    assertThat(rule.name()).isNotEmpty();
+    assertThat(rule.securityStandards())
+      .isNotEmpty()
+      .containsExactlyInAnyOrder("cwe:1", "cwe:123", "cwe:863", "owaspTop10:a1", "owaspTop10:a3");
+  }
+
   @Test
   public void define_xooExternal_rules() {
     RulesDefinition.Repository repo = context.repository("external_xoo");

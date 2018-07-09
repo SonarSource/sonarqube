@@ -19,11 +19,14 @@
  */
 package org.sonar.xoo.rule;
 
+import javax.annotation.Nullable;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
+import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
 import org.sonar.xoo.checks.Check;
@@ -38,6 +41,17 @@ public class XooRulesDefinition implements RulesDefinition {
   public static final String XOO_EXTERNAL_REPOSITORY = "xoo";
 
   private static final String TEN_MIN = "10min";
+
+  @Nullable
+  private final Version version;
+
+  public XooRulesDefinition() {
+    this(null);
+  }
+
+  public XooRulesDefinition(@Nullable SonarRuntime sonarRuntime) {
+    this.version = sonarRuntime != null ? sonarRuntime.getApiVersion() : null;
+  }
 
   @Override
   public void define(Context context) {
@@ -128,7 +142,7 @@ public class XooRulesDefinition implements RulesDefinition {
     repo.createRule(MultilineIssuesSensor.RULE_KEY).setName("Creates issues with ranges/multiple locations")
       .setHtmlDescription("Issue with range and multiple locations");
 
-    repo.createRule(OneIssuePerUnknownFileSensor.RULE_KEY).setName("Creates issues on each file with extenstion 'unknown'")
+    repo.createRule(OneIssuePerUnknownFileSensor.RULE_KEY).setName("Creates issues on each file with extension 'unknown'")
       .setHtmlDescription("This issue is generated on each file with extenstion 'unknown'");
 
     NewRule oneBugIssuePerLine = repo.createRule(OneBugIssuePerLineSensor.RULE_KEY).setName("One Bug Issue Per Line")
@@ -159,8 +173,13 @@ public class XooRulesDefinition implements RulesDefinition {
     hotspot
       .setDebtRemediationFunction(hotspot.debtRemediationFunctions().constantPerIssue("2min"));
 
-    repo.done();
+    if (version != null && version.isGreaterThanOrEqual(Version.create(7, 3))) {
+      hotspot
+        .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
+        .addCwe(1, 123, 863);
+    }
 
+    repo.done();
   }
 
   private static void defineRulesXooExternal(Context context) {

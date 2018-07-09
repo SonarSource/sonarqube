@@ -241,7 +241,11 @@ public class IssuesService extends BaseService {
         .setParam("sinceLeakPeriod", request.getSinceLeakPeriod())
         .setParam("statuses", request.getStatuses() == null ? null : request.getStatuses().stream().collect(Collectors.joining(",")))
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
-        .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(","))),
+        .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(",")))
+        .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
+        .setParam("sansTop25", request.getSansTop25() == null ? null : request.getSansTop25().stream().collect(Collectors.joining(",")))
+        .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(",")))
+      ,
       SearchWsResponse.parser());
   }
 

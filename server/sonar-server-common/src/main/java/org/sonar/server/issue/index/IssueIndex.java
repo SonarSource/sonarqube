@@ -268,6 +268,9 @@ public class IssueIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, query.owaspTop10()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25, query.sansTop25()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_CWE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_CWE, query.cwe()));
 
     addComponentRelatedFilters(query, filters);
 
