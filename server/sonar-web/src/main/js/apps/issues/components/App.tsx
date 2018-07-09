@@ -800,6 +800,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Checkbox
           checked={isChecked}
           className="spacer-right vertical-middle"
+          disabled={issues.length === 0}
           id="issues-selection"
           onCheck={this.onCheckAll}
           thirdState={thirdState}
@@ -827,7 +828,10 @@ export default class App extends React.PureComponent<Props, State> {
             </Button>
           </Dropdown>
         ) : (
-          <Button id="issues-bulk-change" onClick={this.handleBulkChangeClick}>
+          <Button
+            disabled={issues.length === 0}
+            id="issues-bulk-change"
+            onClick={this.handleBulkChangeClick}>
             {translate('bulk_change')}
           </Button>
         )}

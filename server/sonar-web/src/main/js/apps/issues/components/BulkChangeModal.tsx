@@ -511,12 +511,15 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           {this.renderTagsField('removeTags', 'issue.remove_tags', false)}
           {this.renderTransitionsField()}
           {this.renderCommentField()}
-          {this.renderNotificationsField()}
+          {issues.length > 0 && this.renderNotificationsField()}
+          {issues.length === 0 && (
+            <span className="alert alert-warning">{translate('issue_bulk_change.no_match')}</span>
+          )}
         </div>
 
         <div className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={submitting} id="bulk-change-submit">
+          <SubmitButton disabled={submitting || issues.length === 0} id="bulk-change-submit">
             {translate('apply')}
           </SubmitButton>
           {this.renderCancelButton()}

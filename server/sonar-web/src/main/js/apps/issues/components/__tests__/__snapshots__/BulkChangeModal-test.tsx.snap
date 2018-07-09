@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display error message when no issues available 1`] = `
+<Modal
+  contentLabel="modal"
+  onRequestClose={[Function]}
+>
+  <form
+    id="bulk-change-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        issue_bulk_change.form.title.0
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <span
+        className="alert alert-warning"
+      >
+        issue_bulk_change.no_match
+      </span>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={true}
+        id="bulk-change-submit"
+      >
+        apply
+      </SubmitButton>
+      <a
+        href="#"
+        id="bulk-change-cancel"
+        onClick={[Function]}
+      >
+        cancel
+      </a>
+    </div>
+  </form>
+</Modal>
+`;
+
+exports[`should display form when issues are present 1`] = `
+<Modal
+  contentLabel="modal"
+  onRequestClose={[Function]}
+>
+  <form
+    id="bulk-change-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        issue_bulk_change.form.title.1
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="send-notifications"
+        >
+          issue.send_notifications
+        </label>
+        <Checkbox
+          checked={false}
+          onCheck={[Function]}
+          thirdState={false}
+        />
+      </div>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={false}
+        id="bulk-change-submit"
+      >
+        apply
+      </SubmitButton>
+      <a
+        href="#"
+        id="bulk-change-cancel"
+        onClick={[Function]}
+      >
+        cancel
+      </a>
+    </div>
+  </form>
+</Modal>
+`;
