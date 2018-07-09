@@ -22,7 +22,7 @@ import { sortBy } from 'lodash';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 import { QUALIFIERS_ORDER, Project } from './utils';
-import { Organization } from '../../app/types';
+import { Organization, Visibility } from '../../app/types';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 import QualifierIcon from '../../components/icons-components/QualifierIcon';
@@ -40,6 +40,7 @@ export interface Props {
   onDeleteProjects: () => void;
   onProvisionedChanged: (provisioned: boolean) => void;
   onQualifierChanged: (qualifier: string) => void;
+  onVisibilityChanged: (qualifier: string) => void;
   onSearch: (query: string) => void;
   organization: Organization;
   projects: Project[];
@@ -50,6 +51,7 @@ export interface Props {
   selection: any[];
   topLevelQualifiers: string[];
   total: number;
+  visibility?: Visibility;
 }
 
 interface State {
@@ -100,6 +102,8 @@ export default class Search extends React.PureComponent<Props, State> {
 
   handleQualifierChange = ({ value }: { value: string }) => this.props.onQualifierChanged(value);
 
+  handleVisibilityChange = ({ value }: { value: string }) => this.props.onVisibilityChanged(value);
+
   renderCheckbox = () => {
     const isAllChecked =
       this.props.projects.length > 0 && this.props.selection.length === this.props.projects.length;
@@ -143,6 +147,27 @@ export default class Search extends React.PureComponent<Props, State> {
           searchable={false}
           value={this.props.qualifiers}
           valueRenderer={this.renderQualifierOption}
+        />
+      </td>
+    );
+  };
+
+  renderVisibilityFilter = () => {
+    return (
+      <td className="thin nowrap text-middle">
+        <Select
+          className="input-small"
+          clearable={false}
+          disabled={!this.props.ready}
+          name="projects-visibility"
+          onChange={this.handleVisibilityChange}
+          options={[
+            { value: 'all', label: translate('visibility.both') },
+            { value: 'public', label: translate('visibility.public') },
+            { value: 'private', label: translate('visibility.private') }
+          ]}
+          searchable={false}
+          value={this.props.visibility || 'all'}
         />
       </td>
     );
@@ -192,6 +217,7 @@ export default class Search extends React.PureComponent<Props, State> {
               </td>
               {this.renderQualifierFilter()}
               {this.renderDateFilter()}
+              {this.renderVisibilityFilter()}
               {this.renderTypeFilter()}
               <td className="text-middle">
                 <SearchBox

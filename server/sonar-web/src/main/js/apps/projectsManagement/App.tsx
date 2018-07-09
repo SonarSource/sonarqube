@@ -28,7 +28,7 @@ import { PAGE_SIZE, Project } from './utils';
 import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { getComponents } from '../../api/components';
-import { Organization } from '../../app/types';
+import { Organization, Visibility } from '../../app/types';
 import { toNotSoISOString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 
@@ -51,6 +51,7 @@ interface State {
   ready: boolean;
   selection: string[];
   total: number;
+  visibility?: Visibility;
 }
 
 export default class App extends React.PureComponent<Props, State> {
@@ -90,7 +91,8 @@ export default class App extends React.PureComponent<Props, State> {
       p: this.state.page !== 1 ? this.state.page : undefined,
       ps: PAGE_SIZE,
       q: this.state.query || undefined,
-      qualifiers: this.state.qualifiers
+      qualifiers: this.state.qualifiers,
+      visibility: this.state.visibility
     };
     getComponents(parameters).then(r => {
       if (this.mounted) {
@@ -126,6 +128,20 @@ export default class App extends React.PureComponent<Props, State> {
         provisioned: false,
         query: '',
         qualifiers: newQualifier,
+        selection: []
+      },
+      this.requestProjects
+    );
+  };
+
+  onVisibilityChanged = (newVisibility: Visibility | 'all') => {
+    this.setState(
+      {
+        ready: false,
+        page: 1,
+        provisioned: false,
+        query: '',
+        visibility: newVisibility === 'all' ? undefined : newVisibility,
         selection: []
       },
       this.requestProjects
@@ -177,13 +193,14 @@ export default class App extends React.PureComponent<Props, State> {
 
         <Search
           analyzedBefore={this.state.analyzedBefore}
-          onAllSelected={this.onAllSelected}
           onAllDeselected={this.onAllDeselected}
+          onAllSelected={this.onAllSelected}
           onDateChanged={this.handleDateChanged}
           onDeleteProjects={this.requestProjects}
           onProvisionedChanged={this.onProvisionedChanged}
           onQualifierChanged={this.onQualifierChanged}
           onSearch={this.onSearch}
+          onVisibilityChanged={this.onVisibilityChanged}
           organization={this.props.organization}
           projects={this.state.projects}
           provisioned={this.state.provisioned}
@@ -193,6 +210,7 @@ export default class App extends React.PureComponent<Props, State> {
           selection={this.state.selection}
           topLevelQualifiers={this.props.topLevelQualifiers}
           total={this.state.total}
+          visibility={this.state.visibility}
         />
 
         <Projects

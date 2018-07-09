@@ -93,6 +93,35 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
+          <Select
+            className="input-small"
+            clearable={false}
+            disabled={false}
+            name="projects-visibility"
+            onChange={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "visibility.both",
+                  "value": "all",
+                },
+                Object {
+                  "label": "visibility.public",
+                  "value": "public",
+                },
+                Object {
+                  "label": "visibility.private",
+                  "value": "private",
+                },
+              ]
+            }
+            searchable={false}
+            value="all"
+          />
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
           <Checkbox
             checked={false}
             className="link-checkbox-control"
@@ -172,6 +201,35 @@ exports[`renders 1`] = `
             name="analyzed-before"
             onChange={[MockFunction]}
             placeholder="last_analysis_before"
+          />
+        </td>
+        <td
+          className="thin nowrap text-middle"
+        >
+          <Select
+            className="input-small"
+            clearable={false}
+            disabled={false}
+            name="projects-visibility"
+            onChange={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "visibility.both",
+                  "value": "all",
+                },
+                Object {
+                  "label": "visibility.public",
+                  "value": "public",
+                },
+                Object {
+                  "label": "visibility.private",
+                  "value": "private",
+                },
+              ]
+            }
+            searchable={false}
+            value="all"
           />
         </td>
         <td

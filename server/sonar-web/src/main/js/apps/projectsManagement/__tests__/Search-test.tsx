@@ -113,6 +113,7 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
       onProvisionedChanged={jest.fn()}
       onQualifierChanged={jest.fn()}
       onSearch={jest.fn()}
+      onVisibilityChanged={jest.fn()}
       organization={organization}
       projects={[]}
       provisioned={false}
