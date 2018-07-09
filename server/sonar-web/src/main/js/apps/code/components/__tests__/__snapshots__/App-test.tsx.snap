@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should have correct title for APP based component 1`] = `
+<HelmetWrapper
+  defer={true}
+  encodeSpecialCharacters={true}
+  title="projects.page"
+/>
+`;
+
+exports[`should have correct title for portfolio base component 1`] = `
+<HelmetWrapper
+  defer={true}
+  encodeSpecialCharacters={true}
+  title="projects.page"
+/>
+`;
+
+exports[`should have correct title for project component 1`] = `
+<HelmetWrapper
+  defer={true}
+  encodeSpecialCharacters={true}
+  title="code.page"
+/>
+`;

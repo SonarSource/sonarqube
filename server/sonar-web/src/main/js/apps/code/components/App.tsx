@@ -197,10 +197,15 @@ export default class App extends React.PureComponent<Props, State> {
       'new-loading': loading
     });
 
+    const defaultTitle =
+      baseComponent && ['APP', 'VW', 'SVW'].includes(baseComponent.qualifier)
+        ? translate('projects.page')
+        : translate('code.page');
+
     return (
       <div className="page page-limited">
         <Suggestions suggestions="code" />
-        <Helmet title={sourceViewer !== undefined ? sourceViewer.name : translate('code.page')} />
+        <Helmet title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
 
         {error && <div className="alert alert-danger">{error}</div>}
 
