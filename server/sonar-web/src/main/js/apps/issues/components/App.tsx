@@ -928,7 +928,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   renderList() {
     const { branchLike, component, currentUser, organization } = this.props;
-    const { issues, openIssue, paging } = this.state;
+    const { issues, openIssue, paging, loading } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex !== undefined ? issues[selectedIndex] : undefined;
 
@@ -937,7 +937,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
 
     let noIssuesMessage = null;
-    if (paging.total === 0) {
+    if (paging.total === 0 && !loading) {
       if (this.isFiltered()) {
         noIssuesMessage = <EmptySearch />;
       } else if (this.state.myIssues) {
