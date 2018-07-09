@@ -17,24 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable import/first, import/order */
 import * as React from 'react';
-import { mount } from 'enzyme';
-import EditMembers from '../EditMembers';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { shallow } from 'enzyme';
+import EditMembersModal from '../EditMembersModal';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-it('should edit members', async () => {
-  const group = { id: 3, name: 'Foo', membersCount: 5 };
-  const onEdit = jest.fn();
+jest.mock('../../../../api/user_groups', () => ({
+  getUsersInGroup: jest.fn().mockResolvedValue({
+    paging: { pageIndex: 0, pageSize: 10, total: 0 },
+    users: [
+      {
+        login: 'foo',
+        name: 'bar',
+        selected: true
+      }
+    ]
+  })
+}));
 
-  const wrapper = mount(<EditMembers group={group} onEdit={onEdit} organization="org" />);
+const getUsersInGroup = require('../../../../api/user_groups').getUsersInGroup as jest.Mock<any>;
+
+const group = { id: 1, name: 'foo', membersCount: 1 };
+
+it('should render modal', async () => {
+  getUsersInGroup.mockClear();
+
+  const wrapper = shallow(<EditMembersModal group={group} onClose={() => {}} organization="bar" />);
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('ButtonIcon'));
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-
-  await waitAndUpdate(wrapper);
-  click(wrapper.find('ResetButtonLink'));
-  expect(onEdit).toBeCalled();
+  expect(getUsersInGroup).toHaveBeenCalledTimes(1);
   expect(wrapper).toMatchSnapshot();
 });
