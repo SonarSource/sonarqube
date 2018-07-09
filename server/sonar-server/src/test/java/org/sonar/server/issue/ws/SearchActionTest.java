@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Durations;
@@ -47,6 +48,7 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
@@ -68,6 +70,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsResponseCommonFormat;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
 import static java.util.Arrays.asList;
@@ -188,9 +191,63 @@ public class SearchActionTest {
   }
 
   @Test
+  public void security_hotspot_type_excluded_by_default() {
+    ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+
+    RuleDefinitionDto rule = newRule().getDefinition();
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.CODE_SMELL));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+
+    indexPermissions();
+    indexIssues();
+
+    Issues.SearchWsResponse result = ws.newRequest().executeProtobuf(Issues.SearchWsResponse.class);
+
+    assertThat(result.getIssuesCount()).isEqualTo(3);
+    assertThat(result.getIssuesList())
+      .extracting(Issues.Issue::getType)
+      .containsExactlyInAnyOrder(Common.RuleType.BUG, Common.RuleType.VULNERABILITY, Common.RuleType.CODE_SMELL);
+  }
+
+  @Test
+  public void security_hotspot_type_included_when_explicitly_selected() {
+    ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+
+    RuleDefinitionDto rule = newRule().getDefinition();
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.CODE_SMELL));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+
+    indexPermissions();
+    indexIssues();
+
+    Issues.SearchWsResponse result = ws.newRequest()
+      .setParam("types", RuleType.SECURITY_HOTSPOT.toString())
+      .executeProtobuf(Issues.SearchWsResponse.class);
+
+    assertThat(result.getIssuesCount()).isEqualTo(1);
+    assertThat(result.getIssuesList())
+      .extracting(Issues.Issue::getType)
+      .containsExactly(Common.RuleType.SECURITY_HOTSPOT);
+
+    Issues.SearchWsResponse result2 = ws.newRequest()
+      .setParam("types", String.format("%s,%s", RuleType.BUG, RuleType.SECURITY_HOTSPOT))
+      .executeProtobuf(Issues.SearchWsResponse.class);
+
+    assertThat(result2.getIssuesCount()).isEqualTo(2);
+    assertThat(result2.getIssuesList())
+      .extracting(Issues.Issue::getType)
+      .containsExactlyInAnyOrder(Common.RuleType.BUG, Common.RuleType.SECURITY_HOTSPOT);
+  }
+
+  @Test
   public void response_contains_all_fields_except_additional_fields() {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
-    UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -209,9 +266,8 @@ public class SearchActionTest {
       .setTags(asList("bug", "owasp"))
       .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
-    dbClient.issueDao().insert(session, issue);
-    session.commit();
-    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
+    db.issues().insertIssue(issue);
+    indexIssues();
 
     ws.newRequest().execute().assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
   }
@@ -537,7 +593,6 @@ public class SearchActionTest {
   public void display_zero_valued_facets_for_selected_items() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
 
-
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -582,7 +637,6 @@ public class SearchActionTest {
   public void filter_by_assigned_to_me() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
-
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(defaultOrganization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -681,7 +735,6 @@ public class SearchActionTest {
     userSessionRule.logIn(poy);
 
     // TODO : check test title w julien
-
 
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));

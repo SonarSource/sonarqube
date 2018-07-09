@@ -39,6 +39,7 @@ import org.elasticsearch.search.SearchHit;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -230,6 +231,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
       .setPossibleValues((Object[]) RuleType.values())
+      .setDefaultValue(format("%s,%s,%s", RuleType.BUG, RuleType.VULNERABILITY, RuleType.CODE_SMELL))
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 lowercase categories. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any OWASP Top 10 category.")
