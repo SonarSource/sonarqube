@@ -1,0 +1,93 @@
+{
+  "categories": [
+    {
+      "category": "a1",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a2",
+      "vulnerabilities": 1,
+      "vulnerabilityRating": 3,
+      "toReviewSecurityHotspots": 1,
+      "openSecurityHotspots": 1,
+      "wontFixSecurityHotspots": 1,
+      "distribution": []
+    },
+    {
+      "category": "a3",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a4",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a5",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a6",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a7",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a8",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a9",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "a10",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    },
+    {
+      "category": "unknown",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": []
+    }
+  ]
+}

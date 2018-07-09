@@ -144,7 +144,7 @@ public class IssueIndexerTest {
 
   @Test
   public void verify_security_standards_indexation() {
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123,owaspTop10:a3,cwe:863"))));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863"))));
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));

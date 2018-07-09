@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.assertj.core.api.Fail;
@@ -38,6 +39,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
@@ -83,6 +85,10 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_RISKY_RESOURCE;
+import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
 
 public class IssueIndexTest {
 
@@ -1442,6 +1448,197 @@ public class IssueIndexTest {
 
     assertThat(underTest.searchBranchStatistics(project.uuid(), emptyList())).isEmpty();
     assertThat(underTest.searchBranchStatistics(project.uuid(), singletonList("unknown"))).isEmpty();
+  }
+
+  @Test
+  public void test_getOwaspTop10Report_dont_count_vulnerabilities_from_other_projects() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto another = newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("anotherProject", another).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDoc("openvul1", project).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabiliyRating)
+      .contains(
+        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */));
+
+  }
+
+  @Test
+  public void test_getOwaspTop10Report_dont_count_closed_vulnerabilities() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("openvul1", project).setOwaspTop10(asList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
+      newDoc("notopenvul", project).setOwaspTop10(asList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
+        .setSeverity(Severity.BLOCKER));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabiliyRating)
+      .contains(
+        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */));
+  }
+
+  @Test
+  public void test_getOwaspTop10Report_dont_count_old_vulnerabilities() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(org);
+    indexIssues(
+      // Previous vulnerabilities in projects that are not reanalyzed will have no owasp nor cwe attributes (not even 'unknown')
+      newDoc("openvulNotReindexed", project).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabiliyRating)
+      .containsOnly(
+        tuple(0L, OptionalInt.empty()));
+  }
+
+  @Test
+  public void test_getOwaspTop10Report_dont_count_hotspots_from_other_projects() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto another = newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("openhotspot1", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN),
+      newDoc("anotherProject", another).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getOpenSecurityHotspots)
+      .contains(
+        tuple("a1", 1L /* openhotspot1 */));
+  }
+
+  @Test
+  public void test_getOwaspTop10Report_dont_count_closed_hotspots() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("openhotspot1", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN),
+      newDoc("closedHotspot", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
+        .setResolution(Issue.RESOLUTION_FIXED));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getOpenSecurityHotspots)
+      .contains(
+        tuple("a1", 1L /* openhotspot1 */));
+  }
+
+  @Test
+  public void test_getOwaspTop10Report_aggregation_no_cwe() {
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwaspReport(false);
+
+    assertThat(owaspTop10Report).allMatch(category -> category.getChildren().isEmpty());
+  }
+
+  @Test
+  public void test_getOwaspTop10Report_aggregation_with_cwe() {
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwaspReport(true);
+
+    Map<String, List<SecurityStandardCategoryStatistics>> cweByOwasp = owaspTop10Report.stream()
+      .collect(Collectors.toMap(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getChildren));
+
+    assertThat(cweByOwasp.get("a1")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+      SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getOpenSecurityHotspots,
+      SecurityStandardCategoryStatistics::getToReviewSecurityHotspots, SecurityStandardCategoryStatistics::getWontFixSecurityHotspots)
+      .containsExactlyInAnyOrder(
+        tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 0L),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 0L),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 0L));
+    assertThat(cweByOwasp.get("a3")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+      SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getOpenSecurityHotspots,
+      SecurityStandardCategoryStatistics::getToReviewSecurityHotspots, SecurityStandardCategoryStatistics::getWontFixSecurityHotspots)
+      .containsExactlyInAnyOrder(
+        tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 0L),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 1L /* toReviewHotspot */, 0L),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 0L));
+  }
+
+  private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwaspReport(boolean includeCwe) {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(org);
+    ComponentDto another = newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("openvul1", project).setOwaspTop10(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project).setOwaspTop10(asList("a3", "a6")).setCwe(asList("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("notowaspvul", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.CRITICAL),
+      newDoc("openhotspot1", project).setOwaspTop10(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_OPEN),
+      newDoc("openhotspot2", project).setOwaspTop10(asList("a3", "a6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REOPENED),
+      newDoc("toReviewHotspot", project).setOwaspTop10(asList("a5", "a3")).setCwe(asList("456")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_RESOLVED)
+        .setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("WFHotspot", project).setOwaspTop10(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_RESOLVED)
+        .setResolution(Issue.RESOLUTION_WONT_FIX),
+      newDoc("notowasphotspot", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), includeCwe);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getOpenSecurityHotspots,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots, SecurityStandardCategoryStatistics::getWontFixSecurityHotspots)
+      .containsExactlyInAnyOrder(
+        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* openhotspot1 */, 0L, 0L),
+        tuple("a2", 0L, OptionalInt.empty(), 0L, 0L, 0L),
+        tuple("a3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* openhotspot1,openhotspot2 */, 1L /* toReviewHotspot */, 1L /* WFHotspot */),
+        tuple("a4", 0L, OptionalInt.empty(), 0L, 0L, 0L),
+        tuple("a5", 0L, OptionalInt.empty(), 0L, 1L/* toReviewHotspot */, 0L),
+        tuple("a6", 1L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* openhotspot2 */, 0L, 0L),
+        tuple("a7", 0L, OptionalInt.empty(), 0L, 0L, 0L),
+        tuple("a8", 0L, OptionalInt.empty(), 0L, 0L, 1L /* WFHotspot */),
+        tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 0L),
+        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 0L),
+        tuple("unknown", 1L /* notowaspvul */, OptionalInt.of(4) /* CRITICAL = D */, 1L /* notowasphotspot */, 0L, 0L));
+    return owaspTop10Report;
+  }
+
+  @Test
+  public void test_getSansTop25Report_aggregation() {
+    OrganizationDto org = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(org);
+    indexIssues(
+      newDoc("openvul1", project).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("notopenvul", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
+        .setResolution(Issue.RESOLUTION_FIXED)
+        .setSeverity(Severity.BLOCKER),
+      newDoc("notsansvul", project).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.CRITICAL),
+      newDoc("openhotspot1", project).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_OPEN),
+      newDoc("openhotspot2", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_REOPENED),
+      newDoc("toReviewHotspot", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_RESOLVED)
+        .setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("WFHotspot", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_RESOLVED)
+        .setResolution(Issue.RESOLUTION_WONT_FIX),
+      newDoc("notowasphotspot", project).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN));
+
+    List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(project.uuid(), false);
+    assertThat(sansTop25Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getOpenSecurityHotspots,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots, SecurityStandardCategoryStatistics::getWontFixSecurityHotspots)
+      .containsExactlyInAnyOrder(
+        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* openhotspot1 */, 0L, 0L),
+        tuple(SANS_TOP_25_RISKY_RESOURCE, 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* openhotspot1,openhotspot2 */, 1L /* toReviewHotspot */,
+          1L /* WFHotspot */),
+        tuple(SANS_TOP_25_POROUS_DEFENSES, 1L /* openvul2 */, OptionalInt.of(2)/* MINOR = B */, 1L/* openhotspot2 */, 0L, 0L));
+
+    assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
   }
 
   private void addIssues(ComponentDto component, int bugs, int vulnerabilities, int codeSmelles) {

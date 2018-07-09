@@ -187,6 +187,7 @@ import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
+import org.sonar.server.securityreport.ws.SecurityReportsWsModule;
 import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
@@ -433,6 +434,9 @@ public class PlatformLevel4 extends PlatformLevel {
       DoNotFixNotificationDispatcher.class,
       DoNotFixNotificationDispatcher.newMetadata(),
       NewIssuesNotificationFactory.class,
+
+      // Security reports
+      SecurityReportsWsModule.class,
 
       // issues actions
       AssignAction.class,

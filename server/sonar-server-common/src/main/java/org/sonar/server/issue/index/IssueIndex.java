@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -46,6 +48,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.indices.TermsLookup;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.HasAggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
@@ -63,6 +66,8 @@ import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCou
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -95,6 +100,10 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_RISKY_RESOURCE;
+import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
@@ -787,6 +796,116 @@ public class IssueIndex {
           .stream()
           .collect(uniqueIndex(StringTerms.Bucket::getKeyAsString, InternalTerms.Bucket::getDocCount))))
       .collect(MoreCollectors.toList(branchUuids.size()));
+  }
+
+  public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean includeCwe) {
+    SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid);
+    Stream.of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES).forEach(sansCategory -> {
+      AggregationBuilder sansCategoryAggs = AggregationBuilders
+        .filter(sansCategory, boolQuery()
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25, sansCategory)));
+      request.addAggregation(addSecurityReportSubAggregations(sansCategoryAggs, includeCwe));
+    });
+    return processSecurityReportSearchResults(request, includeCwe);
+  }
+
+  public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean includeCwe) {
+    SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid);
+    Stream.concat(IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i), Stream.of(UNKNOWN_STANDARD)).forEach(owaspCategory -> {
+      AggregationBuilder owaspCategoryAggs = AggregationBuilders
+        .filter(owaspCategory, boolQuery()
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, owaspCategory)));
+      request.addAggregation(addSecurityReportSubAggregations(owaspCategoryAggs, includeCwe));
+    });
+    return processSecurityReportSearchResults(request, includeCwe);
+  }
+
+  private static List<SecurityStandardCategoryStatistics> processSecurityReportSearchResults(SearchRequestBuilder request, boolean includeCwe) {
+    SearchResponse response = request.get();
+    return response.getAggregations().asList().stream()
+      .map(c -> processSecurityReportIssueSearchResults((InternalFilter) c, includeCwe))
+      .collect(MoreCollectors.toList());
+  }
+
+  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResults(InternalFilter categoryBucket, boolean includeCwe) {
+    List<SecurityStandardCategoryStatistics> children = new ArrayList<>();
+
+    if (includeCwe) {
+      ((StringTerms) categoryBucket.getAggregations().get("cwe")).getBuckets()
+        .forEach(cweBucket -> children.add(processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null)));
+    }
+
+    return processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getName(), children);
+  }
+
+  private static SecurityStandardCategoryStatistics processSecurityReportCategorySearchResults(HasAggregations categoryBucket, String categoryName,
+    @Nullable List<SecurityStandardCategoryStatistics> children) {
+    List<StringTerms.Bucket> severityBuckets = ((StringTerms) ((InternalFilter) categoryBucket.getAggregations().get("vulnerabilities")).getAggregations().get("severity"))
+      .getBuckets();
+    long vulnerabilities = severityBuckets.stream().mapToLong(b -> ((InternalValueCount) b.getAggregations().get("count")).getValue()).sum();
+    // Worst severity having at least one issue
+    OptionalInt severityRating = severityBuckets.stream()
+      .filter(b -> ((InternalValueCount) b.getAggregations().get("count")).getValue() != 0)
+      .mapToInt(b -> Severity.ALL.indexOf(b.getKeyAsString()) + 1)
+      .max();
+
+    long openSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("openSecurityHotspots")).getAggregations().get("count"))
+      .getValue();
+    long toReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("toReviewSecurityHotspots")).getAggregations().get("count"))
+      .getValue();
+    long wontFixSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("wontFixSecurityHotspots")).getAggregations().get("count"))
+      .getValue();
+
+    return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, toReviewSecurityHotspots, openSecurityHotspots,
+      wontFixSecurityHotspots, children);
+  }
+
+  private static AggregationBuilder addSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe) {
+    AggregationBuilder aggregationBuilder = addSecurityReportIssueCountAggregations(categoriesAggs);
+    if (includeCwe) {
+      categoriesAggs
+        .subAggregation(addSecurityReportIssueCountAggregations(AggregationBuilders.terms("cwe").field(IssueIndexDefinition.FIELD_ISSUE_CWE)));
+    }
+    return aggregationBuilder;
+  }
+
+  private static AggregationBuilder addSecurityReportIssueCountAggregations(AggregationBuilder categoryAggs) {
+    return categoryAggs
+      .subAggregation(
+        AggregationBuilders.filter("vulnerabilities", boolQuery()
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.VULNERABILITY.name()))
+          .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)))
+          .subAggregation(
+            AggregationBuilders.terms("severity").field(IssueIndexDefinition.FIELD_ISSUE_SEVERITY)
+              .subAggregation(
+                AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))))
+      .subAggregation(AggregationBuilders.filter("openSecurityHotspots", boolQuery()
+        .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
+        .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)))
+        .subAggregation(
+          AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY)))
+      .subAggregation(AggregationBuilders.filter("toReviewSecurityHotspots", boolQuery()
+        .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
+        .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
+        .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_FIXED)))
+        .subAggregation(
+          AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY)))
+      .subAggregation(AggregationBuilders.filter("wontFixSecurityHotspots", boolQuery()
+        .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
+        .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
+        .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_WONT_FIX)))
+        .subAggregation(
+          AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY)));
+  }
+
+  private SearchRequestBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid) {
+    return client.prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
+      .setQuery(
+        boolQuery()
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
+          .filter(termsQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name(), RuleType.VULNERABILITY.name()))
+          .mustNot(termQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED)))
+      .setSize(0);
   }
 
 }
