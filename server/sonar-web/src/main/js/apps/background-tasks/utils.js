@@ -77,6 +77,7 @@ export function mapFiltersToParameters(filters /*: Object */ = {}) {
 
 const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
+const ONE_HOUR = 60 * ONE_MINUTE;
 
 function format(int, suffix) {
   return `${int}${suffix}`;
@@ -86,13 +87,21 @@ export function formatDuration(value /*: ?number */) {
   if (!value) {
     return '';
   }
-  if (value >= ONE_MINUTE) {
-    const minutes = Math.round(value / ONE_MINUTE);
-    return format(minutes, 'min');
-  } else if (value >= ONE_SECOND) {
-    const seconds = Math.round(value / ONE_SECOND);
-    return format(seconds, 's');
-  } else {
+  if (value < ONE_SECOND) {
     return format(value, 'ms');
+  } else if (value < ONE_SECOND * 10) {
+    const seconds = Math.floor(value / ONE_SECOND);
+    const ms = value - seconds * ONE_SECOND;
+    return format(seconds, 's') + ' ' + format(ms, 'ms');
+  } else if (value < ONE_MINUTE) {
+    const seconds = Math.floor(value / ONE_SECOND);
+    return format(seconds, 's');
+  } else if (value < ONE_MINUTE * 10) {
+    const minutes = Math.floor(value / ONE_MINUTE);
+    const seconds = Math.floor((value - minutes * ONE_MINUTE) / ONE_SECOND);
+    return format(minutes, 'min') + ' ' + format(seconds, 's');
   }
+  const hours = Math.floor(value / ONE_HOUR);
+  const minutes = Math.floor((value - hours * ONE_HOUR) / ONE_MINUTE);
+  return format(hours, 'h') + ' ' + format(minutes, 'min');
 }
