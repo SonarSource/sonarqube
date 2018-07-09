@@ -12,8 +12,11 @@ You can connect to SonarCloud using your GitHub account. On the [login page](/#s
 SonarCloud currently does not trigger analyses automatically. It's up to you to launch them inside your
 existing CI scripts. Please follow the [tutorial](/#sonarcloud#/onboarding) to get started.
 
-If you are using Travis CI, the SonarCloud Travis Add-on will make it easier to activate analyses. Simply follow
-the [guide to integrating with Travis CI](https://docs.travis-ci.com/user/sonarcloud/).
+### Using Travis CI?
+
+If you are using Travis CI, the SonarCloud Travis Add-on will make it easier to activate analyses: 
+* Read the [guide to integrate with Travis CI](https://docs.travis-ci.com/user/sonarcloud/)
+* Check out the [various sample projects](https://github.com/SonarSource/sonarcloud_examples) (Java, TypeScript, C/C++, Go, ... etc) that are analyzed on SonarCloud on a frequent basis
 
 ## Activating pull request decoration
 
