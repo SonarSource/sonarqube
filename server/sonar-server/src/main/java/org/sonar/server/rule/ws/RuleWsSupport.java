@@ -90,10 +90,9 @@ public class RuleWsSupport {
   public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
     String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
       .orElseGet(defaultOrganizationProvider.get()::getKey);
-    OrganizationDto organization = checkFoundWithOptional(
+    return checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organization with key '%s'", organizationOrDefaultKey);
-    return organization;
   }
 
   Map<String, UserDto> getUsersByUuid(DbSession dbSession, List<RuleDto> rules) {
