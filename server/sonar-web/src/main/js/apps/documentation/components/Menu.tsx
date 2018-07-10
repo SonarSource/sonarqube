@@ -46,7 +46,7 @@ export default class Menu extends React.PureComponent<Props> {
       const entryRoot = getEntryRoot(entry.relativeName);
       entry.children = entryRoot !== '' ? this.getMenuEntriesHierarchy(entryRoot) : [];
     });
-    return toplevelEntries;
+    return toplevelEntries.sort((a, b) => parseInt(a.order, 10) - parseInt(b.order, 10));
   };
 
   renderEntry = (entry: DocumentationEntry, depth: number): React.ReactNode => {

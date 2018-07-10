@@ -39,9 +39,9 @@ it('should render simple markdown', () => {
   expect(shallow(<DocMarkdownBlock content="this is *bold* text" />)).toMatchSnapshot();
 });
 
-it('should render use custom component for links', () => {
+it('should use custom component for links', () => {
   expect(
-    shallow(<DocMarkdownBlock content="some [link](#quality-profiles)" />).find('DocLink')
+    shallow(<DocMarkdownBlock content="some [link](/quality-profiles)" />).find('withChildProps')
   ).toMatchSnapshot();
 });
 

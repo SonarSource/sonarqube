@@ -44,6 +44,10 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
               frontmatter {
                 scope
               }
+              headings {
+                depth
+                value
+              }
               fields {
                 slug
               }

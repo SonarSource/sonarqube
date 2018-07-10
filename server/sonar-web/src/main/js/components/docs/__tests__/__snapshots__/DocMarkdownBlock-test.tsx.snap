@@ -96,13 +96,13 @@ exports[`should render simple markdown 1`] = `
 </div>
 `;
 
-exports[`should render use custom component for links 1`] = `
-<DocLink
-  href="#quality-profiles"
+exports[`should use custom component for links 1`] = `
+<withChildProps
+  href="/quality-profiles"
   key="h-3"
 >
   link
-</DocLink>
+</withChildProps>
 `;
 
 exports[`should render with custom props for links 1`] = `

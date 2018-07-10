@@ -21,12 +21,14 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
+import remarkToc from 'remark-toc';
 import DocLink from './DocLink';
 import DocParagraph from './DocParagraph';
 import DocImg from './DocImg';
 import DocTooltipLink from './DocTooltipLink';
 import { separateFrontMatter } from '../../helpers/markdown';
 import { isSonarCloud } from '../../helpers/system';
+import { scrollToElement } from '../../helpers/scrolling';
 
 interface Props {
   childProps?: { [k: string]: string };
@@ -36,42 +38,54 @@ interface Props {
   isTooltip?: boolean;
 }
 
-export default function DocMarkdownBlock({
-  childProps,
-  className,
-  content,
-  displayH1,
-  isTooltip
-}: Props) {
-  const parsed = separateFrontMatter(content || '');
-  return (
-    <div className={classNames('markdown', className)}>
-      {displayH1 && <h1>{parsed.frontmatter.title}</h1>}
-      {
-        remark()
-          // .use(remarkInclude)
-          .use(reactRenderer, {
-            remarkReactComponents: {
-              // do not render outer <div />
-              div: React.Fragment,
-              // use custom link to render documentation anchors
-              a: isTooltip ? withChildProps(DocTooltipLink, childProps) : DocLink,
-              // used to handle `@include`
-              p: DocParagraph,
-              // use custom img tag to render documentation images
-              img: DocImg
-            },
-            toHast: {}
-          })
-          .processSync(filterContent(parsed.content)).contents
+export default class DocMarkdownBlock extends React.PureComponent<Props> {
+  node: HTMLElement | null = null;
+
+  handleAnchorClick = (href: string, event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (this.node) {
+      const element = this.node.querySelector(`#user-content-${href.substr(1)}`);
+      if (element) {
+        event.preventDefault();
+        scrollToElement(element, { bottomOffset: window.innerHeight - 80 });
       }
-    </div>
-  );
+    }
+  };
+
+  render() {
+    const { childProps, content, className, displayH1, isTooltip } = this.props;
+    const parsed = separateFrontMatter(content || '');
+    return (
+      <div className={classNames('markdown', className)} ref={ref => (this.node = ref)}>
+        {displayH1 && <h1>{parsed.frontmatter.title}</h1>}
+        {
+          remark()
+            // .use(remarkInclude)
+            .use(remarkToc, { maxDepth: 3 })
+            .use(reactRenderer, {
+              remarkReactComponents: {
+                // do not render outer <div />
+                div: React.Fragment,
+                // use custom link to render documentation anchors
+                a: isTooltip
+                  ? withChildProps(DocTooltipLink, childProps)
+                  : withChildProps(DocLink, { onAnchorClick: this.handleAnchorClick }),
+                // used to handle `@include`
+                p: DocParagraph,
+                // use custom img tag to render documentation images
+                img: DocImg
+              },
+              toHast: {}
+            })
+            .processSync(filterContent(parsed.content)).contents
+        }
+      </div>
+    );
+  }
 }
 
 function withChildProps<P>(
-  WrappedComponent: React.ComponentType<P & { customProps?: { [k: string]: string } }>,
-  childProps?: { [k: string]: string }
+  WrappedComponent: React.ComponentType<P & { customProps?: { [k: string]: any } }>,
+  childProps?: { [k: string]: any }
 ) {
   return function withChildProps(props: P) {
     return <WrappedComponent customProps={childProps} {...props} />;

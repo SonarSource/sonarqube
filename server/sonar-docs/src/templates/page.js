@@ -22,13 +22,21 @@ import Helmet from 'react-helmet';
 
 export default ({ data }) => {
   const page = data.markdownRemark;
-  const htmlWithInclusions = cutSonarCloudContent(page.html).replace(
+  let htmlWithInclusions = cutSonarCloudContent(page.html).replace(
     /\<p\>@include (.*)\<\/p\>/,
     (_, path) => {
       const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
       return chunk ? chunk.node.html : '';
     }
   );
+
+  if (
+    page.headings &&
+    page.headings.length > 0 &&
+    page.html.match(/<h[1-9]>Table Of Contents<\/h[1-9]>/i)
+  ) {
+    htmlWithInclusions = generateTableOfContents(htmlWithInclusions, page.headings);
+  }
 
   return (
     <div css={{ paddingTop: 24, paddingBottom: 24 }}>
@@ -53,12 +61,37 @@ export const query = graphql`
     }
     markdownRemark(fields: { slug: { eq: $slug } }) {
       html
+      headings {
+        depth
+        value
+      }
       frontmatter {
         title
       }
     }
   }
 `;
+
+function generateTableOfContents(content, headings) {
+  let html = '<h2>Table Of Contents</h2>';
+  let depth = headings[0].depth - 1;
+  for (let i = 1; i < headings.length; i++) {
+    while (headings[i].depth > depth) {
+      html += '<ul>';
+      depth++;
+    }
+    while (headings[i].depth < depth) {
+      html += '</ul>';
+      depth--;
+    }
+    html += `<li><a href="#header-${i}">${headings[i].value}</a></li>`;
+    content = content.replace(
+      new RegExp(`<h${headings[i].depth}>${headings[i].value}</h${headings[i].depth}>`, 'gi'),
+      `<h${headings[i].depth} id="header-${i}">${headings[i].value}</h${headings[i].depth}>`
+    );
+  }
+  return content.replace(/<h[1-9]>Table Of Contents<\/h[1-9]>/, html);
+}
 
 function cutSonarCloudContent(content) {
   const beginning = '<!-- sonarcloud -->';
