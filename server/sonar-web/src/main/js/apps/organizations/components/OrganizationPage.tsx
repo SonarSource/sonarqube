@@ -90,7 +90,7 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
       if (this.state.loading) {
         return null;
       } else {
-        return <NotFound />;
+        return <NotFound withContainer={false} />;
       }
     }
 

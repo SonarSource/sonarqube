@@ -30,7 +30,7 @@ interface Props {
   location: { query: { [p: string]: string } };
   onRequestFail: (reason: any) => void;
   organization: string | null;
-  profiles: Array<Profile>;
+  profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }
 

@@ -59,35 +59,17 @@ const routes = [
         childRoutes: codingRulesRoutes
       },
       {
-        component: lazyLoad(() =>
-          import('./components/OrganizationAccessContainer').then(lib => ({
-            default: lib.OrganizationMembersAccess
-          }))
-        ),
-        childRoutes: [
-          {
-            path: 'members',
-            component: lazyLoad(() => import('./components/OrganizationMembersContainer'))
-          }
-        ]
+        path: 'members',
+        component: lazyLoad(() => import('./components/OrganizationMembersContainer'))
       },
       {
-        component: lazyLoad(() =>
-          import('./components/OrganizationAccessContainer').then(lib => ({
-            default: lib.OrganizationPrivateAccess
-          }))
-        ),
-        childRoutes: [
-          {
-            path: 'quality_profiles',
-            childRoutes: qualityProfilesRoutes
-          },
-          {
-            path: 'quality_gates',
-            component: OrganizationContainer,
-            childRoutes: qualityGatesRoutes
-          }
-        ]
+        path: 'quality_profiles',
+        childRoutes: qualityProfilesRoutes
+      },
+      {
+        path: 'quality_gates',
+        component: OrganizationContainer,
+        childRoutes: qualityGatesRoutes
       },
       {
         component: lazyLoad(() =>

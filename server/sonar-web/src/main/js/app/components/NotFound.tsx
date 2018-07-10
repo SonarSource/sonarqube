@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import SimpleContainer from './SimpleContainer';
 
-/*::
-type Props = {
+interface Props {
   withContainer?: boolean;
-};
-*/
+}
 
-export default function NotFound({ withContainer = true } /*: Props*/) {
+export default function NotFound({ withContainer = true }: Props) {
   const Container = withContainer ? SimpleContainer : React.Fragment;
   return (
     <Container>

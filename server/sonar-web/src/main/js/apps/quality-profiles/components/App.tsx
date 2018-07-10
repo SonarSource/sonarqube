@@ -99,7 +99,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return React.cloneElement(this.props.children, {
       actions: this.state.actions || {},
-      profiles: this.state.profiles,
+      profiles: this.state.profiles || [],
       languages: finalLanguages,
       exporters: this.state.exporters,
       updateProfiles: this.updateProfiles,

@@ -25,13 +25,13 @@ import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { formatMeasure } from '../../../helpers/measures';
+import { Rule, RuleActivation } from '../../../app/types';
 
 const RULES_LIMIT = 10;
 
-function parseRules(r: any) {
-  const { rules, actives } = r;
-  return rules.map((rule: any) => {
-    const activations = actives[rule.key];
+function parseRules(rules: Rule[], actives?: { [rule: string]: RuleActivation[] }): ExtendedRule[] {
+  return rules.map(rule => {
+    const activations = actives && actives[rule.key];
     return { ...rule, activations: activations ? activations.length : 0 };
   });
 }
@@ -40,15 +40,12 @@ interface Props {
   organization: string | null;
 }
 
-interface Rule {
+interface ExtendedRule extends Rule {
   activations: number;
-  key: string;
-  langName: string;
-  name: string;
 }
 
 interface State {
-  latestRules?: Array<Rule>;
+  latestRules?: ExtendedRule[];
   latestRulesTotal?: number;
 }
 
@@ -84,11 +81,11 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
     };
 
     searchRules(data).then(
-      (r: any) => {
+      ({ actives, rules, total }) => {
         if (this.mounted) {
           this.setState({
-            latestRules: sortBy<Rule>(parseRules(r), 'langName'),
-            latestRulesTotal: r.total
+            latestRules: sortBy(parseRules(rules, actives), 'langName'),
+            latestRulesTotal: total
           });
         }
       },
@@ -113,11 +110,11 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
         </div>
         <ul>
           {this.state.latestRules.map(rule => (
-            <li key={rule.key} className="spacer-top">
+            <li className="spacer-top" key={rule.key}>
               <div className="text-ellipsis">
                 <Link
-                  to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}
-                  className="link-no-underline">
+                  className="link-no-underline"
+                  to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}>
                   {' '}
                   {rule.name}
                 </Link>
@@ -139,7 +136,7 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
         </ul>
         {this.state.latestRulesTotal > RULES_LIMIT && (
           <div className="spacer-top">
-            <Link to={newRulesUrl} className="small">
+            <Link className="small" to={newRulesUrl}>
               {translate('see_all')} {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT', null)}
             </Link>
           </div>

@@ -104,12 +104,12 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
             isDestructive={true}
             modalBody={
               <div>
-                {translate('organization.delete.question')}
                 {hasPaidPlan && (
-                  <p className="alert alert-warn big-spacer-top">
+                  <div className="alert alert-warning modal-alert">
                     {translate('organization.delete.sonarcloud.paid_plan_info')}
-                  </p>
+                  </div>
                 )}
+                <p>{translate('organization.delete.question')}</p>
               </div>
             }
             modalHeader={translate('organization.delete')}

@@ -1,6 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`not found 1`] = `<NotFound />`;
+exports[`not found 1`] = `
+<NotFound
+  withContainer={false}
+/>
+`;
 
 exports[`should correctly update when the organization changes 1`] = `
 Array [

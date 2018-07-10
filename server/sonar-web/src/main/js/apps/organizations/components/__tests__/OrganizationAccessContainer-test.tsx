@@ -55,8 +55,7 @@ describe('component', () => {
           currentUser={loggedInUser}
           hasAccess={() => true}
           location={locationMock}
-          organization={adminOrganization}
-          userOrganizations={[]}>
+          organization={adminOrganization}>
           <div>hello</div>
         </OrganizationAccess>
       )
@@ -70,8 +69,7 @@ describe('component', () => {
           currentUser={loggedInUser}
           hasAccess={() => false}
           location={locationMock}
-          organization={adminOrganization}
-          userOrganizations={[]}>
+          organization={adminOrganization}>
           <div>hello</div>
         </OrganizationAccess>
       ).type()

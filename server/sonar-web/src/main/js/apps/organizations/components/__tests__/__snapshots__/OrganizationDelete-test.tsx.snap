@@ -31,11 +31,13 @@ exports[`should show a info message for paying organization 1`] = `
       isDestructive={true}
       modalBody={
         <div>
-          organization.delete.question
-          <p
-            className="alert alert-warn big-spacer-top"
+          <div
+            className="alert alert-warning modal-alert"
           >
             organization.delete.sonarcloud.paid_plan_info
+          </div>
+          <p>
+            organization.delete.question
           </p>
         </div>
       }
@@ -77,7 +79,9 @@ exports[`smoke test 1`] = `
       isDestructive={true}
       modalBody={
         <div>
-          organization.delete.question
+          <p>
+            organization.delete.question
+          </p>
         </div>
       }
       modalHeader="organization.delete"

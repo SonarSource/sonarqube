@@ -20,20 +20,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from 'react-router';
-import {
-  getCurrentUser,
-  getMyOrganizations,
-  getOrganizationByKey
-} from '../../../store/rootReducer';
+import { getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { Organization, CurrentUser, isLoggedIn } from '../../../app/types';
-import { isCurrentUserMemberOf, hasPrivateAccess } from '../../../helpers/organizations';
-import {} from '../../../store/organizations/duck';
 
 interface StateToProps {
   currentUser: CurrentUser;
   organization?: Organization;
-  userOrganizations: Organization[];
 }
 
 interface OwnProps extends RouterState {
@@ -72,35 +65,12 @@ export class OrganizationAccess extends React.PureComponent<Props> {
 
 const mapStateToProps = (state: any, ownProps: OwnProps) => ({
   currentUser: getCurrentUser(state),
-  organization: getOrganizationByKey(state, ownProps.params.organizationKey),
-  userOrganizations: getMyOrganizations(state)
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
 const OrganizationAccessContainer = connect<StateToProps, {}, OwnProps>(mapStateToProps)(
   OrganizationAccess
 );
-
-export function OrganizationPrivateAccess(props: OwnProps) {
-  return (
-    <OrganizationAccessContainer
-      hasAccess={({ currentUser, organization, userOrganizations }: StateToProps) =>
-        hasPrivateAccess(currentUser, organization, userOrganizations)
-      }
-      {...props}
-    />
-  );
-}
-
-export function OrganizationMembersAccess(props: OwnProps) {
-  return (
-    <OrganizationAccessContainer
-      hasAccess={({ currentUser, organization, userOrganizations }: StateToProps) =>
-        isCurrentUserMemberOf(currentUser, organization, userOrganizations)
-      }
-      {...props}
-    />
-  );
-}
 
 export function hasAdminAccess({
   currentUser,
