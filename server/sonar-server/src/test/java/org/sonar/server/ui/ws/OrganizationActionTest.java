@@ -34,6 +34,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -209,14 +210,56 @@ public class OrganizationActionTest {
 
   @Test
   public void return_subscription_flag() {
-    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
-    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
-
     OrganizationDto freeOrganization = db.organizations().insert(o -> o.setSubscription(FREE));
     assertJson(executeRequest(freeOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"FREE\"}}");
 
     OrganizationDto sonarQubeOrganization = db.organizations().insert(o -> o.setSubscription(SONARQUBE));
     assertJson(executeRequest(sonarQubeOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"SONARQUBE\"}}");
+
+    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+
+    userSession.logIn()
+      .addMembership(paidOrganization);
+
+    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+  }
+
+  @Test
+  public void do_not_throws_FE_when_not_member_on_free_organization() {
+    OrganizationDto freeOrganization = db.organizations().insert(o -> o.setSubscription(FREE));
+    executeRequest(freeOrganization).getInput();
+  }
+
+  @Test
+  public void do_not_throws_FE_when_not_member_on_sonarqube_organization() {
+    OrganizationDto sonarQubeOrganization = db.organizations().insert(o -> o.setSubscription(SONARQUBE));
+    executeRequest(sonarQubeOrganization).getInput();
+  }
+
+  @Test
+  public void throws_FE_when_not_member_on_private_organization() {
+    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("You're not member of organization");
+    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+  }
+
+  @Test
+  public void do_no_throws_FE_when_not_member_on_private_organization_with_public_project() {
+    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+    db.components().insertPublicProject(paidOrganization);
+
+    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+  }
+
+  @Test
+  public void return_information_when_member_of_the_organization() {
+    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+    userSession.logIn()
+      .addMembership(paidOrganization);
+
+    executeRequest(paidOrganization).getInput();
   }
 
   @Test

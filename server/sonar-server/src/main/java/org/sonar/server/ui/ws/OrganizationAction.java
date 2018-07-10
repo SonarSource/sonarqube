@@ -20,6 +20,7 @@
 package org.sonar.server.ui.ws;
 
 import java.util.List;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,6 +29,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
@@ -36,6 +38,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
@@ -84,6 +87,17 @@ public class OrganizationAction implements NavigationWsAction {
       OrganizationDto organization = checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "No organization with key '%s'", organizationKey);
+      if (organization.getSubscription() == PAID) {
+        // If the organization is PAID without any public project then
+        // the organization is only visible to members
+        ComponentQuery query = ComponentQuery.builder()
+          .setQualifiers(Qualifiers.PROJECT)
+          .setPrivate(false)
+          .build();
+        if (dbClient.componentDao().countByQuery(dbSession, organization.getUuid(), query) == 0) {
+          userSession.checkMembership(organization);
+        }
+      }
       boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
 
       JsonWriter json = response.newJsonWriter();
