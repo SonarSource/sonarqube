@@ -1,1 +1,1 @@
-CWE™ is a community-developed list of common software security weaknesses. It serves as a common language, a measuring stick for software security tools, and as a baseline for weakness identification, mitigation, and prevention efforts.
+The Common Weakness Enumeration (CWE™) is a community-developed list of software weaknesses. It provides a common reference, and as a baseline for weakness identification, mitigation, and prevention efforts.
