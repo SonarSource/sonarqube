@@ -45,7 +45,7 @@ module.exports = ({ production = true }) => ({
     require.resolve('./polyfills'),
     !production && require.resolve('react-error-overlay'),
     './src/main/js/app/utils/setPublicPath.js',
-    './src/main/js/app/index.js'
+    './src/main/js/app/index.ts'
   ].filter(Boolean),
   output: {
     path: paths.appBuild,
@@ -150,11 +150,5 @@ module.exports = ({ production = true }) => ({
   optimization: {
     splitChunks: { chunks: 'all' }
   },
-  performance: production
-    ? {
-        hints: 'error',
-        maxEntrypointSize: 600000, // recommended: 250kb
-        maxAssetSize: 320000 // recommended: 250kb
-      }
-    : undefined
+  performance: production ? { hints: 'error' } : undefined
 });

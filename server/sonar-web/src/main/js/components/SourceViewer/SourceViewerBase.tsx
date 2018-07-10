@@ -54,7 +54,7 @@ import './styles.css';
 
 // TODO react-virtualized
 
-interface Props {
+export interface Props {
   aroundLine?: number;
   branchLike: BranchLike | undefined;
   component: string;

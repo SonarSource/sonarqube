@@ -35,6 +35,3 @@ const finalCreateStore = compose(applyMiddleware(...middlewares), ...composed)(c
 export default function configureStore(rootReducer, initialState) {
   return finalCreateStore(rootReducer, initialState);
 }
-
-export const configureTestStore = (rootReducer, initialState) =>
-  createStore(rootReducer, initialState);

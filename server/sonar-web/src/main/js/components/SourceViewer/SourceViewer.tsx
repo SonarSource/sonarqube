@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import SourceViewerBase from './SourceViewerBase';
+import { connect, Omit } from 'react-redux';
+import { Props } from './SourceViewerBase';
+import { lazyLoad } from '../lazyLoad';
 import { SourceViewerFile } from '../../app/types';
 import { receiveFavorites } from '../../store/favorites/duck';
 
@@ -44,4 +45,8 @@ const onReceiveComponent = (component: SourceViewerFile) => (dispatch: Dispatch<
 
 const mapDispatchToProps: DispatchProps = { onReceiveComponent };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SourceViewerBase);
+type OwnProps = Omit<Props, keyof DispatchProps>;
+
+export default connect<null, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
+  lazyLoad(() => import(/* webpackPrefetch: true */ './SourceViewerBase'))
+);

@@ -21,32 +21,32 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import GlobalLoading from './GlobalLoading';
-import { CurrentUser } from '../types';
-import { fetchCurrentUser } from '../../store/users/actions';
-import { fetchLanguages, fetchAppState } from '../../store/rootActions';
+import { AppState, CurrentUser } from '../types';
+import { fetchLanguages } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 import { getInstance, isSonarCloud } from '../../helpers/system';
 import { lazyLoad } from '../../components/lazyLoad';
+import { getCurrentUser, getAppState } from '../../store/rootReducer';
 
 const PageTracker = lazyLoad(() => import('./PageTracker'));
 
-interface Props {
-  children: JSX.Element;
-  fetchAppState: () => Promise<any>;
-  fetchCurrentUser: () => Promise<CurrentUser>;
+interface StateProps {
+  appState: AppState | undefined;
+  currentUser: CurrentUser | undefined;
+}
+
+interface DispatchProps {
   fetchLanguages: () => Promise<void>;
   fetchMyOrganizations: () => Promise<void>;
 }
 
-interface State {
-  branchesEnabled: boolean;
-  canAdmin: boolean;
-  loading: boolean;
-  organizationsEnabled: boolean;
+interface OwnProps {
+  children: JSX.Element;
 }
 
-class App extends React.PureComponent<Props, State> {
+type Props = StateProps & DispatchProps & OwnProps;
+
+class App extends React.PureComponent<Props> {
   mounted = false;
 
   static childContextTypes = {
@@ -55,66 +55,31 @@ class App extends React.PureComponent<Props, State> {
     organizationsEnabled: PropTypes.bool
   };
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      branchesEnabled: false,
-      canAdmin: false,
-      loading: true,
-      organizationsEnabled: false
-    };
-  }
-
   getChildContext() {
+    const { appState } = this.props;
     return {
-      branchesEnabled: this.state.branchesEnabled,
-      canAdmin: this.state.canAdmin,
-      organizationsEnabled: this.state.organizationsEnabled
+      branchesEnabled: (appState && appState.branchesEnabled) || false,
+      canAdmin: (appState && appState.canAdmin) || false,
+      organizationsEnabled: (appState && appState.organizationsEnabled) || false
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-
-    this.props.fetchCurrentUser().then(
-      currentUser => {
-        Promise.all([this.fetchAppState(), this.props.fetchLanguages()]).then(
-          ([appState]) => {
-            if (this.mounted) {
-              if (appState.organizationsEnabled && currentUser.isLoggedIn) {
-                this.props.fetchMyOrganizations();
-              }
-              this.setState({ loading: false });
-            }
-          },
-          () => {}
-        );
-      },
-      () => {}
-    );
+    this.props.fetchLanguages();
+    const { appState, currentUser } = this.props;
+    if (appState && currentUser) {
+      if (appState.organizationsEnabled && currentUser.isLoggedIn) {
+        this.props.fetchMyOrganizations();
+      }
+    }
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  fetchAppState = () => {
-    return this.props.fetchAppState().then(appState => {
-      if (this.mounted) {
-        this.setState({
-          branchesEnabled: appState.branchesEnabled,
-          canAdmin: appState.canAdmin,
-          organizationsEnabled: appState.organizationsEnabled
-        });
-      }
-      return appState;
-    });
-  };
-
   render() {
-    if (this.state.loading) {
-      return <GlobalLoading />;
-    }
     return (
       <>
         <Helmet defaultTitle={getInstance()} />
@@ -125,9 +90,14 @@ class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default connect(null, {
-  fetchAppState,
-  fetchCurrentUser,
+const mapStateToProps = (state: any): StateProps => ({
+  appState: getAppState(state),
+  currentUser: getCurrentUser(state)
+});
+
+const mapDispatchToProps = ({
   fetchLanguages,
   fetchMyOrganizations
-})(App as any);
+} as any) as DispatchProps;
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

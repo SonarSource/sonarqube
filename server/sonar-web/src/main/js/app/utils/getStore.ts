@@ -17,15 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import configureStore from '../../store/utils/configureStore';
+import { Store } from 'redux';
+import { AppState, CurrentUser } from '../types';
+import { setAppState } from '../../store/appState/duck';
 import rootReducer from '../../store/rootReducer';
+import { receiveCurrentUser } from '../../store/users/actions';
+import configureStore from '../../store/utils/configureStore';
 
-let store;
+let store: Store<any>;
 
-const createStore = () => {
+const createStore = (currentUser?: CurrentUser, appState?: AppState) => {
   store = configureStore(rootReducer);
+  if (currentUser) {
+    store.dispatch(receiveCurrentUser(currentUser));
+  }
+  if (appState) {
+    store.dispatch(setAppState(appState));
+  }
   return store;
 };
 
-export default () => (store ? store : createStore());
+export default (currentUser?: CurrentUser, appState?: AppState) =>
+  store ? store : createStore(currentUser, appState);

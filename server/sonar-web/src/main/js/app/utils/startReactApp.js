@@ -22,9 +22,9 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, Redirect } from 'react-router';
 import { Provider } from 'react-redux';
+import { IntlProvider } from 'react-intl';
 import getStore from './getStore';
 import getHistory from './getHistory';
-import LocalizationContainer from '../components/LocalizationContainer';
 import MigrationContainer from '../components/MigrationContainer';
 import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
@@ -75,72 +75,72 @@ function handleUpdate() {
   }
 }
 
-const startReactApp = () => {
+const startReactApp = (lang, currentUser, appState) => {
   const el = document.getElementById('content');
 
   const history = getHistory();
-  const store = getStore();
+  const store = getStore(currentUser, appState);
 
   render(
     <Provider store={store}>
-      <Router history={history} onUpdate={handleUpdate}>
-        <Route
-          path="/account/issues"
-          onEnter={(_, replace) => {
-            replace({ pathname: '/issues', query: { myIssues: 'true', resolved: 'false' } });
-          }}
-        />
+      <IntlProvider defaultLocale={lang} locale={lang}>
+        <Router history={history} onUpdate={handleUpdate}>
+          <Route
+            path="/account/issues"
+            onEnter={(_, replace) => {
+              replace({ pathname: '/issues', query: { myIssues: 'true', resolved: 'false' } });
+            }}
+          />
 
-        <Route
-          path="/codingrules"
-          onEnter={(nextState, replace) => {
-            replace('/coding_rules' + window.location.hash);
-          }}
-        />
+          <Route
+            path="/codingrules"
+            onEnter={(nextState, replace) => {
+              replace('/coding_rules' + window.location.hash);
+            }}
+          />
 
-        <Route
-          path="/dashboard/index/:key"
-          onEnter={(nextState, replace) => {
-            replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
-          }}
-        />
+          <Route
+            path="/dashboard/index/:key"
+            onEnter={(nextState, replace) => {
+              replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
+            }}
+          />
 
-        <Route
-          path="/issues/search"
-          onEnter={(nextState, replace) => {
-            replace('/issues' + window.location.hash);
-          }}
-        />
+          <Route
+            path="/issues/search"
+            onEnter={(nextState, replace) => {
+              replace('/issues' + window.location.hash);
+            }}
+          />
 
-        <Redirect from="/admin" to="/admin/settings" />
-        <Redirect from="/background_tasks" to="/admin/background_tasks" />
-        <Redirect from="/component/index" to="/component" />
-        <Redirect from="/component_issues" to="/project/issues" />
-        <Redirect from="/dashboard/index" to="/dashboard" />
-        <Redirect from="/governance" to="/portfolio" />
-        <Redirect from="/groups" to="/admin/groups" />
-        <Redirect from="/extension/governance/portfolios" to="/portfolios" />
-        <Redirect from="/metrics" to="/admin/custom_metrics" />
-        <Redirect from="/permission_templates" to="/admin/permission_templates" />
-        <Redirect from="/profiles/index" to="/profiles" />
-        <Redirect from="/projects_admin" to="/admin/projects_management" />
-        <Redirect from="/quality_gates/index" to="/quality_gates" />
-        <Redirect from="/roles/global" to="/admin/permissions" />
-        <Redirect from="/settings" to="/admin/settings" />
-        <Redirect from="/settings/encryption" to="/admin/settings/encryption" />
-        <Redirect from="/settings/index" to="/admin/settings" />
-        <Redirect from="/sessions/login" to="/sessions/new" />
-        <Redirect from="/system" to="/admin/system" />
-        <Redirect from="/system/index" to="/admin/system" />
-        <Redirect from="/view" to="/portfolio" />
-        <Redirect from="/users" to="/admin/users" />
+          <Redirect from="/admin" to="/admin/settings" />
+          <Redirect from="/background_tasks" to="/admin/background_tasks" />
+          <Redirect from="/component/index" to="/component" />
+          <Redirect from="/component_issues" to="/project/issues" />
+          <Redirect from="/dashboard/index" to="/dashboard" />
+          <Redirect from="/governance" to="/portfolio" />
+          <Redirect from="/groups" to="/admin/groups" />
+          <Redirect from="/extension/governance/portfolios" to="/portfolios" />
+          <Redirect from="/metrics" to="/admin/custom_metrics" />
+          <Redirect from="/permission_templates" to="/admin/permission_templates" />
+          <Redirect from="/profiles/index" to="/profiles" />
+          <Redirect from="/projects_admin" to="/admin/projects_management" />
+          <Redirect from="/quality_gates/index" to="/quality_gates" />
+          <Redirect from="/roles/global" to="/admin/permissions" />
+          <Redirect from="/settings" to="/admin/settings" />
+          <Redirect from="/settings/encryption" to="/admin/settings/encryption" />
+          <Redirect from="/settings/index" to="/admin/settings" />
+          <Redirect from="/sessions/login" to="/sessions/new" />
+          <Redirect from="/system" to="/admin/system" />
+          <Redirect from="/system/index" to="/admin/system" />
+          <Redirect from="/view" to="/portfolio" />
+          <Redirect from="/users" to="/admin/users" />
 
-        <Route
-          path="markdown/help"
-          component={lazyLoad(() => import('../components/MarkdownHelp'))}
-        />
+          <Route
+            path="markdown/help"
+            component={lazyLoad(() => import('../components/MarkdownHelp'))}
+          />
 
-        <Route component={LocalizationContainer}>
           <Route component={lazyLoad(() => import('../components/SimpleContainer'))}>
             <Route path="maintenance">{maintenanceRoutes}</Route>
             <Route path="setup">{setupRoutes}</Route>
@@ -263,8 +263,8 @@ const startReactApp = () => {
               <Route path="*" component={lazyLoad(() => import('../components/NotFound'))} />
             </Route>
           </Route>
-        </Route>
-      </Router>
+        </Router>
+      </IntlProvider>
     </Provider>,
     el
   );

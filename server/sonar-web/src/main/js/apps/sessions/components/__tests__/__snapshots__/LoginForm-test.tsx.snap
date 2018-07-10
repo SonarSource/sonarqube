@@ -76,14 +76,12 @@ exports[`expands more options 2`] = `
       >
         sessions.log_in
       </SubmitButton>
-      <Link
+      <a
         className="spacer-left"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/"
+        href="/"
       >
         cancel
-      </Link>
+      </a>
     </div>
   </div>
 </form>
@@ -151,14 +149,12 @@ exports[`logs in with simple credentials 1`] = `
       >
         sessions.log_in
       </SubmitButton>
-      <Link
+      <a
         className="spacer-left"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/"
+        href="/"
       >
         cancel
-      </Link>
+      </a>
     </div>
   </div>
 </form>
@@ -226,14 +222,12 @@ exports[`should display a spinner and disabled button while loading 1`] = `
       >
         sessions.log_in
       </SubmitButton>
-      <Link
+      <a
         className="spacer-left"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/"
+        href="/"
       >
         cancel
-      </Link>
+      </a>
     </div>
   </div>
 </form>

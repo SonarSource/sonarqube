@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import startReactApp from './utils/startReactApp';
-import installExtensionsHandler from './utils/installExtensionsHandler';
-import { installGlobal } from '../helpers/l10n';
-// styles
-import './styles/sonar.css';
+const extensions: { [key: string]: Function } = {};
 
-installGlobal();
-startReactApp();
-installExtensionsHandler();
+const registerExtension = (key: string, start: Function) => {
+  extensions[key] = start;
+};
+
+export default () => {
+  (window as any).registerExtension = registerExtension;
+};
+
+export const getExtensionFromCache = (key: string) => {
+  return extensions[key];
+};
