@@ -169,6 +169,46 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     );
   }
 
+  renderSecurityReportsLink() {
+    return (
+      <ul className="menu">
+        <li>
+          <Link
+            activeClassName="active"
+            to={{ pathname: '/project/security_reports/owasp_top_10', query: this.getQuery() }}>
+            {translate('security_reports.owaspTop10.page')}
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            to={{ pathname: '/project/security_reports/sans_top_25', query: this.getQuery() }}>
+            {translate('security_reports.sansTop25.page')}
+          </Link>
+        </li>
+      </ul>
+    );
+  }
+
+  renderSecurityReports() {
+    const isActive = location.pathname.startsWith('/project/security_reports');
+    return (
+      <Dropdown overlay={this.renderSecurityReportsLink()} tagName="li">
+        {({ onToggleClick, open }) => (
+          <a
+            aria-expanded={String(open)}
+            aria-haspopup="true"
+            className={classNames('dropdown-toggle', { active: isActive || open })}
+            href="#"
+            onClick={onToggleClick}>
+            {translate('layout.security_reports')}
+            <DropdownIcon className="little-spacer-left" />
+          </a>
+        )}
+      </Dropdown>
+    );
+  }
+
   renderAdministration() {
     const { branchLike } = this.props;
 
@@ -450,6 +490,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       <NavBarTabs>
         {this.renderDashboardLink()}
         {this.renderIssuesLink()}
+        {this.renderSecurityReports()}
         {this.renderComponentMeasuresLink()}
         {this.renderCodeLink()}
         {this.renderActivityLink()}

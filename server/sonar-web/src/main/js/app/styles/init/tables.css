@@ -134,6 +134,11 @@ table.data.condensed > tbody > tr > td {
   padding-bottom: 5px;
 }
 
+table.data tr.subheader th {
+  font-size: var(--smallFontSize);
+  border-bottom: none;
+}
+
 table.data.no-outer-padding > thead > tr > th:first-child {
   padding-left: 0;
 }

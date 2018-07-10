@@ -1,0 +1,394 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`handle checkbox for cwe display 1`] = `
+<div
+  className="page page-limited"
+  id="security-reports"
+>
+  <Suggestions
+    suggestions="security_reports"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="security_reports.owaspTop10.page"
+  />
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      security_reports.owaspTop10.page
+    </h1>
+    <div
+      className="page-description"
+    >
+      security_reports.owaspTop10.description
+    </div>
+  </header>
+  <div
+    className="display-inline-flex-center"
+  >
+    <Checkbox
+      checked={false}
+      className="spacer-left spacer-right vertical-middle"
+      disabled={true}
+      id="showCWE"
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <label
+        className="little-spacer-left"
+        htmlFor="showCWE"
+      >
+        security_reports.cwe.show
+        <DocTooltip
+          className="spacer-left"
+          doc="security-reports/cwe"
+        />
+      </label>
+    </Checkbox>
+  </div>
+  <DeferredSpinner
+    loading={true}
+    timeout={100}
+  >
+    <VulnerabilityList
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      findings={Array []}
+      showCWE={false}
+      type="owaspTop10"
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`handle checkbox for cwe display 2`] = `
+<div
+  className="page page-limited"
+  id="security-reports"
+>
+  <Suggestions
+    suggestions="security_reports"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="security_reports.owaspTop10.page"
+  />
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      security_reports.owaspTop10.page
+    </h1>
+    <div
+      className="page-description"
+    >
+      security_reports.owaspTop10.description
+    </div>
+  </header>
+  <div
+    className="display-inline-flex-center"
+  >
+    <Checkbox
+      checked={true}
+      className="spacer-left spacer-right vertical-middle"
+      disabled={false}
+      id="showCWE"
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <label
+        className="little-spacer-left"
+        htmlFor="showCWE"
+      >
+        security_reports.cwe.show
+        <DocTooltip
+          className="spacer-left"
+          doc="security-reports/cwe"
+        />
+      </label>
+    </Checkbox>
+  </div>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <VulnerabilityList
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      findings={
+        Array [
+          Object {
+            "category": "a1",
+            "distribution": Array [
+              Object {
+                "cwe": "477",
+                "openSecurityHotspots": 10,
+                "toReviewSecurityHotspots": 2,
+                "vulnerabilities": 1,
+                "vulnerabiliyRating": 1,
+                "wontFixSecurityHotspots": 0,
+              },
+              Object {
+                "cwe": "396",
+                "openSecurityHotspots": 10,
+                "toReviewSecurityHotspots": 2,
+                "vulnerabilities": 2,
+                "vulnerabiliyRating": 2,
+                "wontFixSecurityHotspots": 0,
+              },
+            ],
+            "openSecurityHotspots": 10,
+            "toReviewSecurityHotspots": 2,
+            "vulnerabilities": 2,
+            "vulnerabiliyRating": 5,
+            "wontFixSecurityHotspots": 0,
+          },
+          Object {
+            "category": "a2",
+            "openSecurityHotspots": 100,
+            "toReviewSecurityHotspots": 8,
+            "vulnerabilities": 3,
+            "vulnerabiliyRating": 3,
+            "wontFixSecurityHotspots": 10,
+          },
+        ]
+      }
+      showCWE={true}
+      type="owaspTop10"
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`renders error on wrong type parameters 1`] = `
+<NotFound
+  withContainer={false}
+/>
+`;
+
+exports[`renders owaspTop10 1`] = `
+<div
+  className="page page-limited"
+  id="security-reports"
+>
+  <Suggestions
+    suggestions="security_reports"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="security_reports.owaspTop10.page"
+  />
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      security_reports.owaspTop10.page
+    </h1>
+    <div
+      className="page-description"
+    >
+      security_reports.owaspTop10.description
+    </div>
+  </header>
+  <div
+    className="display-inline-flex-center"
+  >
+    <Checkbox
+      checked={false}
+      className="spacer-left spacer-right vertical-middle"
+      disabled={true}
+      id="showCWE"
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <label
+        className="little-spacer-left"
+        htmlFor="showCWE"
+      >
+        security_reports.cwe.show
+        <DocTooltip
+          className="spacer-left"
+          doc="security-reports/cwe"
+        />
+      </label>
+    </Checkbox>
+  </div>
+  <DeferredSpinner
+    loading={true}
+    timeout={100}
+  >
+    <VulnerabilityList
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      findings={Array []}
+      showCWE={false}
+      type="owaspTop10"
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`renders sansTop25 1`] = `
+<div
+  className="page page-limited"
+  id="security-reports"
+>
+  <Suggestions
+    suggestions="security_reports"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="security_reports.sansTop25.page"
+  />
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      security_reports.sansTop25.page
+    </h1>
+    <div
+      className="page-description"
+    >
+      security_reports.sansTop25.description
+    </div>
+  </header>
+  <div
+    className="display-inline-flex-center"
+  >
+    <Checkbox
+      checked={false}
+      className="spacer-left spacer-right vertical-middle"
+      disabled={true}
+      id="showCWE"
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <label
+        className="little-spacer-left"
+        htmlFor="showCWE"
+      >
+        security_reports.cwe.show
+        <DocTooltip
+          className="spacer-left"
+          doc="security-reports/cwe"
+        />
+      </label>
+    </Checkbox>
+  </div>
+  <DeferredSpinner
+    loading={true}
+    timeout={100}
+  >
+    <VulnerabilityList
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      findings={Array []}
+      showCWE={false}
+      type="sansTop25"
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`renders with cwe 1`] = `
+<div
+  className="page page-limited"
+  id="security-reports"
+>
+  <Suggestions
+    suggestions="security_reports"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="security_reports.owaspTop10.page"
+  />
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      security_reports.owaspTop10.page
+    </h1>
+    <div
+      className="page-description"
+    >
+      security_reports.owaspTop10.description
+    </div>
+  </header>
+  <div
+    className="display-inline-flex-center"
+  >
+    <Checkbox
+      checked={true}
+      className="spacer-left spacer-right vertical-middle"
+      disabled={true}
+      id="showCWE"
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <label
+        className="little-spacer-left"
+        htmlFor="showCWE"
+      >
+        security_reports.cwe.show
+        <DocTooltip
+          className="spacer-left"
+          doc="security-reports/cwe"
+        />
+      </label>
+    </Checkbox>
+  </div>
+  <DeferredSpinner
+    loading={true}
+    timeout={100}
+  >
+    <VulnerabilityList
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      findings={Array []}
+      showCWE={true}
+      type="owaspTop10"
+    />
+  </DeferredSpinner>
+</div>
+`;

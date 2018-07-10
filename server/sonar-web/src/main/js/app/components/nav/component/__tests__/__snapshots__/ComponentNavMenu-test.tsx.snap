@@ -38,6 +38,49 @@ exports[`should work for all qualifiers 1`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"
@@ -208,6 +251,49 @@ exports[`should work for all qualifiers 2`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"
@@ -327,6 +413,49 @@ exports[`should work for all qualifiers 3`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"
@@ -446,6 +575,49 @@ exports[`should work for all qualifiers 4`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"
@@ -538,6 +710,49 @@ exports[`should work for all qualifiers 5`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"
@@ -659,6 +874,51 @@ exports[`should work for long-living branches 1`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "branch": "release",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "branch": "release",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"
@@ -756,6 +1016,51 @@ exports[`should work for long-living branches 2`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "branch": "release",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "branch": "release",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"
@@ -835,6 +1140,51 @@ exports[`should work for short-living branches 1`] = `
       issues.page
     </Link>
   </li>
+  <Dropdown
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/owasp_top_10",
+                "query": Object {
+                  "branch": "feature",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.owaspTop10.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sans_top_25",
+                "query": Object {
+                  "branch": "feature",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sansTop25.page
+          </Link>
+        </li>
+      </ul>
+    }
+    tagName="li"
+  />
   <li>
     <Link
       activeClassName="active"

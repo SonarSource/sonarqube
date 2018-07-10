@@ -213,6 +213,17 @@ export function isSameHomePage(a: HomePage, b: HomePage) {
   );
 }
 
+export interface SecurityHotspot {
+  category?: string;
+  cwe?: string;
+  distribution?: Array<SecurityHotspot>;
+  openSecurityHotspots: number;
+  toReviewSecurityHotspots: number;
+  vulnerabilities: number;
+  vulnerabilityRating?: number;
+  wontFixSecurityHotspots: number;
+}
+
 export interface Issue {
   actions?: string[];
   assignee?: string;

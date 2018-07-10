@@ -26,6 +26,12 @@ import { translate } from '../../../helpers/l10n';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetItem from '../../../components/facet/FacetItem';
 import Select from '../../../components/controls/Select';
+import {
+  renderOwaspTop10Category,
+  renderSansTop25Category,
+  renderCWECategory,
+  Standards
+} from '../../securityReports/utils';
 
 export interface Props {
   cwe: string[];
@@ -41,12 +47,6 @@ export interface Props {
   sansTop25: string[];
   sansTop25Open: boolean;
   sansTop25Stats: { [x: string]: number } | undefined;
-}
-
-interface Standards {
-  owaspTop10: { [x: string]: { title: string } };
-  sansTop25: { [x: string]: { title: string } };
-  cwe: { [x: string]: { title: string } };
 }
 
 interface State {
@@ -90,9 +90,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
   getValues = () => {
     return [
-      ...this.props.owaspTop10.map(this.renderOwaspTop10Category),
-      ...this.props.sansTop25.map(this.renderSansTop25Category),
-      ...this.props.cwe.map(this.renderCWECategory)
+      ...this.props.owaspTop10.map(item => renderOwaspTop10Category(this.state.standards, item)),
+      ...this.props.sansTop25.map(item => renderSansTop25Category(this.state.standards, item)),
+      ...this.props.cwe.map(item => renderCWECategory(this.state.standards, item))
     ];
   };
 
@@ -150,37 +150,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     this.handleItemClick('cwe', value, true);
   };
 
-  renderOwaspTop10Category = (category: string) => {
-    const record = this.state.standards.owaspTop10[category];
-    if (!record) {
-      return category.toUpperCase();
-    } else if (category === 'unknown') {
-      return record.title;
-    } else {
-      return `${category.toUpperCase()} - ${record.title}`;
-    }
-  };
-
-  renderCWECategory = (category: string) => {
-    const record = this.state.standards.cwe[category];
-    if (!record) {
-      return `CWE-${category}`;
-    } else if (category === 'unknown') {
-      return record.title;
-    } else {
-      return `CWE-${category} - ${record.title}`;
-    }
-  };
-
-  renderSansTop25Category = (category: string) => {
-    const record = this.state.standards.sansTop25[category];
-    return record ? record.title : category;
-  };
-
   renderList = (
     statsProp: 'owaspTop10Stats' | 'cweStats' | 'sansTop25Stats',
     valuesProp: 'owaspTop10' | 'cwe' | 'sansTop25',
-    renderName: (category: string) => string,
+    renderName: (standards: Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
   ) => {
     const stats = this.props[statsProp];
@@ -211,7 +184,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             active={values.includes(category)}
             key={category}
             loading={this.props.loading}
-            name={renderName(category)}
+            name={renderName(this.state.standards, category)}
             onClick={onClick}
             stat={formatFacetStat(getStat(category))}
             tooltip={values.length === 1 && !values.includes(category)}
@@ -226,18 +199,18 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     return this.renderList(
       'owaspTop10Stats',
       'owaspTop10',
-      this.renderOwaspTop10Category,
+      renderOwaspTop10Category,
       this.handleOwaspTop10ItemClick
     );
   }
 
   renderCWEList() {
-    return this.renderList('cweStats', 'cwe', this.renderCWECategory, this.handleCWEItemClick);
+    return this.renderList('cweStats', 'cwe', renderCWECategory, this.handleCWEItemClick);
   }
 
   renderCWESearch() {
     const options = Object.keys(this.state.standards.cwe).map(cwe => ({
-      label: this.renderCWECategory(cwe),
+      label: renderCWECategory(this.state.standards, cwe),
       value: cwe
     }));
     return (
@@ -259,7 +232,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     return this.renderList(
       'sansTop25Stats',
       'sansTop25',
-      this.renderSansTop25Category,
+      renderSansTop25Category,
       this.handleSansTop25ItemClick
     );
   }
@@ -272,7 +245,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={translate('issues.facet.owaspTop10')}
             onClick={this.handleOwaspTop10HeaderClick}
             open={this.props.owaspTop10Open}
-            values={this.props.owaspTop10.map(this.renderOwaspTop10Category)}
+            values={this.props.owaspTop10.map(item =>
+              renderOwaspTop10Category(this.state.standards, item)
+            )}
           />
           {this.props.owaspTop10Open && this.renderOwaspTop10List()}
         </FacetBox>
@@ -281,7 +256,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={translate('issues.facet.sansTop25')}
             onClick={this.handleSansTop25HeaderClick}
             open={this.props.sansTop25Open}
-            values={this.props.sansTop25.map(this.renderSansTop25Category)}
+            values={this.props.sansTop25.map(item =>
+              renderSansTop25Category(this.state.standards, item)
+            )}
           />
           {this.props.sansTop25Open && this.renderSansTop25List()}
         </FacetBox>
@@ -290,7 +267,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={translate('issues.facet.cwe')}
             onClick={this.handleCWEHeaderClick}
             open={this.props.cweOpen}
-            values={this.props.cwe.map(this.renderCWECategory)}
+            values={this.props.cwe.map(item => renderCWECategory(this.state.standards, item))}
           />
           {this.props.cweOpen && this.renderCWEList()}
           {this.props.cweOpen && this.renderCWESearch()}

@@ -198,6 +198,10 @@ const startReactApp = (lang, currentUser, appState) => {
                     )}
                   />
                   <Route path="project/issues" component={Issues} />
+                  <Route
+                    path="project/security_reports/:type"
+                    component={lazyLoad(() => import('../../apps/securityReports/components/App'))}
+                  />
                   <Route path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
                   <Route
                     path="project/quality_profiles"
