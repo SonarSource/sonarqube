@@ -44,8 +44,8 @@ exports[`should render sub-facets 1`] = `
     open={true}
     values={
       Array [
-        "A3",
-        "Risky Resource Management",
+        "OWASP A3",
+        "SANS Risky Resource Management",
         "CWE-42 - cwe-42 title",
       ]
     }

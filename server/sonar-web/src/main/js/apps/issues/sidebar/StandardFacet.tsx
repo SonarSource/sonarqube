@@ -60,7 +60,14 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.open) {
+
+    // load standards.json only if the facet is open, or there is a selected value
+    if (
+      this.props.open ||
+      this.props.owaspTop10.length > 0 ||
+      this.props.cwe.length > 0 ||
+      this.props.sansTop25.length > 0
+    ) {
       this.loadStandards();
     }
   }
@@ -90,8 +97,12 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
   getValues = () => {
     return [
-      ...this.props.owaspTop10.map(item => renderOwaspTop10Category(this.state.standards, item)),
-      ...this.props.sansTop25.map(item => renderSansTop25Category(this.state.standards, item)),
+      ...this.props.owaspTop10.map(item =>
+        renderOwaspTop10Category(this.state.standards, item, true)
+      ),
+      ...this.props.sansTop25.map(item =>
+        renderSansTop25Category(this.state.standards, item, true)
+      ),
       ...this.props.cwe.map(item => renderCWECategory(this.state.standards, item))
     ];
   };

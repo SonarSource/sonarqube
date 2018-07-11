@@ -79,7 +79,10 @@ export default class IssueActionsBar extends React.PureComponent {
 
   handleTransition = (issue /*: Issue */) => {
     this.props.onChange(issue);
-    if (['FALSE-POSITIVE', 'WONTFIX'].includes(issue.resolution)) {
+    if (
+      issue.resolution === 'FALSE-POSITIVE' ||
+      (issue.resolution === 'WONTFIX' && issue.type !== 'SECURITY_HOTSPOT')
+    ) {
       this.toggleComment(true, translate('issue.comment.tell_why'));
     }
   };

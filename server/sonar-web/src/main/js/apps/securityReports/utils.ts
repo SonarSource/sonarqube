@@ -23,14 +23,18 @@ export interface Standards {
   cwe: { [x: string]: { title: string; description?: string } };
 }
 
-export function renderOwaspTop10Category(standards: Standards, category: string): string {
+export function renderOwaspTop10Category(
+  standards: Standards,
+  category: string,
+  withPrefix = false
+): string {
   const record = standards.owaspTop10[category];
   if (!record) {
-    return category.toUpperCase();
+    return addPrefix(category.toUpperCase(), 'OWASP', withPrefix);
   } else if (category === 'unknown') {
     return record.title;
   } else {
-    return `${category.toUpperCase()} - ${record.title}`;
+    return addPrefix(`${category.toUpperCase()} - ${record.title}`, 'OWASP', withPrefix);
   }
 }
 
@@ -45,7 +49,15 @@ export function renderCWECategory(standards: Standards, category: string): strin
   }
 }
 
-export function renderSansTop25Category(standards: Standards, category: string): string {
+export function renderSansTop25Category(
+  standards: Standards,
+  category: string,
+  withPrefix = false
+): string {
   const record = standards.sansTop25[category];
-  return record ? record.title : category;
+  return addPrefix(record ? record.title : category, 'SANS', withPrefix);
+}
+
+function addPrefix(title: string, prefix: string, withPrefix: boolean) {
+  return withPrefix ? `${prefix} ${title}` : title;
 }

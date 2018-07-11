@@ -114,11 +114,11 @@ it('should display correct selection', () => {
     cwe: ['42', '1111', 'unknown']
   });
   checkValues('standards', [
-    'A1 - a1 title',
-    'A3',
+    'OWASP A1 - a1 title',
+    'OWASP A3',
     'Not OWAPS',
-    'Risky Resource Management',
-    'foo',
+    'SANS Risky Resource Management',
+    'SANS foo',
     'CWE-42 - cwe-42 title',
     'CWE-1111',
     'Unknown CWE'
