@@ -257,6 +257,11 @@ textarea.coding-rules-markdown-description {
   white-space: nowrap;
 }
 
+@media (max-width: 1320px) {
+  .coding-rule-table .tags-list span {
+    max-width: 100px;
+  }
+}
 .coding-rule-title {
   line-height: calc(2.5 * var(--gridSize));
   font-size: var(--baseFontSize);
