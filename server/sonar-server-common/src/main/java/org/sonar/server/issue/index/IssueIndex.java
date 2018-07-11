@@ -798,8 +798,8 @@ public class IssueIndex {
       .collect(MoreCollectors.toList(branchUuids.size()));
   }
 
-  public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean includeCwe) {
-    SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid);
+  public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
+    SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Stream.of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES).forEach(sansCategory -> {
       AggregationBuilder sansCategoryAggs = AggregationBuilders
         .filter(sansCategory, boolQuery()
@@ -809,8 +809,8 @@ public class IssueIndex {
     return processSecurityReportSearchResults(request, includeCwe);
   }
 
-  public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean includeCwe) {
-    SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid);
+  public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
+    SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Stream.concat(IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i), Stream.of(UNKNOWN_STANDARD)).forEach(owaspCategory -> {
       AggregationBuilder owaspCategoryAggs = AggregationBuilders
         .filter(owaspCategory, boolQuery()
@@ -898,11 +898,21 @@ public class IssueIndex {
           AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY)));
   }
 
-  private SearchRequestBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid) {
+  private SearchRequestBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid, boolean isViewOrApp) {
+    BoolQueryBuilder componentFilter = boolQuery();
+    if (isViewOrApp) {
+      componentFilter.filter(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID,
+        new TermsLookup(
+          ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(),
+          ViewIndexDefinition.INDEX_TYPE_VIEW.getType(),
+          projectUuid,
+          ViewIndexDefinition.FIELD_PROJECTS)));
+    } else {
+      componentFilter.filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID, projectUuid));
+    }
     return client.prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
       .setQuery(
-        boolQuery()
-          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
+        componentFilter
           .filter(termsQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name(), RuleType.VULNERABILITY.name()))
           .mustNot(termQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED)))
       .setSize(0);

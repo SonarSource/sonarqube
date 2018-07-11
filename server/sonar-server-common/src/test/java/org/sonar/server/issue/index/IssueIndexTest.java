@@ -1459,7 +1459,7 @@ public class IssueIndexTest {
       newDoc("anotherProject", another).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
       newDoc("openvul1", project).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
 
-    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating)
@@ -1477,7 +1477,7 @@ public class IssueIndexTest {
       newDoc("notopenvul", project).setOwaspTop10(asList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
         .setSeverity(Severity.BLOCKER));
 
-    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating)
@@ -1493,7 +1493,7 @@ public class IssueIndexTest {
       // Previous vulnerabilities in projects that are not reanalyzed will have no owasp nor cwe attributes (not even 'unknown')
       newDoc("openvulNotReindexed", project).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
 
-    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating)
@@ -1510,7 +1510,7 @@ public class IssueIndexTest {
       newDoc("openhotspot1", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN),
       newDoc("anotherProject", another).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN));
 
-    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getOpenSecurityHotspots)
       .contains(
@@ -1526,7 +1526,7 @@ public class IssueIndexTest {
       newDoc("closedHotspot", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FIXED));
 
-    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false);
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getOpenSecurityHotspots)
       .contains(
@@ -1583,7 +1583,7 @@ public class IssueIndexTest {
         .setResolution(Issue.RESOLUTION_WONT_FIX),
       newDoc("notowasphotspot", project).setOwaspTop10(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN));
 
-    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), includeCwe);
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, includeCwe);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getOpenSecurityHotspots,
@@ -1627,7 +1627,7 @@ public class IssueIndexTest {
         .setResolution(Issue.RESOLUTION_WONT_FIX),
       newDoc("notowasphotspot", project).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN));
 
-    List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(project.uuid(), false);
+    List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(project.uuid(), false, false);
     assertThat(sansTop25Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getOpenSecurityHotspots,
@@ -1637,6 +1637,49 @@ public class IssueIndexTest {
         tuple(SANS_TOP_25_RISKY_RESOURCE, 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* openhotspot1,openhotspot2 */, 1L /* toReviewHotspot */,
           1L /* WFHotspot */),
         tuple(SANS_TOP_25_POROUS_DEFENSES, 1L /* openvul2 */, OptionalInt.of(2)/* MINOR = B */, 1L/* openhotspot2 */, 0L, 0L));
+
+    assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
+  }
+
+  @Test
+  public void test_getSansTop25Report_aggregation_on_portfolio() {
+    ComponentDto portfolio1 = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto portfolio2 = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    indexIssues(
+      newDoc("openvul1", project1).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("notopenvul", project1).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
+        .setResolution(Issue.RESOLUTION_FIXED)
+        .setSeverity(Severity.BLOCKER),
+      newDoc("notsansvul", project2).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.CRITICAL),
+      newDoc("openhotspot1", project1).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_OPEN),
+      newDoc("openhotspot2", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_REOPENED),
+      newDoc("toReviewHotspot", project1).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_RESOLVED)
+        .setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("WFHotspot", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_RESOLVED)
+        .setResolution(Issue.RESOLUTION_WONT_FIX),
+      newDoc("notowasphotspot", project1).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN));
+
+    indexView(portfolio1.uuid(), singletonList(project1.uuid()));
+    indexView(portfolio2.uuid(), singletonList(project2.uuid()));
+
+    List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(portfolio1.uuid(), true, false);
+    assertThat(sansTop25Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getOpenSecurityHotspots,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots, SecurityStandardCategoryStatistics::getWontFixSecurityHotspots)
+      .containsExactlyInAnyOrder(
+        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* openhotspot1 */, 0L, 0L),
+        tuple(SANS_TOP_25_RISKY_RESOURCE, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L/* openhotspot1 */, 1L /* toReviewHotspot */, 0L),
+        tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L, 0L));
 
     assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
   }

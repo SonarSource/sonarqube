@@ -207,7 +207,6 @@ public class ShowActionTest {
 
   @Test
   public void sans_with_cwe() {
-
     ComponentDto project = insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_ID").setDbKey("PROJECT_KEY"));
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
@@ -238,6 +237,49 @@ public class ShowActionTest {
     assertJson(ws.newRequest()
       .setParam("standard", "sansTop25")
       .setParam("project", project.getKey())
+      .setParam("includeDistribution", "true")
+      .execute().getInput())
+      .withStrictArrayOrder()
+      .isSimilarTo(this.getClass().getResource("ShowActionTest/sansWithCwe.json"));
+  }
+
+  @Test
+  public void sans_with_cwe_for_branches() {
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+
+    userSessionRule.addProjectPermission(UserRole.USER, project1);
+    userSessionRule.addProjectPermission(UserRole.USER, project2);
+    indexPermissions();
+    RuleDefinitionDto rule = newRule();
+    IssueDto issue1 = newIssue(rule, project1Branch1, fileOnProject1Branch1)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.VULNERABILITY);
+    IssueDto issue2 = newIssue(rule, project1Branch1, fileOnProject1Branch1)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue3 = newIssue(rule, project1Branch1, fileOnProject1Branch1)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue4 = newIssue(rule, project1Branch1, fileOnProject1Branch1)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_WONT_FIX)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    dbClient.issueDao().insert(session, issue1, issue2, issue3, issue4);
+    session.commit();
+    indexIssues();
+
+    assertJson(ws.newRequest()
+      .setParam("standard", "sansTop25")
+      .setParam("project", project1Branch1.getKey())
+      .setParam("branch", project1Branch1.getBranch())
       .setParam("includeDistribution", "true")
       .execute().getInput())
       .withStrictArrayOrder()

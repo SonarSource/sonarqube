@@ -21,6 +21,7 @@ package org.sonar.server.securityreport.ws;
 
 import java.util.List;
 import java.util.function.Function;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -72,7 +73,7 @@ public class ShowAction implements SecurityReportsWsAction {
       .setInternal(true);
 
     action.createParam(PARAM_PROJECT)
-      .setDescription("Project key")
+      .setDescription("Project, view or application key")
       .setRequired(true);
     action.createParam(PARAM_BRANCH)
       .setDescription("Branch name")
@@ -95,18 +96,32 @@ public class ShowAction implements SecurityReportsWsAction {
       projectDto = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, request.param(PARAM_BRANCH), null);
     }
     userSession.checkComponentPermission(USER, projectDto);
+    String qualifier = projectDto.qualifier();
+    boolean isViewOrApp;
+    switch (qualifier) {
+      case Qualifiers.VIEW:
+      case Qualifiers.SUBVIEW:
+      case Qualifiers.APP:
+        isViewOrApp = true;
+        break;
+      case Qualifiers.PROJECT:
+        isViewOrApp = false;
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported component type " + qualifier);
+    }
     String standard = request.mandatoryParam(PARAM_STANDARD);
     boolean includeCwe = request.mandatoryParamAsBoolean(PARAM_INCLUDE_DISTRIBUTION);
     switch (standard) {
       case PARAM_OWASP_TOP_10:
-        List<SecurityStandardCategoryStatistics> owaspCategories = issueIndex.getOwaspTop10Report(projectDto.uuid(), includeCwe)
+        List<SecurityStandardCategoryStatistics> owaspCategories = issueIndex.getOwaspTop10Report(projectDto.uuid(), isViewOrApp, includeCwe)
           .stream()
           .sorted(comparing(ShowAction::index))
           .collect(toList());
         writeResponse(request, response, owaspCategories);
         break;
       case PARAM_SANS_TOP_25:
-        writeResponse(request, response, issueIndex.getSansTop25Report(projectDto.uuid(), includeCwe));
+        writeResponse(request, response, issueIndex.getSansTop25Report(projectDto.uuid(), isViewOrApp, includeCwe));
         break;
       default:
         throw new IllegalArgumentException("Unsupported standard: '" + standard + "'");
