@@ -112,7 +112,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
           <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
+          <div className="modal-body modal-container">
             <strong>
               {translateWithParameters(
                 'organization.members.members_groups',

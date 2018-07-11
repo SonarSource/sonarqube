@@ -68,7 +68,7 @@ exports[`should render 1`] = `
     onSubmit={[Function]}
   >
     <div
-      className="modal-body"
+      className="modal-body modal-container"
     >
       <strong>
         organization.members.members_groups.Admin Istrator
