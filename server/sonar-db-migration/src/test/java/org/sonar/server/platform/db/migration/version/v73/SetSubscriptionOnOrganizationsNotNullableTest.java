@@ -19,22 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v73;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.VARCHAR;
 
-public class DbVersion73Test {
+public class SetSubscriptionOnOrganizationsNotNullableTest {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(SetSubscriptionOnOrganizationsNotNullableTest.class, "organizations.sql");
 
-  private DbVersion73 underTest = new DbVersion73();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private SetSubscriptionOnOrganizationsNotNullable underTest = new SetSubscriptionOnOrganizationsNotNullable(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2200() {
-    verifyMinimumMigrationNumber(underTest, 2200);
+  public void column_is_added_to_table() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDefinition("organizations", "subscription", VARCHAR, 40, false);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 12);
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+
+    underTest.execute();
   }
+
 }

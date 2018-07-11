@@ -83,6 +83,7 @@ public class OrganizationDaoTest {
     .setUrl("the url 1")
     .setAvatarUrl("the avatar url 1")
     .setGuarded(false)
+    .setSubscription(FREE)
     .setDefaultQualityGateUuid("1");
   private static final OrganizationDto ORGANIZATION_DTO_2 = new OrganizationDto()
     .setUuid("uuid 2")
@@ -92,6 +93,7 @@ public class OrganizationDaoTest {
     .setUrl("the url 2")
     .setAvatarUrl("the avatar url 2")
     .setGuarded(true)
+    .setSubscription(FREE)
     .setDefaultQualityGateUuid("1");
   private static final String PERMISSION_1 = "foo";
   private static final String PERMISSION_2 = "bar";
@@ -1315,6 +1317,7 @@ public class OrganizationDaoTest {
       .setDescription(organizationDto.getDescription())
       .setUrl(organizationDto.getUrl())
       .setDefaultQualityGateUuid(organizationDto.getDefaultQualityGateUuid())
+      .setSubscription(organizationDto.getSubscription())
       .setAvatarUrl(organizationDto.getAvatarUrl());
   }
 

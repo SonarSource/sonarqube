@@ -48,7 +48,7 @@ public class OrganizationDto {
   private String key;
   /** Name, can't be null */
   private String name;
-  /** description can be null */
+  /** description can't be null */
   private String description;
   /** url can be null */
   private String url;
@@ -140,8 +140,7 @@ public class OrganizationDto {
   }
 
   public Subscription getSubscription() {
-    // TODO directly return subscription when column will be NOT NULLABLE (SONAR-10965)
-    return subscription == null ? Subscription.FREE : subscription;
+    return subscription;
   }
 
   public OrganizationDto setSubscription(Subscription subscription) {

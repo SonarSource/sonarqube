@@ -35,6 +35,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.organization.OrganizationDto.Subscription.SONARQUBE;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class GroupDaoTest {
@@ -45,6 +46,7 @@ public class GroupDaoTest {
     .setKey("an-org")
     .setName("An Org")
     .setDefaultQualityGateUuid("1")
+    .setSubscription(SONARQUBE)
     .setUuid("abcde");
 
   private System2 system2 = mock(System2.class);
