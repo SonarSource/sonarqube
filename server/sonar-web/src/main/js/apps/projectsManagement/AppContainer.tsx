@@ -25,7 +25,7 @@ import { Organization, LoggedInUser, Visibility } from '../../app/types';
 import { getAppState, getOrganizationByKey, getCurrentUser } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations/duck';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
-import { fetchOrganization } from '../../apps/organizations/actions';
+import { fetchOrganization } from '../organizations/actions';
 
 interface StateProps {
   appState: { defaultOrganization: string; qualifiers: string[] };

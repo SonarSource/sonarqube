@@ -20,9 +20,9 @@
 // @flow
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import SelectList from '../../../components/common/SelectList';
-import SelectListItem from '../../../components/common/SelectListItem';
+import IssueTypeIcon from '../../ui/IssueTypeIcon';
+import SelectList from '../../common/SelectList';
+import SelectListItem from '../../common/SelectListItem';
 import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { Issue } from '../types'; */
 

@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import IssueChangelog from './IssueChangelog';
 import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
-import LinkIcon from '../../../components/icons-components/LinkIcon';
+import LinkIcon from '../../icons-components/LinkIcon';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
 import { getBranchLikeQuery } from '../../../helpers/branches';

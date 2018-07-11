@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
-import * as theme from '../../../../app/theme';
+import * as theme from '../../../theme';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import Dropdown from '../../../../components/controls/Dropdown';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';

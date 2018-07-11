@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { withFormik, Form, FormikActions, FormikProps } from 'formik';
 import Modal from './Modal';
-import { ResetButtonLink, SubmitButton } from '../../components/ui/buttons';
+import { ResetButtonLink, SubmitButton } from '../ui/buttons';
 import DeferredSpinner from '../common/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 

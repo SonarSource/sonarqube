@@ -21,10 +21,10 @@
 import React from 'react';
 import SetSeverityPopup from '../popups/SetSeverityPopup';
 import { setIssueSeverity } from '../../../api/issues';
-import Toggler from '../../../components/controls/Toggler';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { Button } from '../../../components/ui/buttons';
+import Toggler from '../../controls/Toggler';
+import DropdownIcon from '../../icons-components/DropdownIcon';
+import SeverityHelper from '../../shared/SeverityHelper';
+import { Button } from '../../ui/buttons';
 /*:: import type { Issue } from '../types'; */
 
 /*::

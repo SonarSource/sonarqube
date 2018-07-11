@@ -19,15 +19,15 @@
  */
 // @flow
 import React from 'react';
-import SelectList from '../../../components/common/SelectList';
-import SelectListItem from '../../../components/common/SelectListItem';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import StatusHelper from '../../../components/shared/StatusHelper';
-import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import TagsIcon from '../../../components/icons-components/TagsIcon';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import Avatar from '../../../components/ui/Avatar';
+import SelectList from '../../common/SelectList';
+import SelectListItem from '../../common/SelectListItem';
+import { DropdownOverlay } from '../../controls/Dropdown';
+import SeverityHelper from '../../shared/SeverityHelper';
+import StatusHelper from '../../shared/StatusHelper';
+import QualifierIcon from '../../icons-components/QualifierIcon';
+import TagsIcon from '../../icons-components/TagsIcon';
+import IssueTypeIcon from '../../ui/IssueTypeIcon';
+import Avatar from '../../ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { fileFromPath, limitComponentName } from '../../../helpers/path';
 /*:: import type { Issue } from '../types'; */

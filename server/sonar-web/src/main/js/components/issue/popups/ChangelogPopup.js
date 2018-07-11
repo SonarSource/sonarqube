@@ -21,8 +21,8 @@
 import React from 'react';
 import { getIssueChangelog } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
-import Avatar from '../../../components/ui/Avatar';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import Avatar from '../../ui/Avatar';
+import DateTimeFormatter from '../../intl/DateTimeFormatter';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
 import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { ChangelogDiff } from '../components/IssueChangelogDiff'; */

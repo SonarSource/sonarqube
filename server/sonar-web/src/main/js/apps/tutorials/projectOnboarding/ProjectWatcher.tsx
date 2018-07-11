@@ -23,7 +23,7 @@ import * as classNames from 'classnames';
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { getTasksForComponent } from '../../../api/ce';
-import { STATUSES } from '../../../apps/background-tasks/constants';
+import { STATUSES } from '../../background-tasks/constants';
 import { translate } from '../../../helpers/l10n';
 
 const INTERVAL = 5000;

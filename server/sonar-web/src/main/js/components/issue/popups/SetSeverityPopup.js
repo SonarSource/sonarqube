@@ -20,9 +20,9 @@
 // @flow
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import SelectList from '../../../components/common/SelectList';
-import SelectListItem from '../../../components/common/SelectListItem';
-import SeverityIcon from '../../../components/icons-components/SeverityIcon';
+import SelectList from '../../common/SelectList';
+import SelectListItem from '../../common/SelectListItem';
+import SeverityIcon from '../../icons-components/SeverityIcon';
 import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { Issue } from '../types'; */
 

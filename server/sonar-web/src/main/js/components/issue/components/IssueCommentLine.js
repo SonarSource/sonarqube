@@ -19,13 +19,13 @@
  */
 // @flow
 import React from 'react';
-import Avatar from '../../../components/ui/Avatar';
-import Toggler from '../../../components/controls/Toggler';
-import EditIcon from '../../../components/icons-components/EditIcon';
-import { EditButton, DeleteButton } from '../../../components/ui/buttons';
+import Avatar from '../../ui/Avatar';
+import Toggler from '../../controls/Toggler';
+import EditIcon from '../../icons-components/EditIcon';
+import { EditButton, DeleteButton } from '../../ui/buttons';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
-import DateFromNow from '../../../components/intl/DateFromNow';
+import DateFromNow from '../../intl/DateFromNow';
 /*:: import type { IssueComment } from '../types'; */
 
 /*::

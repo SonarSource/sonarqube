@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import { isLoggedIn, CurrentUser, AppState, Extension } from '../../../../app/types';
+import { isLoggedIn, CurrentUser, AppState, Extension } from '../../../types';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';

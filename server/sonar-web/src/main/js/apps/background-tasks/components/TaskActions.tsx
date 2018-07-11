@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
-import { STATUSES } from './../constants';
+import { STATUSES } from '../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Task } from '../types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';

@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { Button } from '../../../components/ui/buttons';
+import { Button } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { DropdownOverlay } from '../../controls/Dropdown';
 

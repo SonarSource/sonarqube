@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import MarkdownTips from '../../../components/common/MarkdownTips';
-import { Button, ResetButtonLink } from '../../../components/ui/buttons';
+import MarkdownTips from '../../common/MarkdownTips';
+import { Button, ResetButtonLink } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { DropdownOverlay } from '../../controls/Dropdown';
 /*:: import type { IssueComment } from '../types'; */

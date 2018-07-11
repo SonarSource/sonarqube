@@ -23,12 +23,12 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
-import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
 import Header from './Header';
 import Footer from './Footer';
-import StatsContainer from '../components/StatsContainer';
-import Search from '../components/Search';
-import Tasks from '../components/Tasks';
+import StatsContainer from './StatsContainer';
+import Search from './Search';
+import Tasks from './Tasks';
+import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from '../constants';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   getTypes,
@@ -38,12 +38,12 @@ import {
   cancelTask as cancelTaskAPI
 } from '../../../api/ce';
 import { updateTask, mapFiltersToParameters } from '../utils';
-/*:: import type { Task } from '../types'; */
-import '../background-tasks.css';
 import { fetchOrganizations } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { toShortNotSoISOString } from '../../../helpers/dates';
+/*:: import type { Task } from '../types'; */
+import '../background-tasks.css';
 
 /*::
 type Props = {
@@ -234,32 +234,32 @@ class BackgroundTasksApp extends React.PureComponent {
 
         <StatsContainer
           component={component}
-          pendingCount={pendingCount}
           failingCount={failingCount}
-          onShowFailing={this.handleShowFailing.bind(this)}
           onCancelAllPending={this.handleCancelAllPending.bind(this)}
+          onShowFailing={this.handleShowFailing.bind(this)}
+          pendingCount={pendingCount}
         />
 
         <Search
-          loading={loading}
           component={component}
-          status={status}
           currents={currents}
-          minSubmittedAt={minSubmittedAt}
+          loading={loading}
           maxExecutedAt={maxExecutedAt}
-          query={query}
-          taskType={taskType}
-          types={types}
+          minSubmittedAt={minSubmittedAt}
           onFilterUpdate={this.handleFilterUpdate.bind(this)}
           onReload={this.loadTasksDebounced}
+          query={query}
+          status={status}
+          taskType={taskType}
+          types={types}
         />
 
         <Tasks
-          loading={loading}
           component={component}
-          tasks={tasks}
+          loading={loading}
           onCancelTask={this.handleCancelTask.bind(this)}
           onFilterTask={this.handleFilterTask.bind(this)}
+          tasks={tasks}
         />
 
         <Footer tasks={tasks} />

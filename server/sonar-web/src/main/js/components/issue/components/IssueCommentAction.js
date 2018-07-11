@@ -20,8 +20,8 @@
 // @flow
 import React from 'react';
 import { updateIssue } from '../actions';
-import Toggler from '../../../components/controls/Toggler';
-import { Button } from '../../../components/ui/buttons';
+import Toggler from '../../controls/Toggler';
+import { Button } from '../../ui/buttons';
 import CommentPopup from '../popups/CommentPopup';
 import { addIssueComment } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';

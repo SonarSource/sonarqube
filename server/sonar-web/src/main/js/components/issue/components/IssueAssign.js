@@ -20,10 +20,10 @@
 // @flow
 import React from 'react';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
-import Avatar from '../../../components/ui/Avatar';
-import Toggler from '../../../components/controls/Toggler';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import { Button } from '../../../components/ui/buttons';
+import Avatar from '../../ui/Avatar';
+import Toggler from '../../controls/Toggler';
+import DropdownIcon from '../../icons-components/DropdownIcon';
+import { Button } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 

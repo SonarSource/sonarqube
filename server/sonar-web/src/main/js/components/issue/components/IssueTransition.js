@@ -22,10 +22,10 @@ import React from 'react';
 import { updateIssue } from '../actions';
 import SetTransitionPopup from '../popups/SetTransitionPopup';
 import { setIssueTransition } from '../../../api/issues';
-import Toggler from '../../../components/controls/Toggler';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import StatusHelper from '../../../components/shared/StatusHelper';
-import { Button } from '../../../components/ui/buttons';
+import Toggler from '../../controls/Toggler';
+import DropdownIcon from '../../icons-components/DropdownIcon';
+import StatusHelper from '../../shared/StatusHelper';
+import { Button } from '../../ui/buttons';
 /*:: import type { Issue } from '../types'; */
 
 /*::

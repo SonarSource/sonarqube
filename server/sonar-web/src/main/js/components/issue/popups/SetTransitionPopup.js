@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import SelectList from '../../../components/common/SelectList';
-import SelectListItem from '../../../components/common/SelectListItem';
+import SelectList from '../../common/SelectList';
+import SelectListItem from '../../common/SelectListItem';
 import { translate } from '../../../helpers/l10n';
 import { DropdownOverlay } from '../../controls/Dropdown';
 

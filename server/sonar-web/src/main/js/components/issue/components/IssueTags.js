@@ -22,9 +22,9 @@ import React from 'react';
 import { updateIssue } from '../actions';
 import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';
 import { setIssueTags } from '../../../api/issues';
-import Toggler from '../../../components/controls/Toggler';
-import TagsList from '../../../components/tags/TagsList';
-import { Button } from '../../../components/ui/buttons';
+import Toggler from '../../controls/Toggler';
+import TagsList from '../../tags/TagsList';
+import { Button } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 

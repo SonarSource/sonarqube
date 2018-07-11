@@ -23,7 +23,7 @@ import ExtensionContainer from './ExtensionContainer';
 import ExtensionNotFound from './ExtensionNotFound';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { fetchOrganization } from '../../../apps/organizations/actions';
-import { Organization } from '../../../app/types';
+import { Organization } from '../../types';
 
 interface StateToProps {
   organization?: Organization;

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { difference, without } from 'lodash';
-import TagsSelector from '../../../components/tags/TagsSelector';
+import TagsSelector from '../../tags/TagsSelector';
 import { searchIssueTags } from '../../../api/issues';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import { PopupPlacement } from '../../ui/popups';

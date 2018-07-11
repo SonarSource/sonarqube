@@ -24,7 +24,7 @@ import StatusFilter from './StatusFilter';
 import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';
 import DateFilter from './DateFilter';
-import { DEFAULT_FILTERS } from './../constants';
+import { DEFAULT_FILTERS } from '../constants';
 import SearchBox from '../../../components/controls/SearchBox';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';

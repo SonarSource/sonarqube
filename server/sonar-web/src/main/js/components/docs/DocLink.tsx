@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import DetachIcon from '../../components/icons-components/DetachIcon';
+import DetachIcon from '../icons-components/DetachIcon';
 
 const SONARCLOUD_LINK = '/#sonarcloud#/';
 

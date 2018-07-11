@@ -20,12 +20,12 @@
 // @flow
 import React from 'react';
 import ChangelogPopup from '../popups/ChangelogPopup';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import DateFromNow from '../../../components/intl/DateFromNow';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import Toggler from '../../../components/controls/Toggler';
-import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/ui/buttons';
+import DropdownIcon from '../../icons-components/DropdownIcon';
+import DateFromNow from '../../intl/DateFromNow';
+import DateTimeFormatter from '../../intl/DateTimeFormatter';
+import Toggler from '../../controls/Toggler';
+import Tooltip from '../../controls/Tooltip';
+import { Button } from '../../ui/buttons';
 /*:: import type { Issue } from '../types'; */
 
 /*::

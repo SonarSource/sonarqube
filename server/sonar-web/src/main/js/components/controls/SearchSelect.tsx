@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { debounce } from 'lodash';
-import Select, { Creatable } from '../../components/controls/Select';
+import Select, { Creatable } from './Select';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props<T> {

@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import { keyBy, sortBy, groupBy } from 'lodash';
 import MeasuresOverlayMeasure from './MeasuresOverlayMeasure';
 import MeasuresOverlayTestCases from './MeasuresOverlayTestCases';
-import { Button } from '../../../components/ui/buttons';
+import { Button } from '../../ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';

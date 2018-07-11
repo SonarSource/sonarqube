@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { restartAndWait } from '../../api/system';
-import Modal from '../../components/controls/Modal';
+import Modal from '../controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 import { translate } from '../../helpers/l10n';
 

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { forEach } from 'lodash';
-import DetachIcon from '../../components/icons-components/DetachIcon';
+import DetachIcon from '../icons-components/DetachIcon';
 
 interface OwnProps {
   customProps?: { [k: string]: string };

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as dates from '../dates';
-import { parseDate } from '../../helpers/dates';
 
+const { parseDate } = dates;
 const recentDate = parseDate('2017-08-16T12:00:00.000Z');
 const recentDate2 = parseDate('2016-12-16T12:00:00.000Z');
 const oldDate = parseDate('2014-01-12T12:00:00.000Z');

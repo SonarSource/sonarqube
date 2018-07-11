@@ -25,7 +25,7 @@ import { debounce, keyBy, uniqBy } from 'lodash';
 import { FormattedMessage } from 'react-intl';
 import { sortQualifiers } from './utils';
 /*:: import type { Component, More, Results } from './utils'; */
-import RecentHistory from '../../components/RecentHistory';
+import RecentHistory from '../RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import ClockIcon from '../../../components/icons-components/ClockIcon';

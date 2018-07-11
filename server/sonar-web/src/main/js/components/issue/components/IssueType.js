@@ -21,10 +21,10 @@
 import React from 'react';
 import SetTypePopup from '../popups/SetTypePopup';
 import { setIssueType } from '../../../api/issues';
-import Toggler from '../../../components/controls/Toggler';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import { Button } from '../../../components/ui/buttons';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
+import Toggler from '../../controls/Toggler';
+import DropdownIcon from '../../icons-components/DropdownIcon';
+import { Button } from '../../ui/buttons';
+import IssueTypeIcon from '../../ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 

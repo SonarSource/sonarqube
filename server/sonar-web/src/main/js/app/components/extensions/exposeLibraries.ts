@@ -21,7 +21,7 @@ import * as ReactRedux from 'react-redux';
 import * as ReactRouter from 'react-router';
 import throwGlobalError from '../../utils/throwGlobalError';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
+import Suggestions from '../embed-docs-modal/Suggestions';
 import * as measures from '../../../helpers/measures';
 import * as request from '../../../helpers/request';
 import DateFromNow from '../../../components/intl/DateFromNow';
