@@ -2,4 +2,4 @@ This organization is subscribed to a paid plan, allowing private projects. Its p
 
 ---
 
-See also: [Organization and Project Privacy](/organizations/organization-and-project-privacy)
+See also: [Organization Visibility](/organizations/organization-visibility)

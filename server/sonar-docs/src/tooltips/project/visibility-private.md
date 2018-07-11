@@ -2,4 +2,4 @@ This project is private. Only the members of this organization are able to brows
 
 ---
 
-See also: [Organization and Project Privacy](/organizations/organization-and-project-privacy)
+See also: [Organization Visibility](/organizations/organization-visibility)

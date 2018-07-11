@@ -19,3 +19,5 @@ There are 2 kind of organizations:
 Organizations can be on:
 * **Free plan**. This is the default plan. Every project in an organization on the free plan is public.
 * **Paid plan**. This plan unlocks the ability to have private projects. Go to the "Billing" page of your organization to upgrade it to the paid plan.
+
+Depending on which plan the organization is in, its [visibility](/organizations/organization-visibility) will change.
