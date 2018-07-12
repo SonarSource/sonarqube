@@ -24,3 +24,7 @@
 .security-result-column {
   width: 12%;
 }
+
+.cwe-title-cell {
+  padding-left: 80px !important;
+}

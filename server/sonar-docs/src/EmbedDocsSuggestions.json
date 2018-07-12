@@ -104,6 +104,12 @@
       "text": "Quality Profiles"
     }
   ],
+  "security_reports": [
+    {
+      "link": "/documentation/security-reports",
+      "text": "Security Reports"
+    }
+  ],
   "settings": [],
   "system_info": [],
   "user_groups": [

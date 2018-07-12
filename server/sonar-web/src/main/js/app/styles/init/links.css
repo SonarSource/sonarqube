@@ -73,6 +73,15 @@ a:focus {
   border-bottom: none;
 }
 
+.link-checkbox.disabled {
+  cursor: not-allowed;
+}
+
+.link-checkbox.disabled label {
+  color: var(--secondFontColor);
+  cursor: not-allowed;
+}
+
 .link-checkbox:hover,
 .link-checkbox:active,
 .link-checkbox:focus {

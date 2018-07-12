@@ -73,7 +73,7 @@
   },
   "cwe": {
     "unknown": {
-      "title": "Unknown CWE"
+      "title": "No CWE associated"
     },
     "1004": {
       "title": "Sensitive Cookie Without 'HttpOnly' Flag",

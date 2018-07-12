@@ -94,7 +94,14 @@ export default class App extends React.PureComponent<Props, State> {
     })
       .then(results => {
         if (this.mounted) {
-          const hasVulnerabilities = results.categories.some(item => item.vulnerabilities > 0);
+          const hasVulnerabilities = results.categories.some(
+            item =>
+              item.vulnerabilities +
+                item.openSecurityHotspots +
+                item.toReviewSecurityHotspots +
+                item.wontFixSecurityHotspots >
+              0
+          );
           this.setState({ hasVulnerabilities, findings: results.categories, loading: false });
         }
       })
