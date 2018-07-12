@@ -72,6 +72,12 @@ If you are getting close to the threshold you will be notified to either upgrade
 
 You will be invoiced once a month, the day of the month after your trial ends. For example if you start your free trial on January 1st, it will last till January 14th and you will be first billed on January 15th for your upcoming month, aka January 15th to February 15th.
 
+## How do I get invoices?
+
+You can download PDF invoices for every payment from the "Administration > Billing" page of your organization.
+
+If you want to get those invoices by email, please [contact us](/#sonarcloud#/about/contact).
+
 ## Can I stop using the service?
 
 Yes, you can stop using SonarCloud anytime you want. You simply need to downgrade your organization to the free plan.
