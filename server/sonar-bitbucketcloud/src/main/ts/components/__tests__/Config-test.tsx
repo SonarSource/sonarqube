@@ -76,34 +76,12 @@ it('should correctly handle select interactions', async () => {
   expect(wrapper.find('WithAnalyticsContext').prop('isDisabled')).toBeTruthy();
 
   // Check the select event
-  const SelectWrapper = wrapper.find('AkSingleSelect');
-  const projectOption = { content: 'Bar', filterValues: ['Bar', 'bar'], value: 'bar' };
-  (SelectWrapper.prop('onSelected') as Function)({ item: projectOption });
+  const SelectWrapper = wrapper.find('AtlaskitSelect');
+  const projectOption = { label: 'Bar', value: 'bar' };
+  (SelectWrapper.prop('onChange') as Function)(projectOption);
   wrapper.update();
   expect(wrapper.state('selectedProject')).toEqual(projectOption);
   expect(wrapper.find('WithAnalyticsContext').prop('isDisabled')).toBeFalsy();
-
-  // Check the filter event
-  (SelectWrapper.prop('onFilterChange') as Function)('baz');
-  expect(wrapper.state('selectedProject')).toMatchObject({
-    content: 'FooBar',
-    filterValues: ['FooBar', 'baz'],
-    value: 'baz'
-  });
-  (SelectWrapper.prop('onFilterChange') as Function)('FooBar');
-  expect(wrapper.state('selectedProject')).toMatchObject({
-    content: 'FooBar',
-    filterValues: ['FooBar', 'baz'],
-    value: 'baz'
-  });
-  wrapper.update();
-  expect(wrapper.find('WithAnalyticsContext').prop('isDisabled')).toBeFalsy();
-
-  // Check the filter event with no match
-  (SelectWrapper.prop('onFilterChange') as Function)('test');
-  expect(wrapper.state('selectedProject')).toBeUndefined();
-  wrapper.update();
-  expect(wrapper.find('WithAnalyticsContext').prop('isDisabled')).toBeTruthy();
 });
 
 it('should correctly bind a project', async () => {
@@ -114,7 +92,7 @@ it('should correctly bind a project', async () => {
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('WithAnalyticsContext').prop('isDisabled')).toBeTruthy();
 
-  (wrapper.find('AkSingleSelect').prop('onFilterChange') as Function)('FooBar');
+  (wrapper.find('AtlaskitSelect').prop('onChange') as Function)({ label: 'Baz', value: 'baz' });
   wrapper.update();
   expect(wrapper.find('WithAnalyticsContext').prop('isDisabled')).toBeFalsy();
   wrapper.find('form').simulate('submit', { preventDefault: () => {} });

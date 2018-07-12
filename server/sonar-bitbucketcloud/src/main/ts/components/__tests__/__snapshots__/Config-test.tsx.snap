@@ -28,66 +28,54 @@ exports[`should correctly bind a project 1`] = `
         <div
           className="settings-projects"
         >
-          <AkSingleSelect
-            appearance="default"
-            droplistShouldFitContainer={true}
-            hasAutocomplete={true}
-            isRequired={false}
-            items={
+          <label
+            htmlFor="projects-select"
+          >
+            Project to link to
+          </label>
+          <AtlaskitSelect
+            autoFocus={true}
+            className="settings-projects-select"
+            filterOption={[Function]}
+            id="projects-select"
+            isClearable={false}
+            isSearchable={true}
+            maxMenuHeight={300}
+            onChange={[Function]}
+            onClickPreventDefault={true}
+            options={
               Array [
                 Object {
-                  "items": Array [
-                    Object {
-                      "content": "Foo",
-                      "filterValues": Array [
-                        "Foo",
-                        "foo",
-                      ],
-                      "value": "foo",
-                    },
-                    Object {
-                      "content": "Bar",
-                      "filterValues": Array [
-                        "Bar",
-                        "bar",
-                      ],
-                      "value": "bar",
-                    },
-                    Object {
-                      "content": "FooBar",
-                      "filterValues": Array [
-                        "FooBar",
-                        "baz",
-                      ],
-                      "value": "baz",
-                    },
-                  ],
+                  "label": "Foo",
+                  "value": "foo",
+                },
+                Object {
+                  "label": "Bar",
+                  "value": "bar",
+                },
+                Object {
+                  "label": "FooBar",
+                  "value": "baz",
                 },
               ]
             }
-            label="Project to link to"
-            maxHeight={300}
-            onFilterChange={[Function]}
-            onOpenChange={[Function]}
-            onSelected={[Function]}
             placeholder="Select a project"
-            position="bottom left"
-            shouldFlip={false}
-            shouldFocus={true}
+            spacing="default"
+            validationState="default"
           />
           <small>
             You see only the projects you administer.
           </small>
         </div>
         <div
-          className="ak-field-group display-flex-justify-center"
+          className="display-flex-justify-center"
         >
           <CheckboxStateless
-            isChecked={false}
-            label="Hide repository overview widget"
-            name="hide-widget"
+            isChecked={true}
+            label="Show repository overview widget"
+            name="show-widget"
             onChange={[Function]}
-            value="hide-widget"
+            value="show-widget"
           />
         </div>
         <div
@@ -172,76 +160,60 @@ exports[`should display correctly 2`] = `
         <div
           className="settings-projects"
         >
-          <AkSingleSelect
-            appearance="default"
-            defaultSelected={
-              Object {
-                "content": "Foo",
-                "filterValues": Array [
-                  "Foo",
-                  "foo",
-                ],
-                "value": "foo",
-              }
-            }
-            droplistShouldFitContainer={true}
-            hasAutocomplete={true}
-            isRequired={false}
-            items={
+          <label
+            htmlFor="projects-select"
+          >
+            Project to link to
+          </label>
+          <AtlaskitSelect
+            autoFocus={true}
+            className="settings-projects-select"
+            filterOption={[Function]}
+            id="projects-select"
+            isClearable={false}
+            isSearchable={true}
+            maxMenuHeight={300}
+            onChange={[Function]}
+            onClickPreventDefault={true}
+            options={
               Array [
                 Object {
-                  "items": Array [
-                    Object {
-                      "content": "Foo",
-                      "filterValues": Array [
-                        "Foo",
-                        "foo",
-                      ],
-                      "value": "foo",
-                    },
-                    Object {
-                      "content": "Bar",
-                      "filterValues": Array [
-                        "Bar",
-                        "bar",
-                      ],
-                      "value": "bar",
-                    },
-                    Object {
-                      "content": "FooBar",
-                      "filterValues": Array [
-                        "FooBar",
-                        "baz",
-                      ],
-                      "value": "baz",
-                    },
-                  ],
+                  "label": "Foo",
+                  "value": "foo",
+                },
+                Object {
+                  "label": "Bar",
+                  "value": "bar",
+                },
+                Object {
+                  "label": "FooBar",
+                  "value": "baz",
                 },
               ]
             }
-            label="Project to link to"
-            maxHeight={300}
-            onFilterChange={[Function]}
-            onOpenChange={[Function]}
-            onSelected={[Function]}
             placeholder="Select a project"
-            position="bottom left"
-            shouldFlip={false}
-            shouldFocus={true}
+            spacing="default"
+            validationState="default"
+            value={
+              Object {
+                "label": "Foo",
+                "value": "foo",
+              }
+            }
           />
           <small>
             You see only the projects you administer.
           </small>
         </div>
         <div
-          className="ak-field-group display-flex-justify-center"
+          className="display-flex-justify-center"
         >
           <CheckboxStateless
-            isChecked={false}
-            label="Hide repository overview widget"
-            name="hide-widget"
+            isChecked={true}
+            label="Show repository overview widget"
+            name="show-widget"
             onChange={[Function]}
-            value="hide-widget"
+            value="show-widget"
           />
         </div>
         <div
@@ -269,14 +241,14 @@ exports[`should display the authentication component and the display checkbox 1`
   onSubmit={[Function]}
 >
   <div
-    className="ak-field-group display-flex-justify-center"
+    className="display-flex-justify-center"
   >
     <CheckboxStateless
-      isChecked={false}
-      label="Hide repository overview widget"
-      name="hide-widget"
+      isChecked={true}
+      label="Show repository overview widget"
+      name="show-widget"
       onChange={[Function]}
-      value="hide-widget"
+      value="show-widget"
     />
   </div>
   <div

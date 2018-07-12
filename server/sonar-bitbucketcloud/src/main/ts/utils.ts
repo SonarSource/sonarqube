@@ -38,7 +38,7 @@ export function getAppKey(): string {
 }
 
 export function getDisabled(): boolean {
-  return query.disabled === 'true';
+  return query.disabled !== 'false';
 }
 
 export function getWidgetKey(): WidgetType {

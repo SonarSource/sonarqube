@@ -47,8 +47,21 @@
   margin-top: 8px;
 }
 
+.settings-form label {
+  color: #6b778c;
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 20px 0px 4px;
+}
+
 .settings-form .settings-projects > div {
   width: 300px;
+}
+
+.settings-projects-select {
+  text-align: left;
 }
 
 .settings-help {

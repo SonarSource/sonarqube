@@ -84,43 +84,39 @@ declare module '@atlaskit/logo' {
   export class BitbucketIcon extends React.Component<LogoProps> {}
 }
 
-declare module '@atlaskit/single-select' {
-  export interface GroupType {
-    heading?: string;
-    items: ItemType[];
-  }
+declare module '@atlaskit/select' {
+  type ValidationState = 'default' | 'error' | 'success';
+  type OptionType = { [k: string]: any };
+  type OptionsType = OptionType[];
+  type ValueType = OptionType | OptionsType | null | void;
 
-  export interface ItemType {
-    content?: React.ReactNode;
-    description?: string;
-    label?: string;
-    tooltipDescription?: string;
-    tooltipPosition?: 'top' | 'bottom' | 'left';
-    value?: string | number;
-    filterValues?: string[];
-    isDisabled?: boolean;
-    isSelected?: boolean;
-    elemBefore?: React.ReactNode;
-  }
+  export function createFilter(options: {
+    ignoreCase?: boolean;
+    ignoreAccents?: boolean;
+    stringify?: (option: OptionType) => string;
+    trim?: boolean;
+    matchFrom?: 'any' | 'start';
+  }): (option: OptionType, inputValue: string) => boolean;
 
-  export default class SingleSelect extends React.Component<{
-    defaultSelected?: ItemType;
-    droplistShouldFitContainer?: boolean;
-    hasAutocomplete?: boolean;
-    invalidMessage?: React.ReactNode;
+  export default class Select extends React.Component<{
+    autoFocus?: boolean;
+    className?: string;
+    defaultValue?: OptionType;
+    filterOption?: (option: OptionType, inputValue: string) => boolean;
+    id?: string;
+    isClearable?: boolean;
     isDisabled?: boolean;
-    isRequired?: boolean;
-    isInvalid?: boolean;
-    items?: GroupType[];
-    label?: string;
-    noMatchesFound?: string;
-    onFilterChange?: Function;
-    onSelected?: Function;
+    isLoading?: boolean;
+    isSearchable?: boolean;
+    loadingMessage?: (param: { inputValue: string }) => string;
+    maxMenuHeight?: number;
+    maxValueHeight?: number;
+    noOptionsMessage?: (param: { inputValue: string }) => string;
+    onChange?: (value: ValueType) => void;
+    onInputChange?: (k: string) => string | void;
+    options: OptionsType;
     placeholder?: string;
-    shouldFitContainer?: boolean;
-    shouldFlip?: boolean;
-    shouldFocus?: boolean;
-    maxHeight?: number;
+    value?: ValueType;
   }> {}
 }
 

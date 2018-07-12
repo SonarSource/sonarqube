@@ -80,7 +80,7 @@ export function putStoredProperty(property: string, value: Object | string | boo
   return apiRequest({
     cache: false,
     contentType: 'application/json',
-    data: value,
+    data: JSON.stringify(value),
     type: 'PUT',
     url: `/2.0/repositories/{}/${getRepoUuid()}/properties/${getAppKey()}/${property}`
   });

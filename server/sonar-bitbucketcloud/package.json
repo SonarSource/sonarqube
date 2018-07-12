@@ -12,7 +12,7 @@
     "@atlaskit/icon": "12.8.0",
     "@atlaskit/logo": "8.1.3",
     "@atlaskit/reduced-ui-pack": "8.19.0",
-    "@atlaskit/single-select": "5.2.5",
+    "@atlaskit/select": "4.5.2",
     "@atlaskit/spinner": "8.0.0",
     "@atlaskit/tooltip": "10.3.1",
     "babel-polyfill": "6.26.0",

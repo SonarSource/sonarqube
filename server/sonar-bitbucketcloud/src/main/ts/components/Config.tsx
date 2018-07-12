@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Button from '@atlaskit/button';
 import { CheckboxStateless } from '@atlaskit/checkbox';
-import SingleSelect from '@atlaskit/single-select';
+import Select, { createFilter } from '@atlaskit/select';
 import Spinner from '@atlaskit/spinner';
 import { getBaseUrl } from '@sqcore/helpers/urls';
 import HelpLink from './HelpLink';
@@ -31,8 +31,7 @@ import { bindProject, displayWSError, getMyProjects, putStoredProperty } from '.
 import { displayMessage } from '../utils';
 
 interface ProjectOption {
-  content: string;
-  filterValues: string[];
+  label: string;
   value: string;
 }
 
@@ -55,6 +54,14 @@ interface State {
 }
 
 export default class Config extends React.PureComponent<Props, State> {
+  filterOption = createFilter({
+    ignoreCase: true,
+    ignoreAccents: true,
+    stringify: (option: ProjectOption) => `${option.label} ${option.value}`,
+    trim: true,
+    matchFrom: 'any'
+  });
+
   mounted = false;
 
   constructor(props: Props) {
@@ -73,34 +80,25 @@ export default class Config extends React.PureComponent<Props, State> {
     this.fetchMyProjects();
   }
 
-  componentWillReceiveProps({ projectKey }: Props) {
-    const currentProjectKey = this.state.selectedProject && this.state.selectedProject.value;
-
-    if (currentProjectKey !== projectKey) {
-      this.setState((state: State) => ({
-        selectedProject: state.projects.find(p => p.value === projectKey)
-      }));
-    }
-  }
-
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  get selectedProject() {
+    return (
+      this.state.selectedProject || this.state.projects.find(p => p.value === this.props.projectKey)
+    );
   }
 
   fetchMyProjects = () => {
     getMyProjects({ ps: 500 }).then(
       ({ projects }) => {
         if (this.mounted) {
-          const projectOptions = projects.map(p => ({
-            content: p.name,
-            filterValues: [p.name, p.key],
-            value: p.key
-          }));
+          const projectOptions = projects.map(p => ({ label: p.name, value: p.key }));
           this.setState({
             authenticated: true,
             loading: false,
-            projects: projectOptions,
-            selectedProject: projectOptions.find(p => p.value === this.props.projectKey)
+            projects: projectOptions
           });
         }
       },
@@ -118,25 +116,19 @@ export default class Config extends React.PureComponent<Props, State> {
     this.setState(state => ({ disabled: !state.disabled }));
   };
 
-  handleFilterChange = (filter: string) => {
-    this.setState(({ projects }: State) => ({
-      selectedProject: projects.find(p =>
-        p.filterValues.some(value => value.toLowerCase() === filter.toLowerCase())
-      )
-    }));
-  };
-
   handleReload = () => {
     window.location.reload();
   };
 
-  handleSelect = ({ item }: { item: ProjectOption }) => {
-    this.setState({ selectedProject: item });
+  handleChange = (selectedProject?: ProjectOption) => {
+    if (selectedProject && !Array.isArray(selectedProject)) {
+      this.setState({ selectedProject });
+    }
   };
 
   handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { disabled, selectedProject } = this.state;
+    const { disabled } = this.state;
 
     let updateBinding = false;
     const promises: Promise<any>[] = [];
@@ -147,6 +139,8 @@ export default class Config extends React.PureComponent<Props, State> {
         })
       );
     }
+
+    const { selectedProject } = this;
     if (selectedProject && selectedProject.value !== this.props.projectKey) {
       updateBinding = true;
       promises.push(
@@ -199,7 +193,7 @@ export default class Config extends React.PureComponent<Props, State> {
   };
 
   renderProjectsSelect = () => {
-    const { projects, selectedProject } = this.state;
+    const { projects } = this.state;
 
     if (!projects || projects.length <= 0) {
       return (
@@ -216,17 +210,19 @@ export default class Config extends React.PureComponent<Props, State> {
 
     return (
       <div className="settings-projects">
-        <SingleSelect
-          defaultSelected={selectedProject}
-          hasAutocomplete={true}
-          items={[{ items: projects }]}
-          label="Project to link to"
-          maxHeight={300}
-          onFilterChange={this.handleFilterChange}
-          onSelected={this.handleSelect}
+        <label htmlFor="projects-select">Project to link to</label>
+        <Select
+          autoFocus={true}
+          className="settings-projects-select"
+          filterOption={this.filterOption}
+          id="projects-select"
+          isClearable={false}
+          isSearchable={true}
+          maxMenuHeight={300}
+          onChange={this.handleChange}
+          options={projects}
           placeholder="Select a project"
-          shouldFlip={false}
-          shouldFocus={true}
+          value={this.selectedProject}
         />
         <small>You see only the projects you administer.</small>
       </div>
@@ -234,7 +230,7 @@ export default class Config extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { authenticated, disabled, loading, selectedProject } = this.state;
+    const { authenticated, disabled, loading } = this.state;
 
     if (loading) {
       return this.renderContainer(
@@ -244,6 +240,7 @@ export default class Config extends React.PureComponent<Props, State> {
       );
     }
 
+    const { selectedProject } = this;
     const hasChanged =
       (selectedProject && selectedProject.value !== this.props.projectKey) ||
       this.props.disabled !== disabled;
@@ -253,13 +250,13 @@ export default class Config extends React.PureComponent<Props, State> {
         {!authenticated && <LoginForm onReload={this.handleReload} />}
         <form className="settings-form" onSubmit={this.handleSubmit}>
           {authenticated && this.renderProjectsSelect()}
-          <div className="ak-field-group display-flex-justify-center">
+          <div className="display-flex-justify-center">
             <CheckboxStateless
-              isChecked={disabled}
-              label="Hide repository overview widget"
-              name="hide-widget"
+              isChecked={!disabled}
+              label="Show repository overview widget"
+              name="show-widget"
               onChange={this.handleDisabledChange}
-              value="hide-widget"
+              value="show-widget"
             />
           </div>
           <div className="ak-field-group">
