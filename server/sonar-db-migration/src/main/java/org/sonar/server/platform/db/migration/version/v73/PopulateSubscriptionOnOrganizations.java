@@ -66,8 +66,8 @@ public class PopulateSubscriptionOnOrganizations extends DataChange {
     long now = system2.now();
     MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("organizations");
     massUpdate.select("SELECT o.uuid, count(p.uuid) FROM organizations o " +
-      "LEFT OUTER JOIN projects p on p.organization_uuid=o.uuid AND p.private=?" +
-      "WHERE o.subscription IS NULL " +
+      "LEFT OUTER JOIN projects p on p.organization_uuid=o.uuid AND p.private=? " +
+      "WHERE subscription IS NULL " +
       "GROUP BY o.uuid")
       .setBoolean(1, true);
     massUpdate.update("UPDATE organizations SET subscription=?, updated_at=? WHERE uuid=?");
