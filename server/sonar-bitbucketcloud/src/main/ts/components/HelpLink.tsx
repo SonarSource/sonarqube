@@ -21,18 +21,13 @@ import * as React from 'react';
 import QuestionCircleIcon from '@atlaskit/icon/glyph/question-circle';
 import { getBaseUrl } from '@sqcore/helpers/urls';
 
-export default function DocModal() {
+export default function HelpLink() {
   return (
-    <a className="settings-help" href="#" onClick={openPopup}>
+    <a
+      className="settings-help"
+      href={`${getBaseUrl()}/documentation/integrations/bitbucketcloud`}
+      target="_blank">
       <QuestionCircleIcon label="help" size="small" /> Need Help?
     </a>
-  );
-}
-
-function openPopup() {
-  window.open(
-    `${getBaseUrl()}/integration/bitbucketcloud/help`,
-    'SonarCloud help',
-    'toolbar=0,status=0,width=800,height=600'
   );
 }

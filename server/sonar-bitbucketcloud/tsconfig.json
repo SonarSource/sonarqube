@@ -12,6 +12,7 @@
     "lib": ["es2017", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
+    "sourceMap": true,
     "baseUrl": "./",
     "paths": {
       "@sqcore/*": ["../sonar-web/src/main/js/*"],

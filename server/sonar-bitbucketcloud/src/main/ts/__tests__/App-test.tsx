@@ -32,7 +32,7 @@ it('should display the config page', () => {
   expect(wrapper).toMatchSnapshot();
 
   (wrapper.find('Config').prop('updateProjectKey') as Function)('projectbar');
-  expect(wrapper.state().projectKey).toEqual('projectbar');
+  expect((wrapper.instance() as App).state.projectKey).toEqual('projectbar');
 });
 
 it('should display the pullrequest page', () => {

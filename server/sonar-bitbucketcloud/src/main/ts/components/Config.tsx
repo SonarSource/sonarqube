@@ -23,7 +23,7 @@ import { CheckboxStateless } from '@atlaskit/checkbox';
 import SingleSelect from '@atlaskit/single-select';
 import Spinner from '@atlaskit/spinner';
 import { getBaseUrl } from '@sqcore/helpers/urls';
-import DocModal from './DocModal';
+import HelpLink from './HelpLink';
 import LoginForm from './LoginForm';
 import SonarCloudIcon from './SonarCloudIcon';
 import { AppContext } from '../types';
@@ -271,7 +271,7 @@ export default class Config extends React.PureComponent<Props, State> {
             </Button>
           </div>
         </form>
-        <DocModal />
+        <HelpLink />
       </>
     );
   }

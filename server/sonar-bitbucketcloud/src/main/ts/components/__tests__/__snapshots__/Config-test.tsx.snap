@@ -82,7 +82,7 @@ exports[`should correctly bind a project 1`] = `
         <div
           className="ak-field-group display-flex-justify-center"
         >
-          <Component
+          <CheckboxStateless
             isChecked={false}
             label="Hide repository overview widget"
             name="hide-widget"
@@ -103,7 +103,7 @@ exports[`should correctly bind a project 1`] = `
           </WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
         </div>
       </form>
-      <DocModal />
+      <HelpLink />
     </React.Fragment>
   </div>
 </React.Fragment>
@@ -236,7 +236,7 @@ exports[`should display correctly 2`] = `
         <div
           className="ak-field-group display-flex-justify-center"
         >
-          <Component
+          <CheckboxStateless
             isChecked={false}
             label="Hide repository overview widget"
             name="hide-widget"
@@ -257,7 +257,7 @@ exports[`should display correctly 2`] = `
           </WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
         </div>
       </form>
-      <DocModal />
+      <HelpLink />
     </React.Fragment>
   </div>
 </React.Fragment>
@@ -271,7 +271,7 @@ exports[`should display the authentication component and the display checkbox 1`
   <div
     className="ak-field-group display-flex-justify-center"
   >
-    <Component
+    <CheckboxStateless
       isChecked={false}
       label="Hide repository overview widget"
       name="hide-widget"
