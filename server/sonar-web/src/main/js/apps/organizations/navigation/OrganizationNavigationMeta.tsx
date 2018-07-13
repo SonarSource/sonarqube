@@ -51,7 +51,9 @@ export default function OrganizationNavigationMeta({
       {onSonarCloud &&
         isPaidOrganization(organization) &&
         hasPrivateAccess(currentUser, organization, userOrganizations) && (
-          <DocTooltip className="spacer-right" doc="organizations/subscription-paid-plan">
+          <DocTooltip
+            className="spacer-right"
+            doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/subscription-paid-plan.md')}>
             <div className="outline-badge">{translate('organization.paid_plan.badge')}</div>
           </DocTooltip>
         )}

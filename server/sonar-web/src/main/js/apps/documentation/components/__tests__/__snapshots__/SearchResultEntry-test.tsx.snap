@@ -1,0 +1,125 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SearchResultEntry should render 1`] = `
+<Link
+  className="list-group-item active"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/documentation/foo/bar"
+>
+  <SearchResultTitle
+    result={
+      Object {
+        "highlights": Object {},
+        "page": Object {
+          "content": "",
+          "order": -1,
+          "relativeName": "foo/bar",
+          "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "title": "Foobar",
+        },
+      }
+    }
+  />
+  <SearchResultText
+    result={
+      Object {
+        "highlights": Object {},
+        "page": Object {
+          "content": "",
+          "order": -1,
+          "relativeName": "foo/bar",
+          "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "title": "Foobar",
+        },
+      }
+    }
+  />
+</Link>
+`;
+
+exports[`SearchResultText should render with highlights 1`] = `
+<div
+  className="note"
+>
+  <SearchResultTokens
+    tokens={
+      Array [
+        Object {
+          "marked": false,
+          "text": "Foobar is a ",
+        },
+        Object {
+          "marked": true,
+          "text": "universal",
+        },
+        Object {
+          "marked": false,
+          "text": " variable understood to represent whatever is being discussed.",
+        },
+      ]
+    }
+  />
+</div>
+`;
+
+exports[`SearchResultText should render without highlights 1`] = `""`;
+
+exports[`SearchResultTitle should render not without highlights 1`] = `
+<h3
+  className="list-group-item-heading"
+  style={
+    Object {
+      "fontWeight": "normal",
+    }
+  }
+>
+  Foobar
+</h3>
+`;
+
+exports[`SearchResultTitle should render with highlights 1`] = `
+<h3
+  className="list-group-item-heading"
+  style={
+    Object {
+      "fontWeight": "normal",
+    }
+  }
+>
+  <SearchResultTokens
+    tokens={
+      Array [
+        Object {
+          "marked": true,
+          "text": "Foobar",
+        },
+      ]
+    }
+  />
+</h3>
+`;
+
+exports[`SearchResultTokens should render 1`] = `
+<React.Fragment>
+  <React.Fragment
+    key="0"
+  >
+    Foobar is a 
+  </React.Fragment>
+  <React.Fragment
+    key="1"
+  >
+    <mark
+      key="1"
+    >
+      universal
+    </mark>
+  </React.Fragment>
+  <React.Fragment
+    key="2"
+  >
+     variable understood to represent whatever is being discussed.
+  </React.Fragment>
+</React.Fragment>
+`;

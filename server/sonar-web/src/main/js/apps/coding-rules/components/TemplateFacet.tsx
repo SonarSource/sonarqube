@@ -57,7 +57,10 @@ export default class TemplateFacet extends React.PureComponent<Props> {
         renderTextName={this.renderName}
         singleSelection={true}
         values={value !== undefined ? [String(value)] : []}>
-        <DocTooltip className="spacer-left" doc="rules/rule-templates" />
+        <DocTooltip
+          className="spacer-left"
+          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/rule-templates.md')}
+        />
       </Facet>
     );
   }

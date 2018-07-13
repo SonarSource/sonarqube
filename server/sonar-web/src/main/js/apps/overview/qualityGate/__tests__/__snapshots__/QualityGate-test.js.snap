@@ -15,7 +15,7 @@ exports[`renders message about ignored conditions 1`] = `
     </h2>
     <DocTooltip
       className="spacer-left"
-      doc="quality-gates/project-homepage-quality-gate"
+      doc={Promise {}}
     />
     <Level
       className="big-spacer-left"

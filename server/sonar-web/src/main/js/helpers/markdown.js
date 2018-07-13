@@ -19,7 +19,7 @@
  */
 
 // keep this file in JavaScript, because it is used by a webpack loader
-module.exports = { getFrontMatter, separateFrontMatter };
+module.exports = { getFrontMatter, separateFrontMatter, filterContent };
 
 function getFrontMatter(content) {
   const lines = content.split('\n');
@@ -65,4 +65,21 @@ function parseFrontMatter(lines) {
     }
   }
   return data;
+}
+
+function filterContent(content) {
+  const { isSonarCloud } = require('../helpers/system');
+  const beginning = isSonarCloud() ? '<!-- sonarqube -->' : '<!-- sonarcloud -->';
+  const ending = isSonarCloud() ? '<!-- /sonarqube -->' : '<!-- /sonarcloud -->';
+
+  let newContent = content;
+  let start = newContent.indexOf(beginning);
+  let end = newContent.indexOf(ending);
+  while (start !== -1 && end !== -1) {
+    newContent = newContent.substring(0, start) + newContent.substring(end + ending.length);
+    start = newContent.indexOf(beginning);
+    end = newContent.indexOf(ending);
+  }
+
+  return newContent;
 }

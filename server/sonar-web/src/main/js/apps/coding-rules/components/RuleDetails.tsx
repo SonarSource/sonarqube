@@ -217,7 +217,10 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                       onClick={onClick}>
                       {translate('delete')}
                     </Button>
-                    <DocTooltip className="spacer-left" doc="rules/custom-rule-removal" />
+                    <DocTooltip
+                      className="spacer-left"
+                      doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/custom-rule-removal.md')}
+                    />
                   </>
                 )}
               </ConfirmButton>

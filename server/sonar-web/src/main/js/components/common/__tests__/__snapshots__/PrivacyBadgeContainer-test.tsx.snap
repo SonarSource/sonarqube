@@ -16,7 +16,7 @@ exports[`renders 1`] = `
 
 exports[`renders public 1`] = `
 <DocTooltip
-  doc="project/visibility-public"
+  doc={Promise {}}
   overlayProps={
     Object {
       "organization": "foo",
@@ -33,7 +33,7 @@ exports[`renders public 1`] = `
 
 exports[`renders public with icon 1`] = `
 <DocTooltip
-  doc="project/visibility-public-paid-org-admin"
+  doc={Promise {}}
   overlayProps={
     Object {
       "organization": "foo",

@@ -17,8 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const glob = require('glob-promise');
+declare module 'lunr' {
+  export interface Lunr {
+    add(doc: any): void;
 
-module.exports = root => {
-  return glob(root + '/**/*.md').then(files => files.map(file => file.substr(root.length + 1)));
-};
+    field(field: string, options?: { boost?: number }): void;
+
+    ref(field: string): void;
+
+    metadataWhitelist?: string[];
+  }
+
+  export interface LunrInit {
+    (this: Lunr): void;
+  }
+
+  export interface LunrMatch {
+    ref: string;
+    score: number;
+    matchData: { metadata: any };
+  }
+
+  export interface LunrIndex {
+    search(query: string): LunrMatch[];
+  }
+
+  function lunr(initializer: LunrInit): LunrIndex;
+
+  export default lunr;
+}

@@ -33,5 +33,10 @@ export default function BuiltInQualityGateBadge({ className }: Props) {
     </div>
   );
 
-  return <DocTooltip doc="quality-gates/built-in-quality-gate">{badge}</DocTooltip>;
+  return (
+    <DocTooltip
+      doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/built-in-quality-gate.md')}>
+      {badge}
+    </DocTooltip>
+  );
 }

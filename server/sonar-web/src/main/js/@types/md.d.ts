@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import DocTooltip from '../../components/docs/DocTooltip';
-import { translate } from '../../helpers/l10n';
-
-export default function Header() {
-  return (
-    <header className="page-header">
-      <div className="page-title display-flex-center">
-        <h1>{translate('project_quality_gate.page')}</h1>
-        <DocTooltip
-          className="spacer-left"
-          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-projects.md')}
-        />
-      </div>
-      <div className="page-description">{translate('project_quality_gate.page.description')}</div>
-    </header>
-  );
+declare module '*.md' {
+  const value: string;
+  export default value;
 }

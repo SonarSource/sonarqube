@@ -23,11 +23,9 @@ import remark from 'remark';
 import reactRenderer from 'remark-react';
 import remarkToc from 'remark-toc';
 import DocLink from './DocLink';
-import DocParagraph from './DocParagraph';
 import DocImg from './DocImg';
 import DocTooltipLink from './DocTooltipLink';
-import { separateFrontMatter } from '../../helpers/markdown';
-import { isSonarCloud } from '../../helpers/system';
+import { separateFrontMatter, filterContent } from '../../helpers/markdown';
 import { scrollToElement } from '../../helpers/scrolling';
 
 interface Props {
@@ -59,7 +57,6 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
         {displayH1 && <h1>{parsed.frontmatter.title}</h1>}
         {
           remark()
-            // .use(remarkInclude)
             .use(remarkToc, { maxDepth: 3 })
             .use(reactRenderer, {
               remarkReactComponents: {
@@ -69,8 +66,6 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
                 a: isTooltip
                   ? withChildProps(DocTooltipLink, childProps)
                   : withChildProps(DocLink, { onAnchorClick: this.handleAnchorClick }),
-                // used to handle `@include`
-                p: DocParagraph,
                 // use custom img tag to render documentation images
                 img: DocImg
               },
@@ -90,20 +85,4 @@ function withChildProps<P>(
   return function withChildProps(props: P) {
     return <WrappedComponent customProps={childProps} {...props} />;
   };
-}
-
-function filterContent(content: string) {
-  const beginning = isSonarCloud() ? '<!-- sonarqube -->' : '<!-- sonarcloud -->';
-  const ending = isSonarCloud() ? '<!-- /sonarqube -->' : '<!-- /sonarcloud -->';
-
-  let newContent = content;
-  let start = newContent.indexOf(beginning);
-  let end = newContent.indexOf(ending);
-  while (start !== -1 && end !== -1) {
-    newContent = newContent.substring(0, start) + newContent.substring(end + ending.length);
-    start = newContent.indexOf(beginning);
-    end = newContent.indexOf(ending);
-  }
-
-  return newContent;
 }

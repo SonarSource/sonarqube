@@ -142,6 +142,7 @@ strong {
 
 mark {
   background: none;
+  color: var(--baseFontColor);
   font-weight: bold;
 }
 

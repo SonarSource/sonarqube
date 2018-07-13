@@ -26,82 +26,55 @@ const DocMarkdownBlock = lazyLoad(() => import('./DocMarkdownBlock'));
 interface Props {
   className?: string;
   children?: React.ReactNode;
-  /** Key of the documentation chunk */
-  doc: string;
+  // Use as `import(/* webpackMode: "eager" */ 'Docs/tooltips/foo/bar.md')`
+  doc: Promise<{ default: string }>;
   overlayProps?: { [k: string]: string };
 }
 
 interface State {
   content?: string;
-  loading: boolean;
   open: boolean;
 }
 
 export default class DocTooltip extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false, open: false };
+  state: State = { open: false };
 
   componentDidMount() {
-    this.mounted = true;
+    this.props.doc.then(
+      ({ default: content }) => {
+        this.setState({ content });
+      },
+      () => {}
+    );
     document.addEventListener('scroll', this.close, true);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.doc !== this.props.doc) {
-      this.setState({ content: undefined, loading: false, open: false });
-    }
-  }
-
   componentWillUnmount() {
-    this.mounted = false;
     document.removeEventListener('scroll', this.close, true);
   }
-
-  fetchContent = () => {
-    this.setState({ loading: true });
-    import(`Docs/tooltips/${this.props.doc}.md`).then(
-      ({ default: content }) => {
-        if (this.mounted) {
-          this.setState({ content, loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
 
   close = () => {
     this.setState({ open: false });
   };
 
-  renderOverlay() {
-    return (
-      <div className="abs-width-300">
-        {this.state.loading ? (
-          <i className="spinner" />
-        ) : (
-          <DocMarkdownBlock
-            childProps={this.props.overlayProps}
-            className="cut-margins"
-            content={this.state.content}
-            isTooltip={true}
-          />
-        )}
-      </div>
-    );
-  }
-
   render() {
-    return (
+    return this.state.content ? (
       <HelpTooltip
         className={this.props.className}
-        onShow={this.fetchContent}
-        overlay={this.renderOverlay()}>
+        overlay={
+          <div className="abs-width-300">
+            <DocMarkdownBlock
+              childProps={this.props.overlayProps}
+              className="cut-margins"
+              content={this.state.content}
+              isTooltip={true}
+            />
+          </div>
+        }>
         {this.props.children}
       </HelpTooltip>
+    ) : (
+      this.props.children || null
     );
   }
 }

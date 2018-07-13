@@ -56,7 +56,10 @@ export default class DetailsContent extends React.PureComponent<Props> {
         <div className="quality-gate-section" id="quality-gate-projects">
           <header className="display-flex-center spacer-bottom">
             <h3>{translate('quality_gates.projects')}</h3>
-            <DocTooltip className="spacer-left" doc="quality-gates/quality-gate-projects" />
+            <DocTooltip
+              className="spacer-left"
+              doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-projects.md')}
+            />
           </header>
           {isDefault ? (
             translate('quality_gates.projects_for_default')

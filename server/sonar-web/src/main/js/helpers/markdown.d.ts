@@ -24,3 +24,6 @@ interface FrontMatter {
 export function getFrontMatter(content: string): FrontMatter;
 
 export function separateFrontMatter(content: string): { content: string; frontmatter: FrontMatter };
+
+/** Removes SonarQube/SonarCloud only content */
+export function filterContent(content: string): string;

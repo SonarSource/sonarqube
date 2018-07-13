@@ -68,7 +68,7 @@ exports[`renders main branch 1`] = `
 exports[`renders no branch support popup 1`] = `
 <DocTooltip
   className="spacer-left"
-  doc="branches/no-branch-support"
+  doc={Promise {}}
 >
   <PlusCircleIcon
     fill="#b4b4b4"
@@ -270,7 +270,7 @@ exports[`renders short-living branch 1`] = `
 exports[`renders single branch popup 1`] = `
 <DocTooltip
   className="spacer-left"
-  doc="branches/single-branch"
+  doc={Promise {}}
 >
   <PlusCircleIcon
     fill="#4b9fd5"

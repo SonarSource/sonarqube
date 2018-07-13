@@ -61,7 +61,8 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
 
     if (profile.isDefault) {
       return (
-        <DocTooltip doc="quality-profiles/default-quality-profile">
+        <DocTooltip
+          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/default-quality-profile.md')}>
           <span className="badge">{translate('default')}</span>
         </DocTooltip>
       );

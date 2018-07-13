@@ -163,7 +163,10 @@ export default class ProfileFacet extends React.PureComponent<Props> {
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.getTextValue()}>
-          <DocTooltip className="spacer-left" doc="rules/rules-quality-profiles" />
+          <DocTooltip
+            className="spacer-left"
+            doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/rules-quality-profiles.md')}
+          />
         </FacetHeader>
 
         {this.props.open && <FacetItemsList>{profiles.map(this.renderItem)}</FacetItemsList>}

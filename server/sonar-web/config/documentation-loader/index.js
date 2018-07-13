@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+const fs = require('fs');
 const path = require('path');
-const parseDirectory = require('./parse-directory');
-const fetchMatter = require('./fetch-matter');
+const glob = require('glob-promise');
 
 module.exports = function(source) {
   this.cacheable();
@@ -31,9 +31,27 @@ module.exports = function(source) {
   const root = path.resolve(path.dirname(this.resourcePath), config.root);
   this.addContextDependency(root);
 
-  parseDirectory(root)
-    .then(files => fetchMatter(root, files))
+  glob(root + '/**/*.md')
+    .then(files => files.map(file => file.substr(root.length + 1)))
+    .then(files =>
+      files.map(file => ({
+        path: file.slice(0, -3),
+        content: handleIncludes(fs.readFileSync(root + '/' + file, 'utf8'), root)
+      }))
+    )
     .then(result => `module.exports = ${JSON.stringify(result)};`)
     .then(success)
     .catch(failure);
 };
+
+/**
+ * @param {string} content
+ * @param {string} root
+ * @returns {string}
+ */
+function handleIncludes(content, root) {
+  return content.replace(/@include (.+)/, (match, p) => {
+    const filePath = path.join(root, '..', `${p}.md`);
+    return fs.readFileSync(filePath, 'utf8');
+  });
+}

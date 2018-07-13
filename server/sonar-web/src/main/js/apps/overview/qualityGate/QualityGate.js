@@ -65,7 +65,10 @@ export default function QualityGate({ branchLike, component, measures } /*: Prop
     <div className="overview-quality-gate" id="overview-quality-gate">
       <div className="display-flex-center">
         <h2 className="overview-title">{translate('overview.quality_gate')}</h2>
-        <DocTooltip className="spacer-left" doc="quality-gates/project-homepage-quality-gate" />
+        <DocTooltip
+          className="spacer-left"
+          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
+        />
         <Level className="big-spacer-left" level={level} />
       </div>
 

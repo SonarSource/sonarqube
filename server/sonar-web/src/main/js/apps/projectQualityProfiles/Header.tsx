@@ -26,7 +26,10 @@ export default function Header() {
     <header className="page-header">
       <div className="page-title display-flex-center">
         <h1>{translate('project_quality_profiles.page')}</h1>
-        <DocTooltip className="spacer-left" doc="quality-profiles/quality-profile-projects" />
+        <DocTooltip
+          className="spacer-left"
+          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/quality-profile-projects.md')}
+        />
       </div>
       <div className="page-description">
         {translate('project_quality_profiles.page.description')}

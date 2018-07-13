@@ -54,7 +54,10 @@ export default function ListHeader({ canCreate, refreshQualityGates, organizatio
 
       <div className="display-flex-center">
         <h1 className="page-title">{translate('quality_gates.page')}</h1>
-        <DocTooltip className="spacer-left" doc="quality-gates/quality-gate" />
+        <DocTooltip
+          className="spacer-left"
+          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate.md')}
+        />
       </div>
     </header>
   );

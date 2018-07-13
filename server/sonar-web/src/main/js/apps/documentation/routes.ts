@@ -19,14 +19,8 @@
  */
 import { lazyLoad } from '../../components/lazyLoad';
 
-const routes = [
-  {
-    indexRoute: { component: lazyLoad(() => import('./components/App')) }
-  },
-  {
-    path: '**',
-    indexRoute: { component: lazyLoad(() => import('./components/App')) }
-  }
-];
+const App = lazyLoad(() => import('./components/App'));
+
+const routes = [{ indexRoute: { component: App } }, { path: '**', indexRoute: { component: App } }];
 
 export default routes;

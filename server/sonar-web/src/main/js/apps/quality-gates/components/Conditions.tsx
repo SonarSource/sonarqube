@@ -100,7 +100,10 @@ export default class Conditions extends React.PureComponent<Props> {
         )}
         <header className="display-flex-center spacer-bottom">
           <h3>{translate('quality_gates.conditions')}</h3>
-          <DocTooltip className="spacer-left" doc="quality-gates/quality-gate-conditions" />
+          <DocTooltip
+            className="spacer-left"
+            doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-conditions.md')}
+          />
         </header>
 
         <div className="big-spacer-bottom">{translate('quality_gates.introduction')}</div>

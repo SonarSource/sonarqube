@@ -90,7 +90,10 @@ export default class OrganizationMembers extends React.PureComponent<Props> {
                 memberLogins={this.props.memberLogins}
                 organization={organization}
               />
-              <DocTooltip className="spacer-left" doc="organizations/add-organization-member" />
+              <DocTooltip
+                className="spacer-left"
+                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md')}
+              />
             </div>
           )}
         </MembersPageHeader>

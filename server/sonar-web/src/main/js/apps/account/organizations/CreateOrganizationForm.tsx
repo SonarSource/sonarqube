@@ -129,7 +129,10 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
         <header className="modal-head">
           <h2>
             {translate('my_account.create_organization')}
-            <DocTooltip className="spacer-left" doc="organizations/organization" />
+            <DocTooltip
+              className="spacer-left"
+              doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/organization.md')}
+            />
           </h2>
         </header>
 

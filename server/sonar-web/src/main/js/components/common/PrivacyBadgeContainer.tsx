@@ -82,20 +82,10 @@ export function PrivacyBadge({
   );
 
   if (onSonarCloud && organization) {
-    let docUrl = `project/visibility-${visibility}`;
-    if (visibility === Visibility.Public) {
-      if (icon) {
-        docUrl += '-paid-org';
-      }
-      if (organization.canAdmin) {
-        docUrl += '-admin';
-      }
-    }
-
     return (
       <DocTooltip
         className={className}
-        doc={docUrl}
+        doc={getDoc(visibility, icon, organization)}
         overlayProps={{ ...tooltipProps, organization: organization.key }}>
         {badge}
       </DocTooltip>
@@ -121,3 +111,21 @@ const mapStateToProps = (state: any, { organization }: OwnProps) => {
 };
 
 export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(PrivacyBadge);
+
+function getDoc(visibility: Visibility, icon: JSX.Element | null, organization: Organization) {
+  let doc;
+  if (visibility === Visibility.Private) {
+    doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-private.md');
+  } else if (icon) {
+    if (organization.canAdmin) {
+      doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org-admin.md');
+    } else {
+      doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org.md');
+    }
+  } else if (organization.canAdmin) {
+    doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-admin.md');
+  } else {
+    doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public.md');
+  }
+  return doc;
+}

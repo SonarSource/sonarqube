@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render menu 1`] = `
+<React.Fragment>
+  <SearchBox
+    className="big-spacer-top spacer-bottom"
+    minLength={2}
+    onChange={[Function]}
+    placeholder="Search for pages or keywords"
+    value=""
+  />
+  <div
+    className="api-documentation-results panel"
+  >
+    <div
+      className="list-group"
+    >
+      <Menu
+        pages={
+          Array [
+            Object {
+              "content": "",
+              "order": -1,
+              "relativeName": "lorem/index",
+              "text": "",
+              "title": "Lorem Ipsum",
+            },
+            Object {
+              "content": "",
+              "order": -1,
+              "relativeName": "foobar",
+              "text": "",
+              "title": "Where does Foobar come from?",
+            },
+          ]
+        }
+        splat="foobar"
+      />
+    </div>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should search 1`] = `
+<React.Fragment>
+  <SearchBox
+    className="big-spacer-top spacer-bottom"
+    minLength={2}
+    onChange={[Function]}
+    placeholder="Search for pages or keywords"
+    value="foo"
+  />
+  <div
+    className="api-documentation-results panel"
+  >
+    <div
+      className="list-group"
+    >
+      <SearchResults
+        pages={
+          Array [
+            Object {
+              "content": "",
+              "order": -1,
+              "relativeName": "lorem/index",
+              "text": "",
+              "title": "Lorem Ipsum",
+            },
+            Object {
+              "content": "",
+              "order": -1,
+              "relativeName": "foobar",
+              "text": "",
+              "title": "Where does Foobar come from?",
+            },
+          ]
+        }
+        query="foo"
+        splat="foobar"
+      />
+    </div>
+  </div>
+</React.Fragment>
+`;

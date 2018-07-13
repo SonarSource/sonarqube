@@ -20,20 +20,11 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DocTooltip from '../DocTooltip';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 
-jest.useFakeTimers();
-
-it('should render', () => {
-  const wrapper = shallow(<DocTooltip doc="foo/bar" />);
-  wrapper.setState({ content: 'this is *bold* text', open: true, loading: true });
+it('should render', async () => {
+  const wrapper = shallow(<DocTooltip doc={Promise.resolve({ default: 'this is *bold* text' })} />);
   expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ loading: false });
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should reset state when receiving new doc', () => {
-  const wrapper = shallow(<DocTooltip doc="foo/bar" />);
-  wrapper.setState({ content: 'this is *bold* text', open: true });
-  wrapper.setProps({ doc: 'baz' });
-  expect(wrapper.state()).toEqual({ content: undefined, loading: false, open: false });
 });

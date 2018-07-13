@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should search 1`] = `
+<React.Fragment>
+  <SearchResultEntry
+    active={false}
+    key="lorem/origin"
+    result={
+      Object {
+        "highlights": Object {
+          "text": Array [
+            Array [
+              121,
+              4,
+            ],
+          ],
+          "title": Array [
+            Array [
+              19,
+              5,
+            ],
+          ],
+        },
+        "page": Object {
+          "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
+          "order": -1,
+          "relativeName": "lorem/origin",
+          "text": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
+          "title": "Where does it come from?",
+        },
+      }
+    }
+  />
+  <SearchResultEntry
+    active={true}
+    key="foobar"
+    result={
+      Object {
+        "highlights": Object {
+          "title": Array [
+            Array [
+              23,
+              4,
+            ],
+          ],
+        },
+        "page": Object {
+          "content": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "order": -1,
+          "relativeName": "foobar",
+          "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "title": "Where does Foobar come from?",
+        },
+      }
+    }
+  />
+</React.Fragment>
+`;

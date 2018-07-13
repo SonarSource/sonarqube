@@ -1,23 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render 1`] = `
-<HelpTooltip
-  onShow={[Function]}
-  overlay={
-    <div
-      className="abs-width-300"
-    >
-      <i
-        className="spinner"
-      />
-    </div>
-  }
-/>
-`;
+exports[`should render 1`] = `""`;
 
 exports[`should render 2`] = `
 <HelpTooltip
-  onShow={[Function]}
   overlay={
     <div
       className="abs-width-300"

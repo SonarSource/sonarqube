@@ -173,7 +173,10 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           {translate('coding_rules.show_template')}
         </Link>
         {')'}
-        <DocTooltip className="little-spacer-left" doc="rules/custom-rules" />
+        <DocTooltip
+          className="little-spacer-left"
+          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/custom-rules.md')}
+        />
       </li>
     );
   };

@@ -20,39 +20,40 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
+import { sortBy } from 'lodash';
 import {
-  activeOrChildrenActive,
-  DocumentationEntry,
   getEntryChildren,
+  DocumentationEntry,
+  activeOrChildrenActive,
   getEntryRoot
 } from '../utils';
-import * as Docs from '../documentation.directory-loader';
-import { isSonarCloud } from '../../../helpers/system';
-
-const pages = (Docs as any) as DocumentationEntry[];
+import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
 
 interface Props {
-  splat?: string;
+  pages: DocumentationEntry[];
+  splat: string;
 }
 
+type EntryWithChildren = DocumentationEntry & { children?: DocumentationEntry[] };
+
 export default class Menu extends React.PureComponent<Props> {
-  getMenuEntriesHierarchy = (root?: string): Array<DocumentationEntry> => {
-    const instancePages = isSonarCloud()
-      ? pages
-      : pages.filter(page => page.scope !== 'sonarcloud');
-    const toplevelEntries = getEntryChildren(instancePages, root);
-    toplevelEntries.forEach(entry => {
-      const entryRoot = getEntryRoot(entry.relativeName);
-      entry.children = entryRoot !== '' ? this.getMenuEntriesHierarchy(entryRoot) : [];
-    });
-    return toplevelEntries.sort((a, b) => parseInt(a.order, 10) - parseInt(b.order, 10));
+  getMenuEntriesHierarchy = (root?: string): EntryWithChildren[] => {
+    const topLevelEntries = getEntryChildren(this.props.pages, root);
+    return sortBy(
+      topLevelEntries.map(entry => {
+        const entryRoot = getEntryRoot(entry.relativeName);
+        const children = entryRoot !== '' ? this.getMenuEntriesHierarchy(entryRoot) : [];
+        return { ...entry, children };
+      }),
+      entry => entry.order
+    );
   };
 
-  renderEntry = (entry: DocumentationEntry, depth: number): React.ReactNode => {
+  renderEntry = (entry: EntryWithChildren, depth: number): React.ReactNode => {
     const active = entry.relativeName === this.props.splat;
     const opened = activeOrChildrenActive(this.props.splat || '', entry);
     const offset = 10 + 25 * depth;
+    const { children = [] } = entry;
     return (
       <React.Fragment key={entry.relativeName}>
         <Link
@@ -60,24 +61,16 @@ export default class Menu extends React.PureComponent<Props> {
           style={{ paddingLeft: offset }}
           to={'/documentation/' + entry.relativeName}>
           <h3 className="list-group-item-heading">
-            {entry.children.length > 0 && (
-              <OpenCloseIcon className="little-spacer-right" open={opened} />
-            )}
+            {children.length > 0 && <OpenCloseIcon className="little-spacer-right" open={opened} />}
             {entry.title}
           </h3>
         </Link>
-        {opened && entry.children.map(entry => this.renderEntry(entry, depth + 1))}
+        {opened && children.map(entry => this.renderEntry(entry, depth + 1))}
       </React.Fragment>
     );
   };
 
   render() {
-    return (
-      <div className="api-documentation-results panel">
-        <div className="list-group">
-          {this.getMenuEntriesHierarchy().map(entry => this.renderEntry(entry, 0))}
-        </div>
-      </div>
-    );
+    return <>{this.getMenuEntriesHierarchy().map(entry => this.renderEntry(entry, 0))}</>;
   }
 }

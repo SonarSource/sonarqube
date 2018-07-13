@@ -21,6 +21,7 @@
     "intl-relativeformat": "2.1.0",
     "keymaster": "1.6.2",
     "lodash": "4.17.10",
+    "lunr": "2.3.0",
     "prop-types": "15.6.1",
     "react": "16.2.0",
     "react-day-picker": "7.1.8",
@@ -111,6 +112,7 @@
     "react-test-renderer": "16.2.0",
     "remark": "9.0.0",
     "remark-react": "4.0.3",
+    "strip-markdown": "3.0.1",
     "style-loader": "0.21.0",
     "ts-jest": "22.4.6",
     "ts-loader": "4.3.0",
@@ -148,7 +150,7 @@
     "coveragePathIgnorePatterns": ["<rootDir>/node_modules", "<rootDir>/tests"],
     "moduleFileExtensions": ["ts", "tsx", "js", "json"],
     "moduleNameMapper": {
-      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
+      "^.+\\.(md|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
         "<rootDir>/config/jest/FileStub.js",
       "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
     },

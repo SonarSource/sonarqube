@@ -261,7 +261,10 @@ export default class OrganizationStep extends React.PureComponent<Props, State> 
         stepTitle={
           <span>
             {translate('onboarding.organization.header')}
-            <DocTooltip className="little-spacer-left" doc="organizations/organization" />
+            <DocTooltip
+              className="little-spacer-left"
+              doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/organization.md')}
+            />
           </span>
         }
       />

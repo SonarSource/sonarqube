@@ -146,7 +146,10 @@ export default class App extends React.PureComponent<Props, State> {
             onCheck={this.handleCheck}>
             <label className="little-spacer-left" htmlFor={'showCWE'}>
               {translate('security_reports.cwe.show')}
-              <DocTooltip className="spacer-left" doc="security-reports/cwe" />
+              <DocTooltip
+                className="spacer-left"
+                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/security-reports/cwe.md')}
+              />
             </label>
           </Checkbox>
         </div>

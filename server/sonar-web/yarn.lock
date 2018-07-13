@@ -5513,6 +5513,10 @@ lru-cache@^4.0.1, lru-cache@^4.1.1:
     pseudomap "^1.0.2"
     yallist "^2.1.2"
 
+lunr@2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/lunr/-/lunr-2.3.0.tgz#4d7c0ca12bdd1e0447b0c131b91420929740c88f"
+
 macaddress@^0.2.8:
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/macaddress/-/macaddress-0.2.8.tgz#5904dc537c39ec6dbefeae902327135fa8511f12"
@@ -8200,6 +8204,10 @@ strip-indent@^1.0.1:
 strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
+
+strip-markdown@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/strip-markdown/-/strip-markdown-3.0.1.tgz#bf4f1c04d03720ae76a01a111cef941d5255cf88"
 
 style-loader@0.21.0:
   version "0.21.0"

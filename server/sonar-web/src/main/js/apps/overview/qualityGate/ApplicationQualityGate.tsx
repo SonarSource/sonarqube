@@ -91,7 +91,10 @@ export default class ApplicationQualityGate extends React.PureComponent<Props, S
         <h2 className="overview-title">
           {translate('overview.quality_gate')}
           {this.state.loading && <i className="spinner spacer-left" />}
-          <DocTooltip className="spacer-left" doc="quality-gates/project-homepage-quality-gate" />
+          <DocTooltip
+            className="spacer-left"
+            doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
+          />
           {status != null && <Level className="big-spacer-left" level={status} />}
         </h2>
 

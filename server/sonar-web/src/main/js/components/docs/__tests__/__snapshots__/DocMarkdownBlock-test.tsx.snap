@@ -7,39 +7,39 @@ exports[`should cut sonarqube/sonarcloud content 1`] = `
   <React.Fragment
     key="h-1"
   >
-    <DocParagraph
+    <p
       key="h-2"
     >
       some
-    </DocParagraph>
+    </p>
     
 
-    <DocParagraph
+    <p
       key="h-3"
     >
       sonarqube
-    </DocParagraph>
+    </p>
     
 
-    <DocParagraph
+    <p
       key="h-4"
     >
         long
-    </DocParagraph>
+    </p>
     
 
-    <DocParagraph
+    <p
       key="h-5"
     >
         multiline
-    </DocParagraph>
+    </p>
     
 
-    <DocParagraph
+    <p
       key="h-6"
     >
       text
-    </DocParagraph>
+    </p>
   </React.Fragment>
 </div>
 `;
@@ -51,25 +51,25 @@ exports[`should cut sonarqube/sonarcloud content 2`] = `
   <React.Fragment
     key="h-1"
   >
-    <DocParagraph
+    <p
       key="h-2"
     >
       some
-    </DocParagraph>
+    </p>
     
 
-    <DocParagraph
+    <p
       key="h-3"
     >
       sonarcloud
-    </DocParagraph>
+    </p>
     
 
-    <DocParagraph
+    <p
       key="h-4"
     >
       text
-    </DocParagraph>
+    </p>
   </React.Fragment>
 </div>
 `;
@@ -81,7 +81,7 @@ exports[`should render simple markdown 1`] = `
   <React.Fragment
     key="h-1"
   >
-    <DocParagraph
+    <p
       key="h-2"
     >
       this is 
@@ -91,7 +91,7 @@ exports[`should render simple markdown 1`] = `
         bold
       </em>
        text
-    </DocParagraph>
+    </p>
   </React.Fragment>
 </div>
 `;

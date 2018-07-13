@@ -2,6 +2,6 @@
   "extends": "sonarqube",
 
   "rules": {
-    "import/extensions": ["error", "never", { "json": "always" }]
+    "import/extensions": ["error", "never", { "json": "always", "md": "always" }]
   }
 }

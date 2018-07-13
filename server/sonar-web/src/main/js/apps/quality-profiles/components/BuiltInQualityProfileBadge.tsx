@@ -35,7 +35,12 @@ export default function BuiltInQualityProfileBadge({ className, tooltip = true }
   );
 
   if (tooltip) {
-    return <DocTooltip doc="quality-profiles/built-in-quality-profile">{badge}</DocTooltip>;
+    return (
+      <DocTooltip
+        doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/built-in-quality-profile.md')}>
+        {badge}
+      </DocTooltip>
+    );
   }
   return badge;
 }

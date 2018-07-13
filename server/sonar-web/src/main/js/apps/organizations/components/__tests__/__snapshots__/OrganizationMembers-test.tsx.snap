@@ -86,7 +86,7 @@ exports[`should render actions for admin 1`] = `
       />
       <DocTooltip
         className="spacer-left"
-        doc="organizations/add-organization-member"
+        doc={Promise {}}
       />
     </div>
   </MembersPageHeader>

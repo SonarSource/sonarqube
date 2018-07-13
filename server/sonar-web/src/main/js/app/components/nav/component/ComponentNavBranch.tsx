@@ -181,7 +181,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
               fill={theme.gray80}
             />
             <span className="note">{displayName}</span>
-            <DocTooltip className="spacer-left" doc="branches/no-branch-support">
+            <DocTooltip
+              className="spacer-left"
+              doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/branches/no-branch-support.md')}>
               <PlusCircleIcon fill={theme.gray71} size={12} />
             </DocTooltip>
           </div>
@@ -193,7 +195,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
           <div className="navbar-context-branches">
             <BranchIcon branchLike={currentBranchLike} className="little-spacer-right" />
             <span className="note">{displayName}</span>
-            <DocTooltip className="spacer-left" doc="branches/single-branch">
+            <DocTooltip
+              className="spacer-left"
+              doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/branches/single-branch.md')}>
               <PlusCircleIcon fill={theme.blue} size={12} />
             </DocTooltip>
           </div>

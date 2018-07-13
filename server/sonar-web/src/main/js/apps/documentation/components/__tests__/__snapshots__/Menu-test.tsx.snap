@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render hierarchical menu 1`] = `
+<React.Fragment>
+  <React.Fragment
+    key="lorem/index"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={
+        Object {
+          "paddingLeft": 10,
+        }
+      }
+      to="/documentation/lorem/index"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        <OpenCloseIcon
+          className="little-spacer-right"
+          open={true}
+        />
+        Lorem Ipsum
+      </h3>
+    </Link>
+    <React.Fragment
+      key="lorem/origin"
+    >
+      <Link
+        className="list-group-item active"
+        onlyActiveOnIndex={false}
+        style={
+          Object {
+            "paddingLeft": 35,
+          }
+        }
+        to="/documentation/lorem/origin"
+      >
+        <h3
+          className="list-group-item-heading"
+        >
+          Where does it come from?
+        </h3>
+      </Link>
+    </React.Fragment>
+  </React.Fragment>
+  <React.Fragment
+    key="foobar"
+  >
+    <Link
+      className="list-group-item"
+      onlyActiveOnIndex={false}
+      style={
+        Object {
+          "paddingLeft": 10,
+        }
+      }
+      to="/documentation/foobar"
+    >
+      <h3
+        className="list-group-item-heading"
+      >
+        Where does Foobar come from?
+      </h3>
+    </Link>
+  </React.Fragment>
+</React.Fragment>
+`;

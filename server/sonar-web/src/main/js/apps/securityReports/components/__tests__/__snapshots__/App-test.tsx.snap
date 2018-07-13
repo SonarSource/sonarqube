@@ -45,7 +45,7 @@ exports[`handle checkbox for cwe display 1`] = `
         security_reports.cwe.show
         <DocTooltip
           className="spacer-left"
-          doc="security-reports/cwe"
+          doc={Promise {}}
         />
       </label>
     </Checkbox>
@@ -115,7 +115,7 @@ exports[`handle checkbox for cwe display 2`] = `
         security_reports.cwe.show
         <DocTooltip
           className="spacer-left"
-          doc="security-reports/cwe"
+          doc={Promise {}}
         />
       </label>
     </Checkbox>
@@ -228,7 +228,7 @@ exports[`renders owaspTop10 1`] = `
         security_reports.cwe.show
         <DocTooltip
           className="spacer-left"
-          doc="security-reports/cwe"
+          doc={Promise {}}
         />
       </label>
     </Checkbox>
@@ -298,7 +298,7 @@ exports[`renders sansTop25 1`] = `
         security_reports.cwe.show
         <DocTooltip
           className="spacer-left"
-          doc="security-reports/cwe"
+          doc={Promise {}}
         />
       </label>
     </Checkbox>
@@ -368,7 +368,7 @@ exports[`renders with cwe 1`] = `
         security_reports.cwe.show
         <DocTooltip
           className="spacer-left"
-          doc="security-reports/cwe"
+          doc={Promise {}}
         />
       </label>
     </Checkbox>
