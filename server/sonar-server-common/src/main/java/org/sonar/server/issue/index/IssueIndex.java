@@ -168,6 +168,7 @@ public class IssueIndex {
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
   private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
   private static final Duration TWENTY_MONTHS = Duration.standardDays(20L * 30L);
+  private static final String COUNT = "count";
   private final Sorting sorting;
   private final EsClient client;
   private final System2 system;
@@ -534,21 +535,11 @@ public class IssueIndex {
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         PARAM_AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());
 
-      if (options.getFacets().contains(PARAM_TAGS)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, PARAM_TAGS, query.tags().toArray()));
-      }
-      if (options.getFacets().contains(PARAM_TYPES)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TYPE, PARAM_TYPES, query.types().toArray()));
-      }
-      if (options.getFacets().contains(PARAM_OWASP_TOP_10)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, PARAM_OWASP_TOP_10, query.owaspTop10().toArray()));
-      }
-      if (options.getFacets().contains(PARAM_SANS_TOP_25)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25, PARAM_SANS_TOP_25, query.sansTop25().toArray()));
-      }
-      if (options.getFacets().contains(PARAM_CWE)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_CWE, PARAM_CWE, query.cwe().toArray()));
-      }
+      addStickyFacetIfNeeded(options, esSearch, stickyFacetBuilder, PARAM_TAGS, IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags());
+      addStickyFacetIfNeeded(options, esSearch, stickyFacetBuilder, PARAM_TYPES, IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types());
+      addStickyFacetIfNeeded(options, esSearch, stickyFacetBuilder, PARAM_OWASP_TOP_10, IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, query.owaspTop10());
+      addStickyFacetIfNeeded(options, esSearch, stickyFacetBuilder, PARAM_SANS_TOP_25, IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25, query.sansTop25());
+      addStickyFacetIfNeeded(options, esSearch, stickyFacetBuilder, PARAM_CWE, IssueIndexDefinition.FIELD_ISSUE_CWE, query.cwe());
       if (options.getFacets().contains(PARAM_RESOLUTIONS)) {
         esSearch.addAggregation(createResolutionFacet(query, filters, esQuery));
       }
@@ -563,6 +554,13 @@ public class IssueIndex {
 
     if (hasQueryEffortFacet(query)) {
       esSearch.addAggregation(EFFORT_AGGREGATION);
+    }
+  }
+
+  private static void addStickyFacetIfNeeded(SearchOptions options, SearchRequestBuilder esSearch, StickyFacetBuilder stickyFacetBuilder, String paramTags, String fieldIssueTags,
+    Collection<String> tags) {
+    if (options.getFacets().contains(paramTags)) {
+      esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldIssueTags, paramTags, tags.toArray()));
     }
   }
 
@@ -752,7 +750,7 @@ public class IssueIndex {
           .subAggregation(
             AggregationBuilders.terms("branchUuid").field(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID)
               .subAggregation(
-                AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))
+                AggregationBuilders.count(COUNT).field(IssueIndexDefinition.FIELD_ISSUE_KEY))
               .subAggregation(
                 AggregationBuilders.max("maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT))));
     });
@@ -761,7 +759,7 @@ public class IssueIndex {
       .map(x -> (InternalFilter) x)
       .flatMap(projectBucket -> ((StringTerms) projectBucket.getAggregations().get("branchUuid")).getBuckets().stream()
         .flatMap(branchBucket -> {
-          long count = ((InternalValueCount) branchBucket.getAggregations().get("count")).getValue();
+          long count = ((InternalValueCount) branchBucket.getAggregations().get(COUNT)).getValue();
           if (count < 1L) {
             return Stream.empty();
           }
@@ -842,18 +840,18 @@ public class IssueIndex {
     @Nullable List<SecurityStandardCategoryStatistics> children) {
     List<StringTerms.Bucket> severityBuckets = ((StringTerms) ((InternalFilter) categoryBucket.getAggregations().get("vulnerabilities")).getAggregations().get("severity"))
       .getBuckets();
-    long vulnerabilities = severityBuckets.stream().mapToLong(b -> ((InternalValueCount) b.getAggregations().get("count")).getValue()).sum();
+    long vulnerabilities = severityBuckets.stream().mapToLong(b -> ((InternalValueCount) b.getAggregations().get(COUNT)).getValue()).sum();
     // Worst severity having at least one issue
     OptionalInt severityRating = severityBuckets.stream()
-      .filter(b -> ((InternalValueCount) b.getAggregations().get("count")).getValue() != 0)
+      .filter(b -> ((InternalValueCount) b.getAggregations().get(COUNT)).getValue() != 0)
       .mapToInt(b -> Severity.ALL.indexOf(b.getKeyAsString()) + 1)
       .max();
 
-    long openSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("openSecurityHotspots")).getAggregations().get("count"))
+    long openSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("openSecurityHotspots")).getAggregations().get(COUNT))
       .getValue();
-    long toReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("toReviewSecurityHotspots")).getAggregations().get("count"))
+    long toReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("toReviewSecurityHotspots")).getAggregations().get(COUNT))
       .getValue();
-    long wontFixSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("wontFixSecurityHotspots")).getAggregations().get("count"))
+    long wontFixSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get("wontFixSecurityHotspots")).getAggregations().get(COUNT))
       .getValue();
 
     return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, toReviewSecurityHotspots, openSecurityHotspots,
@@ -878,24 +876,24 @@ public class IssueIndex {
           .subAggregation(
             AggregationBuilders.terms("severity").field(IssueIndexDefinition.FIELD_ISSUE_SEVERITY)
               .subAggregation(
-                AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))))
+                AggregationBuilders.count(COUNT).field(IssueIndexDefinition.FIELD_ISSUE_KEY))))
       .subAggregation(AggregationBuilders.filter("openSecurityHotspots", boolQuery()
         .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
         .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)))
         .subAggregation(
-          AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY)))
+          AggregationBuilders.count(COUNT).field(IssueIndexDefinition.FIELD_ISSUE_KEY)))
       .subAggregation(AggregationBuilders.filter("toReviewSecurityHotspots", boolQuery()
         .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
         .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
         .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_FIXED)))
         .subAggregation(
-          AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY)))
+          AggregationBuilders.count(COUNT).field(IssueIndexDefinition.FIELD_ISSUE_KEY)))
       .subAggregation(AggregationBuilders.filter("wontFixSecurityHotspots", boolQuery()
         .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
         .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
         .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_WONT_FIX)))
         .subAggregation(
-          AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY)));
+          AggregationBuilders.count(COUNT).field(IssueIndexDefinition.FIELD_ISSUE_KEY)));
   }
 
   private SearchRequestBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid, boolean isViewOrApp) {
