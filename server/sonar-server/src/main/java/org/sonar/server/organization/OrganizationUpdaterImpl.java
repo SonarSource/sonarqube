@@ -297,13 +297,14 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
       QProfileName name = new QProfileName(rulesProfile.getLanguage(), rulesProfile.getName());
       BuiltInQProfile builtIn = builtInsPerName.get(name);
-      if (builtIn != null && builtIn.isDefault()) {
+      if (builtIn == null || builtIn.isDefault()) {
+        // If builtIn == null, the plugin has been removed
         // rows of table default_qprofiles must be inserted after org_qprofiles
         // in order to benefit from batch SQL inserts
         defaults.add(new DefaultQProfileDto()
           .setQProfileUuid(dto.getUuid())
           .setOrganizationUuid(organization.getUuid())
-          .setLanguage(builtIn.getLanguage()));
+          .setLanguage(rulesProfile.getLanguage()));
       }
 
       dbClient.qualityProfileDao().insert(batchDbSession, dto);

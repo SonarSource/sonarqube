@@ -306,17 +306,6 @@ public class OrganizationUpdaterImplTest {
   }
 
   @Test
-  public void create_fails_with_ISE_if_BuiltInQProfileRepository_has_not_been_initialized() throws OrganizationUpdater.KeyConflictException {
-    UserDto user = db.users().insertUser();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("initialize must be called first");
-
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
-  }
-
-  @Test
   public void create_fails_with_KeyConflictException_if_org_with_key_in_NewOrganization_arg_already_exists_in_db() throws OrganizationUpdater.KeyConflictException {
     db.organizations().insertForKey(FULL_POPULATED_NEW_ORGANIZATION.getKey());
     UserDto user = db.users().insertUser();
