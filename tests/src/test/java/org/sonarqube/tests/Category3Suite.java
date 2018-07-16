@@ -31,6 +31,7 @@ import org.sonarqube.tests.analysis.LinksTest;
 import org.sonarqube.tests.analysis.MultiLanguageTest;
 import org.sonarqube.tests.analysis.PermissionTest;
 import org.sonarqube.tests.analysis.ProjectBuilderTest;
+import org.sonarqube.tests.analysis.ProjectMeasureTest;
 import org.sonarqube.tests.analysis.RedirectTest;
 import org.sonarqube.tests.analysis.ReportDumpTest;
 import org.sonarqube.tests.analysis.SSLTest;
@@ -64,7 +65,8 @@ import static util.ItUtils.xooPlugin;
   RedirectTest.class,
   // measures
   DecimalScaleMetricTest.class,
-  WebhooksTest.class
+  WebhooksTest.class,
+  ProjectMeasureTest.class
 })
 public class Category3Suite {
 
@@ -87,6 +89,9 @@ public class Category3Suite {
 
     // used by ProjectBuilderTest
     .addPlugin(pluginArtifact("project-builder-plugin"))
+
+    // used by ProjectMeasureTest
+    .addPlugin(pluginArtifact("save-measure-on-module-plugin"))
 
     // reduce memory for Elasticsearch to 128M
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")

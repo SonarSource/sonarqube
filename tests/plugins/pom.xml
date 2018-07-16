@@ -52,6 +52,7 @@
     <module>project-builder-plugin</module>
     <module>property-relocation-plugin</module>
     <module>property-sets-plugin</module>
+    <module>save-measure-on-module-plugin</module>
     <module>security-plugin</module>
     <module>server-plugin</module>
     <module>settings-encryption-plugin</module>
