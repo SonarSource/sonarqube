@@ -393,25 +393,22 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
+   * @deprecated since 7.3 preview mode deprecated since 6.6
    */
+  @Deprecated
   String ANALYSIS_MODE_PREVIEW = "preview";
 
   /**
    * @since 5.2
+   * @deprecated since 7.3 issues mode deprecated since 6.6
    */
+  @Deprecated
   String ANALYSIS_MODE_ISSUES = "issues";
 
   /**
    * @since 5.2
    */
   String ANALYSIS_MODE_PUBLISH = "publish";
-
-  /**
-   * @since 4.0
-   * @deprecated since 5.2
-   */
-  @Deprecated
-  String ANALYSIS_MODE_INCREMENTAL = "incremental";
 
   /**
    * @since 4.0

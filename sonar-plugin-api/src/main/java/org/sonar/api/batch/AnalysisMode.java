@@ -24,9 +24,11 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 /**
  * Use this component to find the current running mode.
  * @since 5.1
+ * @deprecated since 7.3 preview mode deprecated since 6.6
  */
 @ScannerSide
 @SonarLintSide
+@Deprecated
 public interface AnalysisMode {
   boolean isPreview();
 
