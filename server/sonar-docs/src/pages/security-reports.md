@@ -19,7 +19,7 @@ If you look at the code where a Hotspot is raised and realize that there really 
 ## What happens after my Hotspot becomes a Vulnerability?
 Once you've *Detect*ed that there really is a problem at a Hotspot location, it will be assigned to the appropriate developer, who will make a fix, and must then `Request Review` *via the UI*. That request moves the issue from Vulnerability back to Hotspot. From there, it's up to the security auditor to either *Accept* or *Reject* the fix. Accepting the fix will mark it "Won't Fix", and rejecting it will turn it back into a Vulnerability, putting it back in the developer's queue.
 
-## What does it mean for a Hotspot to be marked "Won't Fix".
+## What does it mean for a Hotspot to be marked "Won't Fix"?
 The Won't Fix designation is used to indicate that a Hotspot has been reviewed and there is no way, as of now, to exploit this piece of code to create an attack.
 
 ## Why don't I see any Hotspots?
