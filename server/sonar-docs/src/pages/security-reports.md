@@ -22,6 +22,6 @@ Once you've *Detect*ed that there really is a problem at a Hotspot location, it 
 ## What does it mean for a Hotspot to be marked "Won't Fix".
 The Won't Fix designation is used to indicate that a Hotspot has been reviewed and there is no way, as of now, to exploit this piece of code to create an attack.
 
-## Why don't I see any Hotspot?
-It is possible you really have no Hotspot because your code is safe in itself and you used no security-sensitive API.
+## Why don't I see any Hotspots?
+It is possible you really have no Hotspots because your code uses no security-sensitive API.
 Also, Security Hotspots are only created for now for C#, Java and PHP.
