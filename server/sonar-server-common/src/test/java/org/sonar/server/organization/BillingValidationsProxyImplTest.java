@@ -42,9 +42,9 @@ public class BillingValidationsProxyImplTest {
     underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
     Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
 
-    underTest.checkOnProjectAnalysis(organization);
+    underTest.checkBeforeProjectAnalysis(organization);
 
-    verify(billingValidationsExtension).checkOnProjectAnalysis(organization);
+    verify(billingValidationsExtension).checkBeforeProjectAnalysis(organization);
   }
 
   @Test
@@ -52,7 +52,7 @@ public class BillingValidationsProxyImplTest {
     underTest = new BillingValidationsProxyImpl();
     Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
 
-    underTest.checkOnProjectAnalysis(organization);
+    underTest.checkBeforeProjectAnalysis(organization);
 
     verifyZeroInteractions(billingValidationsExtension);
   }

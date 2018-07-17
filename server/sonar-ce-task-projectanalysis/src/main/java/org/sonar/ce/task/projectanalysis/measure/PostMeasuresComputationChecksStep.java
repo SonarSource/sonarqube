@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
@@ -43,8 +44,7 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
   private final PostMeasuresComputationCheck[] extensions;
 
   public PostMeasuresComputationChecksStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
-    AnalysisMetadataHolder analysisMetadataHolder,
-    PostMeasuresComputationCheck[] extensions) {
+    AnalysisMetadataHolder analysisMetadataHolder, PostMeasuresComputationCheck[] extensions) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
@@ -85,6 +85,21 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
       Metric nclocMetric = metricRepository.getByKey(CoreMetrics.NCLOC_KEY);
       Optional<Measure> nclocMeasure = measureRepository.getRawMeasure(treeRootHolder.getRoot(), nclocMetric);
       return nclocMeasure.isPresent() ? nclocMeasure.get().getIntValue() : 0;
+    }
+
+    @Override
+    public String getOrganizationUuid() {
+      return analysisMetadataHolder.getOrganization().getUuid();
+    }
+
+    @Override
+    public String getOrganizationKey() {
+      return analysisMetadataHolder.getOrganization().getKey();
+    }
+
+    @Override
+    public Branch getBranch() {
+      return analysisMetadataHolder.getBranch();
     }
   }
 }

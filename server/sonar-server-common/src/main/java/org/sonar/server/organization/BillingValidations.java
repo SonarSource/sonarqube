@@ -36,7 +36,7 @@ public interface BillingValidations {
   /**
    * @throws BillingValidationsException when projects analysis on organization is not allowed
    */
-  void checkOnProjectAnalysis(Organization organization);
+  void checkBeforeProjectAnalysis(Organization organization);
 
   /**
    * @throws BillingValidationsException when the organization cannot use private projects

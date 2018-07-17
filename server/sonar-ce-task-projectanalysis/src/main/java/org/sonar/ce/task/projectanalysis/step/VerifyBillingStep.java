@@ -44,7 +44,7 @@ public class VerifyBillingStep implements ComputationStep {
     try {
       Organization organization = analysisMetadata.getOrganization();
       BillingValidations.Organization billingOrganization = new BillingValidations.Organization(organization.getKey(), organization.getUuid());
-      billingValidations.checkOnProjectAnalysis(billingOrganization);
+      billingValidations.checkBeforeProjectAnalysis(billingOrganization);
     } catch (BillingValidations.BillingValidationsException e) {
       throw MessageException.of(e.getMessage());
     }

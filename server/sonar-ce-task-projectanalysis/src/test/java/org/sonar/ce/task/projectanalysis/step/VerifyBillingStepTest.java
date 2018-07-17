@@ -54,7 +54,7 @@ public class VerifyBillingStepTest {
   public void execute_fails_with_MessageException_when_organization_is_not_allowed_to_execute_analysis() {
     doThrow(new BillingValidationsException("This organization cannot execute project analysis"))
       .when(validations)
-      .checkOnProjectAnalysis(any(BillingValidations.Organization.class));
+      .checkBeforeProjectAnalysis(any(BillingValidations.Organization.class));
 
     VerifyBillingStep underTest = new VerifyBillingStep(analysisMetadata, validations);
 
@@ -72,7 +72,7 @@ public class VerifyBillingStepTest {
     VerifyBillingStep underTest = new VerifyBillingStep(analysisMetadata, validations);
     underTest.execute();
 
-    verify(validations).checkOnProjectAnalysis(orgCaptor.capture());
+    verify(validations).checkBeforeProjectAnalysis(orgCaptor.capture());
     BillingValidations.Organization calledOrg = orgCaptor.getValue();
     assertThat(calledOrg.getKey()).isEqualTo(organization.getKey());
   }
