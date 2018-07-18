@@ -28,6 +28,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.MySql;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
@@ -41,12 +43,18 @@ public class FixMissingQualityProfilesOnOrganizations extends DataChange {
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final Configuration configuration;
+  private final String as;
 
   public FixMissingQualityProfilesOnOrganizations(Database db, System2 system2, UuidFactory uuidFactory, Configuration configuration) {
     super(db);
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.configuration = configuration;
+    if (db.getDialect().getId().equals(MySql.ID) || db.getDialect().getId().equals(MsSql.ID)) {
+      as = " AS ";
+    } else {
+      as = "";
+    }
   }
 
   @Override
@@ -65,9 +73,9 @@ public class FixMissingQualityProfilesOnOrganizations extends DataChange {
     MassUpdate massUpdate = context
       .prepareMassUpdate()
       .rowPluralName("Organization quality profiles");
-    massUpdate.select("SELECT o.uuid, rp.kee FROM organizations o, rules_profiles rp " +
-      "WHERE rp.is_built_in = ?" +
-      "AND NOT EXISTS(SELECT(1) FROM org_qprofiles oqp WHERE oqp.organization_uuid = o.uuid AND oqp.rules_profile_uuid = rp.kee)")
+    massUpdate.select("SELECT o.uuid, rp.kee FROM organizations " + as + " o, rules_profiles " + as + " rp " +
+      "WHERE rp.is_built_in = ? " +
+      "AND NOT EXISTS(SELECT (1) FROM org_qprofiles oqp WHERE oqp.organization_uuid = o.uuid AND oqp.rules_profile_uuid = rp.kee)")
       .setBoolean(1, true);
     massUpdate.update("INSERT INTO org_qprofiles (uuid, organization_uuid, rules_profile_uuid, created_at, updated_at) VALUES(?, ?, ?, ?, ?)");
     massUpdate.execute((row, update) -> {
@@ -83,7 +91,7 @@ public class FixMissingQualityProfilesOnOrganizations extends DataChange {
     });
   }
 
-  private static void insertMissingDefaultQProfiles(Context context, long now) throws SQLException {
+  private void insertMissingDefaultQProfiles(Context context, long now) throws SQLException {
     String defaultRulesProfileKees = reduceBuiltInQualityProfiles(context)
       .stream()
       .map(qp -> "'" + qp.kee + "'")
@@ -96,7 +104,7 @@ public class FixMissingQualityProfilesOnOrganizations extends DataChange {
     MassUpdate massUpdate = context
       .prepareMassUpdate()
       .rowPluralName("Organization default quality profiles");
-    massUpdate.select("SELECT o.uuid, oqp.uuid, rp.language FROM organizations o, org_qprofiles oqp, rules_profiles rp " +
+    massUpdate.select("SELECT o.uuid, oqp.uuid, rp.language FROM organizations " + as + " o, org_qprofiles " + as + " oqp, rules_profiles " + as + " rp " +
       "WHERE oqp.rules_profile_uuid = rp.kee " +
       "AND oqp.organization_uuid = o.uuid " +
       "AND rp.kee IN ( " + defaultRulesProfileKees + " ) " +
