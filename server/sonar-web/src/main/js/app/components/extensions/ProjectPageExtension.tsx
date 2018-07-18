@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import ExtensionContainer from './ExtensionContainer';
-import ExtensionNotFound from './ExtensionNotFound';
+import NotFound from '../NotFound';
 import { Component } from '../../types';
 
 interface Props {
@@ -40,6 +40,6 @@ export default function ProjectPageExtension(props: Props) {
   return extension ? (
     <ExtensionContainer extension={extension} options={{ component }} />
   ) : (
-    <ExtensionNotFound />
+    <NotFound withContainer={false} />
   );
 }

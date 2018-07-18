@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ExtensionContainer from './ExtensionContainer';
-import ExtensionNotFound from './ExtensionNotFound';
+import NotFound from '../NotFound';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { fetchOrganization } from '../../../apps/organizations/actions';
 import { Organization } from '../../types';
@@ -69,7 +69,7 @@ class OrganizationPageExtension extends React.PureComponent<Props> {
         options={{ organization, refreshOrganization: this.refreshOrganization }}
       />
     ) : (
-      <ExtensionNotFound />
+      <NotFound withContainer={false} />
     );
   }
 }

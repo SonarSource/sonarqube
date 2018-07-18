@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
 import SimpleContainer from './SimpleContainer';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   withContainer?: boolean;
@@ -29,14 +31,13 @@ export default function NotFound({ withContainer = true }: Props) {
   const Container = withContainer ? SimpleContainer : React.Fragment;
   return (
     <Container>
+      <Helmet defaultTitle={translate('404_not_found')} defer={false} />
       <div className="page-wrapper-simple" id="bd">
         <div className="page-simple" id="nonav">
-          <h2 className="big-spacer-bottom">The page you were looking for does not exist.</h2>
-          <p className="spacer-bottom">
-            You may have mistyped the address or the page may have moved.
-          </p>
+          <h2 className="big-spacer-bottom">{translate('page_not_found')}</h2>
+          <p className="spacer-bottom">{translate('address_mistyped_or_page_moved')}</p>
           <p>
-            <Link to="/">Go back to the homepage</Link>
+            <Link to="/">{translate('go_back_to_homepage')}</Link>
           </p>
         </div>
       </div>

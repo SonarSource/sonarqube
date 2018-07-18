@@ -18,19 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
 import { translate } from '../../helpers/l10n';
 
 export default function ComponentContainerNotFound() {
   return (
-    <div id="bd" className="page-wrapper-simple">
-      <div id="nonav" className="page-simple">
-        <h2 className="big-spacer-bottom">{translate('dashboard.project_not_found')}</h2>
-        <p className="spacer-bottom">{translate('dashboard.project_not_found.2')}</p>
-        <p>
-          <Link to="/">Go back to the homepage</Link>
-        </p>
+    <>
+      <Helmet defaultTitle={translate('404_not_found')} defer={false} />
+      <div className="page-wrapper-simple" id="bd">
+        <div className="page-simple" id="nonav">
+          <h2 className="big-spacer-bottom">{translate('dashboard.project_not_found')}</h2>
+          <p className="spacer-bottom">{translate('dashboard.project_not_found.2')}</p>
+          <p>
+            <Link to="/">{translate('go_back_to_homepage')}</Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

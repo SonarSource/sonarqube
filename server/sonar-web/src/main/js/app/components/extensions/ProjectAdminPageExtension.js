@@ -21,7 +21,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ExtensionContainer from './ExtensionContainer';
-import ExtensionNotFound from './ExtensionNotFound';
+import NotFound from '../NotFound';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 
 /*::
@@ -48,7 +48,7 @@ function ProjectAdminPageExtension(props /*: Props */) {
   return extension ? (
     <ExtensionContainer extension={extension} options={{ component }} />
   ) : (
-    <ExtensionNotFound />
+    <NotFound withContainer={false} />
   );
 }
 

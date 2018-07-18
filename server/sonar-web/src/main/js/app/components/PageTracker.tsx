@@ -49,7 +49,8 @@ export class PageTracker extends React.PureComponent<Props> {
   trackPage = () => {
     const { location, trackingId } = this.props;
     if (trackingId) {
-      GoogleAnalytics.pageview(location.pathname);
+      // More info on the "title and page not in sync" issue: https://github.com/nfl/react-helmet/issues/189
+      setTimeout(() => GoogleAnalytics.pageview(location.pathname), 500);
     }
   };
 
