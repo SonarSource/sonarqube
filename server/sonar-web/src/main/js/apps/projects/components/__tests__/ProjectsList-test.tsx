@@ -35,6 +35,7 @@ function shallowRender(props?: any) {
   return shallow(
     <ProjectsList
       cardType="overall"
+      currentUser={{ isLoggedIn: true }}
       isFavorite={false}
       isFiltered={false}
       organization={undefined}

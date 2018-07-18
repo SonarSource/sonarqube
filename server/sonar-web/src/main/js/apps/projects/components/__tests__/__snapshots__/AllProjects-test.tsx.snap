@@ -84,6 +84,11 @@ exports[`renders 1`] = `
     >
       <ProjectsList
         cardType="overall"
+        currentUser={
+          Object {
+            "isLoggedIn": true,
+          }
+        }
         isFavorite={false}
         isFiltered={false}
         projects={

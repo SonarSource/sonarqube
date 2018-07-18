@@ -28,10 +28,11 @@ import EmptyFavoriteSearch from './EmptyFavoriteSearch';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { Project } from '../types';
 import { Query } from '../query';
-import { Organization } from '../../../app/types';
+import { Organization, CurrentUser } from '../../../app/types';
 
 interface Props {
   cardType?: string;
+  currentUser: CurrentUser;
   isFavorite: boolean;
   isFiltered: boolean;
   organization: Organization | undefined;
@@ -45,11 +46,15 @@ export default class ProjectsList extends React.PureComponent<Props> {
   };
 
   renderNoProjects() {
-    const { isFavorite, isFiltered, query } = this.props;
+    const { currentUser, isFavorite, isFiltered, organization, query } = this.props;
     if (isFiltered) {
       return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
     }
-    return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance />;
+    return isFavorite ? (
+      <NoFavoriteProjects />
+    ) : (
+      <EmptyInstance currentUser={currentUser} organization={organization} />
+    );
   }
 
   renderRow = ({ index, key, style }: ListRowProps) => {

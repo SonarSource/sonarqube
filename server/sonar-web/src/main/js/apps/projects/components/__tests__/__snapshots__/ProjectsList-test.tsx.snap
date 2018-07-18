@@ -19,7 +19,13 @@ exports[`renders different types of "no projects" 1`] = `
 <div
   className="projects-list"
 >
-  <EmptyInstance />
+  <EmptyInstance
+    currentUser={
+      Object {
+        "isLoggedIn": true,
+      }
+    }
+  />
 </div>
 `;
 

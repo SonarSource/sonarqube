@@ -295,6 +295,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
         {this.state.projects && (
           <ProjectsList
             cardType={this.getView()}
+            currentUser={this.props.currentUser}
             isFavorite={this.props.isFavorite}
             isFiltered={hasFilterParams(this.state.query)}
             organization={this.props.organization}

@@ -20,7 +20,38 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EmptyInstance from '../EmptyInstance';
+import { isSonarCloud } from '../../../../helpers/system';
 
-it('renders', () => {
-  expect(shallow(<EmptyInstance />)).toMatchSnapshot();
+jest.mock('../../../../helpers/system', () => ({
+  isSonarCloud: jest.fn()
+}));
+
+it('renders correctly for SQ', () => {
+  (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
+  expect(
+    shallow(<EmptyInstance currentUser={{ isLoggedIn: false }} organization={undefined} />)
+  ).toMatchSnapshot();
+  expect(
+    shallow(<EmptyInstance currentUser={{ isLoggedIn: true }} organization={undefined} />)
+  ).toMatchSnapshot();
+});
+
+it('renders correctly for SC', () => {
+  (isSonarCloud as jest.Mock<any>).mockReturnValue(true);
+  expect(
+    shallow(
+      <EmptyInstance
+        currentUser={{ isLoggedIn: false }}
+        organization={{ key: 'foo', name: 'Foo' }}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <EmptyInstance
+        currentUser={{ isLoggedIn: false }}
+        organization={{ canProvisionProjects: true, key: 'foo', name: 'Foo' }}
+      />
+    )
+  ).toMatchSnapshot();
 });

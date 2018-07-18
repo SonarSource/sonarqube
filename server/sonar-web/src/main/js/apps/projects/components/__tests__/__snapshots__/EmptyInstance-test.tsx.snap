@@ -1,11 +1,69 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
+exports[`renders correctly for SC 1`] = `
 <div
   className="projects-empty-list"
 >
   <h3>
     projects.no_projects.empty_instance
   </h3>
+</div>
+`;
+
+exports[`renders correctly for SC 2`] = `
+<div
+  className="projects-empty-list"
+>
+  <h3>
+    projects.no_projects.empty_instance.new_project
+  </h3>
+  <div>
+    <p
+      className="big-spacer-top"
+    >
+      projects.no_projects.empty_instance.how_to_add_projects
+    </p>
+    <p
+      className="big-spacer-top"
+    >
+      <Button>
+        embed_docs.analyze_new_project
+      </Button>
+    </p>
+  </div>
+</div>
+`;
+
+exports[`renders correctly for SQ 1`] = `
+<div
+  className="projects-empty-list"
+>
+  <h3>
+    projects.no_projects.empty_instance
+  </h3>
+</div>
+`;
+
+exports[`renders correctly for SQ 2`] = `
+<div
+  className="projects-empty-list"
+>
+  <h3>
+    projects.no_projects.empty_instance.new_project
+  </h3>
+  <div>
+    <p
+      className="big-spacer-top"
+    >
+      projects.no_projects.empty_instance.how_to_add_projects
+    </p>
+    <p
+      className="big-spacer-top"
+    >
+      <Button>
+        embed_docs.analyze_new_project
+      </Button>
+    </p>
+  </div>
 </div>
 `;

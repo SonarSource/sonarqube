@@ -18,12 +18,48 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
+import { Button } from '../../../components/ui/buttons';
+import { Organization, CurrentUser, isLoggedIn } from '../../../app/types';
+import { isSonarCloud } from '../../../helpers/system';
 
-export default function EmptyInstance() {
-  return (
-    <div className="projects-empty-list">
-      <h3>{translate('projects.no_projects.empty_instance')}</h3>
-    </div>
-  );
+interface Props {
+  organization?: Organization;
+  currentUser: CurrentUser;
+}
+
+export default class EmptyInstance extends React.PureComponent<Props> {
+  static contextTypes = {
+    openProjectOnboarding: PropTypes.func
+  };
+
+  render() {
+    const { currentUser, organization } = this.props;
+    const showNewProjectButton = isSonarCloud()
+      ? organization && organization.canProvisionProjects
+      : isLoggedIn(currentUser);
+
+    return (
+      <div className="projects-empty-list">
+        <h3>
+          {showNewProjectButton
+            ? translate('projects.no_projects.empty_instance.new_project')
+            : translate('projects.no_projects.empty_instance')}
+        </h3>
+        {showNewProjectButton && (
+          <div>
+            <p className="big-spacer-top">
+              {translate('projects.no_projects.empty_instance.how_to_add_projects')}
+            </p>
+            <p className="big-spacer-top">
+              <Button onClick={this.context.openProjectOnboarding}>
+                {translate('embed_docs.analyze_new_project')}
+              </Button>
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
 }
