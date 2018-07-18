@@ -42,7 +42,16 @@ export default ({ data }) => {
     <div css={{ paddingTop: 24, paddingBottom: 24 }}>
       <Helmet title={page.frontmatter.title} />
       <h1>{page.frontmatter.title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: htmlWithInclusions }} />
+      <div
+        css={{
+          '& img[src$=".svg"]': {
+            position: 'relative',
+            top: '-2px',
+            verticalAlign: 'text-bottom'
+          }
+        }}
+        dangerouslySetInnerHTML={{ __html: htmlWithInclusions }}
+      />
     </div>
   );
 };

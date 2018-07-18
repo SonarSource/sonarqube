@@ -72,3 +72,7 @@
 .documentation-content.markdown li > p + ol {
   margin: 0;
 }
+
+.documentation-content.markdown img[src$='.svg'] {
+  vertical-align: text-bottom;
+}
