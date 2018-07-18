@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
@@ -48,6 +49,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class ReportFormulaExecutorComponentVisitorTest {
   private static final int ROOT_REF = 1;
@@ -79,6 +81,8 @@ public class ReportFormulaExecutorComponentVisitorTest {
     .build();
 
   @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
@@ -92,7 +96,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("some mode", null, 95l, "756l"));
 
   @Test
-  public void verify_aggregation_on_value() throws Exception {
+  public void verify_aggregation_on_value() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
     measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
@@ -113,7 +117,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_multi_metric_formula_support_and_aggregation() throws Exception {
+  public void verify_multi_metric_formula_support_and_aggregation() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
     measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
@@ -150,7 +154,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_aggregation_on_variation() throws Exception {
+  public void verify_aggregation_on_variation() {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
     measureRepository.addRawMeasure(FILE_1_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10));
@@ -171,7 +175,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void measures_are_0_when_there_is_no_input_measure() throws Exception {
+  public void measures_are_0_when_there_is_no_input_measure() {
     ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
         ReportComponent.builder(MODULE, MODULE_1_REF)
@@ -194,7 +198,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void add_measure_even_when_leaf_is_not_FILE() throws Exception {
+  public void add_measure_even_when_leaf_is_not_FILE() {
     ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
         ReportComponent.builder(MODULE, MODULE_1_REF)
@@ -209,6 +213,83 @@ public class ReportFormulaExecutorComponentVisitorTest {
 
     assertAddedRawMeasure(MODULE_1_REF, 0);
     assertAddedRawMeasure(DIRECTORY_1_REF, 0);
+  }
+
+  @Test
+  public void compute_measure_on_project_without_children() {
+    ReportComponent root = builder(PROJECT, ROOT_REF).build();
+    treeRootHolder.setRoot(root);
+    measureRepository.addRawMeasure(ROOT_REF, LINES_KEY, newMeasureBuilder().create(10));
+
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(root);
+
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(10)));
+  }
+
+  @Test
+  public void ignore_measure_defined_on_project_when_measure_is_defined_on_leaf() {
+    ReportComponent root = builder(PROJECT, ROOT_REF)
+      .addChildren(
+        builder(Component.Type.FILE, FILE_1_REF).build())
+      .build();
+    treeRootHolder.setRoot(root);
+    measureRepository.addRawMeasure(ROOT_REF, LINES_KEY, newMeasureBuilder().create(10));
+    measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(2));
+
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(root);
+
+    assertAddedRawMeasure(ROOT_REF, 2);
+    assertAddedRawMeasure(FILE_1_REF, 2);
+  }
+
+  @Test
+  public void fail_when_trying_to_compute_file_measure_already_existing_in_report() {
+    ReportComponent root = builder(PROJECT, ROOT_REF)
+      .addChildren(
+        builder(Component.Type.FILE, FILE_1_REF).build())
+      .build();
+    treeRootHolder.setRoot(root);
+    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(2));
+
+    expectedException.expectCause(hasType(UnsupportedOperationException.class)
+      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY)));
+
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(root);
+  }
+
+  @Test
+  public void fail_on_project_without_children_already_having_computed_measure() {
+    ReportComponent root = builder(PROJECT, ROOT_REF).build();
+    treeRootHolder.setRoot(root);
+    measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(10));
+
+    expectedException.expectCause(hasType(UnsupportedOperationException.class)
+      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", ROOT_REF, NCLOC_KEY)));
+
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(root);
+  }
+
+  @Test
+  public void fail_on_project_containing_module_without_children_already_having_computed_measure() {
+    ReportComponent root = builder(PROJECT, ROOT_REF)
+      .addChildren(
+        ReportComponent.builder(MODULE, MODULE_1_REF).build(),
+        builder(Component.Type.FILE, FILE_1_REF).build())
+      .build();
+    treeRootHolder.setRoot(root);
+    measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
+    // Ncloc is already computed on module
+    measureRepository.addRawMeasure(MODULE_1_REF, NCLOC_KEY, newMeasureBuilder().create(3));
+
+    expectedException.expectCause(hasType(UnsupportedOperationException.class)
+      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", MODULE_1_REF, NCLOC_KEY)));
+
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(root);
   }
 
   private FormulaExecutorComponentVisitor formulaExecutorComponentVisitor(Formula formula) {

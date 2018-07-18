@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.formula.Counter;
@@ -31,6 +30,7 @@ import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureCo
 import org.sonar.server.computation.task.projectanalysis.formula.Formula;
 import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.IntSumCounter;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.LongSumCounter;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
@@ -42,20 +42,15 @@ import static org.sonar.api.measures.CoreMetrics.TEST_ERRORS_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
-import static org.sonar.server.computation.task.projectanalysis.formula.SumFormula.createIntSumFormula;
-import static org.sonar.server.computation.task.projectanalysis.formula.SumFormula.createLongSumFormula;
 
 /**
  * Computes unit test measures on files and then aggregates them on higher components.
  */
 public class UnitTestMeasuresStep implements ComputationStep {
 
-  private static final String[] METRICS = new String[] {TESTS_KEY, TEST_ERRORS_KEY, TEST_FAILURES_KEY, TEST_SUCCESS_DENSITY_KEY};
+  private static final String[] METRICS = new String[] {TESTS_KEY, TEST_ERRORS_KEY, TEST_FAILURES_KEY, SKIPPED_TESTS_KEY, TEST_SUCCESS_DENSITY_KEY, TEST_EXECUTION_TIME_KEY};
 
-  private static final ImmutableList<Formula> FORMULAS = ImmutableList.<Formula>of(
-    createLongSumFormula(TEST_EXECUTION_TIME_KEY),
-    createIntSumFormula(SKIPPED_TESTS_KEY),
-    new UnitTestsFormula());
+  private static final ImmutableList<Formula> FORMULAS = ImmutableList.of(new UnitTestsFormula());
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
@@ -84,13 +79,18 @@ public class UnitTestMeasuresStep implements ComputationStep {
     @Override
     public Optional<Measure> createMeasure(UnitTestsCounter counter, CreateMeasureContext context) {
       String metricKey = context.getMetric().getKey();
+      Component leaf = counter.getLeaf();
       switch (metricKey) {
         case TESTS_KEY:
-          return createMeasure(context.getComponent().getType(), counter.testsCounter.getValue());
+          return createIntMeasure(context.getComponent(), leaf, counter.testsCounter.getValue());
         case TEST_ERRORS_KEY:
-          return createMeasure(context.getComponent().getType(), counter.testsErrorsCounter.getValue());
+          return createIntMeasure(context.getComponent(), leaf, counter.testsErrorsCounter.getValue());
         case TEST_FAILURES_KEY:
-          return createMeasure(context.getComponent().getType(), counter.testsFailuresCounter.getValue());
+          return createIntMeasure(context.getComponent(), leaf, counter.testsFailuresCounter.getValue());
+        case SKIPPED_TESTS_KEY:
+          return createIntMeasure(context.getComponent(), leaf, counter.skippedTestsCounter.getValue());
+        case TEST_EXECUTION_TIME_KEY:
+          return createLongMeasure(context.getComponent(), leaf, counter.testExecutionTimeCounter.getValue());
         case TEST_SUCCESS_DENSITY_KEY:
           return createDensityMeasure(counter, context.getMetric().getDecimalScale());
         default:
@@ -98,8 +98,15 @@ public class UnitTestMeasuresStep implements ComputationStep {
       }
     }
 
-    private static Optional<Measure> createMeasure(Component.Type componentType, Optional<Integer> metricValue) {
-      if (metricValue.isPresent() && CrawlerDepthLimit.LEAVES.isDeeperThan(componentType)) {
+    private static Optional<Measure> createIntMeasure(Component currentComponent, Component leafComponent, Optional<Integer> metricValue) {
+      if (metricValue.isPresent() && leafComponent.getType().isDeeperThan(currentComponent.getType())) {
+        return Optional.of(Measure.newMeasureBuilder().create(metricValue.get()));
+      }
+      return Optional.absent();
+    }
+
+    private static Optional<Measure> createLongMeasure(Component currentComponent, Component leafComponent, Optional<Long> metricValue) {
+      if (metricValue.isPresent() && leafComponent.getType().isDeeperThan(currentComponent.getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(metricValue.get()));
       }
       return Optional.absent();
@@ -133,19 +140,32 @@ public class UnitTestMeasuresStep implements ComputationStep {
     private final IntSumCounter testsCounter = new IntSumCounter(TESTS_KEY);
     private final IntSumCounter testsErrorsCounter = new IntSumCounter(TEST_ERRORS_KEY);
     private final IntSumCounter testsFailuresCounter = new IntSumCounter(TEST_FAILURES_KEY);
+    private final IntSumCounter skippedTestsCounter = new IntSumCounter(SKIPPED_TESTS_KEY);
+    private final LongSumCounter testExecutionTimeCounter = new LongSumCounter(TEST_EXECUTION_TIME_KEY);
+
+    private Component leaf;
 
     @Override
     public void aggregate(UnitTestsCounter counter) {
       testsCounter.aggregate(counter.testsCounter);
       testsErrorsCounter.aggregate(counter.testsErrorsCounter);
       testsFailuresCounter.aggregate(counter.testsFailuresCounter);
+      skippedTestsCounter.aggregate(counter.skippedTestsCounter);
+      testExecutionTimeCounter.aggregate(counter.testExecutionTimeCounter);
     }
 
     @Override
     public void initialize(CounterInitializationContext context) {
+      this.leaf = context.getLeaf();
       testsCounter.initialize(context);
       testsErrorsCounter.initialize(context);
       testsFailuresCounter.initialize(context);
+      skippedTestsCounter.initialize(context);
+      testExecutionTimeCounter.initialize(context);
+    }
+
+    Component getLeaf() {
+      return leaf;
     }
   }
 

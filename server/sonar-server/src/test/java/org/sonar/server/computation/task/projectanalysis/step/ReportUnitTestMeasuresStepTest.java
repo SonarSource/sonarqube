@@ -113,7 +113,7 @@ public class ReportUnitTestMeasuresStepTest {
   }
 
   @Test
-  public void aggregate_skipped_tests_time() {
+  public void aggregate_skipped_tests() {
     checkMeasuresAggregation(SKIPPED_TESTS_KEY, 100, 400, 500);
   }
 
@@ -256,6 +256,54 @@ public class ReportUnitTestMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
     assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
+  }
+
+  @Test
+  public void aggregate_measures_when_tests_measures_are_defined_on_directory() {
+    treeRootHolder.setRoot(builder(PROJECT, ROOT_REF)
+      .addChildren(
+        builder(MODULE, MODULE_REF)
+          .addChildren(
+            builder(DIRECTORY, DIRECTORY_REF).build())
+          .build())
+      .build());
+    measureRepository.addRawMeasure(DIRECTORY_REF, TESTS_KEY, newMeasureBuilder().create(10));
+    measureRepository.addRawMeasure(DIRECTORY_REF, TEST_ERRORS_KEY, newMeasureBuilder().create(2));
+    measureRepository.addRawMeasure(DIRECTORY_REF, TEST_FAILURES_KEY, newMeasureBuilder().create(1));
+    measureRepository.addRawMeasure(DIRECTORY_REF, SKIPPED_TESTS_KEY, newMeasureBuilder().create(5));
+    measureRepository.addRawMeasure(DIRECTORY_REF, TEST_EXECUTION_TIME_KEY, newMeasureBuilder().create(100L));
+
+    underTest.execute();
+
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(
+      entryOf(TESTS_KEY, newMeasureBuilder().create(10)),
+      entryOf(TEST_ERRORS_KEY, newMeasureBuilder().create(2)),
+      entryOf(TEST_FAILURES_KEY, newMeasureBuilder().create(1)),
+      entryOf(SKIPPED_TESTS_KEY, newMeasureBuilder().create(5)),
+      entryOf(TEST_EXECUTION_TIME_KEY, newMeasureBuilder().create(100L)),
+      entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(70d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(
+      entryOf(TESTS_KEY, newMeasureBuilder().create(10)),
+      entryOf(TEST_ERRORS_KEY, newMeasureBuilder().create(2)),
+      entryOf(TEST_FAILURES_KEY, newMeasureBuilder().create(1)),
+      entryOf(SKIPPED_TESTS_KEY, newMeasureBuilder().create(5)),
+      entryOf(TEST_EXECUTION_TIME_KEY, newMeasureBuilder().create(100L)),
+      entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(70d, 1)));
+  }
+
+  @Test
+  public void compute_test_success_density_measure_when_tests_measures_are_defined_at_project_level_and_no_children() {
+    treeRootHolder.setRoot(builder(PROJECT, ROOT_REF).build());
+    measureRepository.addRawMeasure(ROOT_REF, TESTS_KEY, newMeasureBuilder().create(10));
+    measureRepository.addRawMeasure(ROOT_REF, TEST_ERRORS_KEY, newMeasureBuilder().create(2));
+    measureRepository.addRawMeasure(ROOT_REF, TEST_FAILURES_KEY, newMeasureBuilder().create(1));
+    measureRepository.addRawMeasure(ROOT_REF, SKIPPED_TESTS_KEY, newMeasureBuilder().create(5));
+    measureRepository.addRawMeasure(ROOT_REF, TEST_EXECUTION_TIME_KEY, newMeasureBuilder().create(100L));
+
+    underTest.execute();
+
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(
+      entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(70d, 1)));
   }
 
   private void checkMeasuresAggregation(String metricKey, int file1Value, int file2Value, int expectedValue) {
