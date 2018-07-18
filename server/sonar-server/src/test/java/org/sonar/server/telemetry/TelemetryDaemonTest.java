@@ -45,6 +45,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
+import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.tester.UserSessionRule;
@@ -102,7 +103,7 @@ public class TelemetryDaemonTest {
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
   private final TelemetryDataLoader dataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()));
   private TelemetryDaemon underTest = new TelemetryDaemon(dataLoader, client, settings.asConfig(), internalProperties, system2);
 
   @After

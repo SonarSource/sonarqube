@@ -219,7 +219,7 @@ public class LiveMeasureDaoTest {
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession());
+    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), organization.getUuid());
 
     assertThat(result).isEqualTo(10L + 200L);
   }
@@ -229,7 +229,7 @@ public class LiveMeasureDaoTest {
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
 
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession());
+    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), db.getDefaultOrganization().getUuid());
 
     assertThat(result).isEqualTo(0L);
   }
@@ -252,7 +252,11 @@ public class LiveMeasureDaoTest {
     db.measures().insertLiveMeasure(projectToExclude, ncloc, m -> m.setValue(300d));
     db.measures().insertLiveMeasure(projectToExcludeBranch, ncloc, m -> m.setValue(400d));
 
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), SumNclocDbQuery.builder().setProjectUuidToExclude(projectToExclude.uuid()).build());
+    SumNclocDbQuery query = SumNclocDbQuery.builder()
+      .setOrganizationUuid(organization.getUuid())
+      .setProjectUuidToExclude(projectToExclude.uuid())
+      .build();
+    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), query);
 
     assertThat(result).isEqualTo(10L + 200L);
   }

@@ -22,17 +22,25 @@ package org.sonar.db.measure;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class SumNclocDbQuery {
 
   private final String projectUuidToExclude;
+  private final String organizationUuid;
 
   public SumNclocDbQuery(Builder builder) {
     projectUuidToExclude = builder.projectUuidToExclude;
+    organizationUuid = builder.organizationUuid;
   }
 
   @CheckForNull
   public String getProjectUuidToExclude() {
     return projectUuidToExclude;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   public static Builder builder() {
@@ -41,6 +49,7 @@ public class SumNclocDbQuery {
 
   public static class Builder {
     private String projectUuidToExclude;
+    private String organizationUuid;
 
     private Builder() {
       // to enforce use of builder()
@@ -51,7 +60,13 @@ public class SumNclocDbQuery {
       return this;
     }
 
+    public Builder setOrganizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
+    }
+
     public SumNclocDbQuery build() {
+      checkNotNull(organizationUuid);
       return new SumNclocDbQuery(this);
     }
   }

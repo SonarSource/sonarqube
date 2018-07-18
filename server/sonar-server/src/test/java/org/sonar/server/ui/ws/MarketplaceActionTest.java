@@ -32,6 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -57,7 +58,7 @@ public class MarketplaceActionTest {
 
   private Server server = mock(Server.class);
   private DbClient dbClient = db.getDbClient();
-  private MarketplaceAction underTest = new MarketplaceAction(userSessionRule, server, dbClient);
+  private MarketplaceAction underTest = new MarketplaceAction(userSessionRule, server, dbClient, new DefaultOrganizationProviderImpl(dbClient));
 
   private WsActionTester ws = new WsActionTester(underTest);
 

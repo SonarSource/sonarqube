@@ -36,24 +36,25 @@
 
   <select id="sumNclocOfBiggestLongLivingBranch" parameterType="map" resultType="long">
     select sum(sumncloc.maxncloc) from (
-    select b.project_uuid as projectUuid, max(lm.value) as maxncloc
-    from live_measures lm
-    inner join metrics m on m.id = lm.metric_id
-    inner join projects p on p.uuid = lm.component_uuid
-    inner join project_branches b on b.uuid = p.uuid
-    <where>
-    m.name = #{ncloc, jdbcType=VARCHAR}
-    and p.enabled = ${_true}
-    and p.scope = 'PRJ'
-    and p.qualifier = 'TRK'
-    and p.copy_component_uuid is null
-    and b.branch_type = #{branchType, jdbcType=VARCHAR}
-    and b.key_type = #{branch, jdbcType=VARCHAR}
-    <if test="projectUuidToExclude != null">
-      and b.project_uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
-    </if>
-    </where>
-    group by b.project_uuid
+      select b.project_uuid as projectUuid, max(lm.value) as maxncloc
+      from live_measures lm
+      inner join metrics m on m.id = lm.metric_id
+      inner join projects p on p.uuid = lm.component_uuid
+      inner join project_branches b on b.uuid = p.uuid
+      <where>
+        m.name = #{ncloc, jdbcType=VARCHAR}
+        and p.enabled = ${_true}
+        and p.scope = 'PRJ'
+        and p.qualifier = 'TRK'
+        and p.copy_component_uuid is null
+        and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+        and b.branch_type = #{branchType, jdbcType=VARCHAR}
+        and b.key_type = #{branch, jdbcType=VARCHAR}
+        <if test="projectUuidToExclude != null">
+          and b.project_uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
+        </if>
+      </where>
+      group by b.project_uuid
     ) sumncloc
   </select>
 

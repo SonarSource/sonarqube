@@ -47,6 +47,7 @@ public interface LiveMeasureMapper {
     @Param("ncloc") String nclocKey,
     @Param("branch") KeyType branchOrPullRequest,
     @Param("branchType") BranchType branchType,
+    @Param("organizationUuid") String organizationUuid,
     @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
 
   void insert(

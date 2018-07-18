@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.telemetry.TelemetryData.Database;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
@@ -46,15 +47,17 @@ public class TelemetryDataLoader {
   private final UserIndex userIndex;
   private final ProjectMeasuresIndex projectMeasuresIndex;
   private final PlatformEditionProvider editionProvider;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public TelemetryDataLoader(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider) {
+    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
     this.userIndex = userIndex;
     this.projectMeasuresIndex = projectMeasuresIndex;
     this.editionProvider = editionProvider;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public TelemetryData load() {
@@ -73,7 +76,7 @@ public class TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
       data.setUsingBranches(dbClient.branchDao().hasNonMainBranches(dbSession));
-      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession));
+      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, defaultOrganizationProvider.get().getUuid()));
     }
 
     return data.build();
