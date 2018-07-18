@@ -51,6 +51,10 @@ public class CommentDensityRuleTest {
     .setFileAttributes(new FileAttributes(false, PLUGIN_KEY, 1))
     .build();
 
+  static ReportComponent TEST_FILE = ReportComponent.builder(Component.Type.FILE, 1)
+    .setFileAttributes(new FileAttributes(true, PLUGIN_KEY, 1))
+    .build();
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -83,10 +87,7 @@ public class CommentDensityRuleTest {
 
   @Test
   public void issue_if_not_enough_comments() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L, PLUGIN_KEY));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(10.0, 1));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(40));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(360));
+    prepareForIssue("25", FILE, 10.0, 40, 360);
 
     DefaultIssue issue = underTest.processFile(FILE, PLUGIN_KEY);
 
@@ -99,11 +100,17 @@ public class CommentDensityRuleTest {
   }
 
   @Test
+  public void no_issues_on_tests() {
+    prepareForIssue("25", TEST_FILE, 10.0, 40, 360);
+
+    DefaultIssue issue = underTest.processFile(TEST_FILE, PLUGIN_KEY);
+
+    assertThat(issue).isNull();
+  }
+
+  @Test
   public void issue_if_not_enough_comments__test_ceil() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L, PLUGIN_KEY));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(0.0, 1));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(1));
+    prepareForIssue("25", FILE, 0.0, 0, 1);
 
     DefaultIssue issue = underTest.processFile(FILE, PLUGIN_KEY);
 
@@ -122,11 +129,17 @@ public class CommentDensityRuleTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Minimum density of rule [common-java:InsufficientCommentDensity] is incorrect. Got [100] but must be strictly less than 100.");
 
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "100"), 1_000L, PLUGIN_KEY));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(0.0, 1));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(1));
+    prepareForIssue("100", FILE, 0.0, 0, 1);
 
     underTest.processFile(FILE, PLUGIN_KEY);
   }
+
+  private void prepareForIssue(String minDensity, ReportComponent file, double commentLineDensity, int commentLines, int ncloc) {
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, minDensity), 1_000L, PLUGIN_KEY));
+    measureRepository.addRawMeasure(file.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(commentLineDensity, 1));
+    measureRepository.addRawMeasure(file.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(commentLines));
+    measureRepository.addRawMeasure(file.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(ncloc));
+  }
+
+
 }

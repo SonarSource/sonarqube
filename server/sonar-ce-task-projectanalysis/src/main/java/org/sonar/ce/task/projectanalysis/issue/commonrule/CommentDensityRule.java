@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.issue.commonrule;
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -54,7 +53,7 @@ public class CommentDensityRule extends CommonRule {
     Optional<Measure> commentLinesMeasure = measureRepository.getRawMeasure(file, commentLinesMetric);
     Optional<Measure> nclocMeasure = measureRepository.getRawMeasure(file, nclocMetric);
 
-    if (commentDensityMeasure.isPresent() && nclocMeasure.isPresent() && nclocMeasure.get().getIntValue() > 0) {
+    if (!file.getFileAttributes().isUnitTest() && commentDensityMeasure.isPresent() && nclocMeasure.isPresent() && nclocMeasure.get().getIntValue() > 0) {
       // this is a small optimization to not load the minimum value when the measures are not present
       double minCommentDensity = getMinDensity(activeRule);
       if (commentDensityMeasure.get().getDoubleValue() < minCommentDensity) {
@@ -64,7 +63,7 @@ public class CommentDensityRule extends CommonRule {
     return null;
   }
 
-  private double getMinDensity(ActiveRule activeRule) {
+  private static double getMinDensity(ActiveRule activeRule) {
     double min = getMinDensityParam(activeRule, CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY);
     if (min >= 100.0) {
       throw new IllegalStateException("Minimum density of rule [" + activeRule.getRuleKey() + "] is incorrect. Got [100] but must be strictly less than 100.");
@@ -73,7 +72,7 @@ public class CommentDensityRule extends CommonRule {
   }
 
   private static CommonRuleIssue generateIssue(Optional<Measure> commentDensityMeasure, Optional<Measure> commentLinesMeasure,
-                                               Optional<Measure> nclocMeasure, double minCommentDensity) {
+    Optional<Measure> nclocMeasure, double minCommentDensity) {
     int commentLines = commentLinesMeasure.isPresent() ? commentLinesMeasure.get().getIntValue() : 0;
     int ncloc = nclocMeasure.get().getIntValue();
     int minExpectedCommentLines = (int) Math.ceil(minCommentDensity * ncloc / (100 - minCommentDensity));
