@@ -250,7 +250,7 @@ public class CeActivityDto {
   }
 
   public CeActivityDto setErrorMessage(@Nullable String errorMessage) {
-    this.errorMessage = ensureNotTooBig(errorMessage, MAX_SIZE_ERROR_MESSAGE);
+    this.errorMessage = ensureNotTooBig(removeCharZeros(errorMessage), MAX_SIZE_ERROR_MESSAGE);
     return this;
   }
 
@@ -265,24 +265,13 @@ public class CeActivityDto {
   }
 
   @CheckForNull
-  private static String ensureNotTooBig(@Nullable String str, int maxSize) {
-    if (str == null) {
-      return null;
-    }
-    if (str.length() <= maxSize) {
-      return str;
-    }
-    return str.substring(0, maxSize);
-  }
-
-  @CheckForNull
   public String getErrorStacktrace() {
     return errorStacktrace;
   }
 
   @CheckForNull
   public CeActivityDto setErrorStacktrace(@Nullable String errorStacktrace) {
-    this.errorStacktrace = errorStacktrace;
+    this.errorStacktrace = removeCharZeros(errorStacktrace);
     return this;
   }
 
@@ -317,5 +306,27 @@ public class CeActivityDto {
       ", errorStacktrace='" + errorStacktrace + '\'' +
       ", hasScannerContext=" + hasScannerContext +
       '}';
+  }
+
+  @CheckForNull
+  private static String ensureNotTooBig(@Nullable String str, int maxSize) {
+    if (str == null) {
+      return null;
+    }
+    if (str.length() <= maxSize) {
+      return str;
+    }
+    return str.substring(0, maxSize);
+  }
+
+  @CheckForNull
+  private static String removeCharZeros(@Nullable String str) {
+    if (str == null || str.isEmpty()) {
+      return str;
+    }
+    return str.codePoints()
+      .filter(c -> c != "\u0000".codePointAt(0))
+      .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+      .toString();
   }
 }
