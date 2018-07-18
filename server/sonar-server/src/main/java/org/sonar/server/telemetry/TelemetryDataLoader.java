@@ -31,6 +31,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.SumNclocDbQuery;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
@@ -76,7 +77,11 @@ public class TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
       data.setUsingBranches(dbClient.branchDao().hasNonMainBranches(dbSession));
-      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, defaultOrganizationProvider.get().getUuid()));
+      SumNclocDbQuery query = SumNclocDbQuery.builder()
+        .setOnlyPrivateProjects(false)
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+        .build();
+      data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, query));
     }
 
     return data.build();

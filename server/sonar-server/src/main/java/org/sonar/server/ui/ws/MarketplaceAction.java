@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.SumNclocDbQuery;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Navigation;
@@ -70,7 +71,11 @@ public class MarketplaceAction implements NavigationWsAction {
 
   private long computeNcloc() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, defaultOrganizationProvider.get().getUuid());
+      SumNclocDbQuery query = SumNclocDbQuery.builder()
+        .setOnlyPrivateProjects(false)
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+        .build();
+      return dbClient.liveMeasureDao().sumNclocOfBiggestLongLivingBranch(dbSession, query);
     }
   }
 }

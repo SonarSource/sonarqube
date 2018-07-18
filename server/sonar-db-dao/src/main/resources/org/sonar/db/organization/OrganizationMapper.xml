@@ -339,6 +339,34 @@
     org.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectOrganizationsWithNcloc" resultType="org.sonar.db.organization.OrganizationWithNclocDto">
+    select o.uuid as id, o.kee as kee, o.name as name, t.ncloc as ncloc
+    from organizations o
+    left outer join (
+    select orgUuid, sum(sumncloc.maxncloc) as ncloc from (
+    select b.project_uuid, p.organization_uuid as orgUuid, max(lm.value) as maxncloc
+    from live_measures lm
+    inner join metrics m on m.id = lm.metric_id
+    inner join projects p on p.uuid = lm.component_uuid
+    inner join project_branches b on b.uuid = p.uuid
+    where
+    m.name = #{ncloc, jdbcType=VARCHAR}
+    and p.enabled = ${_true}
+    and p.private = ${_true}
+    and p.scope = 'PRJ'
+    and p.qualifier = 'TRK'
+    and p.copy_component_uuid is null
+    and p.organization_uuid in <foreach collection="organizationUuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
+    and b.branch_type = #{branchType, jdbcType=VARCHAR}
+    and b.key_type = #{branch, jdbcType=VARCHAR}
+    group by b.project_uuid, p.organization_uuid
+    ) sumncloc
+    group by orgUuid
+    ) t on t.orgUuid = o.uuid
+    where
+    o.uuid in <foreach collection="organizationUuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
+  </select>
+
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
     insert into organizations
     (
@@ -429,5 +457,4 @@
     where
       uuid = #{uuid, jdbcType=VARCHAR}
   </delete>
-
 </mapper>

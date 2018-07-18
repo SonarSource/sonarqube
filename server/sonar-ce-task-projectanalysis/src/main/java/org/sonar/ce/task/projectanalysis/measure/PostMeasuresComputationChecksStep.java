@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
@@ -95,11 +94,6 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
     @Override
     public String getOrganizationKey() {
       return analysisMetadataHolder.getOrganization().getKey();
-    }
-
-    @Override
-    public Branch getBranch() {
-      return analysisMetadataHolder.getBranch();
     }
   }
 }

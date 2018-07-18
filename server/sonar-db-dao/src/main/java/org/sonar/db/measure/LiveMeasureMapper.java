@@ -48,6 +48,7 @@ public interface LiveMeasureMapper {
     @Param("branch") KeyType branchOrPullRequest,
     @Param("branchType") BranchType branchType,
     @Param("organizationUuid") String organizationUuid,
+    @Param("private") Boolean privateProject,
     @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
 
   void insert(

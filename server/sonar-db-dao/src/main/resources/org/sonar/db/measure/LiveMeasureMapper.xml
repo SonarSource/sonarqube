@@ -43,6 +43,9 @@
       inner join project_branches b on b.uuid = p.uuid
       <where>
         m.name = #{ncloc, jdbcType=VARCHAR}
+        <if test="private">
+          and p.private=${_true}
+        </if>
         and p.enabled = ${_true}
         and p.scope = 'PRJ'
         and p.qualifier = 'TRK'

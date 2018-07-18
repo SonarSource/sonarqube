@@ -28,10 +28,12 @@ public class SumNclocDbQuery {
 
   private final String projectUuidToExclude;
   private final String organizationUuid;
+  private final Boolean onlyPrivateProjects;
 
   public SumNclocDbQuery(Builder builder) {
     projectUuidToExclude = builder.projectUuidToExclude;
     organizationUuid = builder.organizationUuid;
+    onlyPrivateProjects = builder.onlyPrivateProjects;
   }
 
   @CheckForNull
@@ -43,6 +45,10 @@ public class SumNclocDbQuery {
     return organizationUuid;
   }
 
+  public Boolean getOnlyPrivateProjects() {
+    return onlyPrivateProjects;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -50,6 +56,7 @@ public class SumNclocDbQuery {
   public static class Builder {
     private String projectUuidToExclude;
     private String organizationUuid;
+    private Boolean onlyPrivateProjects;
 
     private Builder() {
       // to enforce use of builder()
@@ -65,8 +72,14 @@ public class SumNclocDbQuery {
       return this;
     }
 
+    public Builder setOnlyPrivateProjects(Boolean onlyPrivateProjects) {
+      this.onlyPrivateProjects = onlyPrivateProjects;
+      return this;
+    }
+
     public SumNclocDbQuery build() {
       checkNotNull(organizationUuid);
+      checkNotNull(onlyPrivateProjects);
       return new SumNclocDbQuery(this);
     }
   }

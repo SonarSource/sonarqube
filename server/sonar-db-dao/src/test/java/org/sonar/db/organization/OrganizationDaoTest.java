@@ -22,6 +22,7 @@ package org.sonar.db.organization;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +32,10 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.assertj.core.groups.Tuple;
 import org.assertj.core.util.Lists;
 import org.junit.Rule;
 import org.junit.Test;
@@ -92,6 +95,7 @@ public class OrganizationDaoTest {
     .setDefaultQualityGateUuid("1");
   private static final String PERMISSION_1 = "foo";
   private static final String PERMISSION_2 = "bar";
+  private static final Random RANDOM = new Random();
 
   private System2 system2 = mock(System2.class);
 
@@ -1118,6 +1122,84 @@ public class OrganizationDaoTest {
         tuple("+50M", 0L));
   }
 
+  @Test
+  public void selectOrganizationsWithNcloc_on_zero_orgs() {
+    assertThat(underTest.selectOrganizationsWithNcloc(dbSession, new ArrayList<>()))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectOrganizationsWithNcloc_with_not_existing_uuid() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+    OrganizationDto org1 = db.organizations().insert();
+
+    assertThat(underTest.selectOrganizationsWithNcloc(dbSession, Lists.newArrayList("xxxx")))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectOrganizationsWithNcloc_with_organization_without_projects() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+    OrganizationDto org1 = db.organizations().insert();
+
+    assertThat(underTest.selectOrganizationsWithNcloc(dbSession, Lists.newArrayList(org1.getUuid())))
+      .extracting(OrganizationWithNclocDto::getId, OrganizationWithNclocDto::getKee, OrganizationWithNclocDto::getName, OrganizationWithNclocDto::getNcloc)
+      .containsExactlyInAnyOrder(
+        tuple(org1.getUuid(), org1.getKey(), org1.getName(), 0L)
+      );
+  }
+
+  @Test
+  public void selectOrganizationsWithNcloc_with_one_organization() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+    OrganizationDto org1 = db.organizations().insert();
+
+    // private project with highest ncloc in non-main branch
+    ComponentDto project1 = db.components().insertMainBranch(org1);
+    ComponentDto project1Branch = db.components().insertProjectBranch(project1);
+    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(1_000.0));
+    db.measures().insertLiveMeasure(project1Branch, ncloc, m -> m.setValue(110_000.0));
+
+
+    // public project that must be ignored
+    ComponentDto project2 = db.components().insertPublicProject(org1);
+    ComponentDto project2Branch = db.components().insertProjectBranch(project2);
+    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(1_000_000_000.0));
+    db.measures().insertLiveMeasure(project2Branch, ncloc, m -> m.setValue(1_000_000.0));
+
+    assertThat(underTest.selectOrganizationsWithNcloc(dbSession, Lists.newArrayList(org1.getUuid())))
+      .extracting(OrganizationWithNclocDto::getId, OrganizationWithNclocDto::getKee, OrganizationWithNclocDto::getName, OrganizationWithNclocDto::getNcloc)
+      .containsExactlyInAnyOrder(
+        tuple(org1.getUuid(), org1.getKey(), org1.getName(), 110_000L)
+      );
+  }
+
+  @Test
+  public void selectOrganizationsWithNcloc_with_multiple_organizations() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+
+    Tuple[] expectedResults = new Tuple[9];
+    List<String> orgUuids = new ArrayList<>();
+    IntStream.range(0, 9).forEach(
+      i -> {
+        OrganizationDto org = db.organizations().insert();
+        orgUuids.add(org.getUuid());
+
+        int maxPrivate = insertPrivateProjectsWithBranches(org, ncloc);
+        // Now we are creating public project asking for maxPrivate as minimum ncloc
+        // because those projects *MUST* not be taken during the calculation of ncloc for a private
+        // organization
+        insertPublicProjectsWithBranches(org, ncloc, maxPrivate);
+
+        expectedResults[i] = tuple(org.getUuid(), org.getKey(), org.getName(), (long) maxPrivate);
+      }
+    );
+
+    assertThat(underTest.selectOrganizationsWithNcloc(dbSession, orgUuids))
+      .extracting(OrganizationWithNclocDto::getId, OrganizationWithNclocDto::getKee, OrganizationWithNclocDto::getName, OrganizationWithNclocDto::getNcloc)
+      .containsExactlyInAnyOrder(expectedResults);
+  }
+
   private void expectDtoCanNotBeNull() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("OrganizationDto can't be null");
@@ -1166,8 +1248,8 @@ public class OrganizationDaoTest {
       preparedStatement.setString(5, view);
       preparedStatement.setBoolean(6, false);
       preparedStatement.setBoolean(7, false);
-      preparedStatement.setString(8, "1"); // TODO check ok ?
-      preparedStatement.setString(9, FREE.name()); // TODO check ok ?
+      preparedStatement.setString(8, "1");
+      preparedStatement.setString(9, FREE.name());
       preparedStatement.setLong(10, 1000L);
       preparedStatement.setLong(11, 2000L);
       preparedStatement.execute();
@@ -1252,5 +1334,39 @@ public class OrganizationDaoTest {
   private void verifyOrganizationUpdatedAt(String organization, Long updatedAt) {
     Map<String, Object> row = db.selectFirst(db.getSession(), String.format("select updated_at as \"updatedAt\" from organizations where uuid='%s'", organization));
     assertThat(row.get("updatedAt")).isEqualTo(updatedAt);
+  }
+
+  private int insertPrivateProjectsWithBranches(OrganizationDto org, MetricDto ncloc) {
+    // private project
+    ComponentDto project1 = db.components().insertMainBranch(org);
+
+    return Math.max(
+      // Create the ncloc on main branch
+      insertLiveMeasures(project1, ncloc, 0),
+      // Create 5 branches and set the ncloc on them
+      IntStream.range(1, 5)
+      .map(i -> insertLiveMeasures(db.components().insertProjectBranch(project1), ncloc, 0))
+      .max().orElse(0)
+    );
+  }
+
+  private int insertPublicProjectsWithBranches(OrganizationDto org, MetricDto ncloc, int minimumNcloc) {
+    // private project
+    ComponentDto project1 = db.components().insertPublicProject(org);
+
+    return Math.max(
+      // Create the ncloc on main branch
+      insertLiveMeasures(project1, ncloc, minimumNcloc),
+      // Create 5 branches and set the ncloc on them
+      IntStream.range(1, 5)
+        .map(i -> insertLiveMeasures(db.components().insertProjectBranch(project1), ncloc, minimumNcloc))
+        .max().orElse(0)
+    );
+  }
+
+  private int insertLiveMeasures(ComponentDto componentDto, MetricDto ncloc, int minimum) {
+    int nclocValue = minimum + RANDOM.nextInt(1_000_000);
+    db.measures().insertLiveMeasure(componentDto, ncloc, m -> m.setValue((double) nclocValue));
+    return nclocValue;
   }
 }

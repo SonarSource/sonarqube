@@ -19,6 +19,7 @@
  */
 package org.sonar.db.organization;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,11 +28,15 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.KeyLongValue;
 import org.sonar.db.Pagination;
+import org.sonar.db.component.BranchType;
+import org.sonar.db.component.KeyType;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class OrganizationDao implements Dao {
 
@@ -143,6 +148,14 @@ public class OrganizationDao implements Dao {
 
   public int deleteByUuid(DbSession dbSession, String uuid) {
     return getMapper(dbSession).deleteByUuid(uuid);
+  }
+
+  public List<OrganizationWithNclocDto> selectOrganizationsWithNcloc(DbSession dbSession, List<String> organizationUuids) {
+    List<OrganizationWithNclocDto> result = new ArrayList<>();
+    executeLargeUpdates(organizationUuids, chunk ->
+      result.addAll(getMapper(dbSession).selectOrganizationsWithNcloc(NCLOC_KEY, chunk, KeyType.BRANCH, BranchType.LONG))
+    );
+    return result;
   }
 
   private static void checkDto(OrganizationDto organization) {

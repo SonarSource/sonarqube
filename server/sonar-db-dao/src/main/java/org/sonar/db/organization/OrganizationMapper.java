@@ -24,6 +24,8 @@ import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.KeyLongValue;
 import org.sonar.db.Pagination;
+import org.sonar.db.component.BranchType;
+import org.sonar.db.component.KeyType;
 
 public interface OrganizationMapper {
   void insert(@Param("organization") OrganizationDto organization, @Param("newProjectPrivate") boolean newProjectPrivate);
@@ -78,4 +80,11 @@ public interface OrganizationMapper {
   void updateNewProjectPrivate(@Param("organizationUuid") String organizationUuid, @Param("newProjectPrivate") boolean newProjectPrivate, @Param("now") long now);
 
   int deleteByUuid(@Param("uuid") String uuid);
+
+  List<OrganizationWithNclocDto> selectOrganizationsWithNcloc(
+    @Param("ncloc") String ncloc,
+    @Param("organizationUuids") List<String> organizationUuids,
+    @Param("branch") KeyType branchOrPullRequest,
+    @Param("branchType") BranchType branchType);
+
 }

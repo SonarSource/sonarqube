@@ -219,7 +219,11 @@ public class LiveMeasureDaoTest {
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), organization.getUuid());
+    SumNclocDbQuery query = SumNclocDbQuery.builder()
+      .setOnlyPrivateProjects(false)
+      .setOrganizationUuid(organization.getUuid())
+      .build();
+    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), query);
 
     assertThat(result).isEqualTo(10L + 200L);
   }
@@ -228,8 +232,11 @@ public class LiveMeasureDaoTest {
   public void countNcloc_empty() {
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
-
-    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), db.getDefaultOrganization().getUuid());
+    SumNclocDbQuery query = SumNclocDbQuery.builder()
+      .setOnlyPrivateProjects(false)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
+    long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), query);
 
     assertThat(result).isEqualTo(0L);
   }
@@ -255,6 +262,7 @@ public class LiveMeasureDaoTest {
     SumNclocDbQuery query = SumNclocDbQuery.builder()
       .setOrganizationUuid(organization.getUuid())
       .setProjectUuidToExclude(projectToExclude.uuid())
+      .setOnlyPrivateProjects(false)
       .build();
     long result = underTest.sumNclocOfBiggestLongLivingBranch(db.getSession(), query);
 
