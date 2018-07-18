@@ -24,7 +24,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.component.SnapshotDao.ComponentUuidFromDatePair;
 
 public interface SnapshotMapper {
@@ -55,7 +54,6 @@ public interface SnapshotMapper {
 
   void update(SnapshotDto analysis);
 
-  List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(@Param("componentUuidFromDatePairs") List<ComponentUuidFromDatePair> pairs,
-    @Param("ceStatus") CeActivityDto.Status ceStatus);
+  List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(@Param("componentUuidFromDatePairs") List<ComponentUuidFromDatePair> pairs);
 
 }

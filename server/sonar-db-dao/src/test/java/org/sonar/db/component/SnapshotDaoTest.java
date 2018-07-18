@@ -235,7 +235,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void selectFinishedByComponentUuidsAndFromDates_ignores_unsuccessful_analysis() {
+  public void selectFinishedByComponentUuidsAndFromDates_returns_processed_analysis_even_if_analysis_failed() {
     long from = 1_500_000_000_000L;
     ComponentDto project = db.components().insertMainBranch();
     SnapshotDto unprocessedAnalysis = db.components().insertSnapshot(project, s -> s.setStatus(STATUS_UNPROCESSED).setCreatedAt(from + 1_000_000L));
@@ -248,7 +248,7 @@ public class SnapshotDaoTest {
     List<SnapshotDto> result = underTest.selectFinishedByComponentUuidsAndFromDates(dbSession, singletonList(project.uuid()), singletonList(from));
 
     assertThat(result).extracting(SnapshotDto::getUuid)
-      .containsExactlyInAnyOrder(finishedAnalysis.getUuid());
+      .containsExactlyInAnyOrder(finishedAnalysis.getUuid(), canceledAnalysis.getUuid());
   }
 
   @Test

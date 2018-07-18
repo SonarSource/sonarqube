@@ -32,7 +32,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeActivityDto.Status;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -111,7 +110,7 @@ public class SnapshotDao implements Dao {
       .mapToObj(i -> new ComponentUuidFromDatePair(componentUuids.get(i), fromDates.get(i)))
       .collect(MoreCollectors.toList(componentUuids.size()));
 
-    return executeLargeInputs(componentUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByComponentUuidsAndFromDates(partition, Status.SUCCESS), i -> i / 2);
+    return executeLargeInputs(componentUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByComponentUuidsAndFromDates(partition), i -> i / 2);
   }
 
   public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String componentUuid, String analysisUuid) {
