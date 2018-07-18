@@ -191,9 +191,16 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderSecurityReports() {
-    if (this.props.component.qualifier === 'BRC' || this.props.component.qualifier === 'DIR') {
+    const { branchLike, component } = this.props;
+
+    if (component.qualifier === 'BRC' || component.qualifier === 'DIR') {
       return null;
     }
+
+    if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
+      return null;
+    }
+
     const isActive = location.pathname.startsWith('/project/security_reports');
     return (
       <Dropdown overlay={this.renderSecurityReportsLink()} tagName="li">
