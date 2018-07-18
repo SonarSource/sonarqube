@@ -116,7 +116,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <div className="layout-page">
         <Helmet title={isIndex || this.state.notFound ? mainTitle : `${pageTitle} - ${mainTitle}`}>
-          <meta content="noindex nofollow" name="robots" />
+          {!isSonarCloud() && <meta content="noindex nofollow" name="robots" />}
         </Helmet>
         <ScreenPositionHelper className="layout-page-side-outer">
           {({ top }) => (
