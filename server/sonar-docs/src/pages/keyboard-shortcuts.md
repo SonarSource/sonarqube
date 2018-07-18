@@ -1,5 +1,6 @@
 ---
 title: Keyboard Shortcuts
+order: 99
 ---
 
 ## Global

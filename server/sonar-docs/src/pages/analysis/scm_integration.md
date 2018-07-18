@@ -9,10 +9,7 @@ Collecting SCM data during code analysis can unlock a number of SonarQube featur
 * SCM-driven detection of new code (to help with Fixing the Water Leak). Without SCM data, SonarQube determines new code using analysis dates (to timestamp modification of lines).
 
 ### Turning it on/off
-SCM integration requires support for your individual SCM provider. Git and SVN are supported by default. 
-<!-- sonarqube -->
-For other SCM providers, see the Marketplace.
-<!-- /sonarqube -->
+SCM integration requires support for your individual SCM provider. Git and SVN are supported by default. <!-- sonarqube -->For other SCM providers, see the Marketplace.<!-- /sonarqube -->
 
-Then, if need be, you can toggle it off at global/project level via administration settings.
+If need be, you can toggle it off at global/project level via administration settings.
 

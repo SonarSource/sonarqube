@@ -38,4 +38,4 @@ Please note you cannot use `sonar.branch` together with `sonar.branch.name`.
 **A:** When the computation of the background task is done for a given branch but also when an issue is updated on a short-lived branch.
 
 **Q:** What is the impact on my LOCs consumption vs my license?  
-**A:** LOCs scanned on long-lived or short-lived branches are NOT counted so you can scan as much as you want without impact on your LOCs consumed
+**A:** The LOC of your largest branch are counted toward your license limit. All other branches are ignored.  

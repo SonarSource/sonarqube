@@ -2,13 +2,12 @@
 title: Branches
 ---
 
+<!-- sonarqube -->
+_Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)_
+<!-- /sonarqube -->
+
 ## Table of Contents
 
-<!-- sonarqube -->
-
-_Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)_
-
-<!-- /sonarqube -->
 
 Branch analysis allows you to
 

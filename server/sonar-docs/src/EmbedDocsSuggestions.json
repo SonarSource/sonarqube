@@ -1,7 +1,12 @@
 {
   "account": [],
   "api_documentation": [],
-  "background_tasks": [],
+  "background_tasks": [
+    {
+      "link": "/documentation/analysis/background-tasks",
+      "text": "About Background Tasks"
+    }
+  ],
   "code": [],
   "coding_rules": [
     {
@@ -19,12 +24,26 @@
       "text": "Fixing the Water Leak"
     },
     {
+      "link":"/documentation/metric-definitions",
+      "text":"Metric Definitions"
+    },
+    {
       "link": "/documentation/keyboard-shortcuts",
       "text": "Keyboard Shortcuts"
     }
   ],
-  "custom_measures": [],
-  "custom_metrics": [],
+  "custom_measures": [
+    {
+      "link": "/documentation/custom-measures",
+      "text": "About Custom Measures"
+    }
+  ],
+  "custom_metrics": [
+    {
+      "link": "/documentation/custom-measures",
+      "text": "Custom Measures"
+    }
+  ],
   "extension_billing": [
     {
       "link": "/documentation/sonarcloud-pricing",
@@ -71,13 +90,36 @@
     {
       "link": "/documentation/fixing-the-water-leak",
       "text": "Fixing the Water Leak"
+    },
+    {
+      "link": "/documentation/branches/index",
+      "text": "Branches Overview"
+    },
+    {
+      "link": "/documentation/analysis/pull-request",
+      "text": "Analyzing Pull Requests"
     }
   ],
   "permission_templates": [],
-  "profiles": [],
+  "profiles": [ 
+    {
+      "link": "/documentation/quality-profiles",
+      "text": "Quality Profiles"
+    }
+  ],
   "project_activity": [],
-  "project_quality_gate": [],
-  "project_quality_profiles": [],
+  "project_quality_gate": [
+    {
+      "link": "/documentation/fixing-the-water-leak",
+      "text": "Fixing the Water Leak"
+    }
+  ],
+  "project_quality_profiles": [
+    {
+      "link": "/documentation/quality-profiles",
+      "text": "About Quality Profiles"
+    }
+  ],
   "projects_management": [
     {
       "link": "/documentation/analyze-a-project",
@@ -107,7 +149,7 @@
   "security_reports": [
     {
       "link": "/documentation/security-reports",
-      "text": "Security Reports"
+      "text": "About Security Reports"
     }
   ],
   "settings": [],
@@ -120,5 +162,10 @@
     }
   ],
   "users": [],
-  "webhooks": []
+  "webhooks": [
+    {
+      "link": "/documentation/webhooks",
+      "text": "About Webhooks"
+    }
+  ]
 }

@@ -1,5 +1,6 @@
 ---
 title: Privacy
+scope: sonarcloud
 ---
 
 The privacy policy specifies how data collected on this website is used. Thank you for visiting our website and your interest in our services and products. As the protection of your personal data is an important concern for us, we will explain below what information we collect during your visit to our website, as they are processed and whether or how these may be used.
