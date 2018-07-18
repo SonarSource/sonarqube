@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable camelcase */
 import { VISUALIZATIONS } from './utils';
 import { RawQuery } from '../../helpers/query';
 
@@ -110,6 +111,20 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
   }
 
   return conditions.join(' and ');
+}
+
+const visualizationParams = ['sort', 'view', 'visualization'];
+
+export function hasFilterParams(query: Query) {
+  return Object.keys(query)
+    .filter(key => !visualizationParams.includes(key))
+    .some(key => query[key] !== undefined);
+}
+
+export function hasVisualizationParams(query: Query) {
+  return Object.keys(query)
+    .filter(key => visualizationParams.includes(key))
+    .some(key => query[key] !== undefined);
 }
 
 function getAsNumericRating(value: any): number | undefined {

@@ -35,7 +35,7 @@ import { get, save } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
 import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
-import { parseUrlQuery, Query } from '../query';
+import { parseUrlQuery, Query, hasFilterParams, hasVisualizationParams } from '../query';
 import { isSonarCloud } from '../../../helpers/system';
 import '../../../components/search-navigator.css';
 import '../styles.css';
@@ -108,9 +108,6 @@ export default class AllProjects extends React.PureComponent<Props, State> {
   getVisualization = () => this.state.query.visualization || 'risk';
 
   getSort = () => this.state.query.sort || 'name';
-
-  isFiltered = (query = this.state.query) =>
-    Object.values(query).some(value => value !== undefined);
 
   stopLoading = () => {
     if (this.mounted) {
@@ -216,8 +213,8 @@ export default class AllProjects extends React.PureComponent<Props, State> {
     const savedOptions = this.getStorageOptions();
     const savedOptionsSet = savedOptions.sort || savedOptions.view || savedOptions.visualization;
 
-    // if there is no filter, but there are saved preferences in the localStorage
-    if (initialMount && !this.isFiltered(query) && savedOptionsSet) {
+    // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
+    if (initialMount && !hasVisualizationParams(query) && savedOptionsSet) {
       this.context.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
     } else {
       this.fetchProjects(query);
@@ -299,7 +296,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
           <ProjectsList
             cardType={this.getView()}
             isFavorite={this.props.isFavorite}
-            isFiltered={this.isFiltered()}
+            isFiltered={hasFilterParams(this.state.query)}
             organization={this.props.organization}
             projects={this.state.projects}
             query={this.state.query}
