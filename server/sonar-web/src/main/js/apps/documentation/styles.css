@@ -52,6 +52,7 @@
   background-color: rgba(0, 0, 0, 0.06);
 }
 
+.documentation-content.markdown .alert,
 .documentation-content.markdown p,
 .documentation-content.markdown pre,
 .documentation-content.markdown table {
@@ -75,4 +76,8 @@
 
 .documentation-content.markdown img[src$='.svg'] {
   vertical-align: text-bottom;
+}
+
+.documentation-content.markdown .alert p {
+  margin: 0;
 }

@@ -22,6 +22,7 @@ import * as classNames from 'classnames';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
 import remarkToc from 'remark-toc';
+import remarkCustomBlocks from 'remark-custom-blocks';
 import DocLink from './DocLink';
 import DocImg from './DocImg';
 import DocTooltipLink from './DocTooltipLink';
@@ -58,10 +59,15 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
         {
           remark()
             .use(remarkToc, { maxDepth: 3 })
+            .use(remarkCustomBlocks, {
+              danger: { classes: 'alert alert-danger' },
+              warning: { classes: 'alert alert-warning' },
+              info: { classes: 'alert alert-info' },
+              success: { classes: 'alert alert-success' }
+            })
             .use(reactRenderer, {
               remarkReactComponents: {
-                // do not render outer <div />
-                div: React.Fragment,
+                div: Block,
                 // use custom link to render documentation anchors
                 a: isTooltip
                   ? withChildProps(DocTooltipLink, childProps)
@@ -69,7 +75,8 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
                 // use custom img tag to render documentation images
                 img: DocImg
               },
-              toHast: {}
+              toHast: {},
+              sanitize: false
             })
             .processSync(filterContent(parsed.content)).contents
         }
@@ -85,4 +92,12 @@ function withChildProps<P>(
   return function withChildProps(props: P) {
     return <WrappedComponent customProps={childProps} {...props} />;
   };
+}
+
+function Block(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
+  if (props.className) {
+    return <div className={classNames('cut-margins', props.className)}>{props.children}</div>;
+  } else {
+    return props.children;
+  }
 }

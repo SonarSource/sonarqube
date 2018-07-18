@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import Helmet from 'react-helmet';
+import './page.css';
 
 export default ({ data }) => {
   const page = data.markdownRemark;

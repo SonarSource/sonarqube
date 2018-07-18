@@ -8,7 +8,8 @@ scope: sonarcloud
 
 You can connect to SonarCloud using your VSTS account. On the [login page](/#sonarcloud#/sessions/new), just click on the "Log in with VSTS" button.
 
-** /!\ Warning:** Only work and school VSTS accounts are authorized to login on SonarCloud.
+[[warning]]
+| Only work and school VSTS accounts are authorized to login on SonarCloud.
 
 ## Install the SonarCloud VSTS extension
 

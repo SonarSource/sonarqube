@@ -17,38 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = {
-  siteMetadata: {
-    title: 'SonarQube Documentation'
-  },
-  plugins: [
-    {
-      resolve: 'gatsby-source-filesystem',
-      options: { name: 'src', path: `${__dirname}/src/` }
-    },
-    'gatsby-plugin-react-helmet',
-    {
-      resolve: 'gatsby-plugin-typography',
-      options: { pathToConfigModule: `src/utils/typography` }
-    },
-    {
-      resolve: 'gatsby-transformer-remark',
-      options: {
-        plugins: [
-          {
-            resolve: 'gatsby-remark-custom-blocks',
-            options: {
-              blocks: {
-                danger: 'alert alert-danger',
-                warning: 'alert alert-warning',
-                info: 'alert alert-info',
-                success: 'alert alert-success'
-              }
-            }
-          }
-        ]
-      }
-    },
-    'gatsby-plugin-glamor'
-  ]
-};
+declare module 'remark-custom-blocks' {
+  export default function customBlock(): any;
+}

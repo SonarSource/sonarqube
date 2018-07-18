@@ -3283,6 +3283,13 @@ gatsby-react-router-scroll@^1.0.14:
     scroll-behavior "^0.9.9"
     warning "^3.0.0"
 
+gatsby-remark-custom-blocks@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/gatsby-remark-custom-blocks/-/gatsby-remark-custom-blocks-1.0.5.tgz#c5601c4be4d4e325bd41d656cf7b18670070435b"
+  dependencies:
+    babel-runtime "^6.26.0"
+    remark-custom-blocks "^1.0.6"
+
 gatsby-source-filesystem@^1.5.34:
   version "1.5.34"
   resolved "https://registry.yarnpkg.com/gatsby-source-filesystem/-/gatsby-source-filesystem-1.5.34.tgz#cfac995cd8f2d5f406ad073a213ca7566de17f44"
@@ -7087,6 +7094,12 @@ relay-runtime@1.4.1:
     fbjs "^0.8.14"
     relay-debugger-react-native-runtime "0.0.10"
 
+remark-custom-blocks@^1.0.6:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/remark-custom-blocks/-/remark-custom-blocks-1.0.9.tgz#40f9511097104d074e814f3487e24411425a03e6"
+  dependencies:
+    space-separated-tokens "^1.1.1"
+
 remark-include@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/remark-include/-/remark-include-2.0.0.tgz#f5934f0093316482cdb8dae7a72d0a1ae07bf9db"
@@ -7860,7 +7873,7 @@ sourcemapped-stacktrace@^1.1.6:
   dependencies:
     source-map "0.5.6"
 
-space-separated-tokens@^1.0.0:
+space-separated-tokens@^1.0.0, space-separated-tokens@^1.1.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/space-separated-tokens/-/space-separated-tokens-1.1.2.tgz#e95ab9d19ae841e200808cd96bc7bd0adbbb3412"
   dependencies:
