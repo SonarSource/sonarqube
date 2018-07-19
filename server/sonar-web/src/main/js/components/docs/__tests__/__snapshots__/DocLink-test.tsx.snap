@@ -1,11 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render sonarcloud link on sonarcloud 1`] = `
+<React.Fragment>
+  link text
+</React.Fragment>
+`;
+
+exports[`should not render sonarqube admin link on sonarcloud 1`] = `
+<React.Fragment>
+  link text
+</React.Fragment>
+`;
+
+exports[`should not render sonarqube admin link on sonarqube for non-admin 1`] = `
+<React.Fragment>
+  link text
+</React.Fragment>
+`;
+
+exports[`should not render sonarqube link on sonarcloud 1`] = `
+<React.Fragment>
+  link text
+</React.Fragment>
+`;
+
 exports[`should render documentation link 1`] = `
 <Link
   onlyActiveOnIndex={false}
   style={Object {}}
   to="/documentation/foo/bar"
-/>
+>
+  link text
+</Link>
 `;
 
 exports[`should render simple link 1`] = `
@@ -14,7 +40,9 @@ exports[`should render simple link 1`] = `
     href="http://sample.com"
     rel="noopener noreferrer"
     target="_blank"
-  />
+  >
+    link text
+  </a>
   <DetachIcon
     className="text-muted little-spacer-left little-spacer-right vertical-baseline"
     size={12}
@@ -22,10 +50,59 @@ exports[`should render simple link 1`] = `
 </React.Fragment>
 `;
 
-exports[`should render sonarcloud link 1`] = `
+exports[`should render sonarcloud link on sonarcloud 1`] = `
+<SonarCloudLink
+  url="/#sonarcloud#/foo/bar"
+>
+  link text
+</SonarCloudLink>
+`;
+
+exports[`should render sonarcloud link on sonarcloud 2`] = `
 <Link
   onlyActiveOnIndex={false}
   style={Object {}}
   to="/foo/bar"
-/>
+>
+  link text
+</Link>
+`;
+
+exports[`should render sonarqube admin link on sonarqube for admin 1`] = `
+<SonarQubeAdminLink
+  canAdmin={true}
+  url="/#sonarqube-admin#/foo/bar"
+>
+  link text
+</SonarQubeAdminLink>
+`;
+
+exports[`should render sonarqube admin link on sonarqube for admin 2`] = `
+<Link
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  target="_blank"
+  to="/foo/bar"
+>
+  link text
+</Link>
+`;
+
+exports[`should render sonarqube link on sonarqube 1`] = `
+<SonarQubeLink
+  url="/#sonarqube#/foo/bar"
+>
+  link text
+</SonarQubeLink>
+`;
+
+exports[`should render sonarqube link on sonarqube 2`] = `
+<Link
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  target="_blank"
+  to="/foo/bar"
+>
+  link text
+</Link>
 `;

@@ -29,7 +29,7 @@ SonarQube can perform analysis on 20+ different languages. The outcome of this a
 * A dynamic analysis of code can be performed on certain languages.
 
 ## Will _all_ files be analyzed?
-By default, only files that are recognized by a language analyzer are loaded into the project during analysis. For example if your SonarQube instance had only SonarJava SonarJS on board, all .java and .js files would be loaded, but .xml files would be ignored. However, it is possible to import all text files in a project by setting **Settings > Exclusions > Files > Import unknown files** to true. 
+By default, only files that are recognized by a language analyzer are loaded into the project during analysis. For example if your SonarQube instance had only SonarJava SonarJS on board, all .java and .js files would be loaded, but .xml files would be ignored. However, it is possible to import all text files in a project by setting [**Settings > Exclusions > Files > Import unknown files**](/#sonarqube-admin#/admin/settings?category=exclusions) to true. 
 
 ## What happens during analysis?
 During analysis, data is requested from the server, the files provided to the analysis are analyzed, and the resulting data is sent back to the server at the end in the form of a report, which is then analyzed asynchronously server-side.

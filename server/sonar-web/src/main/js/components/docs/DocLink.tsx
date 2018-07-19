@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import DetachIcon from '../icons-components/DetachIcon';
+import { isSonarCloud } from '../../helpers/system';
 
 interface OwnProps {
   customProps?: {
@@ -30,8 +31,14 @@ interface OwnProps {
 type Props = OwnProps & React.AnchorHTMLAttributes<HTMLAnchorElement>;
 
 const SONARCLOUD_LINK = '/#sonarcloud#/';
+const SONARQUBE_LINK = '/#sonarqube#/';
+const SONARQUBE_ADMIN_LINK = '/#sonarqube-admin#/';
 
 export default class DocLink extends React.PureComponent<Props> {
+  static contextTypes = {
+    canAdmin: () => null
+  };
+
   handleClickOnAnchor = (event: React.MouseEvent<HTMLAnchorElement>) => {
     const { customProps, href = '#' } = this.props;
     if (customProps && customProps.onAnchorClick) {
@@ -50,15 +57,24 @@ export default class DocLink extends React.PureComponent<Props> {
     }
 
     if (href && href.startsWith('/')) {
-      let url = `/documentation/${href.substr(1)}`;
       if (href.startsWith(SONARCLOUD_LINK)) {
-        url = `/${href.substr(SONARCLOUD_LINK.length)}`;
+        return <SonarCloudLink url={href}>{children}</SonarCloudLink>;
+      } else if (href.startsWith(SONARQUBE_LINK)) {
+        return <SonarQubeLink url={href}>{children}</SonarQubeLink>;
+      } else if (href.startsWith(SONARQUBE_ADMIN_LINK)) {
+        return (
+          <SonarQubeAdminLink canAdmin={this.context.canAdmin} url={href}>
+            {children}
+          </SonarQubeAdminLink>
+        );
+      } else {
+        const url = '/documentation' + href;
+        return (
+          <Link to={url} {...other}>
+            {children}
+          </Link>
+        );
       }
-      return (
-        <Link to={url} {...other}>
-          {children}
-        </Link>
-      );
     }
 
     return (
@@ -71,6 +87,57 @@ export default class DocLink extends React.PureComponent<Props> {
           size={12}
         />
       </>
+    );
+  }
+}
+
+interface SonarCloudLinkProps {
+  children: React.ReactNode;
+  url: string;
+}
+
+function SonarCloudLink({ children, url }: SonarCloudLinkProps) {
+  if (!isSonarCloud()) {
+    return <>{children}</>;
+  } else {
+    const to = `/${url.substr(SONARCLOUD_LINK.length)}`;
+    return <Link to={to}>{children}</Link>;
+  }
+}
+
+interface SonarQubeLinkProps {
+  children: React.ReactNode;
+  url: string;
+}
+
+function SonarQubeLink({ children, url }: SonarQubeLinkProps) {
+  if (isSonarCloud()) {
+    return <>{children}</>;
+  } else {
+    const to = `/${url.substr(SONARQUBE_LINK.length)}`;
+    return (
+      <Link target="_blank" to={to}>
+        {children}
+      </Link>
+    );
+  }
+}
+
+interface SonarQubeAdminLinkProps {
+  canAdmin: boolean;
+  children: React.ReactNode;
+  url: string;
+}
+
+function SonarQubeAdminLink({ canAdmin, children, url }: SonarQubeAdminLinkProps) {
+  if (isSonarCloud() || !canAdmin) {
+    return <>{children}</>;
+  } else {
+    const to = `/${url.substr(SONARQUBE_ADMIN_LINK.length)}`;
+    return (
+      <Link target="_blank" to={to}>
+        {children}
+      </Link>
     );
   }
 }

@@ -12,7 +12,7 @@ Ideally, all projects will be measured with the same profile for any given langu
 * You want to ensure stronger requirements on some of your applications (internal frameworks for example).
 * Etc.
 
-Which is why you can define as many quality profiles as you wish even though it is recommended to have as few Quality Profiles as possible to ensure consistency across the projects in your company. To manage quality profiles, go to **Quality Profiles** (top bar), where you'll find profiles grouped by language.
+Which is why you can define as many quality profiles as you wish even though it is recommended to have as few Quality Profiles as possible to ensure consistency across the projects in your company. To manage quality profiles, go to <!-- sonarqube -->[**Quality Profiles**](/#sonarqube#/profiles)<!-- /sonarqube --><!-- sonarcloud -->**Quality Profiles** page of your organization<!-- /sonarcloud -->, where you'll find profiles grouped by language.
 
 Each language plugin comes with a predefined, built-in profile (usually called "Sonar way") so that you can get started very quickly with SonarQube analyses. This is why as soon as you install a new language plugin, at least one quality profile will be available for you. Each language must have a default profile (marked with the Default tag). Projects that are not explicitly associated with a specific profile will be analyzed using the language's default profile.
 

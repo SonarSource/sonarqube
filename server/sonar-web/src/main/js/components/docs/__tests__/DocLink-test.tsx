@@ -20,19 +20,66 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DocLink from '../DocLink';
+import { isSonarCloud } from '../../../helpers/system';
+
+jest.mock('../../../helpers/system', () => ({
+  isSonarCloud: jest.fn(() => false)
+}));
 
 it('should render simple link', () => {
-  expect(shallow(<DocLink href="http://sample.com" />)).toMatchSnapshot();
+  expect(shallow(<DocLink href="http://sample.com">link text</DocLink>)).toMatchSnapshot();
 });
 
 it('should render documentation link', () => {
-  expect(shallow(<DocLink href="/foo/bar" />)).toMatchSnapshot();
+  expect(shallow(<DocLink href="/foo/bar">link text</DocLink>)).toMatchSnapshot();
 });
 
-it('should render sonarcloud link', () => {
-  expect(shallow(<DocLink href="/#sonarcloud#/foo/bar" />)).toMatchSnapshot();
+it('should render sonarcloud link on sonarcloud', () => {
+  (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
+  const wrapper = shallow(<DocLink href="/#sonarcloud#/foo/bar">link text</DocLink>);
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('SonarCloudLink').dive()).toMatchSnapshot();
+});
+
+it('should not render sonarcloud link on sonarcloud', () => {
+  (isSonarCloud as jest.Mock).mockImplementationOnce(() => false);
+  const wrapper = shallow(<DocLink href="/#sonarcloud#/foo/bar">link text</DocLink>);
+  expect(wrapper.find('SonarCloudLink').dive()).toMatchSnapshot();
+});
+
+it('should render sonarqube link on sonarqube', () => {
+  const wrapper = shallow(<DocLink href="/#sonarqube#/foo/bar">link text</DocLink>);
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('SonarQubeLink').dive()).toMatchSnapshot();
+});
+
+it('should not render sonarqube link on sonarcloud', () => {
+  (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
+  const wrapper = shallow(<DocLink href="/#sonarqube#/foo/bar">link text</DocLink>);
+  expect(wrapper.find('SonarQubeLink').dive()).toMatchSnapshot();
+});
+
+it('should render sonarqube admin link on sonarqube for admin', () => {
+  const wrapper = shallow(<DocLink href="/#sonarqube-admin#/foo/bar">link text</DocLink>, {
+    context: { canAdmin: true }
+  });
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('SonarQubeAdminLink').dive()).toMatchSnapshot();
+});
+
+it('should not render sonarqube admin link on sonarqube for non-admin', () => {
+  const wrapper = shallow(<DocLink href="/#sonarqube-admin#/foo/bar">link text</DocLink>);
+  expect(wrapper.find('SonarQubeAdminLink').dive()).toMatchSnapshot();
+});
+
+it('should not render sonarqube admin link on sonarcloud', () => {
+  (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
+  const wrapper = shallow(<DocLink href="/#sonarqube-admin#/foo/bar">link text</DocLink>, {
+    context: { canAdmin: true }
+  });
+  expect(wrapper.find('SonarQubeAdminLink').dive()).toMatchSnapshot();
 });
 
 it.skip('should render documentation anchor', () => {
-  expect(shallow(<DocLink href="#quality-profiles" />)).toMatchSnapshot();
+  expect(shallow(<DocLink href="#quality-profiles">link text</DocLink>)).toMatchSnapshot();
 });
