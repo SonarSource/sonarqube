@@ -26,7 +26,9 @@ export default ({ data }) => {
   let htmlWithInclusions = cutSonarCloudContent(page.html).replace(
     /\<p\>@include (.*)\<\/p\>/,
     (_, path) => {
-      const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
+      const chunk = data.allMarkdownRemark.edges.find(
+        edge => edge.node.fields && edge.node.fields.slug === path
+      );
       return chunk ? chunk.node.html : '';
     }
   );

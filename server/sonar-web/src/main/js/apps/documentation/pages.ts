@@ -19,7 +19,7 @@
  */
 import remark from 'remark';
 import strip from 'strip-markdown';
-import { DocumentationEntry } from './utils';
+import { DocumentationEntry, DocumentationEntryScope } from './utils';
 import * as Docs from './documentation.directory-loader';
 import { separateFrontMatter, filterContent } from '../../helpers/markdown';
 import { isSonarCloud } from '../../helpers/system';
@@ -39,12 +39,14 @@ export default function getPages(): DocumentationEntry[] {
       relativeName: file.path,
       title: parsed.frontmatter.title,
       order: Number(parsed.frontmatter.order || -1),
-      scope:
-        parsed.frontmatter.scope && parsed.frontmatter.scope.toLowerCase() === 'sonarcloud'
-          ? ('sonarcloud' as 'sonarcloud')
-          : undefined,
+      scope: parsed.frontmatter.scope
+        ? (parsed.frontmatter.scope.toLowerCase() as DocumentationEntryScope)
+        : undefined,
       text,
       content: file.content
     };
-  }).filter((page: DocumentationEntry) => isSonarCloud() || page.scope !== 'sonarcloud');
+  }).filter(
+    (page: DocumentationEntry) =>
+      page.scope !== 'static' && (isSonarCloud() || page.scope !== 'sonarcloud')
+  );
 }

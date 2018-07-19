@@ -19,11 +19,13 @@
  */
 import { sortBy } from 'lodash';
 
+export type DocumentationEntryScope = 'sonarqube' | 'sonarcloud' | 'static';
+
 export interface DocumentationEntry {
   content: string;
   order: number;
   relativeName: string;
-  scope?: 'sonarcloud';
+  scope?: DocumentationEntryScope;
   text: string;
   title: string;
 }

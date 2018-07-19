@@ -67,10 +67,26 @@ function parseFrontMatter(lines) {
   return data;
 }
 
+/**
+ * @param {string} content
+ * @returns {string}
+ */
 function filterContent(content) {
   const { isSonarCloud } = require('../helpers/system');
-  const beginning = isSonarCloud() ? '<!-- sonarqube -->' : '<!-- sonarcloud -->';
-  const ending = isSonarCloud() ? '<!-- /sonarqube -->' : '<!-- /sonarcloud -->';
+  const contentWithoutStatic = cutConditionalContent(content, 'static');
+  return isSonarCloud()
+    ? cutConditionalContent(contentWithoutStatic, 'sonarqube')
+    : cutConditionalContent(contentWithoutStatic, 'sonarcloud');
+}
+
+/**
+ * @param {string} content
+ * @param {string} tag
+ * @returns {string}
+ */
+function cutConditionalContent(content, tag) {
+  const beginning = `<!-- ${tag} -->`;
+  const ending = `<!-- /${tag} -->`;
 
   let newContent = content;
   let start = newContent.indexOf(beginning);

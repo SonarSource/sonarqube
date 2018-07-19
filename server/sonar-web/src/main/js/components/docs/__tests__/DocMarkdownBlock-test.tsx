@@ -45,7 +45,7 @@ it('should use custom component for links', () => {
   ).toMatchSnapshot();
 });
 
-it('should cut sonarqube/sonarcloud content', () => {
+it('should cut sonarqube/sonarcloud/static content', () => {
   const content = `
 some
 
@@ -56,6 +56,10 @@ sonarqube
 <!-- sonarcloud -->
 sonarcloud
 <!-- /sonarcloud -->
+
+<!-- static -->
+static
+<!-- /static -->
 
 <!-- sonarqube -->
   long

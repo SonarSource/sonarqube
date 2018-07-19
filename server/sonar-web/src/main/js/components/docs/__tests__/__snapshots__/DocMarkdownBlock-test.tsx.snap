@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should cut sonarqube/sonarcloud content 1`] = `
+exports[`should cut sonarqube/sonarcloud/static content 1`] = `
 <div
   className="markdown"
 >
@@ -44,7 +44,7 @@ exports[`should cut sonarqube/sonarcloud content 1`] = `
 </div>
 `;
 
-exports[`should cut sonarqube/sonarcloud content 2`] = `
+exports[`should cut sonarqube/sonarcloud/static content 2`] = `
 <div
   className="markdown"
 >
