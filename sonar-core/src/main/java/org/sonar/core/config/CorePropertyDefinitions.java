@@ -69,27 +69,6 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .build(),
 
-      PropertyDefinition.builder(CoreProperties.LINKS_HOME_PAGE)
-        .name("Project Home Page")
-        .description("HTTP URL of the home page of the project.")
-        .hidden()
-        .build(),
-      PropertyDefinition.builder(CoreProperties.LINKS_CI)
-        .name("CI server")
-        .description("HTTP URL of the continuous integration server.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .build(),
-      PropertyDefinition.builder(CoreProperties.LINKS_ISSUE_TRACKER)
-        .name("Issue Tracker")
-        .description("HTTP URL of the issue tracker.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .hidden()
-        .build(),
-      PropertyDefinition.builder(CoreProperties.LINKS_SOURCES)
-        .name("SCM server")
-        .description("HTTP URL of the server which hosts the sources of the project.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .build(),
       PropertyDefinition.builder(CoreProperties.PREVIEW_INCLUDE_PLUGINS)
         .name("Plugins accepted for Preview mode")
         .description("DEPRECATED - List of plugin keys. Those plugins will be used during preview analyses.")
