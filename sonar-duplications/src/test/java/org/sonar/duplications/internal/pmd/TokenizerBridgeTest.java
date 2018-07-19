@@ -30,7 +30,6 @@ import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.sensor.cpd.internal.TokensLine;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

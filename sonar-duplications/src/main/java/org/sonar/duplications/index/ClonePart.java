@@ -19,7 +19,9 @@
  */
 package org.sonar.duplications.index;
 
-public class ClonePart {
+import org.sonar.duplications.CodeFragment;
+
+public class ClonePart implements CodeFragment {
 
   private final String resourceId;
   private final int startUnit;
@@ -46,10 +48,12 @@ public class ClonePart {
     return startUnit;
   }
 
+  @Override
   public int getStartLine() {
     return startLine;
   }
 
+  @Override
   public int getEndLine() {
     return endLine;
   }

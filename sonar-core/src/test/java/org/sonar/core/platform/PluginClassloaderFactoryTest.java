@@ -23,8 +23,10 @@ import com.sonarsource.plugins.license.api.FooBar;
 import java.io.File;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.internal.JUnitTempFolder;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +38,10 @@ public class PluginClassloaderFactoryTest {
   static final String BASE_PLUGIN_KEY = "base";
   static final String DEPENDENT_PLUGIN_KEY = "dependent";
 
-  PluginClassloaderFactory factory = new PluginClassloaderFactory();
+  @Rule
+  public JUnitTempFolder temp = new JUnitTempFolder();
+
+  PluginClassloaderFactory factory = new PluginClassloaderFactory(temp);
 
   @Test
   public void create_isolated_classloader() {
@@ -54,6 +59,20 @@ public class PluginClassloaderFactoryTest {
     assertThat(canLoadClass(classLoader, PluginClassloaderFactory.class.getCanonicalName())).isFalse();
     assertThat(canLoadClass(classLoader, Test.class.getCanonicalName())).isFalse();
     assertThat(canLoadClass(classLoader, StringUtils.class.getCanonicalName())).isFalse();
+  }
+
+  @Test
+  public void create_classloader_compatible_with_with_old_api_dependencies() {
+    PluginClassLoaderDef def = basePluginDef();
+    def.setCompatibilityMode(true);
+    ClassLoader classLoader = factory.create(asList(def)).get(def);
+
+    // Plugin can access to API and its transitive dependencies as defined in version 5.1.
+    // It can not access to core classes though, even if it was possible in previous versions.
+    assertThat(canLoadClass(classLoader, RulesDefinition.class.getCanonicalName())).isTrue();
+    assertThat(canLoadClass(classLoader, StringUtils.class.getCanonicalName())).isTrue();
+    assertThat(canLoadClass(classLoader, BASE_PLUGIN_CLASSNAME)).isTrue();
+    assertThat(canLoadClass(classLoader, PluginClassloaderFactory.class.getCanonicalName())).isFalse();
   }
 
   @Test

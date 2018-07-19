@@ -21,8 +21,9 @@ package org.sonar.duplications.internal.pmd;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.sensor.cpd.internal.TokensLine;
+
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 

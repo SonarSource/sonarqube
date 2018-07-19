@@ -55,8 +55,10 @@ dependencies {
   compile project(':server:sonar-server-common')
   compile project(':sonar-core')
   compile project(':sonar-scanner-protocol')
-  compile project(':sonar-markdown')
-  compile project(':sonar-duplications')
+  compile(project(':sonar-markdown')) {
+    // already shaded with sonar-plugin-api
+    exclude group: 'org.codehaus.sonar', module: 'sonar-channel'
+  }
   runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly project(path: ':sonar-plugin-api')
   compile project(':sonar-ws')

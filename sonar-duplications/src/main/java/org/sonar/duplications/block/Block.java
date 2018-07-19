@@ -19,11 +19,13 @@
  */
 package org.sonar.duplications.block;
 
+import org.sonar.duplications.CodeFragment;
+
 /**
  * Represents part of source code between two lines.
  * If two blocks have the same {@link #getBlockHash() hash}, then we assume that there is a duplication in a code, which they represent.
  */
-public final class Block {
+public final class Block implements CodeFragment {
 
   private final String resourceId;
   private final ByteArray blockHash;
@@ -125,10 +127,12 @@ public final class Block {
     return indexInFile;
   }
 
+  @Override
   public int getStartLine() {
     return startLine;
   }
 
+  @Override
   public int getEndLine() {
     return endLine;
   }

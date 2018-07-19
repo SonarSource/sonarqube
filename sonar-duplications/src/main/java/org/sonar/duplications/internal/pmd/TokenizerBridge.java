@@ -26,7 +26,6 @@ import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
-import org.sonar.api.batch.sensor.cpd.internal.TokensLine;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.cpd.FileCodeLoaderWithoutCache;
 

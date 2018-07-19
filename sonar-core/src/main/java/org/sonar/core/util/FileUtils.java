@@ -114,7 +114,7 @@ public final class FileUtils {
    * <li>No exceptions are thrown when a file or directory cannot be deleted.</li>
    * </ul>
    *
-   * @param path file or directory to delete, can be {@code null}
+   * @param file  file or directory to delete, can be {@code null}
    * @return {@code true} if the file or directory was deleted, otherwise {@code false}
    */
   public static boolean deleteQuietly(@Nullable Path path) {

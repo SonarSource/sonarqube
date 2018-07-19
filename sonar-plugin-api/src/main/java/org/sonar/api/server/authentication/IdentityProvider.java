@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.authentication;
 
-import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -33,7 +32,6 @@ import org.sonar.api.server.ServerSide;
  * @since 5.4
  */
 @ServerSide
-@ExtensionPoint
 public interface IdentityProvider {
 
   /**

@@ -25,9 +25,11 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.classloader.ClassloaderBuilder;
 import org.sonar.classloader.Mask;
 
@@ -38,6 +40,8 @@ import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
  * Builds the graph of classloaders to be used to instantiate plugins. It deals with:
  * <ul>
  *   <li>isolation of plugins against core classes (except api)</li>
+ *   <li>backward-compatibility with plugins built for versions of SQ lower than 5.2. At that time
+ *   API declared transitive dependencies that were automatically available to plugins</li>
  *   <li>sharing of some packages between plugins</li>
  *   <li>loading of the libraries embedded in plugin JAR files (directory META-INF/libs)</li>
  * </ul>
@@ -49,6 +53,13 @@ public class PluginClassloaderFactory {
 
   // underscores are used to not conflict with plugin keys (if someday a plugin key is "api")
   private static final String API_CLASSLOADER_KEY = "_api_";
+
+  private final TempFolder temp;
+  private URL compatibilityModeJar;
+
+  public PluginClassloaderFactory(TempFolder temp) {
+    this.temp = temp;
+  }
 
   /**
    * Creates as many classloaders as requested by the input parameter.
@@ -66,6 +77,9 @@ public class PluginClassloaderFactory {
       builder.setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
       for (File jar : def.getFiles()) {
         builder.addURL(def.getBasePluginKey(), fileToUrl(jar));
+      }
+      if (def.isCompatibilityMode()) {
+        builder.addURL(def.getBasePluginKey(), extractCompatibilityModeJar());
       }
       exportResources(def, builder, defs);
     }
@@ -106,6 +120,19 @@ public class PluginClassloaderFactory {
     return getClass().getClassLoader();
   }
 
+  private URL extractCompatibilityModeJar() {
+    if (compatibilityModeJar == null) {
+      File jar = temp.newFile("sonar-plugin-api-deps", "jar");
+      try {
+        FileUtils.copyURLToFile(getClass().getResource("/sonar-plugin-api-deps.jar"), jar);
+        compatibilityModeJar = jar.toURI().toURL();
+      } catch (Exception e) {
+        throw new IllegalStateException("Can not extract sonar-plugin-api-deps.jar to " + jar.getAbsolutePath(), e);
+      }
+    }
+    return compatibilityModeJar;
+  }
+
   private static URL fileToUrl(File file) {
     try {
       return file.toURI().toURL();
@@ -122,25 +149,31 @@ public class PluginClassloaderFactory {
    */
   private static Mask apiMask() {
     return new Mask()
-      .addInclusion("org/sonar/api/")
+        .addInclusion("org/sonar/api/")
+      .addInclusion("org/sonar/channel/")
       .addInclusion("org/sonar/check/")
+      .addInclusion("org/sonar/colorizer/")
+      .addInclusion("org/sonar/duplications/")
+      .addInclusion("org/sonar/graph/")
+      .addInclusion("org/sonar/plugins/emailnotifications/api/")
+      .addInclusion("net/sourceforge/pmd/")
+      .addInclusion("org/apache/maven/")
       .addInclusion("org/codehaus/stax2/")
       .addInclusion("org/codehaus/staxmate/")
       .addInclusion("com/ctc/wstx/")
       .addInclusion("org/slf4j/")
+      .addInclusion("javax/servlet/")
 
       // SLF4J bridges. Do not let plugins re-initialize and configure their logging system
       .addInclusion("org/apache/commons/logging/")
       .addInclusion("org/apache/log4j/")
       .addInclusion("ch/qos/logback/")
 
-      // Exposed by org.sonar.api.server.authentication.IdentityProvider
-      .addInclusion("javax/servlet/")
-
-      // required for some internal SonarSource plugins (billing, orchestrator, ...)
+      // required for internal libs at SonarSource
       .addInclusion("org/sonar/server/platform/")
-
-      // required for commercial plugins at SonarSource
+      .addInclusion("org/sonar/core/persistence/")
+      .addInclusion("org/sonar/core/properties/")
+      .addInclusion("org/sonar/server/views/")
       .addInclusion("com/sonarsource/plugins/license/api/")
 
       // API exclusions
