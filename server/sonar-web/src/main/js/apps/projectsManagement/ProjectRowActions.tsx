@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import RestoreAccessModal from './RestoreAccessModal';
-import { Project } from './utils';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
-import { getComponentShow } from '../../api/components';
+import { getComponentShow, Project } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
 import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 import { translate } from '../../helpers/l10n';

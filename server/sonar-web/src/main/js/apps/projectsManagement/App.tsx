@@ -24,10 +24,9 @@ import Header from './Header';
 import Search from './Search';
 import Projects from './Projects';
 import CreateProjectForm from './CreateProjectForm';
-import { PAGE_SIZE, Project } from './utils';
 import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
-import { getComponents } from '../../api/components';
+import { getComponents, Project } from '../../api/components';
 import { Organization, Visibility } from '../../app/types';
 import { toNotSoISOString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
@@ -53,6 +52,8 @@ interface State {
   total: number;
   visibility?: Visibility;
 }
+
+const PAGE_SIZE = 50;
 
 export default class App extends React.PureComponent<Props, State> {
   mounted = false;
@@ -94,19 +95,22 @@ export default class App extends React.PureComponent<Props, State> {
       qualifiers: this.state.qualifiers,
       visibility: this.state.visibility
     };
-    getComponents(parameters).then(r => {
-      if (this.mounted) {
-        let projects: Project[] = r.components;
-        if (this.state.page > 1) {
-          projects = [...this.state.projects, ...projects];
+    getComponents(parameters).then(
+      r => {
+        if (this.mounted) {
+          let projects: Project[] = r.components;
+          if (this.state.page > 1) {
+            projects = [...this.state.projects, ...projects];
+          }
+          this.setState({ ready: true, projects, selection: [], total: r.paging.total });
         }
-        this.setState({ ready: true, projects, selection: [], total: r.paging.total });
-      }
-    });
+      },
+      () => {}
+    );
   };
 
   loadMore = () => {
-    this.setState({ ready: false, page: this.state.page + 1 }, this.requestProjects);
+    this.setState(({ page }) => ({ ready: false, page: page + 1 }), this.requestProjects);
   };
 
   onSearch = (query: string) => {
@@ -152,18 +156,15 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ ready: false, page: 1, analyzedBefore }, this.requestProjects);
 
   onProjectSelected = (project: string) => {
-    const newSelection = uniq([...this.state.selection, project]);
-    this.setState({ selection: newSelection });
+    this.setState(({ selection }) => ({ selection: uniq([...selection, project]) }));
   };
 
   onProjectDeselected = (project: string) => {
-    const newSelection = without(this.state.selection, project);
-    this.setState({ selection: newSelection });
+    this.setState(({ selection }) => ({ selection: without(selection, project) }));
   };
 
   onAllSelected = () => {
-    const newSelection = this.state.projects.map(project => project.key);
-    this.setState({ selection: newSelection });
+    this.setState(({ projects }) => ({ selection: projects.map(project => project.key) }));
   };
 
   onAllDeselected = () => {

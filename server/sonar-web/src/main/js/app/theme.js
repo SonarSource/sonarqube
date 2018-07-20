@@ -64,6 +64,7 @@ module.exports = {
   smallFontSize: '12px',
   mediumFontSize: '14px',
   bigFontSize: '16px',
+  hugeFontSize: '24px',
 
   controlHeight: `${3 * grid}px`,
   smallControlHeight: `${2.5 * grid}px`,

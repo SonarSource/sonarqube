@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import { Paging, Visibility, BranchParameters, MyProject } from '../app/types';
 
 export interface BaseSearchProjectsParameters {
@@ -31,29 +31,30 @@ export interface BaseSearchProjectsParameters {
   visibility?: Visibility;
 }
 
+export interface ProjectBase {
+  key: string;
+  name: string;
+  qualifier: string;
+  visibility: Visibility;
+}
+
+export interface Project extends ProjectBase {
+  id: string;
+  lastAnalysisDate?: string;
+  organization: string;
+}
+
 export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
   p?: number;
   ps?: number;
 }
 
-export interface SearchProjectsResponseComponent {
-  id: string;
-  key: string;
-  lastAnalysisDate?: string;
-  name: string;
-  organization: string;
-  qualifier: string;
-  visibility: Visibility;
-}
-
-export interface SearchProjectsResponse {
-  components: SearchProjectsResponseComponent[];
-  paging: Paging;
-}
-
 export function getComponents(
   parameters: SearchProjectsParameters
-): Promise<SearchProjectsResponse> {
+): Promise<{
+  components: Project[];
+  paging: Paging;
+}> {
   return getJSON('/api/projects/search', parameters);
 }
 
@@ -75,7 +76,7 @@ export function createProject(data: {
   name: string;
   project: string;
   organization?: string;
-}): Promise<any> {
+}): Promise<{ project: ProjectBase }> {
   return postJSON('/api/projects/create', data).catch(throwGlobalError);
 }
 

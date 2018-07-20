@@ -111,7 +111,9 @@ function runDevServer(compiler, host, port, protocol) {
     proxy: {
       '/api': { target: proxy, changeOrigin: true },
       '/static': { target: proxy, changeOrigin: true },
-      '/integration': { target: proxy, changeOrigin: true }
+      '/integration': { target: proxy, changeOrigin: true },
+      '/sessions/init': { target: proxy, changeOrigin: true },
+      '/oauth2': { target: proxy, changeOrigin: true }
     }
   });
 

@@ -21,16 +21,16 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
-import { QUALIFIERS_ORDER, Project } from './utils';
-import { Organization, Visibility } from '../../app/types';
 import Checkbox from '../../components/controls/Checkbox';
-import { translate } from '../../helpers/l10n';
 import QualifierIcon from '../../components/icons-components/QualifierIcon';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import DateInput from '../../components/controls/DateInput';
 import Select from '../../components/controls/Select';
 import SearchBox from '../../components/controls/SearchBox';
 import { Button } from '../../components/ui/buttons';
+import { Project } from '../../api/components';
+import { Organization, Visibility } from '../../app/types';
+import { translate } from '../../helpers/l10n';
 
 export interface Props {
   analyzedBefore: Date | undefined;
@@ -58,6 +58,8 @@ interface State {
   bulkApplyTemplateModal: boolean;
   deleteModal: boolean;
 }
+
+const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
 
 export default class Search extends React.PureComponent<Props, State> {
   mounted = false;

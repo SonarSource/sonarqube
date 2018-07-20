@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Project } from './utils';
 import { grantPermissionToUser } from '../../api/permissions';
 import Modal from '../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
+import { Project } from '../../api/components';
 
 interface Props {
   currentUser: { login: string };

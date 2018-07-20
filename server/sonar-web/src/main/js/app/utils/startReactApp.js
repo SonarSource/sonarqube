@@ -45,6 +45,7 @@ import IssuesPageSelector from '../../apps/issues/IssuesPageSelector';
 import marketplaceRoutes from '../../apps/marketplace/routes';
 import customMetricsRoutes from '../../apps/custom-metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
+import onboardingRoutes from '../../apps/tutorials/routes';
 import organizationsRoutes from '../../apps/organizations/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import portfolioRoutes from '../../apps/portfolio/routes';
@@ -169,12 +170,7 @@ const startReactApp = (lang, currentUser, appState) => {
                   component={lazyLoad(() => import('../components/extensions/GlobalPageExtension'))}
                 />
                 <Route path="issues" component={IssuesPageSelector} />
-                <Route
-                  path="onboarding"
-                  component={lazyLoad(() =>
-                    import('../../apps/tutorials/projectOnboarding/ProjectOnboardingPage')
-                  )}
-                />
+                <Route path="onboarding" childRoutes={onboardingRoutes} />
                 <Route path="organizations" childRoutes={organizationsRoutes} />
                 <Route path="projects" childRoutes={projectsRoutes} />
                 <Route path="quality_gates" childRoutes={qualityGatesRoutes} />

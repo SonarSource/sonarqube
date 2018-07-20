@@ -4,79 +4,81 @@ exports[`renders correctly 1`] = `
 <Modal
   contentLabel="onboarding.header"
   medium={true}
-  onRequestClose={[MockFunction]}
+  onRequestClose={[Function]}
   shouldCloseOnOverlayClick={false}
 >
-  <header
-    className="modal-head"
-  >
-    <h2>
-      onboarding.header
-    </h2>
-  </header>
   <div
-    className="modal-body"
+    className="modal-simple-head text-center"
   >
+    <h1>
+      onboarding.header
+    </h1>
     <p
-      className="spacer-top big-spacer-bottom"
+      className="spacer-top"
     >
       onboarding.header.description
     </p>
-    <ul
-      className="onboarding-choices"
-    >
-      <li
-        className="text-center"
-      >
-        <p
-          className="big-spacer-bottom"
-        >
-          onboarding.analyze_public_code
-        </p>
-        <Button
-          onClick={[MockFunction]}
-        >
-          onboarding.analyze_public_code.button
-        </Button>
-      </li>
-      <li
-        className="text-center"
-      >
-        <p
-          className="big-spacer-bottom"
-        >
-          onboarding.analyze_private_code
-        </p>
-        <Button
-          onClick={[MockFunction]}
-        >
-          onboarding.analyze_private_code.button
-        </Button>
-      </li>
-      <li
-        className="text-center"
-      >
-        <p
-          className="big-spacer-bottom"
-        >
-          onboarding.contribute_existing_project
-        </p>
-        <Button
-          onClick={[MockFunction]}
-        >
-          onboarding.contribute_existing_project.button
-        </Button>
-      </li>
-    </ul>
   </div>
-  <footer
-    className="modal-foot"
+  <div
+    className="modal-simple-body text-center onboarding-choices"
   >
-    <ResetButtonLink
+    <Button
+      className="onboarding-choice"
+      onClick={[Function]}
+    >
+      <OnboardingProjectIcon />
+      <span>
+        onboarding.analyze_public_code
+      </span>
+      <p
+        className="note"
+      >
+        onboarding.analyze_public_code.note
+      </p>
+    </Button>
+    <Button
+      className="onboarding-choice"
       onClick={[MockFunction]}
     >
-      close
+      <OnboardingPrivateIcon />
+      <span>
+        onboarding.analyze_private_code
+      </span>
+      <p
+        className="note"
+      >
+        onboarding.analyze_private_code.note
+      </p>
+    </Button>
+    <Button
+      className="onboarding-choice"
+      onClick={[MockFunction]}
+    >
+      <OnboardingTeamIcon />
+      <span>
+        onboarding.contribute_existing_project
+      </span>
+      <p
+        className="note"
+      >
+        onboarding.contribute_existing_project.note
+      </p>
+    </Button>
+  </div>
+  <div
+    className="modal-simple-footer text-center"
+  >
+    <ResetButtonLink
+      className="spacer-bottom"
+      onClick={[Function]}
+    >
+      not_now
     </ResetButtonLink>
-  </footer>
+    <p
+      className="note"
+    >
+      onboarding.footer
+    </p>
+  </div>
 </Modal>
 `;

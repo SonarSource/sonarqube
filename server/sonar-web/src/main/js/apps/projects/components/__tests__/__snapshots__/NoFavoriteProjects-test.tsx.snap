@@ -50,7 +50,7 @@ exports[`renders for SonarCloud 1`] = `
         href="#"
         onClick={[Function]}
       >
-        my_account.analyze_new_project
+        provisioning.create_new_project
       </a>
       <Dropdown
         className="display-inline-block big-spacer-left"

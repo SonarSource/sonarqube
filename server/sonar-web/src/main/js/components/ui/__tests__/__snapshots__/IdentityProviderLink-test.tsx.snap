@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<a
+  className="identity-provider-link"
+  href="/url/foo/bar"
+  style={
+    Object {
+      "backgroundColor": "#000",
+    }
+  }
+>
+  <img
+    alt="Foo"
+    height={20}
+    src="/some/path"
+    width={20}
+  />
+  Link text
+</a>
+`;

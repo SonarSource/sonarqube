@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import ProjectRowActions from './ProjectRowActions';
-import { Project } from './utils';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/icons-components/QualifierIcon';
 import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
+import { Project } from '../../api/components';
 
 interface Props {
   currentUser: { login: string };

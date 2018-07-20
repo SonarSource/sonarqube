@@ -69,7 +69,7 @@ export default class GlobalNavPlus extends React.PureComponent<Props, State> {
           <ul className="menu">
             <li>
               <a className="js-new-project" href="#" onClick={this.handleNewProjectClick}>
-                {translate('my_account.analyze_new_project')}
+                {translate('provisioning.create_new_project')}
               </a>
             </li>
             <li className="divider" />

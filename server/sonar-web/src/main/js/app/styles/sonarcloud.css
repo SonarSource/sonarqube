@@ -1,0 +1,67 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+/* EXTENDS components/pages.css */
+.sonarcloud.page-limited {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.sonarcloud .page-header {
+  margin-bottom: 40px;
+}
+
+.sonarcloud .page-title {
+  font-size: var(--hugeFontSize);
+  font-weight: bold;
+}
+
+.sonarcloud .flex-tabs {
+  display: flex;
+  clear: left;
+  margin-bottom: calc(3 * var(--gridSize));
+  box-shadow: 0 1px 0 var(--barBorderColor);
+}
+
+.sonarcloud .flex-tabs > li > a {
+  display: block;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--secondFontColor);
+  font-weight: 600;
+  cursor: pointer;
+  padding-bottom: var(--gridSize);
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease;
+}
+
+.sonarcloud .flex-tabs > li ~ li {
+  margin-left: calc(4 * var(--gridSize));
+}
+
+.sonarcloud .flex-tabs > li > a:hover {
+  color: var(--baseFontColor);
+}
+
+.sonarcloud .flex-tabs > li > a.selected {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}

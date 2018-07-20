@@ -172,6 +172,18 @@ label[for] {
   cursor: pointer;
 }
 
+.form-field {
+  clear: both;
+  display: block;
+  padding-top: var(--gridSize);
+  padding-bottom: calc(2 * var(--gridSize));
+}
+
+.form-field label {
+  display: block;
+  padding-bottom: var(--gridSize);
+}
+
 .radio-toggle {
   display: inline-block;
   vertical-align: middle;

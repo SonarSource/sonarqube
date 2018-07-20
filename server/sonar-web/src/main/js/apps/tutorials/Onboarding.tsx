@@ -18,19 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import handleRequiredAuthentication from '../../app/utils/handleRequiredAuthentication';
 import Modal from '../../components/controls/Modal';
-import { ResetButtonLink, Button } from '../../components/ui/buttons';
+import OnboardingPrivateIcon from '../../components/icons-components/OnboardingPrivateIcon';
+import OnboardingProjectIcon from '../../components/icons-components/OnboardingProjectIcon';
+import OnboardingTeamIcon from '../../components/icons-components/OnboardingTeamIcon';
+import { Button, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { CurrentUser, isLoggedIn } from '../../app/types';
 import { getCurrentUser } from '../../store/rootReducer';
 import './styles.css';
 
 interface OwnProps {
-  onFinish: () => void;
+  onClose: (doSkipOnboarding?: boolean) => void;
   onOpenOrganizationOnboarding: () => void;
-  onOpenProjectOnboarding: () => void;
   onOpenTeamOnboarding: () => void;
 }
 
@@ -41,11 +44,24 @@ interface StateProps {
 type Props = OwnProps & StateProps;
 
 export class Onboarding extends React.PureComponent<Props> {
+  static contextTypes = {
+    router: PropTypes.object
+  };
+
   componentDidMount() {
     if (!isLoggedIn(this.props.currentUser)) {
       handleRequiredAuthentication();
     }
   }
+
+  openProjectOnboarding = () => {
+    this.props.onClose(false);
+    this.context.router.push('/onboarding');
+  };
+
+  onFinish = () => {
+    this.props.onClose(true);
+  };
 
   render() {
     if (!isLoggedIn(this.props.currentUser)) {
@@ -57,41 +73,35 @@ export class Onboarding extends React.PureComponent<Props> {
       <Modal
         contentLabel={header}
         medium={true}
-        onRequestClose={this.props.onFinish}
+        onRequestClose={this.onFinish}
         shouldCloseOnOverlayClick={false}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <div className="modal-body">
-          <p className="spacer-top big-spacer-bottom">
-            {translate('onboarding.header.description')}
-          </p>
-          <ul className="onboarding-choices">
-            <li className="text-center">
-              <p className="big-spacer-bottom">{translate('onboarding.analyze_public_code')}</p>
-              <Button onClick={this.props.onOpenProjectOnboarding}>
-                {translate('onboarding.analyze_public_code.button')}
-              </Button>
-            </li>
-            <li className="text-center">
-              <p className="big-spacer-bottom">{translate('onboarding.analyze_private_code')}</p>
-              <Button onClick={this.props.onOpenOrganizationOnboarding}>
-                {translate('onboarding.analyze_private_code.button')}
-              </Button>
-            </li>
-            <li className="text-center">
-              <p className="big-spacer-bottom">
-                {translate('onboarding.contribute_existing_project')}
-              </p>
-              <Button onClick={this.props.onOpenTeamOnboarding}>
-                {translate('onboarding.contribute_existing_project.button')}
-              </Button>
-            </li>
-          </ul>
+        <div className="modal-simple-head text-center">
+          <h1>{translate('onboarding.header')}</h1>
+          <p className="spacer-top">{translate('onboarding.header.description')}</p>
         </div>
-        <footer className="modal-foot">
-          <ResetButtonLink onClick={this.props.onFinish}>{translate('close')}</ResetButtonLink>
-        </footer>
+        <div className="modal-simple-body text-center onboarding-choices">
+          <Button className="onboarding-choice" onClick={this.openProjectOnboarding}>
+            <OnboardingProjectIcon />
+            <span>{translate('onboarding.analyze_public_code')}</span>
+            <p className="note">{translate('onboarding.analyze_public_code.note')}</p>
+          </Button>
+          <Button className="onboarding-choice" onClick={this.props.onOpenOrganizationOnboarding}>
+            <OnboardingPrivateIcon />
+            <span>{translate('onboarding.analyze_private_code')}</span>
+            <p className="note">{translate('onboarding.analyze_private_code.note')}</p>
+          </Button>
+          <Button className="onboarding-choice" onClick={this.props.onOpenTeamOnboarding}>
+            <OnboardingTeamIcon />
+            <span>{translate('onboarding.contribute_existing_project')}</span>
+            <p className="note">{translate('onboarding.contribute_existing_project.note')}</p>
+          </Button>
+        </div>
+        <div className="modal-simple-footer text-center">
+          <ResetButtonLink className="spacer-bottom" onClick={this.onFinish}>
+            {translate('not_now')}
+          </ResetButtonLink>
+          <p className="note">{translate('onboarding.footer')}</p>
+        </div>
       </Modal>
     );
   }

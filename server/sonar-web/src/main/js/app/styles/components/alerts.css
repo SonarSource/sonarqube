@@ -60,14 +60,21 @@
   color: #3c763d;
 }
 
+.alert-muted {
+  color: var(--disableGrayText);
+  border-color: var(--disableGrayBorder);
+  background-color: var(--disableGrayBg);
+}
+
 .alert-big {
   font-size: var(--mediumFontSize);
   padding: 10px 16px;
 }
 
-.page-header .alert {
-  clear: left;
-  float: left;
+.alert-small {
+  font-size: var(--verySmallFontSize);
+  margin-bottom: 0;
+  padding: 2px 4px;
 }
 
 .page-notifs .alert {

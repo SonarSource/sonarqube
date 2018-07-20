@@ -101,6 +101,24 @@
   padding: 10px;
 }
 
+.modal-simple-head {
+  padding: calc(2 * var(--pagePadding)) calc(3 * var(--pagePadding));
+}
+
+.modal-simple-head h1 {
+  font-size: var(--hugeFontSize);
+  font-weight: bold;
+  line-height: 30px;
+}
+
+.modal-simple-body {
+  padding: 0 calc(3 * var(--pagePadding));
+}
+
+.modal-simple-footer {
+  padding: calc(2 * var(--pagePadding)) calc(3 * var(--pagePadding));
+}
+
 .modal-field,
 .modal-large-field,
 .modal-validation-field {

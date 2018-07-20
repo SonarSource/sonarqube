@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SearchProjectsResponseComponent } from '../../api/components';
+import { getJSON } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
-export const PAGE_SIZE = 50;
-
-export const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
-
-export type Project = SearchProjectsResponseComponent;
+export function getRepositories(): Promise<{
+  installation: {
+    installationUrl: string;
+    enabled: boolean;
+  };
+}> {
+  return getJSON('/api/alm_integration/list_repositories').catch(throwGlobalError);
+}

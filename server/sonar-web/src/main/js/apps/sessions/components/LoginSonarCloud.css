@@ -37,20 +37,12 @@
   margin: var(--gridSize) auto calc(2 * var(--gridSize));
 }
 
+.sonarcloud-oauth-providers.oauth-providers > ul {
+  width: 174px;
+}
+
 .sonarcloud-oauth-providers.oauth-providers > ul > li {
   margin-bottom: var(--gridSize);
-}
-
-.sonarcloud-oauth-providers.oauth-providers > ul > li > a > span {
-  padding-left: calc(1.5 * var(--gridSize));
-}
-
-.sonarcloud-oauth-providers.oauth-providers > ul > li > a > span::before {
-  content: '';
-  border-left: 1px var(--gray71) solid;
-  height: 10px;
-  opacity: 0.4;
-  margin-right: calc(1.5 * var(--gridSize));
 }
 
 .sonarcloud-oauth-providers.oauth-providers .oauth-providers-help {

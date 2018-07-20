@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the provider app install button 1`] = `
+<DeferredSpinner
+  timeout={100}
+/>
+`;
+
+exports[`should display the provider app install button 2`] = `
+<React.Fragment>
+  <p
+    className="alert alert-info width-60 big-spacer-bottom"
+  >
+    onboarding.create_project.beta_feature_x.Foo Provider
+  </p>
+  <div>
+    <p
+      className="spacer-bottom"
+    >
+      onboarding.create_project.install_app_x.Foo Provider
+    </p>
+    <IdentityProviderLink
+      className="display-inline-block"
+      identityProvider={
+        Object {
+          "backgroundColor": "blue",
+          "iconPath": "icon/path",
+          "key": "foo",
+          "name": "Foo Provider",
+        }
+      }
+      small={true}
+      url="https://alm.foo.com/install"
+    >
+      onboarding.create_project.install_app_x.button.Foo Provider
+    </IdentityProviderLink>
+  </div>
+</React.Fragment>
+`;

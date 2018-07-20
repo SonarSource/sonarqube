@@ -27,7 +27,7 @@ const routes = [
         () => (isSonarCloud() ? import('./sonarcloud/Home') : import('./components/AboutApp'))
       )
     },
-    childRoutes: isSonarCloud
+    childRoutes: isSonarCloud()
       ? [
           {
             path: 'contact',

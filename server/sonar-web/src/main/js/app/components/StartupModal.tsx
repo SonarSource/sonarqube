@@ -99,11 +99,13 @@ export class StartupModal extends React.PureComponent<Props, State> {
     this.tryAutoOpenLicense().catch(this.tryAutoOpenOnboarding);
   }
 
-  closeOnboarding = () => {
+  closeOnboarding = (doSkipOnboarding = true) => {
     this.setState(state => {
       if (state.modal !== ModalKey.license) {
-        skipOnboarding();
-        this.props.skipOnboardingAction();
+        if (doSkipOnboarding) {
+          skipOnboarding();
+          this.props.skipOnboardingAction();
+        }
         return { automatic: false, modal: undefined };
       }
       return undefined;
@@ -164,7 +166,10 @@ export class StartupModal extends React.PureComponent<Props, State> {
 
   tryAutoOpenOnboarding = () => {
     const { currentUser, location } = this.props;
-    if (currentUser.showOnboardingTutorial && !location.pathname.startsWith('documentation')) {
+    if (
+      currentUser.showOnboardingTutorial &&
+      !['about', 'documentation', 'onboarding'].some(path => location.pathname.startsWith(path))
+    ) {
       this.setState({ automatic: true });
       if (isSonarCloud()) {
         this.openOnboarding();
@@ -182,9 +187,8 @@ export class StartupModal extends React.PureComponent<Props, State> {
         {modal === ModalKey.license && <LicensePromptModal onClose={this.closeLicense} />}
         {modal === ModalKey.onboarding && (
           <Onboarding
-            onFinish={this.closeOnboarding}
+            onClose={this.closeOnboarding}
             onOpenOrganizationOnboarding={this.openOrganizationOnboarding}
-            onOpenProjectOnboarding={this.openProjectOnboarding}
             onOpenTeamOnboarding={this.openTeamOnboarding}
           />
         )}

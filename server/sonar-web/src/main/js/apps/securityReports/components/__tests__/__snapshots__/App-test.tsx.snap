@@ -38,32 +38,33 @@ exports[`handle checkbox for cwe display 1`] = `
       >
         learn_more
       </Link>
-    </div>
-    <div
-      className="alert alert-info spacer-top"
-    >
-      <FormattedMessage
-        defaultMessage="security_reports.info"
-        id="security_reports.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/coding_rules",
-                  "query": Object {
-                    "types": "SECURITY_HOTSPOT,VULNERABILITY",
-                  },
+      <p
+        className="alert alert-info spacer-top display-inline-block"
+      >
+        <FormattedMessage
+          defaultMessage="security_reports.info"
+          id="security_reports.info"
+          tagName="p"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/coding_rules",
+                    "query": Object {
+                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                    },
+                  }
                 }
-              }
-            >
-              security_reports.info.link
-            </Link>,
+              >
+                security_reports.info.link
+              </Link>,
+            }
           }
-        }
-      />
+        />
+      </p>
     </div>
   </header>
   <div
@@ -147,32 +148,33 @@ exports[`handle checkbox for cwe display 2`] = `
       >
         learn_more
       </Link>
-    </div>
-    <div
-      className="alert alert-info spacer-top"
-    >
-      <FormattedMessage
-        defaultMessage="security_reports.info"
-        id="security_reports.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/coding_rules",
-                  "query": Object {
-                    "types": "SECURITY_HOTSPOT,VULNERABILITY",
-                  },
+      <p
+        className="alert alert-info spacer-top display-inline-block"
+      >
+        <FormattedMessage
+          defaultMessage="security_reports.info"
+          id="security_reports.info"
+          tagName="p"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/coding_rules",
+                    "query": Object {
+                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                    },
+                  }
                 }
-              }
-            >
-              security_reports.info.link
-            </Link>,
+              >
+                security_reports.info.link
+              </Link>,
+            }
           }
-        }
-      />
+        />
+      </p>
     </div>
   </header>
   <div
@@ -299,32 +301,33 @@ exports[`renders owaspTop10 1`] = `
       >
         learn_more
       </Link>
-    </div>
-    <div
-      className="alert alert-info spacer-top"
-    >
-      <FormattedMessage
-        defaultMessage="security_reports.info"
-        id="security_reports.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/coding_rules",
-                  "query": Object {
-                    "types": "SECURITY_HOTSPOT,VULNERABILITY",
-                  },
+      <p
+        className="alert alert-info spacer-top display-inline-block"
+      >
+        <FormattedMessage
+          defaultMessage="security_reports.info"
+          id="security_reports.info"
+          tagName="p"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/coding_rules",
+                    "query": Object {
+                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                    },
+                  }
                 }
-              }
-            >
-              security_reports.info.link
-            </Link>,
+              >
+                security_reports.info.link
+              </Link>,
+            }
           }
-        }
-      />
+        />
+      </p>
     </div>
   </header>
   <div
@@ -408,32 +411,33 @@ exports[`renders sansTop25 1`] = `
       >
         learn_more
       </Link>
-    </div>
-    <div
-      className="alert alert-info spacer-top"
-    >
-      <FormattedMessage
-        defaultMessage="security_reports.info"
-        id="security_reports.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/coding_rules",
-                  "query": Object {
-                    "types": "SECURITY_HOTSPOT,VULNERABILITY",
-                  },
+      <p
+        className="alert alert-info spacer-top display-inline-block"
+      >
+        <FormattedMessage
+          defaultMessage="security_reports.info"
+          id="security_reports.info"
+          tagName="p"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/coding_rules",
+                    "query": Object {
+                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                    },
+                  }
                 }
-              }
-            >
-              security_reports.info.link
-            </Link>,
+              >
+                security_reports.info.link
+              </Link>,
+            }
           }
-        }
-      />
+        />
+      </p>
     </div>
   </header>
   <div
@@ -517,32 +521,33 @@ exports[`renders with cwe 1`] = `
       >
         learn_more
       </Link>
-    </div>
-    <div
-      className="alert alert-info spacer-top"
-    >
-      <FormattedMessage
-        defaultMessage="security_reports.info"
-        id="security_reports.info"
-        values={
-          Object {
-            "link": <Link
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/coding_rules",
-                  "query": Object {
-                    "types": "SECURITY_HOTSPOT,VULNERABILITY",
-                  },
+      <p
+        className="alert alert-info spacer-top display-inline-block"
+      >
+        <FormattedMessage
+          defaultMessage="security_reports.info"
+          id="security_reports.info"
+          tagName="p"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/coding_rules",
+                    "query": Object {
+                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                    },
+                  }
                 }
-              }
-            >
-              security_reports.info.link
-            </Link>,
+              >
+                security_reports.info.link
+              </Link>,
+            }
           }
-        }
-      />
+        />
+      </p>
     </div>
   </header>
   <div

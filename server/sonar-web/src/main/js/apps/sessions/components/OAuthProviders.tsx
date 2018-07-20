@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { IdentityProvider } from '../../../app/types';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { isDarkColor } from '../../../helpers/colors';
+import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
+import { IdentityProvider } from '../../../app/types';
 import './OAuthProviders.css';
 
 interface Props {
@@ -58,25 +58,16 @@ interface ItemProps {
 }
 
 function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
-  const hasDarkBackground = isDarkColor(identityProvider.backgroundColor);
-
   return (
     <li>
-      <a
-        className={classNames({ 'dark-text': !hasDarkBackground })}
-        href={
+      <IdentityProviderLink
+        identityProvider={identityProvider}
+        url={
           `${getBaseUrl()}/sessions/init/${identityProvider.key}` +
           `?return_to=${encodeURIComponent(returnTo)}`
-        }
-        style={{ backgroundColor: identityProvider.backgroundColor }}>
-        <img
-          alt={identityProvider.name}
-          height="20"
-          src={getBaseUrl() + identityProvider.iconPath}
-          width="20"
-        />
+        }>
         <span>{format(identityProvider.name)}</span>
-      </a>
+      </IdentityProviderLink>
       {identityProvider.helpMessage && (
         <HelpTooltip className="oauth-providers-help" overlay={identityProvider.helpMessage} />
       )}

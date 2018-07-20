@@ -305,6 +305,8 @@ export interface LinearIssueLocation {
 export interface LoggedInUser extends CurrentUser {
   avatar?: string;
   email?: string;
+  externalIdentity?: string;
+  externalProvider?: string;
   homepage?: HomePage;
   isLoggedIn: true;
   login: string;

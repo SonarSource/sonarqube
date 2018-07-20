@@ -27,9 +27,8 @@ it('renders correctly', () => {
     shallow(
       <Onboarding
         currentUser={{ isLoggedIn: true }}
-        onFinish={jest.fn()}
+        onClose={jest.fn()}
         onOpenOrganizationOnboarding={jest.fn()}
-        onOpenProjectOnboarding={jest.fn()}
         onOpenTeamOnboarding={jest.fn()}
       />
     )
@@ -37,25 +36,25 @@ it('renders correctly', () => {
 });
 
 it('should correctly open the different tutorials', () => {
-  const onFinish = jest.fn();
+  const onClose = jest.fn();
   const onOpenOrganizationOnboarding = jest.fn();
-  const onOpenProjectOnboarding = jest.fn();
   const onOpenTeamOnboarding = jest.fn();
+  const push = jest.fn();
   const wrapper = shallow(
     <Onboarding
       currentUser={{ isLoggedIn: true }}
-      onFinish={onFinish}
+      onClose={onClose}
       onOpenOrganizationOnboarding={onOpenOrganizationOnboarding}
-      onOpenProjectOnboarding={onOpenProjectOnboarding}
       onOpenTeamOnboarding={onOpenTeamOnboarding}
-    />
+    />,
+    { context: { router: { push } } }
   );
 
   click(wrapper.find('ResetButtonLink'));
-  expect(onFinish).toHaveBeenCalled();
+  expect(onClose).toHaveBeenCalled();
 
   wrapper.find('Button').forEach(button => click(button));
   expect(onOpenOrganizationOnboarding).toHaveBeenCalled();
-  expect(onOpenProjectOnboarding).toHaveBeenCalled();
   expect(onOpenTeamOnboarding).toHaveBeenCalled();
+  expect(push).toHaveBeenCalledWith('/onboarding');
 });

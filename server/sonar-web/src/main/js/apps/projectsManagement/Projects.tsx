@@ -20,9 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import ProjectRow from './ProjectRow';
-import { Project } from './utils';
 import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
+import { Project } from '../../api/components';
 
 interface Props {
   currentUser: { login: string };

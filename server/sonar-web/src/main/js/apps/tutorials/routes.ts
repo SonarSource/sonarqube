@@ -17,24 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.oauth-providers > ul {
-  width: 200px;
-  margin-left: auto;
-  margin-right: auto;
-}
+import { lazyLoad } from '../../components/lazyLoad';
+import { isSonarCloud } from '../../helpers/system';
 
-.oauth-providers > ul > li {
-  position: relative;
-  margin-bottom: 30px;
-}
+const routes = [
+  {
+    indexRoute: {
+      component: lazyLoad(
+        () =>
+          isSonarCloud()
+            ? import('../../apps/tutorials/createProjectOnboarding/CreateProjectOnboarding')
+            : import('../../apps/tutorials/projectOnboarding/ProjectOnboardingPage')
+      )
+    }
+  }
+];
 
-.oauth-providers-help {
-  position: absolute;
-  top: 15px;
-  right: -24px;
-}
-
-.oauth-providers + .login-form {
-  padding-top: 30px;
-  border-top: 1px solid var(--barBorderColor);
-}
+export default routes;
