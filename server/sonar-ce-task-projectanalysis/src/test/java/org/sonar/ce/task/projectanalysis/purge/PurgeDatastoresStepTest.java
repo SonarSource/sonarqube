@@ -30,7 +30,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.ce.task.dbcleaner.ProjectCleaner;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.MutableDbIdsRepositoryRule;

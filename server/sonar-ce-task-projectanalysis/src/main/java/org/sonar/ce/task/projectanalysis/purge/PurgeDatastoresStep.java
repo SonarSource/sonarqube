@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
-import org.sonar.ce.task.dbcleaner.ProjectCleaner;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.DbIdsRepository;

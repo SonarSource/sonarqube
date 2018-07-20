@@ -19,8 +19,8 @@
  */
 package org.sonar.ce;
 
-import org.sonar.ce.task.dbcleaner.IndexPurgeListener;
-import org.sonar.ce.task.dbcleaner.ProjectCleaner;
+import org.sonar.ce.task.projectanalysis.purge.IndexPurgeListener;
+import org.sonar.ce.task.projectanalysis.purge.ProjectCleaner;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 

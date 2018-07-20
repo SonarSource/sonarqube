@@ -123,7 +123,7 @@ import org.sonar.ce.task.projectanalysis.webhook.WebhookPostTask;
 import org.sonar.ce.task.setting.SettingsLoader;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.step.ComputationSteps;
-import org.sonar.ce.taskprocessor.MutableTaskResultHolderImpl;
+import org.sonar.ce.task.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.view.index.ViewIndex;

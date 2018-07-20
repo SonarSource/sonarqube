@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.dbcleaner;
+package org.sonar.ce.task.projectanalysis.purge;
 
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.server.component.index.ComponentIndexer;
@@ -27,22 +26,23 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class IndexPurgeListenerTest {
 
-  TestIndexer testIndexer = mock(TestIndexer.class);
-  IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
+  private TestIndexer testIndexer = mock(TestIndexer.class);
+  private IssueIndexer issueIndexer = mock(IssueIndexer.class);
+  private ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
 
-  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer, componentIndexer);
+  private IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer, componentIndexer);
 
   @Test
   public void test_onComponentDisabling() {
     String uuid = "123456";
     String projectUuid = "P789";
-    List<String> uuids = Arrays.asList(uuid);
+    List<String> uuids = singletonList(uuid);
     underTest.onComponentsDisabling(projectUuid, uuids);
 
     verify(testIndexer).deleteByFile(uuid);

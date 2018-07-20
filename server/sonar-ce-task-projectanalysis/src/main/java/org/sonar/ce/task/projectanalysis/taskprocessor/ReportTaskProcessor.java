@@ -28,7 +28,7 @@ import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.container.ContainerFactory;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
-import org.sonar.ce.taskprocessor.TaskResultHolder;
+import org.sonar.ce.task.taskprocessor.TaskResultHolder;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.ce.task.projectanalysis.container.ReportAnalysisComponentProvider;
