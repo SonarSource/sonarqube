@@ -19,6 +19,7 @@
  */
 package org.sonar.server.organization;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
@@ -53,6 +53,11 @@ public class DefaultOrganizationProviderImplTest {
   private DbSession dbSession = dbTester.getSession();
 
   private DefaultOrganizationProviderImpl underTest = new DefaultOrganizationProviderImpl(dbClient);
+
+  @After
+  public void tearDown() {
+    underTest.unload();
+  }
 
   @Test
   public void get_fails_with_ISE_if_default_organization_internal_property_does_not_exist() {
@@ -116,17 +121,17 @@ public class DefaultOrganizationProviderImplTest {
   }
 
   @Test
-  public void load_fails_with_ISE_when_called_twice_without_unload_in_between() {
-    underTest.load();
+  public void load_resets_thread_local_when_called_twice() {
+    insertOrganization(ORGANIZATION_DTO_1, DATE_1);
+    dbClient.internalPropertiesDao().save(dbSession, DEFAULT_ORGANIZATION, ORGANIZATION_DTO_1.getUuid());
+    dbSession.commit();
 
-    try {
-      underTest.load();
-      fail("A IllegalStateException should have been raised");
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("load called twice for thread '" + Thread.currentThread().getName() + "' or state wasn't cleared last time it was used");
-    } finally {
-      underTest.unload();
-    }
+    underTest.load();
+    DefaultOrganization org1 = underTest.get();
+
+    underTest.load();
+    DefaultOrganization org2 = underTest.get();
+    assertThat(org1).isNotSameAs(org2);
   }
 
   @Test

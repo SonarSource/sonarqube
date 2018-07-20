@@ -70,10 +70,6 @@ public class DefaultOrganizationProviderImpl implements DefaultOrganizationProvi
 
   @Override
   public void load() {
-    checkState(
-      CACHE.get() == null,
-      "load called twice for thread '%s' or state wasn't cleared last time it was used",
-      Thread.currentThread().getName());
     CACHE.set(new Cache());
   }
 
