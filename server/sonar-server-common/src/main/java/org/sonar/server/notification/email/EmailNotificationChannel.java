@@ -199,6 +199,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   private void configureSecureConnection(SimpleEmail email) {
     if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "ssl")) {
       email.setSSLOnConnect(true);
+      email.setSSLCheckServerIdentity(true);
       email.setSslSmtpPort(String.valueOf(configuration.getSmtpPort()));
 
       // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
@@ -207,6 +208,7 @@ public class EmailNotificationChannel extends NotificationChannel {
     } else if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "starttls")) {
       email.setStartTLSEnabled(true);
       email.setStartTLSRequired(true);
+      email.setSSLCheckServerIdentity(true);
       email.setSmtpPort(configuration.getSmtpPort());
     } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
       email.setSmtpPort(configuration.getSmtpPort());
