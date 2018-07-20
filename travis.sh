@@ -10,17 +10,26 @@ set -euo pipefail
 # at each build.
 #
 installJdk8() {
-  echo "Setup JDK 1.8u181"
+  # copied from https://github.com/SonarSource/travis-utils/blob/master/bin/installJDK8
+  JDK_RELEASE=181
+  echo "Setup JDK 1.8u$JDK_RELEASE"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
-  if [ ! -d "jdk1.8.0_181" ]; then
-    wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.tar.gz
-    tar xzf jdk-8u181-linux-x64.tar.gz
-    rm jdk-8u181-linux-x64.tar.gz
+
+  if [ ! -d "jdk1.8.0_$JDK_RELEASE" ]; then
+    {
+      wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.tar.gz
+    } || {
+      echo "failed to download JDK 1.8u$JDK_RELEASE"
+      exit 1
+    }
+    tar xzf jdk-8u$JDK_RELEASE-linux-x64.tar.gz
+    rm jdk-8u$JDK_RELEASE-linux-x64.tar.gz
   fi
   popd > /dev/null
-  export JAVA_HOME=~/jvm/jdk1.8.0_171
+  export JAVA_HOME=~/jvm/jdk1.8.0_$JDK_RELEASE
   export PATH=$JAVA_HOME/bin:$PATH
+  echo "JDK 1.8u$JDK_RELEASE installed"
 }
 
 #
