@@ -344,7 +344,7 @@ public class QualityGateActionTest {
     assertThat(response.getHeader("Cache-Control")).contains("no-cache");
     assertThat(response.getHeader("Expires")).isNotNull();
     assertThat(response.getHeader("ETag")).isNull();
-    assertThat(expiresDateFormat.parse(response.getHeader("Expires"))).isBefore(new Date());
+    assertThat(expiresDateFormat.parse(response.getHeader("Expires"))).isBeforeOrEqualsTo(new Date());
     assertThat(response.getInput()).contains("<text", ">" + expectedError + "</text>");
   }
 
