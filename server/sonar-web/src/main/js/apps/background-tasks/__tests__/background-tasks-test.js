@@ -180,15 +180,15 @@ describe('Helpers', () => {
     });
 
     it('should format 1s 0ms', () => {
-      expect(formatDuration(1000)).toBe('1s 0ms');
+      expect(formatDuration(1000)).toBe('1.0s');
     });
 
     it('should format 1s 1ms', () => {
-      expect(formatDuration(1001)).toBe('1s 1ms');
+      expect(formatDuration(1001)).toBe('1.1s');
     });
 
     it('should format 1s 501ms', () => {
-      expect(formatDuration(1501)).toBe('1s 501ms');
+      expect(formatDuration(1501)).toBe('1.501s');
     });
 
     it('should format 59s', () => {
