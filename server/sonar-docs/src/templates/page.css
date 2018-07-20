@@ -33,6 +33,10 @@
   color: #3c763d;
 }
 
+ul > ul {
+  margin-bottom: 0 !important;
+}
+
 .collapse {
   border: 1px solid #e6e6e6;
   border-radius: 2px;
@@ -71,4 +75,12 @@
 
 .collapse .alert {
   margin: 0 0.5em 1.5rem;
+}
+
+img[src='/images/exclamation.svg'],
+img[src='/images/check.svg'],
+img[src='/images/cross.svg'],
+img[src='/images/info.svg'] {
+  margin-bottom: 0;
+  top: 0 !important;
 }

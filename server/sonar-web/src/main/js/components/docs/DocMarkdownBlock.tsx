@@ -21,11 +21,11 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
-import remarkToc from 'remark-toc';
 import remarkCustomBlocks from 'remark-custom-blocks';
 import DocLink from './DocLink';
 import DocImg from './DocImg';
 import DocTooltipLink from './DocTooltipLink';
+import remarkToc from './plugins/remark-toc';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import { separateFrontMatter, filterContent } from '../../helpers/markdown';
 import { scrollToElement } from '../../helpers/scrolling';
@@ -43,7 +43,7 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
 
   handleAnchorClick = (href: string, event: React.MouseEvent<HTMLAnchorElement>) => {
     if (this.node) {
-      const element = this.node.querySelector(`#user-content-${href.substr(1)}`);
+      const element = this.node.querySelector(`#${href.substr(1)}`);
       if (element) {
         event.preventDefault();
         scrollToElement(element, { bottomOffset: window.innerHeight - 80 });

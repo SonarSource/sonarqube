@@ -59,6 +59,14 @@
   margin: 0.8em 0 2em;
 }
 
+.documentation-content.markdown ul {
+  margin: 0 0 2em;
+}
+
+.documentation-content.markdown ul > ul {
+  margin: 0;
+}
+
 .documentation-content.markdown p + ul,
 .documentation-content.markdown p + ol,
 .documentation-content.markdown p + pre {

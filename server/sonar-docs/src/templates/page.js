@@ -54,6 +54,8 @@ export default class Page extends React.PureComponent {
       htmlWithInclusions = generateTableOfContents(htmlWithInclusions, page.headings);
     }
 
+    htmlWithInclusions = replaceDynamicLinks(htmlWithInclusions);
+
     return (
       <div css={{ paddingTop: 24, paddingBottom: 24 }}>
         <Helmet title={page.frontmatter.title} />
@@ -98,10 +100,24 @@ export const query = graphql`
   }
 `;
 
+function replaceDynamicLinks(content) {
+  return content.replace(
+    /\<a href="\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*"\>(.*)\<\/a\>/gim,
+    '$1'
+  );
+}
+
 function generateTableOfContents(content, headings) {
   let html = '<h2>Table Of Contents</h2>';
   let depth = headings[0].depth - 1;
   for (let i = 1; i < headings.length; i++) {
+    // Do not include title from collapsible content
+    if (
+      content.match(new RegExp(`\<div class="collapse"\>\<h2\>${headings[i].value}\<\/h2\>`, 'gi'))
+    ) {
+      continue;
+    }
+
     while (headings[i].depth > depth) {
       html += '<ul>';
       depth++;
@@ -116,7 +132,8 @@ function generateTableOfContents(content, headings) {
       `<h${headings[i].depth} id="header-${i}">${headings[i].value}</h${headings[i].depth}>`
     );
   }
-  return content.replace(/<h[1-9]>Table Of Contents<\/h[1-9]>/, html);
+  html += '</ul>';
+  return content.replace(/<h[1-9]>Table Of Contents<\/h[1-9]>/i, html);
 }
 
 function cutSonarCloudContent(content) {
