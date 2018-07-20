@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import remark from 'remark';
-import strip from 'strip-markdown';
+import visit from 'unist-util-visit';
 import { DocumentationEntry, DocumentationEntryScope } from './utils';
 import * as Docs from './documentation.directory-loader';
 import { separateFrontMatter, filterContent } from '../../helpers/markdown';
@@ -28,12 +28,7 @@ export default function getPages(): DocumentationEntry[] {
   return Docs.map((file: any) => {
     const parsed = separateFrontMatter(file.content);
     const content = filterContent(parsed.content);
-
-    const text = remark()
-      .use(strip)
-      .processSync(content)
-      .contents.replace(/\n+/, ' ')
-      .trim();
+    const text = getText(content);
 
     return {
       relativeName: file.path,
@@ -49,4 +44,15 @@ export default function getPages(): DocumentationEntry[] {
     (page: DocumentationEntry) =>
       page.scope !== 'static' && (isSonarCloud() || page.scope !== 'sonarcloud')
   );
+}
+
+function getText(content: string) {
+  const ast = remark().parse(content);
+  const texts: string[] = [];
+  visit(ast, node => {
+    if (node.type === `text` || node.type === `inlineCode`) {
+      texts.push(node.value);
+    }
+  });
+  return texts.join(' ').replace(/\s+/g, ' ');
 }
