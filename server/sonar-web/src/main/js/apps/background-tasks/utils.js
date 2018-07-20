@@ -92,7 +92,7 @@ export function formatDuration(value /*: ?number */) {
   } else if (value < ONE_SECOND * 10) {
     const seconds = Math.floor(value / ONE_SECOND);
     const ms = value - seconds * ONE_SECOND;
-    return format(seconds, 's') + ' ' + format(ms, 'ms');
+    return seconds + '.' + format(ms, 's');
   } else if (value < ONE_MINUTE) {
     const seconds = Math.floor(value / ONE_SECOND);
     return format(seconds, 's');
