@@ -81,3 +81,23 @@
 .documentation-content.markdown .alert p {
   margin: 0;
 }
+
+.documentation-content.markdown .collapse-container {
+  border: 1px solid var(--barBorderColor);
+  border-radius: 2px;
+  background-color: var(--barBackgroundColor);
+  padding: 8px;
+  margin: 0.8em 0 2em;
+}
+
+.documentation-content.markdown .collapse-container > a:first-child {
+  display: block;
+}
+
+.documentation-content.markdown .collapse-container > a:first-child:focus {
+  color: var(--darkBlue);
+}
+
+.documentation-content.markdown .collapse-container *:last-child {
+  margin-bottom: 0;
+}

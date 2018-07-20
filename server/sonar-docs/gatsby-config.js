@@ -42,7 +42,8 @@ module.exports = {
                 danger: 'alert alert-danger',
                 warning: 'alert alert-warning',
                 info: 'alert alert-info',
-                success: 'alert alert-success'
+                success: 'alert alert-success',
+                collapse: 'collapse'
               }
             }
           }

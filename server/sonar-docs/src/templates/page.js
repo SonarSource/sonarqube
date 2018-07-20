@@ -21,43 +21,57 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import './page.css';
 
-export default ({ data }) => {
-  const page = data.markdownRemark;
-  let htmlWithInclusions = cutSonarCloudContent(page.html).replace(
-    /\<p\>@include (.*)\<\/p\>/,
-    (_, path) => {
-      const chunk = data.allMarkdownRemark.edges.find(
-        edge => edge.node.fields && edge.node.fields.slug === path
-      );
-      return chunk ? chunk.node.html : '';
+export default class Page extends React.PureComponent {
+  componentDidMount() {
+    const collaspables = document.getElementsByClassName('collapse');
+    for (let i = 0; i < collaspables.length; i++) {
+      collaspables[i].classList.add('close');
+      collaspables[i].firstChild.outerHTML = collaspables[i].firstChild.outerHTML
+        .replace(/\<h2/gi, '<a href="#"')
+        .replace(/\<\/h2\>/gi, '</a>');
+      collaspables[i].firstChild.addEventListener('click', e => {
+        e.currentTarget.parentNode.classList.toggle('close');
+        e.preventDefault();
+      });
     }
-  );
-
-  if (
-    page.headings &&
-    page.headings.length > 0 &&
-    page.html.match(/<h[1-9]>Table Of Contents<\/h[1-9]>/i)
-  ) {
-    htmlWithInclusions = generateTableOfContents(htmlWithInclusions, page.headings);
   }
 
-  return (
-    <div css={{ paddingTop: 24, paddingBottom: 24 }}>
-      <Helmet title={page.frontmatter.title} />
-      <h1>{page.frontmatter.title}</h1>
-      <div
-        css={{
-          '& img[src$=".svg"]': {
-            position: 'relative',
-            top: '-2px',
-            verticalAlign: 'text-bottom'
-          }
-        }}
-        dangerouslySetInnerHTML={{ __html: htmlWithInclusions }}
-      />
-    </div>
-  );
-};
+  render() {
+    const page = this.props.data.markdownRemark;
+    let htmlWithInclusions = cutSonarCloudContent(page.html).replace(
+      /\<p\>@include (.*)\<\/p\>/,
+      (_, path) => {
+        const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
+        return chunk ? chunk.node.html : '';
+      }
+    );
+
+    if (
+      page.headings &&
+      page.headings.length > 0 &&
+      page.html.match(/<h[1-9]>Table Of Contents<\/h[1-9]>/i)
+    ) {
+      htmlWithInclusions = generateTableOfContents(htmlWithInclusions, page.headings);
+    }
+
+    return (
+      <div css={{ paddingTop: 24, paddingBottom: 24 }}>
+        <Helmet title={page.frontmatter.title} />
+        <h1>{page.frontmatter.title}</h1>
+        <div
+          css={{
+            '& img[src$=".svg"]': {
+              position: 'relative',
+              top: '-2px',
+              verticalAlign: 'text-bottom'
+            }
+          }}
+          dangerouslySetInnerHTML={{ __html: htmlWithInclusions }}
+        />
+      </div>
+    );
+  }
+}
 
 export const query = graphql`
   query PageQuery($slug: String!) {

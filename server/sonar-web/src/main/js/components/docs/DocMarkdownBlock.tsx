@@ -26,6 +26,7 @@ import remarkCustomBlocks from 'remark-custom-blocks';
 import DocLink from './DocLink';
 import DocImg from './DocImg';
 import DocTooltipLink from './DocTooltipLink';
+import DocCollapsibleBlock from './DocCollapsibleBlock';
 import { separateFrontMatter, filterContent } from '../../helpers/markdown';
 import { scrollToElement } from '../../helpers/scrolling';
 
@@ -63,7 +64,8 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
               danger: { classes: 'alert alert-danger' },
               warning: { classes: 'alert alert-warning' },
               info: { classes: 'alert alert-info' },
-              success: { classes: 'alert alert-success' }
+              success: { classes: 'alert alert-success' },
+              collapse: { classes: 'collapse' }
             })
             .use(reactRenderer, {
               remarkReactComponents: {
@@ -96,7 +98,11 @@ function withChildProps<P>(
 
 function Block(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
   if (props.className) {
-    return <div className={classNames('cut-margins', props.className)}>{props.children}</div>;
+    if (props.className.includes('collapse')) {
+      return <DocCollapsibleBlock>{props.children}</DocCollapsibleBlock>;
+    } else {
+      return <div className={classNames('cut-margins', props.className)}>{props.children}</div>;
+    }
   } else {
     return props.children;
   }
