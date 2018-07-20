@@ -19,12 +19,12 @@
  */
 package org.sonar.scanner;
 
-import static java.util.stream.Collectors.toMap;
-
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -35,9 +35,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import static java.util.stream.Collectors.toMap;
 
 public class DefaultFileLinesContext implements FileLinesContext {
   private final SensorContext context;
@@ -117,7 +115,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
 
   private static Map<Integer, Object> optimizeStorage(String metricKey, Map<Integer, Object> lines) {
     // SONAR-7464 Don't store 0 because this is default value anyway
-    if (CoreMetrics.NCLOC_DATA_KEY.equals(metricKey) || CoreMetrics.COMMENT_LINES_DATA_KEY.equals(metricKey) || CoreMetrics.EXECUTABLE_LINES_DATA_KEY.equals(metricKey)) {
+    if (CoreMetrics.NCLOC_DATA_KEY.equals(metricKey) || CoreMetrics.EXECUTABLE_LINES_DATA_KEY.equals(metricKey)) {
       return lines.entrySet().stream()
         .filter(entry -> !entry.getValue().equals(0))
         .collect(toMap(Entry::getKey, Entry::getValue));

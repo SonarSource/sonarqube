@@ -38,7 +38,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 
@@ -77,7 +76,6 @@ public class DefaultFileLinesContextTest {
     when(metricFinder.<String>findByKey(BRANCHES_METRIC_KEY)).thenReturn(branchesMetric);
     when(metricFinder.<String>findByKey(CoreMetrics.NCLOC_DATA_KEY)).thenReturn(CoreMetrics.NCLOC_DATA);
     when(metricFinder.<String>findByKey(CoreMetrics.EXECUTABLE_LINES_DATA_KEY)).thenReturn(CoreMetrics.EXECUTABLE_LINES_DATA);
-    when(metricFinder.<String>findByKey(CoreMetrics.COMMENT_LINES_DATA_KEY)).thenReturn(CoreMetrics.COMMENT_LINES_DATA);
     measureCache = mock(MeasureCache.class);
     fileLineMeasures = new DefaultFileLinesContext(sensorContextTester, new TestInputFileBuilder("foo", "src/foo.php").initMetadata("Foo\nbar\nbiz").build(), metricFinder,
       measureCache);
@@ -112,13 +110,10 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.setIntValue(NCLOC_DATA_KEY, 2, 1);
     fileLineMeasures.setIntValue(EXECUTABLE_LINES_DATA_KEY, 1, 0);
     fileLineMeasures.setIntValue(EXECUTABLE_LINES_DATA_KEY, 2, 1);
-    fileLineMeasures.setIntValue(COMMENT_LINES_DATA_KEY, 1, 0);
-    fileLineMeasures.setIntValue(COMMENT_LINES_DATA_KEY, 2, 1);
     fileLineMeasures.save();
 
     assertThat(sensorContextTester.measure("foo:src/foo.php", NCLOC_DATA_KEY).value()).isEqualTo("2=1");
     assertThat(sensorContextTester.measure("foo:src/foo.php", EXECUTABLE_LINES_DATA_KEY).value()).isEqualTo("2=1");
-    assertThat(sensorContextTester.measure("foo:src/foo.php", COMMENT_LINES_DATA_KEY).value()).isEqualTo("2=1");
   }
 
   @Test

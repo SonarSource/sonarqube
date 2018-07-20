@@ -72,25 +72,27 @@ public final class CoreMetrics {
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static String DOMAIN_MAINTAINABILITY = "Maintainability";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static String DOMAIN_RELIABILITY = "Reliability";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static String DOMAIN_SECURITY = "Security";
 
   /**
    * @since 4.0
-   *
    * @deprecated in 5.5. Replaced by {@link #DOMAIN_MAINTAINABILITY}
    */
   @Deprecated
@@ -217,8 +219,8 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated since 6.2
    * @see <a href="https://jira.sonarsource.com/browse/SONAR-8328">SONAR-8328</a>
+   * @deprecated since 6.2
    */
   @Deprecated
   public static final String PUBLIC_API_KEY = "public_api";
@@ -274,8 +276,8 @@ public final class CoreMetrics {
   // --------------------------------------------------------------------------------------------------------------------
 
   /**
-   * @deprecated since 6.2
    * @see <a href="https://jira.sonarsource.com/browse/SONAR-8328">SONAR-8328</a>
+   * @deprecated since 6.2
    */
   @Deprecated
   public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
@@ -291,8 +293,8 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated since 6.2
    * @see <a href="https://jira.sonarsource.com/browse/SONAR-8328">SONAR-8328</a>
+   * @deprecated since 6.2
    */
   @Deprecated
   public static final String PUBLIC_UNDOCUMENTED_API_KEY = "public_undocumented_api";
@@ -389,6 +391,7 @@ public final class CoreMetrics {
   public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
   /**
    * Information about the cyclomatic complexity per class, calculated by divided the {@link #COMPLEXITY_IN_CLASSES} by the number of {@link #CLASSES}.
+   *
    * @deprecated since 6.7
    */
   @Deprecated
@@ -428,6 +431,7 @@ public final class CoreMetrics {
   public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
   /**
    * Information about the cyclomatic complexity per function, calculated by divided the {@link #COMPLEXITY_IN_FUNCTIONS} by the number of {@link #FUNCTIONS}.
+   *
    * @deprecated since 6.7
    */
   @Deprecated
@@ -450,12 +454,12 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Class Distribution / Complexity",
     Metric.ValueType.DISTRIB)
-      .setDescription("Classes distribution /complexity")
-      .setDirection(Metric.DIRECTION_NONE)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setHidden(true)
-      .create();
+    .setDescription("Classes distribution /complexity")
+    .setDirection(Metric.DIRECTION_NONE)
+    .setQualitative(true)
+    .setDomain(DOMAIN_COMPLEXITY)
+    .setHidden(true)
+    .create();
 
   /**
    * @deprecated since 6.7
@@ -468,12 +472,12 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Function Distribution / Complexity",
     Metric.ValueType.DISTRIB)
-      .setDescription("Functions distribution /complexity")
-      .setDirection(Metric.DIRECTION_NONE)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setHidden(true)
-      .create();
+    .setDescription("Functions distribution /complexity")
+    .setDirection(Metric.DIRECTION_NONE)
+    .setQualitative(true)
+    .setDomain(DOMAIN_COMPLEXITY)
+    .setHidden(true)
+    .create();
 
   /**
    * @deprecated since 6.7
@@ -486,12 +490,12 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "File Distribution / Complexity",
     Metric.ValueType.DISTRIB)
-      .setDescription("Files distribution /complexity")
-      .setDirection(Metric.DIRECTION_NONE)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setHidden(true)
-      .create();
+    .setDescription("Files distribution /complexity")
+    .setDirection(Metric.DIRECTION_NONE)
+    .setQualitative(true)
+    .setDomain(DOMAIN_COMPLEXITY)
+    .setHidden(true)
+    .create();
 
   public static final String COGNITIVE_COMPLEXITY_KEY = "cognitive_complexity";
   public static final Metric<Integer> COGNITIVE_COMPLEXITY = new Metric.Builder(COGNITIVE_COMPLEXITY_KEY, "Cognitive Complexity", Metric.ValueType.INT)
@@ -674,7 +678,6 @@ public final class CoreMetrics {
     .create();
 
   /**
-   *
    * @deprecated since 5.2 soon to be removed
    */
   @Deprecated
@@ -683,6 +686,7 @@ public final class CoreMetrics {
   /**
    * Key-value pairs, where key - is a number of line, and value - is a number of hits for this line.
    * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   *
    * @deprecated since 5.2 soon to be removed
    */
   @Deprecated
@@ -797,14 +801,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String IT_COVERAGE_KEY = "it_coverage";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> IT_COVERAGE = new Metric.Builder(IT_COVERAGE_KEY, "IT Coverage", Metric.ValueType.PERCENT)
@@ -819,14 +823,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_IT_COVERAGE_KEY = "new_it_coverage";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> NEW_IT_COVERAGE = new Metric.Builder(NEW_IT_COVERAGE_KEY, "Coverage by IT on New Code", Metric.ValueType.PERCENT)
@@ -842,14 +846,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String IT_LINES_TO_COVER_KEY = "it_lines_to_cover";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> IT_LINES_TO_COVER = new Metric.Builder(IT_LINES_TO_COVER_KEY, "IT Lines to Cover", Metric.ValueType.INT)
@@ -862,14 +866,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_IT_LINES_TO_COVER_KEY = "new_it_lines_to_cover";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_IT_LINES_TO_COVER = new Metric.Builder(NEW_IT_LINES_TO_COVER_KEY, "Lines to Cover by IT on New Code", Metric.ValueType.INT)
@@ -883,14 +887,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String IT_UNCOVERED_LINES_KEY = "it_uncovered_lines";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> IT_UNCOVERED_LINES = new Metric.Builder(IT_UNCOVERED_LINES_KEY, "IT Uncovered Lines", Metric.ValueType.INT)
@@ -903,14 +907,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_IT_UNCOVERED_LINES_KEY = "new_it_uncovered_lines";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_IT_UNCOVERED_LINES = new Metric.Builder(NEW_IT_UNCOVERED_LINES_KEY, "Uncovered Lines by IT on New Code", Metric.ValueType.INT)
@@ -924,14 +928,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String IT_LINE_COVERAGE_KEY = "it_line_coverage";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> IT_LINE_COVERAGE = new Metric.Builder(IT_LINE_COVERAGE_KEY, "IT Line Coverage", Metric.ValueType.PERCENT)
@@ -944,14 +948,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_IT_LINE_COVERAGE_KEY = "new_it_line_coverage";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> NEW_IT_LINE_COVERAGE = new Metric.Builder(NEW_IT_LINE_COVERAGE_KEY, "Line Coverage by IT on New Code", Metric.ValueType.PERCENT)
@@ -988,14 +992,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String IT_CONDITIONS_TO_COVER_KEY = "it_conditions_to_cover";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> IT_CONDITIONS_TO_COVER = new Metric.Builder(IT_CONDITIONS_TO_COVER_KEY, "IT Branches to Cover", Metric.ValueType.INT)
@@ -1008,14 +1012,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_IT_CONDITIONS_TO_COVER_KEY = "new_it_conditions_to_cover";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_IT_CONDITIONS_TO_COVER = new Metric.Builder(NEW_IT_CONDITIONS_TO_COVER_KEY, "Branches to Cover by IT on New Code", Metric.ValueType.INT)
@@ -1027,14 +1031,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String IT_UNCOVERED_CONDITIONS_KEY = "it_uncovered_conditions";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> IT_UNCOVERED_CONDITIONS = new Metric.Builder(IT_UNCOVERED_CONDITIONS_KEY, "IT Uncovered Conditions", Metric.ValueType.INT)
@@ -1046,36 +1050,36 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_IT_UNCOVERED_CONDITIONS_KEY = "new_it_uncovered_conditions";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_IT_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_IT_UNCOVERED_CONDITIONS_KEY, "Uncovered Conditions by IT on New Code",
     Metric.ValueType.INT)
-      .setDescription("New conditions that are not covered by integration tests")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setDomain(DOMAIN_COVERAGE)
-      .setBestValue(0.0)
-      .setDeleteHistoricalData(true)
-      .setHidden(true)
-      .create();
+    .setDescription("New conditions that are not covered by integration tests")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_COVERAGE)
+    .setBestValue(0.0)
+    .setDeleteHistoricalData(true)
+    .setHidden(true)
+    .create();
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String IT_BRANCH_COVERAGE_KEY = "it_branch_coverage";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> IT_BRANCH_COVERAGE = new Metric.Builder(IT_BRANCH_COVERAGE_KEY, "IT Condition Coverage", Metric.ValueType.PERCENT)
@@ -1090,14 +1094,14 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_IT_BRANCH_COVERAGE_KEY = "new_it_branch_coverage";
 
   /**
    * @since 2.12
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> NEW_IT_BRANCH_COVERAGE = new Metric.Builder(NEW_IT_BRANCH_COVERAGE_KEY, "Condition Coverage by IT on New Code", Metric.ValueType.PERCENT)
@@ -1155,14 +1159,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String OVERALL_COVERAGE_KEY = "overall_coverage";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> OVERALL_COVERAGE = new Metric.Builder(OVERALL_COVERAGE_KEY, "Overall Coverage", Metric.ValueType.PERCENT)
@@ -1177,14 +1181,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_OVERALL_COVERAGE_KEY = "new_overall_coverage";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> NEW_OVERALL_COVERAGE = new Metric.Builder(NEW_OVERALL_COVERAGE_KEY, "Overall Coverage on New Code", Metric.ValueType.PERCENT)
@@ -1200,14 +1204,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String OVERALL_LINES_TO_COVER_KEY = "overall_lines_to_cover";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> OVERALL_LINES_TO_COVER = new Metric.Builder(OVERALL_LINES_TO_COVER_KEY, "Overall Lines to Cover", Metric.ValueType.INT)
@@ -1220,14 +1224,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_OVERALL_LINES_TO_COVER_KEY = "new_overall_lines_to_cover";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_OVERALL_LINES_TO_COVER = new Metric.Builder(NEW_OVERALL_LINES_TO_COVER_KEY, "Overall Lines to Cover on New Code", Metric.ValueType.INT)
@@ -1241,14 +1245,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String OVERALL_UNCOVERED_LINES_KEY = "overall_uncovered_lines";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> OVERALL_UNCOVERED_LINES = new Metric.Builder(OVERALL_UNCOVERED_LINES_KEY, "Overall Uncovered Lines", Metric.ValueType.INT)
@@ -1261,14 +1265,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_OVERALL_UNCOVERED_LINES_KEY = "new_overall_uncovered_lines";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_OVERALL_UNCOVERED_LINES = new Metric.Builder(NEW_OVERALL_UNCOVERED_LINES_KEY, "Overall Uncovered Lines on New Code", Metric.ValueType.INT)
@@ -1282,14 +1286,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String OVERALL_LINE_COVERAGE_KEY = "overall_line_coverage";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> OVERALL_LINE_COVERAGE = new Metric.Builder(OVERALL_LINE_COVERAGE_KEY, "Overall Line Coverage", Metric.ValueType.PERCENT)
@@ -1302,14 +1306,14 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_OVERALL_LINE_COVERAGE_KEY = "new_overall_line_coverage";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> NEW_OVERALL_LINE_COVERAGE = new Metric.Builder(NEW_OVERALL_LINE_COVERAGE_KEY, "Overall Line Coverage on New Code", Metric.ValueType.PERCENT)
@@ -1337,23 +1341,23 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> OVERALL_COVERAGE_LINE_HITS_DATA = new Metric.Builder(OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "Overall Coverage Hits by Line",
     Metric.ValueType.DATA)
-      .setDescription("Coverage hits by all tests and by line")
-      .setDirection(Metric.DIRECTION_NONE)
-      .setQualitative(false)
-      .setDomain(DOMAIN_COVERAGE)
-      .setDeleteHistoricalData(true)
-      .create();
+    .setDescription("Coverage hits by all tests and by line")
+    .setDirection(Metric.DIRECTION_NONE)
+    .setQualitative(false)
+    .setDomain(DOMAIN_COVERAGE)
+    .setDeleteHistoricalData(true)
+    .create();
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String OVERALL_CONDITIONS_TO_COVER_KEY = "overall_conditions_to_cover";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(OVERALL_CONDITIONS_TO_COVER_KEY, "Overall Branches to Cover", Metric.ValueType.INT)
@@ -1366,34 +1370,34 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_OVERALL_CONDITIONS_TO_COVER_KEY = "new_overall_conditions_to_cover";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(NEW_OVERALL_CONDITIONS_TO_COVER_KEY, "Overall Branches to Cover on New Code",
     Metric.ValueType.INT)
-      .setDescription("New branches to cover by all tests")
-      .setDomain(DOMAIN_COVERAGE)
-      .setDeleteHistoricalData(true)
-      .setHidden(true)
-      .create();
+    .setDescription("New branches to cover by all tests")
+    .setDomain(DOMAIN_COVERAGE)
+    .setDeleteHistoricalData(true)
+    .setHidden(true)
+    .create();
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String OVERALL_UNCOVERED_CONDITIONS_KEY = "overall_uncovered_conditions";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall Uncovered Conditions", Metric.ValueType.INT)
@@ -1405,36 +1409,36 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_OVERALL_UNCOVERED_CONDITIONS_KEY = "new_overall_uncovered_conditions";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Integer> NEW_OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall Uncovered Conditions on New Code",
     Metric.ValueType.INT)
-      .setDescription("New conditions that are not covered by any test")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setDomain(DOMAIN_COVERAGE)
-      .setBestValue(0.0)
-      .setDeleteHistoricalData(true)
-      .setHidden(true)
-      .create();
+    .setDescription("New conditions that are not covered by any test")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_COVERAGE)
+    .setBestValue(0.0)
+    .setDeleteHistoricalData(true)
+    .setHidden(true)
+    .create();
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String OVERALL_BRANCH_COVERAGE_KEY = "overall_branch_coverage";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> OVERALL_BRANCH_COVERAGE = new Metric.Builder(OVERALL_BRANCH_COVERAGE_KEY, "Overall Condition Coverage", Metric.ValueType.PERCENT)
@@ -1449,27 +1453,27 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final String NEW_OVERALL_BRANCH_COVERAGE_KEY = "new_overall_branch_coverage";
 
   /**
    * @since 3.3
-   * @deprecated since 6.2 all coverage reports are merged in the same measures 
+   * @deprecated since 6.2 all coverage reports are merged in the same measures
    */
   @Deprecated
   public static final Metric<Double> NEW_OVERALL_BRANCH_COVERAGE = new Metric.Builder(NEW_OVERALL_BRANCH_COVERAGE_KEY, "Overall Condition Coverage on New Code",
     Metric.ValueType.PERCENT)
-      .setDescription("Condition coverage of new/changed code by all tests")
-      .setDirection(Metric.DIRECTION_BETTER)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COVERAGE)
-      .setWorstValue(0.0)
-      .setBestValue(100.0)
-      .setDeleteHistoricalData(true)
-      .setHidden(true)
-      .create();
+    .setDescription("Condition coverage of new/changed code by all tests")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setDomain(DOMAIN_COVERAGE)
+    .setWorstValue(0.0)
+    .setBestValue(100.0)
+    .setDeleteHistoricalData(true)
+    .setHidden(true)
+    .create();
 
   /**
    * @since 3.3
@@ -1503,10 +1507,10 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> OVERALL_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, "Overall Covered Conditions by Line",
     Metric.ValueType.DATA)
-      .setDescription("Overall covered conditions by all tests and by line")
-      .setDomain(DOMAIN_COVERAGE)
-      .setDeleteHistoricalData(true)
-      .create();
+    .setDescription("Overall covered conditions by all tests and by line")
+    .setDomain(DOMAIN_COVERAGE)
+    .setDeleteHistoricalData(true)
+    .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //
@@ -1553,7 +1557,7 @@ public final class CoreMetrics {
 
   /**
    * @since 6.1
-    */
+   */
   public static final String NEW_BLOCKS_DUPLICATED_KEY = "new_duplicated_blocks";
   /**
    * @since 6.1
@@ -1604,13 +1608,13 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> NEW_DUPLICATED_LINES_DENSITY = new Metric.Builder(NEW_DUPLICATED_LINES_DENSITY_KEY, "Duplicated Lines on New Code (%)",
     Metric.ValueType.PERCENT)
-      .setDescription("Duplicated lines on new code balanced by statements")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setDomain(DOMAIN_DUPLICATIONS)
-      .setBestValue(0.0)
-      .setDeleteHistoricalData(true)
-      .create();
+    .setDescription("Duplicated lines on new code balanced by statements")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setDomain(DOMAIN_DUPLICATIONS)
+    .setBestValue(0.0)
+    .setDeleteHistoricalData(true)
+    .create();
 
   /**
    * @deprecated since 4.5. Internal storage of duplication is not an API.
@@ -1863,12 +1867,14 @@ public final class CoreMetrics {
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final String CODE_SMELLS_KEY = "code_smells";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final Metric<Integer> CODE_SMELLS = new Metric.Builder(CODE_SMELLS_KEY, "Code Smells", Metric.ValueType.INT)
@@ -1882,12 +1888,14 @@ public final class CoreMetrics {
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final String NEW_CODE_SMELLS_KEY = "new_code_smells";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final Metric<Integer> NEW_CODE_SMELLS = new Metric.Builder(NEW_CODE_SMELLS_KEY, "New Code Smells", Metric.ValueType.INT)
@@ -1902,12 +1910,14 @@ public final class CoreMetrics {
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final String BUGS_KEY = "bugs";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final Metric<Integer> BUGS = new Metric.Builder(BUGS_KEY, "Bugs", Metric.ValueType.INT)
@@ -1921,12 +1931,14 @@ public final class CoreMetrics {
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final String NEW_BUGS_KEY = "new_bugs";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final Metric<Integer> NEW_BUGS = new Metric.Builder(NEW_BUGS_KEY, "New Bugs", Metric.ValueType.INT)
@@ -1941,12 +1953,14 @@ public final class CoreMetrics {
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final String VULNERABILITIES_KEY = "vulnerabilities";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final Metric<Integer> VULNERABILITIES = new Metric.Builder(VULNERABILITIES_KEY, "Vulnerabilities", Metric.ValueType.INT)
@@ -1960,12 +1974,14 @@ public final class CoreMetrics {
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final String NEW_VULNERABILITIES_KEY = "new_vulnerabilities";
 
   /**
    * SonarQube Quality Model
+   *
    * @since 5.5
    */
   public static final Metric<Integer> NEW_VULNERABILITIES = new Metric.Builder(NEW_VULNERABILITIES_KEY, "New Vulnerabilities", Metric.ValueType.INT)
@@ -2401,13 +2417,13 @@ public final class CoreMetrics {
    */
   public static final Metric<Long> EFFORT_TO_REACH_MAINTAINABILITY_RATING_A = new Metric.Builder(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
     "Effort to Reach Maintainability Rating A", Metric.ValueType.WORK_DUR)
-      .setDescription("Effort to reach maintainability rating A")
-      .setDomain(DOMAIN_MAINTAINABILITY)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .create();
+    .setDescription("Effort to reach maintainability rating A")
+    .setDomain(DOMAIN_MAINTAINABILITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //
@@ -2425,13 +2441,13 @@ public final class CoreMetrics {
    */
   public static final Metric<Long> RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability Remediation Effort",
     Metric.ValueType.WORK_DUR)
-      .setDescription("Reliability Remediation Effort")
-      .setDomain(DOMAIN_RELIABILITY)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setOptimizedBestValue(true)
-      .setBestValue(0.0)
-      .setQualitative(true)
-      .create();
+    .setDescription("Reliability Remediation Effort")
+    .setDomain(DOMAIN_RELIABILITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .create();
 
   /**
    * @since 5.5
@@ -2443,14 +2459,14 @@ public final class CoreMetrics {
    */
   public static final Metric<Long> NEW_RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability Remediation Effort on New Code",
     Metric.ValueType.WORK_DUR)
-      .setDescription("Reliability remediation effort on new code")
-      .setDomain(DOMAIN_RELIABILITY)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setOptimizedBestValue(true)
-      .setBestValue(0.0)
-      .setQualitative(true)
-      .setDeleteHistoricalData(true)
-      .create();
+    .setDescription("Reliability remediation effort on new code")
+    .setDomain(DOMAIN_RELIABILITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .setDeleteHistoricalData(true)
+    .create();
 
   /**
    * @since 5.5
@@ -2521,14 +2537,14 @@ public final class CoreMetrics {
    */
   public static final Metric<Long> NEW_SECURITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_SECURITY_REMEDIATION_EFFORT_KEY, "Security Remediation Effort on New Code",
     Metric.ValueType.WORK_DUR)
-      .setDescription("Security remediation effort on new code")
-      .setDomain(DOMAIN_SECURITY)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setOptimizedBestValue(true)
-      .setBestValue(0.0)
-      .setQualitative(true)
-      .setDeleteHistoricalData(true)
-      .create();
+    .setDescription("Security remediation effort on new code")
+    .setDomain(DOMAIN_SECURITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .setDeleteHistoricalData(true)
+    .create();
 
   /**
    * @since 5.5
@@ -2592,7 +2608,10 @@ public final class CoreMetrics {
 
   /**
    * @since 2.14
+   * @deprecated in 7.3. Measures are no longer sent within analysis reports, and by consequence no
+   * longer persisted nor available from web API.
    */
+  @Deprecated
   public static final String COMMENT_LINES_DATA_KEY = "comment_lines_data";
 
   /**
@@ -2602,7 +2621,10 @@ public final class CoreMetrics {
    *
    * @see org.sonar.api.measures.FileLinesContext
    * @since 2.14
+   * @deprecated in 7.3. Measures are no longer sent within analysis reports, and by consequence no
+   * longer persisted nor available from web API.
    */
+  @Deprecated
   public static final Metric<String> COMMENT_LINES_DATA = new Metric.Builder(COMMENT_LINES_DATA_KEY, "comment_lines_data", Metric.ValueType.DATA)
     .setHidden(true)
     .setDomain(DOMAIN_SIZE)
@@ -2647,6 +2669,7 @@ public final class CoreMetrics {
   /**
    * The project detailed status with regard to its quality gate.
    * Storing the global quality gate status, along with all evaluated conditions, into a JSON object.
+   *
    * @since 4.4
    */
   public static final Metric<String> QUALITY_GATE_DETAILS = new Metric.Builder(QUALITY_GATE_DETAILS_KEY, "Quality Gate Details", Metric.ValueType.DATA)
@@ -2681,6 +2704,7 @@ public final class CoreMetrics {
   /**
    * Date of the most recent commit. Current implementation is based on commits touching lines of source code. It
    * ignores other changes like file renaming or file deletion.
+   *
    * @since 5.2
    */
   public static final Metric LAST_COMMIT_DATE = new Metric.Builder(LAST_COMMIT_DATE_KEY, "Date of Last Commit", Metric.ValueType.MILLISEC)

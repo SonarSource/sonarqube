@@ -69,6 +69,7 @@ import org.sonar.scanner.scan.measure.MeasureCache;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE;
@@ -117,7 +118,15 @@ public class DefaultSensorStorage implements SensorStorage {
 
   private static final Logger LOG = Loggers.get(DefaultSensorStorage.class);
 
+  /**
+   * The metrics that can be computed by analyzers but that are
+   * filtered from analysis reports. That allows analyzers to continue
+   * providing measures that are supported only by older versions.
+   *
+   * The metrics in this list should not be declared in {@link ScannerMetrics#ALLOWED_CORE_METRICS}.
+   */
   private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.asList(
+    COMMENT_LINES_DATA_KEY,
     DEPENDENCY_MATRIX_KEY,
     DIRECTORY_CYCLES_KEY,
     DIRECTORY_EDGES_WEIGHT_KEY,
