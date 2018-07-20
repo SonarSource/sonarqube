@@ -18,6 +18,7 @@ exports[`should display correct links for SonarCloud 1`] = `
           onClick={[MockFunction]}
           onlyActiveOnIndex={false}
           style={Object {}}
+          target="_blank"
           to="#"
         >
           foo
@@ -30,6 +31,7 @@ exports[`should display correct links for SonarCloud 1`] = `
           onClick={[MockFunction]}
           onlyActiveOnIndex={false}
           style={Object {}}
+          target="_blank"
           to="#"
         >
           bar
@@ -44,6 +46,7 @@ exports[`should display correct links for SonarCloud 1`] = `
         onClick={[MockFunction]}
         onlyActiveOnIndex={false}
         style={Object {}}
+        target="_blank"
         to="/documentation"
       >
         embed_docs.documentation
@@ -140,6 +143,7 @@ exports[`should display suggestion links 1`] = `
           onClick={[MockFunction]}
           onlyActiveOnIndex={false}
           style={Object {}}
+          target="_blank"
           to="#"
         >
           foo
@@ -152,6 +156,7 @@ exports[`should display suggestion links 1`] = `
           onClick={[MockFunction]}
           onlyActiveOnIndex={false}
           style={Object {}}
+          target="_blank"
           to="#"
         >
           bar
@@ -166,6 +171,7 @@ exports[`should display suggestion links 1`] = `
         onClick={[MockFunction]}
         onlyActiveOnIndex={false}
         style={Object {}}
+        target="_blank"
         to="/documentation"
       >
         embed_docs.documentation

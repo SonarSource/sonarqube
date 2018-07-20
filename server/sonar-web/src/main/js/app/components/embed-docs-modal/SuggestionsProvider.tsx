@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
+import suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import { SuggestionsContext } from './SuggestionsContext';
 import { isSonarCloud } from '../../../helpers/system';
 

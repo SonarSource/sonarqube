@@ -58,7 +58,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         {this.renderTitle(translate('embed_docs.suggestion'))}
         {this.props.suggestions.map((suggestion, index) => (
           <li key={index}>
-            <Link onClick={this.props.onClose} to={suggestion.link}>
+            <Link onClick={this.props.onClose} target="_blank" to={suggestion.link}>
               {suggestion.text}
             </Link>
           </li>
@@ -160,7 +160,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <ul className="menu abs-width-240">
           {this.renderSuggestions()}
           <li>
-            <Link onClick={this.props.onClose} to="/documentation">
+            <Link onClick={this.props.onClose} target="_blank" to="/documentation">
               {translate('embed_docs.documentation')}
             </Link>
           </li>
