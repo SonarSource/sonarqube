@@ -97,7 +97,7 @@ public class ComputeEngineContainerImplTest {
       assertThat(picoContainer.getComponentAdapters())
         .hasSize(
           CONTAINER_ITSELF
-            + 72 // level 4
+            + 70 // level 4
             + 6 // content of CeConfigurationModule
             + 4 // content of CeQueueModule
             + 3 // content of CeHttpModule
@@ -120,7 +120,7 @@ public class ComputeEngineContainerImplTest {
       );
       assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
         COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
-          + 30 // level 1
+          + 27 // level 1
           + 55 // content of DaoModule
           + 3 // content of EsModule
           + 54 // content of CorePropertyDefinitions

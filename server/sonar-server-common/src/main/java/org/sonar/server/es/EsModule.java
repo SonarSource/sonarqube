@@ -20,12 +20,10 @@
 package org.sonar.server.es;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 public class EsModule extends Module {
   @Override
   protected void configureModule() {
-    add(AuthorizationTypeSupport.class);
     add(new EsClientProvider());
     add(EsClientStopper.class);
   }

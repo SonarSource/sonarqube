@@ -27,6 +27,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.server.issue.index.IssueQuery;
 
 /**
  * @since 3.6

@@ -47,7 +47,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
-import org.sonar.server.permission.index.PermissionIndexerDao;
+import org.sonar.server.permission.index.IndexPermissions;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -56,10 +56,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
-import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
-import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AUTHORIZATION;
+import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_POROUS_DEFENSES;
+import static org.sonar.server.issue.index.IssueIndexDefinition.UNKNOWN_STANDARD;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
 public class IssueIndexerTest {
 
@@ -91,9 +91,9 @@ public class IssueIndexerTest {
     assertThat(scope.getIndexType().getIndex()).isEqualTo(INDEX_TYPE_ISSUE.getIndex());
     assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
-    Predicate<PermissionIndexerDao.Dto> projectPredicate = scope.getProjectPredicate();
-    PermissionIndexerDao.Dto project = new PermissionIndexerDao.Dto("P1", Qualifiers.PROJECT);
-    PermissionIndexerDao.Dto file = new PermissionIndexerDao.Dto("F1", Qualifiers.FILE);
+    Predicate<IndexPermissions> projectPredicate = scope.getProjectPredicate();
+    IndexPermissions project = new IndexPermissions("P1", Qualifiers.PROJECT);
+    IndexPermissions file = new IndexPermissions("F1", Qualifiers.FILE);
     assertThat(projectPredicate.test(project)).isTrue();
     assertThat(projectPredicate.test(file)).isFalse();
   }

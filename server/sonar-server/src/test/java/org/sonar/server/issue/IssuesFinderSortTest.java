@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.server.issue.index.IssueQuery;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -23,16 +23,28 @@ import java.util.function.Predicate;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.server.es.IndexType;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
 @Immutable
 public final class AuthorizationScope {
   private final IndexType indexType;
-  private final Predicate<PermissionIndexerDao.Dto> projectPredicate;
+  private final Predicate<IndexPermissions> projectPredicate;
 
-  public AuthorizationScope(IndexType indexType, Predicate<PermissionIndexerDao.Dto> projectPredicate) {
-    this.indexType = AuthorizationTypeSupport.getAuthorizationIndexType(indexType);
+  public AuthorizationScope(IndexType indexType, Predicate<IndexPermissions> projectPredicate) {
+    this.indexType = getAuthorizationIndexType(indexType);
     this.projectPredicate = requireNonNull(projectPredicate);
+  }
+
+  /**
+   * @return the identifier of the ElasticSearch type (including it's index name), that corresponds to a certain document type
+   */
+  private static IndexType getAuthorizationIndexType(IndexType indexType) {
+    requireNonNull(indexType);
+    requireNonNull(indexType.getIndex());
+    checkArgument(!TYPE_AUTHORIZATION.equals(indexType.getType()), "Authorization types do not have authorization on their own.");
+    return new IndexType(indexType.getIndex(), TYPE_AUTHORIZATION);
   }
 
   /**
@@ -43,10 +55,9 @@ public final class AuthorizationScope {
   }
 
   /**
-   * Predicates that filters the projects to be involved in
-   * authorization.
+   * Predicates that filters the projects to be involved in authorization.
    */
-  public Predicate<PermissionIndexerDao.Dto> getProjectPredicate() {
+  public Predicate<IndexPermissions> getProjectPredicate() {
     return projectPredicate;
   }
 }

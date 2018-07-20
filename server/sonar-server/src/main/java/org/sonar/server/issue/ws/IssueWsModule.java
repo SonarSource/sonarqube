@@ -22,7 +22,7 @@ package org.sonar.server.issue.ws;
 import org.sonar.core.platform.Module;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.IssueQueryFactory;
+import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;

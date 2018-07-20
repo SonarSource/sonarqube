@@ -23,7 +23,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.function.Function;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -39,7 +38,6 @@ import org.sonar.server.telemetry.TelemetryData.Database;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
 
-@ComputeEngineSide
 @ServerSide
 public class TelemetryDataLoader {
   private final Server server;

@@ -62,7 +62,6 @@ import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
-import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
@@ -96,7 +95,6 @@ import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueStorage;
-import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
@@ -111,7 +109,6 @@ import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
-import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
@@ -122,7 +119,6 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.organization.OrganizationFlagsImpl;
-import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -292,9 +288,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       System2.INSTANCE,
       Clock.systemDefaultZone(),
 
-      // user session
-      CeUserSession.class,
-
       // DB
       DaoModule.class,
       ReadOnlyPropertiesDao.class,
@@ -306,9 +299,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // rules/qprofiles
       RuleIndex.class,
-
-      // issues
-      IssueIndex.class,
 
       new OkHttpClientProvider(),
       computeEngineStatus,
@@ -389,7 +379,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // measure
       CoreCustomMetrics.class,
       DefaultMetricFinder.class,
-      ProjectMeasuresIndex.class,
 
       UserIndexer.class,
       UserIndex.class,
@@ -410,7 +399,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       IssueStorage.class,
       IssueIndexer.class,
       IssueIteratorFactory.class,
-      PermissionIndexer.class,
       IssueFieldsSetter.class, // used in Web Services and CE's DebtCalculator
       FunctionExecutor.class, // used by IssueWorkflow
       IssueWorkflow.class, // used in Web Services and CE's DebtCalculator

@@ -38,7 +38,7 @@ import static java.lang.Integer.parseInt;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
+import static org.sonar.server.issue.index.IssueIndexDefinition.UNKNOWN_STANDARD;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;

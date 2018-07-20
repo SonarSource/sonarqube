@@ -22,7 +22,7 @@ package org.sonar.server.permission.index;
 /**
  * An {@link NeedAuthorizationIndexer} defines how
  * a {@link org.sonar.server.es.ProjectIndexer} populates
- * the type named {@link AuthorizationTypeSupport#TYPE_AUTHORIZATION}, which
+ * the type named {@link WebAuthorizationTypeSupport#TYPE_AUTHORIZATION}, which
  * is used to verify that a user can access to projects.
  */
 public interface NeedAuthorizationIndexer {

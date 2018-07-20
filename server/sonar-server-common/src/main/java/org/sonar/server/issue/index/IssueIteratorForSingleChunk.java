@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import java.sql.PreparedStatement;
@@ -29,10 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
@@ -46,14 +42,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
-import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_INSECURE_INTERACTION;
-import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.issue.IssueQuery.SANS_TOP_25_RISKY_RESOURCE;
-import static org.sonar.server.issue.IssueQuery.UNKNOWN_STANDARD;
+import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_CWE_MAPPING;
+import static org.sonar.server.issue.index.IssueIndexDefinition.UNKNOWN_STANDARD;
 
 /**
  * Scrolls over table ISSUES and reads documents to populate
@@ -105,15 +98,6 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
   private static final String OWASP_TOP10_PREFIX = "owaspTop10:";
   private static final String CWE_PREFIX = "cwe:";
-
-  // See https://www.sans.org/top25-software-errors
-  private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
-  private static final Set<String> RISKY_CWE = new HashSet<>(asList("120", "22", "494", "829", "676", "131", "134", "190"));
-  private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
-  private static final Map<String, Set<String>> SANS_TOP_25_CWE_MAPPING = ImmutableMap.of(
-    SANS_TOP_25_INSECURE_INTERACTION, INSECURE_CWE,
-    SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
-    SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
   private final DbSession session;
 

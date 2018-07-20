@@ -48,6 +48,7 @@ import org.sonar.server.app.WebServerProcessLogging;
 import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -117,6 +118,7 @@ public class PlatformLevel1 extends PlatformLevel {
       DaoModule.class,
 
       // Elasticsearch
+      WebAuthorizationTypeSupport.class,
       EsModule.class,
 
       // rules/qprofiles

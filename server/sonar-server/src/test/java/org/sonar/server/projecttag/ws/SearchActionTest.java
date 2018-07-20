@@ -34,9 +34,9 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresDoc;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
-import org.sonar.server.permission.index.AuthorizationTypeSupport;
-import org.sonar.server.permission.index.PermissionIndexerDao;
+import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
+import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -62,7 +62,7 @@ public class SearchActionTest {
 
   private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, projectMeasureIndexer);
-  private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new AuthorizationTypeSupport(userSession), System2.INSTANCE);
+  private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(new SearchAction(index));
 
@@ -110,7 +110,7 @@ public class SearchActionTest {
   private void index(ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
     for (ProjectMeasuresDoc doc : docs) {
-      PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), Qualifiers.PROJECT);
+      IndexPermissions access = new IndexPermissions(doc.getId(), Qualifiers.PROJECT);
       access.allowAnyone();
       authorizationIndexerTester.allow(access);
     }

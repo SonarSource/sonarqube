@@ -35,9 +35,9 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.permission.index.AuthorizationTypeSupport;
-import org.sonar.server.permission.index.PermissionIndexerDao;
+import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
+import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -62,7 +62,7 @@ public class TagsActionTest {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbTester.getDbClient(), new IssueIteratorFactory(dbTester.getDbClient()));
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());
   private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
+  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
   private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, ruleIndex, dbTester.getDbClient()));
@@ -254,7 +254,7 @@ public class TagsActionTest {
   }
 
   private void grantAccess(IssueDto issue) {
-    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(issue.getProjectUuid(), "TRK");
+    IndexPermissions access = new IndexPermissions(issue.getProjectUuid(), "TRK");
     access.addUserId(userSession.getUserId());
     permissionIndexerTester.allow(access);
   }

@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueIndex;
 
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_AUTHORS;

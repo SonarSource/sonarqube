@@ -22,32 +22,16 @@ package org.sonar.server.view.index;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.permission.index.AuthorizationTypeSupport;
-import org.sonar.server.permission.index.PermissionIndexer;
-import org.sonar.server.user.LightUserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
@@ -66,13 +50,9 @@ public class ViewIndexerTest {
   public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
-  @Rule
-  public LightUserSessionRule userSessionRule = new LightUserSessionRule();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private ViewIndexer underTest = new ViewIndexer(dbClient, es.client());
 
   @Test
@@ -181,46 +161,6 @@ public class ViewIndexerTest {
   }
 
   @Test
-  public void clear_views_lookup_cache_on_index_view_uuid() {
-    IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-    IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-
-    String viewUuid = "ABCD";
-
-    RuleDto rule = RuleTesting.newXooX1();
-    dbClient.ruleDao().insert(dbSession, rule.getDefinition());
-    ComponentDto project1 = addProjectWithIssue(rule, db.organizations().insert());
-    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
-    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
-
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto view = ComponentTesting.newView(organizationDto, "ABCD");
-    ComponentDto techProject1 = newProjectCopy("CDEF", project1, view);
-    dbClient.componentDao().insert(dbSession, view, techProject1);
-    dbSession.commit();
-
-    // First view indexation
-    underTest.index(viewUuid);
-
-    // Execute issue query on view -> 1 issue on view
-    SearchResponse issueResponse = issueIndex.search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions());
-    assertThat(issueResponse.getHits().getHits()).hasSize(1);
-
-    // Add a project to the view and index it again
-    ComponentDto project2 = addProjectWithIssue(rule, organizationDto);
-    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
-    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
-
-    ComponentDto techProject2 = newProjectCopy("EFGH", project2, view);
-    dbClient.componentDao().insert(dbSession, techProject2);
-    dbSession.commit();
-    underTest.index(viewUuid);
-
-    // Execute issue query on view -> issue of project2 are well taken into account : the cache has been cleared
-    assertThat(issueIndex.search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getHits()).hasSize(2);
-  }
-
-  @Test
   public void delete_should_delete_the_view() {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
@@ -236,18 +176,6 @@ public class ViewIndexerTest {
 
     assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view3.uuid());
-  }
-
-  private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto org) {
-    ComponentDto project = ComponentTesting.newPublicProjectDto(org);
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
-    db.components().insertComponents(project, file);
-
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    dbClient.issueDao().insert(dbSession, issue);
-    dbSession.commit();
-
-    return project;
   }
 
 }

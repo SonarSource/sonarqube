@@ -32,7 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.config.Configuration;
-import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -53,6 +52,10 @@ import static org.sonar.server.es.DefaultIndexSettings.NORMS;
 import static org.sonar.server.es.DefaultIndexSettings.STORE;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.DefaultIndexSettingsElement.UUID_MODULE_ANALYZER;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_ALLOW_ANYONE;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_GROUP_IDS;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_USER_IDS;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
 public class NewIndex {
 
@@ -181,8 +184,30 @@ public class NewIndex {
     }
 
     public NewIndexType requireProjectAuthorization() {
-      AuthorizationTypeSupport.enableProjectAuthorization(this);
+      enableProjectAuthorization(this);
       return this;
+    }
+
+    /**
+     * Creates a type that requires to verify that user has the read permission
+     * when searching for documents.
+     *
+     * Both types {@code typeName} and "authorization" are created. Documents
+     * must be created with _parent and _routing having the parent uuid as values.
+     *
+     * @see NewIndex.NewIndexType#requireProjectAuthorization()
+     */
+    private static NewIndex.NewIndexType enableProjectAuthorization(NewIndex.NewIndexType type) {
+      type.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
+      type.setAttribute("_routing", ImmutableMap.of("required", true));
+
+      NewIndex.NewIndexType authType = type.getIndex().createType(TYPE_AUTHORIZATION);
+      authType.setAttribute("_routing", ImmutableMap.of("required", true));
+      authType.createLongField(FIELD_GROUP_IDS);
+      authType.createLongField(FIELD_USER_IDS);
+      authType.createBooleanField(FIELD_ALLOW_ANYONE);
+      authType.setEnableSource(false);
+      return type;
     }
 
     public NewIndex getIndex() {
