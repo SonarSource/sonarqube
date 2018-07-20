@@ -95,6 +95,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureComputersVisitor;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.MetricModule;
+import org.sonar.ce.task.projectanalysis.organization.DefaultOrganizationLoader;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolderImpl;
@@ -125,7 +126,6 @@ import org.sonar.ce.task.step.ComputationSteps;
 import org.sonar.ce.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.organization.DefaultOrganizationLoader;
 import org.sonar.server.view.index.ViewIndex;
 
 public final class ProjectAnalysisTaskContainerPopulator implements ContainerPopulator<TaskContainer> {
