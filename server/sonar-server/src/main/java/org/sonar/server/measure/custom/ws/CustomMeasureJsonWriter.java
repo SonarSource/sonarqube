@@ -81,7 +81,7 @@ public class CustomMeasureJsonWriter {
     json.endObject();
   }
 
-  private String measureValue(CustomMeasureDto measure, MetricDto metric) {
+  private static String measureValue(CustomMeasureDto measure, MetricDto metric) {
     Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
     Double doubleValue = measure.getValue();
     String stringValue = measure.getTextValue();

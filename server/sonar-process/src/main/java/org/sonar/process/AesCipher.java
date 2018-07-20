@@ -58,7 +58,7 @@ final class AesCipher implements Cipher {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
-      return Base64.encodeBase64String(cipher.doFinal(clearText.getBytes("UTF-8")));
+      return Base64.encodeBase64String(cipher.doFinal(clearText.getBytes(UTF_8)));
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {

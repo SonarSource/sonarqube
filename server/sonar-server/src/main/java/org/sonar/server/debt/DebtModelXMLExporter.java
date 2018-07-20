@@ -27,10 +27,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -129,7 +131,9 @@ public class DebtModelXMLExporter {
 
   private static String prettyFormatXml(String xml) {
     try {
-      Transformer serializer = SAXTransformerFactory.newInstance().newTransformer();
+      TransformerFactory factory = SAXTransformerFactory.newInstance();
+      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      Transformer serializer = factory.newTransformer();
       serializer.setOutputProperty(OutputKeys.INDENT, "yes");
       serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", DEFAULT_INDENT);

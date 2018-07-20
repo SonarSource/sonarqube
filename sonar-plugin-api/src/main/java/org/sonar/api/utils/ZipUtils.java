@@ -86,8 +86,7 @@ public final class ZipUtils {
     }
 
     Path targetDirNormalizedPath = toDir.toPath().normalize();
-    ZipInputStream zipStream = new ZipInputStream(stream);
-    try {
+    try (ZipInputStream zipStream = new ZipInputStream(stream)) {
       ZipEntry entry;
       while ((entry = zipStream.getNextEntry()) != null) {
         if (filter.test(entry)) {
@@ -95,9 +94,6 @@ public final class ZipUtils {
         }
       }
       return toDir;
-
-    } finally {
-      zipStream.close();
     }
   }
 
@@ -144,8 +140,7 @@ public final class ZipUtils {
     }
 
     Path targetDirNormalizedPath = toDir.toPath().normalize();
-    ZipFile zipFile = new ZipFile(zip);
-    try {
+    try (ZipFile zipFile = new ZipFile(zip)) {
       Enumeration<? extends ZipEntry> entries = zipFile.entries();
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
@@ -164,45 +159,25 @@ public final class ZipUtils {
         }
       }
       return toDir;
-
-    } finally {
-      zipFile.close();
     }
   }
 
   private static void copy(ZipInputStream zipStream, File to) throws IOException {
-    FileOutputStream fos = null;
-    try {
-      fos = new FileOutputStream(to);
+    try (OutputStream fos = new FileOutputStream(to)) {
       IOUtils.copy(zipStream, fos);
-    } finally {
-      IOUtils.closeQuietly(fos);
     }
   }
 
   private static void copy(ZipFile zipFile, ZipEntry entry, File to) throws IOException {
-    FileOutputStream fos = new FileOutputStream(to);
-    InputStream input = null;
-    try {
-      input = zipFile.getInputStream(entry);
+    try (InputStream input = zipFile.getInputStream(entry); OutputStream fos = new FileOutputStream(to)) {
       IOUtils.copy(input, fos);
-    } finally {
-      IOUtils.closeQuietly(input);
-      IOUtils.closeQuietly(fos);
     }
   }
 
   public static void zipDir(File dir, File zip) throws IOException {
-    OutputStream out = null;
-    ZipOutputStream zout = null;
-    try {
-      out = FileUtils.openOutputStream(zip);
-      zout = new ZipOutputStream(out);
+    try (OutputStream out = FileUtils.openOutputStream(zip);
+      ZipOutputStream zout = new ZipOutputStream(out)) {
       doZipDir(dir, zout);
-
-    } finally {
-      IOUtils.closeQuietly(zout);
-      IOUtils.closeQuietly(out);
     }
   }
 

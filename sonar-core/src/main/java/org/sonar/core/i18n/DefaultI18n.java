@@ -50,6 +50,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @ScannerSide
 public class DefaultI18n implements I18n, Startable {
 
@@ -213,7 +215,7 @@ public class DefaultI18n implements I18n, Startable {
   private static String readInputStream(String filePath, InputStream input) {
     String result;
     try {
-      result = IOUtils.toString(input, "UTF-8");
+      result = IOUtils.toString(input, UTF_8);
     } catch (IOException e) {
       throw new SonarException("Fail to load file: " + filePath, e);
     } finally {

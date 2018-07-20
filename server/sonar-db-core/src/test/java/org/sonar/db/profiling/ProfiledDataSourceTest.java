@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -81,7 +82,7 @@ public class ProfiledDataSourceTest {
     String param2 = "plouf";
     Date param3 = new Date(System.currentTimeMillis());
     Timestamp param4 = new Timestamp(System.currentTimeMillis());
-    byte[] param5 = "blob".getBytes("UTF-8");
+    byte[] param5 = "blob".getBytes(UTF_8);
 
     PreparedStatement preparedStatement = mock(PreparedStatement.class);
     when(connection.prepareStatement(sqlWithParams)).thenReturn(preparedStatement);

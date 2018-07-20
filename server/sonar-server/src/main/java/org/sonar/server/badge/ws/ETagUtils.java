@@ -20,7 +20,7 @@
 
 package org.sonar.server.badge.ws;
 
-import java.nio.charset.Charset;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ETagUtils {
   // Format for Expires Header
@@ -53,6 +53,6 @@ public class ETagUtils {
    * <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.11"></a>
    */
   static String getETag(String output) {
-    return "W/" + hash(output.getBytes(Charset.forName("UTF-8")));
+    return "W/" + hash(output.getBytes(UTF_8));
   }
 }
