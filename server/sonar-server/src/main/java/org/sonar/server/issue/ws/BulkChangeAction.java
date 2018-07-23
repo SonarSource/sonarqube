@@ -197,7 +197,7 @@ public class BulkChangeAction implements IssuesWsAction {
     List<DefaultIssue> items = bulkChangeData.issues.stream()
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
       .collect(MoreCollectors.toList());
-    issueStorage.save(items);
+    issueStorage.save(dbSession, items);
 
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 

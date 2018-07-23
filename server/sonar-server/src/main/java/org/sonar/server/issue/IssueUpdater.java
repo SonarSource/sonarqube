@@ -91,7 +91,7 @@ public class IssueUpdater {
 
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment,
     Optional<RuleDefinitionDto> rule, ComponentDto project, ComponentDto component) {
-    IssueDto issueDto = issueStorage.save(session, issue);
+    IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
     if (issue.type() != RuleType.SECURITY_HOTSPOT) {
       String assigneeUuid = issue.assignee();
       UserDto assignee = assigneeUuid == null ? null : dbClient.userDao().selectByUuid(session, assigneeUuid);

@@ -71,21 +71,7 @@ public class WebIssueStorage extends IssueStorage {
     return dbClient;
   }
 
-  public void save(DefaultIssue issue) {
-    save(newArrayList(issue));
-  }
-
-  public IssueDto save(DbSession session, DefaultIssue issue) {
-    return doSave(session, newArrayList(issue)).iterator().next();
-  }
-
-  public Collection<IssueDto> save(Iterable<DefaultIssue> issues) {
-    try (DbSession session = dbClient.openSession(true)) {
-      return doSave(session, issues);
-    }
-  }
-
-  private Collection<IssueDto> doSave(DbSession dbSession, Iterable<DefaultIssue> issues) {
+  public Collection<IssueDto> save(DbSession dbSession, Iterable<DefaultIssue> issues) {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
     long now = system2.now();

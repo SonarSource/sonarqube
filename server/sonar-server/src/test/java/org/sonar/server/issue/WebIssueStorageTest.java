@@ -43,6 +43,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueIndexer;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,8 +62,8 @@ public class WebIssueStorageTest {
   private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new FakeRuleFinder(), mock(IssueIndexer.class));
 
   @Before
-  public void setupDbClient() {
-    when(system2.now()).thenReturn(2000000000L);
+  public void setup() {
+    when(system2.now()).thenReturn(2_000_000_000L);
   }
 
   @Test
@@ -118,7 +119,7 @@ public class WebIssueStorageTest {
         .setUpdateDate(date)
         .setCloseDate(date);
 
-    underTest.save(issue);
+    underTest.save(db.getSession(), singletonList(issue));
 
     assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(db.selectFirst("select * from issues"))
@@ -162,7 +163,7 @@ public class WebIssueStorageTest {
         .setUpdateDate(date)
         .setCloseDate(date);
 
-    underTest.save(issue);
+    underTest.save(db.getSession(), singletonList(issue));
 
     assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(0);
@@ -195,7 +196,7 @@ public class WebIssueStorageTest {
         .setComponentKey("struts:Action")
         .setProjectKey("struts");
 
-    underTest.save(updated);
+    underTest.save(db.getSession(), singletonList(updated));
 
     assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(db.selectFirst("select * from issues"))
@@ -223,7 +224,7 @@ public class WebIssueStorageTest {
         .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
   }
 
-  static class FakeRuleFinder implements RuleFinder {
+  private static class FakeRuleFinder implements RuleFinder {
 
     @Override
     public Rule findById(int ruleId) {

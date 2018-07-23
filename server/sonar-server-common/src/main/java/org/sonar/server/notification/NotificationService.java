@@ -95,8 +95,8 @@ public class NotificationService {
   }
 
   /**
-   * Returns true if at least one user is subscribed to at least one notifications with given types.
-   * Subscription can be globally or on the specific project.
+   * Returns true if at least one user is subscribed to at least one notification with given types.
+   * Subscription can be global or on the specific project.
    */
   public boolean hasProjectSubscribersForTypes(String projectUuid, Set<String> notificationTypes) {
     Collection<String> dispatcherKeys = new ArrayList<>();
