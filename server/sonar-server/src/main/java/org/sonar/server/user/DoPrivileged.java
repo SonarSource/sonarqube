@@ -103,6 +103,16 @@ public final class DoPrivileged {
       }
 
       @Override
+      public Optional<IdentityProvider> getIdentityProvider() {
+        return Optional.empty();
+      }
+
+      @Override
+      public Optional<ExternalIdentity> getExternalIdentity() {
+        return Optional.empty();
+      }
+
+      @Override
       protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
         return true;
       }

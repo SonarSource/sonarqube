@@ -46,6 +46,8 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 /**
@@ -121,6 +123,16 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
+  public Optional<IdentityProvider> getIdentityProvider() {
+    return ofNullable(userDto).map(d -> computeIdentity(d).getIdentityProvider());
+  }
+
+  @Override
+  public Optional<ExternalIdentity> getExternalIdentity() {
+    return ofNullable(userDto).map(d -> computeIdentity(d).getExternalIdentity());
+  }
+
+  @Override
   protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
     if (permissionsByOrganizationUuid == null) {
       permissionsByOrganizationUuid = new HashMap<>();
@@ -147,7 +159,7 @@ public class ServerUserSession extends AbstractUserSession {
   protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
     if (projectUuid != null) {
-      return Optional.of(projectUuid);
+      return of(projectUuid);
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
       com.google.common.base.Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
@@ -158,7 +170,7 @@ public class ServerUserSession extends AbstractUserSession {
       // checked on the project (represented by its main branch)
       projectUuid = defaultIfEmpty(component.get().getMainBranchProjectUuid(), component.get().projectUuid());
       projectUuidByComponentUuid.put(componentUuid, projectUuid);
-      return Optional.of(projectUuid);
+      return of(projectUuid);
     }
   }
 

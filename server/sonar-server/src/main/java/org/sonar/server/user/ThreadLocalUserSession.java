@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -82,6 +83,16 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public Collection<GroupDto> getGroups() {
     return get().getGroups();
+  }
+
+  @Override
+  public Optional<IdentityProvider> getIdentityProvider() {
+    return get().getIdentityProvider();
+  }
+
+  @Override
+  public Optional<ExternalIdentity> getExternalIdentity() {
+    return get().getExternalIdentity();
   }
 
   @Override

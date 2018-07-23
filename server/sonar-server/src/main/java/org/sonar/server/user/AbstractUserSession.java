@@ -23,11 +23,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
@@ -38,6 +41,49 @@ public abstract class AbstractUserSession implements UserSession {
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
   private static final ForbiddenException INSUFFICIENT_PRIVILEGES_EXCEPTION = new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
   private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
+
+  protected static Identity computeIdentity(UserDto userDto) {
+    switch (userDto.getExternalIdentityProvider()) {
+      case "github":
+        return new Identity(IdentityProvider.GITHUB, externalIdentityOf(userDto));
+      case "bitbucket":
+        return new Identity(IdentityProvider.BITBUCKET, externalIdentityOf(userDto));
+      case "sonarqube":
+        return new Identity(IdentityProvider.SONARQUBE, null);
+      default:
+        return new Identity(IdentityProvider.OTHER, externalIdentityOf(userDto));
+    }
+  }
+
+  @CheckForNull
+  private static ExternalIdentity externalIdentityOf(UserDto userDto) {
+    String externalId = userDto.getExternalId();
+    String externalLogin = userDto.getExternalLogin();
+    if (externalId == null && externalLogin == null) {
+      return null;
+    }
+    return new ExternalIdentity(externalId == null ? externalLogin : externalId, externalLogin);
+  }
+
+  protected static final class Identity {
+    private final IdentityProvider identityProvider;
+    private final ExternalIdentity externalIdentity;
+
+    private Identity(IdentityProvider identityProvider, @Nullable ExternalIdentity externalIdentity) {
+      this.identityProvider = identityProvider;
+      this.externalIdentity = externalIdentity;
+    }
+
+    public IdentityProvider getIdentityProvider() {
+      return identityProvider;
+    }
+
+    @CheckForNull
+    public ExternalIdentity getExternalIdentity() {
+      return externalIdentity;
+    }
+  }
+
   @Override
   public final boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
     return hasPermission(permission, organization.getUuid());

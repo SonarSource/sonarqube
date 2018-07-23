@@ -82,6 +82,16 @@ public class SafeModeUserSession extends AbstractUserSession {
   }
 
   @Override
+  public Optional<IdentityProvider> getIdentityProvider() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<ExternalIdentity> getExternalIdentity() {
+    return Optional.empty();
+  }
+
+  @Override
   public boolean isLoggedIn() {
     return false;
   }

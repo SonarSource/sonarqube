@@ -22,12 +22,15 @@ package org.sonar.server.tester;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private final String login;
@@ -36,6 +39,8 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private Integer userId;
   private String name;
   private List<GroupDto> groups = new ArrayList<>();
+  private IdentityProvider identityProvider;
+  private ExternalIdentity externalIdentity;
 
   public MockUserSession(String login) {
     super(MockUserSession.class);
@@ -44,6 +49,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     setUuid(login + "uuid");
     setUserId(login.hashCode());
     setName(login + " name");
+    setInternalIdentity();
   }
 
   public MockUserSession(UserDto userDto) {
@@ -53,6 +59,9 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     setUuid(userDto.getUuid());
     setUserId(userDto.getId());
     setName(userDto.getName());
+    AbstractUserSession.Identity identity = computeIdentity(userDto);
+    this.identityProvider = identity.getIdentityProvider();
+    this.externalIdentity = identity.getExternalIdentity();
   }
 
   @Override
@@ -80,7 +89,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   }
 
   public MockUserSession setUuid(String uuid) {
-    this.uuid = Objects.requireNonNull(uuid);
+    this.uuid = requireNonNull(uuid);
     return this;
   }
 
@@ -90,7 +99,7 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   }
 
   public MockUserSession setName(String s) {
-    this.name = Objects.requireNonNull(s);
+    this.name = requireNonNull(s);
     return this;
   }
 
@@ -114,4 +123,24 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     return this;
   }
 
+  @Override
+  public Optional<IdentityProvider> getIdentityProvider() {
+    return Optional.ofNullable(identityProvider);
+  }
+
+  public void setExternalIdentity(IdentityProvider identityProvider, ExternalIdentity externalIdentity) {
+    checkArgument(identityProvider != SONARQUBE);
+    this.identityProvider = identityProvider;
+    this.externalIdentity = requireNonNull(externalIdentity);
+  }
+
+  public void setInternalIdentity() {
+    this.identityProvider = SONARQUBE;
+    this.externalIdentity = null;
+  }
+
+  @Override
+  public Optional<ExternalIdentity> getExternalIdentity() {
+    return Optional.ofNullable(externalIdentity);
+  }
 }

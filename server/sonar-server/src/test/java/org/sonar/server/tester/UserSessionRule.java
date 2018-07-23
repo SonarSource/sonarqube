@@ -22,6 +22,7 @@ package org.sonar.server.tester;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
@@ -135,6 +136,16 @@ public class UserSessionRule implements TestRule, UserSession {
 
   public UserSessionRule setNonSystemAdministrator() {
     ensureMockUserSession().setSystemAdministrator(false);
+    return this;
+  }
+
+  public UserSessionRule setExternalIdentity(IdentityProvider identityProvider, ExternalIdentity externalIdentity) {
+    ensureMockUserSession().setExternalIdentity(identityProvider, externalIdentity);
+    return this;
+  }
+
+  public UserSessionRule setInternalIdentity() {
+    ensureMockUserSession().setInternalIdentity();
     return this;
   }
 
@@ -266,6 +277,16 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public Collection<GroupDto> getGroups() {
     return currentUserSession.getGroups();
+  }
+
+  @Override
+  public Optional<IdentityProvider> getIdentityProvider() {
+    return currentUserSession.getIdentityProvider();
+  }
+
+  @Override
+  public Optional<ExternalIdentity> getExternalIdentity() {
+    return currentUserSession.getExternalIdentity();
   }
 
   @Override

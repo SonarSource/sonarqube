@@ -21,11 +21,16 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
+
+import static java.util.Objects.requireNonNull;
 
 public interface UserSession {
 
@@ -62,6 +67,68 @@ public interface UserSession {
    * collection is returned if {@link #isLoggedIn()} is {@code false}.
    */
   Collection<GroupDto> getGroups();
+
+  /**
+   * This enum supports by name only the few providers for which specific code exists.
+   */
+  enum IdentityProvider {
+    SONARQUBE, GITHUB, BITBUCKET, OTHER
+  }
+
+  /**
+   * @return empty if user is anonymous
+   */
+  Optional<IdentityProvider> getIdentityProvider();
+
+  @Immutable
+  final class ExternalIdentity {
+    private final String id;
+    private final String login;
+
+    public ExternalIdentity(String id, String login) {
+      this.id = requireNonNull(id, "id can't be null");
+      this.login = requireNonNull(login, "login can't be null");
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    @Override
+    public String toString() {
+      return "ExternalIdentity{" +
+        "id='" + id + '\'' +
+        ", login='" + login + '\'' +
+        '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      ExternalIdentity that = (ExternalIdentity) o;
+      return Objects.equals(id, that.id) &&
+        Objects.equals(login, that.login);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(id, login);
+    }
+  }
+
+  /**
+   * @return empty if {@link #getIdentityProvider()} returns empty or {@link IdentityProvider#SONARQUBE}
+   */
+  Optional<ExternalIdentity> getExternalIdentity();
 
   /**
    * Whether the user is logged-in or anonymous.

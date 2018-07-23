@@ -88,6 +88,16 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
+    public Optional<IdentityProvider> getIdentityProvider() {
+      throw notImplemented();
+    }
+
+    @Override
+    public Optional<ExternalIdentity> getExternalIdentity() {
+      throw notImplemented();
+    }
+
+    @Override
     public boolean isLoggedIn() {
       return user != null;
     }

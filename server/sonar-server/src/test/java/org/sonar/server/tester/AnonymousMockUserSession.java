@@ -21,6 +21,7 @@ package org.sonar.server.tester;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
@@ -62,6 +63,16 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   @Override
   public Collection<GroupDto> getGroups() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public Optional<IdentityProvider> getIdentityProvider() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<ExternalIdentity> getExternalIdentity() {
+    return Optional.empty();
   }
 
   @Override
