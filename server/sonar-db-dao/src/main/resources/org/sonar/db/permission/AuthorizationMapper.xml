@@ -400,37 +400,38 @@
   </select>
 
   <select id="keepAuthorizedLoginsOnProject" parameterType="map" resultType="String">
-      SELECT u.login
-      FROM users u
-      INNER JOIN user_roles ur ON ur.user_id = u.id
-      INNER JOIN projects p ON p.kee = #{projectKey,jdbcType=VARCHAR}
-      WHERE
-        ur.organization_uuid = p.organization_uuid
-        AND ur.resource_id = p.id
-        AND ur.role = #{permission,jdbcType=VARCHAR}
-        AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login}</foreach>
-
-      UNION
-
-      SELECT u.login
-      FROM users u
-      INNER JOIN projects p ON p.kee = #{projectKey,jdbcType=VARCHAR}
-      INNER JOIN group_roles gr ON gr.organization_uuid = p.organization_uuid
-      INNER JOIN groups_users gu ON gr.group_id = gu.group_id
-      WHERE
-        gu.user_id = u.id
-        AND gr.role = #{permission,jdbcType=VARCHAR}
-        AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login}</foreach>
-
-    <if test="permission == 'user' or permission == 'codeviewer'">
-      UNION
-
-      SELECT u.login
-      FROM users u
-      INNER JOIN projects p ON p.kee = #{projectKey,jdbcType=VARCHAR}
-      WHERE
-        p.private = ${_false}
-        AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login}</foreach>
-    </if>
+    select u.login
+    from users u
+    where
+      u.login in <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login,jdbcType=VARCHAR}</foreach>
+      and (
+        exists (
+          select 1
+          from user_roles ur
+          inner join projects p on p.id = ur.resource_id and p.organization_uuid = ur.organization_uuid
+          where
+            p.kee =  #{projectKey,jdbcType=VARCHAR}
+            and ur.role = #{permission,jdbcType=VARCHAR}
+            and ur.user_id = u.id
+        ) or exists (
+          select 1
+          from projects p
+          inner join group_roles gr on gr.resource_id = p.id and gr.organization_uuid = p.organization_uuid
+          inner join groups_users gu on gu.group_id = gr.group_id
+          where
+            p.kee  =  #{projectKey,jdbcType=VARCHAR}
+            and gu.user_id = u.id
+            and gr.role = #{permission,jdbcType=VARCHAR}
+        )
+        <if test="permission == 'user' or permission == 'codeviewer'">
+          or exists (
+            select 1
+            from projects p
+            where
+              p.kee =  #{projectKey,jdbcType=VARCHAR}
+              and p.private = ${_false}
+          )
+        </if>
+    )
   </select>
 </mapper>
