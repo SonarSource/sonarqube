@@ -49,7 +49,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
           placeholder="Search for pages or keywords"
           value={this.state.query}
         />
-        <div className="api-documentation-results panel">
+        <div className="documentation-results panel">
           <div className="list-group">
             {this.state.query ? (
               <SearchResults

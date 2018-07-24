@@ -10,7 +10,7 @@ exports[`should render menu 1`] = `
     value=""
   />
   <div
-    className="api-documentation-results panel"
+    className="documentation-results panel"
   >
     <div
       className="list-group"
@@ -51,7 +51,7 @@ exports[`should search 1`] = `
     value="foo"
   />
   <div
-    className="api-documentation-results panel"
+    className="documentation-results panel"
   >
     <div
       className="list-group"

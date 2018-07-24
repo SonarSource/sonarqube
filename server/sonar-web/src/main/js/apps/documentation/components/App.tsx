@@ -80,7 +80,7 @@ export default class App extends React.PureComponent<Props> {
             <div className="layout-page-side" style={{ top }}>
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
-                  <div className="web-api-page-header">
+                  <div className="documentation-page-header">
                     <Link to="/documentation/">
                       <h1>{translate('documentation.page')}</h1>
                     </Link>
@@ -93,7 +93,7 @@ export default class App extends React.PureComponent<Props> {
         </ScreenPositionHelper>
 
         <div className="layout-page-main">
-          <div className="layout-page-main-inner documentation-layout-inner">
+          <div className="layout-page-main-inner">
             <div className="boxed-group">
               <DocMarkdownBlock
                 className="documentation-content cut-margins boxed-group-inner"

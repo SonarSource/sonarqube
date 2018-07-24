@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.documentation-layout-inner {
-  max-width: 740px;
+.documentation-page-header {
+  margin: 10px 20px;
 }
 
 .documentation-footer div,
@@ -26,8 +26,13 @@
   max-width: 740px;
 }
 
+.documentation-content {
+  padding: calc(4 * var(--gridSize)) calc(8 * var(--gridSize));
+}
+
 .documentation-content.markdown {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.7;
 }
 
 .documentation-content.markdown > h1 {
@@ -42,7 +47,7 @@
 }
 
 .documentation-content.markdown h3 {
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 0.8em;
 }
 
