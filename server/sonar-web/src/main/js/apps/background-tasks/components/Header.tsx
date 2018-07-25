@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import Workers from './Workers';
 import { translate } from '../../../helpers/l10n';
 
@@ -34,7 +35,15 @@ export default function Header(props: Props) {
           <Workers />
         </div>
       )}
-      <p className="page-description">{translate('background_tasks.page.description')}</p>
+      <p className="page-description">
+        {translate('background_tasks.page.description')}
+        <Link
+          className="spacer-left"
+          target="_blank"
+          to={{ pathname: '/documentation/analysis/background-tasks' }}>
+          {translate('learn_more')}
+        </Link>
+      </p>
     </header>
   );
 }

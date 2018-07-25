@@ -19,7 +19,7 @@ Ideally, all projects will be verified against the same quality gate, but that's
 * You want to ensure stronger requirements on some of your applications (internal frameworks for example).
 * Etc.
 
-Which is why you can define as many quality gates as you wish. Quality Gates are defined and managed in the **Quality Gates** page found in the top menu.
+Which is why you can define as many quality gates as you wish. Quality Gates are defined and managed in the **[Quality Gates](/#sonarqube#/quality_gates)** page found in the top menu.
 
 ## Use the Best Quality Gate Configuration
 
@@ -31,7 +31,7 @@ Don't forget also that quality gate conditions must use differential values. The
 
 ### Recommended Quality Gate
 
-![Recommended Quality Gate](/images/recommended-quality-gate.png)
+The `Sonar way` Built-in quality gate is recommended for most projects. If focuses on keeping new code clean, rather than spending a lot of effort remediating old code. Out of the box, it's already set as the default profile.
 
 ## Quality Gate Status
 
@@ -53,7 +53,7 @@ A **project administrator** can choose which quality gates his/her project is as
 
 ## Defining Quality Gates
 
-To manage quality gates, go to **Quality Gates** (top menu bar).
+To manage quality gates, go to **[Quality Gates](/#sonarqube#/quality_gates)** (top menu bar).
 
 Each Quality Gate condition is a combination of:
 

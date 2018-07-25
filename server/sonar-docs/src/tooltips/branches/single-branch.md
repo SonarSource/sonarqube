@@ -4,4 +4,5 @@ Quickly setup branch analysis and get separate insights for each of your branche
 
 ---
 
-[Branches Documentation](/branches/index)
+[Branches Documentation](/branches/index)  
+[Pull Request Analysis](/analysis/pull-request)
