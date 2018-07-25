@@ -18,15 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import AlmRepositoryItem from './AlmRepositoryItem';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import { getIdentityProviders } from '../../../api/users';
-import { getRepositories } from '../../../api/alm-integration';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { IdentityProvider, LoggedInUser } from '../../../app/types';
+import { getRepositories, provisionProject } from '../../../api/alm-integration';
+import { IdentityProvider, LoggedInUser, AlmRepository } from '../../../app/types';
+import { ProjectBase } from '../../../api/components';
+import { SubmitButton } from '../../../components/ui/buttons';
+import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 interface Props {
   currentUser: LoggedInUser;
+  onProjectCreate: (project: ProjectBase[]) => void;
 }
 
 interface State {
@@ -34,11 +38,20 @@ interface State {
   installationUrl?: string;
   installed?: boolean;
   loading: boolean;
+  repositories: AlmRepository[];
+  selectedRepositories: { [key: string]: AlmRepository | undefined };
+  submitting: boolean;
 }
 
 export default class AutoProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { identityProviders: [], loading: true };
+  state: State = {
+    identityProviders: [],
+    loading: true,
+    repositories: [],
+    selectedRepositories: {},
+    submitting: false
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -66,20 +79,61 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
   };
 
   fetchRepositories = () => {
-    return getRepositories().then(({ installation }) => {
+    return getRepositories().then(({ almIntegration, repositories }) => {
       if (this.mounted) {
-        this.setState({
-          installationUrl: installation.installationUrl,
-          installed: installation.enabled
-        });
+        this.setState({ ...almIntegration, repositories });
       }
     });
+  };
+
+  handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (this.isValid()) {
+      const { selectedRepositories } = this.state;
+      this.setState({ submitting: true });
+      provisionProject({
+        repositories: Object.keys(selectedRepositories).filter(key =>
+          Boolean(selectedRepositories[key])
+        )
+      }).then(
+        ({ project }) => this.props.onProjectCreate([project]),
+        () => {
+          if (this.mounted) {
+            this.setState({ submitting: false });
+            this.reloadRepositories();
+          }
+        }
+      );
+    }
+  };
+
+  isValid = () => {
+    return this.state.repositories.some(repo =>
+      Boolean(this.state.selectedRepositories[repo.installationKey])
+    );
+  };
+
+  reloadRepositories = () => {
+    this.setState({ loading: true });
+    this.fetchRepositories().then(this.stopLoading, this.stopLoading);
   };
 
   stopLoading = () => {
     if (this.mounted) {
       this.setState({ loading: false });
     }
+  };
+
+  toggleRepository = (repository: AlmRepository) => {
+    this.setState(({ selectedRepositories }) => ({
+      selectedRepositories: {
+        ...selectedRepositories,
+        [repository.installationKey]: selectedRepositories[repository.installationKey]
+          ? undefined
+          : repository
+      }
+    }));
   };
 
   render() {
@@ -96,6 +150,8 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
       return null;
     }
 
+    const { selectedRepositories, submitting } = this.state;
+
     return (
       <>
         <p className="alert alert-info width-60 big-spacer-bottom">
@@ -105,7 +161,24 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
           )}
         </p>
         {this.state.installed ? (
-          'Repositories list'
+          <form onSubmit={this.handleFormSubmit}>
+            <ul>
+              {this.state.repositories.map(repo => (
+                <li className="big-spacer-bottom" key={repo.installationKey}>
+                  <AlmRepositoryItem
+                    identityProvider={identityProvider}
+                    repository={repo}
+                    selected={Boolean(selectedRepositories[repo.installationKey])}
+                    toggleRepository={this.toggleRepository}
+                  />
+                </li>
+              ))}
+            </ul>
+            <SubmitButton disabled={!this.isValid() || submitting}>
+              {translate('onboarding.create_project.create_project')}
+            </SubmitButton>
+            <DeferredSpinner className="spacer-left" loading={submitting} />
+          </form>
         ) : (
           <div>
             <p className="spacer-bottom">

@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Checkbox
+  checked={false}
+  disabled={false}
+  onCheck={[Function]}
+  thirdState={false}
+>
+  <img
+    alt="Foo Provider"
+    className="spacer-left"
+    height={14}
+    src="icon/path"
+    style={
+      Object {
+        "filter": "invert(100%)",
+      }
+    }
+    width={14}
+  />
+  <span
+    className="spacer-left"
+  >
+    Awesome Project
+  </span>
+</Checkbox>
+`;
+
+exports[`should render disabled 1`] = `
+<Checkbox
+  checked={true}
+  disabled={true}
+  onCheck={[Function]}
+  thirdState={false}
+>
+  <img
+    alt="Foo Provider"
+    className="spacer-left"
+    height={14}
+    src="icon/path"
+    style={
+      Object {
+        "filter": "invert(50%)",
+      }
+    }
+    width={14}
+  />
+  <span
+    className="spacer-left"
+  >
+    Cool Project
+  </span>
+  <span
+    className="big-spacer-left"
+  >
+    <CheckIcon
+      className="little-spacer-right"
+    />
+    onboarding.create_project.already_imported
+  </span>
+</Checkbox>
+`;
+
+exports[`should render selected 1`] = `
+<Checkbox
+  checked={true}
+  disabled={false}
+  onCheck={[Function]}
+  thirdState={false}
+>
+  <img
+    alt="Foo Provider"
+    className="spacer-left"
+    height={14}
+    src="icon/path"
+    style={
+      Object {
+        "filter": "invert(100%)",
+      }
+    }
+    width={14}
+  />
+  <span
+    className="spacer-left"
+  >
+    Awesome Project
+  </span>
+</Checkbox>
+`;

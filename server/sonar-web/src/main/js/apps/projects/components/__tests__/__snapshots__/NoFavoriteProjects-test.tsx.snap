@@ -45,13 +45,11 @@ exports[`renders for SonarCloud 1`] = `
     <div
       className="huge-spacer-top"
     >
-      <a
-        className="button"
-        href="#"
+      <Button
         onClick={[Function]}
       >
         provisioning.create_new_project
-      </a>
+      </Button>
       <Dropdown
         className="display-inline-block big-spacer-left"
         overlay={

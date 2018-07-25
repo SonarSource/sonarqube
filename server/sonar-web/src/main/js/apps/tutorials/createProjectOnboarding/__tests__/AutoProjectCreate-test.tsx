@@ -40,14 +40,28 @@ jest.mock('../../../../api/users', () => ({
 
 jest.mock('../../../../api/alm-integration', () => ({
   getRepositories: jest.fn().mockResolvedValue({
-    installation: {
+    almIntegration: {
       installationUrl: 'https://alm.foo.com/install',
-      enabled: false
-    }
-  })
+      installed: false
+    },
+    repositories: []
+  }),
+  provisionProject: jest.fn().mockResolvedValue({ projects: [] })
 }));
 
 const user: LoggedInUser = { isLoggedIn: true, login: 'foo', name: 'Foo', externalProvider: 'foo' };
+const repositories = [
+  {
+    label: 'Cool Project',
+    installationKey: 'github/cool',
+    linkedProjectKey: 'proj_cool',
+    linkedProjectName: 'Proj Cool'
+  },
+  {
+    label: 'Awesome Project',
+    installationKey: 'github/awesome'
+  }
+];
 
 beforeEach(() => {
   (getIdentityProviders as jest.Mock<any>).mockClear();
@@ -64,6 +78,19 @@ it('should display the provider app install button', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should display the list of repositories', async () => {
+  (getRepositories as jest.Mock<any>).mockResolvedValue({
+    almIntegration: {
+      installationUrl: 'https://alm.foo.com/install',
+      installed: true
+    },
+    repositories
+  });
+  const wrapper = getWrapper();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
 function getWrapper(props = {}) {
-  return shallow(<AutoProjectCreate currentUser={user} {...props} />);
+  return shallow(<AutoProjectCreate currentUser={user} onProjectCreate={jest.fn()} {...props} />);
 }

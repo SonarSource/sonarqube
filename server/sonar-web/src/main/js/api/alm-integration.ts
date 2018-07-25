@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { getJSON, postJSON } from '../helpers/request';
+import { AlmRepository } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getRepositories(): Promise<{
-  installation: {
+  almIntegration: {
+    installed: boolean;
     installationUrl: string;
-    enabled: boolean;
   };
+  repositories: AlmRepository[];
 }> {
   return getJSON('/api/alm_integration/list_repositories').catch(throwGlobalError);
+}
+
+export function provisionProject(data: { repositories: string[] }) {
+  return postJSON('api/alm_integration/provision_projects', data).catch(throwGlobalError);
 }

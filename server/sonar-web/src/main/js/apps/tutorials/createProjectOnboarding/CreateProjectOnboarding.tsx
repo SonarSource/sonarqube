@@ -156,7 +156,10 @@ export class CreateProjectOnboarding extends React.PureComponent<Props, State> {
           )}
 
           {activeTab === Tabs.AUTO ? (
-            <AutoProjectCreate currentUser={currentUser} />
+            <AutoProjectCreate
+              currentUser={currentUser}
+              onProjectCreate={this.handleProjectCreate}
+            />
           ) : (
             <ManualProjectCreate
               currentUser={currentUser}

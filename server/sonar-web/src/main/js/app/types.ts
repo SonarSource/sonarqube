@@ -21,6 +21,13 @@ export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 // Type ordered alphabetically to prevent merge conflicts
 
+export interface AlmRepository {
+  label: string;
+  installationKey: string;
+  linkedProjectKey?: string;
+  linkedProjectName?: string;
+}
+
 export interface AppState {
   adminPages?: Extension[];
   authenticationError?: boolean;

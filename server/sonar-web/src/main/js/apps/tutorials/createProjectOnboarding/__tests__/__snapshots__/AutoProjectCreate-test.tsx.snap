@@ -1,5 +1,79 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should display the list of repositories 1`] = `
+<React.Fragment>
+  <p
+    className="alert alert-info width-60 big-spacer-bottom"
+  >
+    onboarding.create_project.beta_feature_x.Foo Provider
+  </p>
+  <form
+    onSubmit={[Function]}
+  >
+    <ul>
+      <li
+        className="big-spacer-bottom"
+        key="github/cool"
+      >
+        <AlmRepositoryItem
+          identityProvider={
+            Object {
+              "backgroundColor": "blue",
+              "iconPath": "icon/path",
+              "key": "foo",
+              "name": "Foo Provider",
+            }
+          }
+          repository={
+            Object {
+              "installationKey": "github/cool",
+              "label": "Cool Project",
+              "linkedProjectKey": "proj_cool",
+              "linkedProjectName": "Proj Cool",
+            }
+          }
+          selected={false}
+          toggleRepository={[Function]}
+        />
+      </li>
+      <li
+        className="big-spacer-bottom"
+        key="github/awesome"
+      >
+        <AlmRepositoryItem
+          identityProvider={
+            Object {
+              "backgroundColor": "blue",
+              "iconPath": "icon/path",
+              "key": "foo",
+              "name": "Foo Provider",
+            }
+          }
+          repository={
+            Object {
+              "installationKey": "github/awesome",
+              "label": "Awesome Project",
+            }
+          }
+          selected={false}
+          toggleRepository={[Function]}
+        />
+      </li>
+    </ul>
+    <SubmitButton
+      disabled={true}
+    >
+      onboarding.create_project.create_project
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+      timeout={100}
+    />
+  </form>
+</React.Fragment>
+`;
+
 exports[`should display the provider app install button 1`] = `
 <DeferredSpinner
   timeout={100}

@@ -22,13 +22,14 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
-import { Organization } from '../../../app/types';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import Dropdown from '../../../components/controls/Dropdown';
-import { getMyOrganizations } from '../../../store/rootReducer';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
-import { translate } from '../../../helpers/l10n';
+import { Button } from '../../../components/ui/buttons';
+import { getMyOrganizations } from '../../../store/rootReducer';
 import { isSonarCloud } from '../../../helpers/system';
+import { Organization } from '../../../app/types';
+import { translate } from '../../../helpers/l10n';
 
 interface StateProps {
   organizations: Organization[];
@@ -39,9 +40,7 @@ export class NoFavoriteProjects extends React.PureComponent<StateProps> {
     openProjectOnboarding: PropTypes.func
   };
 
-  onAnalyzeProjectClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  onAnalyzeProjectClick = () => {
     this.context.openProjectOnboarding();
   };
 
@@ -54,11 +53,12 @@ export class NoFavoriteProjects extends React.PureComponent<StateProps> {
           <div className="spacer-top">
             <p>{translate('projects.no_favorite_projects.how_to_add_projects')}</p>
             <div className="huge-spacer-top">
-              <a className="button" href="#" onClick={this.onAnalyzeProjectClick}>
+              <Button onClick={this.onAnalyzeProjectClick}>
                 {isSonarCloud()
                   ? translate('provisioning.create_new_project')
                   : translate('my_account.analyze_new_project')}
-              </a>
+              </Button>
+
               <Dropdown
                 className="display-inline-block big-spacer-left"
                 overlay={
