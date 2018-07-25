@@ -62,7 +62,7 @@ LOCs are computed by summing up the LOCs of each project analyzed in SonarCloud.
 
 ## How are Lines of Code (LOCs) counted towards billing?
 
-Only LOC from your private projects are counted toward your maximum number of LOCs. 
+Only LOC from your private projects are counted toward your maximum number of LOCs. If your project contains branches, the counted LOCs are the ones of the biggest branch.
 
 The count is not related to how frequently the source code is analyzed. If your private project has a 6K LOCs and you analyze it 100 times in the month, this will be counted as 6K for the billing.
 
