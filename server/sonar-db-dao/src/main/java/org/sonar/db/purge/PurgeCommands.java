@@ -298,6 +298,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteAlmProjectMappings(String rootUuid) {
+    profiler.start("deleteAlmProjectMappings (alm_project_mappings)");
+    purgeMapper.deleteAlmProjectMappingsByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteBranch(String rootUuid) {
     profiler.start("deleteBranch (project_branches)");
     purgeMapper.deleteBranchByUuid(rootUuid);

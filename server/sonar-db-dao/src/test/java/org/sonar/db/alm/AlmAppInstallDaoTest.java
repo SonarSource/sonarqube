@@ -36,7 +36,7 @@ import org.sonar.db.DbTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.alm.AlmAppInstallDao.ALM.GITHUB;
+import static org.sonar.db.alm.ALM.GITHUB;
 
 public class AlmAppInstallDaoTest {
 
@@ -214,17 +214,17 @@ public class AlmAppInstallDaoTest {
     expectedException.expectMessage("installId can't be null nor empty");
   }
 
-  private AlmAppInstallAssert assertThatAlmAppInstall(AlmAppInstallDao.ALM alm, String ownerId) {
+  private AlmAppInstallAssert assertThatAlmAppInstall(ALM alm, String ownerId) {
     return new AlmAppInstallAssert(dbTester, dbSession, alm, ownerId);
   }
 
   private static class AlmAppInstallAssert extends AbstractAssert<AlmAppInstallAssert, AlmAppInstall> {
 
-    private AlmAppInstallAssert(DbTester dbTester, DbSession dbSession, AlmAppInstallDao.ALM alm, String ownerId) {
+    private AlmAppInstallAssert(DbTester dbTester, DbSession dbSession, ALM alm, String ownerId) {
       super(asAlmAppInstall(dbTester, dbSession, alm, ownerId), AlmAppInstallAssert.class);
     }
 
-    private static AlmAppInstall asAlmAppInstall(DbTester dbTester, DbSession dbSession, AlmAppInstallDao.ALM alm, String ownerId) {
+    private static AlmAppInstall asAlmAppInstall(DbTester dbTester, DbSession dbSession, ALM alm, String ownerId) {
       List<Map<String, Object>> rows = dbTester.select(
         dbSession,
         "select" +

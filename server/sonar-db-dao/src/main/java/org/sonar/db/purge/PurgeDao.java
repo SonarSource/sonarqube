@@ -203,6 +203,7 @@ public class PurgeDao implements Dao {
     commands.deleteCeQueue(rootUuid);
     commands.deleteWebhookDeliveries(rootUuid);
     commands.deleteProjectMappings(rootUuid);
+    commands.deleteAlmProjectMappings(rootUuid);
     commands.deleteBranch(rootUuid);
     commands.deleteLiveMeasures(rootUuid);
   }

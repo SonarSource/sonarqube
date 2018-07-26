@@ -21,7 +21,6 @@ package org.sonar.db.purge;
 
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -36,7 +35,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
@@ -45,6 +43,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.ALM;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
@@ -53,7 +52,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -621,6 +619,22 @@ public class PurgeDaoTest {
 
     assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "a.key")).isEmpty();
     assertThat(dbClient.projectMappingsDao().get(dbSession, "a.key.type", "another.key")).isNotEmpty();
+  }
+
+  @Test
+  public void deleteProject_deletes_alm_project_mappings() {
+    ALM alm = ALM.GITHUB;
+    String repoId = "123";
+    String otherRepoId = repoId + "-foo";
+
+    ComponentDto project = dbTester.components().insertPublicProject();
+    dbClient.almProjectMappingsDao().insertOrUpdate(dbSession, alm, repoId, project.uuid(), null, "foo");
+    dbClient.almProjectMappingsDao().insertOrUpdate(dbSession, alm, otherRepoId, "D2", null, "bar");
+
+    underTest.deleteProject(dbSession, project.uuid());
+
+    assertThat(dbClient.almProjectMappingsDao().mappingExists(dbSession, alm, repoId)).isFalse();
+    assertThat(dbClient.almProjectMappingsDao().mappingExists(dbSession, alm, otherRepoId)).isTrue();
   }
 
   @Test

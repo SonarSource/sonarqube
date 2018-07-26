@@ -31,6 +31,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.sonar.api.Startable;
 import org.sonar.db.alm.AlmAppInstallMapper;
+import org.sonar.db.alm.AlmProjectMappingsMapper;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
 import org.sonar.db.ce.CeScannerContextMapper;
@@ -201,6 +202,7 @@ public class MyBatis implements Startable {
       ActiveRuleMapper.class,
       AnalysisPropertiesMapper.class,
       AlmAppInstallMapper.class,
+      AlmProjectMappingsMapper.class,
       AuthorizationMapper.class,
       BranchMapper.class,
       CeActivityMapper.class,

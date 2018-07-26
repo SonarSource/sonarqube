@@ -19,7 +19,6 @@
  */
 package org.sonar.db.alm;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -35,15 +34,6 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
  * Store instances of installed app in external ALM like GitHub or Bitbucket Cloud.
  */
 public class AlmAppInstallDao implements Dao {
-
-  public enum ALM {
-    BITBUCKETCLOUD,
-    GITHUB;
-
-    String getId() {
-      return this.name().toLowerCase(Locale.ENGLISH);
-    }
-  }
 
   private final System2 system2;
   private final UuidFactory uuidFactory;

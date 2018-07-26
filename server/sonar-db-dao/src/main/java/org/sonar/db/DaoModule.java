@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.core.platform.Module;
+import org.sonar.db.alm.AlmProjectMappingsDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -105,6 +106,7 @@ public class DaoModule extends Module {
     GroupMembershipDao.class,
     GroupPermissionDao.class,
     AlmAppInstallDao.class,
+    AlmProjectMappingsDao.class,
     InternalPropertiesDao.class,
     IssueChangeDao.class,
     IssueDao.class,

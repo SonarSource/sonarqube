@@ -53,6 +53,7 @@ public final class SqTables {
     "active_rules",
     "active_rule_parameters",
     "alm_app_installs",
+    "alm_project_mappings",
     "analysis_properties",
     "ce_activity",
     "ce_queue",
