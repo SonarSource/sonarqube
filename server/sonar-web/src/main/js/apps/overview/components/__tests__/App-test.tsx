@@ -20,9 +20,10 @@
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import App from '../App';
-import OverviewApp from '../OverviewApp';
-import EmptyOverview from '../EmptyOverview';
 import { BranchType, LongLivingBranch } from '../../../../app/types';
+import { isSonarCloud } from '../../../../helpers/system';
+
+jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 const component = {
   key: 'foo',
@@ -34,13 +35,34 @@ const component = {
   version: '0.0.1'
 };
 
+beforeEach(() => {
+  (isSonarCloud as jest.Mock<any>).mockClear();
+  (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
+});
+
 it('should render OverviewApp', () => {
-  expect(getWrapper().type()).toBe(OverviewApp);
+  expect(
+    getWrapper()
+      .find('Connect(OverviewApp)')
+      .exists()
+  ).toBeTruthy();
 });
 
 it('should render EmptyOverview', () => {
-  const output = getWrapper({ component: { key: 'foo' } });
-  expect(output.type()).toBe(EmptyOverview);
+  expect(
+    getWrapper({ component: { key: 'foo' } })
+      .find('EmptyOverview')
+      .exists()
+  ).toBeTruthy();
+});
+
+it('should render SonarCloudEmptyOverview', () => {
+  (isSonarCloud as jest.Mock<any>).mockReturnValue(true);
+  expect(
+    getWrapper({ component: { key: 'foo' } })
+      .find('Connect(SonarCloudEmptyOverview)')
+      .exists()
+  ).toBeTruthy();
 });
 
 it('redirects on Code page for files', () => {

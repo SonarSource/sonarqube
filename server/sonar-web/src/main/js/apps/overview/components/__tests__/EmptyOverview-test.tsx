@@ -20,17 +20,41 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EmptyOverview from '../EmptyOverview';
+import { BranchType } from '../../../../app/types';
+
+const branch = { isMain: true, name: 'b', type: BranchType.LONG };
 
 it('renders', () => {
-  expect(shallow(<EmptyOverview component="abcd" showWarning={true} />)).toMatchSnapshot();
+  expect(
+    shallow(<EmptyOverview branchLikes={[]} component="abcd" showWarning={true} />)
+  ).toMatchSnapshot();
 });
 
 it('does not render warning', () => {
-  expect(shallow(<EmptyOverview component="abcd" showWarning={false} />)).toMatchSnapshot();
+  expect(
+    shallow(<EmptyOverview branchLikes={[]} component="abcd" showWarning={false} />)
+  ).toMatchSnapshot();
 });
 
 it('should render another message when there are branches', () => {
   expect(
-    shallow(<EmptyOverview component="abcd" hasBranches={true} showWarning={true} />)
+    shallow(
+      <EmptyOverview
+        branchLike={branch}
+        branchLikes={[branch, branch]}
+        component="abcd"
+        showWarning={true}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <EmptyOverview
+        branchLike={branch}
+        branchLikes={[branch, branch, branch]}
+        component="abcd"
+        showWarning={true}
+      />
+    )
   ).toMatchSnapshot();
 });

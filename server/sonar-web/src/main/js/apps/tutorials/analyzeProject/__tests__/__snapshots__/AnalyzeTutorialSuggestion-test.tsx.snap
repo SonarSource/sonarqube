@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders bitbucket suggestions correctly 1`] = `
+<div
+  className="alert alert-info big-spacer-bottom"
+>
+  <p>
+    onboarding.project_analysis.commands_for_analysis
+  </p>
+  <p>
+    onboarding.project_analysis.suggestions.bitbucket
+  </p>
+  <FormattedMessage
+    defaultMessage="onboarding.project_analysis.simply_link"
+    id="onboarding.project_analysis.simply_link"
+    values={
+      Object {
+        "link": <a
+          href="/documentation/integrations/bitbucketcloud#analyzing-with-pipelines"
+          target="_blank"
+        >
+          onboarding.project_analysis.guide_to_integrate_piplines
+        </a>,
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders github suggestions correctly 1`] = `
+<div
+  className="alert alert-info big-spacer-bottom"
+>
+  <p>
+    onboarding.project_analysis.commands_for_analysis
+     
+  </p>
+  <p>
+    onboarding.project_analysis.suggestions.github
+  </p>
+  <FormattedMessage
+    defaultMessage="onboarding.project_analysis.simply_link"
+    id="onboarding.project_analysis.simply_link"
+    values={
+      Object {
+        "link": <a
+          href="https://docs.travis-ci.com/user/sonarcloud/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          onboarding.project_analysis.guide_to_integrate_travis
+        </a>,
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders vsts suggestions correctly 1`] = `
+<p
+  className="alert alert-info big-spacer-bottom"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.project_analysis.simply_link"
+    id="onboarding.project_analysis.simply_link"
+    values={
+      Object {
+        "link": <a
+          href="/documentation/integrations/vsts"
+          target="_blank"
+        >
+          onboarding.project_analysis.guide_to_integrate_vsts
+        </a>,
+      }
+    }
+  />
+</p>
+`;

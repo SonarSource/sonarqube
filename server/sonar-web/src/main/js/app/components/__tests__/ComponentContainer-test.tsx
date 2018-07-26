@@ -36,25 +36,23 @@ import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/branches', () => ({
-  getBranches: jest.fn(() => Promise.resolve([])),
-  getPullRequests: jest.fn(() => Promise.resolve([]))
+  getBranches: jest.fn().mockResolvedValue([]),
+  getPullRequests: jest.fn().mockResolvedValue([])
 }));
 
 jest.mock('../../../api/ce', () => ({
-  getTasksForComponent: jest.fn(() => Promise.resolve({ queue: [] }))
+  getTasksForComponent: jest.fn().mockResolvedValue({ queue: [] })
 }));
 
 jest.mock('../../../api/components', () => ({
-  getComponentData: jest.fn(() => Promise.resolve({}))
+  getComponentData: jest.fn().mockResolvedValue({ analysisDate: '2018-07-30' })
 }));
 
 jest.mock('../../../api/nav', () => ({
-  getComponentNavigation: jest.fn(() =>
-    Promise.resolve({
-      breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],
-      key: 'portfolioKey'
-    })
-  )
+  getComponentNavigation: jest.fn().mockResolvedValue({
+    breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],
+    key: 'portfolioKey'
+  })
 }));
 
 // mock this, because some of its children are using redux store
@@ -90,14 +88,12 @@ it('changes component', () => {
 });
 
 it("loads branches for module's project", async () => {
-  (getComponentNavigation as jest.Mock<any>).mockImplementationOnce(() =>
-    Promise.resolve({
-      breadcrumbs: [
-        { key: 'projectKey', name: 'project', qualifier: 'TRK' },
-        { key: 'moduleKey', name: 'module', qualifier: 'BRC' }
-      ]
-    })
-  );
+  (getComponentNavigation as jest.Mock<any>).mockResolvedValueOnce({
+    breadcrumbs: [
+      { key: 'projectKey', name: 'project', qualifier: 'TRK' },
+      { key: 'moduleKey', name: 'module', qualifier: 'BRC' }
+    ]
+  });
 
   mount(
     <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'moduleKey' } }}>
@@ -149,9 +145,7 @@ it('updates branches on change', () => {
 });
 
 it('loads organization', async () => {
-  (getComponentData as jest.Mock<any>).mockImplementationOnce(() =>
-    Promise.resolve({ organization: 'org' })
-  );
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
 
   const fetchOrganizations = jest.fn();
   mount(
@@ -166,9 +160,7 @@ it('loads organization', async () => {
 });
 
 it('fetches status', async () => {
-  (getComponentData as jest.Mock<any>).mockImplementationOnce(() =>
-    Promise.resolve({ organization: 'org' })
-  );
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
 
   mount(
     <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>

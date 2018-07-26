@@ -21,10 +21,10 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import TokenStep from './TokenStep';
-import OrganizationStep from './OrganizationStep';
-import AnalysisStep from './AnalysisStep';
 import ProjectWatcher from './ProjectWatcher';
+import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
+import OrganizationStep from '../components/OrganizationStep';
+import TokenStep from '../components/TokenStep';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
@@ -161,7 +161,7 @@ export class ProjectOnboarding extends React.PureComponent<Props, State> {
             stepNumber={stepNumber++}
           />
 
-          <AnalysisStep
+          <ProjectAnalysisStep
             onFinish={this.handleFinish}
             onReset={this.handleReset}
             open={step === 'analysis'}

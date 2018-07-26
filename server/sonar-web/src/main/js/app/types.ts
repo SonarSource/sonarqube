@@ -61,6 +61,8 @@ export interface Breadcrumb {
 }
 
 export interface Component extends LightComponent {
+  almId?: string;
+  almRepoUrl?: string;
   analysisDate?: string;
   breadcrumbs: Breadcrumb[];
   configuration?: ComponentConfiguration;

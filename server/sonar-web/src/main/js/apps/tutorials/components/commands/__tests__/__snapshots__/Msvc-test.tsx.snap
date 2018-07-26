@@ -1,0 +1,103 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <MSBuildScanner />
+  <BuildWrapper
+    className="huge-spacer-top"
+    os="win"
+  />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.msbuild.execute
+  </h4>
+  <InstanceMessage
+    message="onboarding.analysis.msbuild.execute.text"
+  />
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe begin",
+        "/k:\\"projectKey\\"",
+        undefined,
+        "/d:sonar.cfamily.build-wrapper-output=bw-output",
+        "/d:sonar.host.url=\\"host\\"",
+        "/d:sonar.login=\\"token\\"",
+      ]
+    }
+  />
+  <CodeSnippet
+    snippet="build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild"
+  />
+  <CodeSnippet
+    snippet={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe end",
+        "/d:sonar.login=\\"token\\"",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.msbuild.docs",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders correctly 2`] = `
+<div>
+  <MSBuildScanner />
+  <BuildWrapper
+    className="huge-spacer-top"
+    os="win"
+  />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.msbuild.execute
+  </h4>
+  <InstanceMessage
+    message="onboarding.analysis.msbuild.execute.text"
+  />
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe begin",
+        "/k:\\"projectKey\\"",
+        "/d:sonar.organization=\\"organization\\"",
+        "/d:sonar.cfamily.build-wrapper-output=bw-output",
+        "/d:sonar.host.url=\\"host\\"",
+        "/d:sonar.login=\\"token\\"",
+      ]
+    }
+  />
+  <CodeSnippet
+    isOneLine={true}
+    snippet="build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild"
+  />
+  <CodeSnippet
+    isOneLine={true}
+    snippet={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe end",
+        "/d:sonar.login=\\"token\\"",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.msbuild.docs",
+      }
+    }
+  />
+</div>
+`;

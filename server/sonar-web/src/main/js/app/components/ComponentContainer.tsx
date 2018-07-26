@@ -176,7 +176,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
                   differenceBy(newTasksInProgress, tasksInProgress, 'id').length > 0);
 
               shouldFetchComponent = Boolean(currentTaskChanged || progressChanged);
-              if (!shouldFetchComponent && component && newTasksInProgress.length > 0) {
+              if (
+                !shouldFetchComponent &&
+                component &&
+                (newTasksInProgress.length > 0 || !component.analysisDate)
+              ) {
+                // Refresh the status as long as there is tasks in progress or no analysis
                 window.clearTimeout(this.watchStatusTimer);
                 this.watchStatusTimer = window.setTimeout(
                   () => this.fetchStatus(component),

@@ -22,6 +22,8 @@ import DefaultPageSelectorContainer from './components/DefaultPageSelectorContai
 import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 import { PROJECTS_DEFAULT_FILTER, PROJECTS_ALL } from './utils';
 import { save } from '../../helpers/storage';
+import { isSonarCloud } from '../../helpers/system';
+import { lazyLoad } from '../../components/lazyLoad';
 
 const routes = [
   { indexRoute: { component: DefaultPageSelectorContainer } },
@@ -32,7 +34,11 @@ const routes = [
       replace('/projects');
     }
   },
-  { path: 'favorite', component: FavoriteProjectsContainer }
-];
+  { path: 'favorite', component: FavoriteProjectsContainer },
+  isSonarCloud() && {
+    path: 'create',
+    component: lazyLoad(() => import('./create/CreateProjectPage'))
+  }
+].filter(Boolean);
 
 export default routes;

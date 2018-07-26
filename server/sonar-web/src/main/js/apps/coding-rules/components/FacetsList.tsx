@@ -57,7 +57,7 @@ export default function FacetsList(props: Props) {
     props.selectedProfile === undefined ||
     !props.query.activation;
   return (
-    <div className="search-navigator-facets-list">
+    <>
       <LanguageFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
@@ -145,6 +145,6 @@ export default function FacetsList(props: Props) {
           />
         </>
       )}
-    </div>
+    </>
   );
 }

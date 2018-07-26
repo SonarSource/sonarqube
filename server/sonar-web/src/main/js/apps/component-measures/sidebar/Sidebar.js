@@ -77,7 +77,7 @@ export default class Sidebar extends React.PureComponent {
 
   render() {
     return (
-      <div className="search-navigator-facets-list">
+      <div>
         <ProjectOverviewFacet
           onChange={this.changeMetric}
           selected={this.props.selectedMetric}

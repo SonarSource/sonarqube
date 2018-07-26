@@ -77,7 +77,7 @@ export default class Sidebar extends React.PureComponent<Props> {
       (this.props.organization && this.props.organization.key);
 
     return (
-      <div className="search-navigator-facets-list">
+      <>
         <TypeFacet
           fetching={this.props.loadingFacets.types === true}
           loading={this.props.loading}
@@ -256,7 +256,7 @@ export default class Sidebar extends React.PureComponent<Props> {
             stats={facets.authors}
           />
         )}
-      </div>
+      </>
     );
   }
 }

@@ -22,7 +22,7 @@ import Icon, { IconProps } from './Icon';
 
 export default function OnboardingTeamIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <Icon className={className} size={size || 64} viewBox="">
+    <Icon className={className} size={size || 64} viewBox="0 0 64 64">
       <g fill="none" fillRule="evenodd" stroke={fill} strokeWidth="2">
         <path d="M32 9v5M11.5195 43.0898l7.48-4.091m33.481-18.0994l-7.48 4.1m-33.481-4.1l7.48 4.1M45 38.999l7.48 4.101M32 50v5m15-23c0 8.284-6.715 15-15 15s-15-6.716-15-15c0-8.285 6.715-15 15-15s15 6.715 15 15z" />
         <path d="M40 38c0 1.656-3.58 2-8 2s-8-.344-8-2m16 0v-3l-5-3-1-1m-10 7v-3l5-3 1-1m6-4c0 2.2-1.8 4-4 4s-4-1.8-4-4v-1c0-2.2 1.8-4 4-4s4 1.8 4 4v1zm-.0098-21.71c7.18 1.069 13.439 4.96 17.609 10.51m-17.609 42.91c7.18-1.07 13.439-4.96 17.609-10.51M6.6299 41.25c-1.06-2.88-1.63-6-1.63-9.25s.57-6.37 1.63-9.25m3.7705-6.9502c4.17-5.55 10.43-9.44 17.609-10.51m-17.609 42.9104c4.17 5.55 10.43 9.439 17.609 10.51M57.3701 22.75c1.06 2.88 1.63 6 1.63 9.25s-.57 6.37-1.63 9.25" />

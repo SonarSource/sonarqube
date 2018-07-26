@@ -130,6 +130,10 @@
   transition: all 0.2s ease;
 }
 
+.dropdown .button-link {
+  border-bottom: none;
+}
+
 .button-link:hover {
   background: transparent;
   color: var(--blue);

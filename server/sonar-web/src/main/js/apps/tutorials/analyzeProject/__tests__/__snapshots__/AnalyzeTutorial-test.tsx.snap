@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<React.Fragment>
+  <div
+    className="page-header big-spacer-bottom"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.project_analysis.header
+    </h1>
+    <p
+      className="page-description"
+    >
+      onboarding.project_analysis.description
+    </p>
+  </div>
+  <AnalyzeTutorialSuggestion />
+  <React.Fragment>
+    <TokenStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "luke",
+          "name": "Skywalker",
+        }
+      }
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+      stepNumber={1}
+    />
+    <ProjectAnalysisStep
+      component={
+        Object {
+          "analysisDate": "2016-01-01",
+          "breadcrumbs": Array [],
+          "key": "foo",
+          "name": "Foo",
+          "organization": "org",
+          "qualifier": "TRK",
+          "version": "0.0.1",
+        }
+      }
+      displayRowLayout={true}
+      open={false}
+      organization="org"
+      stepNumber={2}
+    />
+  </React.Fragment>
+</React.Fragment>
+`;

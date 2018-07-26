@@ -36,7 +36,7 @@ exports[`guides for on-premise 1`] = `
       open={true}
       stepNumber={1}
     />
-    <AnalysisStep
+    <ProjectAnalysisStep
       onFinish={[Function]}
       onReset={[Function]}
       open={false}
@@ -97,7 +97,7 @@ exports[`guides for on-premise 2`] = `
       open={false}
       stepNumber={1}
     />
-    <AnalysisStep
+    <ProjectAnalysisStep
       onFinish={[Function]}
       onReset={[Function]}
       open={true}
@@ -172,7 +172,7 @@ exports[`guides for sonarcloud 1`] = `
       open={false}
       stepNumber={2}
     />
-    <AnalysisStep
+    <ProjectAnalysisStep
       onFinish={[Function]}
       onReset={[Function]}
       open={false}
@@ -246,7 +246,7 @@ exports[`guides for sonarcloud 2`] = `
       open={true}
       stepNumber={2}
     />
-    <AnalysisStep
+    <ProjectAnalysisStep
       onFinish={[Function]}
       onReset={[Function]}
       open={false}
@@ -321,7 +321,7 @@ exports[`guides for sonarcloud 3`] = `
       open={false}
       stepNumber={2}
     />
-    <AnalysisStep
+    <ProjectAnalysisStep
       onFinish={[Function]}
       onReset={[Function]}
       open={true}

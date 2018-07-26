@@ -37,19 +37,22 @@
   display: flex;
   clear: left;
   margin-bottom: calc(3 * var(--gridSize));
-  box-shadow: 0 1px 0 var(--barBorderColor);
+  border-bottom: 1px solid var(--barBorderColor);
+  font-size: var(--mediumFontSize);
 }
 
 .sonarcloud .flex-tabs > li > a {
+  position: relative;
   display: block;
+  top: 1px;
   height: 100%;
   width: 100%;
   box-sizing: border-box;
   color: var(--secondFontColor);
   font-weight: 600;
   cursor: pointer;
-  padding-bottom: var(--gridSize);
-  border-bottom: 2px solid transparent;
+  padding-bottom: calc(1.5 * var(--gridSize));
+  border-bottom: 3px solid transparent;
   transition: color 0.2s ease;
 }
 

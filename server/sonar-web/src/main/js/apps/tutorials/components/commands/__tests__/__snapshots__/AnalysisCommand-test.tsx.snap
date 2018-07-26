@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`display c# command 1`] = `
+<DotNet
+  host="null"
+  projectKey="project-foo"
+  token="myToken"
+/>
+`;
+
+exports[`display c-family command 1`] = `
+<Msvc
+  host="null"
+  projectKey="project-foo"
+  token="myToken"
+/>
+`;
+
+exports[`display c-family command 2`] = `
+<ClangGCC
+  host="null"
+  os="linux"
+  projectKey="project-foo"
+  token="myToken"
+/>
+`;
+
+exports[`display java command 1`] = `
+<JavaGradle
+  host="null"
+  token="myToken"
+/>
+`;
+
+exports[`display java command 2`] = `
+<JavaMaven
+  host="null"
+  token="myToken"
+/>
+`;
+
+exports[`display others command 1`] = `
+<Other
+  host="null"
+  os="window"
+  projectKey="project-foo"
+  token="myToken"
+/>
+`;

@@ -35,7 +35,7 @@ import { lazyLoad } from '../../components/lazyLoad';
 const CreateOrganizationForm = lazyLoad(() =>
   import('../../apps/account/organizations/CreateOrganizationForm')
 );
-const Onboarding = lazyLoad(() => import('../../apps/tutorials/Onboarding'));
+const OnboardingModal = lazyLoad(() => import('../../apps/tutorials/onboarding/OnboardingModal'));
 const LicensePromptModal = lazyLoad(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
   'LicensePromptModal'
@@ -135,7 +135,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   openProjectOnboarding = () => {
     if (isSonarCloud()) {
       this.setState({ automatic: false, modal: undefined });
-      this.context.router.push(`/onboarding`);
+      this.context.router.push(`/projects/create`);
     } else {
       this.setState({ modal: ModalKey.projectOnboarding });
     }
@@ -189,7 +189,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
         {this.props.children}
         {modal === ModalKey.license && <LicensePromptModal onClose={this.closeLicense} />}
         {modal === ModalKey.onboarding && (
-          <Onboarding
+          <OnboardingModal
             onClose={this.closeOnboarding}
             onOpenOrganizationOnboarding={this.openOrganizationOnboarding}
             onOpenProjectOnboarding={this.openProjectOnboarding}

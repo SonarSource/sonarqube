@@ -1,0 +1,229 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="overview page-with-sidebar"
+  >
+    <div
+      className="overview-main page-main sonarcloud"
+    >
+      <React.Fragment>
+        <AnalyzeTutorial
+          component={
+            Object {
+              "analysisDate": "2016-01-01",
+              "breadcrumbs": Array [],
+              "key": "foo",
+              "name": "Foo",
+              "organization": "org",
+              "qualifier": "TRK",
+              "version": "0.0.1",
+            }
+          }
+          currentUser={
+            Object {
+              "isLoggedIn": true,
+              "login": "luke",
+              "name": "Skywalker",
+            }
+          }
+        />
+      </React.Fragment>
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should not render the tutorial 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="overview page-with-sidebar"
+  >
+    <div
+      className="overview-main page-main sonarcloud"
+    >
+      <React.Fragment />
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render another message when there are branches 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="overview page-with-sidebar"
+  >
+    <div
+      className="overview-main page-main sonarcloud"
+    >
+      <React.Fragment>
+        <WarningMessage
+          branchLike={
+            Object {
+              "isMain": true,
+              "name": "b",
+              "type": "LONG",
+            }
+          }
+          message="provisioning.no_analysis_on_main_branch"
+        />
+      </React.Fragment>
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render another message when there are branches 2`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="overview page-with-sidebar"
+  >
+    <div
+      className="overview-main page-main sonarcloud"
+    >
+      <React.Fragment>
+        <WarningMessage
+          branchLike={
+            Object {
+              "isMain": true,
+              "name": "b",
+              "type": "LONG",
+            }
+          }
+          message="provisioning.no_analysis_on_main_branch.bad_configuration"
+        />
+      </React.Fragment>
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render warning message 1`] = `
+<div
+  className="alert alert-warning"
+>
+  <FormattedMessage
+    defaultMessage="foo"
+    id="foo"
+    values={
+      Object {
+        "branchName": "b",
+        "branchType": <div
+          className="outline-badge text-baseline"
+        >
+          branches.main_branch
+        </div>,
+      }
+    }
+  />
+</div>
+`;

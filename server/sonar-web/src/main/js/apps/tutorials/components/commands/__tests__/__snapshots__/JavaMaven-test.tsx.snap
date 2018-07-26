@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.maven.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+  >
+    <InstanceMessage
+      message="onboarding.analysis.java.maven.text"
+    />
+  </p>
+  <CodeSnippet
+    snippet={
+      Array [
+        "mvn sonar:sonar",
+        undefined,
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.maven.docs",
+      }
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.browse_url_after_analysis",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders correctly 2`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.maven.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+  >
+    <InstanceMessage
+      message="onboarding.analysis.java.maven.text"
+    />
+  </p>
+  <CodeSnippet
+    snippet={
+      Array [
+        "mvn sonar:sonar",
+        "-Dsonar.organization=organization",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.maven.docs",
+      }
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.auto_refresh_after_analysis",
+      }
+    }
+  />
+</div>
+`;

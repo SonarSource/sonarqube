@@ -293,6 +293,11 @@ td.big-spacer-top {
   flex-direction: row;
 }
 
+.display-flex-column {
+  display: flex !important;
+  flex-direction: column;
+}
+
 .display-flex-center {
   display: flex !important;
   align-items: center;

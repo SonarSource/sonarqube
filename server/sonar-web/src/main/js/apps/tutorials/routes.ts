@@ -26,7 +26,7 @@ const routes = [
       component: lazyLoad(
         () =>
           isSonarCloud()
-            ? import('./createProjectOnboarding/CreateProjectOnboarding')
+            ? import('./onboarding/OnboardingPage')
             : import('./projectOnboarding/ProjectOnboardingPage')
       )
     }

@@ -21,30 +21,39 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import { BranchLike } from '../../../app/types';
+import { isBranch, isLongLivingBranch } from '../../../helpers/branches';
 
 interface Props {
+  branchLike?: BranchLike;
+  branchLikes: BranchLike[];
   component: string;
-  hasBranches?: boolean;
   showWarning?: boolean;
 }
 
-export default function EmptyOverview({ component, hasBranches, showWarning }: Props) {
-  const rawMessage = translate('provisioning.no_analysis.delete');
-  const head = rawMessage.substr(0, rawMessage.indexOf('{0}'));
-  const tail = rawMessage.substr(rawMessage.indexOf('{0}') + 3);
+export default function EmptyOverview({ branchLike, branchLikes, component, showWarning }: Props) {
+  const hasBranches = branchLikes.length > 1;
+  const hasBadConfig =
+    branchLikes.length > 2 ||
+    (branchLikes.length === 2 && branchLikes.some(branch => isLongLivingBranch(branch)));
+
+  const branchWarnMsg = hasBadConfig
+    ? translate('provisioning.no_analysis_on_main_branch.bad_configuration')
+    : translate('provisioning.no_analysis_on_main_branch');
 
   return (
     <div className="page page-limited">
       {showWarning && (
         <div className="big-spacer-bottom">
           <div className="alert alert-warning">
-            {hasBranches ? (
+            {hasBranches && isBranch(branchLike) ? (
               <FormattedMessage
-                defaultMessage={translate('provisioning.no_analysis_on_main_branch')}
-                id="provisioning.no_analysis_on_main_branch"
+                defaultMessage={branchWarnMsg}
+                id={branchWarnMsg}
                 values={{
-                  branch: (
-                    <div className="outline-badge text-baseline little-spacer-right">
+                  branchName: branchLike.name,
+                  branchType: (
+                    <div className="outline-badge text-baseline">
                       {translate('branches.main_branch')}
                     </div>
                   )
@@ -57,13 +66,19 @@ export default function EmptyOverview({ component, hasBranches, showWarning }: P
 
           {!hasBranches && (
             <div className="big-spacer-top">
-              {head}
-              <Link
-                className="text-danger"
-                to={{ pathname: '/project/deletion', query: { id: component } }}>
-                {translate('provisioning.no_analysis.delete_project')}
-              </Link>
-              {tail}
+              <FormattedMessage
+                defaultMessage={translate('provisioning.no_analysis.delete')}
+                id={'provisioning.no_analysis.delete'}
+                values={{
+                  link: (
+                    <Link
+                      className="text-danger"
+                      to={{ pathname: '/project/deletion', query: { id: component } }}>
+                      {translate('provisioning.no_analysis.delete_project')}
+                    </Link>
+                  )
+                }}
+              />
             </div>
           )}
         </div>

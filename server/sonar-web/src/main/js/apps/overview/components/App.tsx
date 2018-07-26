@@ -19,11 +19,21 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import OverviewApp from './OverviewApp';
+import { Helmet } from 'react-helmet';
 import EmptyOverview from './EmptyOverview';
+import OverviewApp from './OverviewApp';
+import SonarCloudEmptyOverview from './SonarCloudEmptyOverview';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { Component, BranchLike } from '../../../app/types';
 import { isShortLivingBranch } from '../../../helpers/branches';
-import { getShortLivingBranchUrl, getCodeUrl } from '../../../helpers/urls';
+import {
+  getShortLivingBranchUrl,
+  getCodeUrl,
+  getProjectUrl,
+  getBaseUrl,
+  getPathUrlAsString
+} from '../../../helpers/urls';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   branchLike?: BranchLike;
@@ -67,22 +77,43 @@ export default class App extends React.PureComponent<Props> {
       return null;
     }
 
-    if (!component.analysisDate) {
-      return (
-        <EmptyOverview
-          component={component.key}
-          hasBranches={branchLikes.length > 1}
-          showWarning={!this.props.isPending && !this.props.isInProgress}
-        />
-      );
-    }
-
     return (
-      <OverviewApp
-        branchLike={branchLike}
-        component={component}
-        onComponentChange={this.props.onComponentChange}
-      />
+      <>
+        {isSonarCloud() && (
+          <Helmet>
+            <link
+              href={getBaseUrl() + getPathUrlAsString(getProjectUrl(component.key))}
+              rel="canonical"
+            />
+          </Helmet>
+        )}
+        <Suggestions suggestions="overview" />
+
+        {!component.analysisDate &&
+          (isSonarCloud() ? (
+            <SonarCloudEmptyOverview
+              branchLike={branchLike}
+              branchLikes={branchLikes}
+              component={component}
+              hasAnalyses={this.props.isPending || this.props.isInProgress}
+              onComponentChange={this.props.onComponentChange}
+            />
+          ) : (
+            <EmptyOverview
+              branchLike={branchLike}
+              branchLikes={branchLikes}
+              component={component.key}
+              showWarning={!this.props.isPending && !this.props.isInProgress}
+            />
+          ))}
+        {component.analysisDate && (
+          <OverviewApp
+            branchLike={branchLike}
+            component={component}
+            onComponentChange={this.props.onComponentChange}
+          />
+        )}
+      </>
     );
   }
 }

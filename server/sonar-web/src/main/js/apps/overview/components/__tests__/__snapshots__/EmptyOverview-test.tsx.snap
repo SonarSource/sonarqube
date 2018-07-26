@@ -30,22 +30,29 @@ exports[`renders 1`] = `
     <div
       className="big-spacer-top"
     >
-      <Link
-        className="text-danger"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
+      <FormattedMessage
+        defaultMessage="provisioning.no_analysis.delete"
+        id="provisioning.no_analysis.delete"
+        values={
           Object {
-            "pathname": "/project/deletion",
-            "query": Object {
-              "id": "abcd",
-            },
+            "link": <Link
+              className="text-danger"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/deletion",
+                  "query": Object {
+                    "id": "abcd",
+                  },
+                }
+              }
+            >
+              provisioning.no_analysis.delete_project
+            </Link>,
           }
         }
-      >
-        provisioning.no_analysis.delete_project
-      </Link>
-      ovisioning.no_analysis.delete
+      />
     </div>
   </div>
   <div>
@@ -74,8 +81,46 @@ exports[`should render another message when there are branches 1`] = `
         id="provisioning.no_analysis_on_main_branch"
         values={
           Object {
-            "branch": <div
-              className="outline-badge text-baseline little-spacer-right"
+            "branchName": "b",
+            "branchType": <div
+              className="outline-badge text-baseline"
+            >
+              branches.main_branch
+            </div>,
+          }
+        }
+      />
+    </div>
+  </div>
+  <div>
+    <h4>
+      key
+    </h4>
+    <code>
+      abcd
+    </code>
+  </div>
+</div>
+`;
+
+exports[`should render another message when there are branches 2`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="big-spacer-bottom"
+  >
+    <div
+      className="alert alert-warning"
+    >
+      <FormattedMessage
+        defaultMessage="provisioning.no_analysis_on_main_branch.bad_configuration"
+        id="provisioning.no_analysis_on_main_branch.bad_configuration"
+        values={
+          Object {
+            "branchName": "b",
+            "branchType": <div
+              className="outline-badge text-baseline"
             >
               branches.main_branch
             </div>,

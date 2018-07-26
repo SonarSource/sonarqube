@@ -58,8 +58,8 @@ interface OwnProps {
   branchLike?: BranchLike;
   component: Component;
   history?: History;
-  measures: MeasureEnhanced[];
-  metrics: { [key: string]: Metric };
+  measures?: MeasureEnhanced[];
+  metrics?: { [key: string]: Metric };
   onComponentChange: (changes: {}) => void;
 }
 
@@ -106,7 +106,7 @@ export class Meta extends React.PureComponent<Props> {
 
   render() {
     const { organizationsEnabled } = this.context;
-    const { branchLike, component, metrics, organization } = this.props;
+    const { branchLike, component, measures, metrics, organization } = this.props;
     const { qualifier, description, visibility } = component;
 
     const isProject = qualifier === 'TRK';
@@ -131,16 +131,20 @@ export class Meta extends React.PureComponent<Props> {
           {isProject && (
             <MetaTags component={component} onComponentChange={this.props.onComponentChange} />
           )}
-          <MetaSize branchLike={branchLike} component={component} measures={this.props.measures} />
+          {measures && (
+            <MetaSize branchLike={branchLike} component={component} measures={measures} />
+          )}
         </div>
 
-        <AnalysesList
-          branchLike={branchLike}
-          component={component}
-          history={this.props.history}
-          metrics={metrics}
-          qualifier={component.qualifier}
-        />
+        {metrics && (
+          <AnalysesList
+            branchLike={branchLike}
+            component={component}
+            history={this.props.history}
+            metrics={metrics}
+            qualifier={component.qualifier}
+          />
+        )}
 
         {this.renderQualityInfos()}
 
@@ -152,7 +156,8 @@ export class Meta extends React.PureComponent<Props> {
         </div>
 
         {!isPrivate &&
-          (isProject || isApp) && (
+          (isProject || isApp) &&
+          metrics && (
             <BadgesModal
               branchLike={branchLike}
               metrics={metrics}

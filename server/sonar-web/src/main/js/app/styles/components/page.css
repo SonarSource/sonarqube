@@ -187,7 +187,6 @@
 }
 
 .page-sidebar-fixed {
-  width: 30%;
   min-width: 300px;
   flex-shrink: 0;
   padding-left: 40px;
@@ -225,17 +224,6 @@
 @media (max-width: 1335px) {
   .page-sidebar-sticky .page-sidebar-sticky-inner {
     width: 310px;
-  }
-}
-
-.page-sidebar-sticky .page-sidebar-sticky-inner .search-navigator-facets-list {
-  width: 260px;
-  margin-left: calc(50vw - 640px + 290px - 260px - 37px);
-}
-
-@media (max-width: 1335px) {
-  .page-sidebar-sticky .page-sidebar-sticky-inner .search-navigator-facets-list {
-    margin-left: 20px;
   }
 }
 

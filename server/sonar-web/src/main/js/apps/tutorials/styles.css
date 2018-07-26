@@ -58,8 +58,7 @@
 .onboarding-choices {
   display: flex;
   justify-content: space-around;
-  padding-top: 44px;
-  padding-bottom: 44px;
+  padding: 44px 0;
   background-color: var(--barBackgroundColor);
 }
 

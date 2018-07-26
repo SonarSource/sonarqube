@@ -72,7 +72,7 @@ function parseFrontMatter(lines) {
  * @returns {string}
  */
 function filterContent(content) {
-  const { isSonarCloud } = require('../helpers/system');
+  const { isSonarCloud } = require('./system');
   const contentWithoutStatic = cutConditionalContent(content, 'static');
   return isSonarCloud()
     ? cutConditionalContent(contentWithoutStatic, 'sonarqube')

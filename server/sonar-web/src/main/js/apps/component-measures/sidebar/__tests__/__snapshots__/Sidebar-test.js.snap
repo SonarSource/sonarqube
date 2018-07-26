@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display two facets 1`] = `
-<div
-  className="search-navigator-facets-list"
->
+<div>
   <ProjectOverviewFacet
     onChange={[Function]}
     selected="duplicated_lines_density"

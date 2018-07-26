@@ -20,16 +20,14 @@
 import * as React from 'react';
 import { uniq } from 'lodash';
 import { connect } from 'react-redux';
-import { Helmet } from 'react-helmet';
-import QualityGate from '../qualityGate/QualityGate';
 import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
 import CodeSmells from '../main/CodeSmells';
 import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
 import MetaContainer from '../meta/MetaContainer';
+import QualityGate from '../qualityGate/QualityGate';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData, History } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
@@ -52,8 +50,6 @@ import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike, Component, Metric } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl, getSonarCloudUrlAsString } from '../../../helpers/urls';
-import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
 interface OwnProps {
@@ -246,14 +242,6 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
-          <Suggestions suggestions="overview" />
-
-          {isSonarCloud() && (
-            <Helmet>
-              <link href={getSonarCloudUrlAsString(getProjectUrl(component.key))} rel="canonical" />
-            </Helmet>
-          )}
-
           {this.renderMain()}
 
           <div className="overview-sidebar page-sidebar-fixed">

@@ -24,6 +24,7 @@
 .overview-main {
   background-color: var(--barBackgroundColor);
   transition: transform 0.5s ease, opacity 0.5s ease;
+  width: calc(100% - 300px);
 }
 
 .overview-sidebar {
