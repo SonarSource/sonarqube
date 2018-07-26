@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.task.CeTask;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.server.ce.queue.ReportSubmitter;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
@@ -133,7 +134,9 @@ public class SubmitAction implements CeWsAction {
       String[] pair = StringUtils.split(param, "=", 2);
       checkRequest(pair.length == 2, "Parameter '%s' must be a key-value pair with the format 'key=value'.", PARAM_ANALYSIS_CHARACTERISTIC);
       checkRequest(!characteristics.containsKey(pair[0]), "Key '%s' was provided twice with parameters '%s'", pair[0], PARAM_ANALYSIS_CHARACTERISTIC);
-      characteristics.put(pair[0], pair[1]);
+      if (CeTaskCharacteristicDto.SUPPORTED_KEYS.contains(pair[0])) {
+        characteristics.put(pair[0], pair[1]);
+      }
     }
     return characteristics;
   }

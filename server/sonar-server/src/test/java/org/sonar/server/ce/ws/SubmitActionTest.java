@@ -21,7 +21,6 @@ package org.sonar.server.ce.ws;
 
 import com.google.common.base.Strings;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,11 +93,11 @@ public class SubmitActionTest {
   }
 
   @Test
-  public void submit_task_with_multiple_characteristics() {
+  public void submit_task_with_characteristics() {
     when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
       anyMap(), any())).thenReturn(A_CE_TASK);
 
-    String[] characteristics = {"branch=branch1", "key=value1=value2"};
+    String[] characteristics = {"branch=foo", "pullRequest=123", "unsupported=bar"};
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
@@ -109,9 +108,10 @@ public class SubmitActionTest {
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), isNull(), eq("My Project"),
-      map.capture(), any(InputStream.class));
+      map.capture(), any());
 
-    assertThat(map.getValue()).containsOnly(entry("branch", "branch1"), entry("key", "value1=value2"));
+    // unsupported characteristics are ignored
+    assertThat(map.getValue()).containsExactly(entry("branch", "foo"), entry("pullRequest", "123"));
   }
 
   @Test
