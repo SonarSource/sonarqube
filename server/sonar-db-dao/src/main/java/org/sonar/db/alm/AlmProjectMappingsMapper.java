@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,4 +32,6 @@ public interface AlmProjectMappingsMapper {
 
   int update(@Param("almId") String almId, @Param("repoId") String repoId, @Param("projectUuid") String projectUuid,
     @Nullable @Param("githubSlug") String githubSlug, @Param("url") String url, @Param("now") long now);
+
+  List<AlmProjectMappingDto> selectByRepoIds(@Param("almId") String almId, @Param("repoIds") List<String> repoIds);
 }

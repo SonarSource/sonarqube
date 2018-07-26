@@ -19,6 +19,8 @@
  */
 package org.sonar.db.alm;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
@@ -28,6 +30,7 @@ import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class AlmProjectMappingsDao implements Dao {
 
@@ -58,6 +61,15 @@ public class AlmProjectMappingsDao implements Dao {
     checkRepoId(repoId);
 
     return getMapper(dbSession).mappingCount(alm.getId(), repoId) == 1;
+  }
+
+  /**
+   * Gets a list or mappings by their repo_id. The result does NOT contain {@code null} values for mappings not found, so
+   * the size of result may be less than the number of ids.
+   * <p>Results may be in a different order as input ids.</p>
+   */
+  public List<AlmProjectMappingDto> selectByRepoIds(final DbSession session, ALM alm, Collection<String> repoIds) {
+    return executeLargeInputs(repoIds, partionnedIds -> getMapper(session).selectByRepoIds(alm.getId(), partionnedIds));
   }
 
   private static void checkAlm(@Nullable ALM alm) {

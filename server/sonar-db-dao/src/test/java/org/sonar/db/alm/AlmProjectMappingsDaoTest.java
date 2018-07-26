@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,8 +34,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.alm.ALM.BITBUCKETCLOUD;
 import static org.sonar.db.alm.ALM.GITHUB;
 
 public class AlmProjectMappingsDaoTest {
@@ -202,6 +205,24 @@ public class AlmProjectMappingsDaoTest {
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
 
     assertThat(underTest.mappingExists(dbSession, GITHUB, A_REPO)).isTrue();
+  }
+
+  @Test
+  public void select_by_repo_ids() {
+    when(system2.now()).thenReturn(DATE);
+    when(uuidFactory.create())
+      .thenReturn("uuid1")
+      .thenReturn("uuid2")
+      .thenReturn("uuid3");
+    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
+    underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, ANOTHER_UUID, null, ANOTHER_URL);
+    underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
+
+    assertThat(underTest.selectByRepoIds(dbSession, GITHUB, Arrays.asList(A_REPO, ANOTHER_REPO, "foo")))
+      .extracting(AlmProjectMappingDto::getUuid, AlmProjectMappingDto::getAlmId, AlmProjectMappingDto::getRepoId, AlmProjectMappingDto::getProjectUuid, AlmProjectMappingDto::getUrl, AlmProjectMappingDto::getGithubSlug)
+      .containsExactlyInAnyOrder(
+        tuple("uuid1", GITHUB.getId(), A_REPO, A_UUID, A_URL, A_GITHUB_SLUG),
+        tuple("uuid2", GITHUB.getId(), ANOTHER_REPO, ANOTHER_UUID, ANOTHER_URL, null));
   }
 
   private void expectAlmNPE() {
