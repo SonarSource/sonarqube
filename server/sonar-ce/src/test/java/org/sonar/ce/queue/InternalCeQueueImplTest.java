@@ -52,6 +52,7 @@ import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -588,11 +589,12 @@ public class InternalCeQueueImplTest {
   }
 
   private CeTaskSubmit createTaskSubmit(String type, @Nullable String componentUuid, @Nullable String submitterUuid) {
-    CeTaskSubmit.Builder submission = underTest.prepareSubmit();
-    submission.setType(type);
-    submission.setComponentUuid(componentUuid);
-    submission.setSubmitterUuid(submitterUuid);
-    return submission.build();
+    return underTest.prepareSubmit()
+      .setType(type)
+      .setComponentUuid(componentUuid)
+      .setSubmitterUuid(submitterUuid)
+      .setCharacteristics(emptyMap())
+      .build();
   }
 
   private CeTaskResult newTaskResult(@Nullable String analysisUuid) {

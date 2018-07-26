@@ -19,12 +19,14 @@
  */
 package org.sonar.ce.queue;
 
-import java.util.Objects;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class CeTaskSubmit {
@@ -33,12 +35,14 @@ public final class CeTaskSubmit {
   private final String type;
   private final String componentUuid;
   private final String submitterUuid;
+  private final Map<String, String> characteristics;
 
   private CeTaskSubmit(Builder builder) {
-    this.uuid = Objects.requireNonNull(emptyToNull(builder.uuid));
-    this.type = Objects.requireNonNull(emptyToNull(builder.type));
+    this.uuid = requireNonNull(emptyToNull(builder.uuid));
+    this.type = requireNonNull(emptyToNull(builder.type));
     this.componentUuid = emptyToNull(builder.componentUuid);
     this.submitterUuid = emptyToNull(builder.submitterUuid);
+    this.characteristics = unmodifiableMap(requireNonNull(builder.characteristics));
   }
 
   public String getType() {
@@ -59,11 +63,16 @@ public final class CeTaskSubmit {
     return submitterUuid;
   }
 
+  public Map<String, String> getCharacteristics() {
+    return characteristics;
+  }
+
   public static final class Builder {
     private final String uuid;
     private String type;
     private String componentUuid;
     private String submitterUuid;
+    private Map<String, String> characteristics = null;
 
     public Builder(String uuid) {
       this.uuid = uuid;
@@ -85,6 +94,11 @@ public final class CeTaskSubmit {
 
     public Builder setSubmitterUuid(@Nullable String s) {
       this.submitterUuid = s;
+      return this;
+    }
+
+    public Builder setCharacteristics(Map<String, String> m) {
+      this.characteristics = m;
       return this;
     }
 

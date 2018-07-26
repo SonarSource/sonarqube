@@ -20,11 +20,15 @@
 package org.sonar.ce.task;
 
 import com.google.common.base.MoreObjects;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
@@ -37,6 +41,7 @@ public class CeTask {
   private final String componentKey;
   private final String componentName;
   private final String submitterUuid;
+  private final Map<String, String> characteristics;
 
   private CeTask(Builder builder) {
     this.organizationUuid = requireNonNull(emptyToNull(builder.organizationUuid), "organizationUuid can't be null nor empty");
@@ -46,6 +51,11 @@ public class CeTask {
     this.componentKey = emptyToNull(builder.componentKey);
     this.componentName = emptyToNull(builder.componentName);
     this.submitterUuid = emptyToNull(builder.submitterUuid);
+    if (builder.characteristics == null) {
+      this.characteristics = emptyMap();
+    } else {
+      this.characteristics = unmodifiableMap(new HashMap<>(builder.characteristics));
+    }
   }
 
   public String getOrganizationUuid() {
@@ -78,6 +88,10 @@ public class CeTask {
   @CheckForNull
   public String getSubmitterUuid() {
     return submitterUuid;
+  }
+
+  public Map<String, String> getCharacteristics() {
+    return characteristics;
   }
 
   @Override
@@ -118,6 +132,7 @@ public class CeTask {
     private String componentKey;
     private String componentName;
     private String submitterUuid;
+    private Map<String, String> characteristics;
 
     public Builder setOrganizationUuid(String organizationUuid) {
       this.organizationUuid = organizationUuid;
@@ -139,7 +154,7 @@ public class CeTask {
       return this;
     }
 
-    public Builder setComponentUuid(String componentUuid) {
+    public Builder setComponentUuid(@Nullable String componentUuid) {
       this.componentUuid = componentUuid;
       return this;
     }
@@ -156,6 +171,11 @@ public class CeTask {
 
     public Builder setSubmitterUuid(@Nullable String s) {
       this.submitterUuid = s;
+      return this;
+    }
+
+    public Builder setCharacteristics(@Nullable Map<String, String> m) {
+      this.characteristics = m;
       return this;
     }
 

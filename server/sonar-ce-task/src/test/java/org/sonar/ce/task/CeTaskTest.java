@@ -19,11 +19,13 @@
  */
 package org.sonar.ce.task;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public class CeTaskTest {
   @Rule
@@ -98,6 +100,7 @@ public class CeTaskTest {
     underTest.setComponentKey("COMPONENT_KEY_1");
     underTest.setComponentUuid("COMPONENT_UUID_1");
     underTest.setComponentName("The component");
+    underTest.setCharacteristics(ImmutableMap.of("k1", "v1", "k2", "v2"));
 
     CeTask task = underTest.build();
 
@@ -108,6 +111,7 @@ public class CeTaskTest {
     assertThat(task.getComponentKey()).isEqualTo("COMPONENT_KEY_1");
     assertThat(task.getComponentUuid()).isEqualTo("COMPONENT_UUID_1");
     assertThat(task.getComponentName()).isEqualTo("The component");
+    assertThat(task.getCharacteristics()).containsExactly(entry("k1", "v1"), entry("k2", "v2"));
   }
 
   @Test
@@ -144,5 +148,13 @@ public class CeTaskTest {
     assertThat(task1.equals(task2)).isFalse();
     assertThat(task1.hashCode()).isEqualTo(task1.hashCode());
     assertThat(task1.hashCode()).isEqualTo(task1bis.hashCode());
+  }
+
+  @Test
+  public void setCharacteristics_null_is_considered_as_empty() {
+    CeTask task = underTest.setOrganizationUuid("org1").setType("TYPE_1").setUuid("UUID_1")
+      .setCharacteristics(null)
+      .build();
+    assertThat(task.getCharacteristics()).isEmpty();
   }
 }

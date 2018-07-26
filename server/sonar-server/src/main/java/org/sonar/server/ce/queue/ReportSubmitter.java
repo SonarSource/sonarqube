@@ -22,7 +22,6 @@ package org.sonar.server.ce.queue;
 import com.google.common.base.Optional;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -33,11 +32,8 @@ import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -64,20 +60,14 @@ public class ReportSubmitter {
   private final ComponentUpdater componentUpdater;
   private final PermissionTemplateService permissionTemplateService;
   private final DbClient dbClient;
-  private final UuidFactory uuidFactory;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
-    PermissionTemplateService permissionTemplateService, UuidFactory uuidFactory, DbClient dbClient) {
+    PermissionTemplateService permissionTemplateService, DbClient dbClient) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
     this.permissionTemplateService = permissionTemplateService;
-    this.uuidFactory = uuidFactory;
     this.dbClient = dbClient;
-  }
-
-  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
-    return submit(organizationKey, projectKey, projectBranch, projectName, Collections.emptyMap(), reportInput);
   }
 
   /**
@@ -169,29 +159,17 @@ public class ReportSubmitter {
     return componentUpdater.create(dbSession, newProject, userId);
   }
 
-  private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project, Map<String, String> characteristicsMap) {
+  private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project, Map<String, String> characteristics) {
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
-    List<CeTaskCharacteristicDto> characteristics = characteristicsMap.entrySet().stream()
-      .map(e -> toDto(submit.getUuid(), e.getKey(), e.getValue()))
-      .collect(MoreCollectors.toList(characteristicsMap.size()));
 
     // the report file must be saved before submitting the task
     dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
-    dbClient.ceTaskCharacteristicsDao().insert(dbSession, characteristics);
     dbSession.commit();
 
     submit.setType(CeTaskTypes.REPORT);
     submit.setComponentUuid(project.uuid());
     submit.setSubmitterUuid(userSession.getUuid());
+    submit.setCharacteristics(characteristics);
     return queue.submit(submit.build());
-  }
-
-  private CeTaskCharacteristicDto toDto(String taskUuid, String key, String value) {
-    CeTaskCharacteristicDto dto = new CeTaskCharacteristicDto();
-    dto.setTaskUuid(taskUuid);
-    dto.setKey(key);
-    dto.setValue(value);
-    dto.setUuid(uuidFactory.create());
-    return dto;
   }
 }

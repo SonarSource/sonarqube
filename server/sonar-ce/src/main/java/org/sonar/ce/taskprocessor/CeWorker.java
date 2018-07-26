@@ -59,7 +59,7 @@ public interface CeWorker extends Callable<CeWorker.Result> {
   interface ExecutionListener {
     /**
      * Called when starting executing a {@link CeTask} (which means: after it's been picked for processing, but before
-     * the execution of the task by the {@link CeTaskProcessor#process(CeTask)}).
+     * the execution of the task by the {@link org.sonar.ce.task.taskprocessor.CeTaskProcessor#process(CeTask)}).
      */
     void onStart(CeTask ceTask);
 

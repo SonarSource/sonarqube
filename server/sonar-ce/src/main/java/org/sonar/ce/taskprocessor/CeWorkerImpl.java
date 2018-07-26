@@ -179,17 +179,13 @@ public class CeWorkerImpl implements CeWorker {
   }
 
   private static Profiler startLogProfiler(CeTask task) {
-    Profiler profiler = Profiler.create(LOG);
-    profiler
+    return Profiler.create(LOG)
       .logTimeLast(true)
       .addContext("project", task.getComponentKey())
       .addContext("type", task.getType())
-      .addContext("id", task.getUuid());
-    String submitterLogin = task.getSubmitterUuid();
-    if (submitterLogin != null) {
-      profiler.addContext("submitter", submitterLogin);
-    }
-    return profiler.startInfo("Execute task");
+      .addContext("id", task.getUuid())
+      .addContext("submitter", task.getSubmitterUuid())
+      .startInfo("Execute task");
   }
 
   private static void stopLogProfiler(Profiler profiler, CeActivityDto.Status status) {

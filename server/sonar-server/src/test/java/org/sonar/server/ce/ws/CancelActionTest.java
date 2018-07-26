@@ -40,6 +40,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CancelActionTest {
@@ -172,10 +173,11 @@ public class CancelActionTest {
   }
 
   private CeQueueDto createTaskSubmit(@Nullable String componentUuid) {
-    CeTaskSubmit.Builder submission = queue.prepareSubmit();
-    submission.setType(CeTaskTypes.REPORT);
-    submission.setComponentUuid(componentUuid);
-    submission.setSubmitterUuid(null);
+    CeTaskSubmit.Builder submission = queue.prepareSubmit()
+      .setType(CeTaskTypes.REPORT)
+      .setComponentUuid(componentUuid)
+      .setSubmitterUuid(null)
+      .setCharacteristics(emptyMap());
     CeTask task = queue.submit(submission.build());
     return db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
   }

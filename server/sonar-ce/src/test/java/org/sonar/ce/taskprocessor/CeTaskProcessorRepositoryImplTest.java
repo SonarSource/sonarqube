@@ -111,7 +111,9 @@ public class CeTaskProcessorRepositoryImplTest {
       .setOrganizationUuid("org1")
       .setType(ceTaskType)
       .setUuid("task_uuid_" + key)
-      .setComponentKey(key).setComponentUuid("uuid_" + key).setComponentName("name_" + key)
+      .setComponentKey(key)
+      .setComponentUuid("uuid_" + key)
+      .setComponentName("name_" + key)
       .build();
   }
 

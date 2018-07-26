@@ -22,7 +22,6 @@ package org.sonar.server.ce.ws;
 import com.google.common.base.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +39,7 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
@@ -102,7 +102,7 @@ public class SubmitActionTest {
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
-      .setMultiParam("characteristic", Arrays.asList(characteristics))
+      .setMultiParam("characteristic", asList(characteristics))
       .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
       .setMethod("POST")
       .executeProtobuf(Ce.SubmitResponse.class);

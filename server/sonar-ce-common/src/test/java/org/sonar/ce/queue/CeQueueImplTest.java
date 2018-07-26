@@ -46,6 +46,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
@@ -474,11 +475,12 @@ public class CeQueueImplTest {
   }
 
   private CeTaskSubmit createTaskSubmit(String type, @Nullable String componentUuid, @Nullable String submitterUuid) {
-    CeTaskSubmit.Builder submission = underTest.prepareSubmit();
-    submission.setType(type);
-    submission.setComponentUuid(componentUuid);
-    submission.setSubmitterUuid(submitterUuid);
-    return submission.build();
+    return underTest.prepareSubmit()
+      .setType(type)
+      .setComponentUuid(componentUuid)
+      .setSubmitterUuid(submitterUuid)
+      .setCharacteristics(emptyMap())
+      .build();
   }
 
   private ComponentDto insertComponent(ComponentDto componentDto) {

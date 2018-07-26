@@ -53,7 +53,7 @@ public class IssueDao implements Dao {
    * if input keys contain multiple occurrences of a key.
    * <p>Results may be in a different order as input keys.</p>
    */
-  public List<IssueDto> selectByKeys(final DbSession session, Collection<String> keys) {
+  public List<IssueDto> selectByKeys(DbSession session, Collection<String> keys) {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 

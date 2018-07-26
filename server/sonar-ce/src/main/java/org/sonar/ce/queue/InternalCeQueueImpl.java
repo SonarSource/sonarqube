@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -44,11 +45,15 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
@@ -82,13 +87,22 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         dbSession.commit();
         LOG.debug("{} in progress tasks reset for worker uuid {}", i, workerUuid);
       }
-      Optional<CeQueueDto> dto = ceQueueDao.peek(dbSession, workerUuid);
-      CeTask task = null;
-      if (dto.isPresent()) {
-        task = loadTask(dbSession, dto.get());
+      Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid);
+      if (opt.isPresent()) {
+        CeQueueDto taskDto = opt.get();
+        ComponentDto component = null;
+        String componentUuid = taskDto.getComponentUuid();
+        if (componentUuid != null) {
+          component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orNull();
+        }
+        Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
+          .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
+
+        CeTask task = convertToTask(taskDto, characteristics, component);
         queueStatus.addInProgress();
+        return Optional.of(task);
       }
-      return Optional.ofNullable(task);
+      return Optional.empty();
     }
   }
 

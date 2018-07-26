@@ -32,11 +32,15 @@ public class CeTaskCharacteristicDao implements Dao {
 
   public void insert(DbSession dbSession, Collection<CeTaskCharacteristicDto> characteristics) {
     for (CeTaskCharacteristicDto dto : characteristics) {
-      mapper(dbSession).insert(dto);
+      insert(dbSession, dto);
     }
   }
 
-  public List<CeTaskCharacteristicDto> selectByTaskUuids(DbSession dbSession, List<String> taskUuids) {
+  public void insert(DbSession dbSession, CeTaskCharacteristicDto dto) {
+    mapper(dbSession).insert(dto);
+  }
+
+  public List<CeTaskCharacteristicDto> selectByTaskUuids(DbSession dbSession, Collection<String> taskUuids) {
     return executeLargeInputs(taskUuids, uuid -> mapper(dbSession).selectByTaskUuids(uuid));
   }
 
