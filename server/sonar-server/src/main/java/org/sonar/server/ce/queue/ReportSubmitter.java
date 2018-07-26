@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -35,6 +34,7 @@ import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
@@ -172,7 +172,8 @@ public class ReportSubmitter {
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project, Map<String, String> characteristicsMap) {
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
     List<CeTaskCharacteristicDto> characteristics = characteristicsMap.entrySet().stream()
-      .map(e -> toDto(submit.getUuid(), e.getKey(), e.getValue())).collect(Collectors.toList());
+      .map(e -> toDto(submit.getUuid(), e.getKey(), e.getValue()))
+      .collect(MoreCollectors.toList(characteristicsMap.size()));
 
     // the report file must be saved before submitting the task
     dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
