@@ -83,35 +83,17 @@ public class ComputationStepExecutorTest {
   }
 
   @Test
-  public void execute_does_not_log_end_timing_for_each_ComputationStep_called_when_level_is_INFO() {
-    List<String> infoLogs = execute_logs_end_timing_for_each_ComputationStep_called_when_(LoggerLevel.INFO);
-    assertThat(infoLogs).isEmpty();
-  }
-
-  @Test
-  public void execute_logs_end_timing_for_each_ComputationStep_called_when_level_is_DEBUG() {
-    List<String> infoLogs = execute_logs_end_timing_for_each_ComputationStep_called_when_(LoggerLevel.DEBUG);
-    assertThat(infoLogs).hasSize(2);
-    assertThat(infoLogs.get(0)).contains("step1 | time=");
-    assertThat(infoLogs.get(1)).contains("step2 | time=");
-  }
-
-  @Test
-  public void execute_logs_end_timing_for_each_ComputationStep_called_when_level_is_TRACE() {
-    List<String> infoLogs = execute_logs_end_timing_for_each_ComputationStep_called_when_(LoggerLevel.TRACE);
-    assertThat(infoLogs).hasSize(2);
-    assertThat(infoLogs.get(0)).contains("step1 | time=");
-    assertThat(infoLogs.get(1)).contains("step2 | time=");
-  }
-
-  private List<String> execute_logs_end_timing_for_each_ComputationStep_called_when_(LoggerLevel level) {
-    try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, level);
-      ChangeLogLevel step1 = new ChangeLogLevel(computationStep1.getClass(), level);
-      ChangeLogLevel step2 = new ChangeLogLevel(computationStep2.getClass(), level)) {
+  public void execute_logs_end_timing_for_each_ComputationStep_in_INFO_level() {
+    try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO);
+      ChangeLogLevel step1 = new ChangeLogLevel(computationStep1.getClass(), LoggerLevel.INFO);
+      ChangeLogLevel step2 = new ChangeLogLevel(computationStep2.getClass(), LoggerLevel.INFO)) {
       new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2))
         .execute();
 
-      return logTester.logs(LoggerLevel.DEBUG);
+      List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
+      assertThat(infoLogs).hasSize(2);
+      assertThat(infoLogs.get(0)).contains("step1 | time=");
+      assertThat(infoLogs.get(1)).contains("step2 | time=");
     }
   }
 
@@ -146,8 +128,8 @@ public class ComputationStepExecutorTest {
   public void execute_does_not_fail_if_listener_throws_Throwable() {
     ComputationStepExecutor.Listener listener = mock(ComputationStepExecutor.Listener.class);
     doThrow(new Error("Facking error thrown by Listener"))
-        .when(listener)
-        .finished(anyBoolean());
+      .when(listener)
+      .finished(anyBoolean());
 
     new ComputationStepExecutor(mockComputationSteps(computationStep1), listener).execute();
   }

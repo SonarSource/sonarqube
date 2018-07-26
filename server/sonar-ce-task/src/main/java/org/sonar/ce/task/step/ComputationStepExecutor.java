@@ -62,7 +62,7 @@ public final class ComputationStepExecutor {
     for (ComputationStep step : steps.instances()) {
       stepProfiler.start();
       step.execute();
-      stepProfiler.stopDebug(step.getDescription());
+      stepProfiler.stopInfo(step.getDescription());
     }
   }
 
