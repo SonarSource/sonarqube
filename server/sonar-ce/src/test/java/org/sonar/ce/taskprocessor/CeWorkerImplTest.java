@@ -19,7 +19,9 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -228,7 +230,22 @@ public class CeWorkerImplTest {
   }
 
   @Test
-  public void do_not_display_submitter_param_in_log_when_submitterLogin_is_not_set_in_case_of_success() throws Exception {
+  public void log_task_characteristics() throws Exception {
+    when(queue.peek(anyString())).thenReturn(Optional.of(createCeTask(null, "pullRequest", "123", "branch", "foo")));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(2);
+    for (int i = 0; i < 2; i++) {
+      assertThat(logs.get(i)).contains("pullRequest=123");
+      assertThat(logs.get(i)).contains("branch=foo");
+    }
+  }
+
+  @Test
+  public void do_not_log_submitter_param_if_anonymous_and_success() throws Exception {
     when(queue.peek(anyString())).thenReturn(Optional.of(createCeTask(null)));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
@@ -238,12 +255,12 @@ public class CeWorkerImplTest {
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
     for (int i = 0; i < 2; i++) {
-      assertThat(logs.get(i)).doesNotContain(" | submitter=");
+      assertThat(logs.get(i)).doesNotContain("submitter=");
     }
   }
 
   @Test
-  public void do_not_display_submitter_param_in_log_when_submitterLogin_is_not_set_in_case_of_error() throws Exception {
+  public void do_not_log_submitter_param_if_anonymous_and_error() throws Exception {
     CeTask ceTask = createCeTask(null);
     when(queue.peek(anyString())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(ceTask.getType(), taskProcessor);
@@ -254,16 +271,16 @@ public class CeWorkerImplTest {
     verifyWorkerUuid();
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).doesNotContain(" | submitter=");
-    assertThat(logs.get(1)).doesNotContain(" | submitter=");
+    assertThat(logs.get(0)).doesNotContain("submitter=");
+    assertThat(logs.get(1)).doesNotContain("submitter=");
     logs = logTester.logs(LoggerLevel.ERROR);
     assertThat(logs).hasSize(1);
-    assertThat(logs.iterator().next()).doesNotContain(" | submitter=");
+    assertThat(logs.iterator().next()).doesNotContain("submitter=");
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
 
   @Test
-  public void display_submitterLogin_in_logs_when_set_in_case_of_success() throws Exception {
+  public void log_submitter_login_if_authenticated_and_success() throws Exception {
     when(queue.peek(anyString())).thenReturn(Optional.of(createCeTask("FooBar")));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
@@ -272,8 +289,8 @@ public class CeWorkerImplTest {
     verifyWorkerUuid();
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).contains(" | submitter=FooBar");
-    assertThat(logs.get(1)).contains(" | submitter=FooBar | status=SUCCESS | time=");
+    assertThat(logs.get(0)).contains("submitter=FooBar");
+    assertThat(logs.get(1)).contains("submitter=FooBar | status=SUCCESS | time=");
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
@@ -502,12 +519,17 @@ public class CeWorkerImplTest {
     assertThat(workerUuidCaptor.getValue()).isEqualTo(workerUuid);
   }
 
-  private static CeTask createCeTask(@Nullable String submitterLogin) {
+  private static CeTask createCeTask(@Nullable String submitterLogin, String... characteristics) {
+    Map<String, String> characteristicMap = new HashMap<>();
+    for (int i = 0; i < characteristics.length; i += 2) {
+      characteristicMap.put(characteristics[i], characteristics[i + 1]);
+    }
     return new CeTask.Builder()
       .setOrganizationUuid("org1")
       .setUuid("TASK_1").setType(CeTaskTypes.REPORT)
       .setComponentUuid("PROJECT_1")
       .setSubmitterUuid(submitterLogin)
+      .setCharacteristics(characteristicMap)
       .build();
   }
 

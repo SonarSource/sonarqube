@@ -21,6 +21,7 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -179,10 +180,14 @@ public class CeWorkerImpl implements CeWorker {
   }
 
   private static Profiler startLogProfiler(CeTask task) {
-    return Profiler.create(LOG)
+    Profiler profiler = Profiler.create(LOG)
       .logTimeLast(true)
       .addContext("project", task.getComponentKey())
-      .addContext("type", task.getType())
+      .addContext("type", task.getType());
+    for (Map.Entry<String, String> characteristic : task.getCharacteristics().entrySet()) {
+      profiler.addContext(characteristic.getKey(), characteristic.getValue());
+    }
+    return profiler
       .addContext("id", task.getUuid())
       .addContext("submitter", task.getSubmitterUuid())
       .startInfo("Execute task");
