@@ -57,6 +57,7 @@ Each documentation file should contain a header at the top of the file delimited
   * “sonarqube” - visible only for SonarQube and the static website
   * “sonarcloud” - visible only for SonarCloud
   * "static" - visible only on the static website
+
 Ex.:
 ```
 ---
@@ -70,8 +71,6 @@ scope: static
 Basic syntax: `@include tooltips/quality-gates/quality-gate`
 * path omits trailing '.md'
 * path starts from 'src', regardless of where the including page is.
-
-
 
 ### Conditional Content
 
@@ -107,12 +106,12 @@ You can also use inline comments:
 this content is displayed on <!-- sonarcloud -->SonarCloud<!-- /sonarcloud --><!-- sonarqube -->SonarQube<!-- /sonarqube -->
 ```
 
-
-### Formatting
-#### Page-level ToC
+### Page-level ToC
 Basic syntax: `## Table of Contents`
 Lists all h2 & h3 
 
+
+### Formatting
 #### Links
 * External page (automatically open in a new tab): `[Link text](https://www.sonarsource.com/)`
 * Another documentation page: `[Link text](/short-lived-branches)`
@@ -157,7 +156,7 @@ Basic syntax:
 | ## Block title
 | Block content
 ```
-The first line of the block must be a title. You can have as many line as you want after that.
+The first line of the block must be a title. You can have as many lines as you want after that.
 
 #### Images
 Basic syntax: `![alt text.](/images/short-lived-branch-concept.png)`
