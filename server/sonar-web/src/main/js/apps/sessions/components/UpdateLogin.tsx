@@ -107,10 +107,10 @@ export default class UpdateLogin extends React.PureComponent<Props, State> {
           <div className="big-spacer-bottom js-provider-name">
             <p className="little-spacer-bottom">
               <FormattedMessage
-                  defaultMessage={translate('sessions.update_login.1')}
-                  id="sessions.update_login.1"
-                  values={{ providerName: <strong>{query.providerName}</strong> }}
-                />
+                defaultMessage={translate('sessions.update_login.1')}
+                id="sessions.update_login.1"
+                values={{ providerName: <strong>{query.providerName}</strong> }}
+              />
             </p>
           </div>
 
@@ -124,17 +124,17 @@ export default class UpdateLogin extends React.PureComponent<Props, State> {
             <ul className="list-styled">
               <li className="spacer-top js-old-organization-key">
                 <FormattedMessage
-                    defaultMessage={translate('sessions.update_login.4')}
-                    id="sessions.update_login.4"
-                    values={{ organizationKey: <strong>{query.oldOrganizationKey}</strong> }}
-                  />
+                  defaultMessage={translate('sessions.update_login.4')}
+                  id="sessions.update_login.4"
+                  values={{ organizationKey: <strong>{query.oldOrganizationKey}</strong> }}
+                />
               </li>
               <li className="spacer-top js-old-login">
                 <FormattedMessage
-                    defaultMessage={translate('sessions.update_login.5')}
-                    id="sessions.update_login.5"
-                    values={{ login: <strong>{query.oldLogin}</strong> }}
-                  />
+                  defaultMessage={translate('sessions.update_login.5')}
+                  id="sessions.update_login.5"
+                  values={{ login: <strong>{query.oldLogin}</strong> }}
+                />
               </li>
             </ul>
           </div>

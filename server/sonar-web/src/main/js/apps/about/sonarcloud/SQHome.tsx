@@ -61,21 +61,21 @@ function Jumbotron() {
         </div>
         <div>
           <a
-            className="sc-black-button sc-sq-login-button"
+            className="sc-white-button sc-sq-login-button"
             href={`${getBaseUrl()}/sessions/init/github`}>
-            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/github-white.svg`} />
+            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/github.svg`} />
             GitHub
           </a>
           <a
-            className="sc-black-button sc-sq-login-button"
+            className="sc-white-button sc-sq-login-button"
             href={`${getBaseUrl()}/sessions/init/bitbucket`}>
-            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/bitbucket-white.svg`} />
+            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/bitbucket.svg`} />
             Bitbucket
           </a>
           <a
-            className="sc-black-button sc-sq-login-button"
+            className="sc-white-button sc-sq-login-button"
             href={`${getBaseUrl()}/sessions/init/microsoft`}>
-            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/windows-white.svg`} />
+            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/windows.svg`} />
             VSTS
           </a>
         </div>
@@ -94,10 +94,7 @@ function Jumbotron() {
 function Features() {
   return (
     <>
-      <h2 className="sc-sq-header2">
-        The right solution for developers
-        <span className="sc-sq-dot">•</span>
-      </h2>
+      <h2 className="sc-sq-header2">The right solution for developers</h2>
       <ul className="sc-features-list">
         <li className="sc-feature">
           <img
@@ -327,7 +324,6 @@ function Integrations() {
 function BottomNote() {
   return (
     <div className="sc-bottom-note">
-      <span className="sc-sq-dot spacer-right">•</span>
       Includes all features of SonarSource{' '}
       <a
         className="sc-bottom-note-link link-base-color"

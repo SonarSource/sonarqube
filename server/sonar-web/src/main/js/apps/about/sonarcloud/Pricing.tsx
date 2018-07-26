@@ -35,7 +35,7 @@ export default function Pricing() {
         <strong>
           From <span className="sc-pricing-price">10€</span>/mo
         </strong>
-        <Link className="sc-arrow-link sc-pricing-small" to="/documentation/sonarcloud-pricing">
+        <Link className="sc-news-link" to="/documentation/sonarcloud-pricing">
           see prices
         </Link>
       </div>

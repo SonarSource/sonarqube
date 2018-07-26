@@ -24,11 +24,6 @@ export default function SQTopNav() {
   return (
     <ul className="sc-top-nav">
       <li className="sc-top-nav-item">
-        <Link className="sc-top-nav-link" to="/about/sq">
-          Home
-        </Link>
-      </li>
-      <li className="sc-top-nav-item">
         <Link
           activeClassName="sc-top-nav-active"
           className="sc-top-nav-link"

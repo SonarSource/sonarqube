@@ -80,6 +80,7 @@ module.exports = {
 
   // different
   baseFontFamily: "'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif",
+  systemFontFamily: "-apple-system,'BlinkMacSystemFont','Segoe UI','Helvetica','Arial',sans-serif",
   defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)',
 
   // z-index
@@ -111,8 +112,10 @@ module.exports = {
   // sonarcloud
   sonarcloudOrange: '#f60',
   sonarcloudOrangeDark: '#e65c00',
+  sonarcloudBlack100: '#ffffff',
   sonarcloudBlack200: '#f9f9fb',
   sonarcloudBlack300: '#cfd3d7',
+  sonarcloudBlack500: '#8a8c8f',
   sonarcloudBlack700: '#434447',
   sonarcloudBlack800: '#2d3032',
   sonarcloudBlack900: '#070706',

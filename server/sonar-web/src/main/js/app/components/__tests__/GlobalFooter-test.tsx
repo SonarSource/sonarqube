@@ -51,5 +51,7 @@ it('should render SonarCloud footer', () => {
 
 function getWrapper(props = {}, onSonarCloud = false) {
   (isSonarCloud as jest.Mock).mockImplementation(() => onSonarCloud);
-  return shallow(<GlobalFooter productionDatabase={true} sonarqubeEdition={EditionKey.community} {...props} />);
+  return shallow(
+    <GlobalFooter productionDatabase={true} sonarqubeEdition={EditionKey.community} {...props} />
+  );
 }
