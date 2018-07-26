@@ -466,7 +466,6 @@ public class CeProcessLoggingTest {
     assertThat(ctx.getLogger("org.apache.ibatis").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("java.sql").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("java.sql.ResultSet").getLevel()).isEqualTo(Level.WARN);
-    assertThat(ctx.getLogger("org.sonar.MEASURE_FILTER").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("org.elasticsearch").getLevel()).isEqualTo(Level.INFO);
     assertThat(ctx.getLogger("org.elasticsearch.node").getLevel()).isEqualTo(Level.INFO);
     assertThat(ctx.getLogger("org.elasticsearch.http").getLevel()).isEqualTo(Level.INFO);

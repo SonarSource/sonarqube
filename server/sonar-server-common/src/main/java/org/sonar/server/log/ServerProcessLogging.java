@@ -71,7 +71,6 @@ public abstract class ServerProcessLogging {
     builder.immutableLevel("org.apache.ibatis", Level.WARN);
     builder.immutableLevel("java.sql", Level.WARN);
     builder.immutableLevel("java.sql.ResultSet", Level.WARN);
-    builder.immutableLevel("org.sonar.MEASURE_FILTER", Level.WARN);
     builder.immutableLevel("org.elasticsearch", Level.INFO);
     builder.immutableLevel("org.elasticsearch.node", Level.INFO);
     builder.immutableLevel("org.elasticsearch.http", Level.INFO);
