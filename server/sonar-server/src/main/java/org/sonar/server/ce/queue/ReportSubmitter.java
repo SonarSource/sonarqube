@@ -176,9 +176,7 @@ public class ReportSubmitter {
 
     // the report file must be saved before submitting the task
     dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
-    if (!characteristics.isEmpty()) {
-      dbClient.ceTaskCharacteristicsDao().insert(dbSession, characteristics);
-    }
+    dbClient.ceTaskCharacteristicsDao().insert(dbSession, characteristics);
     dbSession.commit();
 
     submit.setType(CeTaskTypes.REPORT);

@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.queue;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTask;
@@ -50,7 +48,6 @@ import org.sonar.server.property.InternalProperties;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Collections.singleton;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_COMPONENT;
 import static org.sonar.core.util.stream.MoreCollectors.toEnumSet;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
@@ -163,13 +160,10 @@ public class CeQueueImpl implements CeQueue {
   CeTask loadTask(DbSession dbSession, CeQueueDto dto) {
     String componentUuid = dto.getComponentUuid();
     if (componentUuid == null) {
-      return new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid()).apply(dto);
+      return convertToTask(dto, null);
     }
     Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
-    if (componentDto.isPresent()) {
-      return new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid(), ImmutableMap.of(componentUuid, componentDto.get())).apply(dto);
-    }
-    return new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid()).apply(dto);
+    return convertToTask(dto, componentDto.orNull());
   }
 
   private List<CeTask> loadTasks(DbSession dbSession, List<CeQueueDto> dtos) {
@@ -182,7 +176,7 @@ public class CeQueueImpl implements CeQueue {
         .uniqueIndex(ComponentDto::uuid);
 
     return dtos.stream()
-      .map(new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid(), componentDtoByUuid)::apply)
+      .map(dto -> convertToTask(dto, dto.getComponentUuid() == null ? null : componentDtoByUuid.get(dto.getComponentUuid())))
       .collect(MoreCollectors.toList(dtos.size()));
   }
 
@@ -265,42 +259,25 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
-  private static class CeQueueDtoToCeTask implements Function<CeQueueDto, CeTask> {
-    private final String defaultOrganizationUuid;
-    private final Map<String, ComponentDto> componentDtoByUuid;
-
-    private CeQueueDtoToCeTask(String defaultOrganizationUuid) {
-      this(defaultOrganizationUuid, Collections.emptyMap());
-    }
-
-    private CeQueueDtoToCeTask(String defaultOrganizationUuid, Map<String, ComponentDto> componentDtoByUuid) {
-      this.defaultOrganizationUuid = requireNonNull(defaultOrganizationUuid, "defaultOrganizationUuid can't be null");
-      this.componentDtoByUuid = componentDtoByUuid;
-    }
-
-    @Override
-    @Nonnull
-    public CeTask apply(@Nonnull CeQueueDto dto) {
-      CeTask.Builder builder = new CeTask.Builder();
-      builder.setUuid(dto.getUuid());
-      builder.setType(dto.getTaskType());
-      builder.setSubmitterUuid(dto.getSubmitterUuid());
-      String componentUuid = dto.getComponentUuid();
-      if (componentUuid != null) {
-        builder.setComponentUuid(componentUuid);
-        ComponentDto component = componentDtoByUuid.get(componentUuid);
-        if (component != null) {
-          builder.setOrganizationUuid(component.getOrganizationUuid());
-          builder.setComponentKey(component.getDbKey());
-          builder.setComponentName(component.name());
-        }
+  private CeTask convertToTask(CeQueueDto taskDto, @Nullable ComponentDto componentDto) {
+    CeTask.Builder builder = new CeTask.Builder();
+    builder.setUuid(taskDto.getUuid());
+    builder.setType(taskDto.getTaskType());
+    builder.setSubmitterUuid(taskDto.getSubmitterUuid());
+    String componentUuid = taskDto.getComponentUuid();
+    if (componentUuid != null) {
+      builder.setComponentUuid(componentUuid);
+      if (componentDto != null) {
+        builder.setOrganizationUuid(componentDto.getOrganizationUuid());
+        builder.setComponentKey(componentDto.getDbKey());
+        builder.setComponentName(componentDto.name());
       }
-      // fixme this should be set from the CeQueueDto
-      if (!builder.hasOrganizationUuid()) {
-        builder.setOrganizationUuid(defaultOrganizationUuid);
-      }
-      return builder.build();
     }
+    // FIXME this should be set from the CeQueueDto
+    if (!builder.hasOrganizationUuid()) {
+      builder.setOrganizationUuid(defaultOrganizationProvider.get().getUuid());
+    }
+    return builder.build();
   }
 
 }
