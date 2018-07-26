@@ -153,6 +153,11 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
     }
 
     @Override
+    public void verifyCsrfState(String parameterName) {
+      delegate.verifyCsrfState(parameterName);
+    }
+
+    @Override
     public void redirectToRequestedPage() {
       delegate.redirectToRequestedPage();
     }

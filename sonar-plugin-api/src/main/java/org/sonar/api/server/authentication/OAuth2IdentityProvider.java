@@ -76,9 +76,19 @@ public interface OAuth2IdentityProvider extends IdentityProvider {
 
     /**
      * Check that the state is valid.
+     * The state will be read from the 'state' parameter of the HTTP request
+     *
      * It should only be called If {@link InitContext#generateCsrfState()} was used in the init
      */
     void verifyCsrfState();
+
+    /**
+     * Check that the state is valid
+     * The state will be read from the given parameter name of the HTTP request
+     *
+     * It should only be called If {@link InitContext#generateCsrfState()} was used in the init
+     */
+    void verifyCsrfState(String parameterName);
 
     /**
      * Redirect the request to the requested page.

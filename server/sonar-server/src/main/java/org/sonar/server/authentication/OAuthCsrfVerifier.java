@@ -37,6 +37,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 public class OAuthCsrfVerifier {
 
   private static final String CSRF_STATE_COOKIE = "OAUTHSTATE";
+  private static final String DEFAULT_STATE_PARAMETER_NAME = "state";
 
   public String generateState(HttpServletRequest request, HttpServletResponse response) {
     // Create a state token to prevent request forgery.
@@ -47,6 +48,10 @@ public class OAuthCsrfVerifier {
   }
 
   public void verifyState(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider) {
+    verifyState(request, response, provider, DEFAULT_STATE_PARAMETER_NAME);
+  }
+
+  public void verifyState(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider, String parameterName) {
     Cookie cookie = findCookie(CSRF_STATE_COOKIE, request)
       .orElseThrow(AuthenticationException.newBuilder()
         .setSource(Source.oauth2(provider))
@@ -56,7 +61,7 @@ public class OAuthCsrfVerifier {
     // remove cookie
     response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(null).setHttpOnly(true).setExpiry(0).build());
 
-    String stateInRequest = request.getParameter("state");
+    String stateInRequest = request.getParameter(parameterName);
     if (isBlank(stateInRequest) || !sha256Hex(stateInRequest).equals(hashInCookie)) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.oauth2(provider))

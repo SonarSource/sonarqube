@@ -114,6 +114,11 @@ public class OAuth2ContextFactory {
     }
 
     @Override
+    public void verifyCsrfState(String parameterName) {
+      csrfVerifier.verifyState(request, response, identityProvider, parameterName);
+    }
+
+    @Override
     public void redirectToRequestedPage() {
       try {
         Optional<String> redirectTo = oAuthParameters.getReturnTo(request);

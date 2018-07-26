@@ -74,6 +74,22 @@ public class OAuthCsrfVerifierTest {
   public void verify_state() {
     String state = "state";
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha256Hex(state))});
+    when(request.getParameter("aStateParameter")).thenReturn(state);
+
+    underTest.verifyState(request, response, identityProvider, "aStateParameter");
+
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie updatedCookie = cookieArgumentCaptor.getValue();
+    assertThat(updatedCookie.getName()).isEqualTo("OAUTHSTATE");
+    assertThat(updatedCookie.getValue()).isNull();
+    assertThat(updatedCookie.getPath()).isEqualTo("/");
+    assertThat(updatedCookie.getMaxAge()).isEqualTo(0);
+  }
+
+  @Test
+  public void verify_state_using_default_state_parameter() {
+    String state = "state";
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha256Hex(state))});
     when(request.getParameter("state")).thenReturn(state);
 
     underTest.verifyState(request, response, identityProvider);
