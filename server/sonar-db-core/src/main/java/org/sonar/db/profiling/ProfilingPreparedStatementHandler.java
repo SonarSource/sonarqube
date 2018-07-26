@@ -44,9 +44,9 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {
-        profiler.addContext("sql", SqlLogFormatter.formatSql(sql));
+        profiler.addContext("sql", SqlLogFormatter.reformatSql(sql));
         if (sqlParams.length > 0) {
-          profiler.addContext("params", SqlLogFormatter.formatParams(sqlParams));
+          profiler.addContext("params", SqlLogFormatter.reformatParams(sqlParams));
         }
         profiler.stopTrace("");
       }

@@ -41,7 +41,7 @@ class ProfilingStatementHandler implements InvocationHandler {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {
         String sql = (String) args[0];
-        profiler.addContext("sql", SqlLogFormatter.formatSql(sql));
+        profiler.addContext("sql", SqlLogFormatter.reformatSql(sql));
         profiler.stopTrace("");
       }
       return result;

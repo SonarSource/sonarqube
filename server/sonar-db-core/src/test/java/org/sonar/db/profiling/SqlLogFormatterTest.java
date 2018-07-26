@@ -27,31 +27,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SqlLogFormatterTest {
 
   @Test
-  public void formatSql() {
-    assertThat(SqlLogFormatter.formatSql("select *")).isEqualTo("select *");
+  public void reformatSql() {
+    assertThat(SqlLogFormatter.reformatSql("")).isEqualTo("");
+    assertThat(SqlLogFormatter.reformatSql("select *")).isEqualTo("select *");
+    assertThat(SqlLogFormatter.reformatSql("select *\nfrom issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.reformatSql("select *\n from issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.reformatSql("select *\n   from issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.reformatSql("select    *\n   from    issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.reformatSql("select    *\n\t\t  from  \tissues")).isEqualTo("select * from issues");
   }
 
   @Test
-  public void formatSql_removes_newlines() {
-    assertThat(SqlLogFormatter.formatSql("select *\nfrom issues")).isEqualTo("select * from issues");
+  public void reformatParam() {
+    assertThat(SqlLogFormatter.reformatParam(null)).isEqualTo("[null]");
+    assertThat(SqlLogFormatter.reformatParam("")).isEqualTo("");
+    assertThat(SqlLogFormatter.reformatParam("foo")).isEqualTo("foo");
+    assertThat(SqlLogFormatter.reformatParam("foo  bar ")).isEqualTo("foo  bar ");
   }
 
   @Test
-  public void formatParam() {
-    assertThat(SqlLogFormatter.formatParam(null)).isEqualTo("[null]");
-    assertThat(SqlLogFormatter.formatParam("")).isEqualTo("");
-    assertThat(SqlLogFormatter.formatParam("foo")).isEqualTo("foo");
+  public void reformatParam_escapes_newlines() {
+    assertThat(SqlLogFormatter.reformatParam("foo\n  bar\nbaz")).isEqualTo("foo\\n  bar\\nbaz");
   }
 
   @Test
-  public void formatParam_escapes_newlines() {
-    assertThat(SqlLogFormatter.formatParam("foo\nbar\nbaz")).isEqualTo("foo\\nbar\\nbaz");
-  }
-
-  @Test
-  public void formatParam_truncates_if_too_long() {
+  public void reformatParam_truncates_if_too_long() {
     String param = repeat("a", SqlLogFormatter.PARAM_MAX_WIDTH + 10);
-    String formattedParam = SqlLogFormatter.formatParam(param);
+    String formattedParam = SqlLogFormatter.reformatParam(param);
     assertThat(formattedParam)
       .hasSize(SqlLogFormatter.PARAM_MAX_WIDTH)
       .endsWith("...")
@@ -59,14 +61,14 @@ public class SqlLogFormatterTest {
   }
 
   @Test
-  public void formatParams() {
-    String formattedParams = SqlLogFormatter.formatParams(new Object[] {"foo", 42, null, true});
+  public void reformatParams() {
+    String formattedParams = SqlLogFormatter.reformatParams(new Object[] {"foo", 42, null, true});
     assertThat(formattedParams).isEqualTo("foo, 42, [null], true");
   }
 
   @Test
-  public void formatParams_returns_blank_if_zero_params() {
-    String formattedParams = SqlLogFormatter.formatParams(new Object[0]);
+  public void reformatParams_returns_blank_if_zero_params() {
+    String formattedParams = SqlLogFormatter.reformatParams(new Object[0]);
     assertThat(formattedParams).isEqualTo("");
   }
 
