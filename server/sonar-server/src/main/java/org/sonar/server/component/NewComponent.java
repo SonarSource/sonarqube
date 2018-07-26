@@ -64,7 +64,7 @@ public class NewComponent {
   }
 
   @CheckForNull
-  public String branch() {
+  public String deprecatedBranch() {
     return branch;
   }
 
@@ -98,8 +98,8 @@ public class NewComponent {
       return this;
     }
 
-    public Builder setBranch(@Nullable String branch) {
-      this.branch = branch;
+    public Builder setDeprecatedBranch(@Nullable String s) {
+      this.branch = s;
       return this;
     }
 

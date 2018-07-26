@@ -124,7 +124,7 @@ public class CreateAction implements ProjectsWsAction {
         .setOrganizationUuid(organization.getUuid())
         .setKey(request.getKey())
         .setName(request.getName())
-        .setBranch(request.getBranch())
+        .setDeprecatedBranch(request.getBranch())
         .setPrivate(changeToPrivate)
         .setQualifier(PROJECT)
         .build(),

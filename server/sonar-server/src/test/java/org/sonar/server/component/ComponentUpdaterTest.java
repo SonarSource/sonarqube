@@ -141,7 +141,7 @@ public class ComponentUpdaterTest {
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
-        .setBranch("origin/master")
+        .setDeprecatedBranch("origin/master")
         .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .build(),
       null);
@@ -320,7 +320,7 @@ public class ComponentUpdaterTest {
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
         .setName(DEFAULT_PROJECT_NAME)
-        .setBranch("origin?branch")
+        .setDeprecatedBranch("origin?branch")
         .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .build(),
       null);

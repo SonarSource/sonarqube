@@ -74,15 +74,15 @@ public class ReportSubmitter {
    * @throws NotFoundException if the organization with the specified key does not exist
    * @throws IllegalArgumentException if the organization with the specified key is not the organization of the specified project (when it already exists in DB)
    */
-  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectBranch, @Nullable String projectName, Map<String, String> characteristics,
+  public CeTask submit(String organizationKey, String projectKey, @Nullable String deprecatedBranch, @Nullable String projectName, Map<String, String> characteristics,
     InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
-      String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
+      String effectiveProjectKey = ComponentKeys.createKey(projectKey, deprecatedBranch);
       Optional<ComponentDto> component = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
       validateProject(dbSession, component, projectKey);
       ensureOrganizationIsConsistent(component, organizationDto);
-      ComponentDto project = component.or(() -> createProject(dbSession, organizationDto, projectKey, projectBranch, projectName));
+      ComponentDto project = component.or(() -> createProject(dbSession, organizationDto, projectKey, deprecatedBranch, projectName));
       checkScanPermission(project);
       return submitReport(dbSession, reportInput, project, characteristics);
     }
@@ -152,7 +152,7 @@ public class ReportSubmitter {
       .setOrganizationUuid(organization.getUuid())
       .setKey(projectKey)
       .setName(defaultIfBlank(projectName, projectKey))
-      .setBranch(deprecatedBranch)
+      .setDeprecatedBranch(deprecatedBranch)
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(newProjectPrivate)
       .build();

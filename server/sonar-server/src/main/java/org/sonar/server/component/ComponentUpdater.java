@@ -87,8 +87,8 @@ public class ComponentUpdater {
   }
 
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
-    checkBranchFormat(newComponent.qualifier(), newComponent.branch());
-    String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.branch());
+    checkBranchFormat(newComponent.qualifier(), newComponent.deprecatedBranch());
+    String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.deprecatedBranch());
     checkRequest(!dbClient.componentDao().selectByKey(session, keyWithBranch).isPresent(),
       "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), keyWithBranch);
 
