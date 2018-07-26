@@ -123,7 +123,7 @@ public class CeWorkerImpl implements CeWorker {
 
   private void executeTask(CeTask task) {
     callListeners(t -> t.onStart(task));
-    Profiler ceProfiler = startActivityProfiler(task);
+    Profiler ceProfiler = startLogProfiler(task);
 
     CeActivityDto.Status status = CeActivityDto.Status.FAILED;
     CeTaskResult taskResult = null;
@@ -173,23 +173,13 @@ public class CeWorkerImpl implements CeWorker {
       }
     } finally {
       // finalize
-      stopActivityProfiler(ceProfiler, task, status);
+      stopLogProfiler(ceProfiler, status);
       callListeners(t -> t.onEnd(task, status, taskResult, error));
     }
   }
 
-  private static Profiler startActivityProfiler(CeTask task) {
+  private static Profiler startLogProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG);
-    addContext(profiler, task, null);
-    return profiler.startInfo("Execute task");
-  }
-
-  private static void stopActivityProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
-    addContext(profiler, task, status);
-    profiler.stopInfo("Executed task");
-  }
-
-  private static void addContext(Profiler profiler, CeTask task, @Nullable CeActivityDto.Status status) {
     profiler
       .logTimeLast(true)
       .addContext("project", task.getComponentKey())
@@ -199,8 +189,11 @@ public class CeWorkerImpl implements CeWorker {
     if (submitterLogin != null) {
       profiler.addContext("submitter", submitterLogin);
     }
-    if (status != null) {
-      profiler.addContext("status", status.name());
-    }
+    return profiler.startInfo("Execute task");
+  }
+
+  private static void stopLogProfiler(Profiler profiler, CeActivityDto.Status status) {
+    profiler.addContext("status", status.name());
+    profiler.stopInfo("Executed task");
   }
 }
