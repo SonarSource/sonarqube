@@ -124,6 +124,7 @@
   border: none;
   background: transparent;
   color: var(--darkBlue);
+  border-bottom: 1px solid var(--lightBlue);
   font-weight: 400;
   font-size: inherit;
   line-height: inherit;
