@@ -75,6 +75,16 @@ public class ComponentUpdater {
    * - Index component if es indexes
    */
   public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
+    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userId);
+    commitAndIndex(dbSession, componentDto);
+    return componentDto;
+  }
+
+  /**
+   * Create component without committing.
+   * Don't forget to call commitAndIndex(...) when ready to commit.
+   */
+  public ComponentDto createWithoutCommit(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto componentDto = createRootComponent(dbSession, newComponent);
     if (isRootProject(componentDto)) {
@@ -82,8 +92,11 @@ public class ComponentUpdater {
     }
     removeDuplicatedProjects(dbSession, componentDto.getDbKey());
     handlePermissionTemplate(dbSession, componentDto, newComponent.getOrganizationUuid(), userId);
-    projectIndexers.commitAndIndex(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
     return componentDto;
+  }
+
+  public void commitAndIndex(DbSession dbSession, ComponentDto componentDto) {
+    projectIndexers.commitAndIndex(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
   }
 
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
