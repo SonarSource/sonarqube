@@ -122,7 +122,7 @@ The resulting table of contents will also list all h1 items, but h1 is used for 
   * it is possible to reference app pages only inside SonarCloud documentation page (`scope: sonarcloud`), because these links are not valid on the static documentation
   
 #### Smart Links
-Use this syntax to conditionally link to pages within SonarQube. Specifically, in the generated website, links will be suppressed, but the link text will be shown. In the embedded documentation, administrative links will only be linked for administrative users.
+Use this syntax to conditionally link from the embedded docs to pages within the SonarQube application. Specifically, in the static website links will be suppressed, but the link text will be shown. In the embedded documentation, administrative links will only be linked for administrative users.
 * Internal SonarQube app page: `[Link text](/#sonarqube#/...)`
   * On SonarCloud, only the link text will be displayed, not wrapped into a link tag
 * Internal SonarQube app page: `[Link text](/#sonarqube-admin#/...)`
