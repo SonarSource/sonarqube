@@ -57,6 +57,7 @@ import org.sonar.server.rule.ExternalRuleCreator;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -67,7 +68,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
-  public static final long NOW = 1_400_000_000_000L;
+  private static final long NOW = 1_400_000_000_000L;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -98,7 +99,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    underTest = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache, new IssueStorage());
+    underTest = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache,
+      new IssueStorage());
   }
 
   @After
@@ -143,7 +145,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setCreationDate(new Date(NOW))))
       .close();
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
     assertThat(result.getKey()).isEqualTo("ISSUE");
@@ -156,6 +159,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+    assertThat(context.getStatistics().getAll()).containsOnly(
+      entry("inserts", "1"), entry("updates", "0"), entry("untouched", "0"));
   }
 
   @Test
@@ -193,7 +198,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setDiff("technicalDebt", null, 1L)
         .setCreationDate(new Date(NOW))))
       .close();
-    underTest.execute(new TestComputationStepContext());
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
     assertThat(result.getKey()).isEqualTo("ISSUE");
@@ -206,6 +213,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+    assertThat(context.getStatistics().getAll()).containsOnly(
+      entry("inserts", "1"), entry("updates", "0"), entry("untouched", "0"));
   }
 
   @Test
@@ -230,7 +239,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setNew(true)
       .setType(RuleType.BUG)).close();
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
     assertThat(result.getKey()).isEqualTo("ISSUE");
@@ -240,6 +250,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getSeverity()).isEqualTo(BLOCKER);
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(context.getStatistics().getAll()).containsOnly(
+      entry("inserts", "1"), entry("updates", "0"), entry("untouched", "0"));
   }
 
   @Test
@@ -262,11 +274,15 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setNew(false)
         .setChanged(true))
       .close();
-    underTest.execute(new TestComputationStepContext());
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CLOSED);
     assertThat(issueReloaded.getResolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(context.getStatistics().getAll()).containsOnly(
+      entry("inserts", "0"), entry("updates", "1"), entry("untouched", "0"));
   }
 
   @Test
@@ -296,13 +312,17 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setCreatedAt(new Date(NOW))
           .setNew(true)))
       .close();
-    underTest.execute(new TestComputationStepContext());
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
     assertThat(issueChangeDto)
       .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserUuid, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_COMMENT, "john_uuid", "Some text", issue.getKey(), NOW);
+    assertThat(context.getStatistics().getAll()).containsOnly(
+      entry("inserts", "0"), entry("updates", "1"), entry("untouched", "0"));
   }
 
   @Test
@@ -330,13 +350,17 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setDiff("technicalDebt", null, 1L)
           .setCreationDate(new Date(NOW))))
       .close();
-    underTest.execute(new TestComputationStepContext());
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
     assertThat(issueChangeDto)
       .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserUuid, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_FIELD_CHANGE, "john_uuid", "technicalDebt=1", issue.getKey(), NOW);
+    assertThat(context.getStatistics().getAll()).containsOnly(
+      entry("inserts", "0"), entry("updates", "1"), entry("untouched", "0"));
   }
 
 }

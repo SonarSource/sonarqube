@@ -45,11 +45,12 @@ public interface ComputationStep {
    */
   interface Statistics {
     /**
+     * @return this
      * @throws NullPointerException if key or value is null
      * @throws IllegalArgumentException if key has already been set
      * @throws IllegalArgumentException if key is "time", to avoid conflict with the profiler field with same name
      */
-    void add(String key, Object value);
+    Statistics add(String key, Object value);
   }
 
   interface Context {

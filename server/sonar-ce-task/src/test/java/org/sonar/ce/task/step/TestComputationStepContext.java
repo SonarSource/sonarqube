@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class TestComputationStepContext implements ComputationStep.Context {
 
-  private final ComputationStep.Statistics statistics = new TestStatistics();
+  private final TestStatistics statistics = new TestStatistics();
 
   @Override
-  public ComputationStep.Statistics getStatistics() {
+  public TestStatistics getStatistics() {
     return statistics;
   }
 
@@ -43,12 +43,13 @@ public class TestComputationStepContext implements ComputationStep.Context {
     private final Map<String, Object> map = new HashMap<>();
 
     @Override
-    public void add(String key, Object value) {
+    public ComputationStep.Statistics add(String key, Object value) {
       requireNonNull(key, "Statistic has null key");
       requireNonNull(value, () -> String.format("Statistic with key [%s] has null value", key));
       checkArgument(!key.equalsIgnoreCase("time"), "Statistic with key [time] is not accepted");
       checkArgument(!map.containsKey(key), "Statistic with key [%s] is already present", key);
       map.put(key, value);
+      return this;
     }
 
     public Map<String, Object> getAll() {

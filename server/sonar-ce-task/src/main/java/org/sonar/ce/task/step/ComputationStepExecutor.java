@@ -94,12 +94,13 @@ public final class ComputationStepExecutor {
     }
 
     @Override
-    public void add(String key, Object value) {
+    public ComputationStep.Statistics add(String key, Object value) {
       requireNonNull(key, "Statistic has null key");
       requireNonNull(value, () -> String.format("Statistic with key [%s] has null value", key));
       checkArgument(!key.equalsIgnoreCase("time"), "Statistic with key [time] is not accepted");
       checkArgument(!profiler.hasContext(key), "Statistic with key [%s] is already present", key);
       profiler.addContext(key, value);
+      return this;
     }
   }
 

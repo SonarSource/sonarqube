@@ -54,6 +54,7 @@ public class PersistIssuesStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
+    IssueStatistics statistics = new IssueStatistics();
     try (DbSession dbSession = dbClient.openSession(true);
       CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
 
@@ -61,26 +62,32 @@ public class PersistIssuesStep implements ComputationStep {
       IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
-        boolean saved = persistIssueIfRequired(mapper, issue);
+        boolean saved = persistIssueIfRequired(mapper, issue, statistics);
         if (saved) {
           issueStorage.insertChanges(changeMapper, issue);
         }
       }
       dbSession.flushStatements();
       dbSession.commit();
+    } finally {
+      statistics.dumpTo(context);
     }
   }
 
-  private boolean persistIssueIfRequired(IssueMapper mapper, DefaultIssue issue) {
+  private boolean persistIssueIfRequired(IssueMapper mapper, DefaultIssue issue, IssueStatistics issueStatistics) {
     if (issue.isNew() || issue.isCopied()) {
       persistNewIssue(mapper, issue);
+      issueStatistics.inserts++;
       return true;
     }
 
     if (issue.isChanged()) {
       persistChangedIssue(mapper, issue);
+      issueStatistics.updates++;
       return true;
     }
+
+    issueStatistics.untouched++;
     return false;
   }
 
@@ -103,5 +110,18 @@ public class PersistIssuesStep implements ComputationStep {
   @Override
   public String getDescription() {
     return "Persist issues";
+  }
+
+  private static class IssueStatistics {
+    private int inserts = 0;
+    private int updates = 0;
+    private int untouched = 0;
+
+    private void dumpTo(ComputationStep.Context context) {
+      context.getStatistics()
+        .add("inserts", String.valueOf(inserts))
+        .add("updates", String.valueOf(updates))
+        .add("untouched", String.valueOf(untouched));
+    }
   }
 }
