@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
+import { Link } from 'react-router';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
 import { Profile } from '../types';
@@ -100,6 +101,12 @@ export default class PageHeader extends React.PureComponent<Props, State> {
           {translate('quality_profiles.intro1')}
           <br />
           {translate('quality_profiles.intro2')}
+          <Link
+            className="spacer-left"
+            target="_blank"
+            to={{ pathname: '/documentation/quality-profiles' }}>
+            {translate('learn_more')}
+          </Link>
         </div>
 
         {this.state.restoreFormOpen && (

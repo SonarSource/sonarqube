@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
+import { Link } from 'react-router';
 import VulnerabilityList from './VulnerabilityList';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
@@ -135,6 +136,12 @@ export default class App extends React.PureComponent<Props, State> {
           <h1 className="page-title">{translate('security_reports', type, 'page')}</h1>
           <div className="page-description">
             {translate('security_reports', type, 'description')}
+            <Link
+              className="spacer-left"
+              target="_blank"
+              to={{ pathname: '/documentation/security-reports' }}>
+              {translate('learn_more')}
+            </Link>
           </div>
         </header>
         <div className="display-inline-flex-center">

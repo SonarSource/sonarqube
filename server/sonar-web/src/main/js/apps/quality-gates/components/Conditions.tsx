@@ -123,7 +123,15 @@ export default class Conditions extends React.PureComponent<Props> {
           <table className="data zebra zebra-hover" id="quality-gate-conditions">
             <thead>
               <tr>
-                <th className="nowrap">{translate('quality_gates.conditions.metric')}</th>
+                <th className="nowrap">
+                  <div className="display-inline-flex-center">
+                    {translate('quality_gates.conditions.metric')}
+                    <DocTooltip
+                      className="spacer-left"
+                      doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/metric.md')}
+                    />
+                  </div>
+                </th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.leak')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.operator')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.warning')}</th>

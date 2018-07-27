@@ -25,6 +25,19 @@ exports[`handle checkbox for cwe display 1`] = `
       className="page-description"
     >
       security_reports.owaspTop10.description
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/security-reports",
+          }
+        }
+      >
+        learn_more
+      </Link>
     </div>
   </header>
   <div
@@ -95,6 +108,19 @@ exports[`handle checkbox for cwe display 2`] = `
       className="page-description"
     >
       security_reports.owaspTop10.description
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/security-reports",
+          }
+        }
+      >
+        learn_more
+      </Link>
     </div>
   </header>
   <div
@@ -208,6 +234,19 @@ exports[`renders owaspTop10 1`] = `
       className="page-description"
     >
       security_reports.owaspTop10.description
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/security-reports",
+          }
+        }
+      >
+        learn_more
+      </Link>
     </div>
   </header>
   <div
@@ -278,6 +317,19 @@ exports[`renders sansTop25 1`] = `
       className="page-description"
     >
       security_reports.sansTop25.description
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/security-reports",
+          }
+        }
+      >
+        learn_more
+      </Link>
     </div>
   </header>
   <div
@@ -348,6 +400,19 @@ exports[`renders with cwe 1`] = `
       className="page-description"
     >
       security_reports.owaspTop10.description
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/security-reports",
+          }
+        }
+      >
+        learn_more
+      </Link>
     </div>
   </header>
   <div
