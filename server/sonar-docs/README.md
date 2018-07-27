@@ -109,8 +109,8 @@ this content is displayed on <!-- sonarcloud -->SonarCloud<!-- /sonarcloud --><!
 
 ### Page-level ToC
 Basic syntax: `## Table of Contents`
-Lists all h2 & h3 
-
+Lists all h2 & h3  
+The resulting table of contents will also list all h1 items, but h1 is used for the page title, and by convention should not also be used further down the page.
 
 ### Formatting
 #### Links
