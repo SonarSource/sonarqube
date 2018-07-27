@@ -37,6 +37,7 @@ import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -81,13 +82,13 @@ public class PersistIssuesStepTest extends BaseStepTest {
   private DbSession session = db.getSession();
   private DbClient dbClient = db.getDbClient();
   private IssueCache issueCache;
-  private ComputationStep step;
+  private ComputationStep underTest;
 
   private ExternalRuleCreator externalRuleCreator = mock(ExternalRuleCreator.class);
 
   @Override
   protected ComputationStep step() {
-    return step;
+    return underTest;
   }
 
   @Before
@@ -97,7 +98,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache, new IssueStorage());
+    underTest = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache, new IssueStorage());
   }
 
   @After
@@ -142,7 +143,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setCreationDate(new Date(NOW))))
       .close();
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
     assertThat(result.getKey()).isEqualTo("ISSUE");
@@ -192,7 +193,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setDiff("technicalDebt", null, 1L)
         .setCreationDate(new Date(NOW))))
       .close();
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
     assertThat(result.getKey()).isEqualTo("ISSUE");
@@ -229,7 +230,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setNew(true)
       .setType(RuleType.BUG)).close();
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
     assertThat(result.getKey()).isEqualTo("ISSUE");
@@ -261,7 +262,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setNew(false)
         .setChanged(true))
       .close();
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CLOSED);
@@ -295,7 +296,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setCreatedAt(new Date(NOW))
           .setNew(true)))
       .close();
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
     assertThat(issueChangeDto)
@@ -329,7 +330,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setDiff("technicalDebt", null, 1L)
           .setCreationDate(new Date(NOW))))
       .close();
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
     assertThat(issueChangeDto)

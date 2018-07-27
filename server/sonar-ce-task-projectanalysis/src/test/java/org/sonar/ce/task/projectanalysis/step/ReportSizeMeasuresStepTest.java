@@ -28,6 +28,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -110,7 +111,7 @@ public class ReportSizeMeasuresStepTest {
 
   @Test
   public void verify_LINES_and_FILE_and_DIRECTORY_computation_and_aggregation() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyMeasuresOnFile(FILE_1_REF, 1, 1);
     verifyMeasuresOnFile(FILE_2_REF, 2, 1);
@@ -140,7 +141,7 @@ public class ReportSizeMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_2_REF, metricKey, newMeasureBuilder().create(6));
     measureRepository.addRawMeasure(UNIT_TEST_1_REF, metricKey, newMeasureBuilder().create(3));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyMeasuresOnFile(FILE_1_REF, 1, 1);
     verifyMeasuresOnFile(FILE_2_REF, 2, 1);
@@ -164,7 +165,7 @@ public class ReportSizeMeasuresStepTest {
     // UNIT_TEST_1_REF has no metric1
     measureRepository.addRawMeasure(UNIT_TEST_1_REF, metric2Key, newMeasureBuilder().create(90));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyMeasuresOnFile(FILE_1_REF, 1, 1);
     verifyMeasuresOnFile(FILE_2_REF, 2, 1);

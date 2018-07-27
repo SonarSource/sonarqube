@@ -59,7 +59,7 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(true)) {
       Component root = treeRootHolder.getRoot();
       Metric metric = metricRepository.getByKey(QUALITY_PROFILES_KEY);

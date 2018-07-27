@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -96,7 +97,7 @@ public class ReportLanguageDistributionMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_3_REF, NCLOC_KEY, newMeasureBuilder().create(6));
     measureRepository.addRawMeasure(FILE_4_REF, NCLOC_KEY, newMeasureBuilder().create(2));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("xoo=10");
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("xoo=8");
@@ -111,7 +112,7 @@ public class ReportLanguageDistributionMeasuresStepTest {
 
   @Test
   public void do_not_compute_ncloc_language_distribution_when_no_ncloc() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();

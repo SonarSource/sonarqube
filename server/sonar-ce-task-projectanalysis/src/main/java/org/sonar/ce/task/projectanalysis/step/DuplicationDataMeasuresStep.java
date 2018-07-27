@@ -62,7 +62,7 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     new DepthTraversalTypeAwareCrawler(new DuplicationVisitor())
       .visit(treeRootHolder.getRoot());
   }

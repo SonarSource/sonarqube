@@ -360,4 +360,15 @@ public class DefaultProfilerTest {
       assertThat(e).hasMessage("Profiler must be started before being stopped");
     }
   }
+
+  @Test
+  public void hasContext() {
+    assertThat(underTest.hasContext("foo")).isFalse();
+
+    underTest.addContext("foo", "bar");
+    assertThat(underTest.hasContext("foo")).isTrue();
+
+    underTest.addContext("foo", null);
+    assertThat(underTest.hasContext("foo")).isFalse();
+  }
 }

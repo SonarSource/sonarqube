@@ -30,6 +30,7 @@ import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.qualitygate.MutableQualityGateHolderRule;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateService;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static java.util.Collections.emptyList;
@@ -62,7 +63,7 @@ public class LoadQualityGateStepTest {
     QualityGate qualityGate = mock(QualityGate.class);
     when(qualityGateService.findById(ShortLivingBranchQualityGate.ID)).thenReturn(Optional.of(qualityGate));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
   }
@@ -73,7 +74,7 @@ public class LoadQualityGateStepTest {
     QualityGate qualityGate = mock(QualityGate.class);
     when(qualityGateService.findById(ShortLivingBranchQualityGate.ID)).thenReturn(Optional.of(qualityGate));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
   }
@@ -84,7 +85,7 @@ public class LoadQualityGateStepTest {
     QualityGate defaultGate = mock(QualityGate.class);
     when(qualityGateService.findDefaultQualityGate(any())).thenReturn(defaultGate);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(defaultGate);
   }
@@ -96,7 +97,7 @@ public class LoadQualityGateStepTest {
 
     when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().setProperty("sonar.qualitygate", "10 sds").asConfig());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -106,7 +107,7 @@ public class LoadQualityGateStepTest {
     when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().setProperty("sonar.qualitygate", 10).asConfig());
     when(qualityGateService.findById(10)).thenReturn(Optional.of(qualityGate));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
   }

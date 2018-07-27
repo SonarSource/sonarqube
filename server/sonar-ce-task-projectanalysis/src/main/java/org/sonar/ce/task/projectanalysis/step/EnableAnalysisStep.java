@@ -39,7 +39,7 @@ public class EnableAnalysisStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Component project = treeRootHolder.getRoot();
       dbClient.snapshotDao().switchIsLastFlagAndSetProcessedStatus(dbSession, project.getUuid(), analysisMetadataHolder.getUuid());

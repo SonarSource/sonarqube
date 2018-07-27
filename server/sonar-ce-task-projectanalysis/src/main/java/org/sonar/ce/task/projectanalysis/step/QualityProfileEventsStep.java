@@ -70,7 +70,7 @@ public class QualityProfileEventsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     new DepthTraversalTypeAwareCrawler(
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, POST_ORDER) {
         @Override

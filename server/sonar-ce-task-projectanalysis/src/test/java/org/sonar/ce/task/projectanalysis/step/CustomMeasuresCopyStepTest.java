@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -127,7 +128,7 @@ public class CustomMeasuresCopyStepTest {
           ReportComponent.builder(MODULE, MODULE2_REF).setUuid(MODULE2_UUID).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasureValue(FILE1_REF);
     assertNoRawMeasureValue(FILE2_REF);
@@ -152,7 +153,7 @@ public class CustomMeasuresCopyStepTest {
           ViewsComponent.builder(PROJECT_VIEW, PROJECT_VIEW_REF).setUuid("PROJECT_VIEW").build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasureValue(PROJECT_VIEW_REF);
     assertRawMeasureValue(SUBVIEW_REF, FLOAT_METRIC.getKey(), 3.1d);

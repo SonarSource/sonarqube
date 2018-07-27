@@ -38,6 +38,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -93,7 +94,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setKey("ROOT_KEY").setVersion("1.1").build());
 
     // No project, no snapshot
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }
@@ -107,7 +108,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     String textDate = "2008-11-22";
 
     settings.setProperty("sonar.leak.period", textDate);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
@@ -125,7 +126,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project);
 
     settings.setProperty("sonar.leak.period", "UNKNWOWN VERSION");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }
@@ -138,7 +139,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project);
 
     settings.setProperty("sonar.leak.period", "");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }
@@ -151,7 +152,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project);
 
     settings.setProperty("sonar.leak.period", "100");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }
@@ -169,7 +170,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     String textDate = "2008-11-22";
     settings.setProperty("sonar.leak.period", textDate);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // Return analysis from given date 2008-11-22
     Period period = periodsHolder.getPeriod();
@@ -196,7 +197,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     String date = "2008-11-13";
     settings.setProperty("sonar.leak.period", date);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-20
     Period period = periodsHolder.getPeriod();
@@ -216,7 +217,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     // No analysis at and after this date
     settings.setProperty("sonar.leak.period", "2008-11-30");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }
@@ -233,7 +234,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project);
 
     settings.setProperty("sonar.leak.period", "10");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // return analysis from 2008-11-20
     Period period = periodsHolder.getPeriod();
@@ -254,7 +255,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project);
 
     settings.setProperty("sonar.leak.period", "0");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }
@@ -274,7 +275,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project, "1.1");
 
     settings.setProperty("sonar.leak.period", "previous_version");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-12
     Period period = periodsHolder.getPeriod();
@@ -301,7 +302,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project, "1.1");
 
     settings.setProperty("sonar.leak.period", "previous_version");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-11
     Period period = periodsHolder.getPeriod();
@@ -319,7 +320,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project);
 
     settings.setProperty("sonar.leak.period", "previous_version");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }
@@ -334,7 +335,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project, "1.1");
 
     settings.setProperty("sonar.leak.period", "previous_version");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
@@ -352,7 +353,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project, "1.1");
 
     settings.setProperty("sonar.leak.period", "previous_version");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
@@ -377,7 +378,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project, "1.1");
 
     settings.setProperty("sonar.leak.period", "1.0");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-11
     Period period = periodsHolder.getPeriod();
@@ -398,7 +399,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(project);
 
     settings.setProperty("sonar.leak.period", "0.8");
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(periodsHolder.getPeriod()).isNull();
   }

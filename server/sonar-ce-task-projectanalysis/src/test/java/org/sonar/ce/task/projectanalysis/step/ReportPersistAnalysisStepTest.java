@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -115,7 +116,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(directory, directoryDto.getId());
     dbIdsRepository.setComponentId(file, fileDto.getId());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
 
@@ -147,7 +148,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, projectDto.getId());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(projectSnapshot.getPeriodMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
@@ -187,7 +188,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(directory, directoryDto.getId());
     dbIdsRepository.setComponentId(file, fileDto.getId());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(newProjectSnapshot.getPeriodMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
@@ -205,7 +206,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, projectDto.getId());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(projectSnapshot.getPeriodMode()).isNull();

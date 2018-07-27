@@ -57,7 +57,7 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     Metric qProfilesMetric = metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY);
     new PathAwareCrawler<>(new QProfileAggregationComponentVisitor(qProfilesMetric))
       .visit(treeRootHolder.getRoot());

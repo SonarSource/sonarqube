@@ -34,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -217,7 +218,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   private void execute(boolean persistDirectories) {
     new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository, persistDirectories)
-      .execute();
+      .execute(new TestComputationStepContext());
   }
 
   private Optional<MeasureDto> selectMeasure(String componentUuid, Metric metric) {

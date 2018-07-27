@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -136,7 +137,7 @@ public class ViewsComplexityMeasuresStepTest {
     addRawMeasureValue(PROJECT_VIEW_2_REF, metricKey, 40);
     addRawMeasureValue(PROJECT_VIEW_3_REF, metricKey, 20);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoAddedRawMeasureOnProjectViews();
     assertAddedRawMeasures(SUB_SUBVIEW_1_REF, metricKey, 50);
@@ -165,7 +166,7 @@ public class ViewsComplexityMeasuresStepTest {
     addRawMeasure(PROJECT_VIEW_2_REF, metricKey, "0.5=0;3.5=2;6.5=1");
     addRawMeasure(PROJECT_VIEW_3_REF, metricKey, "0.5=1;3.5=1;6.5=0");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoAddedRawMeasureOnProjectViews();
     assertAddedRawMeasures(SUB_SUBVIEW_1_REF, metricKey, "0.5=3;3.5=7;6.5=10");
@@ -199,7 +200,7 @@ public class ViewsComplexityMeasuresStepTest {
     addRawMeasureValue(PROJECT_VIEW_3_REF, mainMetric, 6);
     addRawMeasureValue(PROJECT_VIEW_3_REF, byMetric, 8);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoAddedRawMeasureOnProjectViews();
     assertAddedRawMeasures(SUB_SUBVIEW_1_REF, metricKey, 2d);

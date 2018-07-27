@@ -53,7 +53,7 @@ public class CustomMeasuresCopyStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession session = dbClient.openSession(false)) {
       CrawlerDepthLimit depthLimit = new CrawlerDepthLimit.Builder(Component.Type.MODULE)
         .withViewsMaxDepth(Component.Type.PROJECT_VIEW);

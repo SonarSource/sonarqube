@@ -53,7 +53,7 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     final List<AnalysisPropertyDto> analysisPropertyDtos = new ArrayList<>();
     reportReader.readContextProperties().forEachRemaining(
       contextProperty -> {

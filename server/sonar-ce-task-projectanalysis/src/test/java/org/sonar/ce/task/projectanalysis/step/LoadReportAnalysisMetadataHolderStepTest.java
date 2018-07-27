@@ -41,6 +41,7 @@ import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
@@ -96,7 +97,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setRootComponentRef(1)
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(analysisMetadataHolder.getRootComponentRef()).isEqualTo(1);
   }
@@ -108,7 +109,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setAnalysisDate(ANALYSIS_DATE)
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(analysisMetadataHolder.getAnalysisDate()).isEqualTo(ANALYSIS_DATE);
   }
@@ -120,7 +121,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setRootComponentRef(1)
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Project project = analysisMetadataHolder.getProject();
     assertThat(project.getUuid()).isEqualTo(this.project.uuid());
@@ -136,7 +137,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setCrossProjectDuplicationActivated(true)
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(true);
   }
@@ -148,7 +149,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setCrossProjectDuplicationActivated(false)
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
   }
@@ -159,7 +160,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
       newBatchReportBuilder()
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
   }
@@ -176,7 +177,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Compute Engine task component key is null. Project with UUID prj_uuid must have been deleted since report was uploaded. Can not proceed.");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -192,7 +193,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     expectedException
       .expectMessage("ProjectKey in report (" + otherProject.getDbKey() + ") is not consistent with projectKey under which the report has been submitted (" + PROJECT_KEY + ")");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -205,7 +206,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .build());
 
     try {
-      underTest.execute();
+      underTest.execute(new TestComputationStepContext());
     } catch (MessageException e) {
       assertThat(analysisMetadataHolder.getBranch()).isNotNull();
     }
@@ -222,7 +223,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .build());
 
     try {
-      underTest.execute();
+      underTest.execute(new TestComputationStepContext());
     } catch (MessageException e) {
       assertThat(analysisMetadataHolder.getAnalysisDate()).isEqualTo(ANALYSIS_DATE);
     }
@@ -241,7 +242,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     expectedException.expectMessage("Report does not specify an OrganizationKey but it has been submitted to another organization (" +
       nonDefaultOrganizationDto.getKey() + ") than the default one (" + db.getDefaultOrganization().getKey() + ")");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -250,7 +251,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
       newBatchReportBuilder()
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Organization organization = analysisMetadataHolder.getOrganization();
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
@@ -268,7 +269,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .build());
     when(organizationFlags.isEnabled(any())).thenReturn(organizationEnabled);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Organization organization = analysisMetadataHolder.getOrganization();
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
@@ -292,7 +293,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     ComputationStep underTest = createStep(createCeTask(project.getDbKey(), nonDefaultOrganizationDto.getUuid()));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Organization organization = analysisMetadataHolder.getOrganization();
     assertThat(organization.getUuid()).isEqualTo(nonDefaultOrganizationDto.getUuid());
@@ -325,7 +326,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     ComputationStep underTest = createStep(createCeTask(project.getDbKey(), organization.getUuid()));
 
     // no errors
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -349,7 +350,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Quality profiles with following keys don't exist in organization [" + organization1.getKey() + "]: phpInOrg2");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -365,7 +366,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     ComputationStep underTest = createStep(createCeTask(project.getDbKey(), organization.getUuid()));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -384,7 +385,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     metadataBuilder.putPluginsByKey("uninstalled", ScannerReport.Metadata.Plugin.newBuilder().setKey("uninstalled").setUpdatedAt(40L).build());
     reportReader.setMetadata(metadataBuilder.build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Assertions.assertThat(analysisMetadataHolder.getScannerPluginsByKey().values()).extracting(ScannerPlugin::getKey, ScannerPlugin::getBasePluginKey, ScannerPlugin::getUpdatedAt)
       .containsExactlyInAnyOrder(

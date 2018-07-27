@@ -58,7 +58,7 @@ public class PersistEventsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       long analysisDate = analysisMetadataHolder.getAnalysisDate();
       new DepthTraversalTypeAwareCrawler(new PersistEventComponentVisitor(dbSession, analysisDate))

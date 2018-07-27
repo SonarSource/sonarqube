@@ -77,7 +77,7 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     if (crossProjectDuplicationStatusHolder.isEnabled()) {
       new DepthTraversalTypeAwareCrawler(new CrossProjectDuplicationVisitor()).visit(treeRootHolder.getRoot());
     }

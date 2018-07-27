@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
@@ -73,7 +74,7 @@ public class PersistAnalysisPropertiesStepTest {
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(8);
     List<AnalysisPropertyDto> propertyDtos = dbTester.getDbClient()
@@ -103,7 +104,7 @@ public class PersistAnalysisPropertiesStepTest {
       newContextProperty("sonar.pullREQUEST.doo", "doh")).iterator()));
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
   }
@@ -113,7 +114,8 @@ public class PersistAnalysisPropertiesStepTest {
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.emptyCloseableIterator());
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
+
     assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
   }
 

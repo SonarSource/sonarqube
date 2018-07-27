@@ -51,6 +51,7 @@ import org.sonar.ce.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolderRule;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatus;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatusHolder;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.mockito.ArgumentMatchers.any;
@@ -121,7 +122,7 @@ public class QualityGateMeasuresStepTest {
 
     treeRootHolder.setRoot(notAProjectComponent);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     measureRepository.getAddedRawMeasures(1).isEmpty();
   }
@@ -130,7 +131,7 @@ public class QualityGateMeasuresStepTest {
   public void no_measure_if_there_is_no_qualitygate() {
     qualityGateHolder.setQualityGate(null);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     measureRepository.getAddedRawMeasures(PROJECT_COMPONENT).isEmpty();
   }
@@ -139,7 +140,7 @@ public class QualityGateMeasuresStepTest {
   public void mutableQualityGateStatusHolder_is_not_populated_if_there_is_no_qualitygate() {
     qualityGateHolder.setQualityGate(null);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Quality gate status has not been set yet");
@@ -152,7 +153,7 @@ public class QualityGateMeasuresStepTest {
     Condition equals2Condition = createEqualsCondition(INT_METRIC_1, "2", null);
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals2Condition)));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<Measure> addedRawMeasure = measureRepository.getAddedRawMeasure(PROJECT_COMPONENT, INT_METRIC_1_KEY);
 
@@ -178,7 +179,7 @@ public class QualityGateMeasuresStepTest {
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals2Condition)));
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<Measure> addedRawMeasure = measureRepository.getAddedRawMeasure(PROJECT_COMPONENT, INT_METRIC_1_KEY);
 
@@ -208,7 +209,7 @@ public class QualityGateMeasuresStepTest {
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_2_KEY, rawMeasure);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
     Optional<Measure> rawMeasure2 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_2_KEY);
@@ -246,7 +247,7 @@ public class QualityGateMeasuresStepTest {
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_2_KEY, rawMeasure);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
     Optional<Measure> rawMeasure2 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_2_KEY);
@@ -283,7 +284,7 @@ public class QualityGateMeasuresStepTest {
     Measure measure = newMeasureBuilder().create(rawValue, null);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
     assertThat(rawMeasure1.get())
@@ -303,7 +304,7 @@ public class QualityGateMeasuresStepTest {
       .create(rawValue, null);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
     assertThat(rawMeasure1.get())
@@ -323,7 +324,7 @@ public class QualityGateMeasuresStepTest {
       .create(rawValue, null);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
     assertThat(rawMeasure1.get())

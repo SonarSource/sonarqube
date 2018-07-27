@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -100,7 +101,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
     treeRootHolder.setRoot(PROJECT);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).isEmpty();
   }
@@ -111,7 +112,7 @@ public class ReportComputeMeasureVariationsStepTest {
     treeRootHolder.setRoot(project);
     periodsHolder.setPeriod(null);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasures(project).keys()).isEmpty();
   }
@@ -138,7 +139,7 @@ public class ReportComputeMeasureVariationsStepTest {
     addRawMeasure(project, ISSUES_METRIC, newMeasureBuilder().create(80, null));
     addRawMeasure(directory, ISSUES_METRIC, newMeasureBuilder().create(20, null));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasure(project, ISSUES_METRIC).get().getVariation()).isEqualTo(20d);
     assertThat(measureRepository.getRawMeasure(directory, ISSUES_METRIC).get().getVariation()).isEqualTo(10d);
@@ -166,7 +167,7 @@ public class ReportComputeMeasureVariationsStepTest {
     addRawMeasure(project, ISSUES_METRIC, newMeasureBuilder().create(60, null));
     addRawMeasure(directory, ISSUES_METRIC, newMeasureBuilder().create(10, null));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasure(project, ISSUES_METRIC).get().getVariation()).isEqualTo(0d);
     assertThat(measureRepository.getRawMeasure(directory, ISSUES_METRIC).get().getVariation()).isEqualTo(0d);
@@ -193,7 +194,7 @@ public class ReportComputeMeasureVariationsStepTest {
     addRawMeasure(project, ISSUES_METRIC, newMeasureBuilder().create(90, null));
     addRawMeasure(directory, ISSUES_METRIC, newMeasureBuilder().create(10, null));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasure(project, ISSUES_METRIC).get().getVariation()).isEqualTo(30d);
     // Variation should be the raw value
@@ -220,7 +221,7 @@ public class ReportComputeMeasureVariationsStepTest {
     addRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC, newMeasureBuilder().create(3d, 1, null));
     addRawMeasure(PROJECT, BUILD_BREAKER_METRIC, newMeasureBuilder().create(false, null));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(4);
 
@@ -245,7 +246,7 @@ public class ReportComputeMeasureVariationsStepTest {
     DumbDeveloper developer = new DumbDeveloper("a");
     measureRepository.addRawMeasure(PROJECT_REF, ISSUES_METRIC.getKey(), newMeasureBuilder().forDeveloper(developer).create(80, null));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(1);
 
@@ -263,7 +264,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
     addRawMeasure(PROJECT, NEW_DEBT, newMeasureBuilder().setVariation(10d).createNoValue());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // As the measure has already variations it has been ignored, then variations will be the same
     assertThat(measureRepository.getRawMeasure(PROJECT, NEW_DEBT).get().getVariation()).isEqualTo(10d);

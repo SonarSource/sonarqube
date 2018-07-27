@@ -33,6 +33,7 @@ import org.sonar.api.measures.Metrics;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 import org.sonar.ce.task.projectanalysis.measure.MeasureComputersHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +61,7 @@ public class LoadMeasureComputersStepTest {
   public void support_core_metrics_as_input_metrics() {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(holder.getMeasureComputers()).hasSize(1);
   }
@@ -69,7 +70,7 @@ public class LoadMeasureComputersStepTest {
   public void support_plugin_metrics_as_input_metrics() {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_1), array(NEW_METRIC_2))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(holder.getMeasureComputers()).hasSize(1);
   }
@@ -85,7 +86,7 @@ public class LoadMeasureComputersStepTest {
     MeasureComputer[] computers = new MeasureComputer[] {measureComputer1, measureComputer2, measureComputer3};
 
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     List<MeasureComputerWrapper> result = newArrayList(holder.getMeasureComputers());
     assertThat(result).hasSize(3);
@@ -105,7 +106,7 @@ public class LoadMeasureComputersStepTest {
     MeasureComputer[] computers = new MeasureComputer[] {measureComputer1, measureComputer2, measureComputer3};
 
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     List<MeasureComputerWrapper> result = newArrayList(holder.getMeasureComputers());
     assertThat(result).hasSize(3);
@@ -121,7 +122,7 @@ public class LoadMeasureComputersStepTest {
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array("unknown"), array(NEW_METRIC_4))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -131,7 +132,7 @@ public class LoadMeasureComputersStepTest {
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array("unknown"))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -141,14 +142,14 @@ public class LoadMeasureComputersStepTest {
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array(NCLOC_KEY))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
   public void not_fail_if_input_metrics_are_same_as_output_metrics() {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_1), array(NEW_METRIC_1))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(holder.getMeasureComputers()).hasSize(1);
   }
@@ -156,7 +157,7 @@ public class LoadMeasureComputersStepTest {
   @Test
   public void return_empty_list_when_no_measure_computers() {
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()));
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(holder.getMeasureComputers()).isEmpty();
   }
@@ -164,7 +165,7 @@ public class LoadMeasureComputersStepTest {
   @Test
   public void return_empty_list_when_no_metrics_neither_measure_computers() {
     ComputationStep underTest = new LoadMeasureComputersStep(holder);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(holder.getMeasureComputers()).isEmpty();
   }
@@ -176,7 +177,7 @@ public class LoadMeasureComputersStepTest {
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -186,7 +187,7 @@ public class LoadMeasureComputersStepTest {
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1)), newMeasureComputer(array(CLASSES_KEY), array(NEW_METRIC_1))};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -220,7 +221,7 @@ public class LoadMeasureComputersStepTest {
 
     MeasureComputer[] computers = new MeasureComputer[] {measureComputer};
     ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   private static MeasureComputer newMeasureComputer(final String[] inputMetrics, final String[] outputMetrics) {

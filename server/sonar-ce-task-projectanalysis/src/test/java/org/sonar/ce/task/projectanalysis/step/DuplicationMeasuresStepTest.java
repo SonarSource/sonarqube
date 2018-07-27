@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationMeasures;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -33,7 +34,8 @@ public class DuplicationMeasuresStepTest extends BaseStepTest {
 
   @Test
   public void full_analysis_mode() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
+
     verify(defaultDuplicationMeasures).execute();
   }
 

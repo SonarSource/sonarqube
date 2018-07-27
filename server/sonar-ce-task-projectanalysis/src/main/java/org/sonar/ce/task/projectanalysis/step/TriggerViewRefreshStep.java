@@ -20,7 +20,7 @@
 
 package org.sonar.ce.task.projectanalysis.step;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.view.TriggerViewRefreshDelegate;
 import org.sonar.ce.task.step.ComputationStep;
@@ -30,7 +30,7 @@ import org.sonar.ce.task.step.ComputationStep;
  */
 public class TriggerViewRefreshStep implements ComputationStep {
 
-  @CheckForNull
+  @Nullable
   private final TriggerViewRefreshDelegate triggerViewRefreshDelegate;
   private final AnalysisMetadataHolder analysisMetadata;
 
@@ -45,7 +45,7 @@ public class TriggerViewRefreshStep implements ComputationStep {
   /**
    * Constructor used by Pico when an implementation of {@link TriggerViewRefreshDelegate} is available
    */
-  public TriggerViewRefreshStep(AnalysisMetadataHolder analysisMetadata, TriggerViewRefreshDelegate triggerViewRefreshDelegate) {
+  public TriggerViewRefreshStep(AnalysisMetadataHolder analysisMetadata, @Nullable TriggerViewRefreshDelegate triggerViewRefreshDelegate) {
     this.analysisMetadata = analysisMetadata;
     this.triggerViewRefreshDelegate = triggerViewRefreshDelegate;
   }
@@ -56,7 +56,7 @@ public class TriggerViewRefreshStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     if (triggerViewRefreshDelegate != null) {
       triggerViewRefreshDelegate.accept(analysisMetadata.getProject());
     }

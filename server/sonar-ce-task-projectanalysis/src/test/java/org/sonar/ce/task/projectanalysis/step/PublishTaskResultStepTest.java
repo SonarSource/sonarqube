@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.ce.task.taskprocessor.MutableTaskResultHolder;
 import org.sonar.ce.task.taskprocessor.MutableTaskResultHolderImpl;
 
@@ -47,7 +48,7 @@ public class PublishTaskResultStepTest {
   public void execute_populate_TaskResultHolder_with_a_TaskResult_with_snapshot_id_of_the_root_taken_from_DbIdsRepository() {
     analysisMetadataHolder.setUuid(AN_ANALYSIS_UUID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(taskResultHolder.getResult().getAnalysisUuid().get()).isEqualTo(AN_ANALYSIS_UUID);
   }

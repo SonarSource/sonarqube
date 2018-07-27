@@ -49,7 +49,7 @@ public class ExecuteStatelessInitExtensionsStepTest {
     ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep();
 
     // no failure
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -59,7 +59,7 @@ public class ExecuteStatelessInitExtensionsStepTest {
 
     ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep(
       new StatelessInitExtension[] {ext1, ext2});
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     InOrder inOrder = inOrder(ext1, ext2);
     inOrder.verify(ext1).onInit();
@@ -77,7 +77,7 @@ public class ExecuteStatelessInitExtensionsStepTest {
       new StatelessInitExtension[] {ext1, ext2, ext3});
 
     try {
-      underTest.execute();
+      underTest.execute(new TestComputationStepContext());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("BOOM");

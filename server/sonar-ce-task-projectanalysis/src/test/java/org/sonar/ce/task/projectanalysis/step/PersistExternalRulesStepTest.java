@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDao;
@@ -81,7 +82,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
       .setName("eslint:no-cond-assign")
       .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     RuleDao ruleDao = dbClient.ruleDao();
     Optional<RuleDefinitionDto> ruleDefinitionDtoOptional = ruleDao.selectDefinitionByKey(dbClient.openSession(false), ruleKey);
@@ -109,7 +110,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
       .setPluginKey("eslint")
       .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     RuleDao ruleDao = dbClient.ruleDao();
     assertThat(ruleDao.selectAllDefinitions(dbClient.openSession(false))).hasSize(1);

@@ -46,6 +46,7 @@ import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryRule;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -138,7 +139,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_notifications_if_no_subscribers() {
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(false);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService, never()).deliver(any(Notification.class));
   }
@@ -151,7 +152,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null, null);
@@ -178,7 +179,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     issues.forEach(issueCache::append);
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     ArgumentCaptor<NewIssuesStatistics.Stats> statsCaptor = forClass(NewIssuesStatistics.Stats.class);
@@ -201,7 +202,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService, never()).deliver(any(Notification.class));
   }
@@ -214,7 +215,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newBranch());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), BRANCH_NAME, null);
@@ -232,7 +233,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     analysisMetadataHolder.setBranch(newPullRequest());
     analysisMetadataHolder.setPullRequestKey(PULL_REQUEST_ID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), null, PULL_REQUEST_ID);
@@ -249,7 +250,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newBranch());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService, never()).deliver(any(Notification.class));
   }
@@ -265,7 +266,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
@@ -311,7 +312,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(newIssuesNotificationFactory.newMyNewIssuesNotification()).thenReturn(myNewIssuesNotificationMock1).thenReturn(myNewIssuesNotificationMock2);
 
     new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder, newIssuesNotificationFactory, db.getDbClient())
-      .execute();
+      .execute(new TestComputationStepContext());
 
     verify(notificationService).deliver(myNewIssuesNotificationMock1);
     Map<String, MyNewIssuesNotification> myNewIssuesNotificationMocksByUsersName = new HashMap<>();
@@ -359,7 +360,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     issues.forEach(issueCache::append);
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
@@ -385,7 +386,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService, never()).deliver(any(Notification.class));
   }
@@ -403,7 +404,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     RuleDefinitionDto ruleDefinitionDto = newRule();
     DefaultIssue issue = prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(notificationService, never()).deliver(any(IssueChangeNotification.class));
   }
@@ -421,7 +422,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = prepareIssue(issueCreatedAt, user, project, file, ruleDefinitionDto, randomTypeExceptHotspot);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = forClass(IssueChangeNotification.class);
     verify(notificationService).deliver(issueChangeNotificationCaptor.capture());
@@ -473,7 +474,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newBranch());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = forClass(IssueChangeNotification.class);
     verify(notificationService).deliver(issueChangeNotificationCaptor.capture());

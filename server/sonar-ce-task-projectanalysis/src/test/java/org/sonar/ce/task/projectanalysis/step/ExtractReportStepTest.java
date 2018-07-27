@@ -35,6 +35,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 
@@ -70,7 +71,7 @@ public class ExtractReportStepTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Analysis report 1 is missing in database");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -82,7 +83,7 @@ public class ExtractReportStepTest {
     dbTester.getSession().commit();
     dbTester.getSession().close();
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // directory contains the uncompressed report (which contains only metadata.pb in this test)
     File unzippedDir = reportDirectoryHolder.getDirectory();

@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -98,7 +99,7 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -132,7 +133,7 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -151,7 +152,7 @@ public class ValidateProjectStepTest {
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -177,7 +178,7 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Date of analysis cannot be older than the date of the last known analysis on this project. Value: ");
     thrown.expectMessage("Latest analysis: ");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
 }

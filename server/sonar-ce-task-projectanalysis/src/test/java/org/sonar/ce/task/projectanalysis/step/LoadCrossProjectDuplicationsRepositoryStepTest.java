@@ -40,6 +40,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.ce.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -146,7 +147,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .build();
     batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(integrateCrossProjectDuplications).computeCpd(CURRENT_FILE,
       asList(
@@ -211,7 +212,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     dbClient.duplicationDao().insert(dbSession, duplicate2);
     dbSession.commit();
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Class<ArrayList<Block>> listClass = (Class<ArrayList<Block>>) (Class) ArrayList.class;
     ArgumentCaptor<ArrayList<Block>> originBlocks = ArgumentCaptor.forClass(listClass);
@@ -284,7 +285,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .build();
     batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyZeroInteractions(integrateCrossProjectDuplications);
   }
@@ -296,7 +297,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
     batchReportReader.putDuplicationBlocks(FILE_REF, Collections.emptyList());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyZeroInteractions(integrateCrossProjectDuplications);
   }
@@ -315,7 +316,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .build();
     batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyZeroInteractions(integrateCrossProjectDuplications);
   }

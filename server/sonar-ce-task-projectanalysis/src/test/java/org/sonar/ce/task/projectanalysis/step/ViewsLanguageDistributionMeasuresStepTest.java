@@ -25,6 +25,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -85,7 +86,7 @@ public class ViewsLanguageDistributionMeasuresStepTest {
     // no raw measure on PROJECT_VIEW_4_REF
     addRawMeasure(PROJECT_VIEW_5_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY, "<null>=3;foo=10");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoAddedRawMeasureOnProjectViews();
     assertAddedRawMeasure(SUB_SUBVIEW_1_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY, "java=16;xoo=15");

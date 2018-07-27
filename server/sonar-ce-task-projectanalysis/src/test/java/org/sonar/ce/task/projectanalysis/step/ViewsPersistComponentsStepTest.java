@@ -42,6 +42,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -115,7 +116,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public void persist_empty_view() {
     treeRootHolder.setRoot(createViewBuilder(PORTFOLIO).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(1);
 
@@ -130,7 +131,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(createViewBuilder(PORTFOLIO).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(1);
 
@@ -147,7 +148,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
         .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(3);
 
@@ -168,7 +169,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
         .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(3);
 
@@ -187,7 +188,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
           createSubView1Builder(null).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(2);
 
@@ -206,7 +207,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
           createSubView1Builder("ORIGINAL_UUID").build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(2);
 
@@ -226,7 +227,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
           createSubView1Builder(null).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(2);
 
@@ -244,7 +245,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
           createSubView1Builder(null).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(2);
 
@@ -266,7 +267,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRowsCountInTableProjects(4);
 
@@ -285,7 +286,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(createViewBuilder(PORTFOLIO).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
     dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), viewDto.uuid());
@@ -314,7 +315,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
         .addChildren(createProjectView1Builder(project, null).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
     dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
@@ -345,7 +346,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
         .addChildren(createProjectView1Builder(project2, null).build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
     dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
@@ -369,7 +370,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
           createSubView1Builder("NEW_COPY").build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
     dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
@@ -391,7 +392,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Stream.of(VIEW_UUID, SUBVIEW_1_UUID, PROJECT_VIEW_1_UUID)
       .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate()).isFalse());
@@ -413,7 +414,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Stream.of(VIEW_UUID, SUBVIEW_1_UUID, PROJECT_VIEW_1_UUID)
       .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate())
@@ -440,7 +441,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Stream.of(VIEW_UUID, SUBVIEW_1_UUID, PROJECT_VIEW_1_UUID, subView.uuid(), "DEFG")
       .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(dbTester.getSession(), uuid).get().isPrivate())

@@ -26,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Organization;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidations.BillingValidationsException;
@@ -61,16 +62,16 @@ public class VerifyBillingStepTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("This organization cannot execute project analysis");
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
   }
 
   @Test
   public void execute_does_no_fail_when_organization_is_allowed_to_execute_analysis() {
     ArgumentCaptor<BillingValidations.Organization> orgCaptor = ArgumentCaptor.forClass(BillingValidations.Organization.class);
-
     VerifyBillingStep underTest = new VerifyBillingStep(analysisMetadata, validations);
-    underTest.execute();
+
+    underTest.execute(new TestComputationStepContext());
 
     verify(validations).checkBeforeProjectAnalysis(orgCaptor.capture());
     BillingValidations.Organization calledOrg = orgCaptor.getValue();

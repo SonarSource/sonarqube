@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -65,11 +66,11 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  PersistProjectLinksStep step = new PersistProjectLinksStep(analysisMetadataHolder, db.getDbClient(), treeRootHolder, reportReader, UuidFactoryFast.getInstance());
+  private PersistProjectLinksStep underTest = new PersistProjectLinksStep(analysisMetadataHolder, db.getDbClient(), treeRootHolder, reportReader, UuidFactoryFast.getInstance());
 
   @Override
   protected ComputationStep step() {
-    return step;
+    return underTest;
   }
 
   @Test
@@ -81,7 +82,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     mockBranch(false);
     PersistProjectLinksStep underTest = new PersistProjectLinksStep(analysisMetadataHolder, dbClient, treeRootHolder, reportReader, uuidFactory);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyZeroInteractions(uuidFactory, reportReader, treeRootHolder, dbClient);
   }
@@ -104,7 +105,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(CI).setHref("http://bamboo.ci.codehaus.org/browse/SONAR").build())
       .build());
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), "ABCD"))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref, ProjectLinkDto::getName)
@@ -129,7 +130,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), "ABCD"))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref)
@@ -153,7 +154,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("project_links")).isZero();
   }
@@ -176,7 +177,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("project_links")).isZero();
   }
@@ -195,7 +196,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), "ABCD"))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref)
@@ -215,7 +216,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .setType(ComponentType.PROJECT)
       .build());
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("project_links")).isZero();
   }
@@ -233,7 +234,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .setType(ComponentType.PROJECT)
       .build());
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("project_links")).isEqualTo(1);
   }
@@ -253,7 +254,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Link of type 'homepage' has already been declared on component 'ABCD'");
 
-    step.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   private void mockBranch(boolean isMain) {

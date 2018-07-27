@@ -70,7 +70,7 @@ public class PersistTestsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(true)) {
       TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(dbSession);
       new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());

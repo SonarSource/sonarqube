@@ -40,7 +40,7 @@ public class VerifyBillingStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try {
       Organization organization = analysisMetadata.getOrganization();
       BillingValidations.Organization billingOrganization = new BillingValidations.Organization(organization.getKey(), organization.getUuid());

@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderR
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -64,7 +65,7 @@ public class EnableAnalysisStepTest {
     treeRootHolder.setRoot(REPORT_PROJECT);
     analysisMetadataHolder.setUuid(CURRENT_ANALYSIS_UUID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyAnalysis(PREVIOUS_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, false);
     verifyAnalysis(CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
@@ -79,7 +80,7 @@ public class EnableAnalysisStepTest {
     treeRootHolder.setRoot(REPORT_PROJECT);
     analysisMetadataHolder.setUuid(CURRENT_ANALYSIS_UUID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyAnalysis(CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
   }

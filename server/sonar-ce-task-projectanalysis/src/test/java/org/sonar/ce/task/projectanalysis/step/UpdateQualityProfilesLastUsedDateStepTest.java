@@ -34,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -84,7 +85,7 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   public void doest_not_update_profiles_when_no_measure() {
     qualityProfileDb.insert(sonarWayJava, sonarWayPhp, myQualityProfile);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertQualityProfileIsTheSame(sonarWayJava);
     assertQualityProfileIsTheSame(sonarWayPhp);
@@ -98,7 +99,7 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(
       toJson(sonarWayJava.getKee(), myQualityProfile.getKee())));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertQualityProfileIsTheSame(sonarWayPhp);
     assertQualityProfileIsUpdated(sonarWayJava);
@@ -118,7 +119,7 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
 
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKee())));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertQualityProfileIsUpdated(rootProfile);
     assertQualityProfileIsUpdated(parentProfile);
@@ -134,7 +135,7 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKee())));
 
     expectedException.expect(RowNotFoundException.class);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test

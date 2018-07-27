@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -136,7 +137,7 @@ public class ReportComplexityMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_1_REF, metricKey, newMeasureBuilder().create(10));
     measureRepository.addRawMeasure(FILE_2_REF, metricKey, newMeasureBuilder().create(40));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isAbsent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isAbsent();
@@ -167,7 +168,7 @@ public class ReportComplexityMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_1_REF, metricKey, newMeasureBuilder().create("0.5=3;3.5=5;6.5=9"));
     measureRepository.addRawMeasure(FILE_2_REF, metricKey, newMeasureBuilder().create("0.5=0;3.5=2;6.5=1"));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isAbsent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isAbsent();
@@ -201,7 +202,7 @@ public class ReportComplexityMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_2_REF, mainMetric, newMeasureBuilder().create(1));
     measureRepository.addRawMeasure(FILE_2_REF, byMetric, newMeasureBuilder().create(1));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(2.5, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(1d, 1)));

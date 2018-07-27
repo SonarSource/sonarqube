@@ -73,7 +73,7 @@ public class SizeMeasuresStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     new PathAwareCrawler<>(new FileAndDirectoryMeasureVisitor(
       metricRepository.getByKey(DIRECTORIES_KEY),
       metricRepository.getByKey(FILES_KEY),

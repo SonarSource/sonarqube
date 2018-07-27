@@ -29,6 +29,7 @@ import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWith
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
@@ -106,7 +107,7 @@ public class ReportCoverageMeasuresStepTest {
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     MeasureRepoEntry[] nonFileRepoEntries = {
       entryOf(metricKeys.getLines(), newMeasureBuilder().create(5000)),
@@ -145,7 +146,7 @@ public class ReportCoverageMeasuresStepTest {
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(
       entryOf(codeCoverageKey, newMeasureBuilder().create(98.8d, 1)),

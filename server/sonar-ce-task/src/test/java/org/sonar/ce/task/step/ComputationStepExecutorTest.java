@@ -31,6 +31,7 @@ import org.sonar.ce.task.ChangeLogLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -56,11 +57,11 @@ public class ComputationStepExecutorTest {
       .execute();
 
     InOrder inOrder = inOrder(computationStep1, computationStep2, computationStep3);
-    inOrder.verify(computationStep1).execute();
+    inOrder.verify(computationStep1).execute(any());
     inOrder.verify(computationStep1).getDescription();
-    inOrder.verify(computationStep2).execute();
+    inOrder.verify(computationStep2).execute(any());
     inOrder.verify(computationStep2).getDescription();
-    inOrder.verify(computationStep3).execute();
+    inOrder.verify(computationStep3).execute(any());
     inOrder.verify(computationStep3).getDescription();
     inOrder.verifyNoMoreInteractions();
   }
@@ -72,7 +73,7 @@ public class ComputationStepExecutorTest {
     ComputationStep computationStep = mockComputationStep("step1");
     doThrow(new RuntimeException(message))
       .when(computationStep)
-      .execute();
+      .execute(any());
 
     ComputationStepExecutor computationStepExecutor = new ComputationStepExecutor(mockComputationSteps(computationStep));
 
@@ -83,17 +84,70 @@ public class ComputationStepExecutorTest {
   }
 
   @Test
-  public void execute_logs_end_timing_for_each_ComputationStep_in_INFO_level() {
+  public void execute_logs_end_timing_and_statistics_for_each_ComputationStep_in_INFO_level() {
+    ComputationStep step1 = new StepWithStatistics("Step One", "foo", "100", "bar", "20");
+    ComputationStep step2 = new StepWithStatistics("Step Two", "foo", "50", "baz", "10");
+    ComputationStep step3 = new StepWithStatistics("Step Three");
+
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO);
-      ChangeLogLevel step1 = new ChangeLogLevel(computationStep1.getClass(), LoggerLevel.INFO);
-      ChangeLogLevel step2 = new ChangeLogLevel(computationStep2.getClass(), LoggerLevel.INFO)) {
-      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2))
-        .execute();
+      ChangeLogLevel logLevel1 = new ChangeLogLevel(step1.getClass(), LoggerLevel.INFO);
+      ChangeLogLevel logLevel2 = new ChangeLogLevel(step1.getClass(), LoggerLevel.INFO);
+      ChangeLogLevel logLevel3 = new ChangeLogLevel(step2.getClass(), LoggerLevel.INFO)) {
+      new ComputationStepExecutor(mockComputationSteps(step1, step2, step3)).execute();
 
       List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
-      assertThat(infoLogs).hasSize(2);
-      assertThat(infoLogs.get(0)).contains("step1 | time=");
-      assertThat(infoLogs.get(1)).contains("step2 | time=");
+      assertThat(infoLogs).hasSize(3);
+      assertThat(infoLogs.get(0)).contains("Step One | foo=100 | bar=20 | time=");
+      assertThat(infoLogs.get(1)).contains("Step Two | foo=50 | baz=10 | time=");
+      assertThat(infoLogs.get(2)).contains("Step Three | time=");
+    }
+  }
+
+  @Test
+  public void execute_throws_IAE_if_step_adds_time_statistic() {
+    ComputationStep step = new StepWithStatistics("A Step", "foo", "100", "time", "20");
+
+    try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
+      expectedException.expect(IllegalArgumentException.class);
+      expectedException.expectMessage("Statistic with key [time] is not accepted");
+
+      new ComputationStepExecutor(mockComputationSteps(step)).execute();
+    }
+  }
+
+  @Test
+  public void execute_throws_IAE_if_step_adds_statistic_multiple_times() {
+    ComputationStep step = new StepWithStatistics("A Step", "foo", "100", "foo", "20");
+
+    try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
+      expectedException.expect(IllegalArgumentException.class);
+      expectedException.expectMessage("Statistic with key [foo] is already present");
+
+      new ComputationStepExecutor(mockComputationSteps(step)).execute();
+    }
+  }
+
+  @Test
+  public void execute_throws_NPE_if_step_adds_statistic_with_null_key() {
+    ComputationStep step = new StepWithStatistics("A Step", "foo", "100", null, "bar");
+
+    try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
+      expectedException.expect(NullPointerException.class);
+      expectedException.expectMessage("Statistic has null key");
+
+      new ComputationStepExecutor(mockComputationSteps(step)).execute();
+    }
+  }
+
+  @Test
+  public void execute_throws_NPE_if_step_adds_statistic_with_null_value() {
+    ComputationStep step = new StepWithStatistics("A Step", "foo", "100", "bar", null);
+
+    try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
+      expectedException.expect(NullPointerException.class);
+      expectedException.expectMessage("Statistic with key [bar] has null value");
+
+      new ComputationStepExecutor(mockComputationSteps(step)).execute();
     }
   }
 
@@ -111,7 +165,7 @@ public class ComputationStepExecutorTest {
     RuntimeException toBeThrown = new RuntimeException("simulating failing execute Step method");
     doThrow(toBeThrown)
       .when(computationStep1)
-      .execute();
+      .execute(any());
 
     try {
       new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), listener)
@@ -144,5 +198,27 @@ public class ComputationStepExecutorTest {
     ComputationStep mock = mock(ComputationStep.class);
     when(mock.getDescription()).thenReturn(desc);
     return mock;
+  }
+
+  private static class StepWithStatistics implements ComputationStep {
+    private final String description;
+    private final String[] statistics;
+
+    private StepWithStatistics(String description, String... statistics) {
+      this.description = description;
+      this.statistics = statistics;
+    }
+
+    @Override
+    public void execute(Context context) {
+      for (int i = 0; i < statistics.length; i += 2) {
+        context.getStatistics().add(statistics[i], statistics[i + 1]);
+      }
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
   }
 }

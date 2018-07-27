@@ -79,7 +79,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<Metric> metrics = StreamSupport.stream(metricRepository.getAll().spliterator(), false).filter(isNumeric()).collect(MoreCollectors.toList());
       new DepthTraversalTypeAwareCrawler(new VariationMeasuresVisitor(dbSession, metrics))

@@ -45,7 +45,7 @@ public class PersistScannerContextStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (CloseableIterator<String> logsIterator = reportReader.readScannerLogs()) {
       if (logsIterator.hasNext()) {
         try (DbSession dbSession = dbClient.openSession(false)) {

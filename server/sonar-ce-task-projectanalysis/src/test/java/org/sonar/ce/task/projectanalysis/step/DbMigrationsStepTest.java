@@ -29,6 +29,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.sonar.ce.task.projectanalysis.dbmigration.ProjectAnalysisDataChange;
 import org.sonar.ce.task.projectanalysis.dbmigration.ProjectAnalysisDataChanges;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -43,7 +44,7 @@ public class DbMigrationsStepTest {
 
   @Test
   public void execute_has_no_effect_if_there_is_no_DataChange() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -54,7 +55,7 @@ public class DbMigrationsStepTest {
     InOrder inOrder = Mockito.inOrder((Object[]) dataChanges);
     when(projectAnalysisDataChanges.getDataChanges()).thenReturn(Arrays.asList(dataChanges));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Arrays.stream(dataChanges).forEach(t -> {
       try {
@@ -83,7 +84,7 @@ public class DbMigrationsStepTest {
       okMock1, okMock2, failingMock1, okMock3, failingMock2, okMock4));
 
     try {
-      underTest.execute();
+      underTest.execute(new TestComputationStepContext());
       fail("A IllegalStateException should have been thrown");
     } catch (IllegalStateException e) {
       assertThat(e)

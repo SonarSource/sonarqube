@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.event.Event;
 import org.sonar.ce.task.projectanalysis.event.EventRepository;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
@@ -100,7 +101,7 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(ROOT);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", new String[] {"uuid"}, "events");
   }
@@ -114,7 +115,7 @@ public class PersistEventsStepTest extends BaseStepTest {
     when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
 
     treeRootHolder.setRoot(ROOT);
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", new String[] {"uuid"}, "events");
   }
@@ -141,7 +142,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", new String[] {"uuid"}, "events");
   }
@@ -168,7 +169,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     dbTester.assertDbUnit(getClass(), "keep_one_event_by_version-result.xml", new String[] {"uuid"}, "events");
   }

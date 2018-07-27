@@ -38,7 +38,7 @@ public class IndexAnalysisStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     String branchUuid = treeRootHolder.getRoot().getUuid();
     for (ProjectIndexer indexer : indexers) {
       LOGGER.debug("Call {}", indexer);

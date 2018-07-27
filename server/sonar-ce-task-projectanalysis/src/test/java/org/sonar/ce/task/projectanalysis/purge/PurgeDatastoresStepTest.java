@@ -39,6 +39,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.util.WrapInSingleElementArray;
@@ -124,7 +125,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   private void verify_do_not_call_purge_method_of_the_purge_task(Component component) {
     treeRootHolder.setRoot(component);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyNoMoreInteractions(projectCleaner);
   }
@@ -134,7 +135,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
     when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
     dbIdsRepository.setComponentId(project, PROJECT_ID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     ArgumentCaptor<IdUuidPair> argumentCaptor = ArgumentCaptor.forClass(IdUuidPair.class);
     verify(projectCleaner).purge(any(), argumentCaptor.capture(), any(), any());

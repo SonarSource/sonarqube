@@ -68,7 +68,7 @@ public class QualityGateEventsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     // no notification on short living branch and pull request as there is no real Quality Gate on those
     if (analysisMetadataHolder.isShortLivingBranch() || analysisMetadataHolder.isPullRequest()) {
       return;

@@ -30,6 +30,7 @@ import org.sonar.ce.task.projectanalysis.issue.DumbRule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
@@ -65,7 +66,7 @@ public class LoadQualityProfilesStepTest {
       .setRuleRepository(XOO_X2.repository()).setRuleKey(XOO_X2.rule()).setSeverity(Constants.Severity.MAJOR);
     batchReportReader.putActiveRules(asList(batch1.build(), batch2.build()));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(activeRulesHolder.getAll()).hasSize(2);
 
@@ -89,7 +90,7 @@ public class LoadQualityProfilesStepTest {
       .setSeverity(Constants.Severity.BLOCKER);
     batchReportReader.putActiveRules(asList(batch1.build()));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(activeRulesHolder.getAll()).isEmpty();
   }
@@ -101,7 +102,7 @@ public class LoadQualityProfilesStepTest {
       .setSeverity(Constants.Severity.BLOCKER);
     batchReportReader.putActiveRules(asList(batch1.build()));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(activeRulesHolder.getAll()).isEmpty();
   }

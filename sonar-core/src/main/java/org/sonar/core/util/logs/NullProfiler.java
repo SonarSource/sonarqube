@@ -130,6 +130,11 @@ class NullProfiler extends Profiler {
   }
 
   @Override
+  public boolean hasContext(String key) {
+    return false;
+  }
+
+  @Override
   public Profiler logTimeLast(boolean flag) {
     return this;
   }

@@ -94,7 +94,7 @@ public class FileMoveDetectionStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     // do nothing if no files in db (first analysis)
     if (analysisMetadataHolder.isFirstAnalysis()) {
       LOG.debug("First analysis. Do nothing.");

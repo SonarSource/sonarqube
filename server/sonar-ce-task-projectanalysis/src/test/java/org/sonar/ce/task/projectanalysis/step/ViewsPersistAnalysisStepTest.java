@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -103,7 +104,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, "KEY_VIEW").setUuid("UUID_VIEW").addChildren(subView).build();
     treeRootHolder.setRoot(view);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
 
@@ -130,7 +131,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
     periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_DATE, "2015-01-01", analysisDate, "u1"));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
     assertThat(viewSnapshot.getPeriodMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);

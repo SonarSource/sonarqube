@@ -297,6 +297,11 @@ class DefaultProfiler extends Profiler {
   }
 
   @Override
+  public boolean hasContext(String key) {
+    return context.containsKey(key);
+  }
+
+  @Override
   public Profiler logTimeLast(boolean flag) {
     this.logTimeLast = flag;
     return this;

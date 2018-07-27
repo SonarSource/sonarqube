@@ -20,12 +20,43 @@
 package org.sonar.ce.task.step;
 
 /**
- * A way of splitting the processing of a task into smaller items which can be executed sequencially
+ * A way of splitting the processing of a task into smaller items which can be executed sequentially
  * by {@link ComputationStepExecutor}.
  */
 public interface ComputationStep {
 
-  void execute();
+  /**
+   * Statistics are displayed in the step ending log. They help
+   * understanding the runtime context and potential performance hotspots.
+   *
+   * <p/>
+   * Example:
+   * <code>
+   *   statistics.add("inserts", 200);
+   *   statistics.add("updates", 50);
+   * </code>
+   * adds two parameters to the log:
+   * <code>
+   * 2018.07.26 10:22:58 DEBUG ce[AWTVrwb-KZf9YbDx-laU][o.s.s.c.t.s.ComputationStepExecutor] Persist issues | inserts=200 | updates=50 | time=30ms
+   * </code>
+   *
+   * <p/>
+   * Statistics are logged in the order of insertion.
+   */
+  interface Statistics {
+    /**
+     * @throws NullPointerException if key or value is null
+     * @throws IllegalArgumentException if key has already been set
+     * @throws IllegalArgumentException if key is "time", to avoid conflict with the profiler field with same name
+     */
+    void add(String key, Object value);
+  }
+
+  interface Context {
+    Statistics getStatistics();
+  }
+
+  void execute(Context context);
 
   String getDescription();
 }

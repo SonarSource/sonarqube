@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -96,7 +97,7 @@ public class ExecuteVisitorsStepTest {
     measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(3));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(3));
 
-    underStep.execute();
+    underStep.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(2);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(3);
@@ -107,12 +108,12 @@ public class ExecuteVisitorsStepTest {
 
   @Test
   public void execute_with_path_aware_visitor() {
-    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestPathAwareVisitor()));
+    ExecuteVisitorsStep underTest = new ExecuteVisitorsStep(treeRootHolder, singletonList(new TestPathAwareVisitor()));
 
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(1));
 
-    underStep.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(1);
@@ -127,11 +128,11 @@ public class ExecuteVisitorsStepTest {
       ChangeLogLevel step1 = new ChangeLogLevel(VisitorA.class, LoggerLevel.DEBUG);
       ChangeLogLevel step2 = new ChangeLogLevel(VisitorB.class, LoggerLevel.DEBUG);
       ChangeLogLevel step3 = new ChangeLogLevel(VisitorB.class, LoggerLevel.DEBUG)) {
-      ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(
+      ExecuteVisitorsStep underTest = new ExecuteVisitorsStep(
         treeRootHolder,
         asList(new VisitorA(), new VisitorB(), new VisitorC()));
 
-      underStep.execute();
+      underTest.execute(new TestComputationStepContext());
 
       List<String> logs = logTester.logs(LoggerLevel.DEBUG);
       assertThat(logs).hasSize(4);

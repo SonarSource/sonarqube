@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -64,7 +65,7 @@ public class PersistScannerContextStepTest {
     when(ceTask.getUuid()).thenReturn(taskUuid);
     reportReader.setScannerLogs(asList("log1", "log2"));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbClient.ceScannerContextDao().selectScannerContext(dbTester.getSession(), taskUuid))
       .contains("log1" + '\n' + "log2");
@@ -74,14 +75,14 @@ public class PersistScannerContextStepTest {
   public void executes_persist_does_not_persist_any_scanner_context_if_iterator_is_empty() {
     reportReader.setScannerLogs(emptyList());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbClient.ceScannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
       .isEmpty();
   }
 
   /**
-   * @see SONAR-8306
+   * SONAR-8306
    */
   @Test
   public void execute_does_not_fail_if_scanner_context_has_already_been_persisted() {
@@ -90,7 +91,7 @@ public class PersistScannerContextStepTest {
     reportReader.setScannerLogs(asList("1", "2", "3"));
     when(ceTask.getUuid()).thenReturn(ANALYSIS_UUID);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbClient.ceScannerContextDao().selectScannerContext(dbTester.getSession(), ANALYSIS_UUID))
       .contains("1" + '\n' + "2" + '\n' + "3");

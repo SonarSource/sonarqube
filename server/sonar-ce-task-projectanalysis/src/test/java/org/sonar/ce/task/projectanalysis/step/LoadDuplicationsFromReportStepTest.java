@@ -34,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepositoryRule;
 import org.sonar.ce.task.projectanalysis.duplication.InProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,7 +75,7 @@ public class LoadDuplicationsFromReportStepTest {
   public void loads_duplication_without_otherFileRef_as_inner_duplication() {
     reportReader.putDuplications(FILE_2_REF, createDuplication(singleLineTextRange(LINE), createInnerDuplicate(LINE + 1)));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoDuplication(FILE_1_REF);
     assertDuplications(FILE_2_REF, singleLineDetailedTextBlock(1, LINE), new InnerDuplicate(singleLineTextBlock(LINE + 1)));
@@ -84,7 +85,7 @@ public class LoadDuplicationsFromReportStepTest {
   public void loads_duplication_with_otherFileRef_as_inProject_duplication() {
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(LINE), createInProjectDuplicate(FILE_2_REF, LINE + 1)));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertDuplications(FILE_1_REF, singleLineDetailedTextBlock(1, LINE), new InProjectDuplicate(treeRootHolder.getComponentByRef(FILE_2_REF), singleLineTextBlock(LINE + 1)));
     assertNoDuplication(FILE_2_REF);
@@ -104,7 +105,7 @@ public class LoadDuplicationsFromReportStepTest {
         singleLineTextRange(OTHER_LINE + 80),
         createInnerDuplicate(LINE), createInnerDuplicate(LINE + 10)));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Component file1Component = treeRootHolder.getComponentByRef(FILE_1_REF);
     assertThat(duplicationRepository.getDuplications(FILE_2_REF)).containsOnly(
@@ -131,7 +132,7 @@ public class LoadDuplicationsFromReportStepTest {
         singleLineTextRange(LINE),
         createInnerDuplicate(LINE + 2), createInnerDuplicate(LINE + 3), createInProjectDuplicate(FILE_1_REF, LINE + 2)));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Component file1Component = treeRootHolder.getComponentByRef(FILE_1_REF);
     assertThat(duplicationRepository.getDuplications(FILE_2_REF)).containsOnly(
@@ -153,7 +154,7 @@ public class LoadDuplicationsFromReportStepTest {
     expectedException.expect(VisitException.class);
     expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("Component with ref '666' can't be found"));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   @Test
@@ -164,7 +165,7 @@ public class LoadDuplicationsFromReportStepTest {
     expectedException.expect(VisitException.class);
     expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("file and otherFile references can not be the same"));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
   }
 
   private void assertDuplications(int fileRef, TextBlock original, Duplicate... duplicates) {

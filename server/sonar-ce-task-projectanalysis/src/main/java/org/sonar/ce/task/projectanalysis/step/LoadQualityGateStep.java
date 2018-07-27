@@ -52,7 +52,7 @@ public class LoadQualityGateStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     Optional<QualityGate> qualityGate = getShortLivingBranchQualityGate();
     if (!qualityGate.isPresent()) {
       // Not on a short living branch, let's retrieve the QG of the project

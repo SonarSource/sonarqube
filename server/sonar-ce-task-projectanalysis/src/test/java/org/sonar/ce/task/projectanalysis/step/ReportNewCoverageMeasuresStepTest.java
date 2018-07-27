@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -121,7 +122,7 @@ public class ReportNewCoverageMeasuresStepTest {
   public void no_measure_for_PROJECT_component() {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, ROOT_REF).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.isEmpty()).isTrue();
   }
@@ -130,7 +131,7 @@ public class ReportNewCoverageMeasuresStepTest {
   public void no_measure_for_MODULE_component() {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.MODULE, MODULE_REF).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.isEmpty()).isTrue();
   }
@@ -139,7 +140,7 @@ public class ReportNewCoverageMeasuresStepTest {
   public void no_measure_for_DIRECTORY_component() {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.DIRECTORY, DIRECTORY_1_REF).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.isEmpty()).isTrue();
   }
@@ -148,7 +149,7 @@ public class ReportNewCoverageMeasuresStepTest {
   public void no_measure_for_unit_test_FILE_component() {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(true, null, 1)).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.isEmpty()).isTrue();
   }
@@ -157,7 +158,7 @@ public class ReportNewCoverageMeasuresStepTest {
   public void no_measures_for_FILE_component_without_code() {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null, 1)).build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.isEmpty()).isTrue();
   }
@@ -176,7 +177,7 @@ public class ReportNewCoverageMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
     measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), COVERED_CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify_only_zero_measures_on_new_lines_and_conditions_measures(FILE_COMPONENT);
   }
@@ -188,7 +189,7 @@ public class ReportNewCoverageMeasuresStepTest {
       Changeset.newChangesetBuilder().setDate(parseDate("2008-05-18").getTime()).setRevision("rev-1").build(),
       Changeset.newChangesetBuilder().setDate(parseDate("2008-05-18").getTime()).setRevision("rev-1").build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify_only_zero_measures_on_new_lines_and_conditions_measures(FILE_COMPONENT);
   }
@@ -216,7 +217,7 @@ public class ReportNewCoverageMeasuresStepTest {
 
     measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), coverageLineHitsData, newMeasureBuilder().create("2=0;3=2;4=3"));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getReportAttributes().getRef()))).contains(
       entryOf(newLinesToCover, createMeasure(2d)),
@@ -257,7 +258,7 @@ public class ReportNewCoverageMeasuresStepTest {
     defineChangeSetsAndMeasures(FILE_2_REF, metricKeys, new MeasureValues(0, 14, 6), new MeasureValues(0, 13, 7));
     defineChangeSetsAndMeasures(FILE_3_REF, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(1, 13, 7));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // files
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(
@@ -323,7 +324,7 @@ public class ReportNewCoverageMeasuresStepTest {
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), createMeasure(200d))
       .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), createMeasure(16d));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(
       entryOf(codeCoverageKey, createMeasure(98.8d)),
@@ -417,7 +418,7 @@ public class ReportNewCoverageMeasuresStepTest {
     treeRootHolder.setRoot(FILE_COMPONENT);
     defineChangeSetsAndMeasures(FILE_COMPONENT.getReportAttributes().getRef(), metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getReportAttributes().getRef()))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(5d)),

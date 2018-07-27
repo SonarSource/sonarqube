@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -99,7 +100,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_2_REF, COMMENTED_OUT_CODE_LINES_KEY, 400);
     addRawMeasure(PROJECTVIEW_3_REF, COMMENTED_OUT_CODE_LINES_KEY, 500);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, COMMENTED_OUT_CODE_LINES_KEY, 500);
@@ -113,7 +114,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_2_REF, COMMENT_LINES_KEY, 400);
     addRawMeasure(PROJECTVIEW_3_REF, COMMENT_LINES_KEY, 500);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, COMMENT_LINES_KEY, 500);
@@ -134,7 +135,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(MODULE_REF, NCLOC_KEY, 300);
     addRawMeasure(ROOT_REF, NCLOC_KEY, 300);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY, 40d);
@@ -153,7 +154,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(MODULE_REF, NCLOC_KEY, 300);
     addRawMeasure(ROOT_REF, NCLOC_KEY, 300);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY, 0d);
@@ -172,7 +173,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(MODULE_REF, NCLOC_KEY, 0);
     addRawMeasure(ROOT_REF, NCLOC_KEY, 0);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertNoRawMeasures(COMMENT_LINES_DENSITY_KEY);
@@ -183,7 +184,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_1_REF, COMMENT_LINES_KEY, 150);
     addRawMeasure(PROJECTVIEW_2_REF, COMMENT_LINES_KEY, 50);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(COMMENT_LINES_DENSITY_KEY);
   }
@@ -196,7 +197,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(MODULE_REF, NCLOC_KEY, 200);
     addRawMeasure(ROOT_REF, NCLOC_KEY, 200);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(COMMENT_LINES_DENSITY_KEY);
   }
@@ -206,7 +207,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_1_REF, PUBLIC_API_KEY, 100);
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_API_KEY, 400);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, PUBLIC_API_KEY, 500);
@@ -219,7 +220,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_1_REF, PUBLIC_UNDOCUMENTED_API_KEY, 100);
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_UNDOCUMENTED_API_KEY, 400);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY, 500);
@@ -239,7 +240,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_3_REF, PUBLIC_API_KEY, 300);
     addRawMeasure(PROJECTVIEW_3_REF, PUBLIC_UNDOCUMENTED_API_KEY, 200);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY, 70d);
@@ -252,7 +253,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_1_REF, PUBLIC_UNDOCUMENTED_API_KEY, 50);
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_UNDOCUMENTED_API_KEY, 100);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(PUBLIC_DOCUMENTED_API_DENSITY_KEY);
   }
@@ -262,7 +263,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_1_REF, PUBLIC_API_KEY, 50);
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_API_KEY, 100);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(PUBLIC_DOCUMENTED_API_DENSITY_KEY);
   }
@@ -275,7 +276,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_API_KEY, 0);
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_UNDOCUMENTED_API_KEY, 100);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(PUBLIC_DOCUMENTED_API_DENSITY_KEY);
   }
@@ -288,7 +289,7 @@ public class ViewsCommentMeasuresStepTest {
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_API_KEY, 400);
     addRawMeasure(PROJECTVIEW_2_REF, PUBLIC_UNDOCUMENTED_API_KEY, 0);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertRawMeasureValue(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY, 100d);
@@ -298,7 +299,7 @@ public class ViewsCommentMeasuresStepTest {
 
   @Test
   public void compute_nothing_when_no_data() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertProjectViewsHasNoNewRawMeasure();
     assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_REF)).isEmpty();

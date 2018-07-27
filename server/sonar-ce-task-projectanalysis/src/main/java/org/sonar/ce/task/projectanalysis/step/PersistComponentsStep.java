@@ -92,7 +92,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       branchPersister.persist(dbSession);
 

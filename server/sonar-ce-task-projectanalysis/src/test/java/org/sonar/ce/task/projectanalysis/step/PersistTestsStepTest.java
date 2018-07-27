@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
@@ -102,7 +103,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void no_test_in_database_and_batch_report() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1)).isNull();
     assertThat(log.logs()).isEmpty();
@@ -117,7 +118,7 @@ public class PersistTestsStepTest extends BaseStepTest {
       newCoverageDetail(1, MAIN_FILE_REF_1));
     reportReader.putCoverageDetails(TEST_FILE_REF_1, coverageDetails);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
 
@@ -140,7 +141,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     reportReader.putTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
     reportReader.putCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1)));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
@@ -166,7 +167,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     List<ScannerReport.Test> batchTests = Arrays.asList(newTest(1));
     reportReader.putTests(TEST_FILE_REF_1, batchTests);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
@@ -184,7 +185,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     reportReader.putCoverageDetails(TEST_FILE_REF_1, coverageDetails);
     reportReader.putCoverageDetails(TEST_FILE_REF_2, coverageDetails);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(log.logs(LoggerLevel.WARN)).hasSize(1);
     assertThat(log.logs(LoggerLevel.WARN).get(0)).isEqualTo("Some coverage tests are not taken into account during analysis of project 'PROJECT_KEY'");
@@ -201,7 +202,7 @@ public class PersistTestsStepTest extends BaseStepTest {
       newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 1, 3),
       newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 2, 4)));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);
     List<Integer> coveredLines = dto.getTestData().get(0).getCoveredFile(0).getCoveredLineList();
@@ -234,7 +235,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     reportReader.putCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail));
 
     // ACT
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // ASSERT
     FileSourceDto dto = dbClient.fileSourceDao().selectTestByFileUuid(db.getSession(), TEST_FILE_UUID_1);

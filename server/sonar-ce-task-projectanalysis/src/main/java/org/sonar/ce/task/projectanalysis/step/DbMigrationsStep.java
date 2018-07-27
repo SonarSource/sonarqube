@@ -37,7 +37,7 @@ public class DbMigrationsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     dataChanges.getDataChanges().forEach(DbMigrationsStep::execute);
   }
 

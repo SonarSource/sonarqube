@@ -43,7 +43,7 @@ public class ExecuteStatelessInitExtensionsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(Context context) {
     for (StatelessInitExtension extension : extensions) {
       extension.onInit();
     }

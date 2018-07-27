@@ -86,7 +86,7 @@ public class PersistFileSourcesStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
     try (DbSession dbSession = dbClient.openSession(false)) {
       new DepthTraversalTypeAwareCrawler(new FileSourceVisitor(dbSession))

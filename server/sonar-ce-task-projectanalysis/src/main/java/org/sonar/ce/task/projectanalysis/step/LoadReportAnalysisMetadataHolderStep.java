@@ -82,7 +82,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     ScannerReport.Metadata reportMetadata = reportReader.readMetadata();
 
     loadMetadata(reportMetadata);

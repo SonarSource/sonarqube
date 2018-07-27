@@ -25,6 +25,9 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+
 public final class ComputationStepExecutor {
   private static final Logger LOGGER = Loggers.get(ComputationStepExecutor.class);
 
@@ -46,7 +49,7 @@ public final class ComputationStepExecutor {
   }
 
   public void execute() {
-    Profiler stepProfiler = Profiler.create(LOGGER);
+    Profiler stepProfiler = Profiler.create(LOGGER).logTimeLast(true);
     boolean allStepsExecuted = false;
     try {
       executeSteps(stepProfiler);
@@ -59,9 +62,11 @@ public final class ComputationStepExecutor {
   }
 
   private void executeSteps(Profiler stepProfiler) {
+    StepStatisticsImpl statistics = new StepStatisticsImpl(stepProfiler);
+    ComputationStep.Context context = new StepContextImpl(statistics);
     for (ComputationStep step : steps.instances()) {
       stepProfiler.start();
-      step.execute();
+      step.execute(context);
       stepProfiler.stopInfo(step.getDescription());
     }
   }
@@ -79,5 +84,35 @@ public final class ComputationStepExecutor {
   @FunctionalInterface
   public interface Listener {
     void finished(boolean allStepsExecuted);
+  }
+
+  private static class StepStatisticsImpl implements ComputationStep.Statistics {
+    private final Profiler profiler;
+
+    private StepStatisticsImpl(Profiler profiler) {
+      this.profiler = profiler;
+    }
+
+    @Override
+    public void add(String key, Object value) {
+      requireNonNull(key, "Statistic has null key");
+      requireNonNull(value, () -> String.format("Statistic with key [%s] has null value", key));
+      checkArgument(!key.equalsIgnoreCase("time"), "Statistic with key [time] is not accepted");
+      checkArgument(!profiler.hasContext(key), "Statistic with key [%s] is already present", key);
+      profiler.addContext(key, value);
+    }
+  }
+
+  private static class StepContextImpl implements ComputationStep.Context {
+    private final ComputationStep.Statistics statistics;
+
+    private StepContextImpl(ComputationStep.Statistics statistics) {
+      this.statistics = statistics;
+    }
+
+    @Override
+    public ComputationStep.Statistics getStatistics() {
+      return statistics;
+    }
   }
 }

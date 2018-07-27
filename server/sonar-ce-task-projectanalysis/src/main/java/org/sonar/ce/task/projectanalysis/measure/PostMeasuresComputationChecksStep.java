@@ -60,10 +60,10 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
-    PostMeasuresComputationCheck.Context context = new ContextImpl();
+  public void execute(ComputationStep.Context context) {
+    PostMeasuresComputationCheck.Context extensionContext = new ContextImpl();
     for (PostMeasuresComputationCheck extension : extensions) {
-      extension.onCheck(context);
+      extension.onCheck(extensionContext);
     }
   }
 

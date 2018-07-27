@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -77,7 +78,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
 
   @Test
   public void nothing_to_do_when_no_duplication() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
@@ -87,7 +88,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
   public void compute_duplications_on_same_file() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), new TextBlock(6, 10));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
@@ -99,7 +100,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
   public void compute_duplications_on_different_files() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), FILE_2_REF, new TextBlock(6, 10));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
@@ -112,7 +113,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
     String fileKeyFromOtherProject = "PROJECT2_KEY:file2";
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), fileKeyFromOtherProject, new TextBlock(6, 10));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(

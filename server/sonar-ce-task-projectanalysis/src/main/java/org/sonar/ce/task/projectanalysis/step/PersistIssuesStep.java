@@ -53,7 +53,7 @@ public class PersistIssuesStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(true);
       CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
 

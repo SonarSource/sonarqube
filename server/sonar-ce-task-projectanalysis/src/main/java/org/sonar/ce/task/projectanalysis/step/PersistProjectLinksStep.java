@@ -63,7 +63,7 @@ public class PersistProjectLinksStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     if (!analysisMetadataHolder.getBranch().isMain()) {
       return;
     }

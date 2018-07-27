@@ -56,7 +56,7 @@ public class PurgeDatastoresStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     new DepthTraversalTypeAwareCrawler(
       new TypeAwareVisitorAdapter(reportMaxDepth(PROJECT).withViewsMaxDepth(VIEW), PRE_ORDER) {
         @Override

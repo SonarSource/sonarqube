@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -128,7 +129,7 @@ public class ViewsSizeMeasuresStepTest {
 
   @Test
   public void verify_FILE_and_DIRECTORY_computation_and_aggregation() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyNoMeasure(PROJECTVIEW_1_REF);
     verifyNoMeasure(PROJECTVIEW_2_REF);
@@ -159,7 +160,7 @@ public class ViewsSizeMeasuresStepTest {
     measureRepository.addRawMeasure(PROJECTVIEW_4_REF, metricKey, newMeasureBuilder().create(3));
     measureRepository.addRawMeasure(PROJECTVIEW_5_REF, metricKey, newMeasureBuilder().create(7));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyNoMeasure(PROJECTVIEW_1_REF);
     verifyNoMeasure(PROJECTVIEW_2_REF);
@@ -185,7 +186,7 @@ public class ViewsSizeMeasuresStepTest {
     measureRepository.addRawMeasure(PROJECTVIEW_5_REF, metric1Key, newMeasureBuilder().create(3));
     measureRepository.addRawMeasure(PROJECTVIEW_5_REF, metric2Key, newMeasureBuilder().create(7));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyNoMeasure(PROJECTVIEW_1_REF);
     verifyNoMeasure(PROJECTVIEW_2_REF);

@@ -58,7 +58,7 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     if (!crossProjectDuplicationStatusHolder.isEnabled()) {
       return;
     }

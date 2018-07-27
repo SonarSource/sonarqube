@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,7 +119,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_new_lines() {
     setChangesets(FILE_1_REF, FILE_2_REF, FILE_4_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_LINES_KEY, 11);
     assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_LINES_KEY, 11);
@@ -136,7 +137,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_new_lines_with_only_some_lines_having_changesets() {
     setChangesetsForFirstThreeLines(FILE_1_REF, FILE_2_REF, FILE_4_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_LINES_KEY, 2);
     assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_LINES_KEY, 2);
@@ -152,7 +153,7 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void does_not_compute_new_lines_when_no_changeset() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(NEW_LINES_KEY);
   }
@@ -162,7 +163,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), new TextBlock(2, 2));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
   }
@@ -173,7 +174,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, original, FILE_2_REF, new TextBlock(2, 2));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 1d);
   }
@@ -184,7 +185,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, original, SOME_FILE_KEY, new TextBlock(2, 2));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 1d);
   }
@@ -195,7 +196,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(10, 11));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 6d);
   }
@@ -207,7 +208,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(2, 2), new TextBlock(4, 4));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 11d);
   }
@@ -222,7 +223,7 @@ public class NewSizeMeasuresStepTest {
     setChangesets(FILE_3_REF);
     setChangesets(FILE_4_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
     assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_DUPLICATED_LINES_KEY, 0d);
@@ -247,7 +248,7 @@ public class NewSizeMeasuresStepTest {
     setChangesetsForFirstThreeLines(FILE_3_REF);
     setChangesetsForFirstThreeLines(FILE_4_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
     assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_DUPLICATED_LINES_KEY, 0d);
@@ -268,7 +269,7 @@ public class NewSizeMeasuresStepTest {
     setChangesets(FILE_3_REF);
     setChangesets(FILE_4_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertComputedAndAggregatedToZeroInt(NEW_DUPLICATED_LINES_KEY);
   }
@@ -279,7 +280,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 2), new TextBlock(4, 4), new TextBlock(3, 4));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
   }
@@ -290,7 +291,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(2, 2), new TextBlock(4, 4));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
   }
@@ -300,7 +301,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), FILE_2_REF, new TextBlock(2, 2));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
   }
@@ -310,7 +311,7 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), SOME_FILE_KEY, new TextBlock(2, 2));
     setChangesets(FILE_1_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
   }
@@ -322,7 +323,7 @@ public class NewSizeMeasuresStepTest {
     addDuplicatedBlock(FILE_4_REF, 7);
     setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 10);
     assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 2);
@@ -339,7 +340,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_and_aggregate_duplicated_blocks_to_zero_when_no_duplication() {
     setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertComputedAndAggregatedToZeroInt(NEW_BLOCKS_DUPLICATED_KEY);
   }
@@ -351,7 +352,7 @@ public class NewSizeMeasuresStepTest {
     addDuplicatedBlock(FILE_3_REF, 10);
     addDuplicatedBlock(FILE_4_REF, 12);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValue(FILE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 18.2d);
     assertRawMeasureValue(FILE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 0d);
@@ -367,7 +368,7 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void compute_no_new_duplicated_lines_density_when_no_lines() {
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(NEW_DUPLICATED_LINES_DENSITY_KEY);
   }

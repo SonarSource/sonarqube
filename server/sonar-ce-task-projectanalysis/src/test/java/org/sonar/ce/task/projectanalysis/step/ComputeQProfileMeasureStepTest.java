@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 
@@ -107,7 +108,7 @@ public class ComputeQProfileMeasureStepTest {
     QualityProfile qpPhp = createQProfile(QP_NAME_2, LANGUAGE_KEY_2);
     analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(LANGUAGE_KEY_1, qpJava, LANGUAGE_KEY_2, qpPhp));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).get(QUALITY_PROFILES_KEY))
       .extracting("data").containsOnly(toJson(qpJava, qpPhp));
@@ -118,7 +119,7 @@ public class ComputeQProfileMeasureStepTest {
     ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF).build();
     treeRootHolder.setRoot(project);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF)).isEmpty();
   }
@@ -130,7 +131,7 @@ public class ComputeQProfileMeasureStepTest {
     analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(LANGUAGE_KEY_1, qpJava));
 
     try {
-      underTest.execute();
+      underTest.execute(new TestComputationStepContext());
       fail("Expected exception");
     } catch (Exception e) {
       assertThat(e).hasCause(new IllegalStateException("Report contains a file with language 'php' but no matching quality profile"));

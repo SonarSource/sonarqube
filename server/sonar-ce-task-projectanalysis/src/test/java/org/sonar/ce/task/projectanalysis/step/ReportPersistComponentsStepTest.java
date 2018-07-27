@@ -41,6 +41,7 @@ import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHold
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -128,7 +129,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       .build();
     treeRootHolder.setRoot(treeRoot);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -208,7 +209,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       .build();
     treeRootHolder.setRoot(treeRoot);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -279,7 +280,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     ComponentDto directory = dbClient.componentDao().selectByKey(db.getSession(), projectDto.getDbKey() + ":/").get();
     assertThat(directory.name()).isEqualTo("/");
@@ -306,7 +307,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     ComponentDto file = dbClient.componentDao().selectByKey(db.getSession(), PROJECT_KEY + ":src/test/java/dir/FooTest.java").get();
     assertThat(file.name()).isEqualTo("FooTest.java");
@@ -340,7 +341,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -400,7 +401,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("projects")).isEqualTo(5);
 
@@ -440,7 +441,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -491,7 +492,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectByKey(db.getSession(), project.getDbKey()).get().getId()).isEqualTo(project.getId());
@@ -559,7 +560,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // functional transaction not finished, "A-fields" are not updated yet
     assertNameAndDescription(project.getDbKey(), "Project", "Project description");
@@ -594,7 +595,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get().path()).isEqualTo("path");
 
@@ -640,7 +641,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // commit the functional transaction
     dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
@@ -690,7 +691,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Optional<ComponentDto> projectReloaded = dbClient.componentDao().selectByUuid(db.getSession(), project.uuid());
     assertThat(projectReloaded.get().getCreatedAt()).isNotEqualTo(now);
@@ -733,7 +734,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectByKey(db.getSession(), project.getDbKey()).get().getId()).isEqualTo(project.getId());
@@ -827,7 +828,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .build())
         .build());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     // commit the functional transaction
     dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
@@ -858,7 +859,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     ComponentDto dir = db.components().insertComponent(newDirectory(module, "DEFG", "Directory").setDbKey("DIR").setPrivate(true));
     treeRootHolder.setRoot(createSampleProjectComponentTree(project));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Stream.of(project.uuid(), module.uuid(), dir.uuid())
       .forEach(uuid -> assertThat(dbClient.componentDao().selectByUuid(db.getSession(), uuid).get().isPrivate())

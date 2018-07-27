@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.view.TriggerViewRefreshDelegate;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.server.project.Project;
 
 import static org.mockito.Mockito.mock;
@@ -36,7 +37,7 @@ public class TriggerViewRefreshStepTest {
   public void execute_has_no_effect_if_constructor_without_delegate() {
     TriggerViewRefreshStep underTest = new TriggerViewRefreshStep(analysisMetadataHolder);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyZeroInteractions(analysisMetadataHolder);
   }
@@ -45,7 +46,7 @@ public class TriggerViewRefreshStepTest {
   public void execute_has_no_effect_if_constructor_with_null_delegate() {
     TriggerViewRefreshStep underTest = new TriggerViewRefreshStep(analysisMetadataHolder, null);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verifyZeroInteractions(analysisMetadataHolder);
   }
@@ -57,7 +58,7 @@ public class TriggerViewRefreshStepTest {
     when(analysisMetadataHolder.getProject()).thenReturn(project);
     TriggerViewRefreshStep underTest = new TriggerViewRefreshStep(analysisMetadataHolder, delegate);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(analysisMetadataHolder).getProject();
     verify(delegate).accept(project);

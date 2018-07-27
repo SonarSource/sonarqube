@@ -29,6 +29,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationCheck.Context;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +61,7 @@ public class PostMeasuresComputationChecksStepTest {
     PostMeasuresComputationCheck check1 = mock(PostMeasuresComputationCheck.class);
     PostMeasuresComputationCheck check2 = mock(PostMeasuresComputationCheck.class);
 
-    newStep(check1, check2).execute();
+    newStep(check1, check2).execute(new TestComputationStepContext());
 
     InOrder inOrder = inOrder(check1, check2);
     inOrder.verify(check1).onCheck(any(Context.class));
@@ -72,7 +73,7 @@ public class PostMeasuresComputationChecksStepTest {
     analysisMetadataHolder.setProject(new Project("project_uuid", "project_key", "project_name"));
     PostMeasuresComputationCheck check = mock(PostMeasuresComputationCheck.class);
 
-    newStep(check).execute();
+    newStep(check).execute(new TestComputationStepContext());
 
     ArgumentCaptor<Context> contextArgumentCaptor = ArgumentCaptor.forClass(Context.class);
     verify(check).onCheck(contextArgumentCaptor.capture());
@@ -84,7 +85,7 @@ public class PostMeasuresComputationChecksStepTest {
     PostMeasuresComputationCheck check = mock(PostMeasuresComputationCheck.class);
     measureRepository.addRawMeasure(DUMB_PROJECT.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(10));
 
-    newStep(check).execute();
+    newStep(check).execute(new TestComputationStepContext());
 
     ArgumentCaptor<Context> contextArgumentCaptor = ArgumentCaptor.forClass(Context.class);
     verify(check).onCheck(contextArgumentCaptor.capture());
@@ -95,7 +96,7 @@ public class PostMeasuresComputationChecksStepTest {
   public void ncloc_is_zero_in_context_when_not_available() {
     PostMeasuresComputationCheck check = mock(PostMeasuresComputationCheck.class);
 
-    newStep(check).execute();
+    newStep(check).execute(new TestComputationStepContext());
 
     ArgumentCaptor<Context> contextArgumentCaptor = ArgumentCaptor.forClass(Context.class);
     verify(check).onCheck(contextArgumentCaptor.capture());
@@ -105,7 +106,7 @@ public class PostMeasuresComputationChecksStepTest {
   @Test
   public void do_nothing_if_no_extensions() {
     // no failure
-    newStep().execute();
+    newStep().execute(new TestComputationStepContext());
   }
 
   @Test
@@ -116,7 +117,7 @@ public class PostMeasuresComputationChecksStepTest {
     PostMeasuresComputationCheck check3 = mock(PostMeasuresComputationCheck.class);
 
     try {
-      newStep(check1, check2, check3).execute();
+      newStep(check1, check2, check3).execute(new TestComputationStepContext());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("BOOM");

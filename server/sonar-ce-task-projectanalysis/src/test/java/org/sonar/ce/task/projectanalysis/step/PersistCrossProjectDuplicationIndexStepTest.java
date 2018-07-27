@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -95,7 +96,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     reportReader.putDuplicationBlocks(FILE_1_REF, singletonList(CPD_TEXT_BLOCK));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     Map<String, Object> dto = dbTester.selectFirst("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
     assertThat(dto.get("HASH")).isEqualTo(CPD_TEXT_BLOCK.getHash());
@@ -117,7 +118,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
         .setEndLine(15)
         .build()));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     List<Map<String, Object>> dtos = dbTester.select("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
     assertThat(dtos).extracting("HASH").containsOnly(CPD_TEXT_BLOCK.getHash(), "b1234353e96320ff");
@@ -133,7 +134,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     reportReader.putDuplicationBlocks(FILE_1_REF, Collections.emptyList());
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
   }
@@ -143,7 +144,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(false);
     reportReader.putDuplicationBlocks(FILE_1_REF, singletonList(CPD_TEXT_BLOCK));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
   }

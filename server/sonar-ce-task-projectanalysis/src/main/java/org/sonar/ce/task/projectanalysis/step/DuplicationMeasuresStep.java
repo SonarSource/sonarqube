@@ -41,7 +41,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     defaultDuplicationMeasures.execute();
   }
 }

@@ -34,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -100,7 +101,7 @@ public class ViewsComputeMeasureVariationsStepTest {
 
     treeRootHolder.setRoot(VIEW);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasures(VIEW).keys()).isEmpty();
   }
@@ -111,7 +112,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     treeRootHolder.setRoot(view);
     periodsHolder.setPeriod(null);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasures(view).keys()).isEmpty();
   }
@@ -138,7 +139,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     addRawMeasure(view, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
     addRawMeasure(subview, ISSUES_METRIC, Measure.newMeasureBuilder().create(20, null));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasure(view, ISSUES_METRIC).get().getVariation()).isEqualTo(20d);
     assertThat(measureRepository.getRawMeasure(subview, ISSUES_METRIC).get().getVariation()).isEqualTo(10d);
@@ -164,7 +165,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     addRawMeasure(VIEW, FILE_COMPLEXITY_METRIC, Measure.newMeasureBuilder().create(3d, 1));
     addRawMeasure(VIEW, BUILD_BREAKER_METRIC, Measure.newMeasureBuilder().create(false, null));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(measureRepository.getRawMeasures(VIEW).keys()).hasSize(4);
 

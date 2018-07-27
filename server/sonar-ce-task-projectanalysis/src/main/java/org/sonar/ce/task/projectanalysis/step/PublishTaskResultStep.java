@@ -41,7 +41,7 @@ public class PublishTaskResultStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
+  public void execute(ComputationStep.Context context) {
     taskResultHolder.setResult(new CeTaskResultImpl(analysisMetadataHolder.getUuid()));
   }
 

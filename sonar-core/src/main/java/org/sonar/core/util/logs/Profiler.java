@@ -92,6 +92,8 @@ public abstract class Profiler {
    */
   public abstract Profiler addContext(String key, @Nullable Object value);
 
+  public abstract boolean hasContext(String key);
+
   /**
    * Defines whether time is added to stop messages before or after context (if any).
    * <p>{@code flag} is {@code false} by default.</p>

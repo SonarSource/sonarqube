@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.server.es.ProjectIndexer;
 
 import static org.mockito.Mockito.mock;
@@ -52,7 +53,7 @@ public class IndexAnalysisStepTest extends BaseStepTest {
     Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(componentIndexer).indexOnAnalysis(PROJECT_UUID);
   }
@@ -62,7 +63,7 @@ public class IndexAnalysisStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid(PROJECT_UUID).build();
     treeRootHolder.setRoot(view);
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     verify(componentIndexer).indexOnAnalysis(PROJECT_UUID);
   }

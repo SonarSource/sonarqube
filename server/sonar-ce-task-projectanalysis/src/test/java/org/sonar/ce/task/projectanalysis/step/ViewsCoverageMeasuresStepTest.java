@@ -28,6 +28,7 @@ import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWith
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
@@ -105,7 +106,7 @@ public class ViewsCoverageMeasuresStepTest {
       .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(300))
       .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(19));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     MeasureRepoEntry[] subViewRepoEntries = {
       entryOf(metricKeys.getLines(), newMeasureBuilder().create(5000)),
@@ -152,7 +153,7 @@ public class ViewsCoverageMeasuresStepTest {
       .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(300))
       .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(19));
 
-    underTest.execute();
+    underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(PROJECTVIEW_1_REF))).isEmpty();
     assertThat(toEntries(measureRepository.getAddedRawMeasures(PROJECTVIEW_2_REF))).isEmpty();
