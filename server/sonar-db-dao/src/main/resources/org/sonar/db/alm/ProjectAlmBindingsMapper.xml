@@ -92,4 +92,15 @@
     project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectProjectKey" parameterType="Map" resultType="String">
+    select
+      p.kee as projectKey
+    from
+      project_alm_bindings b join projects p
+      on b.project_uuid = p.project_uuid
+    where
+      alm_id = #{almId, jdbcType=VARCHAR}
+      and repo_id = #{repoId, jdbcType=VARCHAR}
+  </select>
+
 </mapper>

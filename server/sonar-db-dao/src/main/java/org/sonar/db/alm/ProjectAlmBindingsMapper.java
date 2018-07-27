@@ -20,6 +20,7 @@
 package org.sonar.db.alm;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
@@ -38,4 +39,7 @@ public interface ProjectAlmBindingsMapper {
   ProjectAlmBindingDto selectByRepoId(@Param("almId") String almId, @Param("repoId") String repoId);
 
   ProjectAlmBindingDto selectByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  @CheckForNull
+  String selectProjectKey(@Param("almId") String almId, @Param("repoId") String repoId);
 }

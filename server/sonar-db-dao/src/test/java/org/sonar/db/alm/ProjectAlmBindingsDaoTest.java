@@ -31,9 +31,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -65,8 +69,9 @@ public class ProjectAlmBindingsDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(system2);
-
+  private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
+
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private ProjectAlmBindingsDao underTest = new ProjectAlmBindingsDao(system2, uuidFactory);
 
@@ -121,8 +126,8 @@ public class ProjectAlmBindingsDaoTest {
 
   @Test
   public void insert() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
+    when(uuidFactory.create()).thenReturn("uuid1");
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
 
     assertThatProjectAlmBinding(GITHUB, A_REPO)
@@ -135,8 +140,8 @@ public class ProjectAlmBindingsDaoTest {
 
   @Test
   public void update() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
+    when(uuidFactory.create()).thenReturn("uuid1");
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
 
     when(system2.now()).thenReturn(DATE_LATER);
@@ -153,9 +158,7 @@ public class ProjectAlmBindingsDaoTest {
   @Test
   public void insert_multiple() {
     when(system2.now()).thenReturn(DATE);
-    when(uuidFactory.create())
-      .thenReturn(A_UUID)
-      .thenReturn(ANOTHER_UUID);
+    when(uuidFactory.create()).thenReturn("uuid1").thenReturn("uuid2");
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
     underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, ANOTHER_UUID, ANOTHER_GITHUB_SLUG, ANOTHER_URL);
 
@@ -202,7 +205,7 @@ public class ProjectAlmBindingsDaoTest {
 
   @Test
   public void mappingExists_returns_true_when_entry_exists() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(uuidFactory.create()).thenReturn("uuid1");
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
 
     assertThat(underTest.bindingExists(dbSession, GITHUB, A_REPO)).isTrue();
@@ -261,15 +264,53 @@ public class ProjectAlmBindingsDaoTest {
       .thenReturn("uuid1")
       .thenReturn("uuid2")
       .thenReturn("uuid3");
+
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
     underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, ANOTHER_UUID, null, ANOTHER_URL);
     underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
 
     assertThat(underTest.selectByRepoIds(dbSession, GITHUB, Arrays.asList(A_REPO, ANOTHER_REPO, "foo")))
-      .extracting(ProjectAlmBindingDto::getUuid, ProjectAlmBindingDto::getAlmId, ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid, ProjectAlmBindingDto::getUrl, ProjectAlmBindingDto::getGithubSlug)
+      .extracting(ProjectAlmBindingDto::getUuid, ProjectAlmBindingDto::getAlmId, ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid,
+        ProjectAlmBindingDto::getUrl, ProjectAlmBindingDto::getGithubSlug)
       .containsExactlyInAnyOrder(
         tuple("uuid1", GITHUB.getId(), A_REPO, A_UUID, A_URL, A_GITHUB_SLUG),
         tuple("uuid2", GITHUB.getId(), ANOTHER_REPO, ANOTHER_UUID, ANOTHER_URL, null));
+  }
+
+  @Test
+  public void findProjectKey_throws_NPE_when_alm_is_null() {
+    expectAlmNPE();
+
+    underTest.findProjectKey(dbSession, null, A_REPO);
+  }
+
+  @Test
+  public void findProjectKey_throws_IAE_when_repo_id_is_null() {
+    expectRepoIdNullOrEmptyIAE();
+
+    underTest.findProjectKey(dbSession, GITHUB, null);
+  }
+
+  @Test
+  public void findProjectKey_throws_IAE_when_repo_id_is_empty() {
+    expectRepoIdNullOrEmptyIAE();
+
+    underTest.findProjectKey(dbSession, GITHUB, EMPTY_STRING);
+  }
+
+  @Test
+  public void findProjectKey_returns_empty_when_entry_does_not_exist_in_DB() {
+    assertThat(underTest.findProjectKey(dbSession, GITHUB, A_REPO)).isEmpty();
+  }
+
+  @Test
+  public void findProjectKey_returns_projectKey_when_entry_exists() {
+    String projectKey = randomAlphabetic(10);
+    ComponentDto project = createProject(projectKey);
+    when(uuidFactory.create()).thenReturn("uuid1");
+    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, project.projectUuid(), A_GITHUB_SLUG, A_URL);
+
+    assertThat(underTest.findProjectKey(dbSession, GITHUB, A_REPO)).contains(projectKey);
   }
 
   private void expectAlmNPE() {
@@ -391,5 +432,12 @@ public class ProjectAlmBindingsDaoTest {
       this.createdAt = createdAt;
       this.updatedAt = updatedAt;
     }
+  }
+
+  private ComponentDto createProject(String projectKey) {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setDbKey(projectKey);
+    dbClient.componentDao().insert(dbSession, project);
+    dbSession.commit();
+    return project;
   }
 }

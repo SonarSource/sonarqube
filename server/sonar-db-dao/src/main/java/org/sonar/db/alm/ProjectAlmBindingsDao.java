@@ -81,6 +81,14 @@ public class ProjectAlmBindingsDao implements Dao {
     return Optional.ofNullable(getMapper(session).selectByRepoId(alm.getId(), repoId));
   }
 
+  public Optional<String> findProjectKey(DbSession dbSession, ALM alm, String repoId) {
+    checkAlm(alm);
+    checkRepoId(repoId);
+
+    ProjectAlmBindingsMapper mapper = getMapper(dbSession);
+    return Optional.ofNullable(mapper.selectProjectKey(alm.getId(), repoId));
+  }
+
   private static void checkAlm(@Nullable ALM alm) {
     Objects.requireNonNull(alm, "alm can't be null");
   }
