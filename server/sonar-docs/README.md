@@ -66,6 +66,7 @@ order: 0
 scope: static
 ---
 ```
+Metadata tags can appear in any order, but by convention, `title` should come first.
 
 ### Includes
 Basic syntax: `@include tooltips/quality-gates/quality-gate`
