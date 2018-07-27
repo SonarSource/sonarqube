@@ -31,8 +31,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.sonar.api.Startable;
 import org.sonar.db.alm.AlmAppInstallMapper;
-import org.sonar.db.alm.AlmProjectMappingDto;
-import org.sonar.db.alm.AlmProjectMappingsMapper;
+import org.sonar.db.alm.ProjectAlmBindingDto;
+import org.sonar.db.alm.ProjectAlmBindingsMapper;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
 import org.sonar.db.ce.CeScannerContextMapper;
@@ -152,7 +152,6 @@ public class MyBatis implements Startable {
     // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
-    confBuilder.loadAlias("AlmProjectMapping", AlmProjectMappingDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
@@ -179,6 +178,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("Plugin", PluginDto.class);
+    confBuilder.loadAlias("ProjectAlmBinding", ProjectAlmBindingDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
@@ -202,9 +202,8 @@ public class MyBatis implements Startable {
     // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveRuleMapper.class,
-      AnalysisPropertiesMapper.class,
       AlmAppInstallMapper.class,
-      AlmProjectMappingsMapper.class,
+      AnalysisPropertiesMapper.class,
       AuthorizationMapper.class,
       BranchMapper.class,
       CeActivityMapper.class,
@@ -213,7 +212,6 @@ public class MyBatis implements Startable {
       CeTaskInputMapper.class,
       CeTaskCharacteristicMapper.class,
       ComponentKeyUpdaterMapper.class,
-      ProjectLinkMapper.class,
       ComponentMapper.class,
       LiveMeasureMapper.class,
       CustomMeasureMapper.class,
@@ -237,6 +235,8 @@ public class MyBatis implements Startable {
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       PluginMapper.class,
+      ProjectAlmBindingsMapper.class,
+      ProjectLinkMapper.class,
       ProjectMappingsMapper.class,
       ProjectQgateAssociationMapper.class,
       PropertiesMapper.class,

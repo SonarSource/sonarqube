@@ -298,9 +298,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteAlmProjectMappings(String rootUuid) {
-    profiler.start("deleteAlmProjectMappings (alm_project_mappings)");
-    purgeMapper.deleteAlmProjectMappingsByProjectUuid(rootUuid);
+  void deleteProjectAlmBindings(String rootUuid) {
+    profiler.start("deleteProjectAlmBindings (project_alm_bindings)");
+    purgeMapper.deleteProjectAlmBindingsByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
   }

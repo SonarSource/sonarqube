@@ -622,19 +622,19 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void deleteProject_deletes_alm_project_mappings() {
+  public void deleteProject_deletes_project_alm_bindings() {
     ALM alm = ALM.GITHUB;
     String repoId = "123";
     String otherRepoId = repoId + "-foo";
 
     ComponentDto project = dbTester.components().insertPublicProject();
-    dbClient.almProjectMappingsDao().insertOrUpdate(dbSession, alm, repoId, project.uuid(), null, "foo");
-    dbClient.almProjectMappingsDao().insertOrUpdate(dbSession, alm, otherRepoId, "D2", null, "bar");
+    dbClient.projectAlmBindingsDao().insertOrUpdate(dbSession, alm, repoId, project.uuid(), null, "foo");
+    dbClient.projectAlmBindingsDao().insertOrUpdate(dbSession, alm, otherRepoId, "D2", null, "bar");
 
     underTest.deleteProject(dbSession, project.uuid());
 
-    assertThat(dbClient.almProjectMappingsDao().mappingExists(dbSession, alm, repoId)).isFalse();
-    assertThat(dbClient.almProjectMappingsDao().mappingExists(dbSession, alm, otherRepoId)).isTrue();
+    assertThat(dbClient.projectAlmBindingsDao().bindingExists(dbSession, alm, repoId)).isFalse();
+    assertThat(dbClient.projectAlmBindingsDao().bindingExists(dbSession, alm, otherRepoId)).isTrue();
   }
 
   @Test

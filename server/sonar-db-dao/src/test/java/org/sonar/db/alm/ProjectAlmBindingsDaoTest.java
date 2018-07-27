@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.ALM.BITBUCKETCLOUD;
 import static org.sonar.db.alm.ALM.GITHUB;
 
-public class AlmProjectMappingsDaoTest {
+public class ProjectAlmBindingsDaoTest {
 
   private static final String A_UUID = "abcde1234";
   private static final String ANOTHER_UUID = "xyz789";
@@ -67,7 +67,7 @@ public class AlmProjectMappingsDaoTest {
 
   private DbSession dbSession = dbTester.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private AlmProjectMappingsDao underTest = new AlmProjectMappingsDao(system2, uuidFactory);
+  private ProjectAlmBindingsDao underTest = new ProjectAlmBindingsDao(system2, uuidFactory);
 
   @Test
   public void insert_throws_NPE_if_alm_is_null() {
@@ -124,7 +124,7 @@ public class AlmProjectMappingsDaoTest {
     when(system2.now()).thenReturn(DATE);
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
 
-    assertThatAlmProjectMapping(GITHUB, A_REPO)
+    assertThatProjectAlmBinding(GITHUB, A_REPO)
       .hasProjectUuid(A_UUID)
       .hasGithubSlug(A_GITHUB_SLUG)
       .hasUrl(A_URL)
@@ -141,7 +141,7 @@ public class AlmProjectMappingsDaoTest {
     when(system2.now()).thenReturn(DATE_LATER);
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, ANOTHER_UUID, ANOTHER_GITHUB_SLUG, ANOTHER_URL);
 
-    assertThatAlmProjectMapping(GITHUB, A_REPO)
+    assertThatProjectAlmBinding(GITHUB, A_REPO)
       .hasProjectUuid(ANOTHER_UUID)
       .hasGithubSlug(ANOTHER_GITHUB_SLUG)
       .hasUrl(ANOTHER_URL)
@@ -158,14 +158,14 @@ public class AlmProjectMappingsDaoTest {
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
     underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, ANOTHER_UUID, ANOTHER_GITHUB_SLUG, ANOTHER_URL);
 
-    assertThatAlmProjectMapping(GITHUB, A_REPO)
+    assertThatProjectAlmBinding(GITHUB, A_REPO)
       .hasProjectUuid(A_UUID)
       .hasGithubSlug(A_GITHUB_SLUG)
       .hasUrl(A_URL)
       .hasCreatedAt(DATE)
       .hasUpdatedAt(DATE);
 
-    assertThatAlmProjectMapping(GITHUB, ANOTHER_REPO)
+    assertThatProjectAlmBinding(GITHUB, ANOTHER_REPO)
       .hasProjectUuid(ANOTHER_UUID)
       .hasGithubSlug(ANOTHER_GITHUB_SLUG)
       .hasUrl(ANOTHER_URL)
@@ -177,26 +177,26 @@ public class AlmProjectMappingsDaoTest {
   public void mappingExists_throws_NPE_when_alm_is_null() {
     expectAlmNPE();
 
-    underTest.mappingExists(dbSession, null, A_REPO);
+    underTest.bindingExists(dbSession, null, A_REPO);
   }
 
   @Test
   public void mappingExists_throws_IAE_when_repo_id_is_null() {
     expectRepoIdNullOrEmptyIAE();
 
-    underTest.mappingExists(dbSession, GITHUB, null);
+    underTest.bindingExists(dbSession, GITHUB, null);
   }
 
   @Test
   public void mappingExists_throws_IAE_when_repo_id_is_empty() {
     expectRepoIdNullOrEmptyIAE();
 
-    underTest.mappingExists(dbSession, GITHUB, EMPTY_STRING);
+    underTest.bindingExists(dbSession, GITHUB, EMPTY_STRING);
   }
 
   @Test
   public void mappingExists_returns_false_when_entry_does_not_exist_in_DB() {
-    assertThat(underTest.mappingExists(dbSession, GITHUB, A_REPO)).isFalse();
+    assertThat(underTest.bindingExists(dbSession, GITHUB, A_REPO)).isFalse();
   }
 
   @Test
@@ -204,7 +204,7 @@ public class AlmProjectMappingsDaoTest {
     when(uuidFactory.create()).thenReturn(A_UUID);
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
 
-    assertThat(underTest.mappingExists(dbSession, GITHUB, A_REPO)).isTrue();
+    assertThat(underTest.bindingExists(dbSession, GITHUB, A_REPO)).isTrue();
   }
 
   @Test
@@ -219,7 +219,7 @@ public class AlmProjectMappingsDaoTest {
     underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
 
     assertThat(underTest.selectByRepoIds(dbSession, GITHUB, Arrays.asList(A_REPO, ANOTHER_REPO, "foo")))
-      .extracting(AlmProjectMappingDto::getUuid, AlmProjectMappingDto::getAlmId, AlmProjectMappingDto::getRepoId, AlmProjectMappingDto::getProjectUuid, AlmProjectMappingDto::getUrl, AlmProjectMappingDto::getGithubSlug)
+      .extracting(ProjectAlmBindingDto::getUuid, ProjectAlmBindingDto::getAlmId, ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid, ProjectAlmBindingDto::getUrl, ProjectAlmBindingDto::getGithubSlug)
       .containsExactlyInAnyOrder(
         tuple("uuid1", GITHUB.getId(), A_REPO, A_UUID, A_URL, A_GITHUB_SLUG),
         tuple("uuid2", GITHUB.getId(), ANOTHER_REPO, ANOTHER_UUID, ANOTHER_URL, null));
@@ -245,23 +245,23 @@ public class AlmProjectMappingsDaoTest {
     expectedException.expectMessage("url can't be null nor empty");
   }
 
-  private AlmAppInstallAssert assertThatAlmProjectMapping(ALM alm, String repoId) {
-    return new AlmAppInstallAssert(dbTester, dbSession, alm, repoId);
+  private ProjectAlmBindingAssert assertThatProjectAlmBinding(ALM alm, String repoId) {
+    return new ProjectAlmBindingAssert(dbTester, dbSession, alm, repoId);
   }
 
-  private static class AlmAppInstallAssert extends AbstractAssert<AlmAppInstallAssert, AlmProjectMapping> {
+  private static class ProjectAlmBindingAssert extends AbstractAssert<ProjectAlmBindingAssert, ProjectAlmBinding> {
 
-    private AlmAppInstallAssert(DbTester dbTester, DbSession dbSession, ALM alm, String repoId) {
-      super(asAlmProjectMapping(dbTester, dbSession, alm, repoId), AlmAppInstallAssert.class);
+    private ProjectAlmBindingAssert(DbTester dbTester, DbSession dbSession, ALM alm, String repoId) {
+      super(asProjectAlmBinding(dbTester, dbSession, alm, repoId), ProjectAlmBindingAssert.class);
     }
 
-    private static AlmProjectMapping asAlmProjectMapping(DbTester dbTester, DbSession dbSession, ALM alm, String repoId) {
+    private static ProjectAlmBinding asProjectAlmBinding(DbTester dbTester, DbSession dbSession, ALM alm, String repoId) {
       List<Map<String, Object>> rows = dbTester.select(
         dbSession,
         "select" +
           " project_uuid as \"projectUuid\", github_slug as \"githubSlug\", url as \"url\", " +
           " created_at as \"createdAt\", updated_at as \"updatedAt\"" +
-          " from alm_project_mappings" +
+          " from project_alm_bindings" +
           " where alm_id='" + alm.getId() + "' and repo_id='" + repoId + "'");
       if (rows.isEmpty()) {
         return null;
@@ -269,7 +269,7 @@ public class AlmProjectMappingsDaoTest {
       if (rows.size() > 1) {
         throw new IllegalStateException("Unique index violation");
       }
-      return new AlmProjectMapping(
+      return new ProjectAlmBinding(
         (String) rows.get(0).get("projectUuid"),
         (String) rows.get(0).get("githubSlug"),
         (String) rows.get(0).get("url"),
@@ -281,48 +281,48 @@ public class AlmProjectMappingsDaoTest {
       isNull();
     }
 
-    AlmAppInstallAssert hasProjectUuid(String expected) {
+    ProjectAlmBindingAssert hasProjectUuid(String expected) {
       isNotNull();
 
       if (!Objects.equals(actual.projectUuid, expected)) {
-        failWithMessage("Expected ALM Project Mapping to have column PROJECT_UUID to be <%s> but was <%s>", expected, actual.projectUuid);
+        failWithMessage("Expected Project ALM Binding to have column PROJECT_UUID to be <%s> but was <%s>", expected, actual.projectUuid);
       }
       return this;
     }
 
-    AlmAppInstallAssert hasGithubSlug(String expected) {
+    ProjectAlmBindingAssert hasGithubSlug(String expected) {
       isNotNull();
 
       if (!Objects.equals(actual.githubSlug, expected)) {
-        failWithMessage("Expected ALM Project Mapping to have column GITHUB_SLUG to be <%s> but was <%s>", expected, actual.githubSlug);
+        failWithMessage("Expected Project ALM Binding to have column GITHUB_SLUG to be <%s> but was <%s>", expected, actual.githubSlug);
       }
       return this;
     }
 
-    AlmAppInstallAssert hasUrl(String expected) {
+    ProjectAlmBindingAssert hasUrl(String expected) {
       isNotNull();
 
       if (!Objects.equals(actual.url, expected)) {
-        failWithMessage("Expected ALM Project Mapping to have column URL to be <%s> but was <%s>", expected, actual.url);
+        failWithMessage("Expected Project ALM Binding to have column URL to be <%s> but was <%s>", expected, actual.url);
       }
       return this;
     }
 
-    AlmAppInstallAssert hasCreatedAt(long expected) {
+    ProjectAlmBindingAssert hasCreatedAt(long expected) {
       isNotNull();
 
       if (!Objects.equals(actual.createdAt, expected)) {
-        failWithMessage("Expected ALM Project Mapping to have column CREATED_AT to be <%s> but was <%s>", expected, actual.createdAt);
+        failWithMessage("Expected Project ALM Binding to have column CREATED_AT to be <%s> but was <%s>", expected, actual.createdAt);
       }
 
       return this;
     }
 
-    AlmAppInstallAssert hasUpdatedAt(long expected) {
+    ProjectAlmBindingAssert hasUpdatedAt(long expected) {
       isNotNull();
 
       if (!Objects.equals(actual.updatedAt, expected)) {
-        failWithMessage("Expected ALM Project Mapping to have column UPDATED_AT to be <%s> but was <%s>", expected, actual.updatedAt);
+        failWithMessage("Expected Project ALM Binding to have column UPDATED_AT to be <%s> but was <%s>", expected, actual.updatedAt);
       }
 
       return this;
@@ -330,14 +330,14 @@ public class AlmProjectMappingsDaoTest {
 
   }
 
-  private static final class AlmProjectMapping {
+  private static final class ProjectAlmBinding {
     private final String projectUuid;
     private final String githubSlug;
     private final String url;
     private final Long createdAt;
     private final Long updatedAt;
 
-    AlmProjectMapping(@Nullable String projectUuid, @Nullable String githubSlug, @Nullable String url, @Nullable Long createdAt, @Nullable Long updatedAt) {
+    ProjectAlmBinding(@Nullable String projectUuid, @Nullable String githubSlug, @Nullable String url, @Nullable Long createdAt, @Nullable Long updatedAt) {
       this.projectUuid = projectUuid;
       this.githubSlug = githubSlug;
       this.url = url;

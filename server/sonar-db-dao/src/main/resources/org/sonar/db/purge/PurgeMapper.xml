@@ -364,8 +364,8 @@
     delete from project_mappings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteAlmProjectMappingsByProjectUuid">
-    delete from alm_project_mappings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  <delete id="deleteProjectAlmBindingsByProjectUuid">
+    delete from project_alm_bindings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteBranchByUuid">

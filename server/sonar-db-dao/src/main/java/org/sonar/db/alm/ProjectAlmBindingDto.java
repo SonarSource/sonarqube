@@ -19,7 +19,7 @@
  */
 package org.sonar.db.alm;
 
-public class AlmProjectMappingDto {
+public class ProjectAlmBindingDto {
   private String uuid;
   private String almId;
   private String repoId;
@@ -31,7 +31,7 @@ public class AlmProjectMappingDto {
     return almId;
   }
 
-  public AlmProjectMappingDto setAlmId(String almId) {
+  public ProjectAlmBindingDto setAlmId(String almId) {
     this.almId = almId;
     return this;
   }
@@ -40,7 +40,7 @@ public class AlmProjectMappingDto {
     return repoId;
   }
 
-  public AlmProjectMappingDto setRepoId(String repoId) {
+  public ProjectAlmBindingDto setRepoId(String repoId) {
     this.repoId = repoId;
     return this;
   }
@@ -49,7 +49,7 @@ public class AlmProjectMappingDto {
     return projectUuid;
   }
 
-  public AlmProjectMappingDto setProjectUuid(String projectUuid) {
+  public ProjectAlmBindingDto setProjectUuid(String projectUuid) {
     this.projectUuid = projectUuid;
     return this;
   }
@@ -58,7 +58,7 @@ public class AlmProjectMappingDto {
     return githubSlug;
   }
 
-  public AlmProjectMappingDto setGithubSlug(String githubSlug) {
+  public ProjectAlmBindingDto setGithubSlug(String githubSlug) {
     this.githubSlug = githubSlug;
     return this;
   }
@@ -67,7 +67,7 @@ public class AlmProjectMappingDto {
     return url;
   }
 
-  public AlmProjectMappingDto setUrl(String url) {
+  public ProjectAlmBindingDto setUrl(String url) {
     this.url = url;
     return this;
   }
@@ -76,7 +76,7 @@ public class AlmProjectMappingDto {
     return uuid;
   }
 
-  public AlmProjectMappingDto setUuid(String uuid) {
+  public ProjectAlmBindingDto setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }

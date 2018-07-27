@@ -28,14 +28,14 @@ import static java.sql.Types.BIGINT;
 import static java.sql.Types.VARCHAR;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CreateAlmProjectMappingsTableTest {
+public class CreateProjectAlmBindingsTableTest {
 
-  private static final String TABLE = "alm_project_mappings";
+  private static final String TABLE = "project_alm_bindings";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateAlmProjectMappingsTableTest.class, "empty.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(CreateProjectAlmBindingsTableTest.class, "empty.sql");
 
-  private CreateAlmProjectMappingsTable underTest = new CreateAlmProjectMappingsTable(db.database());
+  private CreateProjectAlmBindingsTable underTest = new CreateProjectAlmBindingsTable(db.database());
 
   @Test
   public void creates_table_on_empty_db() throws SQLException {

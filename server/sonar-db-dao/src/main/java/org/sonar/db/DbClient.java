@@ -21,7 +21,7 @@ package org.sonar.db;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import org.sonar.db.alm.AlmProjectMappingsDao;
+import org.sonar.db.alm.ProjectAlmBindingsDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -91,7 +91,7 @@ public class DbClient {
   private final QualityProfileDao qualityProfileDao;
   private final PropertiesDao propertiesDao;
   private final AlmAppInstallDao almAppInstallDao;
-  private final AlmProjectMappingsDao almProjectMappingsDao;
+  private final ProjectAlmBindingsDao projectAlmBindingsDao;
   private final InternalPropertiesDao internalPropertiesDao;
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
@@ -151,7 +151,7 @@ public class DbClient {
       map.put(dao.getClass(), dao);
     }
     almAppInstallDao = getDao(map, AlmAppInstallDao.class);
-    almProjectMappingsDao = getDao(map, AlmProjectMappingsDao.class);
+    projectAlmBindingsDao = getDao(map, ProjectAlmBindingsDao.class);
     schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     organizationDao = getDao(map, OrganizationDao.class);
@@ -220,8 +220,8 @@ public class DbClient {
     return almAppInstallDao;
   }
 
-  public AlmProjectMappingsDao almProjectMappingsDao() {
-    return almProjectMappingsDao;
+  public ProjectAlmBindingsDao projectAlmBindingsDao() {
+    return projectAlmBindingsDao;
   }
 
   public SchemaMigrationDao schemaMigrationDao() {

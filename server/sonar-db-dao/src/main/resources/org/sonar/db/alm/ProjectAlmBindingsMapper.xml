@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.db.alm.AlmProjectMappingsMapper">
+<mapper namespace="org.sonar.db.alm.ProjectAlmBindingsMapper">
 
-  <select id="mappingCount" parameterType="Map" resultType="int">
+  <select id="bindingCount" parameterType="Map" resultType="int">
     select
       count(*) as count
     from
-      alm_project_mappings
+      project_alm_bindings
     where
       alm_id = #{almId, jdbcType=VARCHAR}
       and repo_id = #{repoId, jdbcType=VARCHAR}
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
-    INSERT INTO alm_project_mappings
+    INSERT INTO project_alm_bindings
     (
       uuid,
       alm_id,
@@ -38,7 +38,7 @@
   </insert>
 
   <update id="update" parameterType="map">
-    update alm_project_mappings set
+    update project_alm_bindings set
       project_uuid = #{projectUuid, jdbcType=VARCHAR},
       github_slug = #{githubSlug, jdbcType=VARCHAR},
       url = #{url, jdbcType=VARCHAR},
@@ -48,7 +48,7 @@
       and repo_id = #{repoId, jdbcType=VARCHAR}
   </update>
 
-  <select id="selectByRepoIds" parameterType="map" resultType="AlmProjectMapping">
+  <select id="selectByRepoIds" parameterType="map" resultType="ProjectAlmBinding">
     select
       uuid,
       alm_id as almId,
@@ -56,7 +56,7 @@
       project_uuid as projectUuid,
       github_slug as githubSlug,
       url
-    from alm_project_mappings
+    from project_alm_bindings
     where
       alm_id =#{almId, jdbcType=VARCHAR}
       and repo_id in

@@ -23,9 +23,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
-public interface AlmProjectMappingsMapper {
+public interface ProjectAlmBindingsMapper {
 
-  int mappingCount(@Param("almId") String almId, @Param("repoId") String repoId);
+  int bindingCount(@Param("almId") String almId, @Param("repoId") String repoId);
 
   void insert(@Param("uuid") String uuid, @Param("almId") String almId, @Param("repoId") String repoId, @Param("projectUuid") String projectUuid,
     @Nullable @Param("githubSlug") String githubSlug, @Param("url") String url, @Param("now") long now);
@@ -33,5 +33,5 @@ public interface AlmProjectMappingsMapper {
   int update(@Param("almId") String almId, @Param("repoId") String repoId, @Param("projectUuid") String projectUuid,
     @Nullable @Param("githubSlug") String githubSlug, @Param("url") String url, @Param("now") long now);
 
-  List<AlmProjectMappingDto> selectByRepoIds(@Param("almId") String almId, @Param("repoIds") List<String> repoIds);
+  List<ProjectAlmBindingDto> selectByRepoIds(@Param("almId") String almId, @Param("repoIds") List<String> repoIds);
 }

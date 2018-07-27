@@ -30,13 +30,12 @@ import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateAlmProjectMappingsTable extends DdlChange {
+public class CreateProjectAlmBindingsTable extends DdlChange {
 
-  private static final String TABLE_NAME = "alm_project_mappings";
+  private static final String TABLE_NAME = "project_alm_bindings";
 
   private static final VarcharColumnDef UUID = newVarcharColumnDefBuilder()
     .setColumnName("uuid")
@@ -77,7 +76,7 @@ public class CreateAlmProjectMappingsTable extends DdlChange {
     .setIsNullable(false)
     .build();
 
-  public CreateAlmProjectMappingsTable(Database db) {
+  public CreateProjectAlmBindingsTable(Database db) {
     super(db);
   }
 

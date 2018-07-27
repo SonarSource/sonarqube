@@ -32,12 +32,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class AlmProjectMappingsDao implements Dao {
+public class ProjectAlmBindingsDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
-  public AlmProjectMappingsDao(System2 system2, UuidFactory uuidFactory) {
+  public ProjectAlmBindingsDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
   }
@@ -48,7 +48,7 @@ public class AlmProjectMappingsDao implements Dao {
     checkArgument(isNotEmpty(projectUuid), "projectUuid can't be null nor empty");
     checkArgument(isNotEmpty(url), "url can't be null nor empty");
 
-    AlmProjectMappingsMapper mapper = getMapper(dbSession);
+    ProjectAlmBindingsMapper mapper = getMapper(dbSession);
     long now = system2.now();
 
     if (mapper.update(alm.getId(), repoId, projectUuid, githubSlug, url, now) == 0) {
@@ -56,19 +56,19 @@ public class AlmProjectMappingsDao implements Dao {
     }
   }
 
-  public boolean mappingExists(DbSession dbSession, ALM alm, String repoId) {
+  public boolean bindingExists(DbSession dbSession, ALM alm, String repoId) {
     checkAlm(alm);
     checkRepoId(repoId);
 
-    return getMapper(dbSession).mappingCount(alm.getId(), repoId) == 1;
+    return getMapper(dbSession).bindingCount(alm.getId(), repoId) == 1;
   }
 
   /**
-   * Gets a list or mappings by their repo_id. The result does NOT contain {@code null} values for mappings not found, so
+   * Gets a list of bindings by their repo_id. The result does NOT contain {@code null} values for bindings not found, so
    * the size of result may be less than the number of ids.
    * <p>Results may be in a different order as input ids.</p>
    */
-  public List<AlmProjectMappingDto> selectByRepoIds(final DbSession session, ALM alm, Collection<String> repoIds) {
+  public List<ProjectAlmBindingDto> selectByRepoIds(final DbSession session, ALM alm, Collection<String> repoIds) {
     return executeLargeInputs(repoIds, partionnedIds -> getMapper(session).selectByRepoIds(alm.getId(), partionnedIds));
   }
 
@@ -80,7 +80,7 @@ public class AlmProjectMappingsDao implements Dao {
     checkArgument(isNotEmpty(repoId), "repoId can't be null nor empty");
   }
 
-  private static AlmProjectMappingsMapper getMapper(DbSession dbSession) {
-    return dbSession.getMapper(AlmProjectMappingsMapper.class);
+  private static ProjectAlmBindingsMapper getMapper(DbSession dbSession) {
+    return dbSession.getMapper(ProjectAlmBindingsMapper.class);
   }
 }
