@@ -49,7 +49,7 @@ public class ExtractReportStepTest {
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
   @Rule
-  public LogTester logTester = new LogTester().setLevel(LoggerLevel.INFO);
+  public LogTester logTester = new LogTester();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -76,6 +76,7 @@ public class ExtractReportStepTest {
 
   @Test
   public void unzip_report() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
     File reportFile = generateReport();
     try (InputStream input = FileUtils.openInputStream(reportFile)) {
       dbTester.getDbClient().ceTaskInputDao().insert(dbTester.getSession(), TASK_UUID, input);
@@ -90,6 +91,8 @@ public class ExtractReportStepTest {
     assertThat(unzippedDir).isDirectory().exists();
     assertThat(unzippedDir.listFiles()).hasSize(1);
     assertThat(new File(unzippedDir, "metadata.pb")).hasContent("{metadata}");
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).anyMatch(log -> log.matches("Analysis report is \\d+ bytes uncompressed"));
   }
 
   private File generateReport() throws IOException {
