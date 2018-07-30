@@ -17,12 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.security-column-separator {
+  border-left: 1px solid var(--barBorderColor);
+}
+
 .security-category-column {
   width: 52%;
 }
 
 .security-result-column {
   width: 12%;
+}
+
+table.data.security-reports > thead:after {
+  content: none;
 }
 
 .cwe-title-cell {
