@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../types';
 import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
@@ -57,8 +58,12 @@ export default function ComponentsHeader({ baseComponent, branchLike, rootCompon
       <tr className="code-components-header">
         <th className="thin nowrap">&nbsp;</th>
         <th>&nbsp;</th>
-        {columns.map(column => (
-          <th key={column} className="thin nowrap text-right code-components-cell">
+        {columns.map((column, index) => (
+          <th
+            className={classNames('thin', 'nowrap', 'text-right', {
+              'code-components-cell': index > 0
+            })}
+            key={column}>
             {baseComponent && column}
           </th>
         ))}
