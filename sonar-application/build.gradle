@@ -45,11 +45,13 @@ dependencies {
   jdbc_mysql 'mysql:mysql-connector-java'
   jdbc_postgresql 'org.postgresql:postgresql'
 
+  bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.0.1.508@jar'
   bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.2.0.5463@jar'
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.0.1612@jar'
   bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.4.0.14284@jar'
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:4.1.0.6085@jar'
+  bundledPlugin 'org.sonarsource.slang:sonar-kotlin-plugin:1.0.0.928@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
   bundledPlugin 'org.sonarsource.php:sonar-php-plugin:2.13.0.3107@jar'
   bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.10.0.2131@jar'
@@ -127,8 +129,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 150000000
-  def maxLength = 170000000
+  def minLength = 160000000
+  def maxLength = 175000000
   def length = new File(distsDir, archiveName).length()
   if (length < minLength)
     throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
