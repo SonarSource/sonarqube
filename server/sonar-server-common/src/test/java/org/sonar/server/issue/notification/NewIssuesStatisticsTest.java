@@ -222,7 +222,6 @@ public class NewIssuesStatisticsTest {
       NewIssuesStatistics.Stats stats = underTest.getAssigneesStatistics().get(assignee);
       DistributedMetricStatsInt assigneeStats = stats.getDistributedMetricStats(Metric.ASSIGNEE);
       assertThat(assigneeStats.getOnLeak()).isEqualTo(1);
-      assertThat(assigneeStats.getOffLeak()).isEqualTo(0);
       assertThat(assigneeStats.getTotal()).isEqualTo(1);
       assignees.forEach(s -> {
         Optional<MetricStatsInt> forLabelOpts = assigneeStats.getForLabel(s);
@@ -230,7 +229,6 @@ public class NewIssuesStatisticsTest {
           assertThat(forLabelOpts.isPresent()).isTrue();
           MetricStatsInt forLabel = forLabelOpts.get();
           assertThat(forLabel.getOnLeak()).isEqualTo(1);
-          assertThat(forLabel.getOffLeak()).isEqualTo(0);
           assertThat(forLabel.getTotal()).isEqualTo(1);
         } else {
           assertThat(forLabelOpts.isPresent()).isFalse();
@@ -252,7 +250,6 @@ public class NewIssuesStatisticsTest {
       NewIssuesStatistics.Stats stats = underTest.getAssigneesStatistics().get(assignee);
       DistributedMetricStatsInt assigneeStats = stats.getDistributedMetricStats(Metric.ASSIGNEE);
       assertThat(assigneeStats.getOnLeak()).isEqualTo(0);
-      assertThat(assigneeStats.getOffLeak()).isEqualTo(1);
       assertThat(assigneeStats.getTotal()).isEqualTo(1);
       assignees.forEach(s -> {
         Optional<MetricStatsInt> forLabelOpts = assigneeStats.getForLabel(s);
@@ -260,7 +257,6 @@ public class NewIssuesStatisticsTest {
           assertThat(forLabelOpts.isPresent()).isTrue();
           MetricStatsInt forLabel = forLabelOpts.get();
           assertThat(forLabel.getOnLeak()).isEqualTo(0);
-          assertThat(forLabel.getOffLeak()).isEqualTo(1);
           assertThat(forLabel.getTotal()).isEqualTo(1);
         } else {
           assertThat(forLabelOpts.isPresent()).isFalse();
@@ -431,7 +427,6 @@ public class NewIssuesStatisticsTest {
     assertThat(statsOption.isPresent()).describedAs("distribution for label %s not found", label).isTrue();
     MetricStatsInt stats = statsOption.get();
     assertThat(stats.getOnLeak()).isEqualTo(onLeak);
-    assertThat(stats.getOffLeak()).isEqualTo(offLeak);
     assertThat(stats.getTotal()).isEqualTo(total);
   }
 

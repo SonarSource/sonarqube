@@ -190,7 +190,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     // just checking all issues have been added to the stats
     DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(efforts.length);
-    assertThat(severity.getOffLeak()).isEqualTo(backDatedEfforts.length);
     assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
   }
 
@@ -335,7 +334,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     // just checking all issues have been added to the stats
     DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(assigned.length);
-    assertThat(severity.getOffLeak()).isEqualTo(0);
     assertThat(severity.getTotal()).isEqualTo(assigned.length);
   }
 
@@ -373,7 +371,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     // just checking all issues have been added to the stats
     DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(efforts.length);
-    assertThat(severity.getOffLeak()).isEqualTo(backDatedEfforts.length);
     assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
   }
 

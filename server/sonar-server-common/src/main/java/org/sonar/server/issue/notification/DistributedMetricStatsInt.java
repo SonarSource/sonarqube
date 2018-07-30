@@ -46,10 +46,6 @@ public class DistributedMetricStatsInt {
     return globalStats.getOnLeak();
   }
 
-  public int getOffLeak() {
-    return globalStats.getOffLeak();
-  }
-
   public int getTotal() {
     return globalStats.getTotal();
   }

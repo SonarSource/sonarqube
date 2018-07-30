@@ -36,10 +36,6 @@ public class MetricStatsInt {
     return onLeak;
   }
 
-  public int getOffLeak() {
-    return offLeak;
-  }
-
   public int getTotal() {
     return onLeak + offLeak;
   }

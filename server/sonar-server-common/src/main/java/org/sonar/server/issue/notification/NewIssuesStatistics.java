@@ -67,10 +67,6 @@ public class NewIssuesStatistics {
     return globalStatistics.hasIssuesOnLeak();
   }
 
-  public boolean hasIssuesOffLeak() {
-    return globalStatistics.hasIssuesOffLeak();
-  }
-
   public enum Metric {
     RULE_TYPE(true), TAG(true), COMPONENT(true), ASSIGNEE(true), EFFORT(false), RULE(true);
     private final boolean isComputedByDistribution;
@@ -144,10 +140,6 @@ public class NewIssuesStatistics {
 
     public boolean hasIssuesOnLeak() {
       return getDistributedMetricStats(RULE_TYPE).getOnLeak() > 0;
-    }
-
-    public boolean hasIssuesOffLeak() {
-      return getDistributedMetricStats(RULE_TYPE).getOffLeak() > 0;
     }
 
     @Override
