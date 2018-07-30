@@ -244,9 +244,11 @@ public class FileMoveDetectionStepTest {
   public void execute_detects_no_move_if_baseProjectSnapshot_is_null() {
     analysisMetadataHolder.setBaseAnalysis(null);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    verifyStatistics(context, null, null);
   }
 
   @Test
@@ -265,9 +267,11 @@ public class FileMoveDetectionStepTest {
     Component file2 = fileComponent(FILE_2_REF, null);
     setFilesInReport(file1, file2);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    verifyStatistics(context, 0, null);
   }
 
   @Test
@@ -276,9 +280,11 @@ public class FileMoveDetectionStepTest {
     insertFiles( /* no components */);
     setFilesInReport();
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    verifyStatistics(context, 0, null);
   }
 
   @Test
@@ -289,9 +295,11 @@ public class FileMoveDetectionStepTest {
     insertFiles(file1.getKey(), file2.getKey());
     setFilesInReport(file2, file1);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    verifyStatistics(context, 0, null);
   }
 
   @Test
@@ -303,13 +311,15 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file1.getKey(), CONTENT1);
     setFilesInReport(file2);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsExactly(file2);
     MovedFilesRepository.OriginalFile originalFile = movedFilesRepository.getOriginalFile(file2).get();
     assertThat(originalFile.getId()).isEqualTo(dtos[0].getId());
     assertThat(originalFile.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile.getUuid()).isEqualTo(dtos[0].uuid());
+    verifyStatistics(context, 1, 1);
   }
 
   @Test
@@ -321,12 +331,14 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file1.getKey(), CONTENT1);
     setFilesInReport(file2);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore())
       .isGreaterThan(0)
       .isLessThan(MIN_REQUIRED_SCORE);
+    verifyStatistics(context, 1, 1);
   }
 
   @Test
@@ -338,10 +350,12 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file1.getKey(), CONTENT_EMPTY);
     setFilesInReport(file2);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
+    verifyStatistics(context, 1, 1);
   }
 
   @Test
@@ -353,10 +367,12 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file1.getKey(), CONTENT1);
     setFilesInReport(file2);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix).isNull();
+    verifyStatistics(context, 0, null);
   }
 
   @Test
@@ -368,10 +384,12 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file1.getKey(), CONTENT1);
     setFilesInReport(file2);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
+    verifyStatistics(context, 1, 1);
   }
 
   @Test
@@ -384,10 +402,12 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file1.getKey(), CONTENT1);
     setFilesInReport(file2, file3);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isEqualTo(100);
+    verifyStatistics(context, 1, 2);
   }
 
   @Test
@@ -401,10 +421,12 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file2.getKey(), CONTENT1);
     setFilesInReport(file3);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isEqualTo(100);
+    verifyStatistics(context, 2, 1);
   }
 
   @Test
@@ -416,10 +438,12 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file1.getKey(), null);
     insertContentOfFileInDb(file2.getKey(), null);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix).isNull();
+    verifyStatistics(context, 2, null);
   }
 
   @Test
@@ -443,7 +467,8 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file5.getKey(), CONTENT2);
     setFilesInReport(file3, file4, file6);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsOnly(file3, file6);
     MovedFilesRepository.OriginalFile originalFile2 = movedFilesRepository.getOriginalFile(file3).get();
@@ -455,6 +480,7 @@ public class FileMoveDetectionStepTest {
     assertThat(originalFile5.getKey()).isEqualTo(dtos[3].getDbKey());
     assertThat(originalFile5.getUuid()).isEqualTo(dtos[3].uuid());
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isGreaterThan(MIN_REQUIRED_SCORE);
+    verifyStatistics(context, 4, 2);
   }
 
   @Test
@@ -469,10 +495,12 @@ public class FileMoveDetectionStepTest {
     insertContentOfFileInDb(file2.getKey(), arrayOf(30));
     setFilesInReport(file3, file4);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
+    verifyStatistics(context, 2, 2);
   }
 
   /**
@@ -509,7 +537,8 @@ public class FileMoveDetectionStepTest {
 
     setFilesInReport(comps.values().toArray(new Component[0]));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     Component makeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex = comps.get("MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex.java");
     Component migrationRb1238 = comps.get("1238_make_component_uuid_and_analysis_uuid_not_null_on_duplications_index.rb");
@@ -525,6 +554,7 @@ public class FileMoveDetectionStepTest {
       .isEqualTo("1242_make_analysis_uuid_not_null_on_duplications_index.rb");
     assertThat(movedFilesRepository.getOriginalFile(addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex).get().getKey())
       .isEqualTo("AddComponentUuidColumnToDuplicationsIndex.java");
+    verifyStatistics(context, 12, 6);
   }
 
   private String[] readLines(File filename) throws IOException {
@@ -603,5 +633,10 @@ public class FileMoveDetectionStepTest {
     public void dumpAsCsv(ScoreMatrix scoreMatrix) {
       this.scoreMatrix = scoreMatrix;
     }
+  }
+
+  private static void verifyStatistics(TestComputationStepContext context, @Nullable Integer expectedDbFiles, @Nullable Integer expectedAddedFiles) {
+    context.getStatistics().assertValue("dbFiles", expectedDbFiles);
+    context.getStatistics().assertValue("addedFiles", expectedAddedFiles);
   }
 }

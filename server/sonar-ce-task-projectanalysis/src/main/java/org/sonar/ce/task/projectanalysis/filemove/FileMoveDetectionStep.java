@@ -104,6 +104,7 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     p.start();
     Map<String, DbComponent> dbFilesByKey = getDbFilesByKey();
+    context.getStatistics().add("dbFiles", dbFilesByKey.size());
     if (dbFilesByKey.isEmpty()) {
       LOG.debug("Previous snapshot has no file. Do nothing.");
       return;
@@ -116,6 +117,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
 
     Set<String> addedFileKeys = ImmutableSet.copyOf(Sets.difference(reportFilesByKey.keySet(), dbFilesByKey.keySet()));
+    context.getStatistics().add("addedFiles", addedFileKeys.size());
     Set<String> removedFileKeys = ImmutableSet.copyOf(Sets.difference(dbFilesByKey.keySet(), reportFilesByKey.keySet()));
 
     // can find matches if at least one of the added or removed files groups is empty => abort
