@@ -269,6 +269,8 @@ subprojects {
       module {
         sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
         testSourceDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
+        generatedSourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
+        generatedSourceDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
       }
     }
   }
