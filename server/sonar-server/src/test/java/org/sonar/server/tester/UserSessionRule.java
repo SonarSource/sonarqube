@@ -290,6 +290,11 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public Optional<String> getPersonalOrganizationUuid() {
+    return currentUserSession.getPersonalOrganizationUuid();
+  }
+
+  @Override
   public boolean isLoggedIn() {
     return currentUserSession.isLoggedIn();
   }

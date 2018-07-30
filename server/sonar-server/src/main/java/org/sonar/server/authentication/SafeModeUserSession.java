@@ -92,6 +92,11 @@ public class SafeModeUserSession extends AbstractUserSession {
   }
 
   @Override
+  public Optional<String> getPersonalOrganizationUuid() {
+    return Optional.empty();
+  }
+
+  @Override
   public boolean isLoggedIn() {
     return false;
   }

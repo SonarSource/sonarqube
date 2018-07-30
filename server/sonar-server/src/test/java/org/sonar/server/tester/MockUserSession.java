@@ -143,4 +143,9 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   public Optional<ExternalIdentity> getExternalIdentity() {
     return Optional.ofNullable(externalIdentity);
   }
+
+  @Override
+  public Optional<String> getPersonalOrganizationUuid() {
+    return Optional.empty();
+  }
 }

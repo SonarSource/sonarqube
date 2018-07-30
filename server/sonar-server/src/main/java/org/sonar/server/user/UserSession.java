@@ -131,6 +131,11 @@ public interface UserSession {
   Optional<ExternalIdentity> getExternalIdentity();
 
   /**
+   * The UUID of the personal organization of the authenticated user.
+   */
+  Optional<String> getPersonalOrganizationUuid();
+
+  /**
    * Whether the user is logged-in or anonymous.
    */
   boolean isLoggedIn();

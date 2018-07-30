@@ -76,6 +76,11 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   }
 
   @Override
+  public Optional<String> getPersonalOrganizationUuid() {
+    return Optional.empty();
+  }
+
+  @Override
   public boolean hasMembershipImpl(OrganizationDto organizationDto) {
     return false;
   }
