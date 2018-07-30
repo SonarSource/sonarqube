@@ -79,13 +79,16 @@ public class PersistMeasuresStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(true)) {
-      new DepthTraversalTypeAwareCrawler(new MeasureVisitor(dbSession)).visit(treeRootHolder.getRoot());
+      MeasureVisitor visitor = new MeasureVisitor(dbSession);
+      new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
       dbSession.commit();
+      context.getStatistics().add("inserts", visitor.inserts);
     }
   }
 
   private class MeasureVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
+    private int inserts = 0;
 
     private MeasureVisitor(DbSession session) {
       super(CrawlerDepthLimit.LEAVES, PRE_ORDER);
@@ -133,6 +136,7 @@ public class PersistMeasuresStep implements ComputationStep {
         measuresByMetricKey.getValue().stream().filter(NonEmptyMeasure.INSTANCE).forEach(measure -> {
           MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
           measureDao.insert(session, measureDto);
+          inserts++;
         });
       }
     }

@@ -95,7 +95,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("dir-value"));
     measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create("file-value"));
 
-    execute(true);
+    TestComputationStepContext context = execute(true);
 
     // project, module and dir measures are persisted, but not file measures
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(3);
@@ -103,6 +103,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(selectMeasure("module-uuid", STRING_METRIC).get().getData()).isEqualTo("module-value");
     assertThat(selectMeasure("dir-uuid", STRING_METRIC).get().getData()).isEqualTo("dir-value");
     assertThatMeasuresAreNotPersisted("file-uuid");
+    assertNbOfInserts(context, 3);
   }
 
   @Test
@@ -115,7 +116,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("dir-value"));
     measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create("file-value"));
 
-    execute(false);
+    TestComputationStepContext context = execute(false);
 
     // project, module and dir measures are persisted, but not file measures
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
@@ -123,6 +124,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(selectMeasure("module-uuid", STRING_METRIC).get().getData()).isEqualTo("module-value");
     assertThatMeasuresAreNotPersisted("dir-uuid");
     assertThatMeasuresAreNotPersisted("file-uuid");
+    assertNbOfInserts(context, 2);
   }
 
   @Test
@@ -131,10 +133,11 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().createNoValue());
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().createNoValue());
 
-    execute(false);
+    TestComputationStepContext context =  execute(false);
 
     assertThatMeasureIsNotPersisted("project-uuid", STRING_METRIC);
     assertThatMeasureIsNotPersisted("project-uuid", INT_METRIC);
+    assertNbOfInserts(context, 0);
   }
 
   @Test
@@ -142,11 +145,12 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     prepareProject();
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().setVariation(42.0).createNoValue());
 
-    execute(false);
+    TestComputationStepContext context = execute(false);
 
     MeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
     assertThat(persistedMeasure.getValue()).isNull();
     assertThat(persistedMeasure.getVariation()).isEqualTo(42.0);
+    assertNbOfInserts(context, 1);
   }
 
   @Test
@@ -158,11 +162,12 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("subview-value"));
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
 
-    execute(true);
+    TestComputationStepContext context =  execute(true);
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
     assertThat(selectMeasure("view-uuid", STRING_METRIC).get().getData()).isEqualTo("view-value");
     assertThat(selectMeasure("subview-uuid", STRING_METRIC).get().getData()).isEqualTo("subview-value");
+    assertNbOfInserts(context, 2);
   }
 
   private void prepareProject() {
@@ -216,9 +221,11 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThatMeasureIsNotPersisted(componentUuid, INT_METRIC);
   }
 
-  private void execute(boolean persistDirectories) {
+  private TestComputationStepContext execute(boolean persistDirectories) {
+    TestComputationStepContext context = new TestComputationStepContext();
     new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository, persistDirectories)
-      .execute(new TestComputationStepContext());
+      .execute(context);
+    return context;
   }
 
   private Optional<MeasureDto> selectMeasure(String componentUuid, Metric metric) {
@@ -235,6 +242,10 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setProjectUuid(uuid);
     dbClient.componentDao().insert(db.getSession(), componentDto);
     return componentDto;
+  }
+
+  private static void assertNbOfInserts(TestComputationStepContext context, int expected) {
+    context.getStatistics().assertValue("inserts", expected);
   }
 
   @Override
