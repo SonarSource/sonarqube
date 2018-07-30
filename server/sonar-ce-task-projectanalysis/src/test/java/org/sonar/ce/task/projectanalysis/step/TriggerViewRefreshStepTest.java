@@ -61,6 +61,6 @@ public class TriggerViewRefreshStepTest {
     underTest.execute(new TestComputationStepContext());
 
     verify(analysisMetadataHolder).getProject();
-    verify(delegate).accept(project);
+    verify(delegate).triggerFrom(project);
   }
 }

@@ -20,6 +20,7 @@
 
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.OptionalInt;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.view.TriggerViewRefreshDelegate;
@@ -58,7 +59,8 @@ public class TriggerViewRefreshStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     if (triggerViewRefreshDelegate != null) {
-      triggerViewRefreshDelegate.accept(analysisMetadata.getProject());
+      OptionalInt count = triggerViewRefreshDelegate.triggerFrom(analysisMetadata.getProject());
+      count.ifPresent(i -> context.getStatistics().add("refreshes", i));
     }
   }
 }

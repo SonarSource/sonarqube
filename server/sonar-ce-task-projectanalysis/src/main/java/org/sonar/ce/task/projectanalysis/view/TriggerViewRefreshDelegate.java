@@ -20,8 +20,18 @@
 
 package org.sonar.ce.task.projectanalysis.view;
 
-import java.util.function.Consumer;
+import java.util.OptionalInt;
 import org.sonar.server.project.Project;
 
-public interface TriggerViewRefreshDelegate extends Consumer<Project> {
+public interface TriggerViewRefreshDelegate {
+
+  /**
+   * Triggers the refresh of portfolios and applications
+   * associated to the project.
+   *
+   * @return the number of portfolios and applications being refreshed,
+   * or {@link OptionalInt#empty()} if not applicable.
+   */
+  OptionalInt triggerFrom(Project project);
+
 }
