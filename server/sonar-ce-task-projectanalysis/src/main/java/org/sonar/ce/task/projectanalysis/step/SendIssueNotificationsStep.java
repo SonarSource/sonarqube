@@ -98,12 +98,14 @@ public class SendIssueNotificationsStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     Component project = treeRootHolder.getRoot();
+    NotificationStatistics notificationStatistics = new NotificationStatistics();
     if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
-      doExecute(project);
+      doExecute(notificationStatistics, project);
     }
+    notificationStatistics.dumpTo(context);
   }
 
-  private void doExecute(Component project) {
+  private void doExecute(NotificationStatistics notificationStatistics, Component project) {
     long analysisDate = analysisMetadataHolder.getAnalysisDate();
     Predicate<DefaultIssue> isOnLeakPredicate = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(isOnLeakPredicate);
@@ -113,12 +115,13 @@ public class SendIssueNotificationsStep implements ComputationStep {
       List<String> assigneeUuids = stream(iterable.spliterator(), false).map(DefaultIssue::assignee).filter(Objects::nonNull).collect(toList());
       usersDtoByUuids = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, dto -> dto));
     }
+
     try (CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
-      processIssues(newIssuesStats, issues, project, usersDtoByUuids);
+      processIssues(newIssuesStats, issues, project, usersDtoByUuids, notificationStatistics);
     }
     if (newIssuesStats.hasIssuesOnLeak()) {
-      sendNewIssuesNotification(newIssuesStats, project, analysisDate);
-      sendNewIssuesNotificationToAssignees(newIssuesStats, project, analysisDate);
+      sendNewIssuesNotification(newIssuesStats, project, analysisDate, notificationStatistics);
+      sendMyNewIssuesNotification(newIssuesStats, project, analysisDate, notificationStatistics);
     }
   }
 
@@ -132,30 +135,32 @@ public class SendIssueNotificationsStep implements ComputationStep {
     return Date.from(instant).getTime();
   }
 
-  private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project, Map<String, UserDto> usersDtoByUuids) {
+  private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project, Map<String, UserDto> usersDtoByUuids,
+    NotificationStatistics notificationStatistics) {
     while (issues.hasNext()) {
       DefaultIssue issue = issues.next();
       if (issue.type() != RuleType.SECURITY_HOTSPOT) {
         if (issue.isNew() && issue.resolution() == null) {
           newIssuesStats.add(issue);
         } else if (issue.isChanged() && issue.mustSendNotifications()) {
-          sendIssueChangeNotification(issue, project, usersDtoByUuids);
+          sendIssueChangeNotification(issue, project, usersDtoByUuids, notificationStatistics);
         }
       }
     }
   }
 
-  private void sendIssueChangeNotification(DefaultIssue issue, Component project, Map<String, UserDto> usersDtoByUuids) {
+  private void sendIssueChangeNotification(DefaultIssue issue, Component project, Map<String, UserDto> usersDtoByUuids, NotificationStatistics notificationStatistics) {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
     changeNotification.setAssignee(usersDtoByUuids.get(issue.assignee()));
     changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest());
     getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getPublicKey(), c.getName()));
-    service.deliver(changeNotification);
+    notificationStatistics.issueChangesDeliveries += service.deliver(changeNotification);
+    notificationStatistics.issueChanges++;
   }
 
-  private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate) {
+  private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate, NotificationStatistics notificationStatistics) {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotification()
@@ -164,10 +169,11 @@ public class SendIssueNotificationsStep implements ComputationStep {
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
       .setDebt(Duration.create(globalStatistics.effort().getOnLeak()));
-    service.deliver(notification);
+    notificationStatistics.newIssuesDeliveries += service.deliver(notification);
+    notificationStatistics.newIssues++;
   }
 
-  private void sendNewIssuesNotificationToAssignees(NewIssuesStatistics statistics, Component project, long analysisDate) {
+  private void sendMyNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate, NotificationStatistics notificationStatistics) {
     Map<String, UserDto> userDtoByUuid = loadUserDtoByUuid(statistics);
     statistics.getAssigneesStatistics().entrySet()
       .stream()
@@ -185,7 +191,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .setStatistics(project.getName(), assigneeStatistics)
           .setDebt(Duration.create(assigneeStatistics.effort().getOnLeak()));
 
-        service.deliver(myNewIssuesNotification);
+        notificationStatistics.myNewIssuesDeliveries += service.deliver(myNewIssuesNotification);
+        notificationStatistics.myNewIssues++;
       });
   }
 
@@ -230,4 +237,22 @@ public class SendIssueNotificationsStep implements ComputationStep {
     return branch.getType() == PULL_REQUEST ? analysisMetadataHolder.getPullRequestKey() : null;
   }
 
+  private static class NotificationStatistics {
+    private int issueChanges = 0;
+    private int issueChangesDeliveries = 0;
+    private int newIssues = 0;
+    private int newIssuesDeliveries = 0;
+    private int myNewIssues = 0;
+    private int myNewIssuesDeliveries = 0;
+
+    private void dumpTo(ComputationStep.Context context) {
+      context.getStatistics()
+        .add("newIssuesNotifs", newIssues)
+        .add("newIssuesDeliveries", newIssuesDeliveries)
+        .add("myNewIssuesNotifs", myNewIssues)
+        .add("myNewIssuesDeliveries", myNewIssuesDeliveries)
+        .add("changesNotifs", issueChanges)
+        .add("changesDeliveries", issueChangesDeliveries);
+    }
+  }
 }

@@ -95,8 +95,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
     assertThat(smtpServer.getMessages()).isEmpty();
+    assertThat(delivered).isFalse();
   }
 
   @Test
@@ -108,7 +109,7 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Review #3")
       .setMessage("I'll take care of this violation.");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
 
     List<WiserMessage> messages = smtpServer.getMessages();
     assertThat(messages).hasSize(1);
@@ -127,6 +128,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
     assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Review #3");
     assertThat((String) email.getContent()).startsWith("I'll take care of this violation.");
+    assertThat(delivered).isTrue();
   }
 
   @Test
@@ -136,7 +138,7 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
 
     List<WiserMessage> messages = smtpServer.getMessages();
     assertThat(messages).hasSize(1);
@@ -155,6 +157,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
     assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Foo");
     assertThat((String) email.getContent()).startsWith("Bar");
+    assertThat(delivered).isTrue();
   }
 
   @Test
@@ -166,7 +169,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
+
+    assertThat(delivered).isFalse();
   }
 
   @Test

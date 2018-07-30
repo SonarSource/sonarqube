@@ -36,7 +36,8 @@ public class NotificationChannelTest {
 
   private class FakeNotificationChannel extends NotificationChannel {
     @Override
-    public void deliver(Notification notification, String username) {
+    public boolean deliver(Notification notification, String username) {
+      return true;
     }
   }
 

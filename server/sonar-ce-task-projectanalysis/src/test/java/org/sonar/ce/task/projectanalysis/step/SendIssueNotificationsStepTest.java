@@ -33,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
@@ -139,9 +138,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_notifications_if_no_subscribers() {
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(false);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliver(any());
+    verifyStatistics(context, 0, 0, 0);
   }
 
   @Test
@@ -152,13 +153,15 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null, null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any());
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
+    verifyStatistics(context, 1, 0, 0);
   }
 
   @Test
@@ -179,7 +182,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     issues.forEach(issueCache::append);
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     ArgumentCaptor<NewIssuesStatistics.Stats> statsCaptor = forClass(NewIssuesStatistics.Stats.class);
@@ -191,6 +195,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(efforts.length);
     assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
+    verifyStatistics(context, 1, 0, 0);
   }
 
   @Test
@@ -201,9 +206,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliver(any());
+    verifyStatistics(context, 0, 0, 0);
   }
 
   @Test
@@ -214,13 +221,15 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newBranch());
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), BRANCH_NAME, null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
+    verifyStatistics(context, 1, 0, 0);
   }
 
   @Test
@@ -232,13 +241,15 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     analysisMetadataHolder.setBranch(newPullRequest());
     analysisMetadataHolder.setPullRequestKey(PULL_REQUEST_ID);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), null, PULL_REQUEST_ID);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
+    verifyStatistics(context, 1, 0, 0);
   }
 
   @Test
@@ -249,14 +260,15 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setBranch(newBranch());
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliver(any());
+    verifyStatistics(context, 0, 0, 0);
   }
 
   @Test
   public void send_new_issues_notification_to_user() {
-
     UserDto user = db.users().insertUser();
 
     issueCache.newAppender().append(
@@ -265,7 +277,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(eq(PROJECT.getUuid()), any())).thenReturn(true);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
@@ -274,11 +287,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verify(myNewIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any(NewIssuesStatistics.Stats.class));
     verify(myNewIssuesNotificationMock).setDebt(ISSUE_DURATION);
+    verifyStatistics(context, 1, 1, 0);
   }
 
   @Test
   public void send_new_issues_notification_to_user_only_for_those_assigned_to_her() throws IOException {
-
     UserDto perceval = db.users().insertUser(u -> u.setLogin("perceval"));
     Integer[] assigned = IntStream.range(0, 5).mapToObj(i -> 10_000 * i).toArray(Integer[]::new);
     Duration expectedEffort = Duration.create(stream(assigned).mapToInt(i -> i).sum());
@@ -310,8 +323,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     MyNewIssuesNotification myNewIssuesNotificationMock2 = createMyNewIssuesNotificationMock();
     when(newIssuesNotificationFactory.newMyNewIssuesNotification()).thenReturn(myNewIssuesNotificationMock1).thenReturn(myNewIssuesNotificationMock2);
 
+    TestComputationStepContext context = new TestComputationStepContext();
     new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder, newIssuesNotificationFactory, db.getDbClient())
-      .execute(new TestComputationStepContext());
+      .execute(context);
 
     verify(notificationService).deliver(myNewIssuesNotificationMock1);
     Map<String, MyNewIssuesNotification> myNewIssuesNotificationMocksByUsersName = new HashMap<>();
@@ -335,6 +349,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(assigned.length);
     assertThat(severity.getTotal()).isEqualTo(assigned.length);
+
+    verifyStatistics(context, 1, 2, 0);
   }
 
   @Test
@@ -358,7 +374,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     issues.forEach(issueCache::append);
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
@@ -372,6 +389,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
     assertThat(severity.getOnLeak()).isEqualTo(efforts.length);
     assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
+
+    verifyStatistics(context, 1, 1, 0);
   }
 
   @Test
@@ -383,9 +402,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .close();
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliver(any());
+    verifyStatistics(context, 0, 0, 0);
   }
 
   @Test
@@ -401,9 +422,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     RuleDefinitionDto ruleDefinitionDto = newRule();
     DefaultIssue issue = prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any(IssueChangeNotification.class));
+    verify(notificationService, never()).deliver(any());
+    verifyStatistics(context, 0, 0, 0);
   }
 
   @Test
@@ -527,6 +550,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());
     return branch;
+  }
+
+  private static void verifyStatistics(TestComputationStepContext context, int expectedNewIssuesNotifications, int expectedMyNewIssuesNotifications, int expectedIssueChangesNotifications) {
+    context.getStatistics().assertValue("newIssuesNotifs", expectedNewIssuesNotifications);
+    context.getStatistics().assertValue("myNewIssuesNotifs", expectedMyNewIssuesNotifications);
+    context.getStatistics().assertValue("changesNotifs", expectedIssueChangesNotifications);
   }
 
   @Override
