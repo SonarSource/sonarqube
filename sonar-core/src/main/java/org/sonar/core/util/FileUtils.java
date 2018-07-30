@@ -50,7 +50,7 @@ public final class FileUtils {
   /**
    * Deletes a directory recursively.
    *
-   * @param directory  directory to delete
+   * @param directory directory to delete
    * @throws IOException in case deletion is unsuccessful
    */
   public static void deleteDirectory(File directory) throws IOException {
@@ -61,7 +61,7 @@ public final class FileUtils {
   /**
    * Deletes a directory recursively.
    *
-   * @param directory  directory to delete
+   * @param directory directory to delete
    * @throws IOException in case deletion is unsuccessful
    */
   public static void deleteDirectory(Path directory) throws IOException {
@@ -72,7 +72,7 @@ public final class FileUtils {
   /**
    * Cleans a directory recursively.
    *
-   * @param directory  directory to delete
+   * @param directory directory to delete
    * @throws IOException in case deletion is unsuccessful
    */
   public static void cleanDirectory(File directory) throws IOException {
@@ -95,7 +95,7 @@ public final class FileUtils {
    * <li>No exceptions are thrown when a file or directory cannot be deleted.</li>
    * </ul>
    *
-   * @param file  file or directory to delete, can be {@code null}
+   * @param file file or directory to delete, can be {@code null}
    * @return {@code true} if the file or directory was deleted, otherwise {@code false}
    */
   public static boolean deleteQuietly(@Nullable File file) {
@@ -114,7 +114,7 @@ public final class FileUtils {
    * <li>No exceptions are thrown when a file or directory cannot be deleted.</li>
    * </ul>
    *
-   * @param file  file or directory to delete, can be {@code null}
+   * @param path file or directory to delete, can be {@code null}
    * @return {@code true} if the file or directory was deleted, otherwise {@code false}
    */
   public static boolean deleteQuietly(@Nullable Path path) {
@@ -123,7 +123,7 @@ public final class FileUtils {
     }
 
     try {
-      if (Files.isDirectory(path)) {
+      if (path.toFile().isDirectory()) {
         deleteDirectory(path);
       } else {
         Files.delete(path);
@@ -160,13 +160,6 @@ public final class FileUtils {
 
     checkIO(!file.exists(), "Unable to delete directory '%s'", path);
   }
-  
-  
-  public static Path getPack200FilePath(Path jarFilePath) {
-    String jarFileName = jarFilePath.getFileName().toString();
-    String filename = jarFileName.substring(0, jarFileName.length() - 3) + "pack.gz";
-    return jarFilePath.resolveSibling(filename);
-  }
 
   /**
    * This visitor is intended to be used to visit direct children of directory <strong>or a symLink to a directory</strong>,
@@ -174,12 +167,12 @@ public final class FileUtils {
    * or recursively deleted (if directory).
    */
   private static class CleanDirectoryFileVisitor extends SimpleFileVisitor<Path> {
-    public static final int VISIT_MAX_DEPTH = 1;
+    private static final int VISIT_MAX_DEPTH = 1;
 
     private final Path path;
     private final boolean symLink;
 
-    public CleanDirectoryFileVisitor(Path path) {
+    private CleanDirectoryFileVisitor(Path path) {
       this.path = path;
       this.symLink = Files.isSymbolicLink(path);
     }
