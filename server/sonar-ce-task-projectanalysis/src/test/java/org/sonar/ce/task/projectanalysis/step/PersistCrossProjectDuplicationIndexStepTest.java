@@ -96,7 +96,8 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     reportReader.putDuplicationBlocks(FILE_1_REF, singletonList(CPD_TEXT_BLOCK));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     Map<String, Object> dto = dbTester.selectFirst("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
     assertThat(dto.get("HASH")).isEqualTo(CPD_TEXT_BLOCK.getHash());
@@ -105,6 +106,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     assertThat(dto.get("INDEX_IN_FILE")).isEqualTo(0L);
     assertThat(dto.get("COMPONENT_UUID")).isEqualTo(FILE_1.getUuid());
     assertThat(dto.get("ANALYSIS_UUID")).isEqualTo(ANALYSIS_UUID);
+    context.getStatistics().assertValue("inserts", 1);
   }
 
   @Test
@@ -118,7 +120,8 @@ public class PersistCrossProjectDuplicationIndexStepTest {
         .setEndLine(15)
         .build()));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     List<Map<String, Object>> dtos = dbTester.select("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
     assertThat(dtos).extracting("HASH").containsOnly(CPD_TEXT_BLOCK.getHash(), "b1234353e96320ff");
@@ -127,6 +130,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     assertThat(dtos).extracting("INDEX_IN_FILE").containsOnly(0L, 1L);
     assertThat(dtos).extracting("COMPONENT_UUID").containsOnly(FILE_1.getUuid());
     assertThat(dtos).extracting("ANALYSIS_UUID").containsOnly(ANALYSIS_UUID);
+    context.getStatistics().assertValue("inserts", 2);
   }
 
   @Test
@@ -134,9 +138,11 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     reportReader.putDuplicationBlocks(FILE_1_REF, Collections.emptyList());
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
+    context.getStatistics().assertValue("inserts", 0);
   }
 
   @Test
@@ -144,9 +150,11 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(false);
     reportReader.putDuplicationBlocks(FILE_1_REF, singletonList(CPD_TEXT_BLOCK));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
+    context.getStatistics().assertValue("inserts", null);
   }
 
 }

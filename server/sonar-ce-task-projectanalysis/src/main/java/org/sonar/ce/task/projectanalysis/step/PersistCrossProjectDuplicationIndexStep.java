@@ -65,8 +65,10 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     try (DbSession dbSession = dbClient.openSession(true)) {
       Component project = treeRootHolder.getRoot();
-      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(dbSession, analysisMetadataHolder.getUuid())).visit(project);
+      DuplicationVisitor visitor = new DuplicationVisitor(dbSession, analysisMetadataHolder.getUuid());
+      new DepthTraversalTypeAwareCrawler(visitor).visit(project);
       dbSession.commit();
+      context.getStatistics().add("inserts", visitor.count);
     }
   }
 
@@ -74,6 +76,7 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     private final DbSession session;
     private final String analysisUuid;
+    private int count = 0;
 
     private DuplicationVisitor(DbSession session, String analysisUuid) {
       super(CrawlerDepthLimit.FILE, PRE_ORDER);
@@ -107,13 +110,14 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
           indexInFile++;
         }
       }
+      count += indexInFile;
     }
 
   }
 
   @Override
   public String getDescription() {
-    return "Persist cross project duplications index";
+    return "Persist cross project duplications";
   }
 
 }
