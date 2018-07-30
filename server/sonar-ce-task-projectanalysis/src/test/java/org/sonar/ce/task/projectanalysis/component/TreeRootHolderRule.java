@@ -50,4 +50,11 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   public Optional<Component> getOptionalComponentByRef(int ref) {
     return delegate.getOptionalComponentByRef(ref);
   }
+
+  @Override
+  public int getSize() {
+    return delegate.getSize();
+  }
+
+
 }

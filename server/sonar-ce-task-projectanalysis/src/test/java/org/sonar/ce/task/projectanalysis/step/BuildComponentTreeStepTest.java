@@ -147,7 +147,8 @@ public class BuildComponentTreeStepTest {
     reportReader.putComponent(component(DIR_REF_2, DIRECTORY, FILE_3_REF));
     reportReader.putComponent(component(FILE_3_REF, FILE));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     Component root = treeRootHolder.getRoot();
     assertThat(root).isNotNull();
@@ -161,6 +162,8 @@ public class BuildComponentTreeStepTest {
     Component dir2 = module.getChildren().get(1);
     verifyComponent(dir2, Component.Type.DIRECTORY, DIR_REF_2, 1);
     verifyComponent(dir2.getChildren().iterator().next(), Component.Type.FILE, FILE_3_REF, 0);
+
+    context.getStatistics().assertValue("components", 7);
   }
 
   @Test

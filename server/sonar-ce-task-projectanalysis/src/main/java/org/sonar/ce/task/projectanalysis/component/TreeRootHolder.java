@@ -48,9 +48,15 @@ public interface TreeRootHolder {
    *
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
    * @deprecated This method was introduced as a quick fix for SONAR-10781. Ultimately one should never manipulate component
-   * ref that doesn't exists in the scanner report
+   * ref that doesn't exist in the scanner report
    */
   @Deprecated
   Optional<Component> getOptionalComponentByRef(int ref);
 
+  /**
+   * Number of components, including root.
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   */
+  int getSize();
 }

@@ -63,6 +63,13 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
     return Optional.ofNullable(componentsByRef.get(ref));
   }
 
+  @Override
+  public int getSize() {
+    checkInitialized();
+    ensureComponentByRefIsPopulated();
+    return componentsByRef.size();
+  }
+
   private void ensureComponentByRefIsPopulated() {
     if (componentsByRef != null) {
       return;

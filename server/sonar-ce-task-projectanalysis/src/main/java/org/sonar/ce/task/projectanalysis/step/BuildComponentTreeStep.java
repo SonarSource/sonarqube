@@ -88,6 +88,8 @@ public class BuildComponentTreeStep implements ComputationStep {
 
       treeRootHolder.setRoot(project);
       analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysis));
+
+      context.getStatistics().add("components", treeRootHolder.getSize());
     }
   }
 
