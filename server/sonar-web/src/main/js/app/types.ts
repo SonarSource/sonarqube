@@ -100,6 +100,7 @@ export interface CoveredFile {
 
 export interface CurrentUser {
   isLoggedIn: boolean;
+  permissions?: { global: string[] };
   showOnboardingTutorial?: boolean;
 }
 
@@ -202,6 +203,13 @@ export interface IdentityProvider {
 
 export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
   return user.isLoggedIn;
+}
+
+export function hasGlobalPermission(user: CurrentUser, permission: string): boolean {
+  if (!user.permissions) {
+    return false;
+  }
+  return user.permissions.global.includes(permission);
 }
 
 export function isSameHomePage(a: HomePage, b: HomePage) {

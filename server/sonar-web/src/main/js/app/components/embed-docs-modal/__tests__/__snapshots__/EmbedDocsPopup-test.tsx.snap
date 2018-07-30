@@ -188,14 +188,6 @@ exports[`should display suggestion links 1`] = `
       </Link>
     </li>
     <React.Fragment>
-      <li>
-        <a
-          href="#"
-          onClick={[Function]}
-        >
-          embed_docs.analyze_new_project
-        </a>
-      </li>
       <li
         className="divider"
       />

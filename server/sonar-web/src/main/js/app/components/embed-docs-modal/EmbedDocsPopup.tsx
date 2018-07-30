@@ -22,7 +22,7 @@ import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import ProductNewsMenuItem from './ProductNewsMenuItem';
 import { SuggestionLink } from './SuggestionsProvider';
-import { CurrentUser, isLoggedIn } from '../../types';
+import { CurrentUser, isLoggedIn, hasGlobalPermission } from '../../types';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
@@ -119,15 +119,17 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
   }
 
   renderSonarQubeLinks() {
+    const { currentUser } = this.props;
     return (
       <React.Fragment>
-        {isLoggedIn(this.props.currentUser) && (
-          <li>
-            <a href="#" onClick={this.onAnalyzeProjectClick}>
-              {translate('embed_docs.analyze_new_project')}
-            </a>
-          </li>
-        )}
+        {isLoggedIn(currentUser) &&
+          hasGlobalPermission(currentUser, 'provisioning') && (
+            <li>
+              <a data-test="analyze-new-project" href="#" onClick={this.onAnalyzeProjectClick}>
+                {translate('embed_docs.analyze_new_project')}
+              </a>
+            </li>
+          )}
         <li className="divider" />
         <li>
           <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
