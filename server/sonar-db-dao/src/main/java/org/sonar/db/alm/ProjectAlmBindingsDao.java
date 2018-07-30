@@ -64,6 +64,10 @@ public class ProjectAlmBindingsDao implements Dao {
     return getMapper(dbSession).bindingCount(alm.getId(), repoId) == 1;
   }
 
+  public Optional<ProjectAlmBindingDto> selectByProjectUuid(DbSession session, String projectUuid) {
+    return Optional.ofNullable(getMapper(session).selectByProjectUuid(projectUuid));
+  }
+
   /**
    * Gets a list of bindings by their repo_id. The result does NOT contain {@code null} values for bindings not found, so
    * the size of result may be less than the number of ids.
@@ -88,4 +92,5 @@ public class ProjectAlmBindingsDao implements Dao {
   private static ProjectAlmBindingsMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(ProjectAlmBindingsMapper.class);
   }
+
 }

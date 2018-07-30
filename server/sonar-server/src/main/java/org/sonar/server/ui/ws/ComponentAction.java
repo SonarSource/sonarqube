@@ -41,6 +41,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.ProjectAlmBindingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -116,7 +117,8 @@ public class ComponentAction implements NavigationWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.2")
       .setChangelog(
-        new Change("6.4", "The 'visibility' field is added"));
+        new Change("6.4", "The 'visibility' field is added"),
+        new Change("7.3", "The 'almRepoUrl' and 'almId' fields are added"));
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
@@ -155,6 +157,7 @@ public class ComponentAction implements NavigationWsAction {
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       writeComponent(json, session, component, org, analysis.orElse(null));
+      writeAlmDetails(json, session, component);
       writeProfiles(json, session, component);
       writeQualityGate(json, session, org, project);
       if (userSession.hasComponentPermission(ADMIN, component) ||
@@ -165,6 +168,12 @@ public class ComponentAction implements NavigationWsAction {
       writeBreadCrumbs(json, session, component);
       json.endObject().close();
     }
+  }
+
+  private void writeAlmDetails(JsonWriter json, DbSession session, ComponentDto component) {
+    Optional<ProjectAlmBindingDto> bindingOpt = dbClient.projectAlmBindingsDao().selectByProjectUuid(session, component.uuid());
+    bindingOpt.ifPresent(b -> json.prop("almId", b.getAlmId())
+      .prop("almRepoUrl", b.getUrl()));
   }
 
   private static Consumer<QualityProfile> writeToJson(JsonWriter json) {

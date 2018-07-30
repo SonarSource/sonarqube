@@ -36,4 +36,6 @@ public interface ProjectAlmBindingsMapper {
   List<ProjectAlmBindingDto> selectByRepoIds(@Param("almId") String almId, @Param("repoIds") List<String> repoIds);
 
   ProjectAlmBindingDto selectByRepoId(@Param("almId") String almId, @Param("repoId") String repoId);
+
+  ProjectAlmBindingDto selectByProjectUuid(@Param("projectUuid") String projectUuid);
 }

@@ -1,0 +1,16 @@
+{
+  "organization": "my-org",
+  "key": "polop",
+  "id": "abcd",
+  "name": "Polop",
+  "description": "test project",
+  "almId": "bitbucketcloud",
+  "almRepoUrl": "http://bitbucket.org/foo/bar",
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    }
+  ]
+}

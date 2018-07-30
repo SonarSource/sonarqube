@@ -232,6 +232,29 @@ public class ProjectAlmBindingsDaoTest {
   }
 
   @Test
+  public void select_by_project_uuid() {
+    when(system2.now()).thenReturn(DATE);
+    when(uuidFactory.create())
+      .thenReturn("uuid1")
+      .thenReturn("uuid2")
+      .thenReturn("uuid3");
+    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
+    underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, ANOTHER_UUID, null, ANOTHER_URL);
+    underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
+
+    assertThat(underTest.selectByProjectUuid(dbSession, "missing")).isNotPresent();
+
+    Optional<ProjectAlmBindingDto> dto = underTest.selectByProjectUuid(dbSession, A_UUID);
+    assertThat(dto).isPresent();
+    assertThat(dto.get().getUuid()).isEqualTo("uuid1");
+    assertThat(dto.get().getAlmId()).isEqualTo(GITHUB.getId());
+    assertThat(dto.get().getRepoId()).isEqualTo(A_REPO);
+    assertThat(dto.get().getProjectUuid()).isEqualTo(A_UUID);
+    assertThat(dto.get().getUrl()).isEqualTo(A_URL);
+    assertThat(dto.get().getGithubSlug()).isEqualTo(A_GITHUB_SLUG);
+  }
+
+  @Test
   public void select_by_repo_ids() {
     when(system2.now()).thenReturn(DATE);
     when(uuidFactory.create())

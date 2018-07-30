@@ -39,6 +39,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
@@ -576,7 +577,8 @@ public class ComponentActionTest {
     assertThat(action.description()).isNotNull();
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("6.4", "The 'visibility' field is added"));
+      tuple("6.4", "The 'visibility' field is added"),
+      tuple("7.3", "The 'almRepoUrl' and 'almId' fields are added"));
 
     WebService.Param componentId = action.param(PARAM_COMPONENT);
     assertThat(componentId.isRequired()).isFalse();
@@ -584,6 +586,17 @@ public class ComponentActionTest {
     assertThat(componentId.exampleValue()).isNotNull();
     assertThat(componentId.deprecatedKey()).isEqualTo("componentKey");
     assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
+  }
+
+  @Test
+  public void return_component_alm_info() {
+    ComponentDto project = insertOrganizationAndProject();
+    dbClient.projectAlmBindingsDao().insertOrUpdate(db.getSession(), ALM.BITBUCKETCLOUD, "{123456789}", project.uuid(), null, "http://bitbucket.org/foo/bar");
+    db.getSession().commit();
+    userSession.addProjectPermission(UserRole.USER, project);
+    init();
+
+    executeAndVerify(project.getDbKey(), "return_component_info_with_alm.json");
   }
 
   private ComponentDto insertOrganizationAndProject() {

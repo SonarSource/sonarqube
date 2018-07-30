@@ -79,4 +79,17 @@
     and repo_id = #{repoId, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByProjectUuid" parameterType="map" resultType="ProjectAlmBinding">
+    select
+    uuid,
+    alm_id as almId,
+    repo_id as repoId,
+    project_uuid as projectUuid,
+    github_slug as githubSlug,
+    url
+    from project_alm_bindings
+    where
+    project_uuid = #{projectUuid, jdbcType=VARCHAR}
+  </select>
+
 </mapper>
