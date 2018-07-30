@@ -21,13 +21,13 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.server.project.Project;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -88,7 +88,7 @@ public class ComponentTreeBuilder {
       .stream()
       .map(scannerComponentSupplier::apply)
       .map(c -> buildComponent(c, parentModule, projectScmPath))
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList(component.getChildRefCount()));
   }
 
   private ComponentImpl buildComponent(ScannerReport.Component component, ScannerReport.Component closestModule,
