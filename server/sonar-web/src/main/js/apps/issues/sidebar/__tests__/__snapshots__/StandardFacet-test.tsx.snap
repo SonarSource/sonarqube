@@ -25,6 +25,10 @@ exports[`should render empty sub-facet 1`] = `
     open={true}
     values={Array []}
   />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
   <div
     className="search-navigator-facet-empty little-spacer-top"
   >
@@ -64,6 +68,10 @@ exports[`should render sub-facets 1`] = `
             "A3",
           ]
         }
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
       />
       <FacetItemsList>
         <FacetItem
@@ -106,6 +114,10 @@ exports[`should render sub-facets 1`] = `
           ]
         }
       />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      />
       <FacetItemsList>
         <FacetItem
           active={false}
@@ -146,6 +158,10 @@ exports[`should render sub-facets 1`] = `
             "CWE-42 - cwe-42 title",
           ]
         }
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
       />
       <FacetItemsList>
         <FacetItem

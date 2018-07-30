@@ -32,11 +32,15 @@ import {
   renderCWECategory,
   Standards
 } from '../../securityReports/utils';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 export interface Props {
   cwe: string[];
   cweOpen: boolean;
   cweStats: { [x: string]: number } | undefined;
+  fetchingOwaspTop10: boolean;
+  fetchingSansTop25: boolean;
+  fetchingCwe: boolean;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -260,6 +264,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               renderOwaspTop10Category(this.state.standards, item)
             )}
           />
+          <DeferredSpinner loading={this.props.fetchingOwaspTop10} />
           {this.props.owaspTop10Open && this.renderOwaspTop10List()}
         </FacetBox>
         <FacetBox className="is-inner" property="sansTop25">
@@ -271,6 +276,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               renderSansTop25Category(this.state.standards, item)
             )}
           />
+          <DeferredSpinner loading={this.props.fetchingSansTop25} />
           {this.props.sansTop25Open && this.renderSansTop25List()}
         </FacetBox>
         <FacetBox className="is-inner" property="cwe">
@@ -280,6 +286,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             open={this.props.cweOpen}
             values={this.props.cwe.map(item => renderCWECategory(this.state.standards, item))}
           />
+          <DeferredSpinner loading={this.props.fetchingCwe} />
           {this.props.cweOpen && this.renderCWEList()}
           {this.props.cweOpen && this.renderCWESearch()}
         </FacetBox>

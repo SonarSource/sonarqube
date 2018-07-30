@@ -29,6 +29,7 @@ const renderSidebar = (props?: Partial<Props>) =>
     <Sidebar
       component={undefined}
       facets={{}}
+      loadingFacets={{}}
       myIssues={false}
       onFacetToggle={jest.fn()}
       onFilterChange={jest.fn()}

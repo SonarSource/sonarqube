@@ -11,6 +11,10 @@ exports[`should render 1`] = `
     open={true}
     values={Array []}
   />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
   <FacetItemsList>
     <FacetItem
       active={false}
@@ -101,6 +105,10 @@ exports[`should render without stats 1`] = `
     open={true}
     values={Array []}
   />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
 </FacetBox>
 `;
 
@@ -118,6 +126,10 @@ exports[`should select unassigned 1`] = `
         "unassigned",
       ]
     }
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
   />
   <FacetItemsList>
     <FacetItem
@@ -200,6 +212,10 @@ exports[`should select user 1`] = `
         "name-foo",
       ]
     }
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
   />
   <FacetItemsList>
     <FacetItem

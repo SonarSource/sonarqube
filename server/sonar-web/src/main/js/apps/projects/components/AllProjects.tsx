@@ -39,6 +39,7 @@ import { parseUrlQuery, Query, hasFilterParams, hasVisualizationParams } from '.
 import { isSonarCloud } from '../../../helpers/system';
 import '../../../components/search-navigator.css';
 import '../styles.css';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 export interface Props {
   currentUser: CurrentUser;
@@ -277,40 +278,45 @@ export default class AllProjects extends React.PureComponent<Props, State> {
     </div>
   );
 
-  renderMain = () =>
-    this.getView() === 'visualizations' ? (
-      <div className="layout-page-main-inner">
-        {this.state.projects && (
-          <Visualizations
-            displayOrganizations={!this.props.organization && this.props.organizationsEnabled}
-            projects={this.state.projects}
-            sort={this.state.query.sort}
-            total={this.state.total}
-            visualization={this.getVisualization()}
-          />
+  renderMain = () => {
+    return (
+      <DeferredSpinner loading={this.state.loading}>
+        {this.getView() === 'visualizations' ? (
+          <div className="layout-page-main-inner">
+            {this.state.projects && (
+              <Visualizations
+                displayOrganizations={!this.props.organization && this.props.organizationsEnabled}
+                projects={this.state.projects}
+                sort={this.state.query.sort}
+                total={this.state.total}
+                visualization={this.getVisualization()}
+              />
+            )}
+          </div>
+        ) : (
+          <div className="layout-page-main-inner">
+            {this.state.projects && (
+              <ProjectsList
+                cardType={this.getView()}
+                currentUser={this.props.currentUser}
+                isFavorite={this.props.isFavorite}
+                isFiltered={hasFilterParams(this.state.query)}
+                organization={this.props.organization}
+                projects={this.state.projects}
+                query={this.state.query}
+              />
+            )}
+            <ListFooter
+              count={this.state.projects !== undefined ? this.state.projects.length : 0}
+              loadMore={this.fetchMoreProjects}
+              ready={!this.state.loading}
+              total={this.state.total !== undefined ? this.state.total : 0}
+            />
+          </div>
         )}
-      </div>
-    ) : (
-      <div className="layout-page-main-inner">
-        {this.state.projects && (
-          <ProjectsList
-            cardType={this.getView()}
-            currentUser={this.props.currentUser}
-            isFavorite={this.props.isFavorite}
-            isFiltered={hasFilterParams(this.state.query)}
-            organization={this.props.organization}
-            projects={this.state.projects}
-            query={this.state.query}
-          />
-        )}
-        <ListFooter
-          count={this.state.projects !== undefined ? this.state.projects.length : 0}
-          loadMore={this.fetchMoreProjects}
-          ready={!this.state.loading}
-          total={this.state.total !== undefined ? this.state.total : 0}
-        />
-      </div>
+      </DeferredSpinner>
     );
+  };
 
   render() {
     return (

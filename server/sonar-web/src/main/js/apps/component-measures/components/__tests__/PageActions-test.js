@@ -23,14 +23,12 @@ import PageActions from '../PageActions';
 
 it('should display correctly for a project', () => {
   expect(
-    shallow(<PageActions loading={true} isFile={false} view="list" totalLoadedComponents={20} />)
+    shallow(<PageActions isFile={false} totalLoadedComponents={20} view="list" />)
   ).toMatchSnapshot();
 });
 
 it('should display correctly for a file', () => {
-  const wrapper = shallow(
-    <PageActions loading={false} isFile={true} view="tree" totalLoadedComponents={10} />
-  );
+  const wrapper = shallow(<PageActions isFile={true} totalLoadedComponents={10} view="tree" />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ paging: { total: 100 } });
   expect(wrapper).toMatchSnapshot();
@@ -38,7 +36,7 @@ it('should display correctly for a file', () => {
 
 it('should not display shortcuts for treemap', () => {
   expect(
-    shallow(<PageActions loading={true} isFile={false} view="treemap" totalLoadedComponents={20} />)
+    shallow(<PageActions isFile={false} totalLoadedComponents={20} view="treemap" />)
   ).toMatchSnapshot();
 });
 
@@ -47,11 +45,10 @@ it('should display the total of files', () => {
     shallow(
       <PageActions
         current={12}
-        loading={true}
         isFile={false}
-        view="treemap"
-        totalLoadedComponents={20}
         paging={{ total: 120 }}
+        totalLoadedComponents={20}
+        view="treemap"
       />
     )
   ).toMatchSnapshot();
@@ -59,11 +56,10 @@ it('should display the total of files', () => {
     shallow(
       <PageActions
         current={12}
-        loading={false}
         isFile={true}
-        view="list"
-        totalLoadedComponents={20}
         paging={{ total: 120 }}
+        totalLoadedComponents={20}
+        view="list"
       />
     )
   ).toMatchSnapshot();

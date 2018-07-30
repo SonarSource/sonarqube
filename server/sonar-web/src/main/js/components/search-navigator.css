@@ -85,6 +85,11 @@
   color: var(--secondFontColor);
 }
 
+.search-navigator-facet-box > .spinner {
+  float: right;
+  margin-top: -24px;
+}
+
 .search-navigator-facet {
   position: relative;
   display: inline-block;

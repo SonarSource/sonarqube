@@ -26,8 +26,10 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
+  fetching: boolean;
   loading?: boolean;
   modules: string[];
   onChange: (changes: Partial<Query>) => void;
@@ -124,6 +126,7 @@ export default class ModuleFacet extends React.PureComponent<Props> {
           values={values}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderList()}
       </FacetBox>
     );

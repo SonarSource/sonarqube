@@ -6,16 +6,7 @@ exports[`should display correctly for a file 1`] = `
 >
   <div
     className="measure-details-page-actions"
-  >
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
-    >
-      <i
-        className="spinner-placeholder"
-      />
-    </DeferredSpinner>
-  </div>
+  />
 </div>
 `;
 
@@ -43,14 +34,6 @@ exports[`should display correctly for a file 2`] = `
   <div
     className="measure-details-page-actions"
   >
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
-    >
-      <i
-        className="spinner-placeholder"
-      />
-    </DeferredSpinner>
     <FilesCounter
       className="spacer-left"
       total={10}
@@ -97,16 +80,7 @@ exports[`should display correctly for a project 1`] = `
   </span>
   <div
     className="measure-details-page-actions"
-  >
-    <DeferredSpinner
-      loading={true}
-      timeout={100}
-    >
-      <i
-        className="spinner-placeholder"
-      />
-    </DeferredSpinner>
-  </div>
+  />
 </div>
 `;
 
@@ -117,14 +91,6 @@ exports[`should display the total of files 1`] = `
   <div
     className="measure-details-page-actions"
   >
-    <DeferredSpinner
-      loading={true}
-      timeout={100}
-    >
-      <i
-        className="spinner-placeholder"
-      />
-    </DeferredSpinner>
     <FilesCounter
       className="spacer-left"
       current={12}
@@ -158,14 +124,6 @@ exports[`should display the total of files 2`] = `
   <div
     className="measure-details-page-actions"
   >
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
-    >
-      <i
-        className="spinner-placeholder"
-      />
-    </DeferredSpinner>
     <FilesCounter
       className="spacer-left"
       current={12}
@@ -181,15 +139,6 @@ exports[`should not display shortcuts for treemap 1`] = `
 >
   <div
     className="measure-details-page-actions"
-  >
-    <DeferredSpinner
-      loading={true}
-      timeout={100}
-    >
-      <i
-        className="spinner-placeholder"
-      />
-    </DeferredSpinner>
-  </div>
+  />
 </div>
 `;

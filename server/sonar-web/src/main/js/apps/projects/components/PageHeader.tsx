@@ -93,8 +93,6 @@ export default function PageHeader(props: Props) {
         className={classNames('projects-topbar-item', 'is-last', {
           'is-loading': loading
         })}>
-        {loading && <i className="spinner spacer-right" />}
-
         {total != null && (
           <span>
             <strong id="projects-total">{total}</strong> {translate('projects._projects')}

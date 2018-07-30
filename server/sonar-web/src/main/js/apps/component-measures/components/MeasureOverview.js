@@ -28,6 +28,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
@@ -163,7 +164,6 @@ export default class MeasureOverview extends React.PureComponent {
               <PageActions
                 current={this.state.components.length}
                 isFile={isFile}
-                loading={this.props.loading}
                 paging={this.state.paging}
               />
             </div>
@@ -175,6 +175,7 @@ export default class MeasureOverview extends React.PureComponent {
               <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
             )}
           </div>
+          <DeferredSpinner loading={this.props.loading} />
           {!this.props.loading && this.renderContent()}
         </div>
       </div>

@@ -26,8 +26,10 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import StatusHelper from '../../../components/shared/StatusHelper';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
+  fetching: boolean;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -104,6 +106,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
           values={values}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && <FacetItemsList>{statuses.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>
     );

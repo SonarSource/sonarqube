@@ -30,9 +30,11 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   component: Component | undefined;
+  fetching: boolean;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -143,8 +145,8 @@ export default class TagFacet extends React.PureComponent<Props> {
           values={this.props.tags}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderList()}
-
         {this.props.open && this.renderFooter()}
       </FacetBox>
     );

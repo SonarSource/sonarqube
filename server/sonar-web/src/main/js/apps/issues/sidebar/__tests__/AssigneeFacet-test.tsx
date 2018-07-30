@@ -29,6 +29,7 @@ const renderAssigneeFacet = (props?: Partial<Props>) =>
       assigned={true}
       assignees={[]}
       component={undefined}
+      fetching={false}
       onChange={jest.fn()}
       onToggle={jest.fn()}
       open={true}

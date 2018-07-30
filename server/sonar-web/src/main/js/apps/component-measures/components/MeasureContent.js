@@ -35,6 +35,7 @@ import { enhanceComponent, isFileType, isViewType } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
@@ -319,7 +320,6 @@ export default class MeasureContent extends React.PureComponent {
               )}
               <PageActions
                 current={selectedIdx != null && view !== 'treemap' ? selectedIdx + 1 : null}
-                loading={this.props.loading}
                 isFile={isFile}
                 paging={this.state.paging}
                 totalLoadedComponents={this.state.components.length}
@@ -343,7 +343,9 @@ export default class MeasureContent extends React.PureComponent {
               metric={metric}
               secondaryMeasure={this.props.secondaryMeasure}
             />
-            {isFileType(component) ? this.renderCode() : this.renderMeasure()}
+            <DeferredSpinner loading={this.props.loading}>
+              {isFileType(component) ? this.renderCode() : this.renderMeasure()}
+            </DeferredSpinner>
           </div>
         )}
       </div>

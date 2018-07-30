@@ -27,8 +27,10 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
+  fetching: boolean;
   directories: string[];
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -125,6 +127,7 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
           values={values}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderList()}
       </FacetBox>
     );

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import * as key from 'keymaster';
-import { keyBy, union, without } from 'lodash';
+import { keyBy, omit, union, without } from 'lodash';
 import * as PropTypes from 'prop-types';
 import BulkChangeModal from './BulkChangeModal';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
@@ -75,6 +75,7 @@ import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../helpers/system';
 import '../../../components/search-navigator.css';
 import '../styles.css';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface FetchIssuesPromise {
   components: ReferencedComponent[];
@@ -104,6 +105,7 @@ export interface State {
   issues: Issue[];
   lastChecked?: string;
   loading: boolean;
+  loadingFacets: { [key: string]: boolean };
   locationsNavigator: boolean;
   myIssues: boolean;
   openFacets: { [facet: string]: boolean };
@@ -136,6 +138,7 @@ export default class App extends React.PureComponent<Props, State> {
       facets: {},
       issues: [],
       loading: true,
+      loadingFacets: {},
       locationsNavigator: false,
       myIssues: props.myIssues || areMyIssuesSelected(props.location.query),
       openFacets: { severities: true, types: true },
@@ -571,16 +574,21 @@ export default class App extends React.PureComponent<Props, State> {
 
   fetchFacet = (facet: string) => {
     const requestOrganizations = facet === 'projects';
+    this.setState(state => ({ loadingFacets: { ...state.loadingFacets, [facet]: true } }));
     return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }, false, requestOrganizations).then(
       ({ facets, ...other }) => {
         if (this.mounted) {
           this.setState(state => ({
             facets: { ...state.facets, ...parseFacets(facets) },
+            loadingFacets: omit(state.loadingFacets, facet),
             referencedComponents: {
               ...state.referencedComponents,
               ...keyBy(other.components, 'uuid')
             },
-            referencedLanguages: { ...state.referencedLanguages, ...keyBy(other.languages, 'key') },
+            referencedLanguages: {
+              ...state.referencedLanguages,
+              ...keyBy(other.languages, 'key')
+            },
             referencedRules: { ...state.referencedRules, ...keyBy(other.rules, 'key') },
             referencedUsers: { ...state.referencedUsers, ...keyBy(other.users, 'login') }
           }));
@@ -869,6 +877,7 @@ export default class App extends React.PureComponent<Props, State> {
           component={component}
           facets={this.state.facets}
           loading={this.state.loading}
+          loadingFacets={this.state.loadingFacets}
           myIssues={this.state.myIssues}
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}
@@ -1004,6 +1013,31 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
+  renderPage() {
+    const { openIssue } = this.state;
+    return (
+      <div className="layout-page-main-inner">
+        <DeferredSpinner loading={this.state.loading}>
+          {openIssue ? (
+            <IssuesSourceViewer
+              branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+              loadIssues={this.fetchIssuesForComponent}
+              locationsNavigator={this.state.locationsNavigator}
+              onIssueChange={this.handleIssueChange}
+              onIssueSelect={this.openIssue}
+              onLocationSelect={this.selectLocation}
+              openIssue={openIssue}
+              selectedFlowIndex={this.state.selectedFlowIndex}
+              selectedLocationIndex={this.state.selectedLocationIndex}
+            />
+          ) : (
+            this.renderList()
+          )}
+        </DeferredSpinner>
+      </div>
+    );
+  }
+
   render() {
     const { component } = this.props;
     const { openIssue, paging } = this.state;
@@ -1038,7 +1072,6 @@ export default class App extends React.PureComponent<Props, State> {
                         !this.props.component &&
                         (!isSonarCloud() || this.props.myIssues)
                     )}
-                    loading={this.state.loading}
                     onReload={this.handleReload}
                     paging={paging}
                     selectedIndex={selectedIndex}
@@ -1049,25 +1082,7 @@ export default class App extends React.PureComponent<Props, State> {
             </div>
           </div>
 
-          <div className="layout-page-main-inner">
-            <div>
-              {openIssue ? (
-                <IssuesSourceViewer
-                  branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                  loadIssues={this.fetchIssuesForComponent}
-                  locationsNavigator={this.state.locationsNavigator}
-                  onIssueChange={this.handleIssueChange}
-                  onIssueSelect={this.openIssue}
-                  onLocationSelect={this.selectLocation}
-                  openIssue={openIssue}
-                  selectedFlowIndex={this.state.selectedFlowIndex}
-                  selectedLocationIndex={this.state.selectedLocationIndex}
-                />
-              ) : (
-                this.renderList()
-              )}
-            </div>
-          </div>
+          {this.renderPage()}
         </div>
       </div>
     );

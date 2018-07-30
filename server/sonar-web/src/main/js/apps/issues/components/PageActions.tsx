@@ -21,14 +21,12 @@ import * as React from 'react';
 import IssuesCounter from './IssuesCounter';
 import ReloadButton from './ReloadButton';
 import { HomePageType, Paging } from '../../../app/types';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   canSetHome: boolean;
-  loading: boolean;
   onReload: () => void;
   paging: Paging | undefined;
   selectedIndex: number | undefined;
@@ -61,9 +59,7 @@ export default class PageActions extends React.PureComponent<Props> {
         {this.renderShortcuts()}
 
         <div className="issues-page-actions">
-          <DeferredSpinner className="issues-main-header-spinner" loading={this.props.loading}>
-            <ReloadButton onClick={this.props.onReload} />
-          </DeferredSpinner>
+          <ReloadButton onClick={this.props.onReload} />
           {paging != null && (
             <IssuesCounter className="spacer-left" current={selectedIndex} total={paging.total} />
           )}

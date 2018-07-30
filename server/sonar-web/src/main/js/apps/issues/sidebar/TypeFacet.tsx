@@ -26,8 +26,10 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
+  fetching: boolean;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -118,6 +120,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
           values={values}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && <FacetItemsList>{types.map(this.renderItem)}</FacetItemsList>}
       </FacetBox>
     );

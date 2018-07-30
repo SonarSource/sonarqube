@@ -20,13 +20,11 @@
 // @flow
 import React from 'react';
 import FilesCounter from './FilesCounter';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Paging } from '../types'; */
 
 /*:: type Props = {|
   current: ?number,
-  loading: boolean,
   isFile: ?boolean,
   paging: ?Paging,
   totalLoadedComponents?: number,
@@ -41,9 +39,6 @@ export default function PageActions(props /*: Props */) {
       {!isFile && showShortcuts && renderShortcuts()}
       {isFile && paging && renderFileShortcuts()}
       <div className="measure-details-page-actions">
-        <DeferredSpinner loading={props.loading}>
-          <i className="spinner-placeholder" />
-        </DeferredSpinner>
         {paging != null && (
           <FilesCounter
             className="spacer-left"

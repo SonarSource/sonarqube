@@ -30,10 +30,12 @@ import FacetFooter from '../../../components/facet/FacetFooter';
 import Organization from '../../../components/shared/Organization';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   component: Component | undefined;
   loading?: boolean;
+  fetching: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -192,7 +194,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
           open={this.props.open}
           values={values}
         />
-
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderList()}
         {this.props.open && this.renderFooter()}
       </FacetBox>

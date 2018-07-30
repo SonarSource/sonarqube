@@ -33,6 +33,7 @@ import DateRangeInput from '../../../components/controls/DateRangeInput';
 import { isSameDay, parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   component: Component | undefined;
@@ -40,6 +41,7 @@ interface Props {
   createdAt: string;
   createdBefore: Date | undefined;
   createdInLast: string;
+  fetching: boolean;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -290,6 +292,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
           values={this.getValues()}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderInner()}
       </FacetBox>
     );

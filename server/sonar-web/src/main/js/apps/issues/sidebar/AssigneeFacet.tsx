@@ -28,11 +28,13 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 export interface Props {
   assigned: boolean;
   assignees: string[];
   component: Component | undefined;
+  fetching: boolean;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -201,6 +203,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
           values={this.getValues()}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderList()}
         {this.props.open && this.renderFooter()}
       </FacetBox>

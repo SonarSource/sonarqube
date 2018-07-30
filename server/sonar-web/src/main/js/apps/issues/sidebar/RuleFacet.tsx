@@ -27,8 +27,10 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetFooter from '../../../components/facet/FacetFooter';
 import { translate } from '../../../helpers/l10n';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
+  fetching: boolean;
   languages: string[];
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -144,6 +146,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
           values={values}
         />
 
+        <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && this.renderList()}
         {this.props.open && this.renderFooter()}
       </FacetBox>
