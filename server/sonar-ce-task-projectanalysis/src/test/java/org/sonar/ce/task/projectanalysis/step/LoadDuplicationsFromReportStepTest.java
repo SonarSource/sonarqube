@@ -68,27 +68,31 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void verify_description() {
-    assertThat(underTest.getDescription()).isEqualTo("Load inner file and in project duplications");
+    assertThat(underTest.getDescription()).isEqualTo("Load duplications");
   }
 
   @Test
   public void loads_duplication_without_otherFileRef_as_inner_duplication() {
     reportReader.putDuplications(FILE_2_REF, createDuplication(singleLineTextRange(LINE), createInnerDuplicate(LINE + 1)));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertNoDuplication(FILE_1_REF);
     assertDuplications(FILE_2_REF, singleLineDetailedTextBlock(1, LINE), new InnerDuplicate(singleLineTextBlock(LINE + 1)));
+    assertNbOfDuplications(context, 1);
   }
 
   @Test
   public void loads_duplication_with_otherFileRef_as_inProject_duplication() {
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(LINE), createInProjectDuplicate(FILE_2_REF, LINE + 1)));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     assertDuplications(FILE_1_REF, singleLineDetailedTextBlock(1, LINE), new InProjectDuplicate(treeRootHolder.getComponentByRef(FILE_2_REF), singleLineTextBlock(LINE + 1)));
     assertNoDuplication(FILE_2_REF);
+    assertNbOfDuplications(context, 1);
   }
 
   @Test
@@ -105,7 +109,8 @@ public class LoadDuplicationsFromReportStepTest {
         singleLineTextRange(OTHER_LINE + 80),
         createInnerDuplicate(LINE), createInnerDuplicate(LINE + 10)));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     Component file1Component = treeRootHolder.getComponentByRef(FILE_1_REF);
     assertThat(duplicationRepository.getDuplications(FILE_2_REF)).containsOnly(
@@ -119,6 +124,7 @@ public class LoadDuplicationsFromReportStepTest {
       duplication(
         singleLineDetailedTextBlock(3, OTHER_LINE + 80),
         new InnerDuplicate(singleLineTextBlock(LINE)), new InnerDuplicate(singleLineTextBlock(LINE + 10))));
+    assertNbOfDuplications(context, 3);
   }
 
   @Test
@@ -132,7 +138,8 @@ public class LoadDuplicationsFromReportStepTest {
         singleLineTextRange(LINE),
         createInnerDuplicate(LINE + 2), createInnerDuplicate(LINE + 3), createInProjectDuplicate(FILE_1_REF, LINE + 2)));
 
-    underTest.execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
 
     Component file1Component = treeRootHolder.getComponentByRef(FILE_1_REF);
     assertThat(duplicationRepository.getDuplications(FILE_2_REF)).containsOnly(
@@ -144,6 +151,8 @@ public class LoadDuplicationsFromReportStepTest {
         singleLineDetailedTextBlock(2, LINE),
         new InnerDuplicate(singleLineTextBlock(LINE + 2)), new InnerDuplicate(singleLineTextBlock(LINE + 3)),
         new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))));
+
+    assertNbOfDuplications(context, 2);
   }
 
   @Test
@@ -215,6 +224,10 @@ public class LoadDuplicationsFromReportStepTest {
 
   private void assertNoDuplication(int fileRef) {
     assertThat(duplicationRepository.getDuplications(fileRef)).isEmpty();
+  }
+
+  private static void assertNbOfDuplications(TestComputationStepContext context, int expected) {
+    context.getStatistics().assertValue("duplications", expected);
   }
 
 }

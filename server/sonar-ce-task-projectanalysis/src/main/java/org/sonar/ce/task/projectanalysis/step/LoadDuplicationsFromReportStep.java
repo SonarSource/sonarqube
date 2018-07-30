@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -58,40 +57,14 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Load inner file and in project duplications";
+    return "Load duplications";
   }
 
   @Override
   public void execute(ComputationStep.Context context) {
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, ComponentVisitor.Order.POST_ORDER) {
-        @Override
-        public void visitFile(Component file) {
-          try (CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
-            int idGenerator = 1;
-            while (duplications.hasNext()) {
-              loadDuplications(file, duplications.next(), idGenerator);
-              idGenerator++;
-            }
-          }
-        }
-      }).visit(treeRootHolder.getRoot());
-  }
-
-  private void loadDuplications(Component file, ScannerReport.Duplication duplication, int id) {
-    duplicationRepository.add(file,
-      new Duplication(
-        convert(duplication.getOriginPosition(), id),
-        from(duplication.getDuplicateList())
-          .transform(new BatchDuplicateToCeDuplicate(file))));
-  }
-
-  private static TextBlock convert(ScannerReport.TextRange textRange) {
-    return new TextBlock(textRange.getStartLine(), textRange.getEndLine());
-  }
-
-  private static DetailedTextBlock convert(ScannerReport.TextRange textRange, int id) {
-    return new DetailedTextBlock(id, textRange.getStartLine(), textRange.getEndLine());
+    DuplicationVisitor visitor = new DuplicationVisitor();
+    new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
+    context.getStatistics().add("duplications", visitor.count);
   }
 
   private class BatchDuplicateToCeDuplicate implements Function<ScannerReport.Duplicate, Duplicate> {
@@ -111,6 +84,42 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
           convert(input.getRange()));
       }
       return new InnerDuplicate(convert(input.getRange()));
+    }
+
+    private TextBlock convert(ScannerReport.TextRange textRange) {
+      return new TextBlock(textRange.getStartLine(), textRange.getEndLine());
+    }
+  }
+
+  private class DuplicationVisitor extends TypeAwareVisitorAdapter {
+    private int count = 0;
+
+    private DuplicationVisitor() {
+      super(CrawlerDepthLimit.FILE, Order.POST_ORDER);
+    }
+
+    @Override
+    public void visitFile(Component file) {
+      try (CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
+        int idGenerator = 1;
+        while (duplications.hasNext()) {
+          loadDuplications(file, duplications.next(), idGenerator);
+          idGenerator++;
+          count++;
+        }
+      }
+    }
+
+    private void loadDuplications(Component file, ScannerReport.Duplication duplication, int id) {
+      duplicationRepository.add(file,
+        new Duplication(
+          convert(duplication.getOriginPosition(), id),
+          from(duplication.getDuplicateList())
+            .transform(new BatchDuplicateToCeDuplicate(file))));
+    }
+
+    private DetailedTextBlock convert(ScannerReport.TextRange textRange, int id) {
+      return new DetailedTextBlock(id, textRange.getStartLine(), textRange.getEndLine());
     }
   }
 }
