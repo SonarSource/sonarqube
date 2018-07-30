@@ -125,10 +125,12 @@ export default class Search extends React.PureComponent {
   };
 
   handleFocus = () => {
-    // simulate click to close any other dropdowns
-    const body = document.documentElement;
-    if (body) {
-      body.click();
+    if (!this.state.open) {
+      // simulate click to close any other dropdowns
+      const body = document.documentElement;
+      if (body) {
+        body.click();
+      }
     }
     this.openSearch();
   };
@@ -237,6 +239,9 @@ export default class Search extends React.PureComponent {
             },
             selected: moreResults.length > 0 ? moreResults[0].key : state.selected
           }));
+          if (this.input) {
+            this.input.focus();
+          }
         }
       }, this.stopLoading);
     }
