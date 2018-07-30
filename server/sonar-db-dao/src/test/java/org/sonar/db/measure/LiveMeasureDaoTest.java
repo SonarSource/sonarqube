@@ -315,12 +315,13 @@ public class LiveMeasureDaoTest {
     underTest.insertOrUpdate(db.getSession(), measure4NoMarker, null);
     underTest.insertOrUpdate(db.getSession(), measure5OtherProject, "foo");
 
-    underTest.deleteByProjectUuidExcludingMarker(db.getSession(), "P1", "foo");
+    int count = underTest.deleteByProjectUuidExcludingMarker(db.getSession(), "P1", "foo");
 
     verifyTableSize(3);
     verifyPersisted(measure1);
     verifyPersisted(measure2);
     verifyPersisted(measure5OtherProject);
+    assertThat(count).isEqualTo(2);
   }
 
   private void verifyTableSize(int expectedSize) {

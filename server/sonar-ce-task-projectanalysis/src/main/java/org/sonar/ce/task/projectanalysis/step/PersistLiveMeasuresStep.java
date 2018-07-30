@@ -87,15 +87,20 @@ public class PersistLiveMeasuresStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String marker = Uuids.create();
       Component root = treeRootHolder.getRoot();
-      new DepthTraversalTypeAwareCrawler(new MeasureVisitor(dbSession, marker)).visit(root);
-      dbClient.liveMeasureDao().deleteByProjectUuidExcludingMarker(dbSession, root.getUuid(), marker);
+      MeasureVisitor visitor = new MeasureVisitor(dbSession, marker);
+      new DepthTraversalTypeAwareCrawler(visitor).visit(root);
+      int deleted = dbClient.liveMeasureDao().deleteByProjectUuidExcludingMarker(dbSession, root.getUuid(), marker);
       dbSession.commit();
+
+      context.getStatistics().add("insertsOrUpdates", visitor.total);
+      context.getStatistics().add("deletes", deleted);
     }
   }
 
   private class MeasureVisitor extends TypeAwareVisitorAdapter {
     private final DbSession dbSession;
     private final String marker;
+    private int total = 0;
 
     private MeasureVisitor(DbSession dbSession, String marker) {
       super(CrawlerDepthLimit.LEAVES, PRE_ORDER);
@@ -123,6 +128,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
         while (liveMeasures.hasNext()) {
           dao.insertOrUpdate(dbSession, liveMeasures.next(), marker);
           count++;
+          total++;
           if (count % 100 == 0) {
             // use short transactions to avoid potential deadlocks on MySQL
             // https://jira.sonarsource.com/browse/SONAR-10117?focusedCommentId=153555&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-153555

@@ -101,7 +101,8 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("dir-value"));
     measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create("file-value"));
 
-    step().execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    step().execute(context);
 
     // all measures are persisted, from project to file
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
@@ -109,6 +110,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     assertThat(selectMeasure("module-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("module-value");
     assertThat(selectMeasure("dir-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("dir-value");
     assertThat(selectMeasure("file-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("file-value");
+    verifyStatistics(context, 4, 0);
   }
 
   @Test
@@ -117,10 +119,12 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().createNoValue());
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().createNoValue());
 
-    step().execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    step().execute(context);
 
     assertThatMeasureIsNotPersisted("project-uuid", STRING_METRIC);
     assertThatMeasureIsNotPersisted("project-uuid", INT_METRIC);
+    verifyStatistics(context, 0, 0);
   }
 
   @Test
@@ -128,11 +132,13 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     prepareProject();
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().setVariation(42.0).createNoValue());
 
-    step().execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    step().execute(context);
 
     LiveMeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
     assertThat(persistedMeasure.getValue()).isNull();
     assertThat(persistedMeasure.getVariation()).isEqualTo(42.0);
+    verifyStatistics(context, 1, 0);
   }
 
   @Test
@@ -150,12 +156,14 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
     measureRepository.addRawMeasure(REF_4, INT_METRIC.getKey(), newMeasureBuilder().create(42));
 
-    step().execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    step().execute(context);
 
     assertThatMeasureHasValue(measureOnFileInProject, 42);
     assertThatMeasureDoesNotExist(measureOnDeletedFileInProject);
     assertThatMeasureDoesNotExist(otherMeasureOnFileInProject);
     assertThatMeasureHasValue(measureInOtherProject, (int) measureInOtherProject.getValue().doubleValue());
+    verifyStatistics(context, 1, 2);
   }
 
   @Test
@@ -170,10 +178,12 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     // file measure with metric best value -> do not persist
     measureRepository.addRawMeasure(REF_4, METRIC_WITH_BEST_VALUE.getKey(), newMeasureBuilder().create(0));
 
-    step().execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    step().execute(context);
 
     assertThatMeasureDoesNotExist(oldMeasure);
     assertThatMeasureHasValue("project-uuid", METRIC_WITH_BEST_VALUE, 0);
+    verifyStatistics(context, 1, 1);
   }
 
   @Test
@@ -185,12 +195,14 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("subview-value"));
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
 
-    step().execute(new TestComputationStepContext());
+    TestComputationStepContext context = new TestComputationStepContext();
+    step().execute(context);
 
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(3);
     assertThat(selectMeasure("view-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("view-value");
     assertThat(selectMeasure("subview-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("subview-value");
     assertThat(selectMeasure("project-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("project-value");
+    verifyStatistics(context, 3, 0);
   }
 
   private LiveMeasureDto insertMeasure(String componentUuid, String projectUuid, Metric metric) {
@@ -289,4 +301,8 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     return new PersistLiveMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository);
   }
 
+  private static void verifyStatistics(TestComputationStepContext context, int expectedInsertsOrUpdates, int expectedDeletes) {
+    context.getStatistics().assertValue("insertsOrUpdates", expectedInsertsOrUpdates);
+    context.getStatistics().assertValue("deletes", expectedDeletes);
+  }
 }

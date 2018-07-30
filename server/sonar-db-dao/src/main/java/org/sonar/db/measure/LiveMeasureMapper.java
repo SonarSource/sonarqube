@@ -62,7 +62,7 @@ public interface LiveMeasureMapper {
     @Nullable @Param("marker") String marker,
     @Param("now") long now);
 
-  void deleteByProjectUuidExcludingMarker(
+  int deleteByProjectUuidExcludingMarker(
     @Param("projectUuid") String projectUuid,
     @Param("marker") String marker);
 }
