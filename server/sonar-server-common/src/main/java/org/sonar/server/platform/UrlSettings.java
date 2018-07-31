@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
@@ -52,7 +53,8 @@ public class UrlSettings {
     if (isEmpty(url)) {
       url = computeBaseUrl();
     }
-    return url;
+    // Remove trailing slashes
+    return StringUtils.removeEnd(url, "/");
   }
 
   public String getContextPath() {

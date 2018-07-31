@@ -58,6 +58,13 @@ public class UrlSettingsTest {
   }
 
   @Test
+  public void remove_trailing_slash() {
+    settings.setProperty("sonar.core.serverBaseURL", "http://mydomain.com/");
+
+    assertThat(underTest().getBaseUrl()).isEqualTo("http://mydomain.com");
+  }
+
+  @Test
   public void is_secured_on_https_server() {
     settings.setProperty("sonar.core.serverBaseURL", "https://mydomain.com");
 

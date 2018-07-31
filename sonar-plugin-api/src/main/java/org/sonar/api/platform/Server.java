@@ -86,7 +86,7 @@ public abstract class Server {
   public abstract String getContextPath();
 
   /**
-   * Return the public root url, for instance : https://nemo.sonarqube.org.
+   * Return the public root url, without trailing slash, for instance : https://nemo.sonarqube.org.
    * Default value is {@link org.sonar.api.CoreProperties#SERVER_BASE_URL_DEFAULT_VALUE}
    *
    * @since 5.4
