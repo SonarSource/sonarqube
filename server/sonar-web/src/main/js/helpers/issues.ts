@@ -98,10 +98,14 @@ function injectCommentsRelational(issue: RawIssue, users?: User[]) {
   return { comments };
 }
 
-function prepareClosed(issue: RawIssue) {
+function prepareClosed(
+  issue: RawIssue,
+  secondaryLocations: FlowLocation[],
+  flows: FlowLocation[][]
+) {
   return issue.status === 'CLOSED'
-    ? { flows: undefined, line: undefined, textRange: undefined }
-    : {};
+    ? { flows: [], line: undefined, textRange: undefined, secondaryLocations: [] }
+    : { flows, secondaryLocations };
 }
 
 function ensureTextRange(issue: RawIssue): { textRange?: TextRange } {
@@ -167,9 +171,7 @@ export function parseIssueFromResponse(
     ...injectRelational(issue, rules, 'rule', 'key'),
     ...injectRelational(issue, users, 'assignee', 'login'),
     ...injectCommentsRelational(issue, users),
-    ...prepareClosed(issue),
-    ...ensureTextRange(issue),
-    secondaryLocations,
-    flows
+    ...prepareClosed(issue, secondaryLocations, flows),
+    ...ensureTextRange(issue)
   } as Issue;
 }
