@@ -11,10 +11,10 @@ exports[`should render correctly 1`] = `
     alt="Foo Provider"
     className="spacer-left"
     height={14}
-    src="icon/path"
+    src="/images/sonarcloud/foo.svg"
     style={
       Object {
-        "filter": "invert(100%)",
+        "opacity": 1,
       }
     }
     width={14}
@@ -38,10 +38,10 @@ exports[`should render disabled 1`] = `
     alt="Foo Provider"
     className="spacer-left"
     height={14}
-    src="icon/path"
+    src="/images/sonarcloud/foo.svg"
     style={
       Object {
-        "filter": "invert(50%)",
+        "opacity": 0.5,
       }
     }
     width={14}
@@ -56,6 +56,7 @@ exports[`should render disabled 1`] = `
   >
     <CheckIcon
       className="little-spacer-right"
+      fill="#00aa00"
     />
     onboarding.create_project.already_imported
   </span>
@@ -73,10 +74,10 @@ exports[`should render selected 1`] = `
     alt="Foo Provider"
     className="spacer-left"
     height={14}
-    src="icon/path"
+    src="/images/sonarcloud/foo.svg"
     style={
       Object {
-        "filter": "invert(100%)",
+        "opacity": 1,
       }
     }
     width={14}
