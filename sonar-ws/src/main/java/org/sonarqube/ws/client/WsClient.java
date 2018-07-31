@@ -21,15 +21,19 @@ package org.sonarqube.ws.client;
 
 import javax.annotation.Generated;
 import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
+import org.sonarqube.ws.client.applications.ApplicationsService;
 import org.sonarqube.ws.client.authentication.AuthenticationService;
 import org.sonarqube.ws.client.batch.BatchService;
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.custommeasures.CustomMeasuresService;
+import org.sonarqube.ws.client.developers.DevelopersService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
+import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.favourites.FavouritesService;
+import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.l10n.L10nService;
 import org.sonarqube.ws.client.languages.LanguagesService;
@@ -44,6 +48,7 @@ import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbadges.ProjectBadgesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
+import org.sonarqube.ws.client.projectdump.ProjectDumpService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
 import org.sonarqube.ws.client.projects.ProjectsService;
@@ -57,6 +62,7 @@ import org.sonarqube.ws.client.rules.RulesService;
 import org.sonarqube.ws.client.server.ServerService;
 import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.sources.SourcesService;
+import org.sonarqube.ws.client.support.SupportService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.tests.TestsService;
 import org.sonarqube.ws.client.timemachine.TimemachineService;
@@ -65,6 +71,7 @@ import org.sonarqube.ws.client.usergroups.UserGroupsService;
 import org.sonarqube.ws.client.userproperties.UserPropertiesService;
 import org.sonarqube.ws.client.users.UsersService;
 import org.sonarqube.ws.client.usertokens.UserTokensService;
+import org.sonarqube.ws.client.views.ViewsService;
 import org.sonarqube.ws.client.webhooks.WebhooksService;
 import org.sonarqube.ws.client.webservices.WebservicesService;
 
@@ -93,6 +100,8 @@ public interface WsClient {
 
   AnalysisReportsService analysisReports();
 
+  ApplicationsService applications();
+
   AuthenticationService authentication();
 
   CeService ce();
@@ -101,13 +110,19 @@ public interface WsClient {
 
   CustomMeasuresService customMeasures();
 
+  DevelopersService developers();
+
   DuplicationsService duplications();
+
+  EditionsService editions();
 
   EmailsService emails();
 
   FavoritesService favorites();
 
   FavouritesService favourites();
+
+  GovernanceReportsService governanceReports();
 
   IssuesService issues();
 
@@ -137,6 +152,8 @@ public interface WsClient {
 
   ProjectBranchesService projectBranches();
 
+  ProjectDumpService projectDump();
+
   ProjectLinksService projectLinks();
 
   ProjectPullRequestsService projectPullRequests();
@@ -163,6 +180,8 @@ public interface WsClient {
 
   SourcesService sources();
 
+  SupportService support();
+
   SystemService system();
 
   TestsService tests();
@@ -178,6 +197,8 @@ public interface WsClient {
   UserTokensService userTokens();
 
   UsersService users();
+
+  ViewsService views();
 
   WebhooksService webhooks();
 
