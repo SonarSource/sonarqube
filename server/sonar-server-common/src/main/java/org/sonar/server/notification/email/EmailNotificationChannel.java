@@ -96,11 +96,17 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   @Override
   public boolean deliver(Notification notification, String username) {
+    if (StringUtils.isBlank(configuration.getSmtpHost())) {
+      LOG.debug("SMTP host was not configured - email will not be sent");
+      return false;
+    }
+
     User user = findByLogin(username);
     if (user == null || StringUtils.isBlank(user.email())) {
       LOG.debug("User does not exist or has no email: {}", username);
       return false;
     }
+
     EmailMessage emailMessage = format(notification);
     if (emailMessage != null) {
       emailMessage.setTo(user.email());
