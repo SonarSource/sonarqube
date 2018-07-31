@@ -21,6 +21,7 @@ package org.sonar.server.organization;
 
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.process.MessageException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -71,7 +72,7 @@ public interface BillingValidations {
     }
   }
 
-  class BillingValidationsException extends RuntimeException {
+  class BillingValidationsException extends MessageException {
     public BillingValidationsException(String message) {
       super(message);
     }
@@ -90,6 +91,5 @@ public interface BillingValidations {
     public String toString() {
       return getMessage();
     }
-
   }
 }
