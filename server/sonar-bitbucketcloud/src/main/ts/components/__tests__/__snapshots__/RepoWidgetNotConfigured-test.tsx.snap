@@ -1,6 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display correctly 1`] = `
+exports[`should display a link to SonarCloud for auto provisioning 1`] = `
+<React.Fragment>
+  <div
+    className="project-card-header"
+  >
+    <div
+      className="project-card-header-inner"
+    >
+      <SonarCloudIcon
+        size={24}
+      />
+      <h4
+        className="spacer-left"
+      >
+        Code Quality
+      </h4>
+    </div>
+  </div>
+  <div
+    className="spacer-top"
+  >
+    <React.Fragment>
+      You have to 
+      <a
+        href="/projects/create"
+      >
+        provision
+      </a>
+       a project in SonarCloud for this repository.
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display correctly for admin 1`] = `
 <React.Fragment>
   <div
     className="project-card-header"
@@ -31,7 +65,7 @@ exports[`should display correctly 1`] = `
 </React.Fragment>
 `;
 
-exports[`should display correctly 2`] = `
+exports[`should display correctly for admin 2`] = `
 <React.Fragment>
   <div
     className="project-card-header"
@@ -64,6 +98,32 @@ exports[`should display correctly 2`] = `
       </a>
       .
     </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display correctly for non admin 1`] = `
+<React.Fragment>
+  <div
+    className="project-card-header"
+  >
+    <div
+      className="project-card-header-inner"
+    >
+      <SonarCloudIcon
+        size={24}
+      />
+      <h4
+        className="spacer-left"
+      >
+        Code Quality
+      </h4>
+    </div>
+  </div>
+  <div
+    className="spacer-top"
+  >
+    Contact a repository administrator to link the repository with a SonarCloud project.
   </div>
 </React.Fragment>
 `;

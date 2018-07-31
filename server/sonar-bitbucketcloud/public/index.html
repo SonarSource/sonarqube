@@ -20,6 +20,7 @@
     window.bbcJWT = '%BBC_JWT%';
     window.bbcWidgetKey = '%BBC_WIDGET_KEY%';
     window.projectKey = '%BBC_PROJECT_KEY%';
+    window.allowManualBinding = '%BBC_ALLOW_MANUAL_BINDING%';
   </script>
   <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
     <script src="%WEB_CONTEXT%<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>

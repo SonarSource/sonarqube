@@ -22,6 +22,7 @@ package org.sonar.db.alm;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -70,6 +71,10 @@ public class ProjectAlmBindingsDao implements Dao {
    */
   public List<ProjectAlmBindingDto> selectByRepoIds(final DbSession session, ALM alm, Collection<String> repoIds) {
     return executeLargeInputs(repoIds, partionnedIds -> getMapper(session).selectByRepoIds(alm.getId(), partionnedIds));
+  }
+
+  public Optional<ProjectAlmBindingDto> selectByRepoId(final DbSession session, ALM alm, String repoId) {
+    return Optional.ofNullable(getMapper(session).selectByRepoId(alm.getId(), repoId));
   }
 
   private static void checkAlm(@Nullable ALM alm) {

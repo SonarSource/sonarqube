@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.junit.Rule;
@@ -205,6 +206,29 @@ public class ProjectAlmBindingsDaoTest {
     underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
 
     assertThat(underTest.bindingExists(dbSession, GITHUB, A_REPO)).isTrue();
+  }
+
+  @Test
+  public void select_by_repo_id() {
+    when(system2.now()).thenReturn(DATE);
+    when(uuidFactory.create())
+      .thenReturn("uuid1")
+      .thenReturn("uuid2")
+      .thenReturn("uuid3");
+    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
+    underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, ANOTHER_UUID, null, ANOTHER_URL);
+    underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
+
+    assertThat(underTest.selectByRepoId(dbSession, GITHUB, "foo")).isNotPresent();
+
+    Optional<ProjectAlmBindingDto> dto = underTest.selectByRepoId(dbSession, GITHUB, A_REPO);
+    assertThat(dto).isPresent();
+    assertThat(dto.get().getUuid()).isEqualTo("uuid1");
+    assertThat(dto.get().getAlmId()).isEqualTo(GITHUB.getId());
+    assertThat(dto.get().getRepoId()).isEqualTo(A_REPO);
+    assertThat(dto.get().getProjectUuid()).isEqualTo(A_UUID);
+    assertThat(dto.get().getUrl()).isEqualTo(A_URL);
+    assertThat(dto.get().getGithubSlug()).isEqualTo(A_GITHUB_SLUG);
   }
 
   @Test

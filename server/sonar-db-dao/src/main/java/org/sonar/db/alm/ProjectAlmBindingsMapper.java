@@ -34,4 +34,6 @@ public interface ProjectAlmBindingsMapper {
     @Nullable @Param("githubSlug") String githubSlug, @Param("url") String url, @Param("now") long now);
 
   List<ProjectAlmBindingDto> selectByRepoIds(@Param("almId") String almId, @Param("repoIds") List<String> repoIds);
+
+  ProjectAlmBindingDto selectByRepoId(@Param("almId") String almId, @Param("repoId") String repoId);
 }

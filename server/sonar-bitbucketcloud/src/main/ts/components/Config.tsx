@@ -28,7 +28,7 @@ import LoginForm from './LoginForm';
 import SonarCloudIcon from './SonarCloudIcon';
 import { AppContext } from '../types';
 import { bindProject, displayWSError, getMyProjects, putStoredProperty } from '../api';
-import { displayMessage } from '../utils';
+import { displayMessage, isManualBindingAllowed } from '../utils';
 
 interface ProjectOption {
   label: string;
@@ -70,14 +70,16 @@ export default class Config extends React.PureComponent<Props, State> {
       authenticated: false,
       saving: false,
       disabled: props.disabled,
-      loading: true,
+      loading: isManualBindingAllowed(),
       projects: []
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchMyProjects();
+    if (isManualBindingAllowed()) {
+      this.fetchMyProjects();
+    }
   }
 
   componentWillUnmount() {
@@ -141,7 +143,11 @@ export default class Config extends React.PureComponent<Props, State> {
     }
 
     const { selectedProject } = this;
-    if (selectedProject && selectedProject.value !== this.props.projectKey) {
+    if (
+      isManualBindingAllowed() &&
+      selectedProject &&
+      selectedProject.value !== this.props.projectKey
+    ) {
       updateBinding = true;
       promises.push(
         bindProject({ ...this.props.context, projectKey: selectedProject.value }).then(() => {
@@ -149,6 +155,7 @@ export default class Config extends React.PureComponent<Props, State> {
         })
       );
     }
+
     if (promises.length > 0) {
       (document.activeElement as HTMLElement).blur();
       this.setState({ saving: true });
@@ -175,6 +182,29 @@ export default class Config extends React.PureComponent<Props, State> {
   };
 
   renderContainer = (children: React.ReactNode) => {
+    const { projectKey } = this.props;
+    let descriptionComponent: React.ReactNode = (
+      <>
+        To display the quality of your repository, you have to{' '}
+        <a href={getBaseUrl() + '/projects/create'}>provision</a> a project on SonarCloud and
+        trigger an analysis.
+      </>
+    );
+
+    if (isManualBindingAllowed()) {
+      descriptionComponent =
+        'To display the quality of your repository, you have to link it with a project analyzed on SonarCloud.';
+    } else if (projectKey) {
+      descriptionComponent = (
+        <>
+          This repository is already bound to a{' '}
+          <a href={getBaseUrl() + '/dashboard?id=' + encodeURIComponent(projectKey)}>
+            SonarCloud project
+          </a>
+        </>
+      );
+    }
+
     return (
       <>
         <h2>SonarCloud Settings</h2>
@@ -182,10 +212,7 @@ export default class Config extends React.PureComponent<Props, State> {
           <div className="settings-logo">
             <SonarCloudIcon size={128} />
           </div>
-          <p className="settings-description">
-            To display the quality of your repository, you have to link it with a project analyzed
-            on SonarCloud.
-          </p>
+          <p className="settings-description">{descriptionComponent}</p>
           {children}
         </div>
       </>
@@ -231,7 +258,6 @@ export default class Config extends React.PureComponent<Props, State> {
 
   render() {
     const { authenticated, disabled, loading } = this.state;
-
     if (loading) {
       return this.renderContainer(
         <div className="huge-spacer-top">
@@ -247,9 +273,9 @@ export default class Config extends React.PureComponent<Props, State> {
 
     return this.renderContainer(
       <>
-        {!authenticated && <LoginForm onReload={this.handleReload} />}
+        {isManualBindingAllowed() && !authenticated && <LoginForm onReload={this.handleReload} />}
         <form className="settings-form" onSubmit={this.handleSubmit}>
-          {authenticated && this.renderProjectsSelect()}
+          {isManualBindingAllowed() && authenticated && this.renderProjectsSelect()}
           <div className="display-flex-justify-center">
             <CheckboxStateless
               isChecked={!disabled}

@@ -21,21 +21,33 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import RepoWidgetNotConfigured from '../RepoWidgetNotConfigured';
+import { isManualBindingAllowed, isRepoAdmin } from '../../utils';
 
 jest.mock('../../utils', () => ({
-  getRepoSettingsUrl: jest.fn(() =>
-    Promise.resolve(
+  getRepoSettingsUrl: jest
+    .fn()
+    .mockResolvedValue(
       'https://bitbucketcloud.org/{}/{repo_uuid}/admin/addon/admin/app-key/repository-config'
-    )
-  ),
-  isRepoAdmin: jest.fn(() => true)
+    ),
+  isRepoAdmin: jest.fn().mockReturnValue(true),
+  isManualBindingAllowed: jest.fn().mockReturnValue(true)
 }));
 
-it('should display correctly', async () => {
+it('should display correctly for admin', async () => {
   const wrapper = shallow(<RepoWidgetNotConfigured />);
   expect(wrapper).toMatchSnapshot();
 
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should display correctly for non admin', () => {
+  (isRepoAdmin as jest.Mock<any>).mockReturnValueOnce(false);
+  expect(shallow(<RepoWidgetNotConfigured />)).toMatchSnapshot();
+});
+
+it('should display a link to SonarCloud for auto provisioning', () => {
+  (isManualBindingAllowed as jest.Mock<any>).mockReturnValueOnce(false);
+  expect(shallow(<RepoWidgetNotConfigured />)).toMatchSnapshot();
 });

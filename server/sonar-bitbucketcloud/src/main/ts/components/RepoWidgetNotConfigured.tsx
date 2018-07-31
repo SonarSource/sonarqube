@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getBaseUrl } from '@sqcore/helpers/urls';
 import SonarCloudIcon from './SonarCloudIcon';
-import { getRepoSettingsUrl, isRepoAdmin } from '../utils';
+import { getRepoSettingsUrl, isRepoAdmin, isManualBindingAllowed } from '../utils';
 
 interface State {
   settingsUrl?: string;
@@ -47,13 +48,32 @@ export default class RepoWidgetNotConfigured extends React.PureComponent<{}, Sta
 
   render() {
     const { settingsUrl } = this.state;
-    const settingsLink = settingsUrl ? (
-      <a href={settingsUrl} rel="noopener noreferrer" target="_parent">
-        repository settings
-      </a>
-    ) : (
-      'repository settings'
-    );
+    let msgComponent: React.ReactNode =
+      'Contact a repository administrator to link the repository with a SonarCloud project.';
+    if (isRepoAdmin()) {
+      if (isManualBindingAllowed()) {
+        msgComponent = (
+          <>
+            You have to link your repository with an existing SonarCloud project. Go to your{' '}
+            {settingsUrl ? (
+              <a href={settingsUrl} rel="noopener noreferrer" target="_parent">
+                repository settings
+              </a>
+            ) : (
+              'repository settings'
+            )}.
+          </>
+        );
+      } else {
+        msgComponent = (
+          <>
+            You have to <a href={getBaseUrl() + '/projects/create'}>provision</a> a project in
+            SonarCloud for this repository.
+          </>
+        );
+      }
+    }
+
     return (
       <>
         <div className="project-card-header">
@@ -62,16 +82,7 @@ export default class RepoWidgetNotConfigured extends React.PureComponent<{}, Sta
             <h4 className="spacer-left">Code Quality</h4>
           </div>
         </div>
-        <div className="spacer-top">
-          {isRepoAdmin() ? (
-            <>
-              You have to link your repository with an existing SonarCloud project. Go to your{' '}
-              {settingsLink}.
-            </>
-          ) : (
-            'Contact a repository administrator to link the repository with a SonarCloud project.'
-          )}
-        </div>
+        <div className="spacer-top">{msgComponent}</div>
       </>
     );
   }

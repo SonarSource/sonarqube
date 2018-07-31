@@ -235,6 +235,132 @@ exports[`should display correctly 2`] = `
 </React.Fragment>
 `;
 
+exports[`should display correctly for auto binding 1`] = `
+<React.Fragment>
+  <h2>
+    SonarCloud Settings
+  </h2>
+  <div
+    className="settings-content"
+  >
+    <div
+      className="settings-logo"
+    >
+      <SonarCloudIcon
+        size={128}
+      />
+    </div>
+    <p
+      className="settings-description"
+    >
+      <React.Fragment>
+        This repository is already bound to a
+         
+        <a
+          href="/dashboard?id=foo"
+        >
+          SonarCloud project
+        </a>
+      </React.Fragment>
+    </p>
+    <React.Fragment>
+      <form
+        className="settings-form"
+        onSubmit={[Function]}
+      >
+        <div
+          className="display-flex-justify-center"
+        >
+          <CheckboxStateless
+            isChecked={true}
+            label="Show repository overview widget"
+            name="show-widget"
+            onChange={[Function]}
+            value="show-widget"
+          />
+        </div>
+        <div
+          className="ak-field-group"
+        >
+          <WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))
+            analyticsContext={Object {}}
+            appearance="primary"
+            isDisabled={true}
+            type="submit"
+          >
+            Save
+          </WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
+        </div>
+      </form>
+      <HelpLink />
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should display correctly for auto binding with already a projectKey 1`] = `
+<React.Fragment>
+  <h2>
+    SonarCloud Settings
+  </h2>
+  <div
+    className="settings-content"
+  >
+    <div
+      className="settings-logo"
+    >
+      <SonarCloudIcon
+        size={128}
+      />
+    </div>
+    <p
+      className="settings-description"
+    >
+      <React.Fragment>
+        This repository is already bound to a
+         
+        <a
+          href="/dashboard?id=foo"
+        >
+          SonarCloud project
+        </a>
+      </React.Fragment>
+    </p>
+    <React.Fragment>
+      <form
+        className="settings-form"
+        onSubmit={[Function]}
+      >
+        <div
+          className="display-flex-justify-center"
+        >
+          <CheckboxStateless
+            isChecked={true}
+            label="Show repository overview widget"
+            name="show-widget"
+            onChange={[Function]}
+            value="show-widget"
+          />
+        </div>
+        <div
+          className="ak-field-group"
+        >
+          <WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))
+            analyticsContext={Object {}}
+            appearance="primary"
+            isDisabled={true}
+            type="submit"
+          >
+            Save
+          </WithAnalyticsContext(WithAnalyticsEvents(WithDeprecationWarnings(Button)))>
+        </div>
+      </form>
+      <HelpLink />
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
 exports[`should display the authentication component and the display checkbox 1`] = `
 <form
   className="settings-form"

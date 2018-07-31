@@ -21,9 +21,11 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Config from '../Config';
 import { bindProject, getMyProjects } from '../../api';
+import { isManualBindingAllowed } from '../../utils';
 
 jest.mock('../../utils', () => ({
-  displayMessage: jest.fn()
+  displayMessage: jest.fn(),
+  isManualBindingAllowed: jest.fn(() => true)
 }));
 
 jest.mock('../../api', () => ({
@@ -56,6 +58,18 @@ it('should display correctly', async () => {
   wrapper.update();
   expect(getMyProjects).toHaveBeenCalled();
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should display correctly for auto binding', () => {
+  (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(false);
+  expect(getWrapper()).toMatchSnapshot();
+  (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(true);
+});
+
+it('should display correctly for auto binding with already a projectKey', () => {
+  (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(false);
+  expect(getWrapper()).toMatchSnapshot();
+  (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(true);
 });
 
 it('should display the authentication component and the display checkbox', async () => {

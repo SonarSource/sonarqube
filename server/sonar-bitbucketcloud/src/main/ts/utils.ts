@@ -49,6 +49,10 @@ export function getProjectKey(): string | undefined {
   return (window as any).projectKey;
 }
 
+export function isManualBindingAllowed(): boolean {
+  return (window as any).allowManualBinding !== 'false';
+}
+
 export function getPullRequestContext(): PullRequestContext {
   return {
     prId: (window as any).prId || query.prId,

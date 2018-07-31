@@ -58,11 +58,25 @@
       url
     from project_alm_bindings
     where
-      alm_id =#{almId, jdbcType=VARCHAR}
+      alm_id = #{almId, jdbcType=VARCHAR}
       and repo_id in
     <foreach collection="repoIds" open="(" close=")" item="repoId" separator=",">
       #{repoId,jdbcType=VARCHAR}
     </foreach>
+  </select>
+
+  <select id="selectByRepoId" parameterType="map" resultType="ProjectAlmBinding">
+    select
+    uuid,
+    alm_id as almId,
+    repo_id as repoId,
+    project_uuid as projectUuid,
+    github_slug as githubSlug,
+    url
+    from project_alm_bindings
+    where
+    alm_id = #{almId, jdbcType=VARCHAR}
+    and repo_id = #{repoId, jdbcType=VARCHAR}
   </select>
 
 </mapper>
