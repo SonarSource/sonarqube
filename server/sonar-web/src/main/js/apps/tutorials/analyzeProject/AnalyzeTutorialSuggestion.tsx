@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { isBitbucket, isGithub, isVSTS } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
 export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string }) {
-  if (almId && almId.startsWith('bitbucket')) {
+  if (isBitbucket(almId)) {
     return (
       <div className="alert alert-info big-spacer-bottom">
         <p>{translate('onboarding.project_analysis.commands_for_analysis')}</p>
@@ -46,7 +47,7 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
         />
       </div>
     );
-  } else if (almId === 'github') {
+  } else if (isGithub(almId)) {
     return (
       <div className="alert alert-info big-spacer-bottom">
         <p>{translate('onboarding.project_analysis.commands_for_analysis')} </p>
@@ -67,7 +68,7 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
         />
       </div>
     );
-  } else if (almId === 'microsoft') {
+  } else if (isVSTS(almId)) {
     return (
       <p className="alert alert-info big-spacer-bottom">
         <FormattedMessage

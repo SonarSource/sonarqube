@@ -21,49 +21,69 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ComponentNavHeader } from '../ComponentNavHeader';
 import { Visibility } from '../../../../types';
+import { isSonarCloud } from '../../../../../helpers/system';
+
+jest.mock('../../../../../helpers/system', () => ({
+  isSonarCloud: jest.fn().mockReturnValue(false)
+}));
+
+const component = {
+  breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
+  key: 'my-project',
+  name: 'My Project',
+  organization: 'foo',
+  qualifier: 'TRK',
+  visibility: Visibility.Public
+};
+
+const organization = {
+  key: 'foo',
+  name: 'The Foo Organization',
+  projectVisibility: Visibility.Public
+};
 
 it('should not render breadcrumbs with one element', () => {
-  const component = {
-    breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
-    key: 'my-project',
-    name: 'My Project',
-    organization: 'org',
-    qualifier: 'TRK',
-    visibility: Visibility.Public
-  };
-  const result = shallow(
-    <ComponentNavHeader
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      shouldOrganizationBeDisplayed={false}
-    />
-  );
-  expect(result).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentNavHeader
+        branchLikes={[]}
+        component={component}
+        currentBranchLike={undefined}
+        shouldOrganizationBeDisplayed={false}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('should render organization', () => {
-  const component = {
-    breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
-    key: 'my-project',
-    name: 'My Project',
-    organization: 'foo',
-    qualifier: 'TRK',
-    visibility: Visibility.Public
-  };
-  const organization = {
-    key: 'foo',
-    name: 'The Foo Organization',
-    projectVisibility: Visibility.Public
-  };
-  const result = shallow(
-    <ComponentNavHeader
-      branchLikes={[]}
-      component={component}
-      currentBranchLike={undefined}
-      organization={organization}
-      shouldOrganizationBeDisplayed={true}
-    />
-  );
-  expect(result).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentNavHeader
+        branchLikes={[]}
+        component={component}
+        currentBranchLike={undefined}
+        organization={organization}
+        shouldOrganizationBeDisplayed={true}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('should render alm links', () => {
+  (isSonarCloud as jest.Mock<any>).mockReturnValueOnce(true);
+  expect(
+    shallow(
+      <ComponentNavHeader
+        branchLikes={[]}
+        component={{
+          ...component,
+          almId: 'bitbucketcloud',
+          almRepoUrl: 'https://bitbucket.org/foo'
+        }}
+        currentBranchLike={undefined}
+        organization={organization}
+        shouldOrganizationBeDisplayed={true}
+      />
+    )
+  ).toMatchSnapshot();
 });

@@ -27,8 +27,10 @@ import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../s
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
+import { sanitizeAlmId } from '../../../../helpers/almIntegrations';
 import { collapsePath, limitComponentName } from '../../../../helpers/path';
-import { getProjectUrl } from '../../../../helpers/urls';
+import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
+import { isSonarCloud } from '../../../../helpers/system';
 
 interface StateProps {
   organization?: Organization;
@@ -66,6 +68,22 @@ export function ComponentNavHeader(props: Props) {
           </>
         )}
       {renderBreadcrumbs(component.breadcrumbs)}
+      {isSonarCloud() &&
+        component.almRepoUrl && (
+          <a
+            className="link-no-underline"
+            href={component.almRepoUrl}
+            rel="noopener noreferrer"
+            target="_blank">
+            <img
+              alt={sanitizeAlmId(component.almId)}
+              className="text-text-top spacer-left"
+              height={16}
+              src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(component.almId)}.svg`}
+              width={16}
+            />
+          </a>
+        )}
       {props.currentBranchLike && (
         <ComponentNavBranch
           branchLikes={props.branchLikes}

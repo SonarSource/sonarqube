@@ -22,6 +22,7 @@ import AnalyzeTutorialSuggestion from './AnalyzeTutorialSuggestion';
 import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
 import TokenStep from '../components/TokenStep';
 import { Component, LoggedInUser } from '../../../app/types';
+import { isVSTS } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
@@ -57,7 +58,6 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
     let stepNumber = 1;
 
     const almId = component.almId || currentUser.externalProvider;
-    const showTutorial = almId !== 'microsoft';
     return (
       <>
         <div className="page-header big-spacer-bottom">
@@ -67,7 +67,7 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
 
         <AnalyzeTutorialSuggestion almId={almId} />
 
-        {showTutorial && (
+        {!isVSTS(almId) && (
           <>
             <TokenStep
               currentUser={currentUser}
