@@ -48,7 +48,6 @@ INSTANCE=SonarCloud yarn start
 To start the Static docs dev server on port 8000:
 ```
 cd sonar-enterprise/server/sonar-docs
-yarn
 yarn develop
 ```
 
