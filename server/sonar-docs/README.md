@@ -28,7 +28,7 @@ yarn
 ## Each time
 Rebuild and start your SonarQube server (yarn needs this running)
 ```
-cd sonar-enterprise/server/sonar-web
+cd sonar-enterprise/
 ./build.sh -x test -x obfuscate
 ./start.sh
 ```
