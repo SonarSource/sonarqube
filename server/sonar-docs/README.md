@@ -13,7 +13,11 @@ We use an augmented GitHub markdown syntax:
 * Add to your .bashrc:
   * `export ARTIFACTORY_PRIVATE_USERNAME=...`
   * `export ARTIFACTORY_PRIVATE_PASSWORD=...`
-* Open a new shell or execute those exports in your current session, and run the following to set up the dev servers:
+* Open a new shell or execute those exports in your current session  
+You can validate this step by executing: 
+  * `echo $ARTIFACTORY_PRIVATE_USERNAME`
+  * `echo $ARTIFACTORY_PRIVATE_PASSWORD`
+* Run the following to set up the dev servers:
 ```
 cd sonar-enterprise/server/sonar-web
 yarn
