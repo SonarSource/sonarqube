@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
+import { FormattedMessage } from 'react-intl';
 import VulnerabilityList from './VulnerabilityList';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
@@ -29,10 +30,12 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Checkbox from '../../../components/controls/Checkbox';
 import { RawQuery } from '../../../helpers/query';
 import NotFound from '../../../app/components/NotFound';
-import '../style.css';
 import { getSecurityHotspots } from '../../../api/security-reports';
 import { isLongLivingBranch } from '../../../helpers/branches';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import { getRulesUrl } from '../../../helpers/urls';
+import '../style.css';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   branchLike?: BranchLike;
@@ -142,6 +145,23 @@ export default class App extends React.PureComponent<Props, State> {
               to={{ pathname: '/documentation/security-reports' }}>
               {translate('learn_more')}
             </Link>
+          </div>
+          <div className="alert alert-info spacer-top">
+            <FormattedMessage
+              defaultMessage={translate('security_reports.info')}
+              id="security_reports.info"
+              values={{
+                link: (
+                  <Link
+                    to={getRulesUrl(
+                      { types: 'SECURITY_HOTSPOT,VULNERABILITY' },
+                      isSonarCloud() ? component.organization : undefined
+                    )}>
+                    {translate('security_reports.info.link')}
+                  </Link>
+                )
+              }}
+            />
           </div>
         </header>
         <div className="display-inline-flex-center">

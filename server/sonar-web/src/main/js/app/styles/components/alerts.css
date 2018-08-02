@@ -65,6 +65,11 @@
   padding: 10px 16px;
 }
 
+.page-header .alert {
+  clear: left;
+  float: left;
+}
+
 .page-notifs .alert {
   padding: 8px 10px;
 }
