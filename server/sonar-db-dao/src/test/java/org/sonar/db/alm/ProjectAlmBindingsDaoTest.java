@@ -193,7 +193,7 @@ public class ProjectAlmBindingsDaoTest {
     Optional<ProjectAlmBindingDto> dto = underTest.selectByRepoId(dbSession, GITHUB, A_REPO);
     assertThat(dto).isPresent();
     assertThat(dto.get().getUuid()).isEqualTo("uuid1");
-    assertThat(dto.get().getAlmId()).isEqualTo(GITHUB.getId());
+    assertThat(dto.get().getAlm()).contains(GITHUB);
     assertThat(dto.get().getRepoId()).isEqualTo(A_REPO);
     assertThat(dto.get().getProjectUuid()).isEqualTo(A_UUID);
     assertThat(dto.get().getUrl()).isEqualTo(A_URL);
@@ -207,16 +207,16 @@ public class ProjectAlmBindingsDaoTest {
       .thenReturn("uuid1")
       .thenReturn("uuid2")
       .thenReturn("uuid3");
-    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
-    underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, ANOTHER_UUID, null, ANOTHER_URL);
-    underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
+    underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
+    underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, ANOTHER_UUID, null, ANOTHER_URL);
+    underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_REPO, "foo", null, "http://foo");
 
     assertThat(underTest.selectByProjectUuid(dbSession, "missing")).isNotPresent();
 
     Optional<ProjectAlmBindingDto> dto = underTest.selectByProjectUuid(dbSession, A_UUID);
     assertThat(dto).isPresent();
     assertThat(dto.get().getUuid()).isEqualTo("uuid1");
-    assertThat(dto.get().getAlmId()).isEqualTo(GITHUB.getId());
+    assertThat(dto.get().getAlm()).contains(BITBUCKETCLOUD);
     assertThat(dto.get().getRepoId()).isEqualTo(A_REPO);
     assertThat(dto.get().getProjectUuid()).isEqualTo(A_UUID);
     assertThat(dto.get().getUrl()).isEqualTo(A_URL);
@@ -236,11 +236,11 @@ public class ProjectAlmBindingsDaoTest {
     underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
 
     assertThat(underTest.selectByRepoIds(dbSession, GITHUB, Arrays.asList(A_REPO, ANOTHER_REPO, "foo")))
-      .extracting(ProjectAlmBindingDto::getUuid, ProjectAlmBindingDto::getAlmId, ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid,
+      .extracting(ProjectAlmBindingDto::getUuid, t -> t.getAlm().get(), ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid,
         ProjectAlmBindingDto::getUrl, ProjectAlmBindingDto::getGithubSlug)
       .containsExactlyInAnyOrder(
-        tuple("uuid1", GITHUB.getId(), A_REPO, A_UUID, A_URL, A_GITHUB_SLUG),
-        tuple("uuid2", GITHUB.getId(), ANOTHER_REPO, ANOTHER_UUID, ANOTHER_URL, null));
+        tuple("uuid1", GITHUB, A_REPO, A_UUID, A_URL, A_GITHUB_SLUG),
+        tuple("uuid2", GITHUB, ANOTHER_REPO, ANOTHER_UUID, ANOTHER_URL, null));
   }
 
   @Test

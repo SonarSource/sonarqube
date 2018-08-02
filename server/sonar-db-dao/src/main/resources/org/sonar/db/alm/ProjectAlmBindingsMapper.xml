@@ -3,6 +3,15 @@
 
 <mapper namespace="org.sonar.db.alm.ProjectAlmBindingsMapper">
 
+  <sql id="columns">
+    uuid,
+    alm_id as rawAlmId,
+    repo_id as repoId,
+    project_uuid as projectUuid,
+    github_slug as githubSlug,
+    url
+  </sql>
+
   <select id="bindingCount" parameterType="Map" resultType="int">
     select
       count(*) as count
@@ -14,7 +23,7 @@
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
-    INSERT INTO project_alm_bindings
+    insert into project_alm_bindings
     (
       uuid,
       alm_id,
@@ -25,7 +34,7 @@
       created_at,
       updated_at
     )
-    VALUES (
+    values (
       #{uuid, jdbcType=VARCHAR},
       #{almId, jdbcType=VARCHAR},
       #{repoId, jdbcType=VARCHAR},
@@ -38,7 +47,8 @@
   </insert>
 
   <update id="update" parameterType="map">
-    update project_alm_bindings set
+    update project_alm_bindings
+    set
       project_uuid = #{projectUuid, jdbcType=VARCHAR},
       github_slug = #{githubSlug, jdbcType=VARCHAR},
       url = #{url, jdbcType=VARCHAR},
@@ -50,13 +60,9 @@
 
   <select id="selectByRepoIds" parameterType="map" resultType="ProjectAlmBinding">
     select
-      uuid,
-      alm_id as almId,
-      repo_id as repoId,
-      project_uuid as projectUuid,
-      github_slug as githubSlug,
-      url
-    from project_alm_bindings
+      <include refid="columns"/>
+    from
+      project_alm_bindings
     where
       alm_id = #{almId, jdbcType=VARCHAR}
       and repo_id in
@@ -67,36 +73,29 @@
 
   <select id="selectByRepoId" parameterType="map" resultType="ProjectAlmBinding">
     select
-    uuid,
-    alm_id as almId,
-    repo_id as repoId,
-    project_uuid as projectUuid,
-    github_slug as githubSlug,
-    url
-    from project_alm_bindings
+      <include refid="columns"/>
+    from
+      project_alm_bindings
     where
-    alm_id = #{almId, jdbcType=VARCHAR}
-    and repo_id = #{repoId, jdbcType=VARCHAR}
+      alm_id = #{almId, jdbcType=VARCHAR}
+      and repo_id = #{repoId, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByProjectUuid" parameterType="map" resultType="ProjectAlmBinding">
     select
-    uuid,
-    alm_id as almId,
-    repo_id as repoId,
-    project_uuid as projectUuid,
-    github_slug as githubSlug,
-    url
-    from project_alm_bindings
+      <include refid="columns"/>
+    from
+      project_alm_bindings
     where
-    project_uuid = #{projectUuid, jdbcType=VARCHAR}
+      project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectProjectKey" parameterType="Map" resultType="String">
     select
       p.kee as projectKey
     from
-      project_alm_bindings b join projects p
+      project_alm_bindings b
+    inner join projects p
       on b.project_uuid = p.project_uuid
     where
       alm_id = #{almId, jdbcType=VARCHAR}

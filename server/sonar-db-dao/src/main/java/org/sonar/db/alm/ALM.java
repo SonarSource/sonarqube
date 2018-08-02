@@ -25,7 +25,7 @@ public enum ALM {
   BITBUCKETCLOUD,
   GITHUB;
 
-  String getId() {
+  public String getId() {
     return this.name().toLowerCase(Locale.ENGLISH);
   }
 }

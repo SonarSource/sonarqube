@@ -19,65 +19,48 @@
  */
 package org.sonar.db.alm;
 
+import java.util.Arrays;
+import java.util.Optional;
+
+/**
+ * DTO is used only for select, hence no setters (MyBatis populates field by reflection).
+ */
 public class ProjectAlmBindingDto {
   private String uuid;
-  private String almId;
+  private String rawAlmId;
   private String repoId;
   private String projectUuid;
   private String githubSlug;
   private String url;
 
-  public String getAlmId() {
-    return almId;
-  }
+  public Optional<ALM> getAlm() {
+    if (rawAlmId == null) {
+      return Optional.empty();
+    }
 
-  public ProjectAlmBindingDto setAlmId(String almId) {
-    this.almId = almId;
-    return this;
+    return Arrays.stream(ALM.values())
+      .filter(a -> a.getId().equals(rawAlmId))
+      .findAny();
   }
 
   public String getRepoId() {
     return repoId;
   }
 
-  public ProjectAlmBindingDto setRepoId(String repoId) {
-    this.repoId = repoId;
-    return this;
-  }
-
   public String getProjectUuid() {
     return projectUuid;
-  }
-
-  public ProjectAlmBindingDto setProjectUuid(String projectUuid) {
-    this.projectUuid = projectUuid;
-    return this;
   }
 
   public String getGithubSlug() {
     return githubSlug;
   }
 
-  public ProjectAlmBindingDto setGithubSlug(String githubSlug) {
-    this.githubSlug = githubSlug;
-    return this;
-  }
-
   public String getUrl() {
     return url;
-  }
-
-  public ProjectAlmBindingDto setUrl(String url) {
-    this.url = url;
-    return this;
   }
 
   public String getUuid() {
     return uuid;
   }
 
-  public ProjectAlmBindingDto setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
 }
