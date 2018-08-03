@@ -300,8 +300,9 @@ public class ListActionTest {
     }
 
     @Override
-    public void deliver(org.sonar.api.notifications.Notification notification, String username) {
+    public boolean deliver(org.sonar.api.notifications.Notification notification, String username) {
       // do nothing
+      return true;
     }
   }
 }

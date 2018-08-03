@@ -56,7 +56,7 @@ public abstract class NotificationChannel {
    * @param notification the notification to deliver
    * @param userlogin the login of the user who should receive the notification
    */
-  public abstract void deliver(Notification notification, String userlogin);
+  public abstract boolean deliver(Notification notification, String userlogin);
 
   @Override
   public String toString() {

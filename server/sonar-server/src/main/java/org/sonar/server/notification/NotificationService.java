@@ -59,7 +59,7 @@ public class NotificationService {
     this(dbClient, new NotificationDispatcher[0]);
   }
 
-  public void deliver(Notification notification) {
+  public int deliver(Notification notification) {
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
     for (NotificationDispatcher dispatcher : dispatchers) {
       NotificationDispatcher.Context context = new ContextImpl(recipients);
@@ -70,23 +70,27 @@ public class NotificationService {
         LOG.warn(String.format("Unable to dispatch notification %s using %s", notification, dispatcher), e);
       }
     }
-    dispatch(notification, recipients);
+    return dispatch(notification, recipients);
   }
 
-  private static void dispatch(Notification notification, SetMultimap<String, NotificationChannel> recipients) {
+  private static int dispatch(Notification notification, SetMultimap<String, NotificationChannel> recipients) {
+    int count = 0;
     for (Map.Entry<String, Collection<NotificationChannel>> entry : recipients.asMap().entrySet()) {
       String username = entry.getKey();
       Collection<NotificationChannel> userChannels = entry.getValue();
       LOG.debug("For user {} via {}", username, userChannels);
       for (NotificationChannel channel : userChannels) {
         try {
-          channel.deliver(notification, username);
+          if (channel.deliver(notification, username)) {
+            count++;
+          }
         } catch (Exception e) {
           // catch all exceptions in order to deliver via other channels
           LOG.warn("Unable to deliver notification " + notification + " for user " + username + " via " + channel, e);
         }
       }
     }
+    return count;
   }
 
   @VisibleForTesting

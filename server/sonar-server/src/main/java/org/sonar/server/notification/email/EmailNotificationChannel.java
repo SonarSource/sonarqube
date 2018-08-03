@@ -92,17 +92,18 @@ public class EmailNotificationChannel extends NotificationChannel {
   }
 
   @Override
-  public void deliver(Notification notification, String username) {
+  public boolean deliver(Notification notification, String username) {
     User user = userFinder.findByLogin(username);
     if (user == null || StringUtils.isBlank(user.email())) {
       LOG.debug("User does not exist or has no email: {}", username);
-      return;
+      return false;
     }
     EmailMessage emailMessage = format(notification);
     if (emailMessage != null) {
       emailMessage.setTo(user.email());
-      deliver(emailMessage);
+      return deliver(emailMessage);
     }
+    return false;
   }
 
   private EmailMessage format(Notification notification) {
@@ -119,15 +120,17 @@ public class EmailNotificationChannel extends NotificationChannel {
   /**
    * Visibility has been relaxed for tests.
    */
-  void deliver(EmailMessage emailMessage) {
+  boolean deliver(EmailMessage emailMessage) {
     if (StringUtils.isBlank(configuration.getSmtpHost())) {
       LOG.debug("SMTP host was not configured - email will not be sent");
-      return;
+      return false;
     }
     try {
       send(emailMessage);
+      return true;
     } catch (EmailException e) {
       LOG.error("Unable to send email", e);
+      return false;
     }
   }
 

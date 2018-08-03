@@ -95,8 +95,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
     assertThat(smtpServer.getMessages()).isEmpty();
+    assertThat(delivered).isFalse();
   }
 
   @Test
@@ -108,8 +109,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Review #3")
       .setMessage("I'll take care of this violation.");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
 
+    assertThat(delivered).isTrue();
     List<WiserMessage> messages = smtpServer.getMessages();
     assertThat(messages).hasSize(1);
 
@@ -136,8 +138,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
 
+    assertThat(delivered).isTrue();
     List<WiserMessage> messages = smtpServer.getMessages();
     assertThat(messages).hasSize(1);
 
@@ -166,7 +169,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    underTest.deliver(emailMessage);
+    boolean delivered = underTest.deliver(emailMessage);
+
+    assertThat(delivered).isFalse();
   }
 
   @Test
