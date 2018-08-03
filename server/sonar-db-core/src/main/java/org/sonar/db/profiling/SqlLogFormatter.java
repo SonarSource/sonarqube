@@ -21,7 +21,6 @@ package org.sonar.db.profiling;
 
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 
 import static org.apache.commons.lang.StringUtils.abbreviate;
 
@@ -36,7 +35,20 @@ public class SqlLogFormatter {
   }
 
   public static String formatSql(String sql) {
-    return StringUtils.replaceChars(sql, '\n', ' ');
+    char[] chars = sql.toCharArray();
+    StringBuilder result = new StringBuilder(chars.length);
+
+    for (int i = 0; i < chars.length; i++) {
+      char c = chars[i];
+      if (c == '\n' || c == '\t') {
+        c = ' ';
+      }
+      if (Character.isWhitespace(c) && i > 0 && Character.isWhitespace(chars[i - 1])) {
+        continue;
+      }
+      result.append(c);
+    }
+    return result.toString();
   }
 
   public static String formatParam(@Nullable Object param) {

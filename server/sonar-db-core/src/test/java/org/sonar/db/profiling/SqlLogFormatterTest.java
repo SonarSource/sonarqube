@@ -28,12 +28,13 @@ public class SqlLogFormatterTest {
 
   @Test
   public void formatSql() {
+    assertThat(SqlLogFormatter.formatSql("")).isEqualTo("");
     assertThat(SqlLogFormatter.formatSql("select *")).isEqualTo("select *");
-  }
-
-  @Test
-  public void formatSql_removes_newlines() {
     assertThat(SqlLogFormatter.formatSql("select *\nfrom issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.formatSql("select *\n from issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.formatSql("select *\n   from issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.formatSql("select    *\n   from    issues")).isEqualTo("select * from issues");
+    assertThat(SqlLogFormatter.formatSql("select    *\n\t\t  from  \tissues")).isEqualTo("select * from issues");
   }
 
   @Test
