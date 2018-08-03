@@ -40,10 +40,12 @@ export default function getPages(): DocumentationEntry[] {
       text,
       content: file.content
     };
-  }).filter(
-    (page: DocumentationEntry) =>
-      page.scope !== 'static' && (isSonarCloud() || page.scope !== 'sonarcloud')
-  );
+  }).filter((page: DocumentationEntry) => {
+    if (!page.scope) {
+      return true;
+    }
+    return isSonarCloud() ? page.scope === 'sonarcloud' : page.scope === 'sonarqube';
+  });
 }
 
 function getText(content: string) {
