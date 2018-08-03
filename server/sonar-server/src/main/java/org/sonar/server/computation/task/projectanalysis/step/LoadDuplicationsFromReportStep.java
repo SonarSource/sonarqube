@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
@@ -40,7 +41,6 @@ import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
  * Loads duplication information from the report and loads them into the {@link DuplicationRepository}.
@@ -58,40 +58,14 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Load inner file and in project duplications";
+    return "Load duplications";
   }
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
-        @Override
-        public void visitFile(Component file) {
-          try (CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
-            int idGenerator = 1;
-            while (duplications.hasNext()) {
-              loadDuplications(file, duplications.next(), idGenerator);
-              idGenerator++;
-            }
-          }
-        }
-      }).visit(treeRootHolder.getRoot());
-  }
-
-  private void loadDuplications(Component file, ScannerReport.Duplication duplication, int id) {
-    duplicationRepository.add(file,
-      new Duplication(
-        convert(duplication.getOriginPosition(), id),
-        from(duplication.getDuplicateList())
-          .transform(new BatchDuplicateToCeDuplicate(file))));
-  }
-
-  private static TextBlock convert(ScannerReport.TextRange textRange) {
-    return new TextBlock(textRange.getStartLine(), textRange.getEndLine());
-  }
-
-  private static DetailedTextBlock convert(ScannerReport.TextRange textRange, int id) {
-    return new DetailedTextBlock(id, textRange.getStartLine(), textRange.getEndLine());
+    DuplicationVisitor visitor = new DuplicationVisitor();
+    new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
+    Loggers.get(getClass()).debug("duplications={}", visitor.count);
   }
 
   private class BatchDuplicateToCeDuplicate implements Function<ScannerReport.Duplicate, Duplicate> {
@@ -111,6 +85,42 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
           convert(input.getRange()));
       }
       return new InnerDuplicate(convert(input.getRange()));
+    }
+
+    private TextBlock convert(ScannerReport.TextRange textRange) {
+      return new TextBlock(textRange.getStartLine(), textRange.getEndLine());
+    }
+  }
+
+  private class DuplicationVisitor extends TypeAwareVisitorAdapter {
+    private int count = 0;
+
+    private DuplicationVisitor() {
+      super(CrawlerDepthLimit.FILE, Order.POST_ORDER);
+    }
+
+    @Override
+    public void visitFile(Component file) {
+      try (CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
+        int idGenerator = 1;
+        while (duplications.hasNext()) {
+          loadDuplications(file, duplications.next(), idGenerator);
+          idGenerator++;
+          count++;
+        }
+      }
+    }
+
+    private void loadDuplications(Component file, ScannerReport.Duplication duplication, int id) {
+      duplicationRepository.add(file,
+        new Duplication(
+          convert(duplication.getOriginPosition(), id),
+          from(duplication.getDuplicateList())
+            .transform(new BatchDuplicateToCeDuplicate(file))));
+    }
+
+    private DetailedTextBlock convert(ScannerReport.TextRange textRange, int id) {
+      return new DetailedTextBlock(id, textRange.getStartLine(), textRange.getEndLine());
     }
   }
 }

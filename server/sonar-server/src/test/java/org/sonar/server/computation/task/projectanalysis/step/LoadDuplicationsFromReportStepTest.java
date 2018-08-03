@@ -20,9 +20,12 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.util.Arrays;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -62,12 +65,19 @@ public class LoadDuplicationsFromReportStepTest {
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private LoadDuplicationsFromReportStep underTest = new LoadDuplicationsFromReportStep(treeRootHolder, reportReader, duplicationRepository);
 
+  @Before
+  public void setUp() {
+    logTester.setLevel(LoggerLevel.DEBUG);
+  }
+
   @Test
   public void verify_description() {
-    assertThat(underTest.getDescription()).isEqualTo("Load inner file and in project duplications");
+    assertThat(underTest.getDescription()).isEqualTo("Load duplications");
   }
 
   @Test
@@ -78,6 +88,7 @@ public class LoadDuplicationsFromReportStepTest {
 
     assertNoDuplication(FILE_1_REF);
     assertDuplications(FILE_2_REF, singleLineDetailedTextBlock(1, LINE), new InnerDuplicate(singleLineTextBlock(LINE + 1)));
+    assertStatisticsLog(1);
   }
 
   @Test
@@ -88,6 +99,7 @@ public class LoadDuplicationsFromReportStepTest {
 
     assertDuplications(FILE_1_REF, singleLineDetailedTextBlock(1, LINE), new InProjectDuplicate(treeRootHolder.getComponentByRef(FILE_2_REF), singleLineTextBlock(LINE + 1)));
     assertNoDuplication(FILE_2_REF);
+    assertStatisticsLog(1);
   }
 
   @Test
@@ -118,6 +130,7 @@ public class LoadDuplicationsFromReportStepTest {
       duplication(
         singleLineDetailedTextBlock(3, OTHER_LINE + 80),
         new InnerDuplicate(singleLineTextBlock(LINE)), new InnerDuplicate(singleLineTextBlock(LINE + 10))));
+    assertStatisticsLog(3);
   }
 
   @Test
@@ -143,6 +156,7 @@ public class LoadDuplicationsFromReportStepTest {
         singleLineDetailedTextBlock(2, LINE),
         new InnerDuplicate(singleLineTextBlock(LINE + 2)), new InnerDuplicate(singleLineTextBlock(LINE + 3)),
         new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))));
+    assertStatisticsLog(2);
   }
 
   @Test
@@ -215,5 +229,10 @@ public class LoadDuplicationsFromReportStepTest {
   private void assertNoDuplication(int fileRef) {
     assertThat(duplicationRepository.getDuplications(fileRef)).isEmpty();
   }
+
+  private void assertStatisticsLog(int expectedDuplications) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("duplications=" + expectedDuplications);
+  }
+
 
 }
