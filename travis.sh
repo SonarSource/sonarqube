@@ -155,12 +155,12 @@ BUILD)
     mvn deploy \
         $MAVEN_ARGS \
         -Dsource.skip=true \
-        -Pdeploy-sonarsource
+        -Pdeploy-sonarsource,release
 
   else
     echo 'Build feature branch or external pull request'
 
-    mvn install $MAVEN_ARGS -Dsource.skip=true
+    mvn install $MAVEN_ARGS -Dsource.skip=true -Prelease
   fi
 
   ./run-integration-tests.sh "Lite" ""
