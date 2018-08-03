@@ -29,6 +29,7 @@ import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContai
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 import { Organization } from '../../../app/types';
+import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   height: number;
@@ -57,7 +58,7 @@ export default function ProjectCardOverall({ height, organization, project }: Pr
             {!organization && (
               <ProjectCardOrganizationContainer organization={project.organization} />
             )}
-            <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
+            <Link to={getProjectUrl(project.key)}>{project.name}</Link>
           </h2>
           {project.analysisDate && <ProjectCardQualityGate status={measures['alert_status']} />}
           <div className="project-card-header-right">
@@ -90,7 +91,12 @@ export default function ProjectCardOverall({ height, organization, project }: Pr
         </div>
       ) : (
         <div className="boxed-group-inner">
-          <div className="note project-card-not-analyzed">{translate('projects.not_analyzed')}</div>
+          <div className="project-card-not-analyzed">
+            <span className="note">{translate('projects.not_analyzed')}</span>
+            <Link className="button spacer-left" to={getProjectUrl(project.key)}>
+              {translate('projects.configure_analysis')}
+            </Link>
+          </div>
         </div>
       )}
     </div>

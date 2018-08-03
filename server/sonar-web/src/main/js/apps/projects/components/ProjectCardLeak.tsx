@@ -28,8 +28,9 @@ import TagsList from '../../../components/tags/TagsList';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
-import { Organization } from '../../../app/types';
 import { formatDuration } from '../utils';
+import { Organization } from '../../../app/types';
+import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   height: number;
@@ -97,10 +98,17 @@ export default function ProjectCardLeak({ height, organization, project }: Props
         </div>
       ) : (
         <div className="boxed-group-inner">
-          <div className="note project-card-not-analyzed">
-            {project.analysisDate
-              ? translate('projects.no_new_code_period')
-              : translate('projects.not_analyzed')}
+          <div className="project-card-not-analyzed">
+            <span className="note">
+              {project.analysisDate
+                ? translate('projects.no_new_code_period')
+                : translate('projects.not_analyzed')}
+            </span>
+            {!project.analysisDate && (
+              <Link className="button spacer-left" to={getProjectUrl(project.key)}>
+                {translate('projects.configure_analysis')}
+              </Link>
+            )}
           </div>
         </div>
       )}

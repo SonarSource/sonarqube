@@ -76,3 +76,15 @@ it('should display the leak measures and quality gate', () => {
     shallow(<ProjectCardLeak height={100} organization={undefined} project={PROJECT} />)
   ).toMatchSnapshot();
 });
+
+it('should display not analyzed yet', () => {
+  expect(
+    shallow(
+      <ProjectCardLeak
+        height={100}
+        organization={undefined}
+        project={{ ...PROJECT, analysisDate: undefined }}
+      />
+    )
+  ).toMatchSnapshot();
+});

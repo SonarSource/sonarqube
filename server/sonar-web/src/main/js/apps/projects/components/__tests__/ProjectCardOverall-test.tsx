@@ -90,3 +90,15 @@ it('should display the overall measures and quality gate', () => {
     shallow(<ProjectCardOverall height={100} organization={undefined} project={PROJECT} />)
   ).toMatchSnapshot();
 });
+
+it('should display not analyzed yet', () => {
+  expect(
+    shallow(
+      <ProjectCardOverall
+        height={100}
+        organization={undefined}
+        project={{ ...PROJECT, analysisDate: undefined }}
+      />
+    )
+  ).toMatchSnapshot();
+});
