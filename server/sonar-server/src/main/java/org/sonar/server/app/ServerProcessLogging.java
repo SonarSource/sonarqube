@@ -81,6 +81,18 @@ public abstract class ServerProcessLogging {
     builder.immutableLevel("org.apache.tomcat", Level.INFO);
     builder.immutableLevel("org.postgresql.core.v3.QueryExecutorImpl", Level.INFO);
     builder.immutableLevel("org.postgresql.jdbc.PgConnection", Level.INFO);
+    // Apache FOP
+    builder.immutableLevel("org.apache.fop", Level.INFO);
+    builder.immutableLevel("org.apache.xmlgraphics.image.loader.spi.ImageImplRegistry", Level.INFO);
+    // Hazelcast
+    builder.immutableLevel("com.hazelcast.internal.cluster.impl.ClusterHeartbeatManager", Level.INFO);
+    builder.immutableLevel("com.hazelcast.internal.cluster.impl.operations.HeartbeatOperation", Level.INFO);
+    builder.immutableLevel("com.hazelcast.internal.partition.InternalPartitionService", Level.INFO);
+    builder.immutableLevel("com.hazelcast.internal.partition.operation.PartitionStateOperation", Level.INFO);
+    builder.immutableLevel("com.hazelcast.replicatedmap.impl.operation.RequestMapDataOperation", Level.INFO);
+    builder.immutableLevel("com.hazelcast.replicatedmap.impl.operation.SyncReplicatedMapDataOperation", Level.INFO);
+    // Netty (used by Elasticsearch)
+    builder.immutableLevel("io.netty.buffer.PoolThreadCache", Level.INFO);
 
     extendLogLevelConfiguration(builder);
 
