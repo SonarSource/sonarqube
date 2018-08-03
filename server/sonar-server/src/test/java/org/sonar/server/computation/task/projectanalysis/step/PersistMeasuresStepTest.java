@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -88,7 +90,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
-
+  @Rule
+  public LogTester logTester = new LogTester();
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
@@ -105,6 +108,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void setUp() {
     underTest = new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(dbIdsRepository, analysisMetadataHolder), treeRootHolder, measureRepository);
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
+    logTester.setLevel(LoggerLevel.DEBUG);
   }
 
   private void setupReportComponents() {
@@ -162,6 +166,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     setupReportComponents();
 
     insertMeasures();
+    assertStatisticsLogs(4);
   }
 
   @Test
@@ -169,6 +174,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     setupViewsComponents();
 
     insertMeasures();
+    assertStatisticsLogs(4);
   }
 
   private void insertMeasures() {
@@ -243,6 +249,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     setupReportComponents();
 
     insertMeasureWithVariations();
+    assertStatisticsLogs(1);
   }
 
   @Test
@@ -250,6 +257,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     setupViewsComponents();
 
     insertMeasureWithVariations();
+    assertStatisticsLogs(1);
   }
 
   private void insertMeasureWithVariations() {
@@ -279,6 +287,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     underTest.execute();
 
     assertThat(selectSnapshots()).isEmpty();
+    assertStatisticsLogs(0);
   }
 
   @Test
@@ -294,6 +303,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     underTest.execute();
 
     assertThat(selectSnapshots()).isEmpty();
+    assertStatisticsLogs(0);
   }
 
   @Test
@@ -315,6 +325,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
+    assertStatisticsLogs(1);
   }
 
   @Test
@@ -336,6 +347,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
+    assertStatisticsLogs(1);
   }
 
   @Test
@@ -357,6 +369,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("analysisUuid")).isEqualTo(ANALYSIS_UUID);
     assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
+    assertStatisticsLogs(1);
   }
 
   @Test
@@ -377,6 +390,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     assertValue(dto, 1d);
     assertThat(dto.get("developerId")).isEqualTo(10L);
+    assertStatisticsLogs(1);
   }
 
   private ComponentDto addComponent(String key, String uuid) {
@@ -400,6 +414,10 @@ public class PersistMeasuresStepTest extends BaseStepTest {
           "variation_value_1 as \"variation_value\"" +
           "FROM project_measures " +
           "ORDER by id asc");
+  }
+
+  private void assertStatisticsLogs(int expectedInserts) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("inserts=" + expectedInserts);
   }
 
   @Override

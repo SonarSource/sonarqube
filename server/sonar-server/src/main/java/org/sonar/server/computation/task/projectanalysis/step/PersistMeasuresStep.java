@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDao;
@@ -83,13 +84,16 @@ public class PersistMeasuresStep implements ComputationStep {
   @Override
   public void execute() {
     try (DbSession dbSession = dbClient.openSession(true)) {
-      new DepthTraversalTypeAwareCrawler(new MeasureVisitor(dbSession)).visit(treeRootHolder.getRoot());
+      MeasureVisitor visitor = new MeasureVisitor(dbSession);
+      new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
       dbSession.commit();
+      Loggers.get(getClass()).debug("inserts={}", visitor.inserts);
     }
   }
 
   private class MeasureVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
+    private int inserts = 0;
 
     private MeasureVisitor(DbSession session) {
       super(CrawlerDepthLimit.LEAVES, PRE_ORDER);
@@ -115,6 +119,7 @@ public class PersistMeasuresStep implements ComputationStep {
         for (Measure measure : from(measures.getValue()).filter(NonEmptyMeasure.INSTANCE).filter(notBestValueOptimized)) {
           MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
           measureDao.insert(session, measureDto);
+          inserts++;
         }
       }
     }
