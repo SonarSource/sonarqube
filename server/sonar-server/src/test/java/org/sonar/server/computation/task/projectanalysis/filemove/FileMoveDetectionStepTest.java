@@ -34,6 +34,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -222,6 +224,8 @@ public class FileMoveDetectionStepTest {
   public SourceLinesRepositoryRule sourceLinesRepository = new SourceLinesRepositoryRule();
   @Rule
   public MutableMovedFilesRepositoryRule movedFilesRepository = new MutableMovedFilesRepositoryRule();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
@@ -325,6 +329,7 @@ public class FileMoveDetectionStepTest {
     assertThat(originalFile.getId()).isEqualTo(dtos[0].getId());
     assertThat(originalFile.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile.getUuid()).isEqualTo(dtos[0].uuid());
+    verifyStatisticsLog( 1, 1);
   }
 
   @Test
@@ -392,6 +397,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    verifyStatisticsLog(1, 2);
   }
 
   @Test
@@ -406,6 +412,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    verifyStatisticsLog(2, 1);
   }
 
   @Test
@@ -452,6 +459,8 @@ public class FileMoveDetectionStepTest {
     assertThat(originalFile5.getId()).isEqualTo(dtos[3].getId());
     assertThat(originalFile5.getKey()).isEqualTo(dtos[3].getDbKey());
     assertThat(originalFile5.getUuid()).isEqualTo(dtos[3].uuid());
+
+    verifyStatisticsLog(4, 2);
   }
 
   /**
@@ -495,6 +504,8 @@ public class FileMoveDetectionStepTest {
       .isEqualTo("1242_make_analysis_uuid_not_null_on_duplications_index.rb");
     assertThat(movedFilesRepository.getOriginalFile(addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex).get().getKey())
       .isEqualTo("AddComponentUuidColumnToDuplicationsIndex.java");
+
+    verifyStatisticsLog( 12, 6);
   }
 
   private String[] readLines(File filename) throws IOException {
@@ -558,4 +569,7 @@ public class FileMoveDetectionStepTest {
       .build();
   }
 
+  private void verifyStatisticsLog(int expectedDbFiles, int expectedAddedFiles) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("dbFiles=" + expectedDbFiles + " | addedFiles=" + expectedAddedFiles);
+  }
 }

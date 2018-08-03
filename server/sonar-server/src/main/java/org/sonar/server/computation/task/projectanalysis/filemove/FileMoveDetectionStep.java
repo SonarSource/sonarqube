@@ -131,6 +131,7 @@ public class FileMoveDetectionStep implements ComputationStep {
       return;
     }
 
+    LOG.debug("dbFiles={} | addedFiles={}", dbFilesByKey.size(), addedFileKeys.size());
     MatchesByScore matchesByScore = MatchesByScore.create(scoreMatrix);
 
     ElectedMatches electedMatches = electMatches(removedFileKeys, reportFileSourcesByKey, matchesByScore);
