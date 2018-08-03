@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
@@ -52,6 +53,7 @@ public class PersistIssuesStep implements ComputationStep {
 
   @Override
   public void execute() {
+    IssueStatistics statistics = new IssueStatistics();
     try (DbSession dbSession = dbClient.openSession(true);
       CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
 
@@ -59,26 +61,32 @@ public class PersistIssuesStep implements ComputationStep {
       IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
-        boolean saved = persistIssueIfRequired(mapper, issue);
+        boolean saved = persistIssueIfRequired(mapper, issue, statistics);
         if (saved) {
           IssueStorage.insertChanges(changeMapper, issue);
         }
       }
       dbSession.flushStatements();
       dbSession.commit();
+    } finally {
+      statistics.log();
     }
   }
 
-  private boolean persistIssueIfRequired(IssueMapper mapper, DefaultIssue issue) {
+  private boolean persistIssueIfRequired(IssueMapper mapper, DefaultIssue issue, IssueStatistics statistics) {
     if (issue.isNew() || issue.isCopied()) {
       persistNewIssue(mapper, issue);
+      statistics.inserts++;
       return true;
     }
 
     if (issue.isChanged()) {
       persistChangedIssue(mapper, issue);
+      statistics.updates++;
       return true;
     }
+
+    statistics.untouched++;
     return false;
   }
 
@@ -101,5 +109,15 @@ public class PersistIssuesStep implements ComputationStep {
   @Override
   public String getDescription() {
     return "Persist issues";
+  }
+
+  private static class IssueStatistics {
+    private int inserts = 0;
+    private int updates = 0;
+    private int untouched = 0;
+
+    private void log() {
+      Loggers.get(PersistIssuesStep.class).debug("inserts={} | updates={} | untouched={}", inserts, updates, untouched);
+    }
   }
 }

@@ -30,6 +30,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -75,6 +77,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setOrganizationUuid("org-1");
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbSession session = db.getSession();
   private DbClient dbClient = db.getDbClient();
@@ -152,6 +156,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+
+    assertStatisticsLog(1, 0, 0);
   }
 
   @Test
@@ -202,6 +208,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+
+    assertStatisticsLog(1, 0, 0);
   }
 
   @Test
@@ -236,6 +244,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getSeverity()).isEqualTo(BLOCKER);
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+
+    assertStatisticsLog(1, 0, 0);
   }
 
   @Test
@@ -263,6 +273,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CLOSED);
     assertThat(issueReloaded.getResolution()).isEqualTo(RESOLUTION_FIXED);
+
+    assertStatisticsLog(0, 1, 0);
   }
 
   @Test
@@ -299,6 +311,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserLogin, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_COMMENT, "john", "Some text", issue.getKey(), NOW);
+
+    assertStatisticsLog(0, 1, 0);
   }
 
   @Test
@@ -333,6 +347,11 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserLogin, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_FIELD_CHANGE, "john", "technicalDebt=1", issue.getKey(), NOW);
+
+    assertStatisticsLog(0, 1, 0);
   }
 
+  private void assertStatisticsLog(int expectedInserts, int expectedUpdates, int expectedUntouched) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("inserts=" + expectedInserts + " | updates=" + expectedUpdates + " | untouched=" + expectedUntouched);
+  }
 }
