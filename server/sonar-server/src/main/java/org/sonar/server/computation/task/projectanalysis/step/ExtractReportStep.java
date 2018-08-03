@@ -24,13 +24,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskInputDao;
+import org.sonar.process.FileUtils2;
 import org.sonar.server.computation.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
@@ -39,6 +43,8 @@ import org.sonar.server.computation.task.step.ComputationStep;
  * representing that temp directory to the {@link MutableBatchReportDirectoryHolder}.
  */
 public class ExtractReportStep implements ComputationStep {
+
+  private static final Logger LOGGER = Loggers.get(ExtractReportStep.class);
 
   private final DbClient dbClient;
   private final CeTask task;
@@ -66,6 +72,16 @@ public class ExtractReportStep implements ComputationStep {
           throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);
         }
         reportDirectoryHolder.setDirectory(unzippedDir);
+        if (LOGGER.isDebugEnabled()) {
+          // size is not added to context statistics because computation
+          // can take time. It's enabled only if log level is DEBUG.
+          try {
+            String dirSize = FileUtils.byteCountToDisplaySize(FileUtils2.sizeOf(unzippedDir.toPath()));
+            LOGGER.debug("Analysis report is {} uncompressed", dirSize);
+          } catch (IOException e) {
+            LOGGER.warn("Fail to compute size of directory " + unzippedDir, e);
+          }
+        }
       } else {
         throw MessageException.of("Analysis report " + task.getUuid() + " is missing in database");
       }

@@ -25,12 +25,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import javax.annotation.CheckForNull;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
@@ -235,6 +237,63 @@ public class FileUtils2Test {
     assertThat(childDir1).doesNotExist();
     assertThat(childFile2).doesNotExist();
     assertThat(childDir2).doesNotExist();
+  }
+
+  @Test
+  public void sizeOf_sums_sizes_of_all_files_in_directory() throws IOException {
+    File dir = temporaryFolder.newFolder();
+    File child = new File(dir, "child.txt");
+    File grandChild1 = new File(dir, "grand/child1.txt");
+    File grandChild2 = new File(dir, "grand/child2.txt");
+    FileUtils.write(child, "foo", UTF_8);
+    FileUtils.write(grandChild1, "bar", UTF_8);
+    FileUtils.write(grandChild2, "baz", UTF_8);
+
+    long childSize = FileUtils2.sizeOf(child.toPath());
+    assertThat(childSize).isPositive();
+    long grandChild1Size = FileUtils2.sizeOf(grandChild1.toPath());
+    assertThat(grandChild1Size).isPositive();
+    long grandChild2Size = FileUtils2.sizeOf(grandChild2.toPath());
+    assertThat(grandChild2Size).isPositive();
+
+    assertThat(FileUtils2.sizeOf(dir.toPath()))
+      .isEqualTo(childSize + grandChild1Size + grandChild2Size);
+
+    // sanity check by comparing commons-io
+    assertThat(FileUtils2.sizeOf(dir.toPath()))
+      .isEqualTo(FileUtils.sizeOfDirectory(dir));
+  }
+
+  @Test
+  public void sizeOf_is_zero_on_empty_files() throws IOException {
+    File file = temporaryFolder.newFile();
+
+    assertThat(FileUtils2.sizeOf(file.toPath())).isEqualTo(0);
+  }
+
+  @Test
+  public void sizeOf_throws_IOE_if_path_does_not_exist() throws IOException {
+    Path path = temporaryFolder.newFile().toPath();
+    Files.delete(path);
+
+    expectedException.expect(IOException.class);
+
+    FileUtils2.sizeOf(path);
+  }
+
+  @Test
+  public void sizeOf_ignores_size_of_non_regular_files() throws IOException {
+    File outside = temporaryFolder.newFile();
+    FileUtils.write(outside, "outside!!!", UTF_8);
+    File dir = temporaryFolder.newFolder();
+    File child = new File(dir, "child1.txt");
+    FileUtils.write(child, "inside!!!", UTF_8);
+    File symlink = new File(dir, "child2.txt");
+    Files.createSymbolicLink(symlink.toPath(), outside.toPath());
+
+    assertThat(FileUtils2.sizeOf(dir.toPath()))
+      .isPositive()
+      .isEqualTo(FileUtils2.sizeOf(child.toPath()));
   }
 
   private void expectDirectoryCanNotBeNullNPE() {

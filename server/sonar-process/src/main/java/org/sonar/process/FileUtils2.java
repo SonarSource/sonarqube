@@ -116,6 +116,22 @@ public final class FileUtils2 {
     }
   }
 
+  /**
+   * Size of file or directory, in bytes. In case of a directory,
+   * the size is the sum of the sizes of all files recursively traversed.
+   *
+   * This implementation is recommended over commons-io
+   * {@code FileUtils#sizeOf(File)} which suffers from slow usage of Java IO.
+   *
+   * @throws IOException if files can't be traversed or size attribute is not present
+   * @see BasicFileAttributes#size()
+   */
+  public static long sizeOf(Path path) throws IOException {
+    SizeVisitor visitor = new SizeVisitor();
+    Files.walkFileTree(path, visitor);
+    return visitor.size;
+  }
+
   private static void cleanDirectoryImpl(Path path) throws IOException {
     if (!path.toFile().isDirectory()) {
       throw new IllegalArgumentException(format("'%s' is not a directory", path));
@@ -174,6 +190,20 @@ public final class FileUtils2 {
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
       Files.delete(dir);
+      return FileVisitResult.CONTINUE;
+    }
+  }
+
+  private static final class SizeVisitor extends SimpleFileVisitor<Path> {
+    private long size = 0;
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+      // size is specified on regular files only
+      // https://docs.oracle.com/javase/8/docs/api/java/nio/file/attribute/BasicFileAttributes.html#size--
+      if (attrs.isRegularFile()) {
+        size += attrs.size();
+      }
       return FileVisitResult.CONTINUE;
     }
   }
