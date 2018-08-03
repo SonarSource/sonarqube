@@ -25,7 +25,7 @@ import { isManualBindingAllowed } from '../../utils';
 
 jest.mock('../../utils', () => ({
   displayMessage: jest.fn(),
-  isManualBindingAllowed: jest.fn(() => true)
+  isManualBindingAllowed: jest.fn()
 }));
 
 jest.mock('../../api', () => ({
@@ -48,6 +48,8 @@ const CONTEXT = { jwt: '' };
 beforeEach(() => {
   (bindProject as jest.Mock<any>).mockClear();
   (getMyProjects as jest.Mock<any>).mockClear();
+  (isManualBindingAllowed as jest.Mock<any>).mockClear();
+  (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(true);
 });
 
 it('should display correctly', async () => {
@@ -62,14 +64,12 @@ it('should display correctly', async () => {
 
 it('should display correctly for auto binding', () => {
   (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(false);
-  expect(getWrapper()).toMatchSnapshot();
-  (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(true);
+  expect(getWrapper({ projectKey: undefined })).toMatchSnapshot();
 });
 
 it('should display correctly for auto binding with already a projectKey', () => {
   (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(false);
   expect(getWrapper()).toMatchSnapshot();
-  (isManualBindingAllowed as jest.Mock<any>).mockReturnValue(true);
 });
 
 it('should display the authentication component and the display checkbox', async () => {

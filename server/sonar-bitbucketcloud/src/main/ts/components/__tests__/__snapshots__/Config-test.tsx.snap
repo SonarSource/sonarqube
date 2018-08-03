@@ -254,13 +254,14 @@ exports[`should display correctly for auto binding 1`] = `
       className="settings-description"
     >
       <React.Fragment>
-        This repository is already bound to a
+        To display the quality of your repository, you have to
          
         <a
-          href="/dashboard?id=foo"
+          href="/projects/create"
         >
-          SonarCloud project
+          provision
         </a>
+         a project on SonarCloud and trigger an analysis.
       </React.Fragment>
     </p>
     <React.Fragment>

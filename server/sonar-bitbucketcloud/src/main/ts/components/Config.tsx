@@ -198,7 +198,7 @@ export default class Config extends React.PureComponent<Props, State> {
       descriptionComponent = (
         <>
           This repository is already bound to a{' '}
-          <a href={getBaseUrl() + '/dashboard?id=' + encodeURIComponent(projectKey)}>
+          <a href={`${getBaseUrl()}/dashboard?id=${encodeURIComponent(projectKey)}`}>
             SonarCloud project
           </a>
         </>
@@ -227,8 +227,8 @@ export default class Config extends React.PureComponent<Props, State> {
         <>
           <p>
             You don&apos;t have any project on SonarCloud yet:{' '}
-            <a href={getBaseUrl() + '/onboarding'} rel="noopener noreferrer" target="_blank">
-              Analyse a project
+            <a href={getBaseUrl() + '/projects/create'} rel="noopener noreferrer" target="_blank">
+              Create a project
             </a>
           </p>
         </>
