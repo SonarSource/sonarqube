@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
@@ -295,7 +296,19 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     List<PluginInfo> orderedPlugins = Ordering.natural().sortedCopy(pluginInfosByKeys.values());
     for (PluginInfo plugin : orderedPlugins) {
       LOG.info("Deploy plugin {}", SLASH_JOINER.join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
+      if (plugin.getKey().equals("license") && isBefore34(plugin.getVersion())) {
+        throw MessageException.of("Your commercial edition is obsolete. You must upgrade the edition bundle to its latest version.");
+      }
     }
+  }
+
+  private static final Set<String> BEFORE_4_MINOR_VERSION = ImmutableSet.of("0", "1", "2", "3");
+
+  private static boolean isBefore34(@Nullable Version version) {
+    if (version == null) {
+      return true;
+    }
+    return "3".equals(version.getMajor()) && BEFORE_4_MINOR_VERSION.contains(version.getMinor());
   }
 
   private void loadInstances() {
