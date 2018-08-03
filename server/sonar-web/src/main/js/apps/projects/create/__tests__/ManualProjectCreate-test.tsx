@@ -63,7 +63,7 @@ it('should correctly create a project', async () => {
   expect(createProject).toBeCalledWith({ project: 'bar', name: 'Bar', organization: 'foo' });
 
   await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith([{ key: 'bar', name: 'Bar' }]);
+  expect(onProjectCreate).toBeCalledWith(['bar']);
 });
 
 function getWrapper(props = {}) {

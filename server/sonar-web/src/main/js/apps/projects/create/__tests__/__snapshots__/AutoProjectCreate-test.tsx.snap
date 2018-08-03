@@ -63,7 +63,7 @@ exports[`should display the list of repositories 1`] = `
     <SubmitButton
       disabled={true}
     >
-      onboarding.create_project.create_project
+      create
     </SubmitButton>
     <DeferredSpinner
       className="spacer-left"
@@ -75,9 +75,16 @@ exports[`should display the list of repositories 1`] = `
 `;
 
 exports[`should display the provider app install button 1`] = `
-<DeferredSpinner
-  timeout={100}
-/>
+<React.Fragment>
+  <p
+    className="alert alert-info width-60 big-spacer-bottom"
+  >
+    onboarding.create_project.beta_feature_x.Foo Provider
+  </p>
+  <DeferredSpinner
+    timeout={100}
+  />
+</React.Fragment>
 `;
 
 exports[`should display the provider app install button 2`] = `

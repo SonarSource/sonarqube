@@ -27,7 +27,7 @@ import { LoggedInUser, Organization } from '../../../app/types';
 import { fetchMyOrganizations } from '../../account/organizations/actions';
 import { getMyOrganizations } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
-import { createProject, ProjectBase } from '../../../api/components';
+import { createProject } from '../../../api/components';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface StateProps {
@@ -40,7 +40,7 @@ interface DispatchProps {
 
 interface OwnProps {
   currentUser: LoggedInUser;
-  onProjectCreate: (project: ProjectBase[]) => void;
+  onProjectCreate: (projectKeys: string[]) => void;
 }
 
 type Props = OwnProps & StateProps & DispatchProps;
@@ -91,7 +91,7 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
         name: projectName,
         organization: selectedOrganization
       }).then(
-        ({ project }) => this.props.onProjectCreate([project]),
+        ({ project }) => this.props.onProjectCreate([project.key]),
         () => {
           if (this.mounted) {
             this.setState({ submitting: false });
@@ -198,7 +198,7 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
             />
           </div>
           <SubmitButton disabled={!this.isValid() || submitting}>
-            {translate('onboarding.create_project.create_project')}
+            {translate('create')}
           </SubmitButton>
           <DeferredSpinner className="spacer-left" loading={submitting} />
         </form>

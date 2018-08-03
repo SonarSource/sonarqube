@@ -21,8 +21,22 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { Location } from 'history';
 import { CreateProjectPage } from '../CreateProjectPage';
+import { getIdentityProviders } from '../../../../api/users';
 import { LoggedInUser } from '../../../../app/types';
-import { click } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+
+jest.mock('../../../../api/users', () => ({
+  getIdentityProviders: jest.fn().mockResolvedValue({
+    identityProviders: [
+      {
+        backgroundColor: 'blue',
+        iconPath: 'icon/path',
+        key: 'github',
+        name: 'GitHub'
+      }
+    ]
+  })
+}));
 
 const user: LoggedInUser = {
   externalProvider: 'github',
@@ -31,20 +45,31 @@ const user: LoggedInUser = {
   name: 'Foo'
 };
 
-it('should render correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
+beforeEach(() => {
+  (getIdentityProviders as jest.Mock<any>).mockClear();
+});
+
+it('should render correctly', async () => {
+  const wrapper = getWrapper();
+  expect(wrapper).toMatchSnapshot();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should render with Manual creation only', () => {
   expect(getWrapper({ currentUser: { ...user, externalProvider: 'microsoft' } })).toMatchSnapshot();
 });
 
-it('should switch tabs', () => {
+it('should switch tabs', async () => {
   const replace = jest.fn();
   const wrapper = getWrapper({ router: { replace } });
   replace.mockImplementation(location => {
     wrapper.setProps({ location }).update();
   });
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-manual'));
   expect(wrapper.find('Connect(ManualProjectCreate)').exists()).toBeTruthy();
@@ -57,9 +82,8 @@ function getWrapper(props = {}) {
     <CreateProjectPage
       currentUser={user}
       location={{ pathname: 'foo', query: { manual: 'false' } } as Location}
-      onFinishOnboarding={jest.fn()}
       router={{ push: jest.fn(), replace: jest.fn() }}
-      skipOnboarding={jest.fn()}
+      skipOnboardingAction={jest.fn()}
       {...props}
     />
   );

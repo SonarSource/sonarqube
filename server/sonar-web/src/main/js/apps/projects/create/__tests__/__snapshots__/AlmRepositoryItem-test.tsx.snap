@@ -1,56 +1,60 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<Checkbox
-  checked={false}
-  disabled={false}
-  onCheck={[Function]}
-  thirdState={false}
->
-  <img
-    alt="Foo Provider"
-    className="spacer-left"
-    height={14}
-    src="/images/sonarcloud/foo.svg"
-    style={
-      Object {
-        "opacity": 1,
-      }
-    }
-    width={14}
-  />
-  <span
-    className="spacer-left"
+<React.Fragment>
+  <Checkbox
+    checked={false}
+    disabled={false}
+    onCheck={[Function]}
+    thirdState={false}
   >
-    Awesome Project
-  </span>
-</Checkbox>
+    <img
+      alt="Foo Provider"
+      className="spacer-left"
+      height={14}
+      src="/images/sonarcloud/foo.svg"
+      style={
+        Object {
+          "opacity": 1,
+        }
+      }
+      width={14}
+    />
+    <span
+      className="spacer-left"
+    >
+      Awesome Project
+    </span>
+  </Checkbox>
+</React.Fragment>
 `;
 
 exports[`should render disabled 1`] = `
-<Checkbox
-  checked={true}
-  disabled={true}
-  onCheck={[Function]}
-  thirdState={false}
->
-  <img
-    alt="Foo Provider"
-    className="spacer-left"
-    height={14}
-    src="/images/sonarcloud/foo.svg"
-    style={
-      Object {
-        "opacity": 0.5,
-      }
-    }
-    width={14}
-  />
-  <span
-    className="spacer-left"
+<React.Fragment>
+  <Checkbox
+    checked={true}
+    disabled={true}
+    onCheck={[Function]}
+    thirdState={false}
   >
-    Cool Project
-  </span>
+    <img
+      alt="Foo Provider"
+      className="spacer-left"
+      height={14}
+      src="/images/sonarcloud/foo.svg"
+      style={
+        Object {
+          "opacity": 0.5,
+        }
+      }
+      width={14}
+    />
+    <span
+      className="spacer-left"
+    >
+      Cool Project
+    </span>
+  </Checkbox>
   <span
     className="big-spacer-left"
   >
@@ -58,34 +62,50 @@ exports[`should render disabled 1`] = `
       className="little-spacer-right"
       fill="#00aa00"
     />
-    onboarding.create_project.already_imported
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "proj_cool",
+          },
+        }
+      }
+    >
+      onboarding.create_project.already_imported
+    </Link>
   </span>
-</Checkbox>
+</React.Fragment>
 `;
 
 exports[`should render selected 1`] = `
-<Checkbox
-  checked={true}
-  disabled={false}
-  onCheck={[Function]}
-  thirdState={false}
->
-  <img
-    alt="Foo Provider"
-    className="spacer-left"
-    height={14}
-    src="/images/sonarcloud/foo.svg"
-    style={
-      Object {
-        "opacity": 1,
-      }
-    }
-    width={14}
-  />
-  <span
-    className="spacer-left"
+<React.Fragment>
+  <Checkbox
+    checked={true}
+    disabled={false}
+    onCheck={[Function]}
+    thirdState={false}
   >
-    Awesome Project
-  </span>
-</Checkbox>
+    <img
+      alt="Foo Provider"
+      className="spacer-left"
+      height={14}
+      src="/images/sonarcloud/foo.svg"
+      style={
+        Object {
+          "opacity": 1,
+        }
+      }
+      width={14}
+    />
+    <span
+      className="spacer-left"
+    >
+      Awesome Project
+    </span>
+  </Checkbox>
+</React.Fragment>
 `;

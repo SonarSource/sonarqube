@@ -31,6 +31,11 @@ export function getRepositories(): Promise<{
   return getJSON('/api/alm_integration/list_repositories').catch(throwGlobalError);
 }
 
-export function provisionProject(data: { repositories: string[] }) {
-  return postJSON('api/alm_integration/provision_projects', data).catch(throwGlobalError);
+export function provisionProject(data: {
+  installationKeys: string[];
+}): Promise<{ projects: Array<{ projectKey: string }> }> {
+  return postJSON('/api/alm_integration/provision_projects', {
+    ...data,
+    installationKeys: data.installationKeys.join(',')
+  }).catch(throwGlobalError);
 }

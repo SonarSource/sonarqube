@@ -26,18 +26,18 @@ import Helmet from 'react-helmet';
 import AutoProjectCreate from './AutoProjectCreate';
 import ManualProjectCreate from './ManualProjectCreate';
 import { serializeQuery, Query, parseQuery } from './utils';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { getCurrentUser } from '../../../store/rootReducer';
-import { skipOnboarding } from '../../../store/users/actions';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { skipOnboarding as skipOnboardingAction } from '../../../store/users/actions';
+import { CurrentUser, IdentityProvider, isLoggedIn, LoggedInUser } from '../../../app/types';
+import { skipOnboarding, getIdentityProviders } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
-import { ProjectBase } from '../../../api/components';
-import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
+import { getProjectUrl } from '../../../helpers/urls';
 import '../../../app/styles/sonarcloud.css';
 
 interface OwnProps {
   location: Location;
-  onFinishOnboarding: () => void;
   router: Pick<InjectedRouter, 'push' | 'replace'>;
 }
 
@@ -46,16 +46,24 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  skipOnboarding: () => void;
+  skipOnboardingAction: () => void;
 }
 
-type Props = OwnProps & StateProps & DispatchProps;
+interface Props extends OwnProps, StateProps, DispatchProps {
+  currentUser: LoggedInUser;
+}
 
-export class CreateProjectPage extends React.PureComponent<Props> {
+interface State {
+  identityProvider?: IdentityProvider;
+  loading: boolean;
+}
+
+export class CreateProjectPage extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
+    this.state = { loading: true };
     if (!this.canAutoCreate(props)) {
       this.updateQuery({ manual: true });
     }
@@ -76,18 +84,37 @@ export class CreateProjectPage extends React.PureComponent<Props> {
     document.documentElement.classList.remove('white-page');
   }
 
-  handleProjectCreate = (projects: Pick<ProjectBase, 'key'>[], organization?: string) => {
-    if (projects.length > 1 && organization) {
-      this.props.router.push(getOrganizationUrl(organization) + '/projects');
-    } else if (projects.length === 1) {
-      this.props.router.push(getProjectUrl(projects[0].key));
+  handleProjectCreate = (projectKeys: string[]) => {
+    skipOnboarding().catch(() => {});
+    this.props.skipOnboardingAction();
+    if (projectKeys.length > 1) {
+      this.props.router.push({ pathname: '/projects' });
+    } else if (projectKeys.length === 1) {
+      this.props.router.push(getProjectUrl(projectKeys[0]));
     }
   };
 
   canAutoCreate = ({ currentUser } = this.props) => {
-    return (
-      isLoggedIn(currentUser) &&
-      ['bitbucket', 'github'].includes(currentUser.externalProvider || '')
+    return ['bitbucket', 'github'].includes(currentUser.externalProvider || '');
+  };
+
+  fetchIdentityProviders = () => {
+    getIdentityProviders().then(
+      ({ identityProviders }) => {
+        if (this.mounted) {
+          this.setState({
+            identityProvider: identityProviders.find(
+              identityProvider => identityProvider.key === this.props.currentUser.externalProvider
+            ),
+            loading: false
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      }
     );
   };
 
@@ -110,11 +137,10 @@ export class CreateProjectPage extends React.PureComponent<Props> {
 
   render() {
     const { currentUser } = this.props;
-    if (!isLoggedIn(currentUser)) {
-      return null;
-    }
+    const { identityProvider, loading } = this.state;
     const displayManual = parseQuery(this.props.location.query).manual;
     const header = translate('onboarding.create_project.header');
+    const hasAutoProvisioning = this.canAutoCreate() && identityProvider;
     return (
       <>
         <Helmet title={header} titleTemplate="%s" />
@@ -122,48 +148,53 @@ export class CreateProjectPage extends React.PureComponent<Props> {
           <div className="page-header">
             <h1 className="page-title">{header}</h1>
           </div>
-
-          {this.canAutoCreate() && (
-            <ul className="flex-tabs">
-              <li>
-                <a
-                  className={classNames('js-auto', { selected: !displayManual })}
-                  href="#"
-                  onClick={this.showAuto}>
-                  {translate('onboarding.create_project.select_repositories')}
-                  <span
-                    className={classNames(
-                      'rounded alert alert-small spacer-left display-inline-block',
-                      {
-                        'alert-info': !displayManual,
-                        'alert-muted': displayManual
-                      }
-                    )}>
-                    {translate('beta')}
-                  </span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className={classNames('js-manual', { selected: displayManual })}
-                  href="#"
-                  onClick={this.showManual}>
-                  {translate('onboarding.create_project.create_manually')}
-                </a>
-              </li>
-            </ul>
-          )}
-
-          {displayManual || !this.canAutoCreate() ? (
-            <ManualProjectCreate
-              currentUser={currentUser}
-              onProjectCreate={this.handleProjectCreate}
-            />
+          {loading ? (
+            <DeferredSpinner />
           ) : (
-            <AutoProjectCreate
-              currentUser={currentUser}
-              onProjectCreate={this.handleProjectCreate}
-            />
+            <>
+              {hasAutoProvisioning && (
+                <ul className="flex-tabs">
+                  <li>
+                    <a
+                      className={classNames('js-auto', { selected: !displayManual })}
+                      href="#"
+                      onClick={this.showAuto}>
+                      {translate('onboarding.create_project.select_repositories')}
+                      <span
+                        className={classNames(
+                          'rounded alert alert-small spacer-left display-inline-block',
+                          {
+                            'alert-info': !displayManual,
+                            'alert-muted': displayManual
+                          }
+                        )}>
+                        {translate('beta')}
+                      </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      className={classNames('js-manual', { selected: displayManual })}
+                      href="#"
+                      onClick={this.showManual}>
+                      {translate('onboarding.create_project.create_manually')}
+                    </a>
+                  </li>
+                </ul>
+              )}
+
+              {displayManual || !hasAutoProvisioning ? (
+                <ManualProjectCreate
+                  currentUser={currentUser}
+                  onProjectCreate={this.handleProjectCreate}
+                />
+              ) : (
+                <AutoProjectCreate
+                  identityProvider={identityProvider!}
+                  onProjectCreate={this.handleProjectCreate}
+                />
+              )}
+            </>
           )}
         </div>
       </>
@@ -177,7 +208,7 @@ const mapStateToProps = (state: any): StateProps => {
   };
 };
 
-const mapDispatchToProps: DispatchProps = { skipOnboarding };
+const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
   CreateProjectPage

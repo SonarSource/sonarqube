@@ -20,23 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoProjectCreate from '../AutoProjectCreate';
-import { getIdentityProviders } from '../../../../api/users';
 import { getRepositories } from '../../../../api/alm-integration';
-import { LoggedInUser } from '../../../../app/types';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-
-jest.mock('../../../../api/users', () => ({
-  getIdentityProviders: jest.fn().mockResolvedValue({
-    identityProviders: [
-      {
-        backgroundColor: 'blue',
-        iconPath: 'icon/path',
-        key: 'foo',
-        name: 'Foo Provider'
-      }
-    ]
-  })
-}));
 
 jest.mock('../../../../api/alm-integration', () => ({
   getRepositories: jest.fn().mockResolvedValue({
@@ -49,7 +34,13 @@ jest.mock('../../../../api/alm-integration', () => ({
   provisionProject: jest.fn().mockResolvedValue({ projects: [] })
 }));
 
-const user: LoggedInUser = { isLoggedIn: true, login: 'foo', name: 'Foo', externalProvider: 'foo' };
+const identityProvider = {
+  backgroundColor: 'blue',
+  iconPath: 'icon/path',
+  key: 'foo',
+  name: 'Foo Provider'
+};
+
 const repositories = [
   {
     label: 'Cool Project',
@@ -64,14 +55,12 @@ const repositories = [
 ];
 
 beforeEach(() => {
-  (getIdentityProviders as jest.Mock<any>).mockClear();
   (getRepositories as jest.Mock<any>).mockClear();
 });
 
 it('should display the provider app install button', async () => {
   const wrapper = getWrapper();
   expect(wrapper).toMatchSnapshot();
-  expect(getIdentityProviders).toHaveBeenCalled();
   expect(getRepositories).toHaveBeenCalled();
 
   await waitAndUpdate(wrapper);
@@ -92,5 +81,7 @@ it('should display the list of repositories', async () => {
 });
 
 function getWrapper(props = {}) {
-  return shallow(<AutoProjectCreate currentUser={user} onProjectCreate={jest.fn()} {...props} />);
+  return shallow(
+    <AutoProjectCreate identityProvider={identityProvider} onProjectCreate={jest.fn()} {...props} />
+  );
 }

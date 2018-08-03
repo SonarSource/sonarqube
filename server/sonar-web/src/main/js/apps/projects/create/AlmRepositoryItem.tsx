@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import * as theme from '../../../app/theme';
 import Checkbox from '../../../components/controls/Checkbox';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
 import { AlmRepository, IdentityProvider } from '../../../app/types';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl, getProjectUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -41,26 +42,30 @@ export default class AlmRepositoryItem extends React.PureComponent<Props> {
     const { identityProvider, repository, selected } = this.props;
     const alreadyImported = Boolean(repository.linkedProjectKey);
     return (
-      <Checkbox
-        checked={selected || alreadyImported}
-        disabled={alreadyImported}
-        onCheck={this.handleChange}>
-        <img
-          alt={identityProvider.name}
-          className="spacer-left"
-          height={14}
-          src={`${getBaseUrl()}/images/sonarcloud/${identityProvider.key}.svg`}
-          style={{ opacity: alreadyImported ? 0.5 : 1 }}
-          width={14}
-        />
-        <span className="spacer-left">{this.props.repository.label}</span>
-        {alreadyImported && (
+      <>
+        <Checkbox
+          checked={selected || alreadyImported}
+          disabled={alreadyImported}
+          onCheck={this.handleChange}>
+          <img
+            alt={identityProvider.name}
+            className="spacer-left"
+            height={14}
+            src={`${getBaseUrl()}/images/sonarcloud/${identityProvider.key}.svg`}
+            style={{ opacity: alreadyImported ? 0.5 : 1 }}
+            width={14}
+          />
+          <span className="spacer-left">{this.props.repository.label}</span>
+        </Checkbox>
+        {repository.linkedProjectKey && (
           <span className="big-spacer-left">
             <CheckIcon className="little-spacer-right" fill={theme.green} />
-            {translate('onboarding.create_project.already_imported')}
+            <Link to={getProjectUrl(repository.linkedProjectKey)}>
+              {translate('onboarding.create_project.already_imported')}
+            </Link>
           </span>
         )}
-      </Checkbox>
+      </>
     );
   }
 }

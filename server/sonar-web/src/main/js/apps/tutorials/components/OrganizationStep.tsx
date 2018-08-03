@@ -29,6 +29,8 @@ import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { Button } from '../../../components/ui/buttons';
 
+type Selection = 'personal' | 'existing' | 'new';
+
 interface Props {
   currentUser: { login: string; isLoggedIn: boolean };
   finished: boolean;
@@ -44,7 +46,7 @@ interface State {
   existingOrganization?: string;
   existingOrganizations: Array<string>;
   personalOrganization?: string;
-  selection: 'personal' | 'existing' | 'new';
+  selection: Selection;
 }
 
 export default class OrganizationStep extends React.PureComponent<Props, State> {
@@ -74,9 +76,10 @@ export default class OrganizationStep extends React.PureComponent<Props, State> 
           const personalOrganization =
             organizationKeys.length === 1 ? organizationKeys[0] : undefined;
           const existingOrganizations = organizationKeys.length > 1 ? sortBy(organizationKeys) : [];
-          const selection = personalOrganization
-            ? 'personal'
-            : existingOrganizations.length > 0 ? 'existing' : 'new';
+          let selection: Selection = 'personal';
+          if (!personalOrganization) {
+            selection = existingOrganizations.length > 0 ? 'existing' : 'new';
+          }
           this.setState({
             loading: false,
             existingOrganizations,

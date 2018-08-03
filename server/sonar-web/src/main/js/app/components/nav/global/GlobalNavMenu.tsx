@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import * as classNames from 'classnames';
+import { Link } from 'react-router';
 import { isLoggedIn, CurrentUser, AppState, Extension } from '../../../types';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
@@ -44,9 +44,13 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
+    const active =
+      this.props.location.pathname.startsWith('projects') &&
+      this.props.location.pathname !== 'projects/create';
+
     return (
       <li>
-        <Link activeClassName="active" to="/projects">
+        <Link activeClassName={classNames({ active })} to="/projects">
           {isSonarCloud() ? translate('my_projects') : translate('projects.page')}
         </Link>
       </li>
@@ -74,7 +78,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
       return (
         <li>
           <Link
-            className={active ? 'active' : undefined}
+            className={classNames({ active })}
             to={{ pathname: '/issues', query: { resolved: 'false' } }}>
             {translate('my_issues')}
           </Link>
@@ -88,7 +92,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
         : { resolved: 'false' };
     return (
       <li>
-        <Link className={active ? 'active' : undefined} to={{ pathname: '/issues', query }}>
+        <Link className={classNames({ active })} to={{ pathname: '/issues', query }}>
           {translate('issues.page')}
         </Link>
       </li>
