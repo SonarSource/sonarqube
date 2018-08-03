@@ -125,6 +125,19 @@ public class TreeRootHolderImplTest {
     assertThat(underTest.getRoot()).isSameAs(DUMB_PROJECT);
   }
 
+  @Test
+  public void getSize_throws_ISE_if_not_initialized() {
+    expectNotInitialized_ISE();
+
+    underTest.getSize();
+  }
+
+  @Test
+  public void getSize_counts_number_of_components() {
+    underTest.setRoot(SOME_REPORT_COMPONENT_TREE);
+    assertThat(underTest.getSize()).isEqualTo(4);
+  }
+
   private void expectNotInitialized_ISE() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Holder has not been initialized yet");

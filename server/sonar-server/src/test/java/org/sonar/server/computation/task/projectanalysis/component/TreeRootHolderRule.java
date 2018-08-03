@@ -44,4 +44,9 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   public Component getComponentByRef(int ref) {
     return delegate.getComponentByRef(ref);
   }
+
+  @Override
+  public int getSize() {
+    return delegate.getSize();
+  }
 }

@@ -39,4 +39,10 @@ public interface TreeRootHolder {
    */
   Component getComponentByRef(int ref);
 
+  /**
+   * Number of components, including root.
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   */
+  int getSize();
 }

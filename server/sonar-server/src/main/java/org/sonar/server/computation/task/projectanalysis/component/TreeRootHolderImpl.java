@@ -59,6 +59,13 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
     return component;
   }
 
+  @Override
+  public int getSize() {
+    checkInitialized();
+    ensureComponentByRefIsPopulated();
+    return componentsByRef.size();
+  }
+
   private void ensureComponentByRefIsPopulated() {
     if (componentsByRef != null) {
       return;

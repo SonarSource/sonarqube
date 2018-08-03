@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -86,6 +87,8 @@ public class BuildComponentTreeStep implements ComputationStep {
 
       treeRootHolder.setRoot(project);
       analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysis));
+
+      Loggers.get(getClass()).debug("components={}", treeRootHolder.getSize());
     }
   }
 
