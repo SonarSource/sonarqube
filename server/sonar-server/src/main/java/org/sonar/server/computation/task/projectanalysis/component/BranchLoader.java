@@ -21,12 +21,17 @@ package org.sonar.server.computation.task.projectanalysis.component;
 
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class BranchLoader {
+  private static final Logger LOGGER = Loggers.get(BranchLoader.class);
+
   private final MutableAnalysisMetadataHolder metadataHolder;
   private final BranchLoaderDelegate delegate;
 
@@ -51,6 +56,15 @@ public class BranchLoader {
       delegate.load(metadata);
     } else {
       metadataHolder.setBranch(new DefaultBranchImpl(deprecatedBranch));
+    }
+
+    Branch branch = metadataHolder.getBranch();
+    if (branch.isLegacyFeature() ) {
+      LOGGER.debug("On deprecated branch {}", branch.getName());
+    } else if (branch.isMain()) {
+      LOGGER.debug("On main branch");
+    } else {
+      LOGGER.debug("On branch {} [{}]", branch.getName(), branch.getType());
     }
   }
 }

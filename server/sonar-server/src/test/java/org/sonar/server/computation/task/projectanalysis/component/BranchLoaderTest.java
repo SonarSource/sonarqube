@@ -19,17 +19,22 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BranchLoaderTest {
   @Rule
@@ -37,6 +42,14 @@ public class BranchLoaderTest {
 
   @Rule
   public AnalysisMetadataHolderRule metadataHolder = new AnalysisMetadataHolderRule();
+
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  @Before
+  public void setUp() {
+    logTester.setLevel(LoggerLevel.DEBUG);
+  }
 
   @Test
   public void throw_ME_if_both_branch_properties_are_set() {
@@ -63,10 +76,11 @@ public class BranchLoaderTest {
     Branch branch = metadataHolder.getBranch();
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getName()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("On main branch");
   }
 
   @Test
-  public void default_support_of_branches_is_enabled_if_delegate_is_absent() {
+  public void support_of_deprecated_branches_is_enabled_if_delegate_is_absent() {
     ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
       .setDeprecatedBranch("foo")
       .build();
@@ -78,10 +92,11 @@ public class BranchLoaderTest {
     Branch branch = metadataHolder.getBranch();
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getName()).isEqualTo("foo");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("On deprecated branch foo");
   }
 
   @Test
-  public void default_support_of_branches_is_enabled_if_delegate_is_present() {
+  public void support_of_deprecated_branches_is_enabled_if_delegate_is_present() {
     ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
       .setDeprecatedBranch("foo")
       .build();
@@ -94,6 +109,26 @@ public class BranchLoaderTest {
     Branch branch = metadataHolder.getBranch();
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getName()).isEqualTo("foo");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("On deprecated branch foo");
+  }
+
+  @Test
+  public void support_of_branches_is_enabled_if_delegate_is_present() {
+    ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
+      .setBranchName("foo")
+      .setBranchType(ScannerReport.Metadata.BranchType.SHORT)
+      .build();
+
+    FakeDelegate delegate = new FakeDelegate();
+    new BranchLoader(metadataHolder, delegate).load(metadata);
+
+    assertThat(metadataHolder.getBranch()).isNotNull();
+
+    Branch branch = metadataHolder.getBranch();
+    assertThat(branch.isMain()).isFalse();
+    assertThat(branch.getName()).isEqualTo("foo");
+    assertThat(branch.getType()).isEqualTo(BranchType.SHORT);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("On branch foo [SHORT]");
   }
 
   private class FakeDelegate implements BranchLoaderDelegate {
@@ -101,6 +136,9 @@ public class BranchLoaderTest {
 
     @Override
     public void load(ScannerReport.Metadata metadata) {
+      when(branch.isMain()).thenReturn(false);
+      when(branch.getName()).thenReturn(metadata.getBranchName());
+      when(branch.getType()).thenReturn(BranchType.valueOf(metadata.getBranchType().name()));
       metadataHolder.setBranch(branch);
     }
   }
