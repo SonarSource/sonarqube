@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -77,6 +79,8 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Mock
   CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder;
@@ -94,6 +98,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setBaseAnalysis(baseAnalysis);
     underTest = new PersistCrossProjectDuplicationIndexStep(crossProjectDuplicationStatusHolder, dbClient, treeRootHolder, analysisMetadataHolder, reportReader);
+    logTester.setLevel(LoggerLevel.DEBUG);
   }
 
   @Test
@@ -110,6 +115,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     assertThat(dto.get("INDEX_IN_FILE")).isEqualTo(0L);
     assertThat(dto.get("COMPONENT_UUID")).isEqualTo(FILE_1.getUuid());
     assertThat(dto.get("ANALYSIS_UUID")).isEqualTo(ANALYSIS_UUID);
+    assertStatisticsLog(1);
   }
 
   @Test
@@ -132,6 +138,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     assertThat(dtos).extracting("INDEX_IN_FILE").containsOnly(0L, 1L);
     assertThat(dtos).extracting("COMPONENT_UUID").containsOnly(FILE_1.getUuid());
     assertThat(dtos).extracting("ANALYSIS_UUID").containsOnly(ANALYSIS_UUID);
+    assertStatisticsLog(2);
   }
 
   @Test
@@ -142,6 +149,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
+    assertStatisticsLog(0);
   }
 
   @Test
@@ -154,4 +162,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(0);
   }
 
+  private void assertStatisticsLog(int expectedInserts) {
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("inserts=" + expectedInserts);
+  }
 }
