@@ -29,6 +29,7 @@ import { serializeQuery, Query, parseQuery } from './utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { getCurrentUser } from '../../../store/rootReducer';
+import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { skipOnboarding as skipOnboardingAction } from '../../../store/users/actions';
 import { CurrentUser, IdentityProvider, isLoggedIn, LoggedInUser } from '../../../app/types';
 import { skipOnboarding, getIdentityProviders } from '../../../api/users';
@@ -46,6 +47,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
+  addGlobalErrorMessage: (message: string) => void;
   skipOnboardingAction: () => void;
 }
 
@@ -64,6 +66,10 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { loading: true };
+    const query = parseQuery(props.location.query);
+    if (query.error) {
+      this.props.addGlobalErrorMessage(query.error);
+    }
     if (!this.canAutoCreate(props)) {
       this.updateQuery({ manual: true });
     }
@@ -208,7 +214,7 @@ const mapStateToProps = (state: any): StateProps => {
   };
 };
 
-const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
+const mapDispatchToProps: DispatchProps = { addGlobalErrorMessage, skipOnboardingAction };
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
   CreateProjectPage

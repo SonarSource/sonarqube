@@ -22,15 +22,18 @@ import {
   cleanQuery,
   RawQuery,
   parseAsBoolean,
-  serializeOptionalBoolean
+  serializeOptionalBoolean,
+  parseAsOptionalString
 } from '../../../helpers/query';
 
 export interface Query {
+  error?: string;
   manual: boolean;
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => {
   return {
+    error: parseAsOptionalString(urlQuery['error']),
     manual: parseAsBoolean(urlQuery['manual'], false)
   };
 });

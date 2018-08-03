@@ -77,9 +77,19 @@ it('should switch tabs', async () => {
   expect(wrapper.find('AutoProjectCreate').exists()).toBeTruthy();
 });
 
+it('should display an error message on load', () => {
+  const addGlobalErrorMessage = jest.fn();
+  getWrapper({
+    addGlobalErrorMessage,
+    location: { pathname: 'foo', query: { error: 'Foo error' } }
+  });
+  expect(addGlobalErrorMessage).toHaveBeenCalledWith('Foo error');
+});
+
 function getWrapper(props = {}) {
   return shallow(
     <CreateProjectPage
+      addGlobalErrorMessage={jest.fn()}
       currentUser={user}
       location={{ pathname: 'foo', query: { manual: 'false' } } as Location}
       router={{ push: jest.fn(), replace: jest.fn() }}
