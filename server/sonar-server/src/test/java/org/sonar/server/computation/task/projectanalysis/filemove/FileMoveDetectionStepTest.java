@@ -383,6 +383,7 @@ public class FileMoveDetectionStepTest {
     underTest.execute();
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("max score in matrix is less than min required score (85). Do nothing.");
   }
 
   @Test
