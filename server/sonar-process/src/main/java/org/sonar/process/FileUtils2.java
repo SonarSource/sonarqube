@@ -199,7 +199,11 @@ public final class FileUtils2 {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-      size += attrs.size();
+      // size is specified on regular files only
+      // https://docs.oracle.com/javase/8/docs/api/java/nio/file/attribute/BasicFileAttributes.html#size--
+      if (attrs.isRegularFile()) {
+        size += attrs.size();
+      }
       return FileVisitResult.CONTINUE;
     }
   }

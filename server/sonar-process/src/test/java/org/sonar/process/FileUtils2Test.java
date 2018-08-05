@@ -281,6 +281,21 @@ public class FileUtils2Test {
     FileUtils2.sizeOf(path);
   }
 
+  @Test
+  public void sizeOf_ignores_size_of_non_regular_files() throws IOException {
+    File outside = temporaryFolder.newFile();
+    FileUtils.write(outside, "outside!!!", UTF_8);
+    File dir = temporaryFolder.newFolder();
+    File child = new File(dir, "child1.txt");
+    FileUtils.write(child, "inside!!!", UTF_8);
+    File symlink = new File(dir, "child2.txt");
+    Files.createSymbolicLink(symlink.toPath(), outside.toPath());
+
+    assertThat(FileUtils2.sizeOf(dir.toPath()))
+      .isPositive()
+      .isEqualTo(FileUtils2.sizeOf(child.toPath()));
+  }
+
   private void expectDirectoryCanNotBeNullNPE() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Directory can not be null");
