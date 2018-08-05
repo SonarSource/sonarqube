@@ -33,6 +33,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -217,6 +219,8 @@ public class FileMoveDetectionStepTest {
   public MutableMovedFilesRepositoryRule movedFilesRepository = new MutableMovedFilesRepositoryRule();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = dbTester.getDbClient();
   private ComponentDto project;
@@ -390,6 +394,7 @@ public class FileMoveDetectionStepTest {
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
     verifyStatistics(context, 1, 1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("max score in matrix is less than min required score (85). Do nothing.");
   }
 
   @Test
