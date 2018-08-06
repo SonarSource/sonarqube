@@ -193,7 +193,7 @@ public class ReportPublisher implements Startable {
     try {
       response = wsClient.call(post).failIfNotSuccessful();
     } catch (HttpException e) {
-      throw MessageException.of(String.format("Failed to upload report - %d: %s", e.code(), ScannerWsClient.tryParseAsJsonError(e.content())));
+      throw MessageException.of(String.format("Failed to upload report - %s", ScannerWsClient.createErrorMessage(e)));
     }
 
     try (InputStream protobuf = response.contentStream()) {

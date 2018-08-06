@@ -28,6 +28,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
@@ -45,7 +47,7 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 public class ScannerWsClient {
-
+  private static final int MAX_ERROR_MSG_LEN = 128;
   private static final Logger LOG = Loggers.get(ScannerWsClient.class);
 
   private final WsClient target;
@@ -59,13 +61,13 @@ public class ScannerWsClient {
   }
 
   /**
-   * If an exception is not thrown, the response needs to be closed by either calling close() directly, or closing the 
+   * If an exception is not thrown, the response needs to be closed by either calling close() directly, or closing the
    * body content's stream/reader.
-   * @throws IllegalStateException if the request could not be executed due to
-   *     a connectivity problem or timeout. Because networks can
-   *     fail during an exchange, it is possible that the remote server
-   *     accepted the request before the failure
-   * @throws HttpException if the response code is not in range [200..300)
+   *
+   * @throws IllegalStateException if the request could not be executed due to a connectivity problem or timeout. Because networks can
+   *                               fail during an exchange, it is possible that the remote server accepted the request before the failure
+   * @throws MessageException      if there was a problem with authentication or if a error message was parsed from the response.
+   * @throws HttpException         if the response code is not in range [200..300). Consider using {@link #createErrorMessage(HttpException)} to create more relevant messages for the users.
    */
   public WsResponse call(WsRequest request) {
     Preconditions.checkState(!globalMode.isMediumTest(), "No WS call should be made in medium test mode");
@@ -101,12 +103,35 @@ public class ScannerWsClient {
     }
     if (code == HTTP_FORBIDDEN || code == HTTP_BAD_REQUEST) {
       // SONAR-4397 Details are in response content
-      throw MessageException.of(tryParseAsJsonError(response.content()));
+      String jsonMsg = tryParseAsJsonError(response.content());
+      if (jsonMsg != null) {
+        throw MessageException.of(jsonMsg);
+      }
     }
+
+    // if failed, throws an HttpException
     response.failIfNotSuccessful();
   }
 
-  public static String tryParseAsJsonError(String responseContent) {
+  /**
+   * Tries to form a short and relevant error message from the exception, to be displayed in the console.
+   */
+  public static String createErrorMessage(HttpException exception) {
+    String json = tryParseAsJsonError(exception.content());
+    if (json != null) {
+      return json;
+    }
+
+    String msg = "HTTP code " + exception.code();
+    if (isHtml(exception.content())) {
+      return msg;
+    }
+
+    return msg + ": " + StringUtils.left(exception.content(), MAX_ERROR_MSG_LEN);
+  }
+
+  @CheckForNull
+  private static String tryParseAsJsonError(String responseContent) {
     try {
       JsonParser parser = new JsonParser();
       JsonObject obj = parser.parse(responseContent).getAsJsonObject();
@@ -117,7 +142,11 @@ public class ScannerWsClient {
       }
       return Joiner.on(", ").join(errorMessages);
     } catch (Exception e) {
-      return responseContent;
+      return null;
     }
+  }
+
+  private static boolean isHtml(String responseContent) {
+    return StringUtils.stripToEmpty(responseContent).startsWith("<!DOCTYPE html>");
   }
 }

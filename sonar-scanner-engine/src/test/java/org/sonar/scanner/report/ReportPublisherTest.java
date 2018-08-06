@@ -121,7 +121,7 @@ public class ReportPublisherTest {
     when(wsClient.call(any(WsRequest.class))).thenReturn(response);
 
     exception.expect(MessageException.class);
-    exception.expectMessage("Failed to upload report - 404: Organization with key 'MyOrg' does not exist");
+    exception.expectMessage("Failed to upload report - Organization with key 'MyOrg' does not exist");
     underTest.upload(temp.newFile());
   }
 

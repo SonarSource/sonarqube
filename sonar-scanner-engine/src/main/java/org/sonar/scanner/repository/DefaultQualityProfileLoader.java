@@ -68,9 +68,9 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
       return loadAndOverrideIfNeeded(profileName, url);
     } catch (HttpException e) {
       if (e.code() == 404) {
-        throw MessageException.of(errorMsg.get() + ": " + ScannerWsClient.tryParseAsJsonError(e.content()));
+        throw MessageException.of(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
       }
-      throw new IllegalStateException(errorMsg.get(), e);
+      throw new IllegalStateException(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
     } catch (MessageException e) {
       throw e;
     } catch (Exception e) {
