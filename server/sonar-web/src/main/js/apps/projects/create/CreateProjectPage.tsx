@@ -62,26 +62,26 @@ interface State {
 
 export class CreateProjectPage extends React.PureComponent<Props, State> {
   mounted = false;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { loading: true };
-    const query = parseQuery(props.location.query);
-    if (query.error) {
-      this.props.addGlobalErrorMessage(query.error);
-    }
-    if (!this.canAutoCreate(props)) {
-      this.updateQuery({ manual: true });
-    }
-  }
+  state: State = { loading: true };
 
   componentDidMount() {
-    this.mounted = true;
-    if (!isLoggedIn(this.props.currentUser)) {
+    if (isLoggedIn(this.props.currentUser)) {
+      this.mounted = true;
+      const query = parseQuery(this.props.location.query);
+      if (query.error) {
+        this.props.addGlobalErrorMessage(query.error);
+      }
+      if (!this.canAutoCreate()) {
+        this.setState({ loading: false });
+        this.updateQuery({ manual: true });
+      } else {
+        this.fetchIdentityProviders();
+      }
+      document.body.classList.add('white-page');
+      document.documentElement.classList.add('white-page');
+    } else {
       handleRequiredAuthentication();
     }
-    document.body.classList.add('white-page');
-    document.documentElement.classList.add('white-page');
   }
 
   componentWillUnmount() {
@@ -189,14 +189,14 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
                 </ul>
               )}
 
-              {displayManual || !hasAutoProvisioning ? (
+              {displayManual || !hasAutoProvisioning || !identityProvider ? (
                 <ManualProjectCreate
                   currentUser={currentUser}
                   onProjectCreate={this.handleProjectCreate}
                 />
               ) : (
                 <AutoProjectCreate
-                  identityProvider={identityProvider!}
+                  identityProvider={identityProvider}
                   onProjectCreate={this.handleProjectCreate}
                 />
               )}
