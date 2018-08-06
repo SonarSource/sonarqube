@@ -123,7 +123,7 @@ public class ComponentDto {
 
   /**
    * On non-main branches only, {@link #uuid} of the main branch that represents
-   * the project ({@link #qualifier}="TRK").x
+   * the project ({@link #qualifier}="TRK").
    * It is propagated to all the components of the branch.
    *
    * Value is null on the main-branch components and on other kinds of components
