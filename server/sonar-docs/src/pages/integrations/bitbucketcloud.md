@@ -17,9 +17,9 @@ In Bitbucket Cloud, go to your team's "Settings > Find integrations" page, searc
 
 SonarCloud integrates with Bitbucket Pipelines to make it easier to trigger analyses. Follow the steps:
 
-1.  On SonarCloud, open and follow the "New Project" tutorial available from the `+` icon available at the top right part of the screen. You can copy-paste the command line displayed at the end.
+1.  On SonarCloud, once your project is created, follow the tutorial on the dashboard of the project. You can copy-paste the command line displayed at the end.
 
-2.  On Bitbucket Cloud, go to the "Settings > Pipelines > Environment variables" page of your team, and add a new SONAR_TOKEN variable that contains the value of the SonarCloud token (something like `9ad01c85336b265406fa6554a9a681a4b281135f`) which you created during the [tutorial](/#sonarcloud#/onboarding) (and which is available inside the command line that you copy-pasted). **Make sure that you click on the "Lock" icon to encrypt and hide this token.**
+2.  On Bitbucket Cloud, go to the "Settings > Pipelines > Environment variables" page of your team, and add a new SONAR_TOKEN variable that contains the value of the SonarCloud token (something like `9ad01c85336b265406fa6554a9a681a4b281135f`) which you created during the tutorial (and which is available inside the command line that you copy-pasted). **Make sure that you click on the "Lock" icon to encrypt and hide this token.**
 
 3.  Inside the `bitbucket-pipelines.yml` file of your repository, copy the command line provided by the tutorial and replace the actual token by its variable name. For example, for a Java Maven-based project, you should have something like:
 
@@ -30,7 +30,7 @@ script:
 
 When this change on `bitbucket-pipelines.yml` is committed and pushed, Pipelines should automatically run a new build and therefore trigger the analysis of the repository. Shortly after, your project will appear on SonarCloud in your organization.
 
-4.  Once you see your project in SonarCloud, go to the Bitbucket Cloud "Settings > SonarCloud" page of your repository and find it in the select box to link it.
+4.  Once you see your project in SonarCloud, go to the Bitbucket Cloud "Settings > SonarCloud" page. If the dropdown is empty, find your project in the select box to link it.
 
 From now on, everytime Pipelines triggers a build, SonarCloud will:
 

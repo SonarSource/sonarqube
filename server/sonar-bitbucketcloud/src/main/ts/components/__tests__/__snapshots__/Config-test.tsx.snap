@@ -258,10 +258,13 @@ exports[`should display correctly for auto binding 1`] = `
          
         <a
           href="/projects/create"
+          rel="noopener noreferrer"
+          target="_blank"
         >
           provision
         </a>
-         a project on SonarCloud and trigger an analysis.
+         
+        a project on SonarCloud and trigger an analysis.
       </React.Fragment>
     </p>
     <React.Fragment>

@@ -67,8 +67,11 @@ export default class RepoWidgetNotConfigured extends React.PureComponent<{}, Sta
       } else {
         msgComponent = (
           <>
-            You have to <a href={getBaseUrl() + '/projects/create'}>provision</a> a project in
-            SonarCloud for this repository.
+            You have to{' '}
+            <a href={getBaseUrl() + '/projects/create'} rel="noopener noreferrer" target="_blank">
+              provision
+            </a>{' '}
+            a project in SonarCloud for this repository.
           </>
         );
       }

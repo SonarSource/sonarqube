@@ -186,8 +186,10 @@ export default class Config extends React.PureComponent<Props, State> {
     let descriptionComponent: React.ReactNode = (
       <>
         To display the quality of your repository, you have to{' '}
-        <a href={getBaseUrl() + '/projects/create'}>provision</a> a project on SonarCloud and
-        trigger an analysis.
+        <a href={getBaseUrl() + '/projects/create'} rel="noopener noreferrer" target="_blank">
+          provision
+        </a>{' '}
+        a project on SonarCloud and trigger an analysis.
       </>
     );
 

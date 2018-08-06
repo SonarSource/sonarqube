@@ -22,13 +22,17 @@ exports[`should display a link to SonarCloud for auto provisioning 1`] = `
     className="spacer-top"
   >
     <React.Fragment>
-      You have to 
+      You have to
+       
       <a
         href="/projects/create"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         provision
       </a>
-       a project in SonarCloud for this repository.
+       
+      a project in SonarCloud for this repository.
     </React.Fragment>
   </div>
 </React.Fragment>
