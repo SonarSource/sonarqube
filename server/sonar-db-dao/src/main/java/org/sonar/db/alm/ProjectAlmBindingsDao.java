@@ -57,13 +57,6 @@ public class ProjectAlmBindingsDao implements Dao {
     }
   }
 
-  public boolean bindingExists(DbSession dbSession, ALM alm, String repoId) {
-    checkAlm(alm);
-    checkRepoId(repoId);
-
-    return getMapper(dbSession).bindingCount(alm.getId(), repoId) == 1;
-  }
-
   public Optional<ProjectAlmBindingDto> selectByProjectUuid(DbSession session, String projectUuid) {
     return Optional.ofNullable(getMapper(session).selectByProjectUuid(projectUuid));
   }

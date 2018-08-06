@@ -178,40 +178,6 @@ public class ProjectAlmBindingsDaoTest {
   }
 
   @Test
-  public void mappingExists_throws_NPE_when_alm_is_null() {
-    expectAlmNPE();
-
-    underTest.bindingExists(dbSession, null, A_REPO);
-  }
-
-  @Test
-  public void mappingExists_throws_IAE_when_repo_id_is_null() {
-    expectRepoIdNullOrEmptyIAE();
-
-    underTest.bindingExists(dbSession, GITHUB, null);
-  }
-
-  @Test
-  public void mappingExists_throws_IAE_when_repo_id_is_empty() {
-    expectRepoIdNullOrEmptyIAE();
-
-    underTest.bindingExists(dbSession, GITHUB, EMPTY_STRING);
-  }
-
-  @Test
-  public void mappingExists_returns_false_when_entry_does_not_exist_in_DB() {
-    assertThat(underTest.bindingExists(dbSession, GITHUB, A_REPO)).isFalse();
-  }
-
-  @Test
-  public void mappingExists_returns_true_when_entry_exists() {
-    when(uuidFactory.create()).thenReturn("uuid1");
-    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, A_UUID, A_GITHUB_SLUG, A_URL);
-
-    assertThat(underTest.bindingExists(dbSession, GITHUB, A_REPO)).isTrue();
-  }
-
-  @Test
   public void select_by_repo_id() {
     when(system2.now()).thenReturn(DATE);
     when(uuidFactory.create())

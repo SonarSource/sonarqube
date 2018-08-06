@@ -628,13 +628,14 @@ public class PurgeDaoTest {
     String otherRepoId = repoId + "-foo";
 
     ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto otherProject = dbTester.components().insertPublicProject();
     dbClient.projectAlmBindingsDao().insertOrUpdate(dbSession, alm, repoId, project.uuid(), null, "foo");
-    dbClient.projectAlmBindingsDao().insertOrUpdate(dbSession, alm, otherRepoId, "D2", null, "bar");
+    dbClient.projectAlmBindingsDao().insertOrUpdate(dbSession, alm, otherRepoId, otherProject.uuid(), null, "bar");
 
     underTest.deleteProject(dbSession, project.uuid());
 
-    assertThat(dbClient.projectAlmBindingsDao().bindingExists(dbSession, alm, repoId)).isFalse();
-    assertThat(dbClient.projectAlmBindingsDao().bindingExists(dbSession, alm, otherRepoId)).isTrue();
+    assertThat(dbClient.projectAlmBindingsDao().findProjectKey(dbSession, alm, repoId)).isEmpty();
+    assertThat(dbClient.projectAlmBindingsDao().findProjectKey(dbSession, alm, otherRepoId)).isNotEmpty();
   }
 
   @Test
