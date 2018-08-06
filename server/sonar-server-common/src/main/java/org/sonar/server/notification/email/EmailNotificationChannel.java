@@ -154,7 +154,7 @@ public class EmailNotificationChannel extends NotificationChannel {
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
     try {
-      LOG.debug("Sending email: {}", emailMessage);
+      LOG.trace("Sending email: {}", emailMessage);
       String host = null;
       try {
         host = new URL(configuration.getServerBaseURL()).getHost();
