@@ -28,3 +28,9 @@ it('renders correctly', () => {
     shallow(<JavaGradle host="host" organization="organization" token="token" />)
   ).toMatchSnapshot();
 });
+
+it('renders with projectKey', () => {
+  expect(
+    shallow(<JavaGradle host="host" organization="organization" projectKey="foo" token="token" />)
+  ).toMatchSnapshot();
+});

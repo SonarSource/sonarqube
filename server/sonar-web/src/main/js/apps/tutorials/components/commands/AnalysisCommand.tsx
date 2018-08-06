@@ -42,19 +42,33 @@ export default class AnalysisCommand extends React.PureComponent<Props> {
   };
 
   renderCommandForMaven = () => {
-    const { token } = this.props;
+    const { component, token } = this.props;
     if (!token) {
       return null;
     }
-    return <JavaMaven host={getHostUrl()} organization={this.props.organization} token={token} />;
+    return (
+      <JavaMaven
+        host={getHostUrl()}
+        organization={this.props.organization}
+        projectKey={component && component.key}
+        token={token}
+      />
+    );
   };
 
   renderCommandForGradle = () => {
-    const { token } = this.props;
+    const { component, token } = this.props;
     if (!token) {
       return null;
     }
-    return <JavaGradle host={getHostUrl()} organization={this.props.organization} token={token} />;
+    return (
+      <JavaGradle
+        host={getHostUrl()}
+        organization={this.props.organization}
+        projectKey={component && component.key}
+        token={token}
+      />
+    );
   };
 
   renderCommandForDotNet = () => {

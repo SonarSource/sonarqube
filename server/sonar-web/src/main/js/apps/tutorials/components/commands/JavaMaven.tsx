@@ -25,12 +25,14 @@ import { translate } from '../../../../helpers/l10n';
 interface Props {
   host: string;
   organization?: string;
+  projectKey?: string;
   token: string;
 }
 
 export default function JavaMaven(props: Props) {
   const command = [
     'mvn sonar:sonar',
+    props.projectKey && `-Dsonar.projectKey=${props.projectKey}`,
     props.organization && `-Dsonar.organization=${props.organization}`,
     `-Dsonar.host.url=${props.host}`,
     `-Dsonar.login=${props.token}`
