@@ -33,6 +33,7 @@ import {
   Standards
 } from '../../securityReports/utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 export interface Props {
   cwe: string[];
@@ -56,6 +57,9 @@ export interface Props {
 interface State {
   standards: Standards;
 }
+
+type StatsProp = 'owaspTop10Stats' | 'cweStats' | 'sansTop25Stats';
+type ValuesProp = 'owaspTop10' | 'sansTop25' | 'cwe';
 
 export default class StandardFacet extends React.PureComponent<Props, State> {
   mounted = false;
@@ -131,11 +135,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     this.props.onChange({ [this.property]: [], owaspTop10: [], sansTop25: [], cwe: [] });
   };
 
-  handleItemClick = (
-    prop: 'owaspTop10' | 'sansTop25' | 'cwe',
-    itemValue: string,
-    multiple: boolean
-  ) => {
+  handleItemClick = (prop: ValuesProp, itemValue: string, multiple: boolean) => {
     const items = this.props[prop];
     if (multiple) {
       const newValue = sortBy(
@@ -166,8 +166,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   };
 
   renderList = (
-    statsProp: 'owaspTop10Stats' | 'cweStats' | 'sansTop25Stats',
-    valuesProp: 'owaspTop10' | 'cwe' | 'sansTop25',
+    statsProp: StatsProp,
+    valuesProp: ValuesProp,
     renderName: (standards: Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
   ) => {
@@ -202,12 +202,18 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={renderName(this.state.standards, category)}
             onClick={onClick}
             stat={formatFacetStat(getStat(category))}
-            tooltip={values.length === 1 && !values.includes(category)}
+            tooltip={renderName(this.state.standards, category)}
             value={category}
           />
         ))}
       </FacetItemsList>
     );
+  };
+
+  renderHint = (statsProp: StatsProp, valuesProp: ValuesProp) => {
+    const stats = this.props[statsProp] || {};
+    const values = this.props[valuesProp];
+    return <MultipleSelectionHint options={Object.keys(stats).length} values={values.length} />;
   };
 
   renderOwaspTop10List() {
@@ -217,6 +223,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       renderOwaspTop10Category,
       this.handleOwaspTop10ItemClick
     );
+  }
+
+  renderOwaspTop10Hint() {
+    return this.renderHint('owaspTop10Stats', 'owaspTop10');
   }
 
   renderCWEList() {
@@ -243,6 +253,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     );
   }
 
+  renderCWEHint() {
+    return this.renderHint('cweStats', 'cwe');
+  }
+
   renderSansTop25List() {
     return this.renderList(
       'sansTop25Stats',
@@ -250,6 +264,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       renderSansTop25Category,
       this.handleSansTop25ItemClick
     );
+  }
+
+  renderSansTop25Hint() {
+    return this.renderHint('sansTop25Stats', 'sansTop25');
   }
 
   renderSubFacets() {
@@ -265,7 +283,12 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             )}
           />
           <DeferredSpinner loading={this.props.fetchingOwaspTop10} />
-          {this.props.owaspTop10Open && this.renderOwaspTop10List()}
+          {this.props.owaspTop10Open && (
+            <>
+              {this.renderOwaspTop10List()}
+              {this.renderOwaspTop10Hint()}
+            </>
+          )}
         </FacetBox>
         <FacetBox className="is-inner" property="sansTop25">
           <FacetHeader
@@ -277,7 +300,12 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             )}
           />
           <DeferredSpinner loading={this.props.fetchingSansTop25} />
-          {this.props.sansTop25Open && this.renderSansTop25List()}
+          {this.props.sansTop25Open && (
+            <>
+              {this.renderSansTop25List()}
+              {this.renderSansTop25Hint()}
+            </>
+          )}
         </FacetBox>
         <FacetBox className="is-inner" property="cwe">
           <FacetHeader
@@ -287,8 +315,13 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             values={this.props.cwe.map(item => renderCWECategory(this.state.standards, item))}
           />
           <DeferredSpinner loading={this.props.fetchingCwe} />
-          {this.props.cweOpen && this.renderCWEList()}
-          {this.props.cweOpen && this.renderCWESearch()}
+          {this.props.cweOpen && (
+            <>
+              {this.renderCWEList()}
+              {this.renderCWESearch()}
+              {this.renderCWEHint()}
+            </>
+          )}
         </FacetBox>
       </>
     );

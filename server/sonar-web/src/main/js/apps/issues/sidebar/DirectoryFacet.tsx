@@ -28,6 +28,7 @@ import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -93,7 +94,8 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
       return null;
     }
 
-    const directories = sortBy(Object.keys(stats), key => -stats[key]);
+    // sort directories first by counts, then by path
+    const directories = sortBy(Object.keys(stats), key => -stats[key], d => d);
 
     return (
       <FacetItemsList>
@@ -105,9 +107,7 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
             name={this.renderName(directory)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(directory))}
-            tooltip={
-              this.props.directories.length === 1 && !this.props.directories.includes(directory)
-            }
+            tooltip={directory}
             value={directory}
           />
         ))}
@@ -116,7 +116,8 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
   }
 
   render() {
-    const values = this.props.directories.map(dir => collapsePath(dir));
+    const { directories, stats = {} } = this.props;
+    const values = directories.map(dir => collapsePath(dir));
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -128,7 +129,15 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            <MultipleSelectionHint
+              options={Object.keys(stats).length}
+              values={directories.length}
+            />
+          </>
+        )}
       </FacetBox>
     );
   }

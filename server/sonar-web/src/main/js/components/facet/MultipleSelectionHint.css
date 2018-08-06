@@ -17,7 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.multiple-selection-hint {
+  margin-top: var(--gridSize);
+  margin-bottom: var(--gridSize);
+  text-align: center;
+}
 
-export function isOnMac() {
-  return navigator.userAgent.indexOf('Mac OS X') !== -1;
+.multiple-selection-hint-inner {
+  display: inline-block;
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
+  border-radius: var(--controlHeight);
+  background-color: var(--barBorderColor);
+  text-align: center;
+  padding: 0 var(--gridSize);
+  font-size: var(--smallFontSize);
 }

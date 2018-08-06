@@ -26,6 +26,7 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -37,6 +38,8 @@ interface Props {
   resolutions: string[];
   stats: { [x: string]: number } | undefined;
 }
+
+const RESOLUTIONS = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
 
 export default class ResolutionFacet extends React.PureComponent<Props> {
   property = 'resolutions';
@@ -101,19 +104,15 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
         name={this.getFacetItemName(resolution)}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat)}
-        tooltip={
-          this.props.resolutions.length === 1 &&
-          resolution !== '' &&
-          !this.props.resolutions.includes(resolution)
-        }
+        tooltip={this.getFacetItemName(resolution)}
         value={resolution}
       />
     );
   };
 
   render() {
-    const resolutions = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
-    const values = this.props.resolutions.map(resolution => this.getFacetItemName(resolution));
+    const { resolutions, stats = {} } = this.props;
+    const values = resolutions.map(resolution => this.getFacetItemName(resolution));
 
     return (
       <FacetBox property={this.property}>
@@ -127,7 +126,15 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && <FacetItemsList>{resolutions.map(this.renderItem)}</FacetItemsList>}
+        {this.props.open && (
+          <>
+            <FacetItemsList>{RESOLUTIONS.map(this.renderItem)}</FacetItemsList>
+            <MultipleSelectionHint
+              options={Object.keys(stats).length}
+              values={resolutions.length}
+            />
+          </>
+        )}
       </FacetBox>
     );
   }

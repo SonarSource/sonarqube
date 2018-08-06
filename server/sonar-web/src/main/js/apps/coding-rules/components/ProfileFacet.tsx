@@ -88,6 +88,11 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     }
   };
 
+  getTooltip = (profile: Profile) => {
+    const base = `${profile.name} ${profile.languageName}`;
+    return profile.isBuiltIn ? `${base} (${translate('quality_profiles.built_in')})` : base;
+  };
+
   renderName = (profile: Profile) => (
     <>
       {profile.name}
@@ -138,6 +143,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
         name={this.renderName(profile)}
         onClick={this.handleItemClick}
         stat={this.renderActivation(profile)}
+        tooltip={this.getTooltip(profile)}
         value={profile.key}
       />
     );

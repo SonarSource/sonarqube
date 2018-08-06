@@ -28,6 +28,7 @@ import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -108,7 +109,7 @@ export default class FileFacet extends React.PureComponent<Props> {
             name={this.renderName(file)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(file))}
-            tooltip={this.props.files.length === 1 && !this.props.files.includes(file)}
+            tooltip={this.getFileName(file)}
             value={file}
           />
         ))}
@@ -117,7 +118,8 @@ export default class FileFacet extends React.PureComponent<Props> {
   }
 
   render() {
-    const values = this.props.files.map(file => this.getFileName(file));
+    const { files, stats = {} } = this.props;
+    const values = files.map(file => this.getFileName(file));
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -129,7 +131,12 @@ export default class FileFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={files.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

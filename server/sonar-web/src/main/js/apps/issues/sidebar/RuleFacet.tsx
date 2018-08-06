@@ -28,6 +28,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetFooter from '../../../components/facet/FacetFooter';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -78,6 +79,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
       languages: languages.length ? languages.join() : undefined,
       organization,
       q: query,
+      // eslint-disable-next-line camelcase
       include_external: true
     }).then(response =>
       response.rules.map(rule => ({ label: `(${rule.langName}) ${rule.name}`, value: rule.key }))
@@ -118,7 +120,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
             name={this.getRuleName(rule)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(rule))}
-            tooltip={this.props.rules.length === 1 && !this.props.rules.includes(rule)}
+            tooltip={this.getRuleName(rule)}
             value={rule}
           />
         ))}
@@ -135,7 +137,8 @@ export default class RuleFacet extends React.PureComponent<Props> {
   }
 
   render() {
-    const values = this.props.rules.map(rule => this.getRuleName(rule));
+    const { rules, stats = {} } = this.props;
+    const values = rules.map(rule => this.getRuleName(rule));
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -147,8 +150,13 @@ export default class RuleFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
-        {this.props.open && this.renderFooter()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            {this.renderFooter()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={rules.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

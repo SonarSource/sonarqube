@@ -76,7 +76,7 @@ export default class Facet extends React.PureComponent<Props> {
   renderItem = (value: string) => {
     const active = this.props.values.includes(value);
     const stat = this.getStat(value);
-    const { renderName = defaultRenderName } = this.props;
+    const { renderName = defaultRenderName, renderTextName = defaultRenderName } = this.props;
 
     return (
       <FacetItem
@@ -87,7 +87,7 @@ export default class Facet extends React.PureComponent<Props> {
         name={renderName(value)}
         onClick={this.handleItemClick}
         stat={stat && formatMeasure(stat, 'SHORT_INT')}
-        tooltip={this.props.values.length === 1 && !active}
+        tooltip={renderTextName(value)}
         value={value}
       />
     );

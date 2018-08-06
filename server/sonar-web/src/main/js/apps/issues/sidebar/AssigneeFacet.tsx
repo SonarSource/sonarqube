@@ -29,6 +29,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 export interface Props {
   assigned: boolean;
@@ -90,25 +91,28 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     return assignee === '' ? !this.props.assigned : this.props.assignees.includes(assignee);
   }
 
-  getAssigneeName(assignee: string) {
+  getAssigneeNameAndTooltip(assignee: string) {
     if (assignee === '') {
-      return translate('unassigned');
+      return { name: translate('unassigned'), tooltip: translate('unassigned') };
     } else {
       const { referencedUsers } = this.props;
       if (referencedUsers[assignee]) {
-        return (
-          <span>
-            <Avatar
-              className="little-spacer-right"
-              hash={referencedUsers[assignee].avatar}
-              name={referencedUsers[assignee].name}
-              size={16}
-            />
-            {referencedUsers[assignee].name}
-          </span>
-        );
+        return {
+          name: (
+            <span>
+              <Avatar
+                className="little-spacer-right"
+                hash={referencedUsers[assignee].avatar}
+                name={referencedUsers[assignee].name}
+                size={16}
+              />
+              {referencedUsers[assignee].name}
+            </span>
+          ),
+          tooltip: referencedUsers[assignee].name
+        };
       } else {
-        return assignee;
+        return { name: assignee, tooltip: assignee };
       }
     }
   }
@@ -145,6 +149,22 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     );
   };
 
+  renderListItem(assignee: string) {
+    const { name, tooltip } = this.getAssigneeNameAndTooltip(assignee);
+    return (
+      <FacetItem
+        active={this.isAssigneeActive(assignee)}
+        key={assignee}
+        loading={this.props.loading}
+        name={name}
+        onClick={this.handleItemClick}
+        stat={formatFacetStat(this.getStat(assignee))}
+        tooltip={tooltip}
+        value={assignee}
+      />
+    );
+  }
+
   renderList() {
     const { stats } = this.props;
 
@@ -161,20 +181,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     );
 
     return (
-      <FacetItemsList>
-        {assignees.map(assignee => (
-          <FacetItem
-            active={this.isAssigneeActive(assignee)}
-            key={assignee}
-            loading={this.props.loading}
-            name={this.getAssigneeName(assignee)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(assignee))}
-            tooltip={this.props.assignees.length === 1 && !this.isAssigneeActive(assignee)}
-            value={assignee}
-          />
-        ))}
-      </FacetItemsList>
+      <FacetItemsList>{assignees.map(assignee => this.renderListItem(assignee))}</FacetItemsList>
     );
   }
 
@@ -193,6 +200,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
   }
 
   render() {
+    const { assignees, stats = {} } = this.props;
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -204,8 +212,13 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
-        {this.props.open && this.renderFooter()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            {this.renderFooter()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={assignees.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

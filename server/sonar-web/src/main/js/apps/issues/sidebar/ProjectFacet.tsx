@@ -31,6 +31,7 @@ import Organization from '../../../components/shared/Organization';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   component: Component | undefined;
@@ -114,22 +115,33 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     return referencedComponents[project] ? referencedComponents[project].name : project;
   }
 
-  renderName(project: string) {
+  getProjectNameAndTooltip(project: string) {
     const { organization, referencedComponents } = this.props;
-    return referencedComponents[project] ? (
-      <span>
-        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-        {!organization && (
-          <Organization link={false} organizationKey={referencedComponents[project].organization} />
-        )}
-        {referencedComponents[project].name}
-      </span>
-    ) : (
-      <span>
-        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-        {project}
-      </span>
-    );
+    return referencedComponents[project]
+      ? {
+          name: (
+            <span>
+              <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+              {!organization && (
+                <Organization
+                  link={false}
+                  organizationKey={referencedComponents[project].organization}
+                />
+              )}
+              {referencedComponents[project].name}
+            </span>
+          ),
+          tooltip: referencedComponents[project].name
+        }
+      : {
+          name: (
+            <span>
+              <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+              {project}
+            </span>
+          ),
+          tooltip: project
+        };
   }
 
   renderOption = (option: { label: string; organization: string }) => {
@@ -141,6 +153,22 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     );
   };
 
+  renderListItem(project: string) {
+    const { name, tooltip } = this.getProjectNameAndTooltip(project);
+    return (
+      <FacetItem
+        active={this.props.projects.includes(project)}
+        key={project}
+        loading={this.props.loading}
+        name={name}
+        onClick={this.handleItemClick}
+        stat={formatFacetStat(this.getStat(project))}
+        tooltip={tooltip}
+        value={project}
+      />
+    );
+  }
+
   renderList() {
     const { stats } = this.props;
 
@@ -150,22 +178,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
 
     const projects = sortBy(Object.keys(stats), key => -stats[key]);
 
-    return (
-      <FacetItemsList>
-        {projects.map(project => (
-          <FacetItem
-            active={this.props.projects.includes(project)}
-            key={project}
-            loading={this.props.loading}
-            name={this.renderName(project)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(project))}
-            tooltip={this.props.projects.length === 1 && !this.props.projects.includes(project)}
-            value={project}
-          />
-        ))}
-      </FacetItemsList>
-    );
+    return <FacetItemsList>{projects.map(project => this.renderListItem(project))}</FacetItemsList>;
   }
 
   renderFooter() {
@@ -184,6 +197,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
   }
 
   render() {
+    const { projects, stats = {} } = this.props;
     const values = this.props.projects.map(project => this.getProjectName(project));
     return (
       <FacetBox property={this.property}>
@@ -195,8 +209,13 @@ export default class ProjectFacet extends React.PureComponent<Props> {
           values={values}
         />
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
-        {this.props.open && this.renderFooter()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            {this.renderFooter()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={projects.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

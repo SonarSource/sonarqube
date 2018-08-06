@@ -36,9 +36,32 @@
   padding: 4px 6px;
 }
 
-.facet .domain-measures-leak {
-  padding: 3px 8px;
-  margin: -5px -5px;
+.search-navigator-facet .domain-measures-leak {
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
+  padding: 0 var(--gridSize);
+  margin-top: -1px;
+  margin-right: calc(-0.75 * var(--gridSize) - 1px);
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+.search-navigator-facet:hover .domain-measures-leak,
+.search-navigator-facet.active .domain-measures-leak {
+  height: calc(var(--controlHeight) - 2px);
+  margin-top: 0;
+  margin-right: calc(-0.75 * var(--gridSize));
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.search-navigator-facet.active .domain-measures-leak {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .domain-measures-leak-header {

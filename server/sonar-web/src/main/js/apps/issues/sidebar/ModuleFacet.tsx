@@ -27,6 +27,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -106,7 +107,7 @@ export default class ModuleFacet extends React.PureComponent<Props> {
             name={this.renderName(module)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(module))}
-            tooltip={this.props.modules.length === 1 && !this.props.modules.includes(module)}
+            tooltip={this.getModuleName(module)}
             value={module}
           />
         ))}
@@ -115,7 +116,8 @@ export default class ModuleFacet extends React.PureComponent<Props> {
   }
 
   render() {
-    const values = this.props.modules.map(module => this.getModuleName(module));
+    const { modules, stats = {} } = this.props;
+    const values = modules.map(module => this.getModuleName(module));
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -127,7 +129,12 @@ export default class ModuleFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={modules.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

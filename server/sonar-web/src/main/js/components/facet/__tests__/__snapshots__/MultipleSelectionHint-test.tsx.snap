@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render for mac 1`] = `
+<div
+  className="multiple-selection-hint"
+>
+  <div
+    className="multiple-selection-hint-inner"
+  >
+    shortcuts.section.global.facets.multiselection.mac
+  </div>
+</div>
+`;
+
+exports[`should render for windows 1`] = `
+<div
+  className="multiple-selection-hint"
+>
+  <div
+    className="multiple-selection-hint-inner"
+  >
+    shortcuts.section.global.facets.multiselection
+  </div>
+</div>
+`;

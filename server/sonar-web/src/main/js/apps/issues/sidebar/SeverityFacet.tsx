@@ -27,6 +27,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -37,6 +38,8 @@ interface Props {
   severities: string[];
   stats: { [x: string]: number } | undefined;
 }
+
+const SEVERITIES = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
 
 export default class SeverityFacet extends React.PureComponent<Props> {
   property = 'severities';
@@ -86,15 +89,15 @@ export default class SeverityFacet extends React.PureComponent<Props> {
         name={<SeverityHelper severity={severity} />}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat)}
-        tooltip={this.props.severities.length === 1 && !this.props.severities.includes(severity)}
+        tooltip={translate('severity', severity)}
         value={severity}
       />
     );
   };
 
   render() {
-    const severities = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
-    const values = this.props.severities.map(severity => translate('severity', severity));
+    const { severities, stats = {} } = this.props;
+    const values = severities.map(severity => translate('severity', severity));
 
     return (
       <FacetBox property={this.property}>
@@ -107,7 +110,12 @@ export default class SeverityFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && <FacetItemsList>{severities.map(this.renderItem)}</FacetItemsList>}
+        {this.props.open && (
+          <>
+            <FacetItemsList>{SEVERITIES.map(this.renderItem)}</FacetItemsList>
+            <MultipleSelectionHint options={Object.keys(stats).length} values={severities.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

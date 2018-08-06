@@ -27,6 +27,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import StatusHelper from '../../../components/shared/StatusHelper';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -37,6 +38,8 @@ interface Props {
   stats: { [x: string]: number } | undefined;
   statuses: string[];
 }
+
+const STATUSES = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED'];
 
 export default class StatusFacet extends React.PureComponent<Props> {
   property = 'statuses';
@@ -86,15 +89,15 @@ export default class StatusFacet extends React.PureComponent<Props> {
         name={<StatusHelper resolution={undefined} status={status} />}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat)}
-        tooltip={this.props.statuses.length === 1 && !this.props.statuses.includes(status)}
+        tooltip={translate('issue.status', status)}
         value={status}
       />
     );
   };
 
   render() {
-    const statuses = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED'];
-    const values = this.props.statuses.map(status => translate('issue.status', status));
+    const { statuses, stats = {} } = this.props;
+    const values = statuses.map(status => translate('issue.status', status));
 
     return (
       <FacetBox property={this.property}>
@@ -107,7 +110,12 @@ export default class StatusFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && <FacetItemsList>{statuses.map(this.renderItem)}</FacetItemsList>}
+        {this.props.open && (
+          <>
+            <FacetItemsList>{STATUSES.map(this.renderItem)}</FacetItemsList>
+            <MultipleSelectionHint options={Object.keys(stats).length} values={statuses.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

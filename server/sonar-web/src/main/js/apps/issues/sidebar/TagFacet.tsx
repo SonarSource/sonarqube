@@ -31,6 +31,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   component: Component | undefined;
@@ -118,7 +119,7 @@ export default class TagFacet extends React.PureComponent<Props> {
             name={this.renderTag(tag)}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(tag))}
-            tooltip={this.props.tags.length === 1 && !this.props.tags.includes(tag)}
+            tooltip={tag}
             value={tag}
           />
         ))}
@@ -135,6 +136,7 @@ export default class TagFacet extends React.PureComponent<Props> {
   }
 
   render() {
+    const { tags, stats = {} } = this.props;
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -146,8 +148,13 @@ export default class TagFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
-        {this.props.open && this.renderFooter()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            {this.renderFooter()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={tags.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

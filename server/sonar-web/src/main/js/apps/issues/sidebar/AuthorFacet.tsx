@@ -26,6 +26,7 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -90,7 +91,7 @@ export default class AuthorFacet extends React.PureComponent<Props> {
             name={author}
             onClick={this.handleItemClick}
             stat={formatFacetStat(this.getStat(author))}
-            tooltip={this.props.authors.length === 1 && !this.props.authors.includes(author)}
+            tooltip={author}
             value={author}
           />
         ))}
@@ -99,6 +100,7 @@ export default class AuthorFacet extends React.PureComponent<Props> {
   }
 
   render() {
+    const { authors, stats = {} } = this.props;
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -110,7 +112,12 @@ export default class AuthorFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && this.renderList()}
+        {this.props.open && (
+          <>
+            {this.renderList()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={authors.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

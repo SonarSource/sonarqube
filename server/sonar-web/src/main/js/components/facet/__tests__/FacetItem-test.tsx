@@ -55,6 +55,14 @@ it('should call onClick', () => {
 
 function renderFacetItem(props?: Partial<Props>) {
   return shallow(
-    <FacetItem active={false} name="foo" onClick={jest.fn()} stat={null} value="bar" {...props} />
+    <FacetItem
+      active={false}
+      name="foo"
+      onClick={jest.fn()}
+      stat={null}
+      tooltip="foo"
+      value="bar"
+      {...props}
+    />
   );
 }

@@ -27,6 +27,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -37,6 +38,8 @@ interface Props {
   stats: { [x: string]: number } | undefined;
   types: string[];
 }
+
+const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
 export default class TypeFacet extends React.PureComponent<Props> {
   property = 'types';
@@ -99,15 +102,15 @@ export default class TypeFacet extends React.PureComponent<Props> {
         }
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat)}
-        tooltip={this.props.types.length === 1 && !this.props.types.includes(type)}
+        tooltip={translate('issue.type', type)}
         value={type}
       />
     );
   };
 
   render() {
-    const types = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
-    const values = this.props.types.map(type => translate('issue.type', type));
+    const { types, stats = {} } = this.props;
+    const values = types.map(type => translate('issue.type', type));
 
     return (
       <FacetBox property={this.property}>
@@ -121,7 +124,12 @@ export default class TypeFacet extends React.PureComponent<Props> {
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && <FacetItemsList>{types.map(this.renderItem)}</FacetItemsList>}
+        {this.props.open && (
+          <>
+            <FacetItemsList>{TYPES.map(this.renderItem)}</FacetItemsList>
+            <MultipleSelectionHint options={Object.keys(stats).length} values={types.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

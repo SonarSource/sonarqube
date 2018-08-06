@@ -1,118 +1,99 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should loading stat 1`] = `
-<Tooltip
-  placement="right"
+<a
+  className="search-navigator-facet"
+  data-facet="bar"
+  href="#"
+  onClick={[Function]}
+  title="foo"
 >
-  <a
-    className="facet search-navigator-facet"
-    data-facet="bar"
-    href="#"
-    onClick={[Function]}
+  <span
+    className="facet-name"
   >
-    <span
-      className="facet-name"
-    >
-      foo
-    </span>
-  </a>
-</Tooltip>
+    foo
+  </span>
+</a>
 `;
 
 exports[`should render active 1`] = `
-<Tooltip
-  placement="right"
+<a
+  className="search-navigator-facet active"
+  data-facet="bar"
+  href="#"
+  onClick={[Function]}
+  title="foo"
 >
-  <a
-    className="facet search-navigator-facet active"
-    data-facet="bar"
-    href="#"
-    onClick={[Function]}
+  <span
+    className="facet-name"
   >
-    <span
-      className="facet-name"
-    >
-      foo
-    </span>
-  </a>
-</Tooltip>
+    foo
+  </span>
+</a>
 `;
 
 exports[`should render disabled 1`] = `
-<Tooltip
-  placement="right"
+<span
+  className="search-navigator-facet"
+  data-facet="bar"
 >
   <span
-    className="facet search-navigator-facet"
-    data-facet="bar"
+    className="facet-name"
   >
-    <span
-      className="facet-name"
-    >
-      foo
-    </span>
+    foo
   </span>
-</Tooltip>
+</span>
 `;
 
 exports[`should render half width 1`] = `
-<Tooltip
-  placement="right"
+<a
+  className="search-navigator-facet search-navigator-facet-half"
+  data-facet="bar"
+  href="#"
+  onClick={[Function]}
+  title="foo"
 >
-  <a
-    className="facet search-navigator-facet search-navigator-facet-half"
-    data-facet="bar"
-    href="#"
-    onClick={[Function]}
+  <span
+    className="facet-name"
   >
-    <span
-      className="facet-name"
-    >
-      foo
-    </span>
-  </a>
-</Tooltip>
+    foo
+  </span>
+</a>
 `;
 
 exports[`should render inactive 1`] = `
-<Tooltip
-  placement="right"
+<a
+  className="search-navigator-facet"
+  data-facet="bar"
+  href="#"
+  onClick={[Function]}
+  title="foo"
 >
-  <a
-    className="facet search-navigator-facet"
-    data-facet="bar"
-    href="#"
-    onClick={[Function]}
+  <span
+    className="facet-name"
   >
-    <span
-      className="facet-name"
-    >
-      foo
-    </span>
-  </a>
-</Tooltip>
+    foo
+  </span>
+</a>
 `;
 
 exports[`should render stat 1`] = `
-<Tooltip
-  placement="right"
+<a
+  className="search-navigator-facet"
+  data-facet="bar"
+  href="#"
+  onClick={[Function]}
+  title="foo"
 >
-  <a
-    className="facet search-navigator-facet"
-    data-facet="bar"
-    href="#"
-    onClick={[Function]}
+  <span
+    className="facet-name"
   >
-    <span
-      className="facet-name"
-    >
-      foo
-    </span>
-    <span
-      className="facet-stat"
-    >
-      13
-    </span>
-  </a>
-</Tooltip>
+    foo
+  </span>
+  <span
+    className="facet-stat"
+  >
+    13
+  </span>
+</a>
 `;

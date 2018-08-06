@@ -229,6 +229,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
           loading={this.props.loading}
           name={translate('issues.facet.createdAt.all')}
           onClick={this.handlePeriodClick}
+          tooltip={translate('issues.facet.createdAt.all')}
           value=""
         />
         {component ? (
@@ -237,6 +238,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
             loading={this.props.loading}
             name={translate('issues.new_code')}
             onClick={this.handleLeakPeriodClick}
+            tooltip={translate('issues.leak_period')}
             value=""
           />
         ) : (
@@ -246,6 +248,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
               loading={this.props.loading}
               name={translate('issues.facet.createdAt.last_week')}
               onClick={this.handlePeriodClick}
+              tooltip={translate('issues.facet.createdAt.last_week')}
               value="1w"
             />
             <FacetItem
@@ -253,6 +256,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
               loading={this.props.loading}
               name={translate('issues.facet.createdAt.last_month')}
               onClick={this.handlePeriodClick}
+              tooltip={translate('issues.facet.createdAt.last_month')}
               value="1m"
             />
             <FacetItem
@@ -260,6 +264,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
               loading={this.props.loading}
               name={translate('issues.facet.createdAt.last_year')}
               onClick={this.handlePeriodClick}
+              tooltip={translate('issues.facet.createdAt.last_year')}
               value="1y"
             />
           </>
