@@ -38,6 +38,18 @@ All communications are done over TLS 1.2:
 * Using WS APIs
 * Running analysis (by the scanners) from CI services and pushing analysis reports to SonarCloud
 
+## SonarCloud Webhook IPs
+
+SonarCloud performs webhook calls from the following list of IPs:
+```
+52.59.209.17
+52.59.246.1
+54.93.180.144
+18.194.44.125
+18.194.244.158
+18.195.64.198
+```
+
 ## Authentication
 
 Primary authentication on the system is available only through OAuth authentication with GitHub, Bitbucket Cloud and Microsoft VSTS. As a consequence, users don’t have a password on SonarCloud, and are as protected as what they expect (especially with 2FA activated on those systems). 
