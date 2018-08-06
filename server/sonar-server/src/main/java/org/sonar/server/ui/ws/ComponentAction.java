@@ -145,7 +145,9 @@ public class ComponentAction implements NavigationWsAction {
       String branch = request.param(PARAM_BRANCH);
       String pullRequest = request.param(PARAM_PULL_REQUEST);
       ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, componentKey, branch, pullRequest);
-      ComponentDto project = component.getMainBranchProjectUuid() == null ? component : componentFinder.getByUuid(session, component.getMainBranchProjectUuid());
+      ComponentDto rootProjectOrBranch = getRootProjectOrBranch(component, session);
+      ComponentDto rootProject = rootProjectOrBranch.getMainBranchProjectUuid() == null ? rootProjectOrBranch
+        : componentFinder.getByUuid(session, rootProjectOrBranch.getMainBranchProjectUuid());
       if (!userSession.hasComponentPermission(USER, component) &&
         !userSession.hasComponentPermission(ADMIN, component) &&
         !userSession.isSystemAdministrator()) {
@@ -157,9 +159,9 @@ public class ComponentAction implements NavigationWsAction {
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       writeComponent(json, session, component, org, analysis.orElse(null));
-      writeAlmDetails(json, session, component);
+      writeAlmDetails(json, session, rootProject);
       writeProfiles(json, session, component);
-      writeQualityGate(json, session, org, project);
+      writeQualityGate(json, session, org, rootProject);
       if (userSession.hasComponentPermission(ADMIN, component) ||
         userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
@@ -167,6 +169,14 @@ public class ComponentAction implements NavigationWsAction {
       }
       writeBreadCrumbs(json, session, component);
       json.endObject().close();
+    }
+  }
+
+  private ComponentDto getRootProjectOrBranch(ComponentDto component, DbSession session) {
+    if (!component.isRootProject()) {
+      return dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
+    } else {
+      return component;
     }
   }
 

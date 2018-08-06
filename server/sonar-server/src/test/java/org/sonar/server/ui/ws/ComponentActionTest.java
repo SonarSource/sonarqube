@@ -35,6 +35,7 @@ import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.Page.Qualifier;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
@@ -55,7 +56,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -589,14 +589,42 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void return_component_alm_info() {
+  public void return_alm_info_on_project() {
     ComponentDto project = insertOrganizationAndProject();
     dbClient.projectAlmBindingsDao().insertOrUpdate(db.getSession(), ALM.BITBUCKETCLOUD, "{123456789}", project.uuid(), null, "http://bitbucket.org/foo/bar");
     db.getSession().commit();
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_component_info_with_alm.json");
+    executeAndVerify(project.getDbKey(), "return_alm_infos_on_project.json");
+  }
+
+  @Test
+  public void return_alm_info_on_module() {
+    ComponentDto project = insertOrganizationAndProject();
+    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
+    dbClient.projectAlmBindingsDao().insertOrUpdate(db.getSession(), ALM.BITBUCKETCLOUD, "{123456789}", project.uuid(), null, "http://bitbucket.org/foo/bar");
+    db.getSession().commit();
+    userSession.addProjectPermission(UserRole.USER, project);
+    init();
+
+    executeAndVerify(module.getDbKey(), "return_alm_infos_on_module.json");
+  }
+
+  @Test
+  public void return_alm_info_on_branch() {
+    ComponentDto project = insertOrganizationAndProject();
+    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1").setUuid("xyz"));
+    dbClient.projectAlmBindingsDao().insertOrUpdate(db.getSession(), ALM.BITBUCKETCLOUD, "{123456789}", project.uuid(), null, "http://bitbucket.org/foo/bar");
+    db.getSession().commit();
+    userSession.addProjectPermission(UserRole.USER, project);
+    init();
+
+    verify(ws.newRequest()
+      .setParam("componentKey", project.getDbKey())
+      .setParam("branch", branch.getBranch())
+      .execute()
+      .getInput(), "return_alm_infos_on_branch.json");
   }
 
   private ComponentDto insertOrganizationAndProject() {

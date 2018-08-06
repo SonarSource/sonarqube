@@ -1,0 +1,8 @@
+{
+  "organization": "my-org",
+  "key": "palap",
+  "id": "bcde",
+  "name": "Palap",
+  "almId": "bitbucketcloud",
+  "almRepoUrl": "http://bitbucket.org/foo/bar"
+}
