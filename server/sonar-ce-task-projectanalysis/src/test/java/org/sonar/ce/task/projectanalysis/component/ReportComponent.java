@@ -195,7 +195,7 @@ public class ReportComponent implements Component {
     private final List<Component> children = new ArrayList<>();
 
     private Builder(Type type, int ref) {
-      checkArgument(type.isReportType(), "Component type must not be a report type");
+      checkArgument(type.isReportType(), "Component type must be a report type");
       this.type = type;
       this.ref = ref;
     }
