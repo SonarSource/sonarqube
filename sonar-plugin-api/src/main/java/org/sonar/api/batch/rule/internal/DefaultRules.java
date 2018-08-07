@@ -25,7 +25,6 @@ import com.google.common.collect.HashBasedTable;
 import org.sonar.api.batch.rule.Rule;
 import com.google.common.collect.Table;
 import com.google.common.collect.ImmutableListMultimap;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 
@@ -33,24 +32,30 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Immutable
 class DefaultRules implements Rules {
   private final ImmutableListMultimap<String, Rule> rulesByRepository;
   private final ImmutableTable<String, String, List<Rule>> rulesByRepositoryAndInternalKey;
+  private final Map<RuleKey, Rule> rulesByRuleKey;
 
   DefaultRules(Collection<NewRule> newRules) {
+    Map<RuleKey, Rule> rulesByRuleKeyBuilder = new HashMap<>();
     ImmutableListMultimap.Builder<String, Rule> builder = ImmutableListMultimap.builder();
     Table<String, String, List<Rule>> tableBuilder = HashBasedTable.create();
 
     for (NewRule newRule : newRules) {
       DefaultRule r = new DefaultRule(newRule);
+      rulesByRuleKeyBuilder.put(r.key(), r);
       builder.put(r.key().repository(), r);
       addToTable(tableBuilder, r);
     }
 
+    rulesByRuleKey = Collections.unmodifiableMap(rulesByRuleKeyBuilder);
     rulesByRepository = builder.build();
     rulesByRepositoryAndInternalKey = ImmutableTable.copyOf(tableBuilder);
   }
@@ -72,13 +77,7 @@ class DefaultRules implements Rules {
 
   @Override
   public Rule find(RuleKey ruleKey) {
-    List<Rule> rules = rulesByRepository.get(ruleKey.repository());
-    for (Rule rule : rules) {
-      if (StringUtils.equals(rule.key().rule(), ruleKey.rule())) {
-        return rule;
-      }
-    }
-    return null;
+    return rulesByRuleKey.get(ruleKey);
   }
 
   @Override
