@@ -59,7 +59,7 @@ export default function ProfileRulesRowTotal(props: Props) {
       <td className="thin nowrap text-right">
         {inactiveCount != null &&
           (inactiveCount > 0 ? (
-            <Link to={inactiveRulesUrl} className="small text-muted">
+            <Link className="small text-muted" to={inactiveRulesUrl}>
               <strong>{formatMeasure(inactiveCount, 'SHORT_INT', null)}</strong>
             </Link>
           ) : (

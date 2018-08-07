@@ -80,8 +80,8 @@ export default class ProfilesList extends React.PureComponent<Props> {
 
   renderLanguage = (languageKey: string, profiles: Profile[] | undefined) => {
     return (
-      <div key={languageKey} className="boxed-group boxed-group-inner quality-profiles-table">
-        <table data-language={languageKey} className="data zebra zebra-hover">
+      <div className="boxed-group boxed-group-inner quality-profiles-table" key={languageKey}>
+        <table className="data zebra zebra-hover" data-language={languageKey}>
           {profiles !== undefined && this.renderHeader(languageKey, profiles.length)}
           <tbody>{profiles !== undefined && this.renderProfiles(profiles)}</tbody>
         </table>

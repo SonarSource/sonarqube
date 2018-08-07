@@ -28,8 +28,8 @@ it('should render correctly', () => {
         language="Java"
         organization="foo"
         profile="bar"
-        sonarway="baz"
         sonarWayMissingRules={158}
+        sonarway="baz"
       />
     )
   ).toMatchSnapshot();

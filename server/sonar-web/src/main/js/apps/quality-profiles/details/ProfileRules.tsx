@@ -173,8 +173,8 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
               />
               {TYPES.map(type => (
                 <ProfileRulesRowOfType
-                  key={type}
                   count={this.getRulesCountForType(type)}
+                  key={type}
                   organization={organization}
                   qprofile={profile.key}
                   total={this.getRulesTotalForType(type)}
@@ -188,7 +188,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             profile.actions.edit &&
             !profile.isBuiltIn && (
               <div className="text-right big-spacer-top">
-                <Link to={activateMoreUrl} className="button js-activate-rules">
+                <Link className="button js-activate-rules" to={activateMoreUrl}>
                   {translate('quality_profiles.activate_more')}
                 </Link>
               </div>
@@ -207,8 +207,8 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
               language={profile.language}
               organization={organization}
               profile={profile.key}
-              sonarway={compareToSonarWay.profile}
               sonarWayMissingRules={compareToSonarWay.missingRuleCount}
+              sonarway={compareToSonarWay.profile}
             />
           )}
       </div>

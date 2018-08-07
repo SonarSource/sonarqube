@@ -54,7 +54,7 @@ export default function EvolutionDeprecated(props: Props) {
       </div>
       <ul>
         {sortedProfiles.map(profile => (
-          <li key={profile.key} className="spacer-top">
+          <li className="spacer-top" key={profile.key}>
             <div className="text-ellipsis">
               <ProfileLink
                 className="link-no-underline"
@@ -68,8 +68,8 @@ export default function EvolutionDeprecated(props: Props) {
               {profile.languageName}
               {', '}
               <Link
-                to={getDeprecatedActiveRulesUrl({ qprofile: profile.key }, props.organization)}
-                className="text-muted">
+                className="text-muted"
+                to={getDeprecatedActiveRulesUrl({ qprofile: profile.key }, props.organization)}>
                 {translateWithParameters(
                   'quality_profile.x_rules',
                   profile.activeDeprecatedRuleCount

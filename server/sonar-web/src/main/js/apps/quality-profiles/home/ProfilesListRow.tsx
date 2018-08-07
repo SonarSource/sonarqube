@@ -96,7 +96,7 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
         {profile.activeDeprecatedRuleCount > 0 && (
           <span className="spacer-right">
             <Tooltip overlay={translate('quality_profiles.deprecated_rules')}>
-              <Link to={deprecatedRulesUrl} className="badge badge-normal-size badge-danger-light">
+              <Link className="badge badge-normal-size badge-danger-light" to={deprecatedRulesUrl}>
                 {profile.activeDeprecatedRuleCount}
               </Link>
             </Tooltip>
@@ -109,7 +109,7 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
   }
 
   renderUpdateDate() {
-    const date = <ProfileDate date={this.props.profile.userUpdatedAt} />;
+    const date = <ProfileDate date={this.props.profile.rulesUpdatedAt} />;
     if (isStagnant(this.props.profile)) {
       return <span className="badge badge-normal-size badge-focus">{date}</span>;
     } else {

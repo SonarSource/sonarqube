@@ -30,9 +30,7 @@ interface Props {
 }
 
 export default function EvolutionStagnant(props: Props) {
-  // TODO filter built-in out
-
-  const outdated = props.profiles.filter(isStagnant);
+  const outdated = props.profiles.filter(profile => !profile.isBuiltIn && isStagnant(profile));
 
   if (outdated.length === 0) {
     return null;
@@ -48,7 +46,7 @@ export default function EvolutionStagnant(props: Props) {
       </div>
       <ul>
         {outdated.map(profile => (
-          <li key={profile.key} className="spacer-top">
+          <li className="spacer-top" key={profile.key}>
             <div className="text-ellipsis">
               <ProfileLink
                 className="link-no-underline"

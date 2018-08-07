@@ -95,14 +95,14 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
         autoFocus={true}
         className="Select-big"
         clearable={false}
-        isLoading={this.state.loading}
         // disable default react-select filtering
         filterOptions={identity}
+        isLoading={this.state.loading}
         noResultsText={noResultsText}
-        optionRenderer={optionRenderer}
-        options={options}
         onChange={this.props.onChange}
         onInputChange={this.handleInputChange}
+        optionRenderer={optionRenderer}
+        options={options}
         placeholder=""
         searchable={true}
         value={this.props.selected && getStringValue(this.props.selected)}

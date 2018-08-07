@@ -50,7 +50,7 @@ export default function ProfileRulesRowOfType(props: Props) {
     <tr>
       <td>
         <span>
-          <IssueTypeIcon query={props.type} className="little-spacer-right" />
+          <IssueTypeIcon className="little-spacer-right" query={props.type} />
           {translate('issue.type', props.type, 'plural')}
         </span>
       </td>
@@ -62,7 +62,7 @@ export default function ProfileRulesRowOfType(props: Props) {
       <td className="thin nowrap text-right">
         {inactiveCount != null &&
           (inactiveCount > 0 ? (
-            <Link to={inactiveRulesUrl} className="small text-muted">
+            <Link className="small text-muted" to={inactiveRulesUrl}>
               {formatMeasure(inactiveCount, 'SHORT_INT', null)}
             </Link>
           ) : (

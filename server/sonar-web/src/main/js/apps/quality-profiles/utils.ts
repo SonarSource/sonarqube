@@ -67,8 +67,8 @@ export function createFakeProfile(overrides?: any) {
 }
 
 export function isStagnant(profile: Profile): boolean {
-  if (profile.userUpdatedAt) {
-    const updateDate = parseDate(profile.userUpdatedAt);
+  if (profile.rulesUpdatedAt) {
+    const updateDate = parseDate(profile.rulesUpdatedAt);
     if (isValidDate(updateDate)) {
       return differenceInYears(new Date(), updateDate) >= 1;
     }
