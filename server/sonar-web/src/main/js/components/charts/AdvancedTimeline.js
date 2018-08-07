@@ -352,7 +352,7 @@ export default class AdvancedTimeline extends React.PureComponent {
           const nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
           const x = (xScale(tick) + xScale(nextTick)) / 2;
           return (
-            <text key={index} className="line-chart-tick" x={x} y={y} dy="1.5em">
+            <text className="line-chart-tick" dy="1.5em" key={index} x={x} y={y}>
               {format(tick)}
             </text>
           );
@@ -371,11 +371,11 @@ export default class AdvancedTimeline extends React.PureComponent {
     return (
       <rect
         className="leak-chart-rect"
+        fill={theme.leakColor}
+        height={yRange[0] - yRange[yRange.length - 1]}
+        width={leakWidth}
         x={this.state.xScale(this.props.leakPeriodDate)}
         y={yRange[yRange.length - 1]}
-        width={leakWidth}
-        height={yRange[0] - yRange[yRange.length - 1]}
-        fill={theme.leakColor}
       />
     );
   };
@@ -392,11 +392,43 @@ export default class AdvancedTimeline extends React.PureComponent {
       <g>
         {this.props.series.map((serie, idx) => (
           <path
-            key={serie.name}
             className={classNames('line-chart-path', 'line-chart-path-' + idx)}
             d={lineGenerator(serie.data)}
+            key={serie.name}
           />
         ))}
+      </g>
+    );
+  };
+
+  renderDots = () => {
+    return (
+      <g>
+        {this.props.series
+          .map((serie, serieIdx) =>
+            serie.data
+              .map((point, idx) => {
+                const pointNotDefined = !point.y && point.y !== 0;
+                const hasPointBefore =
+                  serie.data[idx - 1] && (serie.data[idx - 1].y || serie.data[idx - 1].y === 0);
+                const hasPointAfter =
+                  serie.data[idx + 1] && (serie.data[idx + 1].y || serie.data[idx + 1].y === 0);
+                if (pointNotDefined || (hasPointBefore || hasPointAfter)) {
+                  return undefined;
+                }
+                return (
+                  <circle
+                    className={classNames('line-chart-dot', 'line-chart-dot-' + serieIdx)}
+                    cx={this.state.xScale(point.x)}
+                    cy={this.state.yScale(point.y)}
+                    key={serie.name + idx}
+                    r="2"
+                  />
+                );
+              })
+              .filter(Boolean)
+          )
+          .filter(dots => dots.length > 0)}
       </g>
     );
   };
@@ -414,9 +446,9 @@ export default class AdvancedTimeline extends React.PureComponent {
       <g>
         {this.props.series.map((serie, idx) => (
           <path
-            key={serie.name}
             className={classNames('line-chart-area', 'line-chart-area-' + idx)}
             d={areaGenerator(serie.data)}
+            key={serie.name}
           />
         ))}
       </g>
@@ -437,8 +469,8 @@ export default class AdvancedTimeline extends React.PureComponent {
       <g>
         {inRangeEvents.map((event, idx) => (
           <path
-            d={this.getEventMarker(eventSize)}
             className={classNames('line-chart-event', event.className)}
+            d={this.getEventMarker(eventSize)}
             key={`${idx}-${event.date.getTime()}`}
             transform={`translate(${xScale(event.date) - offset}, ${yScale.range()[0] + offset})`}
           />
@@ -470,11 +502,11 @@ export default class AdvancedTimeline extends React.PureComponent {
           }
           return (
             <circle
-              key={serie.name}
+              className={classNames('line-chart-dot', 'line-chart-dot-' + idx)}
               cx={selectedDateXPos}
               cy={yScale(point.y)}
+              key={serie.name}
               r="4"
-              className={classNames('line-chart-dot', 'line-chart-dot-' + idx)}
             />
           );
         })}
@@ -487,9 +519,9 @@ export default class AdvancedTimeline extends React.PureComponent {
       <defs>
         <clipPath id="chart-clip">
           <rect
-            width={this.state.xScale.range()[1]}
             height={this.state.yScale.range()[0] + 10}
             transform="translate(0,-5)"
+            width={this.state.xScale.range()[1]}
           />
         </clipPath>
       </defs>
@@ -512,8 +544,8 @@ export default class AdvancedTimeline extends React.PureComponent {
     return (
       <rect
         className="chart-mouse-events-overlay"
-        width={this.state.xScale.range()[1]}
         height={this.state.yScale.range()[0]}
+        width={this.state.xScale.range()[1]}
         {...mouseEvents}
       />
     );
@@ -528,8 +560,8 @@ export default class AdvancedTimeline extends React.PureComponent {
     return (
       <svg
         className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
-        width={this.props.width}
-        height={this.props.height}>
+        height={this.props.height}
+        width={this.props.width}>
         {zoomEnabled && this.renderClipPath()}
         <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
           {this.props.leakPeriodDate != null && this.renderLeak()}
@@ -537,6 +569,7 @@ export default class AdvancedTimeline extends React.PureComponent {
           {!this.props.hideXAxis && this.renderXAxisTicks()}
           {this.props.showAreas && this.renderAreas()}
           {this.renderLines()}
+          {this.renderDots()}
           {this.props.showEventMarkers && this.renderEvents()}
           {this.renderSelectedDate()}
           {this.renderMouseEventsOverlay(zoomEnabled)}
