@@ -18,37 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { shallow } from 'enzyme';
+import Unauthorized from '../Unauthorized';
 
-interface Props {
-  location: {
-    query: {
-      message: string;
-    };
-  };
-}
-
-export default function Unauthorized(props: Props) {
-  const { message } = props.location.query;
-
-  return (
-    <div className="page-wrapper-simple" id="bd">
-      <div className="page-simple" id="nonav">
-        <div className="text-center">
-          <p id="unauthorized">{translate('unauthorized.message')}</p>
-
-          {Boolean(message) && (
-            <p className="spacer-top">
-              {translate('unauthorized.reason')} {message}
-            </p>
-          )}
-
-          <div className="big-spacer-top">
-            <a href={getBaseUrl() + '/'}>{translate('layout.home')}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+it('render', () => {
+  expect(shallow(<Unauthorized location={{ query: { message: 'Foo' } }} />)).toMatchSnapshot();
+});

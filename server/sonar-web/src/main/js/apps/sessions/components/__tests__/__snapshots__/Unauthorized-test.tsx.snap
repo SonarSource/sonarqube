@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render 1`] = `
+<div
+  className="page-wrapper-simple"
+  id="bd"
+>
+  <div
+    className="page-simple"
+    id="nonav"
+  >
+    <div
+      className="text-center"
+    >
+      <p
+        id="unauthorized"
+      >
+        unauthorized.message
+      </p>
+      <p
+        className="spacer-top"
+      >
+        unauthorized.reason
+         
+        Foo
+      </p>
+      <div
+        className="big-spacer-top"
+      >
+        <a
+          href="/"
+        >
+          layout.home
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+`;
