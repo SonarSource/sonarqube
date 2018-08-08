@@ -72,7 +72,7 @@ export interface Component extends LightComponent {
   name: string;
   path?: string;
   refKey?: string;
-  qualityProfiles?: { key: string; language: string; name: string }[];
+  qualityProfiles?: ComponentQualityProfile[];
   qualityGate?: { isDefault?: boolean; key: string; name: string };
   tags?: string[];
   version?: string;
@@ -90,6 +90,13 @@ interface ComponentConfiguration {
   showPermissions?: boolean;
   showSettings?: boolean;
   showUpdateKey?: boolean;
+}
+
+export interface ComponentQualityProfile {
+  deleted?: boolean;
+  key: string;
+  language: string;
+  name: string;
 }
 
 export interface Condition {

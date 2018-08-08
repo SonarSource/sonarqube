@@ -26,6 +26,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
 import { getLanguages } from '../../../store/rootReducer';
+import { ComponentQualityProfile } from '../../../app/types';
 
 interface StateProps {
   languages: { [key: string]: { name: string } };
@@ -34,7 +35,7 @@ interface StateProps {
 interface OwnProps {
   headerClassName?: string;
   organization?: string;
-  profiles: { key: string; language: string; name: string }[];
+  profiles: ComponentQualityProfile[];
 }
 
 interface State {
@@ -55,9 +56,9 @@ class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, Sta
   }
 
   loadDeprecatedRules() {
-    const requests = this.props.profiles.map(profile =>
-      this.loadDeprecatedRulesForProfile(profile.key)
-    );
+    const requests = this.props.profiles
+      .filter(p => !p.deleted)
+      .map(profile => this.loadDeprecatedRulesForProfile(profile.key));
     Promise.all(requests).then(
       responses => {
         if (this.mounted) {
@@ -89,18 +90,31 @@ class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, Sta
     return count || 0;
   }
 
-  renderProfile(profile: { key: string; language: string; name: string }) {
+  renderProfile(profile: ComponentQualityProfile) {
     const languageFromStore = this.props.languages[profile.language];
     const languageName = languageFromStore ? languageFromStore.name : profile.language;
-
-    const path = getQualityProfileUrl(profile.name, profile.language, this.props.organization);
 
     const inner = (
       <div className="text-ellipsis">
         <span className="note spacer-right">{'(' + languageName + ')'}</span>
-        <Link to={path}>{profile.name}</Link>
+        {profile.deleted ? (
+          profile.name
+        ) : (
+          <Link to={getQualityProfileUrl(profile.name, profile.language, this.props.organization)}>
+            {profile.name}
+          </Link>
+        )}
       </div>
     );
+
+    if (profile.deleted) {
+      const tooltip = translateWithParameters('overview.deleted_profile', profile.name);
+      return (
+        <Tooltip key={profile.key} overlay={tooltip}>
+          <li className="overview-deleted-profile">{inner}</li>
+        </Tooltip>
+      );
+    }
 
     const count = this.getDeprecatedRulesCount(profile);
 
