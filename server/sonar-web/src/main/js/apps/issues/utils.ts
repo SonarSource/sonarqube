@@ -158,6 +158,10 @@ export function mapFacet(facet: string) {
 }
 
 export function parseFacets(facets: RawFacet[]) {
+  if (!facets) {
+    return {};
+  }
+
   // for readability purpose
   const propertyMapping: { [x: string]: string } = {
     fileUuids: 'files',

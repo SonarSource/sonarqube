@@ -39,6 +39,7 @@ public class DbVersion73 implements DbVersion {
       .add(2209, "Fix missing quality profiles on organizations", FixMissingQualityProfilesOnOrganizations.class)
       .add(2210, "Add 'securityhotspotadmin' permission to templates characteristics already having 'issueadmin'", PopulateHotspotAdminPermissionOnTemplatesCharacteristics.class)
       .add(2211, "Set SUBSCRIPTION not nullable in ORGANIZATIONS", SetSubscriptionOnOrganizationsNotNullable.class)
+      .add(2212, "Add index on ORGANIZATION_MEMBERS", AddIndexOnOrganizationMembers.class)
     ;
   }
 }

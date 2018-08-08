@@ -65,7 +65,7 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   }
 
   @Override
-  public boolean hasMembershipImpl(OrganizationDto organization) {
+  public boolean hasMembershipImpl(OrganizationDto organizationDto) {
     return false;
   }
 }

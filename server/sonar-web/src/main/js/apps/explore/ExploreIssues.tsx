@@ -26,5 +26,5 @@ interface Props {
 }
 
 export default function ExploreIssues(props: Props) {
-  return <AppContainer myIssues={false} {...props} />;
+  return <AppContainer hideAuthorFacet={true} myIssues={false} {...props} />;
 }

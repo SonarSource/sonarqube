@@ -166,8 +166,8 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasMembership(OrganizationDto organization) {
-    return get().hasMembership(organization);
+  public boolean hasMembership(OrganizationDto organizationDto) {
+    return get().hasMembership(organizationDto);
   }
 
   @Override

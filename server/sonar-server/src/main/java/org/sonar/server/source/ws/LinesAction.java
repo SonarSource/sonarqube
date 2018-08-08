@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -138,17 +139,22 @@ public class LinesAction implements SourcesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = loadComponent(dbSession, request);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
-
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 
       Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getDbKey());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        writeSource(lines, json);
+        writeSource(lines, json, isMemberOfOrganization(dbSession, file));
         json.endObject();
       }
     }
+  }
+
+  private boolean isMemberOfOrganization(DbSession dbSession, ComponentDto file) {
+    OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(dbSession, file.getOrganizationUuid())
+      .orElseThrow(() -> new IllegalStateException(String.format("Organization with uuid '%s' not found", file.getOrganizationUuid())));
+    return !userSession.hasMembership(organizationDto);
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
@@ -166,14 +172,16 @@ public class LinesAction implements SourcesWsAction {
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
-  private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json) {
+  private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json, boolean filterScmAuthors) {
     json.name("sources").beginArray();
     for (DbFileSources.Line line : lines) {
       json.beginObject()
         .prop("line", line.getLine())
         .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols()))
-        .prop("scmAuthor", line.getScmAuthor())
         .prop("scmRevision", line.getScmRevision());
+      if (!filterScmAuthors) {
+        json.prop("scmAuthor", line.getScmAuthor());
+      }
       if (line.hasScmDate()) {
         json.prop("scmDate", DateUtils.formatDateTime(new Date(line.getScmDate())));
       }

@@ -57,6 +57,7 @@ public class SearchResponseData {
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, Transition> transitionsByIssueKey = ArrayListMultimap.create();
   private final Set<String> updatableComments = new HashSet<>();
+  private final Set<String> userOrganizationUuids = new HashSet<>();
 
   public SearchResponseData(IssueDto issue) {
     checkNotNull(issue);
@@ -171,6 +172,14 @@ public class SearchResponseData {
 
   public void addOrganization(OrganizationDto organizationDto) {
     this.organizationKeysByUuid.put(organizationDto.getUuid(), organizationDto.getKey());
+  }
+
+  public void setUserOrganizationUuids(Set<String> organizationUuids) {
+    this.userOrganizationUuids.addAll(organizationUuids);
+  }
+
+  public Set<String> getUserOrganizationUuids() {
+    return this.userOrganizationUuids;
   }
 
   @CheckForNull

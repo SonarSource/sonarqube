@@ -47,6 +47,11 @@ public class SafeModeUserSession extends AbstractUserSession {
     return false;
   }
 
+  @Override
+  protected boolean hasMembershipImpl(OrganizationDto organizationDto) {
+    return false;
+  }
+
   @CheckForNull
   @Override
   public String getLogin() {
@@ -88,11 +93,6 @@ public class SafeModeUserSession extends AbstractUserSession {
 
   @Override
   public boolean isSystemAdministrator() {
-    return false;
-  }
-
-  @Override
-  public boolean hasMembershipImpl(OrganizationDto organization) {
     return false;
   }
 }

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { SourceLine } from '../../../app/types';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import DateFormatter from '../../intl/DateFormatter';
@@ -28,12 +29,13 @@ interface Props {
 }
 
 export default function SCMPopup({ line }: Props) {
+  const hasAuthor = line.scmAuthor !== '';
   return (
     <DropdownOverlay placement={PopupPlacement.RightTop}>
       <div className="source-viewer-bubble-popup abs-width-400">
-        <div>{line.scmAuthor}</div>
+        {hasAuthor && <div>{line.scmAuthor}</div>}
         {line.scmDate && (
-          <div className="spacer-top">
+          <div className={classNames({ 'spacer-top': hasAuthor })}>
             <DateFormatter date={line.scmDate} />
           </div>
         )}

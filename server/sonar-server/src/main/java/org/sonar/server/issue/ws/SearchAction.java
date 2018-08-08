@@ -30,12 +30,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -52,14 +54,15 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.issue.index.IssueQuery;
-import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueQuery;
+import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
@@ -74,12 +77,13 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_RISKY_RESOURCE;
-import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.UNKNOWN_STANDARD;
+import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
 import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -149,10 +153,11 @@ public class SearchAction implements IssuesWsAction {
   private final SearchResponseFormat searchResponseFormat;
   private final System2 system2;
   private final DbClient dbClient;
+  private final boolean isOnSonarCloud;
 
-  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
-    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2,
-    DbClient dbClient) {
+  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory, SearchResponseLoader searchResponseLoader,
+    SearchResponseFormat searchResponseFormat, Configuration config, System2 system2, DbClient dbClient) {
+    this.isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -376,10 +381,9 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private List<String> getLogins(Request request) {
-
     List<String> assigneeLogins = request.paramAsStrings(PARAM_ASSIGNEES);
-
     List<String> onlyLogins = new ArrayList<>();
+
     for (String login : ofNullable(assigneeLogins).orElse(emptyList())) {
       if (LOGIN_MYSELF.equals(login)) {
         if (userSession.getLogin() == null) {
@@ -433,13 +437,18 @@ public class SearchAction implements IssuesWsAction {
         .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
         .collect(toSet());
       checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
-        (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
+          (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
         COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
     }
     SearchResponseData preloadedData = new SearchResponseData(emptyList());
     preloadedData.setRules(ImmutableList.copyOf(query.rules()));
     SearchResponseData data = searchResponseLoader.load(preloadedData, collector, facets);
 
+    if (userSession.isLoggedIn()) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        data.setUserOrganizationUuids(dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, userSession.getUserId()));
+      }
+    }
     // format response
 
     // Filter and reorder facets according to the requested ordered names.
@@ -536,10 +545,36 @@ public class SearchAction implements IssuesWsAction {
     }
   }
 
-  private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
+  private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
-    options.addFacets(request.getFacets());
+
+    List<String> facets = request.getFacets();
+
+    if (facets == null || facets.isEmpty()) {
+      return options;
+    }
+
+    List<String> requestedFacets = new ArrayList<>(facets.size());
+    requestedFacets.addAll(facets);
+
+    if (isOnSonarCloud) {
+      Optional<OrganizationDto> organizationDto = Optional.empty();
+      String organizationKey = request.getOrganization();
+      if (organizationKey != null) {
+        try (DbSession dbSession = dbClient.openSession(false)) {
+          organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+        }
+      }
+
+      if (!organizationDto.isPresent() || !userSession.hasMembership(organizationDto.get())) {
+        // In order to display the authors facet, the organization parameter must be set and the user
+        // must be member of this organization
+        requestedFacets.remove(PARAM_AUTHORS);
+      }
+    }
+
+    options.addFacets(requestedFacets);
 
     return options;
   }

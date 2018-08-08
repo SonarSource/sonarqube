@@ -110,8 +110,8 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   @Override
-  protected boolean hasMembershipImpl(OrganizationDto organization) {
-    return organizationMembership.contains(organization.getUuid());
+  protected boolean hasMembershipImpl(OrganizationDto organizationDto) {
+    return organizationMembership.contains(organizationDto.getUuid());
   }
 
   public void addOrganizationMembership(OrganizationDto organization) {

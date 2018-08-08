@@ -18,6 +18,7 @@ exports[`does not render scm details 1`] = `
             "line": 3,
             "scmAuthor": "foo",
             "scmDate": "2017-01-01",
+            "scmRevision": "foo",
           }
         }
       />
@@ -75,6 +76,7 @@ exports[`render scm details for the first line 1`] = `
             "line": 3,
             "scmAuthor": "foo",
             "scmDate": "2017-01-01",
+            "scmRevision": "foo",
           }
         }
       />
@@ -83,6 +85,37 @@ exports[`render scm details for the first line 1`] = `
     <div
       className="source-line-scm-inner"
       data-author="foo"
+    />
+  </Toggler>
+</td>
+`;
+
+exports[`renders ellipsis when no author info 1`] = `
+<td
+  className="source-meta source-line-scm"
+  data-line-number={3}
+  onClick={[Function]}
+  role="button"
+  tabIndex={0}
+>
+  <Toggler
+    onRequestClose={[Function]}
+    open={false}
+    overlay={
+      <SCMPopup
+        line={
+          Object {
+            "line": 3,
+            "scmDate": "2017-01-01",
+            "scmRevision": "foo",
+          }
+        }
+      />
+    }
+  >
+    <div
+      className="source-line-scm-inner"
+      data-author="…"
     />
   </Toggler>
 </td>

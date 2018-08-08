@@ -228,18 +228,18 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public boolean hasMembershipImpl(OrganizationDto organization) {
-    return isMember(organization);
+  public boolean hasMembershipImpl(OrganizationDto organizationDto) {
+    return isMember(organizationDto.getUuid());
   }
 
-  private boolean isMember(OrganizationDto organization) {
+  private boolean isMember(String organizationUuid) {
     if (!isLoggedIn()) {
       return false;
     }
     if (isRoot()) {
       return true;
     }
-    String organizationUuid = organization.getUuid();
+
     if (organizationMembership.contains(organizationUuid)) {
       return true;
     }

@@ -46,6 +46,7 @@ import { Component } from '../../../app/types';
 export interface Props {
   component: Component | undefined;
   facets: { [facet: string]: Facet };
+  hideAuthorFacet?: boolean;
   loading?: boolean;
   loadingFacets: { [key: string]: boolean };
   myIssues: boolean;
@@ -62,14 +63,14 @@ export interface Props {
 
 export default class Sidebar extends React.PureComponent<Props> {
   render() {
-    const { component, facets, openFacets, query } = this.props;
+    const { component, facets, hideAuthorFacet, openFacets, query } = this.props;
 
     const displayProjectsFacet =
       !component || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
     const displayModulesFacet = component !== undefined && component.qualifier !== 'DIR';
     const displayDirectoriesFacet = component !== undefined && component.qualifier !== 'DIR';
     const displayFilesFacet = component !== undefined;
-    const displayAuthorFacet = !component || component.qualifier !== 'DEV';
+    const displayAuthorFacet = !hideAuthorFacet && (!component || component.qualifier !== 'DEV');
 
     const organizationKey =
       (component && component.organization) ||

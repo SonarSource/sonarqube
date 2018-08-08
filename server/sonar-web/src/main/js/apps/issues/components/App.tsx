@@ -52,7 +52,14 @@ import {
   serializeQuery,
   STANDARDS
 } from '../utils';
-import { Component, CurrentUser, Issue, Paging, BranchLike } from '../../../app/types';
+import {
+  Component,
+  CurrentUser,
+  Issue,
+  Paging,
+  BranchLike,
+  Organization
+} from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import Dropdown from '../../../components/controls/Dropdown';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -92,10 +99,12 @@ interface Props {
   component?: Component;
   currentUser: CurrentUser;
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
+  hideAuthorFacet?: boolean;
   location: { pathname: string; query: RawQuery };
   myIssues?: boolean;
   onBranchesChange: () => void;
   organization?: { key: string };
+  userOrganizations: Organization[];
 }
 
 export interface State {
@@ -407,7 +416,7 @@ export default class App extends React.PureComponent<Props, State> {
     requestFacets = false,
     requestOrganizations = true
   ): Promise<FetchIssuesPromise> => {
-    const { component, organization } = this.props;
+    const { component } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
     const facets = requestFacets
@@ -418,13 +427,17 @@ export default class App extends React.PureComponent<Props, State> {
           .join(',')
       : undefined;
 
+    const organizationKey =
+      (component && component.organization) ||
+      (this.props.organization && this.props.organization.key);
+
     const parameters = {
       ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
       s: 'FILE_LINE',
       ...serializeQuery(query),
       ps: '100',
-      organization: organization && organization.key,
+      organization: organizationKey,
       facets,
       ...additional
     };
@@ -860,8 +873,20 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderFacets() {
-    const { component, currentUser } = this.props;
+    const { component, currentUser, userOrganizations } = this.props;
     const { query } = this.state;
+
+    const organizationKey =
+      (component && component.organization) ||
+      (this.props.organization && this.props.organization.key);
+
+    const userOrganization =
+      !isSonarCloud() ||
+      userOrganizations.find(o => {
+        return o.key === organizationKey;
+      });
+    const hideAuthorFacet =
+      this.props.hideAuthorFacet || (isSonarCloud() && this.props.myIssues) || !userOrganization;
 
     return (
       <div className="layout-page-filters">
@@ -876,6 +901,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Sidebar
           component={component}
           facets={this.state.facets}
+          hideAuthorFacet={hideAuthorFacet}
           loading={this.state.loading}
           loadingFacets={this.state.loadingFacets}
           myIssues={this.state.myIssues}

@@ -19,22 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v73;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion73Test {
-
-  private DbVersion73 underTest = new DbVersion73();
-
-  @Test
-  public void migrationNumber_starts_at_2200() {
-    verifyMinimumMigrationNumber(underTest, 2200);
+@SupportsBlueGreen
+public class AddIndexOnOrganizationMembers extends DdlChange {
+  public AddIndexOnOrganizationMembers(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(
+      new CreateIndexBuilder(getDialect())
+        .setTable("organization_members")
+        .setName("ix_org_members_on_user_id")
+        .addColumn(IntegerColumnDef.newIntegerColumnDefBuilder()
+          .setColumnName("user_id")
+          .setIsNullable(false)
+          .build())
+        .build());
   }
 }

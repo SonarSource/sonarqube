@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -98,28 +99,28 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 
 public class SearchActionTest {
 
-  @Rule
-  public UserSessionRule userSessionRule = standalone();
-  @Rule
-  public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
-  @Rule
-  public ExpectedException expectedException = none();
+    @Rule
+    public UserSessionRule userSession = standalone();
+    @Rule
+    public DbTester db = DbTester.create();
+    @Rule
+    public EsTester es = EsTester.create();
+    @Rule
+    public ExpectedException expectedException = none();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
-  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSessionRule);
-  private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
-  private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSessionRule, dbClient, new TransitionService(userSessionRule, issueWorkflow));
-  private Languages languages = new Languages();
-  private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSessionRule, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE,
-    dbClient));
-  private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
+    private DbClient dbClient = db.getDbClient();
+    private DbSession session = db.getSession();
+    private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+    private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
+    private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
+    private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
+    private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
+    private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
+    private Languages languages = new Languages();
+    private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
+    private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
+      new MapSettings().asConfig(), System2.INSTANCE, dbClient));
+    private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   private OrganizationDto defaultOrganization;
   private OrganizationDto otherOrganization1;
@@ -248,6 +249,7 @@ public class SearchActionTest {
   @Test
   public void response_contains_all_fields_except_additional_fields() {
     UserDto simon = db.users().insertUser(u -> u.setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.organizations().addMember(otherOrganization2, simon);
 
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
@@ -269,7 +271,32 @@ public class SearchActionTest {
     db.issues().insertIssue(issue);
     indexIssues();
 
+    userSession.logIn(simon);
     ws.newRequest().execute().assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
+  }
+
+  @Test
+  public void hide_author_if_not_member_of_organization() {
+    ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    indexPermissions();
+    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    IssueDto issue = newDto(newExternalRule(), file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setEffort(10L)
+      .setLine(42)
+      .setChecksum("a227e508d6646b55a086ee11d63b21e9")
+      .setMessage("the message")
+      .setStatus(STATUS_RESOLVED)
+      .setResolution(RESOLUTION_FIXED)
+      .setSeverity("MAJOR")
+      .setAuthorLogin("John")
+      .setTags(asList("bug", "owasp"))
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
+    db.issues().insertIssue(issue);
+    indexIssues();
+
+    ws.newRequest().execute().assertJson(this.getClass(), "author_is_hidden.json");
   }
 
   @Test
@@ -369,7 +396,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn(john);
+    userSession.logIn(john);
     ws.newRequest()
       .setParam("additionalFields", "comments,users")
       .execute()
@@ -405,7 +432,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn(john);
+    userSession.logIn(john);
     TestResponse result = ws.newRequest().setParam(PARAM_HIDE_COMMENTS, "true").execute();
     result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
     assertThat(result.getInput()).doesNotContain(fabrice.getLogin());
@@ -426,7 +453,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn("john");
+    userSession.logIn("john");
     ws.newRequest()
       .setParam("additionalFields", "_all").execute()
       .assertJson(this.getClass(), "load_additional_fields.json");
@@ -450,7 +477,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn("john")
+    userSession.logIn("john")
       .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
     ws.newRequest()
       .setParam("additionalFields", "_all").execute()
@@ -468,7 +495,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn("john")
+    userSession.logIn("john")
       .addProjectPermission(ISSUE_ADMIN, project); // granted by Anyone
     indexPermissions();
 
@@ -552,7 +579,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn("john");
+    userSession.logIn("john");
     ws.newRequest()
       .setParam("resolved", "false")
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
@@ -579,7 +606,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn(john);
+    userSession.logIn(john);
     ws.newRequest()
       .setParam("resolved", "false")
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
@@ -607,7 +634,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn(john);
+    userSession.logIn(john);
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam("resolved", "false")
@@ -623,7 +650,7 @@ public class SearchActionTest {
     // login looks like an invalid regexp
     UserDto user = db.users().insertUser(u -> u.setLogin("foo[").setName("foo").setEmail("foo@email.com"));
 
-    userSessionRule.logIn(user);
+    userSession.logIn(user);
 
     // should not fail
     ws.newRequest()
@@ -670,7 +697,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn(john);
+    userSession.logIn(john);
 
     ws.newRequest()
       .setParam("resolved", "false")
@@ -718,7 +745,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn(john);
+    userSession.logIn(john);
 
     Issues.SearchWsResponse response = ws.newRequest()
       .setParam("resolved", "false")
@@ -732,7 +759,7 @@ public class SearchActionTest {
   @Test
   public void filter_by_assigned_to_me_unauthenticated() {
     UserDto poy = db.users().insertUser(u -> u.setLogin("poy").setName("poypoy").setEmail("poypoy@email.com"));
-    userSessionRule.logIn(poy);
+    userSession.logIn(poy);
 
     // TODO : check test title w julien
 
@@ -803,7 +830,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn(john);
+    userSession.logIn(john);
     ws.newRequest()
       .setParam("resolved", "false")
       .setParam("assignees", "alice")
@@ -925,7 +952,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    userSessionRule.logIn("john");
+    userSession.logIn("john");
     ws.newRequest()
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "severities")
@@ -979,7 +1006,7 @@ public class SearchActionTest {
         .setResourceId(project.getId())
         .setRole(permission));
     session.commit();
-    userSessionRule.logIn().addProjectPermission(permission, project);
+    userSession.logIn().addProjectPermission(permission, project);
   }
 
   private ComponentDto insertComponent(ComponentDto component) {

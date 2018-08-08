@@ -49,7 +49,7 @@ export default class LineSCM extends React.PureComponent<Props> {
     const { line, popupOpen, previousLine } = this.props;
     const hasPopup = !!line.line;
     const cell = isSCMChanged(line, previousLine) && (
-      <div className="source-line-scm-inner" data-author={line.scmAuthor} />
+      <div className="source-line-scm-inner" data-author={line.scmAuthor || '…'} />
     );
     return hasPopup ? (
       <td
@@ -76,8 +76,8 @@ export default class LineSCM extends React.PureComponent<Props> {
 
 function isSCMChanged(s: SourceLine, p: SourceLine | undefined) {
   let changed = true;
-  if (p != null && s.scmAuthor != null && p.scmAuthor != null) {
-    changed = s.scmAuthor !== p.scmAuthor || s.scmDate !== p.scmDate;
+  if (p != null && s.scmRevision != null && p.scmRevision != null) {
+    changed = s.scmRevision !== p.scmRevision || s.scmDate !== p.scmDate;
   }
   return changed;
 }

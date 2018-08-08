@@ -1,0 +1,24 @@
+{
+  "issues": [
+    {
+      "organization": "my-org-2",
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "rule": "external_xoo:x1",
+      "severity": "MAJOR",
+      "component": "FILE_KEY",
+      "resolution": "FIXED",
+      "status": "RESOLVED",
+      "message": "the message",
+      "effort": "10min",
+      "line": 42,
+      "hash": "a227e508d6646b55a086ee11d63b21e9",
+      "tags": [
+        "bug",
+        "owasp"
+      ],
+      "creationDate": "2014-09-04T01:00:00+0200",
+      "updateDate": "2017-12-04T00:00:00+0100",
+      "externalRuleEngine" : "xoo"
+    }
+  ]
+}

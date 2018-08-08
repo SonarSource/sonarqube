@@ -19,6 +19,9 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +41,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -60,11 +66,13 @@ public class ChangelogAction implements IssuesWsAction {
   private final DbClient dbClient;
   private final IssueFinder issueFinder;
   private final AvatarResolver avatarFactory;
+  private final UserSession userSession;
 
-  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, AvatarResolver avatarFactory) {
+  public ChangelogAction(DbClient dbClient, IssueFinder issueFinder, AvatarResolver avatarFactory, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
     this.avatarFactory = avatarFactory;
+    this.userSession = userSession;
   }
 
   @Override
@@ -153,11 +161,25 @@ public class ChangelogAction implements IssuesWsAction {
     private final Map<String, ComponentDto> files;
 
     ChangeLogResults(DbSession dbSession, String issueKey) {
-      IssueDto dbIssue = issueFinder.getByKey(dbSession, issueKey);
-      this.changes = dbClient.issueChangeDao().selectChangelogByIssue(dbSession, dbIssue.getKey());
-      List<String> userUuids = changes.stream().filter(change -> change.userUuid() != null).map(FieldDiffs::userUuid).collect(MoreCollectors.toList());
-      this.users = dbClient.userDao().selectByUuids(dbSession, userUuids).stream().collect(MoreCollectors.uniqueIndex(UserDto::getUuid));
-      this.files = dbClient.componentDao().selectByUuids(dbSession, getFileUuids(changes)).stream().collect(MoreCollectors.uniqueIndex(ComponentDto::uuid, Function.identity()));
+      IssueDto issue = issueFinder.getByKey(dbSession, issueKey);
+      if (isMember(dbSession, issue)) {
+        this.changes = dbClient.issueChangeDao().selectChangelogByIssue(dbSession, issue.getKey());
+        List<String> userUuids = changes.stream().filter(change -> change.userUuid() != null).map(FieldDiffs::userUuid).collect(MoreCollectors.toList());
+        this.users = dbClient.userDao().selectByUuids(dbSession, userUuids).stream().collect(MoreCollectors.uniqueIndex(UserDto::getUuid));
+        this.files = dbClient.componentDao().selectByUuids(dbSession, getFileUuids(changes)).stream().collect(MoreCollectors.uniqueIndex(ComponentDto::uuid, Function.identity()));
+      } else {
+        changes = ImmutableList.of();
+        users = ImmutableMap.of();
+        files = ImmutableMap.of();
+      }
+    }
+
+    private boolean isMember(DbSession dbSession, IssueDto issue) {
+      Optional<ComponentDto> project = dbClient.componentDao().selectByUuid(dbSession, issue.getProjectUuid());
+      checkState(project.isPresent(), "Cannot find the project with uuid %s from issue.id %s", issue.getProjectUuid(), issue.getId());
+      java.util.Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, project.get().getOrganizationUuid());
+      checkState(organization.isPresent(), "Cannot find the organization with uuid %s from issue.id %s", project.get().getOrganizationUuid(), issue.getId());
+      return userSession.hasMembership(organization.get());
     }
 
     private Set<String> getFileUuids(List<FieldDiffs> changes) {

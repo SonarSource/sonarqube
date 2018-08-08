@@ -1,0 +1,37 @@
+{
+  "total": 2,
+  "p": 1,
+  "issues": [
+    {
+      "organization": "org-1",
+      "key": "82fd47d4-b650-4037-80bc-7b1182fd47d4",
+      "rule": "xoo:x1",
+      "component": "FK1",
+      "project": "PK1",
+      "author": "luke@skywalker.name"
+    },
+    {
+      "organization": "org-1",
+      "key": "2bd4eac2-b650-4037-80bc-7b112bd4eac2",
+      "rule": "xoo:x1",
+      "component": "FK1",
+      "project": "PK1",
+      "author": "leia"
+    }
+  ],
+  "facets": [
+    {
+      "property": "authors",
+      "values": [
+        {
+          "val": "leia",
+          "count": 1
+        },
+        {
+          "val": "luke@skywalker.name",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

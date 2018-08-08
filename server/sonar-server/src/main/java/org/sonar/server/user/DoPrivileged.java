@@ -124,7 +124,7 @@ public final class DoPrivileged {
       }
 
       @Override
-      public boolean hasMembershipImpl(OrganizationDto organization) {
+      public boolean hasMembershipImpl(OrganizationDto organizationDto) {
         return true;
       }
     }

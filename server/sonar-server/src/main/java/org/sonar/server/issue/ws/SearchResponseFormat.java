@@ -82,8 +82,7 @@ public class SearchResponseFormat {
     this.avatarFactory = avatarFactory;
   }
 
-  public SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
-    Paging paging, @Nullable Facets facets) {
+  public SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, @Nullable Facets facets) {
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
@@ -195,7 +194,11 @@ public class SearchResponseFormat {
     setNullable(dto.getLine(), issueBuilder::setLine);
     setNullable(emptyToNull(dto.getChecksum()), issueBuilder::setHash);
     completeIssueLocations(dto, issueBuilder, data);
-    issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
+
+    // Filter author only if user is member of the organization
+    if (data.getUserOrganizationUuids().contains(component.getOrganizationUuid())) {
+      issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
+    }
     setNullable(dto.getIssueCreationDate(), issueBuilder::setCreationDate, DateUtils::formatDateTime);
     setNullable(dto.getIssueUpdateDate(), issueBuilder::setUpdateDate, DateUtils::formatDateTime);
     setNullable(dto.getIssueCloseDate(), issueBuilder::setCloseDate, DateUtils::formatDateTime);

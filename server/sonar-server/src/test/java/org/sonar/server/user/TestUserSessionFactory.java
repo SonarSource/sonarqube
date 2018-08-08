@@ -118,7 +118,7 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    public boolean hasMembershipImpl(OrganizationDto organization) {
+    public boolean hasMembershipImpl(OrganizationDto organizationDto) {
       throw notImplemented();
     }
 

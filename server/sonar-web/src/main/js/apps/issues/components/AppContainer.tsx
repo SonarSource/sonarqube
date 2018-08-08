@@ -22,9 +22,13 @@ import { Dispatch } from 'redux';
 import { uniq } from 'lodash';
 import { searchIssues } from '../../../api/issues';
 import { getOrganizations } from '../../../api/organizations';
-import { CurrentUser } from '../../../app/types';
+import { CurrentUser, Organization } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
+import {
+  getCurrentUser,
+  areThereCustomOrganizations,
+  getMyOrganizations
+} from '../../../store/rootReducer';
 import { lazyLoad } from '../../../components/lazyLoad';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { RawQuery } from '../../../helpers/query';
@@ -32,10 +36,12 @@ import { receiveOrganizations } from '../../../store/organizations/duck';
 
 interface StateProps {
   currentUser: CurrentUser;
+  userOrganizations: Organization[];
 }
 
 const mapStateToProps = (state: any): StateProps => ({
-  currentUser: getCurrentUser(state)
+  currentUser: getCurrentUser(state),
+  userOrganizations: getMyOrganizations(state)
 });
 
 const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispatch<any>) => {
@@ -83,6 +89,7 @@ const mapDispatchToProps = { fetchIssues: fetchIssues as any } as DispatchProps;
 
 interface OwnProps {
   location: { pathname: string; query: RawQuery };
+  hideAuthorFacet?: boolean;
   myIssues?: boolean;
 }
 

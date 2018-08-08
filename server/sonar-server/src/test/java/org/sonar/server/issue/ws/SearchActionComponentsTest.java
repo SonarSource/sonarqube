@@ -25,6 +25,7 @@ import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
@@ -37,13 +38,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -105,8 +107,8 @@ public class SearchActionComponentsTest {
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE,
-    dbClient));
+  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
+    new MapSettings().asConfig(), System2.INSTANCE, dbClient));
 
   @Test
   public void search_all_issues_when_no_parameter() {
@@ -644,7 +646,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_author() throws Exception {
+  public void search_by_author() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
@@ -652,6 +654,10 @@ public class SearchActionComponentsTest {
     db.issues().insert(rule, project, file, i -> i.setAuthorLogin("luke@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4"));
     allowAnyoneOnProjects(project);
     indexIssues();
+
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(db.getDefaultOrganization(), user);
+    userSession.logIn(user).addMembership(db.getDefaultOrganization());
 
     ws.newRequest()
       .setParam(IssuesWsParameters.PARAM_AUTHORS, "leia")

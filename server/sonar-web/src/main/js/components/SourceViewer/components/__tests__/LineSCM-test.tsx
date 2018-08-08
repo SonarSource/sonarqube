@@ -32,7 +32,7 @@ it('render scm details', () => {
 });
 
 it('render scm details for the first line', () => {
-  const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
+  const line = { line: 3, scmRevision: 'foo', scmAuthor: 'foo', scmDate: '2017-01-01' };
   const wrapper = shallow(
     <LineSCM line={line} onPopupToggle={jest.fn()} popupOpen={false} previousLine={undefined} />
   );
@@ -40,8 +40,17 @@ it('render scm details for the first line', () => {
 });
 
 it('does not render scm details', () => {
-  const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
-  const previousLine = { line: 2, scmAuthor: 'foo', scmDate: '2017-01-01' };
+  const line = { line: 3, scmRevision: 'foo', scmAuthor: 'foo', scmDate: '2017-01-01' };
+  const previousLine = { line: 2, scmRevision: 'foo', scmAuthor: 'foo', scmDate: '2017-01-01' };
+  const wrapper = shallow(
+    <LineSCM line={line} onPopupToggle={jest.fn()} popupOpen={false} previousLine={previousLine} />
+  );
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('renders ellipsis when no author info', () => {
+  const line = { line: 3, scmRevision: 'foo', scmDate: '2017-01-01' };
+  const previousLine = { line: 2, scmRevision: 'bar', scmDate: '2017-01-01' };
   const wrapper = shallow(
     <LineSCM line={line} onPopupToggle={jest.fn()} popupOpen={false} previousLine={previousLine} />
   );
