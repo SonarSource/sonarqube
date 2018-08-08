@@ -39,6 +39,7 @@ import {
   ReferencedComponent,
   ReferencedUser,
   ReferencedLanguage,
+  ReferencedRule,
   STANDARDS
 } from '../utils';
 import { Component } from '../../../app/types';
@@ -57,7 +58,7 @@ export interface Props {
   query: Query;
   referencedComponents: { [componentKey: string]: ReferencedComponent };
   referencedLanguages: { [languageKey: string]: ReferencedLanguage };
-  referencedRules: { [ruleKey: string]: { name: string } };
+  referencedRules: { [ruleKey: string]: ReferencedRule };
   referencedUsers: { [login: string]: ReferencedUser };
 }
 

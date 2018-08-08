@@ -89,12 +89,3 @@ it('should call onToggle', () => {
   headerOnClick();
   expect(onToggle).lastCalledWith('assignees');
 });
-
-it('should handle footer callbacks', () => {
-  const onChange = jest.fn();
-  const wrapper = renderAssigneeFacet({ assignees: ['foo'], onChange });
-  const onSelect = wrapper.find('FacetFooter').prop<Function>('onSelect');
-
-  onSelect({ value: 'qux' });
-  expect(onChange).lastCalledWith({ assigned: true, assignees: ['foo', 'qux'] });
-});

@@ -138,13 +138,13 @@ it('should display correct selection', () => {
 });
 
 it('should search CWE', () => {
-  const onChange = jest.fn();
-  const wrapper = shallowRender({ onChange, open: true, cwe: ['42'], cweOpen: true });
+  const wrapper = shallowRender({ open: true, cwe: ['42'], cweOpen: true });
   wrapper
     .find('FacetBox[property="cwe"]')
-    .find('Select')
-    .prop<Function>('onChange')({ value: '111' });
-  expect(onChange).toBeCalledWith({ cwe: ['111', '42'] });
+    .find('SearchBox')
+    .prop<Function>('onChange')('unkn');
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<Props> = {}) {

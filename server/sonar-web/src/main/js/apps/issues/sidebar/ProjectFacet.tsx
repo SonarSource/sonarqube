@@ -18,20 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, uniq, without } from 'lodash';
-import { formatFacetStat, Query, ReferencedComponent } from '../utils';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { Query, ReferencedComponent } from '../utils';
 import { searchProjects, getTree } from '../../../api/components';
-import { Component } from '../../../app/types';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import FacetFooter from '../../../components/facet/FacetFooter';
+import { Component, Paging } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
   component: Component | undefined;
@@ -46,177 +40,104 @@ interface Props {
   stats: { [x: string]: number } | undefined;
 }
 
+interface SearchedProject {
+  id: string;
+  name: string;
+  organization: string;
+}
+
 export default class ProjectFacet extends React.PureComponent<Props> {
-  property = 'projects';
-
-  static defaultProps = {
-    open: true
-  };
-
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { projects } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        projects.includes(itemValue) ? without(projects, itemValue) : [...projects, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]: projects.includes(itemValue) && projects.length < 2 ? [] : [itemValue]
-      });
-    }
-  };
-
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
-  };
-
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
-  };
-
-  handleSearch = (query: string) => {
+  handleSearch = (
+    query: string,
+    page = 1
+  ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
     const { component, organization } = this.props;
     if (component && ['VW', 'SVW', 'APP'].includes(component.qualifier)) {
-      return getTree(component.key, { ps: 50, q: query, qualifiers: 'TRK' }).then(response =>
-        response.components.map((component: any) => ({
-          label: component.name,
-          organization: component.organization,
-          value: component.refId
-        }))
+      return getTree(component.key, { p: page, ps: 30, q: query, qualifiers: 'TRK' }).then(
+        ({ components, paging }) => ({
+          paging,
+          results: components.map(component => ({
+            id: component.refId || component.id,
+            key: component.key,
+            name: component.name,
+            organization: component.organization
+          }))
+        })
       );
     }
 
     return searchProjects({
-      ps: 50,
+      p: page,
+      ps: 30,
       filter: query ? `query = "${query}"` : '',
       organization: organization && organization.key
-    }).then(response =>
-      response.components.map(component => ({
-        label: component.name,
-        organization: component.organization,
-        value: component.id
+    }).then(({ components, paging }) => ({
+      paging,
+      results: components.map(component => ({
+        id: component.id,
+        key: component.key,
+        name: component.name,
+        organization: component.organization
       }))
-    );
+    }));
   };
 
-  handleSelect = (option: { value: string }) => {
-    const { projects } = this.props;
-    this.props.onChange({ [this.property]: uniq([...projects, option.value]) });
-  };
-
-  getStat(project: string) {
-    const { stats } = this.props;
-    return stats ? stats[project] : undefined;
-  }
-
-  getProjectName(project: string) {
+  getProjectName = (project: string) => {
     const { referencedComponents } = this.props;
     return referencedComponents[project] ? referencedComponents[project].name : project;
-  }
+  };
 
-  getProjectNameAndTooltip(project: string) {
-    const { organization, referencedComponents } = this.props;
-    return referencedComponents[project]
-      ? {
-          name: (
-            <span>
-              <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-              {!organization && (
-                <Organization
-                  link={false}
-                  organizationKey={referencedComponents[project].organization}
-                />
-              )}
-              {referencedComponents[project].name}
-            </span>
-          ),
-          tooltip: referencedComponents[project].name
-        }
-      : {
-          name: (
-            <span>
-              <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-              {project}
-            </span>
-          ),
-          tooltip: project
-        };
-  }
-
-  renderOption = (option: { label: string; organization: string }) => {
-    return (
+  renderFacetItem = (project: string) => {
+    const { referencedComponents } = this.props;
+    return referencedComponents[project] ? (
+      this.renderProject(referencedComponents[project])
+    ) : (
       <span>
-        <Organization link={false} organizationKey={option.organization} />
-        {option.label}
+        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+        {project}
       </span>
     );
   };
 
-  renderListItem(project: string) {
-    const { name, tooltip } = this.getProjectNameAndTooltip(project);
-    return (
-      <FacetItem
-        active={this.props.projects.includes(project)}
-        key={project}
-        loading={this.props.loading}
-        name={name}
-        onClick={this.handleItemClick}
-        stat={formatFacetStat(this.getStat(project))}
-        tooltip={tooltip}
-        value={project}
-      />
-    );
-  }
+  renderProject = (project: Pick<SearchedProject, 'name' | 'organization'>) => (
+    <span>
+      <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+      {!this.props.organization && (
+        <Organization link={false} organizationKey={project.organization} />
+      )}
+      {project.name}
+    </span>
+  );
 
-  renderList() {
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
-    const projects = sortBy(Object.keys(stats), key => -stats[key]);
-
-    return <FacetItemsList>{projects.map(project => this.renderListItem(project))}</FacetItemsList>;
-  }
-
-  renderFooter() {
-    if (!this.props.stats) {
-      return null;
-    }
-
-    return (
-      <FacetFooter
-        minimumQueryLength={3}
-        onSearch={this.handleSearch}
-        onSelect={this.handleSelect}
-        renderOption={this.renderOption}
-      />
-    );
-  }
+  renderSearchResult = (project: Pick<SearchedProject, 'name' | 'organization'>, term: string) => (
+    <>
+      <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+      {!this.props.organization && (
+        <Organization link={false} organizationKey={project.organization} />
+      )}
+      {highlightTerm(project.name, term)}
+    </>
+  );
 
   render() {
-    const { projects, stats = {} } = this.props;
-    const values = this.props.projects.map(project => this.getProjectName(project));
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={values}
-        />
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            {this.renderFooter()}
-            <MultipleSelectionHint options={Object.keys(stats).length} values={projects.length} />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.projects')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.getProjectName}
+        getSearchResultKey={(project: SearchedProject) => project.id}
+        getSearchResultText={(project: SearchedProject) => project.name}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="projects"
+        renderFacetItem={this.renderFacetItem}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_projects')}
+        stats={this.props.stats}
+        values={this.props.projects}
+      />
     );
   }
 }

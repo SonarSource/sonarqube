@@ -18,21 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SearchSelect from '../controls/SearchSelect';
 
-type Option = { label: string; value: string };
-
-interface Props {
-  minimumQueryLength?: number;
-  onSearch: (query: string) => Promise<Option[]>;
-  onSelect: (option: Option) => void;
-  renderOption?: (option: Object) => JSX.Element;
-}
-
-export default function FacetFooter(props: Props) {
-  return (
-    <div className="search-navigator-facet-footer">
-      <SearchSelect autofocus={false} {...props} />
-    </div>
+export function highlightTerm(str: string, term: string) {
+  const pos = str.toLowerCase().indexOf(term.toLowerCase());
+  return pos !== -1 ? (
+    <>
+      {pos > 0 && str.substring(0, pos)}
+      <mark>{str.substr(pos, term.length)}</mark>
+      {pos + term.length < str.length && str.substring(pos + term.length)}
+    </>
+  ) : (
+    str
   );
 }

@@ -19,58 +19,80 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { uniq } from 'lodash';
-import Facet, { BasicProps } from './Facet';
-import LanguageFacetFooter from './LanguageFacetFooter';
+import { uniqBy } from 'lodash';
+import { BasicProps } from './Facet';
 import { getLanguages } from '../../../store/rootReducer';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { translate } from '../../../helpers/l10n';
+import { highlightTerm } from '../../../helpers/search';
+
+interface InstalledLanguage {
+  key: string;
+  name: string;
+}
 
 interface StateProps {
-  referencedLanguages: { [language: string]: { key: string; name: string } };
+  installedLanguages: InstalledLanguage[];
 }
 
 interface Props extends BasicProps, StateProps {}
 
 class LanguageFacet extends React.PureComponent<Props> {
-  getLanguageName = (language: string) => {
-    const { referencedLanguages } = this.props;
-    return referencedLanguages[language] ? referencedLanguages[language].name : language;
+  getLanguageName = (languageKey: string) => {
+    const language = this.props.installedLanguages.find(l => l.key === languageKey);
+    return language ? language.name : languageKey;
   };
 
-  handleSelect = (language: string) => {
-    const { values } = this.props;
-    this.props.onChange({ languages: uniq([...values, language]) });
+  handleSearch = (query: string) => {
+    const options = this.getAllPossibleOptions();
+    const results = options.filter(language =>
+      language.name.toLowerCase().includes(query.toLowerCase())
+    );
+    const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
+    return Promise.resolve({ paging, results });
   };
 
-  renderFooter = () => {
-    if (!this.props.stats) {
-      return null;
-    }
+  getAllPossibleOptions = () => {
+    const { installedLanguages, stats = {} } = this.props;
 
-    return (
-      <LanguageFacetFooter
-        onSelect={this.handleSelect}
-        referencedLanguages={this.props.referencedLanguages}
-        selected={Object.keys(this.props.stats)}
-      />
+    // add any language that presents in the facet, but might not be installed
+    // for such language we don't know their display name, so let's just use their key
+    // and make sure we reference each language only once
+    return uniqBy(
+      [...installedLanguages, ...Object.keys(stats).map(key => ({ key, name: key }))],
+      language => language.key
     );
   };
 
+  renderSearchResult = ({ name }: InstalledLanguage, term: string) => {
+    return highlightTerm(name, term);
+  };
+
   render() {
-    const { referencedLanguages, ...facetProps } = this.props;
     return (
-      <Facet
-        {...facetProps}
+      <ListStyleFacet
+        facetHeader={translate('coding_rules.facet.languages')}
+        fetching={false}
+        getFacetItemText={this.getLanguageName}
+        getSearchResultKey={(language: InstalledLanguage) => language.key}
+        getSearchResultText={(language: InstalledLanguage) => language.name}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
         property="languages"
-        renderFooter={this.renderFooter}
-        renderName={this.getLanguageName}
-        renderTextName={this.getLanguageName}
+        renderFacetItem={this.getLanguageName}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_languages')}
+        stats={this.props.stats}
+        values={this.props.values}
       />
     );
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
-  referencedLanguages: getLanguages(state)
+const mapStateToProps = (state: any) => ({
+  installedLanguages: Object.values(getLanguages(state))
 });
 
 export default connect(mapStateToProps)(LanguageFacet);

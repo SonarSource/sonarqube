@@ -25,7 +25,6 @@ import FacetHeader from '../../../components/facet/FacetHeader';
 import { translate } from '../../../helpers/l10n';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetItem from '../../../components/facet/FacetItem';
-import Select from '../../../components/controls/Select';
 import {
   renderOwaspTop10Category,
   renderSansTop25Category,
@@ -34,6 +33,8 @@ import {
 } from '../../securityReports/utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import SearchBox from '../../../components/controls/SearchBox';
+import { highlightTerm } from '../../../helpers/search';
 
 export interface Props {
   cwe: string[];
@@ -55,6 +56,7 @@ export interface Props {
 }
 
 interface State {
+  cweQuery: string;
   standards: Standards;
 }
 
@@ -64,7 +66,10 @@ type ValuesProp = 'owaspTop10' | 'sansTop25' | 'cwe';
 export default class StandardFacet extends React.PureComponent<Props, State> {
   mounted = false;
   property = STANDARDS;
-  state: State = { standards: { owaspTop10: {}, sansTop25: {}, cwe: {} } };
+  state: State = {
+    cweQuery: '',
+    standards: { owaspTop10: {}, sansTop25: {}, cwe: {} }
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -165,6 +170,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     this.handleItemClick('cwe', value, true);
   };
 
+  handleCWESearch = (query: string) => {
+    this.setState({ cweQuery: query });
+  };
+
   renderList = (
     statsProp: StatsProp,
     valuesProp: ValuesProp,
@@ -173,13 +182,22 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   ) => {
     const stats = this.props[statsProp];
     const values = this.props[valuesProp];
-
     if (!stats) {
       return null;
     }
-
     const categories = sortBy(Object.keys(stats), key => -stats[key]);
+    return this.renderFacetItemsList(stats, values, categories, renderName, renderName, onClick);
+  };
 
+  // eslint-disable-next-line max-params
+  renderFacetItemsList = (
+    stats: any,
+    values: string[],
+    categories: string[],
+    renderName: (standards: Standards, category: string) => React.ReactNode,
+    renderTooltip: (standards: Standards, category: string) => string,
+    onClick: (x: string, multiple?: boolean) => void
+  ) => {
     if (!categories.length) {
       return (
         <div className="search-navigator-facet-empty little-spacer-top">
@@ -202,7 +220,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={renderName(this.state.standards, category)}
             onClick={onClick}
             stat={formatFacetStat(getStat(category))}
-            tooltip={renderName(this.state.standards, category)}
+            tooltip={renderTooltip(this.state.standards, category)}
             value={category}
           />
         ))}
@@ -230,26 +248,37 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   }
 
   renderCWEList() {
-    return this.renderList('cweStats', 'cwe', renderCWECategory, this.handleCWEItemClick);
+    const { cweQuery } = this.state;
+    if (cweQuery) {
+      const results = Object.keys(this.state.standards.cwe).filter(cwe =>
+        renderCWECategory(this.state.standards, cwe)
+          .toLowerCase()
+          .includes(cweQuery.toLowerCase())
+      );
+
+      return this.renderFacetItemsList(
+        this.props.cweStats,
+        this.props.cwe,
+        results,
+        (standards: Standards, category: string) =>
+          highlightTerm(renderCWECategory(standards, category), cweQuery),
+        renderCWECategory,
+        this.handleCWEItemClick
+      );
+    } else {
+      return this.renderList('cweStats', 'cwe', renderCWECategory, this.handleCWEItemClick);
+    }
   }
 
   renderCWESearch() {
-    const options = Object.keys(this.state.standards.cwe).map(cwe => ({
-      label: renderCWECategory(this.state.standards, cwe),
-      value: cwe
-    }));
     return (
-      <div className="search-navigator-facet-footer">
-        <Select
-          className="input-super-large"
-          clearable={false}
-          noResultsText={translate('select2.noMatches')}
-          onChange={this.handleCWESelect}
-          options={options}
-          placeholder={translate('search.search_for_cwe')}
-          searchable={true}
-        />
-      </div>
+      <SearchBox
+        autoFocus={true}
+        className="little-spacer-top spacer-bottom"
+        onChange={this.handleCWESearch}
+        placeholder={translate('search.search_for_cwe')}
+        value={this.state.cweQuery}
+      />
     );
   }
 
@@ -317,8 +346,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
           <DeferredSpinner loading={this.props.fetchingCwe} />
           {this.props.cweOpen && (
             <>
-              {this.renderCWEList()}
               {this.renderCWESearch()}
+              {this.renderCWEList()}
               {this.renderCWEHint()}
             </>
           )}

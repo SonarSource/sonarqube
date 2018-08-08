@@ -19,10 +19,15 @@
  */
 import * as React from 'react';
 import { sortBy, uniq, without } from 'lodash';
-import { searchAssignees, formatFacetStat, Query, ReferencedUser } from '../utils';
-import { Component } from '../../../app/types';
+import {
+  searchAssignees,
+  formatFacetStat,
+  Query,
+  ReferencedUser,
+  SearchedAssignee
+} from '../utils';
+import { Component, Paging } from '../../../app/types';
 import FacetBox from '../../../components/facet/FacetBox';
-import FacetFooter from '../../../components/facet/FacetFooter';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
@@ -30,6 +35,9 @@ import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import SearchBox from '../../../components/controls/SearchBox';
+import ListFooter from '../../../components/controls/ListFooter';
+import { highlightTerm } from '../../../helpers/search';
 
 export interface Props {
   assigned: boolean;
@@ -45,11 +53,66 @@ export interface Props {
   referencedUsers: { [login: string]: ReferencedUser };
 }
 
-export default class AssigneeFacet extends React.PureComponent<Props> {
+interface State {
+  query: string;
+  searching: boolean;
+  searchResults?: SearchedAssignee[];
+  searchPaging?: Paging;
+}
+
+export default class AssigneeFacet extends React.PureComponent<Props, State> {
+  mounted = false;
   property = 'assignees';
 
-  static defaultProps = {
-    open: true
+  state: State = {
+    query: '',
+    searching: false
+  };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  stopSearching = () => {
+    if (this.mounted) {
+      this.setState({ searching: false });
+    }
+  };
+
+  search = (query: string) => {
+    if (query.length >= 2) {
+      this.setState({ query, searching: true });
+      searchAssignees(query, this.props.organization).then(({ paging, results }) => {
+        if (this.mounted) {
+          this.setState({ searching: false, searchResults: results, searchPaging: paging });
+        }
+      }, this.stopSearching);
+    } else {
+      this.setState({ query, searching: false, searchResults: [] });
+    }
+  };
+
+  searchMore = () => {
+    const { query, searchPaging, searchResults } = this.state;
+    if (query && searchResults && searchPaging) {
+      this.setState({ searching: true });
+      searchAssignees(query, this.props.organization, searchPaging.pageIndex + 1).then(
+        ({ paging, results }) => {
+          if (this.mounted) {
+            this.setState({
+              searching: false,
+              searchResults: [...searchResults, ...results],
+              searchPaging: paging
+            });
+          }
+        },
+        this.stopSearching
+      );
+    }
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
@@ -76,10 +139,6 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
 
   handleClear = () => {
     this.props.onChange({ assigned: true, assignees: [] });
-  };
-
-  handleSearch = (query: string) => {
-    return searchAssignees(query, this.props.organization);
   };
 
   handleSelect = (option: { value: string }) => {
@@ -134,20 +193,17 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
   }
 
   renderOption = (option: { avatar: string; label: string }) => {
-    return (
-      <span>
-        {option.avatar !== undefined && (
-          <Avatar
-            className="little-spacer-right"
-            hash={option.avatar}
-            name={option.label}
-            size={16}
-          />
-        )}
-        {option.label}
-      </span>
-    );
+    return this.renderAssignee(option.avatar, option.label);
   };
+
+  renderAssignee = (avatar: string | undefined, name: string) => (
+    <span>
+      {avatar !== undefined && (
+        <Avatar className="little-spacer-right" hash={avatar} name={name} size={16} />
+      )}
+      {name}
+    </span>
+  );
 
   renderListItem(assignee: string) {
     const { name, tooltip } = this.getAssigneeNameAndTooltip(assignee);
@@ -185,16 +241,77 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     );
   }
 
-  renderFooter() {
-    if (!this.props.stats) {
+  renderSearch() {
+    if (!this.props.stats || !Object.keys(this.props.stats).length) {
       return null;
     }
 
     return (
-      <FacetFooter
-        onSearch={this.handleSearch}
-        onSelect={this.handleSelect}
-        renderOption={this.renderOption}
+      <SearchBox
+        autoFocus={true}
+        className="little-spacer-top spacer-bottom"
+        loading={this.state.searching}
+        minLength={2}
+        onChange={this.search}
+        placeholder={translate('search.search_for_users')}
+        value={this.state.query}
+      />
+    );
+  }
+
+  renderSearchResults() {
+    const { searching, searchResults, searchPaging } = this.state;
+
+    if (!searching && (!searchResults || !searchResults.length)) {
+      return <div className="note spacer-bottom">{translate('no_results')}</div>;
+    }
+
+    if (!searchResults || !searchPaging) {
+      // initial search
+      return null;
+    }
+
+    return (
+      <>
+        <FacetItemsList>
+          {searchResults.map(result => this.renderSearchResult(result))}
+        </FacetItemsList>
+        <ListFooter
+          count={searchResults.length}
+          loadMore={this.searchMore}
+          ready={!searching}
+          total={searchPaging.total}
+        />
+      </>
+    );
+  }
+
+  renderSearchResult(result: SearchedAssignee) {
+    const active = this.props.assignees.includes(result.login);
+    const stat = this.getStat(result.login);
+    return (
+      <FacetItem
+        active={active}
+        disabled={!active && stat === 0}
+        key={result.login}
+        loading={this.props.loading}
+        name={
+          <>
+            {result.avatar !== undefined && (
+              <Avatar
+                className="little-spacer-right"
+                hash={result.avatar}
+                name={result.name}
+                size={16}
+              />
+            )}
+            {highlightTerm(result.name, this.state.query)}
+          </>
+        }
+        onClick={this.handleItemClick}
+        stat={stat && formatFacetStat(stat)}
+        tooltip={result.name}
+        value={result.login}
       />
     );
   }
@@ -214,8 +331,10 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
         <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && (
           <>
-            {this.renderList()}
-            {this.renderFooter()}
+            {this.renderSearch()}
+            {this.state.query && this.state.searchResults !== undefined
+              ? this.renderSearchResults()
+              : this.renderList()}
             <MultipleSelectionHint options={Object.keys(stats).length} values={assignees.length} />
           </>
         )}

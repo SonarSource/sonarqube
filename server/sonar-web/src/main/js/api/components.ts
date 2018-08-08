@@ -25,7 +25,8 @@ import {
   BranchParameters,
   MyProject,
   Metric,
-  ComponentMeasure
+  ComponentMeasure,
+  LightComponent
 } from '../app/types';
 
 export interface BaseSearchProjectsParameters {
@@ -136,7 +137,19 @@ export function getComponent(
   return getJSON('/api/measures/component', data).then(r => r.component);
 }
 
-export function getTree(component: string, options: RequestData = {}): Promise<any> {
+export interface TreeComponent extends LightComponent {
+  id: string;
+  name: string;
+  refId?: string;
+  refKey?: string;
+  tags?: string[];
+  visibility: Visibility;
+}
+
+export function getTree(
+  component: string,
+  options: RequestData = {}
+): Promise<{ baseComponent: TreeComponent; components: TreeComponent[]; paging: Paging }> {
   return getJSON('/api/components/tree', { ...options, component });
 }
 

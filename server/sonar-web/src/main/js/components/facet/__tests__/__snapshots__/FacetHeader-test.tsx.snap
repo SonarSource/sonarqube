@@ -112,7 +112,14 @@ exports[`should render open facet with value 1`] = `
   </span>
   <span
     className="search-navigator-facet-header-value spacer-left spacer-right "
-  />
+  >
+    <span
+      className="badge badge-secondary is-rounded text-ellipsis"
+      title="foo"
+    >
+      foo
+    </span>
+  </span>
 </div>
 `;
 

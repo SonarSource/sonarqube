@@ -52,7 +52,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
 
   renderValueIndicator() {
     const { values } = this.props;
-    if (this.props.open || !values || !values.length) {
+    if (!values || !values.length) {
       return null;
     }
     const value =

@@ -18,20 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, uniq, without } from 'lodash';
-import { formatFacetStat, Query } from '../utils';
+import { Query } from '../utils';
 import { searchIssueTags } from '../../../api/issues';
 import * as theme from '../../../app/theme';
 import { Component } from '../../../app/types';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetFooter from '../../../components/facet/FacetFooter';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
 import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
   component: Component | undefined;
@@ -46,116 +40,54 @@ interface Props {
 }
 
 export default class TagFacet extends React.PureComponent<Props> {
-  property = 'tags';
-
-  static defaultProps = {
-    open: true
-  };
-
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { tags } = this.props;
-    if (multiple) {
-      const { tags } = this.props;
-      const newValue = sortBy(
-        tags.includes(itemValue) ? without(tags, itemValue) : [...tags, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]: tags.includes(itemValue) && tags.length < 2 ? [] : [itemValue]
-      });
-    }
-  };
-
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
-  };
-
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
-  };
-
   handleSearch = (query: string) => {
-    return searchIssueTags({ organization: this.props.organization, ps: 50, q: query }).then(tags =>
-      tags.map(tag => ({ label: tag, value: tag }))
+    return searchIssueTags({ organization: this.props.organization, ps: 50, q: query }).then(
+      tags => ({
+        paging: { pageIndex: 1, pageSize: tags.length, total: tags.length },
+        results: tags
+      })
     );
   };
 
-  handleSelect = (option: { value: string }) => {
-    const { tags } = this.props;
-    this.props.onChange({ [this.property]: uniq([...tags, option.value]) });
+  getTagName = (tag: string) => {
+    return tag;
   };
 
-  getStat(tag: string) {
-    const { stats } = this.props;
-    return stats ? stats[tag] : undefined;
-  }
-
-  renderTag(tag: string) {
+  renderTag = (tag: string) => {
     return (
-      <span>
+      <>
         <TagsIcon className="little-spacer-right" fill={theme.gray60} />
         {tag}
-      </span>
+      </>
     );
-  }
+  };
 
-  renderList() {
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
-    const tags = sortBy(Object.keys(stats), key => -stats[key]);
-
-    return (
-      <FacetItemsList>
-        {tags.map(tag => (
-          <FacetItem
-            active={this.props.tags.includes(tag)}
-            key={tag}
-            loading={this.props.loading}
-            name={this.renderTag(tag)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(tag))}
-            tooltip={tag}
-            value={tag}
-          />
-        ))}
-      </FacetItemsList>
-    );
-  }
-
-  renderFooter() {
-    if (!this.props.stats) {
-      return null;
-    }
-
-    return <FacetFooter onSearch={this.handleSearch} onSelect={this.handleSelect} />;
-  }
+  renderSearchResult = (tag: string, term: string) => (
+    <>
+      <TagsIcon className="little-spacer-right" fill={theme.gray60} />
+      {highlightTerm(tag, term)}
+    </>
+  );
 
   render() {
-    const { tags, stats = {} } = this.props;
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={this.props.tags}
-        />
-
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            {this.renderFooter()}
-            <MultipleSelectionHint options={Object.keys(stats).length} values={tags.length} />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.tags')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.getTagName}
+        getSearchResultKey={tag => tag}
+        getSearchResultText={tag => tag}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="tags"
+        renderFacetItem={this.renderTag}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_tags')}
+        stats={this.props.stats}
+        values={this.props.tags}
+      />
     );
   }
 }

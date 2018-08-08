@@ -1,0 +1,360 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<FacetBox
+  property="foo"
+>
+  <FacetHeader
+    name="facet header"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <React.Fragment>
+    <SearchBox
+      autoFocus={false}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search for foo..."
+      value=""
+    />
+    <FacetItemsList>
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="a"
+        loading={false}
+        name="a"
+        onClick={[Function]}
+        stat="10"
+        tooltip="a"
+        value="a"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="b"
+        loading={false}
+        name="b"
+        onClick={[Function]}
+        stat="8"
+        tooltip="b"
+        value="b"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="c"
+        loading={false}
+        name="c"
+        onClick={[Function]}
+        stat="1"
+        tooltip="c"
+        value="c"
+      />
+    </FacetItemsList>
+    <MultipleSelectionHint
+      options={3}
+      values={0}
+    />
+  </React.Fragment>
+</FacetBox>
+`;
+
+exports[`should search 1`] = `
+<FacetBox
+  property="foo"
+>
+  <FacetHeader
+    name="facet header"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <React.Fragment>
+    <SearchBox
+      autoFocus={false}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search for foo..."
+      value="query"
+    />
+    <React.Fragment>
+      <FacetItemsList>
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="d"
+          loading={false}
+          name="d"
+          onClick={[Function]}
+          tooltip="d"
+          value="d"
+        />
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="e"
+          loading={false}
+          name="e"
+          onClick={[Function]}
+          tooltip="e"
+          value="e"
+        />
+      </FacetItemsList>
+      <ListFooter
+        count={2}
+        loadMore={[Function]}
+        ready={true}
+        total={3}
+      />
+    </React.Fragment>
+    <MultipleSelectionHint
+      options={3}
+      values={0}
+    />
+  </React.Fragment>
+</FacetBox>
+`;
+
+exports[`should search 2`] = `
+<FacetBox
+  property="foo"
+>
+  <FacetHeader
+    name="facet header"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <React.Fragment>
+    <SearchBox
+      autoFocus={false}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search for foo..."
+      value="query"
+    />
+    <React.Fragment>
+      <FacetItemsList>
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="d"
+          loading={false}
+          name="d"
+          onClick={[Function]}
+          tooltip="d"
+          value="d"
+        />
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="e"
+          loading={false}
+          name="e"
+          onClick={[Function]}
+          tooltip="e"
+          value="e"
+        />
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="f"
+          loading={false}
+          name="f"
+          onClick={[Function]}
+          tooltip="f"
+          value="f"
+        />
+      </FacetItemsList>
+      <ListFooter
+        count={3}
+        loadMore={[Function]}
+        ready={true}
+        total={3}
+      />
+    </React.Fragment>
+    <MultipleSelectionHint
+      options={3}
+      values={0}
+    />
+  </React.Fragment>
+</FacetBox>
+`;
+
+exports[`should search 3`] = `
+<FacetBox
+  property="foo"
+>
+  <FacetHeader
+    name="facet header"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <React.Fragment>
+    <SearchBox
+      autoFocus={false}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search for foo..."
+      value=""
+    />
+    <FacetItemsList>
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="a"
+        loading={false}
+        name="a"
+        onClick={[Function]}
+        stat="10"
+        tooltip="a"
+        value="a"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="b"
+        loading={false}
+        name="b"
+        onClick={[Function]}
+        stat="8"
+        tooltip="b"
+        value="b"
+      />
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="c"
+        loading={false}
+        name="c"
+        onClick={[Function]}
+        stat="1"
+        tooltip="c"
+        value="c"
+      />
+    </FacetItemsList>
+    <MultipleSelectionHint
+      options={3}
+      values={0}
+    />
+  </React.Fragment>
+</FacetBox>
+`;
+
+exports[`should search 4`] = `
+<FacetBox
+  property="foo"
+>
+  <FacetHeader
+    name="facet header"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <React.Fragment>
+    <SearchBox
+      autoFocus={false}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search for foo..."
+      value="blabla"
+    />
+    <div
+      className="note spacer-bottom"
+    >
+      no_results
+    </div>
+    <MultipleSelectionHint
+      options={3}
+      values={0}
+    />
+  </React.Fragment>
+</FacetBox>
+`;
+
+exports[`should search 5`] = `
+<FacetBox
+  property="foo"
+>
+  <FacetHeader
+    name="facet header"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={Array []}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <React.Fragment>
+    <SearchBox
+      autoFocus={false}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search for foo..."
+      value="blabla"
+    />
+    <div
+      className="note spacer-bottom"
+    >
+      no_results
+    </div>
+    <MultipleSelectionHint
+      options={3}
+      values={0}
+    />
+  </React.Fragment>
+</FacetBox>
+`;

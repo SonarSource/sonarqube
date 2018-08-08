@@ -19,7 +19,7 @@
  */
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
-import { Issue } from '../../app/types';
+import { Issue, Paging } from '../../app/types';
 import { formatMeasure } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
 import {
@@ -201,24 +201,28 @@ export interface ReferencedLanguage {
   name: string;
 }
 
-export const searchAssignees = (query: string, organization?: string) => {
+export interface ReferencedRule {
+  langName: string;
+  name: string;
+}
+
+export interface SearchedAssignee {
+  avatar?: string;
+  login: string;
+  name: string;
+}
+
+export const searchAssignees = (
+  query: string,
+  organization: string | undefined,
+  page = 1
+): Promise<{ paging: Paging; results: SearchedAssignee[] }> => {
   return organization
-    ? searchMembers({ organization, ps: 50, q: query }).then(response =>
-        response.users.map(user => ({
-          avatar: user.avatar,
-          label: user.name,
-          value: user.login
-        }))
-      )
-    : searchUsers({ q: query }).then(response =>
-        response.users.map(user => ({
-          // TODO this WS returns no avatar
-          avatar: user.avatar,
-          email: user.email,
-          label: user.name,
-          value: user.login
-        }))
-      );
+    ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
+        paging,
+        results: users
+      }))
+    : searchUsers({ p: page, q: query }).then(({ paging, users }) => ({ paging, results: users }));
 };
 
 const LOCALSTORAGE_MY = 'my';

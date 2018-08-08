@@ -18,17 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, uniq, without } from 'lodash';
-import { formatFacetStat, Query } from '../utils';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { Query, ReferencedRule } from '../utils';
 import { searchRules } from '../../../api/rules';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
-import FacetFooter from '../../../components/facet/FacetFooter';
+import { Rule, Paging } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
@@ -38,126 +32,67 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   organization: string | undefined;
-  referencedRules: { [ruleKey: string]: { name: string } };
+  referencedRules: { [ruleKey: string]: ReferencedRule };
   rules: string[];
   stats: { [x: string]: number } | undefined;
 }
 
-export default class RuleFacet extends React.PureComponent<Props> {
-  property = 'rules';
+interface State {
+  query: string;
+  searching: boolean;
+  searchResults?: Rule[];
+  searchPaging?: Paging;
+}
 
-  static defaultProps = {
-    open: true
-  };
-
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { rules } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        rules.includes(itemValue) ? without(rules, itemValue) : [...rules, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]: rules.includes(itemValue) && rules.length < 2 ? [] : [itemValue]
-      });
-    }
-  };
-
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
-  };
-
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
-  };
-
-  handleSearch = (query: string) => {
+export default class RuleFacet extends React.PureComponent<Props, State> {
+  handleSearch = (query: string, page = 1) => {
     const { languages, organization } = this.props;
     return searchRules({
       f: 'name,langName',
       languages: languages.length ? languages.join() : undefined,
       organization,
       q: query,
+      p: page,
+      ps: 30,
+      s: 'name',
       // eslint-disable-next-line camelcase
       include_external: true
-    }).then(response =>
-      response.rules.map(rule => ({ label: `(${rule.langName}) ${rule.name}`, value: rule.key }))
-    );
+    }).then(response => ({
+      paging: { pageIndex: response.p, pageSize: response.ps, total: response.total },
+      results: response.rules
+    }));
   };
 
-  handleSelect = (option: { value: string }) => {
-    const { rules } = this.props;
-    this.props.onChange({ [this.property]: uniq([...rules, option.value]) });
-  };
-
-  getRuleName(rule: string): string {
+  getRuleName = (rule: string) => {
     const { referencedRules } = this.props;
-    return referencedRules[rule] ? referencedRules[rule].name : rule;
-  }
+    return referencedRules[rule]
+      ? `(${referencedRules[rule].langName}) ${referencedRules[rule].name}`
+      : rule;
+  };
 
-  getStat(rule: string) {
-    const { stats } = this.props;
-    return stats ? stats[rule] : undefined;
-  }
-
-  renderList() {
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
-    const rules = sortBy(Object.keys(stats), key => -stats[key], key => this.getRuleName(key));
-
-    return (
-      <FacetItemsList>
-        {rules.map(rule => (
-          <FacetItem
-            active={this.props.rules.includes(rule)}
-            key={rule}
-            loading={this.props.loading}
-            name={this.getRuleName(rule)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(rule))}
-            tooltip={this.getRuleName(rule)}
-            value={rule}
-          />
-        ))}
-      </FacetItemsList>
-    );
-  }
-
-  renderFooter() {
-    if (!this.props.stats) {
-      return null;
-    }
-
-    return <FacetFooter onSearch={this.handleSearch} onSelect={this.handleSelect} />;
-  }
+  renderSearchResult = (rule: Rule) => {
+    return `(${rule.langName}) ${rule.name}`;
+  };
 
   render() {
-    const { rules, stats = {} } = this.props;
-    const values = rules.map(rule => this.getRuleName(rule));
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={values}
-        />
-
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            {this.renderFooter()}
-            <MultipleSelectionHint options={Object.keys(stats).length} values={rules.length} />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.rules')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.getRuleName}
+        getSearchResultKey={result => result.key}
+        getSearchResultText={result => result.name}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="rules"
+        renderFacetItem={this.getRuleName}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_rules')}
+        stats={this.props.stats}
+        values={this.props.rules}
+      />
     );
   }
 }

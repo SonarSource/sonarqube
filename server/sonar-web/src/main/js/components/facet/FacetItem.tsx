@@ -57,9 +57,7 @@ export default class FacetItem extends React.PureComponent<Props> {
     return this.props.disabled ? (
       <span className={className} data-facet={this.props.value}>
         <span className="facet-name">{name}</span>
-        {this.props.stat != null && (
-          <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
-        )}
+        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
       </span>
     ) : (
       <a
@@ -69,9 +67,7 @@ export default class FacetItem extends React.PureComponent<Props> {
         onClick={this.handleClick}
         title={this.props.tooltip}>
         <span className="facet-name">{name}</span>
-        {this.props.stat != null && (
-          <span className="facet-stat">{this.props.loading ? '' : this.props.stat}</span>
-        )}
+        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
       </a>
     );
   }

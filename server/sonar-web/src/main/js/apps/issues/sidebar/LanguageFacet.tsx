@@ -18,19 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, uniq, without } from 'lodash';
-import LanguageFacetFooter from './LanguageFacetFooter';
-import { formatFacetStat, Query, ReferencedLanguage } from '../utils';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import { uniqBy } from 'lodash';
+import { connect } from 'react-redux';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { Query, ReferencedLanguage } from '../utils';
+import { getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import { highlightTerm } from '../../../helpers/search';
+
+interface InstalledLanguage {
+  key: string;
+  name: string;
+}
 
 interface Props {
   fetching: boolean;
+  installedLanguages: InstalledLanguage[];
   languages: string[];
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -40,109 +43,62 @@ interface Props {
   stats: { [x: string]: number } | undefined;
 }
 
-export default class LanguageFacet extends React.PureComponent<Props> {
-  property = 'languages';
-
-  static defaultProps = {
-    open: true
-  };
-
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { languages } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        languages.includes(itemValue) ? without(languages, itemValue) : [...languages, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]: languages.includes(itemValue) && languages.length < 2 ? [] : [itemValue]
-      });
-    }
-  };
-
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
-  };
-
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
-  };
-
-  getLanguageName(language: string) {
+class LanguageFacet extends React.PureComponent<Props> {
+  getLanguageName = (language: string) => {
     const { referencedLanguages } = this.props;
     return referencedLanguages[language] ? referencedLanguages[language].name : language;
-  }
-
-  getStat(language: string) {
-    const { stats } = this.props;
-    return stats ? stats[language] : undefined;
-  }
-
-  handleSelect = (language: string) => {
-    const { languages } = this.props;
-    this.props.onChange({ [this.property]: uniq([...languages, language]) });
   };
 
-  renderList() {
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
-    const languages = sortBy(Object.keys(stats), key => -stats[key]);
-
-    return (
-      <FacetItemsList>
-        {languages.map(language => (
-          <FacetItem
-            active={this.props.languages.includes(language)}
-            key={language}
-            loading={this.props.loading}
-            name={this.getLanguageName(language)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(language))}
-            tooltip={this.getLanguageName(language)}
-            value={language}
-          />
-        ))}
-      </FacetItemsList>
+  handleSearch = (query: string) => {
+    const options = this.getAllPossibleOptions();
+    const results = options.filter(language =>
+      language.name.toLowerCase().includes(query.toLowerCase())
     );
-  }
+    const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
+    return Promise.resolve({ paging, results });
+  };
 
-  renderFooter() {
-    if (!this.props.stats) {
-      return null;
-    }
+  getAllPossibleOptions = () => {
+    const { installedLanguages, stats = {} } = this.props;
 
-    return (
-      <LanguageFacetFooter onSelect={this.handleSelect} selected={Object.keys(this.props.stats)} />
+    // add any language that presents in the facet, but might not be installed
+    // for such language we don't know their display name, so let's just use their key
+    // and make sure we reference each language only once
+    return uniqBy(
+      [...installedLanguages, ...Object.keys(stats).map(key => ({ key, name: key }))],
+      language => language.key
     );
-  }
+  };
+
+  renderSearchResult = ({ name }: InstalledLanguage, term: string) => {
+    return highlightTerm(name, term);
+  };
 
   render() {
-    const { languages, stats = {} } = this.props;
-    const values = this.props.languages.map(language => this.getLanguageName(language));
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={values}
-        />
-
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            {this.renderFooter()}
-            <MultipleSelectionHint options={Object.keys(stats).length} values={languages.length} />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.languages')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.getLanguageName}
+        getSearchResultKey={(language: InstalledLanguage) => language.key}
+        getSearchResultText={(language: InstalledLanguage) => language.name}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="languages"
+        renderFacetItem={this.getLanguageName}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_languages')}
+        stats={this.props.stats}
+        values={this.props.languages}
+      />
     );
   }
 }
+
+const mapStateToProps = (state: any) => ({
+  installedLanguages: Object.values(getLanguages(state))
+});
+
+export default connect(mapStateToProps)(LanguageFacet);

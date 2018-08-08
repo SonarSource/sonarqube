@@ -16,6 +16,15 @@ exports[`should render 1`] = `
     timeout={100}
   />
   <React.Fragment>
+    <SearchBox
+      autoFocus={true}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search.search_for_users"
+      value=""
+    />
     <FacetItemsList>
       <FacetItem
         active={false}
@@ -75,11 +84,6 @@ exports[`should render 1`] = `
         value="baz"
       />
     </FacetItemsList>
-    <FacetFooter
-      onSearch={[Function]}
-      onSelect={[Function]}
-      renderOption={[Function]}
-    />
     <MultipleSelectionHint
       options={4}
       values={0}
@@ -144,6 +148,15 @@ exports[`should select unassigned 1`] = `
     timeout={100}
   />
   <React.Fragment>
+    <SearchBox
+      autoFocus={true}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search.search_for_users"
+      value=""
+    />
     <FacetItemsList>
       <FacetItem
         active={true}
@@ -203,11 +216,6 @@ exports[`should select unassigned 1`] = `
         value="baz"
       />
     </FacetItemsList>
-    <FacetFooter
-      onSearch={[Function]}
-      onSelect={[Function]}
-      renderOption={[Function]}
-    />
     <MultipleSelectionHint
       options={4}
       values={0}
@@ -236,6 +244,15 @@ exports[`should select user 1`] = `
     timeout={100}
   />
   <React.Fragment>
+    <SearchBox
+      autoFocus={true}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search.search_for_users"
+      value=""
+    />
     <FacetItemsList>
       <FacetItem
         active={false}
@@ -295,11 +312,6 @@ exports[`should select user 1`] = `
         value="baz"
       />
     </FacetItemsList>
-    <FacetFooter
-      onSearch={[Function]}
-      onSelect={[Function]}
-      renderOption={[Function]}
-    />
     <MultipleSelectionHint
       options={4}
       values={1}

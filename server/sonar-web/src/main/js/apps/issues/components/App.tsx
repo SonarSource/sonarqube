@@ -50,7 +50,8 @@ import {
   ReferencedUser,
   saveMyIssues,
   serializeQuery,
-  STANDARDS
+  STANDARDS,
+  ReferencedRule
 } from '../utils';
 import {
   Component,
@@ -90,7 +91,7 @@ interface FetchIssuesPromise {
   issues: Issue[];
   languages: ReferencedLanguage[];
   paging: Paging;
-  rules: { name: string }[];
+  rules: ReferencedRule[];
   users: ReferencedUser[];
 }
 
@@ -125,7 +126,7 @@ export interface State {
   query: Query;
   referencedComponents: { [componentKey: string]: ReferencedComponent };
   referencedLanguages: { [languageKey: string]: ReferencedLanguage };
-  referencedRules: { [ruleKey: string]: { name: string } };
+  referencedRules: { [ruleKey: string]: ReferencedRule };
   referencedUsers: { [login: string]: ReferencedUser };
   selected?: string;
   selectedFlowIndex?: number;

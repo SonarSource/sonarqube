@@ -182,6 +182,13 @@ exports[`should render sub-facets 1`] = `
         timeout={100}
       />
       <React.Fragment>
+        <SearchBox
+          autoFocus={true}
+          className="little-spacer-top spacer-bottom"
+          onChange={[Function]}
+          placeholder="search.search_for_cwe"
+          value=""
+        />
         <FacetItemsList>
           <FacetItem
             active={true}
@@ -208,32 +215,110 @@ exports[`should render sub-facets 1`] = `
             value="173"
           />
         </FacetItemsList>
-        <div
-          className="search-navigator-facet-footer"
-        >
-          <Select
-            className="input-super-large"
-            clearable={false}
-            noResultsText="select2.noMatches"
-            onChange={[Function]}
-            options={
-              Array [
-                Object {
-                  "label": "CWE-42 - cwe-42 title",
-                  "value": "42",
-                },
-                Object {
-                  "label": "Unknown CWE",
-                  "value": "unknown",
-                },
-              ]
-            }
-            placeholder="search.search_for_cwe"
-            searchable={true}
-          />
-        </div>
         <MultipleSelectionHint
           options={2}
+          values={1}
+        />
+      </React.Fragment>
+    </FacetBox>
+  </React.Fragment>
+</FacetBox>
+`;
+
+exports[`should search CWE 1`] = `
+<FacetBox
+  property="standards"
+>
+  <FacetHeader
+    name="issues.facet.standards"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={
+      Array [
+        "CWE-42 - cwe-42 title",
+      ]
+    }
+  />
+  <React.Fragment>
+    <FacetBox
+      className="is-inner"
+      property="owaspTop10"
+    >
+      <FacetHeader
+        name="issues.facet.owaspTop10"
+        onClick={[Function]}
+        open={false}
+        values={Array []}
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      />
+    </FacetBox>
+    <FacetBox
+      className="is-inner"
+      property="sansTop25"
+    >
+      <FacetHeader
+        name="issues.facet.sansTop25"
+        onClick={[Function]}
+        open={false}
+        values={Array []}
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      />
+    </FacetBox>
+    <FacetBox
+      className="is-inner"
+      property="cwe"
+    >
+      <FacetHeader
+        name="issues.facet.cwe"
+        onClick={[Function]}
+        open={true}
+        values={
+          Array [
+            "CWE-42 - cwe-42 title",
+          ]
+        }
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      />
+      <React.Fragment>
+        <SearchBox
+          autoFocus={true}
+          className="little-spacer-top spacer-bottom"
+          onChange={[Function]}
+          placeholder="search.search_for_cwe"
+          value="unkn"
+        />
+        <FacetItemsList>
+          <FacetItem
+            active={false}
+            disabled={false}
+            halfWidth={false}
+            key="unknown"
+            loading={false}
+            name={
+              <React.Fragment>
+                <mark>
+                  Unkn
+                </mark>
+                own CWE
+              </React.Fragment>
+            }
+            onClick={[Function]}
+            tooltip="Unknown CWE"
+            value="unknown"
+          />
+        </FacetItemsList>
+        <MultipleSelectionHint
+          options={0}
           values={1}
         />
       </React.Fragment>
