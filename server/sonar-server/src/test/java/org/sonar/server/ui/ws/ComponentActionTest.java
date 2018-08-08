@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +53,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -224,15 +226,23 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void return_quality_profiles() {
-    ComponentDto project = insertOrganizationAndProject();
+  public void return_quality_profiles_and_supports_deleted_ones() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
+    ComponentDto project = insertProject(organization);
+    QProfileDto qp1 = db.qualityProfiles().insert(organization, t -> t.setKee("qp1").setName("Sonar Way Java").setLanguage("java"));
+    QProfileDto qp2 = db.qualityProfiles().insert(organization, t -> t.setKee("qp2").setName("Sonar Way Xoo").setLanguage("xoo"));
     addQualityProfiles(project,
-      createQProfile("qp1", "Sonar Way Java", "java"),
-      createQProfile("qp2", "Sonar Way Xoo", "xoo"));
+      new QualityProfile(qp1.getKee(), qp1.getName(), qp1.getLanguage(), new Date()),
+      new QualityProfile(qp2.getKee(), qp2.getName(), qp2.getLanguage(), new Date()));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
     executeAndVerify(project.getDbKey(), "return_quality_profiles.json");
+
+    db.getDbClient().qualityProfileDao().deleteOrgQProfilesByUuids(db.getSession(), ImmutableSet.of(qp1.getKee(), qp2.getKee()));
+    db.commit();
+
+    executeAndVerify(project.getDbKey(), "return_deleted_quality_profiles.json");
   }
 
   @Test
@@ -629,6 +639,10 @@ public class ComponentActionTest {
 
   private ComponentDto insertOrganizationAndProject() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
+    return insertProject(organization);
+  }
+
+  private ComponentDto insertProject(OrganizationDto organization) {
     db.qualityGates().createDefaultQualityGate(organization);
     return db.components().insertPrivateProject(organization, "abcd", p -> p.setDbKey("polop").setName("Polop").setDescription("test project"));
   }

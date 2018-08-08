@@ -23,10 +23,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
@@ -51,6 +52,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.BillingValidations;
@@ -63,10 +65,12 @@ import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptySortedSet;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -77,8 +81,8 @@ import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 public class ComponentAction implements NavigationWsAction {
 
   static final String PARAM_COMPONENT = "component";
-  static final String PARAM_BRANCH = "branch";
-  static final String PARAM_PULL_REQUEST = "pullRequest";
+  private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_PULL_REQUEST = "pullRequest";
 
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
@@ -193,11 +197,12 @@ public class ComponentAction implements NavigationWsAction {
     });
   }
 
-  private static Consumer<QualityProfile> writeToJson(JsonWriter json) {
-    return profile -> json.beginObject()
+  private static void writeToJson(JsonWriter json, QualityProfile profile, boolean deleted) {
+    json.beginObject()
       .prop("key", profile.getQpKey())
       .prop("name", profile.getQpName())
       .prop("language", profile.getLanguageKey())
+      .prop("deleted", deleted)
       .endObject();
   }
 
@@ -241,10 +246,15 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeProfiles(JsonWriter json, DbSession dbSession, ComponentDto component) {
-    json.name("qualityProfiles").beginArray();
-    dbClient.liveMeasureDao().selectMeasure(dbSession, component.projectUuid(), QUALITY_PROFILES_KEY)
+    Set<QualityProfile> qualityProfiles = dbClient.liveMeasureDao().selectMeasure(dbSession, component.projectUuid(), QUALITY_PROFILES_KEY)
       .map(LiveMeasureDto::getDataAsString)
-      .ifPresent(data -> QPMeasureData.fromJson(data).getProfiles().forEach(writeToJson(json)));
+      .map(data -> QPMeasureData.fromJson(data).getProfiles())
+      .orElse(emptySortedSet());
+    Map<String, QProfileDto> dtoByQPKey = dbClient.qualityProfileDao().selectByUuids(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).collect(Collectors.toList()))
+      .stream()
+      .collect(uniqueIndex(QProfileDto::getKee));
+    json.name("qualityProfiles").beginArray();
+    qualityProfiles.forEach(qp -> writeToJson(json, qp, !dtoByQPKey.containsKey(qp.getQpKey())));
     json.endArray();
   }
 
