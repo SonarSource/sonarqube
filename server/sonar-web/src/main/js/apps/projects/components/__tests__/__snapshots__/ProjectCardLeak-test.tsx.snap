@@ -69,9 +69,11 @@ exports[`should display the leak measures and quality gate 1`] = `
     <div
       className="project-card-dates note text-right pull-right"
     >
-      <DateFromNow
-        date="2016-12-01"
-      />
+      <span
+        className="project-card-leak-date pull-right"
+      >
+        projects.new_code_period_x.duration.years.1 duration.months.8 
+      </span>
       <DateTimeFormatter
         date="2017-01-01"
       />

@@ -45,8 +45,8 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
     const options = [
       ...VIEWS.map(opt => ({
         type: 'view',
-        value: opt,
-        label: translate('projects.view', opt)
+        value: opt.value,
+        label: translate('projects.view', opt.label)
       })),
       ...VISUALIZATIONS.map(opt => ({
         type: 'visualization',

@@ -43,7 +43,7 @@ const PROJECT = {
 it('should display analysis date and leak start date', () => {
   const card = shallow(<ProjectCardLeak height={100} organization={undefined} project={PROJECT} />);
   expect(card.find('.project-card-dates').exists()).toBeTruthy();
-  expect(card.find('.project-card-dates').find('DateFromNow')).toHaveLength(1);
+  expect(card.find('.project-card-dates').find('.project-card-leak-date')).toHaveLength(1);
   expect(card.find('.project-card-dates').find('DateTimeFormatter')).toHaveLength(1);
 });
 

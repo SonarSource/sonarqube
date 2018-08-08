@@ -106,7 +106,7 @@ export default class BranchRow extends React.PureComponent<Props, State> {
             <ActionsDropdownItem
               className="js-change-leak-period"
               onClick={this.handleChangeLeakClick}>
-              {translate('branches.set_leak_period')}
+              {translate('branches.set_new_code_period')}
             </ActionsDropdownItem>
           )}
           {isLongLivingBranch(branchLike) && <ActionsDropdownDivider />}

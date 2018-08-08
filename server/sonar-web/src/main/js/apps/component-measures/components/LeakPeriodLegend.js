@@ -36,12 +36,12 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 export default function LeakPeriodLegend({ className, component, period } /*: Props */) {
   const leakClass = classNames('domain-measures-leak-header', className);
   if (component.qualifier === 'APP') {
-    return <div className={leakClass}>{translate('issues.leak_period')}</div>;
+    return <div className={leakClass}>{translate('issues.new_code_period')}</div>;
   }
 
   const label = (
     <div className={leakClass}>
-      {translateWithParameters('overview.leak_period_x', getPeriodLabel(period))}
+      {translateWithParameters('overview.new_code_period_x', getPeriodLabel(period))}
     </div>
   );
 

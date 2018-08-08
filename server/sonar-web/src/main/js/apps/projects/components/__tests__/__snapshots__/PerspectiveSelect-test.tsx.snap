@@ -40,7 +40,7 @@ exports[`should render correctly 1`] = `
           "value": "overall",
         },
         Object {
-          "label": "projects.view.leak",
+          "label": "projects.view.new_code",
           "type": "view",
           "value": "leak",
         },
@@ -101,7 +101,7 @@ exports[`should render with coverage selected 1`] = `
           "value": "overall",
         },
         Object {
-          "label": "projects.view.leak",
+          "label": "projects.view.new_code",
           "type": "view",
           "value": "leak",
         },

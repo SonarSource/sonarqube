@@ -167,7 +167,7 @@ export default class QualityGateCondition extends React.PureComponent {
           {!isDiff &&
             condition.period != null && (
               <div className="overview-quality-gate-condition-period">
-                {translate('quality_gates.conditions.leak')}
+                {translate('quality_gates.conditions.new_code')}
               </div>
             )}
           <div className="overview-quality-gate-threshold">

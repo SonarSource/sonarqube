@@ -77,7 +77,7 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
   if (period.mode === 'days') {
     return (
       <div className="overview-legend overview-legend-spaced-line">
-        {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
+        {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
       </div>
     );
   }
@@ -100,7 +100,7 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
   return (
     <Tooltip overlay={tooltip}>
       <div className="overview-legend">
-        {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
+        {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
         <br />
         <DateFromNow date={leakPeriodDate}>
           {fromNow => (

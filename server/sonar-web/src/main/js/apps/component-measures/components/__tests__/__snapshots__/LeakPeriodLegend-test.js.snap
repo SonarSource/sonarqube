@@ -18,7 +18,7 @@ exports[`should render correctly 1`] = `
   <div
     className="domain-measures-leak-header"
   >
-    overview.leak_period_x.overview.period.previous_version.6,4
+    overview.new_code_period_x.overview.period.previous_version.6,4
   </div>
 </Tooltip>
 `;
@@ -27,7 +27,7 @@ exports[`should render correctly 2`] = `
 <div
   className="domain-measures-leak-header"
 >
-  overview.leak_period_x.overview.period.days.18
+  overview.new_code_period_x.overview.period.days.18
 </div>
 `;
 
@@ -35,6 +35,6 @@ exports[`should render correctly for APP 1`] = `
 <div
   className="domain-measures-leak-header"
 >
-  issues.leak_period
+  issues.new_code_period
 </div>
 `;

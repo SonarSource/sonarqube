@@ -155,7 +155,7 @@ public class CorePropertyDefinitions {
 
       // SCANNER
       PropertyDefinition.builder(LEAK_PERIOD)
-        .name("Leak Period")
+        .name("New Code Period")
         .deprecatedKey("sonar.timemachine.period1")
         .description("Period used to compare measures and track new issues. Values are : " +
           "<ul class='bullet'><li>Number of days before  analysis, for example 5.</li>" +

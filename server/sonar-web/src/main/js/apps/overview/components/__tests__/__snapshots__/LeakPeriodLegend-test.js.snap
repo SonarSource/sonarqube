@@ -4,7 +4,7 @@ exports[`check note 10 days 1`] = `
 <div
   className="overview-legend overview-legend-spaced-line"
 >
-  overview.leak_period_x.overview.period.days.10
+  overview.new_code_period_x.overview.period.days.10
 </div>
 `;
 

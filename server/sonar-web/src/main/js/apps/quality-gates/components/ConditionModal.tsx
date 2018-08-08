@@ -157,7 +157,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         {metric && (
           <>
             <div className="modal-field">
-              <label>{translate('quality_gates.conditions.leak')}</label>
+              <label>{translate('quality_gates.conditions.new_code')}</label>
               <Period
                 canEdit={true}
                 metric={metric}

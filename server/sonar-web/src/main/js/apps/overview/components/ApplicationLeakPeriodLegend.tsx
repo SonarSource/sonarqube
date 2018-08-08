@@ -97,7 +97,7 @@ export default class ApplicationLeakPeriodLegend extends React.Component<Props, 
     return (
       <Tooltip overlay={this.renderOverlay()}>
         <div className={classNames('overview-legend', { 'overview-legend-spaced-line': !leak })}>
-          {translate('issues.max_leak_period')}:{' '}
+          {translate('issues.max_new_code_period')}:{' '}
           {leak && (
             <>
               <DateFromNow date={leak.date}>

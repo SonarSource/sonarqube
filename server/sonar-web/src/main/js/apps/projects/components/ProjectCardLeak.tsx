@@ -23,13 +23,13 @@ import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
 import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
 import Favorite from '../../../components/controls/Favorite';
-import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import TagsList from '../../../components/tags/TagsList';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 import { Organization } from '../../../app/types';
+import { formatDuration } from '../utils';
 
 interface Props {
   height: number;
@@ -40,7 +40,9 @@ interface Props {
 export default function ProjectCardLeak({ height, organization, project }: Props) {
   const { measures } = project;
   const hasTags = project.tags.length > 0;
-
+  const period = project.leakPeriodDate
+    ? new Date().getTime() - new Date(project.leakPeriodDate).getTime()
+    : 0;
   return (
     <div className="boxed-group project-card" data-key={project.key} style={{ height }}>
       <div className="boxed-group-header clearfix">
@@ -75,13 +77,9 @@ export default function ProjectCardLeak({ height, organization, project }: Props
         {project.analysisDate &&
           project.leakPeriodDate && (
             <div className="project-card-dates note text-right pull-right">
-              <DateFromNow date={project.leakPeriodDate}>
-                {fromNow => (
-                  <span className="project-card-leak-date pull-right">
-                    {translateWithParameters('projects.leak_period_x', fromNow)}
-                  </span>
-                )}
-              </DateFromNow>
+              <span className="project-card-leak-date pull-right">
+                {translateWithParameters('projects.new_code_period_x', formatDuration(period))}
+              </span>
               <DateTimeFormatter date={project.analysisDate}>
                 {formattedDate => (
                   <span>
@@ -101,7 +99,7 @@ export default function ProjectCardLeak({ height, organization, project }: Props
         <div className="boxed-group-inner">
           <div className="note project-card-not-analyzed">
             {project.analysisDate
-              ? translate('projects.no_leak_period')
+              ? translate('projects.no_new_code_period')
               : translate('projects.not_analyzed')}
           </div>
         </div>

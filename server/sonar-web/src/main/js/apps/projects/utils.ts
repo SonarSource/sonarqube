@@ -20,7 +20,7 @@
 /* eslint-disable camelcase */
 import { uniq } from 'lodash';
 import { Query, convertToFilter } from './query';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { RequestData } from '../../helpers/request';
 import { getOrganizations } from '../../api/organizations';
 import { searchProjects, Facet } from '../../api/components';
@@ -75,7 +75,7 @@ export const SORTING_SWITCH: { [x: string]: string } = {
   new_lines: 'size'
 };
 
-export const VIEWS = ['overall', 'leak'];
+export const VIEWS = [{ value: 'overall', label: 'overall' }, { value: 'leak', label: 'new_code' }];
 
 export const VISUALIZATIONS = [
   'risk',
@@ -335,4 +335,48 @@ function mapMetricToProperty(metricKey: string) {
     query: 'search'
   };
   return map[metricKey];
+}
+
+const ONE_MINUTE = 60000;
+const ONE_HOUR = 60 * ONE_MINUTE;
+const ONE_DAY = 24 * ONE_HOUR;
+const ONE_MONTH = 30 * ONE_DAY;
+const ONE_YEAR = 12 * ONE_MONTH;
+
+function format(periods: Array<{ value: number; label: string }>) {
+  let result = '';
+  let count = 0;
+  let lastId = -1;
+  for (let i = 0; i < periods.length && count < 2; i++) {
+    if (periods[i].value > 0) {
+      count++;
+      if (lastId < 0 || lastId + 1 === i) {
+        lastId = i;
+        result += translateWithParameters(periods[i].label, periods[i].value) + ' ';
+      }
+    }
+  }
+  return result;
+}
+
+export function formatDuration(value: number) {
+  if(value < ONE_MINUTE) {
+    return translate('duration.seconds');
+  }
+  const years = Math.floor(value / ONE_YEAR);
+  value -= years * ONE_YEAR;
+  const months = Math.floor(value / ONE_MONTH);
+  value -= months * ONE_MONTH;
+  const days = Math.floor(value / ONE_DAY);
+  value -= days * ONE_DAY;
+  const hours = Math.floor(value / ONE_HOUR);
+  value -= hours * ONE_HOUR;
+  const minutes = Math.floor(value / ONE_MINUTE);
+  return format([
+    { value: years, label: 'duration.years' },
+    { value: months, label: 'duration.months' },
+    { value: days, label: 'duration.days' },
+    { value: hours, label: 'duration.hours' },
+    { value: minutes, label: 'duration.minutes' }
+  ]);
 }

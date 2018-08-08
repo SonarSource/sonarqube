@@ -74,7 +74,7 @@ export default class LeakPeriodForm extends React.PureComponent<Props, State> {
 
   render() {
     const { setting } = this.state;
-    const header = translate('branches.set_leak_period');
+    const header = translate('branches.set_new_code_period');
 
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
