@@ -36,6 +36,7 @@ exports[`should render disabled 1`] = `
 <span
   className="search-navigator-facet"
   data-facet="bar"
+  title="foo"
 >
   <span
     className="facet-name"

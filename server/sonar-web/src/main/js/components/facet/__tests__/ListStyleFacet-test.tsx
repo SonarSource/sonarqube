@@ -116,6 +116,50 @@ it('should search', async () => {
   expect(onSearch).lastCalledWith('blabla');
 });
 
+it('should limit the number of items', () => {
+  const wrapper = shallowRender({ maxInitialItems: 2, maxItems: 5 });
+  expect(wrapper.find('FacetItem').length).toBe(2);
+
+  wrapper.find('ListStyleFacetFooter').prop<Function>('showMore')();
+  wrapper.update();
+  expect(wrapper.find('FacetItem').length).toBe(3);
+
+  wrapper.find('ListStyleFacetFooter').prop<Function>('showLess')();
+  wrapper.update();
+  expect(wrapper.find('FacetItem').length).toBe(2);
+});
+
+it('should show warning that there might be more results', () => {
+  const wrapper = shallowRender({ maxInitialItems: 2, maxItems: 3 });
+  wrapper.find('ListStyleFacetFooter').prop<Function>('showMore')();
+  wrapper.update();
+  expect(wrapper.find('.alert-warning').exists()).toBe(true);
+});
+
+it('should reset state when closes', () => {
+  const wrapper = shallowRender();
+  wrapper.setState({
+    query: 'foobar',
+    searchResults: ['foo', 'bar'],
+    searching: true,
+    showFullList: true
+  });
+
+  wrapper.setProps({ open: false });
+  expect(wrapper.state('query')).toBe('');
+  expect(wrapper.state('searchResults')).toBe(undefined);
+  expect(wrapper.state('searching')).toBe(false);
+  expect(wrapper.state('showFullList')).toBe(false);
+});
+
+it('should collapse list when new stats have few results', () => {
+  const wrapper = shallowRender({ maxInitialItems: 2, maxItems: 3 });
+  wrapper.setState({ showFullList: true });
+
+  wrapper.setProps({ stats: { d: 1 } });
+  expect(wrapper.state('showFullList')).toBe(false);
+});
+
 function shallowRender(props: Partial<Props<string>> = {}) {
   return shallow(
     <ListStyleFacet

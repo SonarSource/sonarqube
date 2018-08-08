@@ -25,44 +25,51 @@ exports[`should render 1`] = `
       placeholder="search for foo..."
       value=""
     />
-    <FacetItemsList>
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="a"
-        loading={false}
-        name="a"
-        onClick={[Function]}
-        stat="10"
-        tooltip="a"
-        value="a"
+    <React.Fragment>
+      <FacetItemsList>
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="a"
+          loading={false}
+          name="a"
+          onClick={[Function]}
+          stat="10"
+          tooltip="a"
+          value="a"
+        />
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="b"
+          loading={false}
+          name="b"
+          onClick={[Function]}
+          stat="8"
+          tooltip="b"
+          value="b"
+        />
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="c"
+          loading={false}
+          name="c"
+          onClick={[Function]}
+          stat="1"
+          tooltip="c"
+          value="c"
+        />
+      </FacetItemsList>
+      <ListStyleFacetFooter
+        count={3}
+        showMore={[Function]}
+        total={3}
       />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="b"
-        loading={false}
-        name="b"
-        onClick={[Function]}
-        stat="8"
-        tooltip="b"
-        value="b"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="c"
-        loading={false}
-        name="c"
-        onClick={[Function]}
-        stat="1"
-        tooltip="c"
-        value="c"
-      />
-    </FacetItemsList>
+    </React.Fragment>
     <MultipleSelectionHint
       options={3}
       values={0}
@@ -100,28 +107,31 @@ exports[`should search 1`] = `
       <FacetItemsList>
         <FacetItem
           active={false}
-          disabled={false}
+          disabled={true}
           halfWidth={false}
           key="d"
           loading={false}
           name="d"
           onClick={[Function]}
+          stat={0}
           tooltip="d"
           value="d"
         />
         <FacetItem
           active={false}
-          disabled={false}
+          disabled={true}
           halfWidth={false}
           key="e"
           loading={false}
           name="e"
           onClick={[Function]}
+          stat={0}
           tooltip="e"
           value="e"
         />
       </FacetItemsList>
       <ListFooter
+        className="spacer-bottom"
         count={2}
         loadMore={[Function]}
         ready={true}
@@ -165,39 +175,43 @@ exports[`should search 2`] = `
       <FacetItemsList>
         <FacetItem
           active={false}
-          disabled={false}
+          disabled={true}
           halfWidth={false}
           key="d"
           loading={false}
           name="d"
           onClick={[Function]}
+          stat={0}
           tooltip="d"
           value="d"
         />
         <FacetItem
           active={false}
-          disabled={false}
+          disabled={true}
           halfWidth={false}
           key="e"
           loading={false}
           name="e"
           onClick={[Function]}
+          stat={0}
           tooltip="e"
           value="e"
         />
         <FacetItem
           active={false}
-          disabled={false}
+          disabled={true}
           halfWidth={false}
           key="f"
           loading={false}
           name="f"
           onClick={[Function]}
+          stat={0}
           tooltip="f"
           value="f"
         />
       </FacetItemsList>
       <ListFooter
+        className="spacer-bottom"
         count={3}
         loadMore={[Function]}
         ready={true}
@@ -237,44 +251,51 @@ exports[`should search 3`] = `
       placeholder="search for foo..."
       value=""
     />
-    <FacetItemsList>
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="a"
-        loading={false}
-        name="a"
-        onClick={[Function]}
-        stat="10"
-        tooltip="a"
-        value="a"
+    <React.Fragment>
+      <FacetItemsList>
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="a"
+          loading={false}
+          name="a"
+          onClick={[Function]}
+          stat="10"
+          tooltip="a"
+          value="a"
+        />
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="b"
+          loading={false}
+          name="b"
+          onClick={[Function]}
+          stat="8"
+          tooltip="b"
+          value="b"
+        />
+        <FacetItem
+          active={false}
+          disabled={false}
+          halfWidth={false}
+          key="c"
+          loading={false}
+          name="c"
+          onClick={[Function]}
+          stat="1"
+          tooltip="c"
+          value="c"
+        />
+      </FacetItemsList>
+      <ListStyleFacetFooter
+        count={3}
+        showMore={[Function]}
+        total={3}
       />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="b"
-        loading={false}
-        name="b"
-        onClick={[Function]}
-        stat="8"
-        tooltip="b"
-        value="b"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="c"
-        loading={false}
-        name="c"
-        onClick={[Function]}
-        stat="1"
-        tooltip="c"
-        value="c"
-      />
-    </FacetItemsList>
+    </React.Fragment>
     <MultipleSelectionHint
       options={3}
       values={0}

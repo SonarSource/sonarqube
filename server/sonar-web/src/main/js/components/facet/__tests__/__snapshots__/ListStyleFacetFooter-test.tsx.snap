@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render "show less" 1`] = `
+<footer
+  className="note spacer-top spacer-bottom text-center"
+>
+  x_show.15
+</footer>
+`;
+
+exports[`should not render "show more" 1`] = `
+<footer
+  className="note spacer-top spacer-bottom text-center"
+>
+  x_show.3
+</footer>
+`;
+
+exports[`should show less 1`] = `
+<footer
+  className="note spacer-top spacer-bottom text-center"
+>
+  x_show.15
+  <a
+    className="spacer-left text-muted"
+    href="#"
+    onClick={[Function]}
+  >
+    show_less
+  </a>
+</footer>
+`;
+
+exports[`should show more 1`] = `
+<footer
+  className="note spacer-top spacer-bottom text-center"
+>
+  x_show.3
+  <a
+    className="spacer-left text-muted"
+    href="#"
+    onClick={[Function]}
+  >
+    show_more
+  </a>
+</footer>
+`;

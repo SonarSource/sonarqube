@@ -76,6 +76,9 @@ class LanguageFacet extends React.PureComponent<Props> {
         getFacetItemText={this.getLanguageName}
         getSearchResultKey={(language: InstalledLanguage) => language.key}
         getSearchResultText={(language: InstalledLanguage) => language.name}
+        // TODO use defaults when rules search WS is updated
+        maxInitialItems={10}
+        maxItems={10}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}

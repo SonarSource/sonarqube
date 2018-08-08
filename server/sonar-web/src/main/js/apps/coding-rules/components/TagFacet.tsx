@@ -69,6 +69,9 @@ export default class TagFacet extends React.PureComponent<Props> {
         getFacetItemText={this.getTagName}
         getSearchResultKey={tag => tag}
         getSearchResultText={tag => tag}
+        // TODO use defaults when rules search WS is updated
+        maxInitialItems={10}
+        maxItems={10}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}

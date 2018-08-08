@@ -23,6 +23,7 @@ import FacetBox from './FacetBox';
 import FacetHeader from './FacetHeader';
 import FacetItem from './FacetItem';
 import FacetItemsList from './FacetItemsList';
+import ListStyleFacetFooter from './ListStyleFacetFooter';
 import MultipleSelectionHint from './MultipleSelectionHint';
 import { translate } from '../../helpers/l10n';
 import DeferredSpinner from '../common/DeferredSpinner';
@@ -38,6 +39,8 @@ export interface Props<S> {
   getSearchResultKey: (result: S) => string;
   getSearchResultText: (result: S) => string;
   loading?: boolean;
+  maxInitialItems?: number;
+  maxItems?: number;
   onChange: (changes: { [x: string]: string | string[] }) => void;
   onSearch: (query: string, page?: number) => Promise<{ results: S[]; paging: Paging }>;
   onToggle: (property: string) => void;
@@ -46,25 +49,32 @@ export interface Props<S> {
   renderFacetItem: (item: string) => React.ReactNode;
   renderSearchResult: (result: S, query: string) => React.ReactNode;
   searchPlaceholder: string;
-  values: string[];
   stats: { [x: string]: number } | undefined;
+  values: string[];
 }
 
 interface State<S> {
   autoFocus: boolean;
   query: string;
   searching: boolean;
-  searchResults?: S[];
   searchPaging?: Paging;
+  searchResults?: S[];
+  showFullList: boolean;
 }
 
 export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
   mounted = false;
 
+  static defaultProps = {
+    maxInitialItems: 15,
+    maxItems: 100
+  };
+
   state: State<S> = {
     autoFocus: false,
     query: '',
-    searching: false
+    searching: false,
+    showFullList: false
   };
 
   componentDidMount() {
@@ -72,9 +82,18 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   componentDidUpdate(prevProps: Props<S>) {
-    // focus search field *only* if it was manually open
     if (!prevProps.open && this.props.open) {
+      // focus search field *only* if it was manually open
       this.setState({ autoFocus: true });
+    } else if (prevProps.open && !this.props.open) {
+      // reset state when closing the facet
+      this.setState({ query: '', searchResults: undefined, searching: false, showFullList: false });
+    } else if (
+      prevProps.stats !== this.props.stats &&
+      Object.keys(this.props.stats || {}).length < this.props.maxInitialItems!
+    ) {
+      // show limited list if `stats` changed and there are less than 15 items
+      this.setState({ showFullList: false });
     }
   }
 
@@ -139,10 +158,28 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     }
   };
 
-  getStat(item: string) {
+  getStat(item: string, zeroIfAbsent = false) {
     const { stats } = this.props;
-    return stats ? stats[item] : undefined;
+    const defaultValue = zeroIfAbsent ? 0 : undefined;
+    return stats && stats[item] !== undefined ? stats && stats[item] : defaultValue;
   }
+
+  showFullList = () => {
+    this.setState({ showFullList: true });
+  };
+
+  hideFullList = () => {
+    this.setState({ showFullList: false });
+  };
+
+  getLastActiveIndex = (list: string[]) => {
+    for (let i = list.length - 1; i >= 0; i--) {
+      if (this.props.values.includes(list[i])) {
+        return i;
+      }
+    }
+    return 0;
+  };
 
   renderList() {
     const { stats } = this.props;
@@ -151,27 +188,51 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
       return null;
     }
 
-    const items = sortBy(
+    const sortedItems = sortBy(
       Object.keys(stats),
       key => -stats[key],
       key => this.props.getFacetItemText(key)
     );
 
+    // limit the number of items to this.props.maxInitialItems,
+    // but make sure all (in other words, the last) selected items are displayed
+    const lastSelectedIndex = this.getLastActiveIndex(sortedItems);
+    const countToDisplay = Math.max(this.props.maxInitialItems!, lastSelectedIndex + 1);
+    const limitedList = this.state.showFullList
+      ? sortedItems
+      : sortedItems.slice(0, countToDisplay);
+
+    const mightHaveMoreResults = sortedItems.length >= this.props.maxItems!;
+
     return (
-      <FacetItemsList>
-        {items.map(item => (
-          <FacetItem
-            active={this.props.values.includes(item)}
-            key={item}
-            loading={this.props.loading}
-            name={this.props.renderFacetItem(item)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(item))}
-            tooltip={this.props.getFacetItemText(item)}
-            value={item}
-          />
-        ))}
-      </FacetItemsList>
+      <>
+        <FacetItemsList>
+          {limitedList.map(item => (
+            <FacetItem
+              active={this.props.values.includes(item)}
+              key={item}
+              loading={this.props.loading}
+              name={this.props.renderFacetItem(item)}
+              onClick={this.handleItemClick}
+              stat={formatFacetStat(this.getStat(item))}
+              tooltip={this.props.getFacetItemText(item)}
+              value={item}
+            />
+          ))}
+        </FacetItemsList>
+        <ListStyleFacetFooter
+          count={limitedList.length}
+          showLess={this.state.showFullList ? this.hideFullList : undefined}
+          showMore={this.showFullList}
+          total={sortedItems.length}
+        />
+        {mightHaveMoreResults &&
+          this.state.showFullList && (
+            <div className="alert alert-warning spacer-top">
+              {translate('facet_might_have_more_results')}
+            </div>
+          )}
+      </>
     );
   }
 
@@ -211,6 +272,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
           {searchResults.map(result => this.renderSearchResult(result))}
         </FacetItemsList>
         <ListFooter
+          className="spacer-bottom"
           count={searchResults.length}
           loadMore={this.searchMore}
           ready={!searching}
@@ -223,7 +285,11 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   renderSearchResult(result: S) {
     const key = this.props.getSearchResultKey(result);
     const active = this.props.values.includes(key);
-    const stat = this.getStat(key);
+
+    // default to 0 if we're sure there are not more results
+    const isFacetExhaustive = Object.keys(this.props.stats || {}).length < this.props.maxItems!;
+    const stat = this.getStat(key, isFacetExhaustive);
+
     return (
       <FacetItem
         active={active}
@@ -232,7 +298,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         loading={this.props.loading}
         name={this.props.renderSearchResult(result, this.state.query)}
         onClick={this.handleItemClick}
-        stat={stat && formatFacetStat(stat)}
+        stat={formatFacetStat(stat)}
         tooltip={this.props.getSearchResultText(result)}
         value={key}
       />
