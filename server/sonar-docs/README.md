@@ -39,10 +39,10 @@ cd sonar-enterprise/server/sonar-web
 yarn start
 ```
 
-To start the SonarCloud Embedded docs dev server on port 3000:
+To start the SonarCloud Embedded docs dev server on port 3001:
 ```
 cd sonar-enterprise/server/sonar-web
-INSTANCE=SonarCloud yarn start
+INSTANCE=SonarCloud PORT=3001 yarn start
 ```
 
 To start the Static docs dev server on port 8000:
