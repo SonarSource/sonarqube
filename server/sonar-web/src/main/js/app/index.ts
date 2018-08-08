@@ -59,7 +59,7 @@ function loadMessages() {
 function loadLocaleData(langToLoad: string) {
   return Promise.all([import('react-intl/locale-data/' + langToLoad), import('react-intl')]).then(
     ([intlBundle, intl]) => {
-      intl.addLocaleData(intlBundle);
+      intl.addLocaleData(intlBundle.default);
     }
   );
 }
