@@ -21,11 +21,9 @@ package org.sonar.server.issue.index;
 
 import java.util.Map;
 import java.util.TimeZone;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
@@ -45,10 +43,14 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
@@ -66,13 +68,8 @@ public class IssueIndexDebtTest {
   public DbTester db = DbTester.create(system2);
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
-  private IssueIndex underTest;
-
-  @Before
-  public void setUp() {
-    underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
-  }
+  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
+  private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
 
   @Test
   public void facets_on_projects() {
@@ -190,10 +187,6 @@ public class IssueIndexDebtTest {
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 10L));
   }
 
-  private Facets search(String additionalFacet) {
-    return new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(asList(additionalFacet))), system2.getDefaultTimeZone());
-  }
-
   @Test
   public void facets_on_assignees() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
@@ -279,15 +272,11 @@ public class IssueIndexDebtTest {
 
   private void indexIssues(IssueDoc... issues) {
     issueIndexer.index(asList(issues).iterator());
-    for (IssueDoc issue : issues) {
-      addIssueAuthorization(issue.projectUuid());
-    }
+    authorizationIndexer.allow(stream(issues).map(issue -> new IndexPermissions(issue.projectUuid(), PROJECT).allowAnyone()).collect(toList()));
   }
 
-  private void addIssueAuthorization(String projectUuid) {
-    IndexPermissions access = new IndexPermissions(projectUuid, Qualifiers.PROJECT);
-    access.allowAnyone();
-    authorizationIndexerTester.allow(access);
+  private Facets search(String additionalFacet) {
+    return new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(singletonList(additionalFacet))), system2.getDefaultTimeZone());
   }
 
   private Builder newQueryBuilder() {

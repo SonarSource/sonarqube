@@ -34,12 +34,15 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectBranch;
@@ -55,7 +58,7 @@ public class IssueIndexProjectStatisticsTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), null, new IssueIteratorFactory(null));
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
+  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
 
   private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
 
@@ -262,10 +265,6 @@ public class IssueIndexProjectStatisticsTest {
 
   private void indexIssues(IssueDoc... issues) {
     issueIndexer.index(asList(issues).iterator());
-    for (IssueDoc issue : issues) {
-      IndexPermissions access = new IndexPermissions(issue.projectUuid(), "TRK");
-      access.allowAnyone();
-      authorizationIndexerTester.allow(access);
-    }
+    authorizationIndexer.allow(stream(issues).map(issue -> new IndexPermissions(issue.projectUuid(), PROJECT).allowAnyone()).collect(toList()));
   }
 }

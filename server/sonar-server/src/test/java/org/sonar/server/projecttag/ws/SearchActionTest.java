@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -43,7 +42,10 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.ProjectTags.SearchResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -61,7 +63,7 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, projectMeasureIndexer);
+  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, projectMeasureIndexer);
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(new SearchAction(index));
@@ -109,11 +111,7 @@ public class SearchActionTest {
 
   private void index(ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
-    for (ProjectMeasuresDoc doc : docs) {
-      IndexPermissions access = new IndexPermissions(doc.getId(), Qualifiers.PROJECT);
-      access.allowAnyone();
-      authorizationIndexerTester.allow(access);
-    }
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).allowAnyone()).collect(toList()));
   }
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {

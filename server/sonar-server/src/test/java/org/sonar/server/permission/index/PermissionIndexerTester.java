@@ -19,47 +19,47 @@
  */
 package org.sonar.server.permission.index;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 
-import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 public class PermissionIndexerTester {
 
   private final PermissionIndexer permissionIndexer;
 
   public PermissionIndexerTester(EsTester esTester, NeedAuthorizationIndexer indexer, NeedAuthorizationIndexer... others) {
-    NeedAuthorizationIndexer[] indexers = Stream.concat(Stream.of(indexer), Arrays.stream(others)).toArray(NeedAuthorizationIndexer[]::new);
+    NeedAuthorizationIndexer[] indexers = Stream.concat(Stream.of(indexer), stream(others)).toArray(NeedAuthorizationIndexer[]::new);
     this.permissionIndexer = new PermissionIndexer(null, esTester.client(), indexers);
   }
 
-  public PermissionIndexerTester allowOnlyAnyone(ComponentDto project) {
-    IndexPermissions dto = new IndexPermissions(project.uuid(), project.qualifier());
-    dto.allowAnyone();
-    permissionIndexer.index(asList(dto));
-    return this;
+  public PermissionIndexerTester allowOnlyAnyone(ComponentDto... projects) {
+    return allow(stream(projects).map(project -> new IndexPermissions(project.uuid(), project.qualifier()).allowAnyone()).collect(toList()));
   }
 
   public PermissionIndexerTester allowOnlyUser(ComponentDto project, UserDto user) {
     IndexPermissions dto = new IndexPermissions(project.uuid(), project.qualifier())
       .addUserId(user.getId());
-    permissionIndexer.index(asList(dto));
-    return this;
+    return allow(dto);
   }
 
   public PermissionIndexerTester allowOnlyGroup(ComponentDto project, GroupDto group) {
     IndexPermissions dto = new IndexPermissions(project.uuid(), project.qualifier())
       .addGroupId(group.getId());
-    permissionIndexer.index(asList(dto));
-    return this;
+    return allow(dto);
   }
 
-  public PermissionIndexerTester allow(IndexPermissions access) {
-    permissionIndexer.index(asList(access));
+  public PermissionIndexerTester allow(IndexPermissions... indexPermissions) {
+    return allow(stream(indexPermissions).collect(toList()));
+  }
+
+  public PermissionIndexerTester allow(List<IndexPermissions> indexPermissions) {
+    permissionIndexer.index(indexPermissions);
     return this;
   }
 }

@@ -139,6 +139,27 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 public class SearchAction implements IssuesWsAction {
 
   public static final String LOGIN_MYSELF = "__me__";
+  private static final List<String> SUPPORTED_FACETS = ImmutableList.of(
+    PARAM_SEVERITIES,
+    PARAM_STATUSES,
+    PARAM_RESOLUTIONS,
+    DEPRECATED_PARAM_ACTION_PLANS,
+    PARAM_PROJECT_UUIDS,
+    PARAM_RULES,
+    PARAM_ASSIGNEES,
+    FACET_ASSIGNED_TO_ME,
+    PARAM_REPORTERS,
+    PARAM_AUTHORS,
+    PARAM_MODULE_UUIDS,
+    PARAM_FILE_UUIDS,
+    PARAM_DIRECTORIES,
+    PARAM_LANGUAGES,
+    PARAM_TAGS,
+    PARAM_TYPES,
+    PARAM_OWASP_TOP_10,
+    PARAM_SANS_TOP_25,
+    PARAM_CWE,
+    PARAM_CREATED_AT);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);
@@ -192,10 +213,8 @@ public class SearchAction implements IssuesWsAction {
 
     action.addPagingParams(100, MAX_LIMIT);
     action.createParam(Param.FACETS)
-      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.<br/>" +
-        "Since 5.5, facet 'actionPlans' is deprecated.<br/>" +
-        "Since 5.5, facet 'reporters' is deprecated.")
-      .setPossibleValues(IssueIndex.SUPPORTED_FACETS);
+      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
+      .setPossibleValues(SUPPORTED_FACETS);
     action.createParam(FACET_MODE)
       .setDefaultValue(FACET_MODE_COUNT)
       .setDescription("Choose the returned value for facet items, either count of issues or sum of debt.<br/>" +
@@ -677,7 +696,7 @@ public class SearchAction implements IssuesWsAction {
   private static SearchRequest toSearchWsRequest(Request request) {
     return new SearchRequest()
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
-      .setAsc(request.paramAsBoolean(PARAM_ASC))
+      .setAsc(request.mandatoryParamAsBoolean(PARAM_ASC))
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
       .setAuthors(request.paramAsStrings(PARAM_AUTHORS))
       .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))

@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,12 +58,12 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.index.IssueQuery;
-import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.index.IssueQuery;
+import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.permission.index.PermissionIndexer;
@@ -80,9 +81,12 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
@@ -581,11 +585,68 @@ public class SearchActionTest {
 
     userSession.logIn("john");
     ws.newRequest()
-      .setParam("resolved", "false")
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans,types")
+      .setParam(FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans,types")
       .execute()
       .assertJson(this.getClass(), "display_facets.json");
+  }
+
+  @Test
+  public void check_facets_max_size() {
+    ComponentDto project = db.components().insertPublicProject(otherOrganization1);
+    IntStream.rangeClosed(1, 110)
+      .forEach(index -> {
+        RuleDefinitionDto rule = db.rules().insert();
+        UserDto user = db.users().insertUser();
+        ComponentDto module = db.components().insertComponent(newModuleDto(project));
+        ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir" + index));
+        ComponentDto file = db.components().insertComponent(newFileDto(directory));
+        db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(user.getUuid()));
+      });
+    indexPermissions();
+    indexIssues();
+    userSession.logIn("john");
+
+    Issues.SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(FACETS, "fileUuids,directories,moduleUuids,statuses,resolutions,severities,types,rules,languages,assignees")
+      .executeProtobuf(Issues.SearchWsResponse.class);
+
+    assertThat(response.getFacets().getFacetsList())
+      .extracting(Common.Facet::getProperty, Common.Facet::getValuesCount)
+      .containsExactlyInAnyOrder(
+        tuple("fileUuids", 100),
+        tuple("directories", 100),
+        tuple("moduleUuids", 100),
+        tuple("rules", 100),
+        tuple("languages", 100),
+        // Assignees contains one additional element : it's the empty string that will return number of unassigned issues
+        tuple("assignees", 101),
+        // Following facets returned fixed number of elements
+        tuple("statuses", 5),
+        tuple("resolutions", 5),
+        tuple("severities", 5),
+        tuple("types", 4));
+  }
+
+  @Test
+  public void check_projectUuids_facet_max_size() {
+    RuleDefinitionDto rule = db.rules().insert();
+    IntStream.rangeClosed(1, 110)
+      .forEach(i -> {
+        ComponentDto project = db.components().insertPublicProject(otherOrganization1);
+        db.issues().insert(rule, project, project);
+      });
+    indexPermissions();
+    indexIssues();
+    userSession.logIn("john");
+
+    Issues.SearchWsResponse response = ws.newRequest()
+      .setParam(FACETS, "projectUuids")
+      .executeProtobuf(Issues.SearchWsResponse.class);
+
+    assertThat(response.getPaging().getTotal()).isEqualTo(110);
+    assertThat(response.getFacets().getFacets(0).getValuesCount()).isEqualTo(100);
   }
 
   @Test
@@ -608,9 +669,8 @@ public class SearchActionTest {
 
     userSession.logIn(john);
     ws.newRequest()
-      .setParam("resolved", "false")
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
+      .setParam(FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .setParam("facetMode", FACET_MODE_EFFORT)
       .execute()
       .assertJson(this.getClass(), "display_facets_effort.json");
@@ -637,10 +697,9 @@ public class SearchActionTest {
     userSession.logIn(john);
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", "xoo,polop,palap")
-      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,assigned_to_me,languages,actionPlans")
+      .setParam(FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,assigned_to_me,languages,actionPlans")
       .execute()
       .assertJson(this.getClass(), "display_zero_facets.json");
   }
@@ -654,10 +713,9 @@ public class SearchActionTest {
 
     // should not fail
     ws.newRequest()
-      .setParam(WebService.Param.FACETS, "assigned_to_me")
+      .setParam(FACETS, "assigned_to_me")
       .execute()
       .assertJson(this.getClass(), "assignedToMe_facet_must_escape_login_of_authenticated_user.json");
-
   }
 
   @Test
@@ -702,14 +760,13 @@ public class SearchActionTest {
     ws.newRequest()
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
-      .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
+      .setParam(FACETS, "assignees,assigned_to_me")
       .execute()
       .assertJson(this.getClass(), "filter_by_assigned_to_me.json");
   }
 
   @Test
   public void return_empty_when_login_is_unknown() {
-
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
 
@@ -750,7 +807,7 @@ public class SearchActionTest {
     Issues.SearchWsResponse response = ws.newRequest()
       .setParam("resolved", "false")
       .setParam("assignees", "unknown")
-      .setParam(WebService.Param.FACETS, "assignees")
+      .setParam(FACETS, "assignees")
       .executeProtobuf(Issues.SearchWsResponse.class);
 
     assertThat(response.getIssuesList()).isEmpty();
@@ -834,7 +891,7 @@ public class SearchActionTest {
     ws.newRequest()
       .setParam("resolved", "false")
       .setParam("assignees", "alice")
-      .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
+      .setParam(FACETS, "assignees,assigned_to_me")
       .execute()
       .assertJson(this.getClass(), "assigned_to_me_facet_sticky.json");
   }
@@ -955,7 +1012,7 @@ public class SearchActionTest {
     userSession.logIn("john");
     ws.newRequest()
       .setParam("resolved", "false")
-      .setParam(WebService.Param.FACETS, "severities")
+      .setParam(FACETS, "severities")
       .setParam("facetMode", DEPRECATED_FACET_MODE_DEBT)
       .execute()
       .assertJson(this.getClass(), "display_deprecated_debt_fields.json");

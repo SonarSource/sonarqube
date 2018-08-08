@@ -60,8 +60,9 @@ public final class IndexPermissions {
     return groupIds;
   }
 
-  public void allowAnyone() {
+  public IndexPermissions allowAnyone() {
     this.allowAnyone = true;
+    return this;
   }
 
   public boolean isAllowAnyone() {

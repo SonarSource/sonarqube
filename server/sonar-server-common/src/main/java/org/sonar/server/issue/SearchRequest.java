@@ -263,7 +263,7 @@ public class SearchRequest {
     return onComponentOnly;
   }
 
-  public SearchRequest setOnComponentOnly(Boolean onComponentOnly) {
+  public SearchRequest setOnComponentOnly(@Nullable Boolean onComponentOnly) {
     this.onComponentOnly = onComponentOnly;
     return this;
   }
@@ -443,7 +443,7 @@ public class SearchRequest {
     return componentRootUuids;
   }
 
-  public SearchRequest setComponentRootUuids(List<String> componentRootUuids) {
+  public SearchRequest setComponentRootUuids(@Nullable List<String> componentRootUuids) {
     this.componentRootUuids = componentRootUuids;
     return this;
   }

@@ -370,25 +370,29 @@ public class SearchResponseFormat {
     return wsLangs;
   }
 
-  private void formatFacets(Facets facets, SearchWsResponse.Builder wsSearch) {
+  private static void formatFacets(Facets facets, SearchWsResponse.Builder wsSearch) {
     Common.Facets.Builder wsFacets = Common.Facets.newBuilder();
     Common.Facet.Builder wsFacet = Common.Facet.newBuilder();
     for (Map.Entry<String, LinkedHashMap<String, Long>> facet : facets.getAll().entrySet()) {
       wsFacet.clear();
       wsFacet.setProperty(facet.getKey());
       LinkedHashMap<String, Long> buckets = facet.getValue();
-      if (buckets != null) {
-        for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
-          Common.FacetValue.Builder valueBuilder = wsFacet.addValuesBuilder();
-          valueBuilder.setVal(bucket.getKey());
-          valueBuilder.setCount(bucket.getValue());
-          valueBuilder.build();
-        }
-      } else {
+      if (buckets == null) {
         wsFacet.addAllValues(Collections.emptyList());
+      } else {
+        addFacetValues(wsFacet, buckets.entrySet());
       }
       wsFacets.addFacets(wsFacet);
     }
     wsSearch.setFacets(wsFacets);
+  }
+
+  private static void addFacetValues(Common.Facet.Builder wsFacet, Set<Map.Entry<String, Long>> entries) {
+    for (Map.Entry<String, Long> bucket : entries) {
+      Common.FacetValue.Builder valueBuilder = wsFacet.addValuesBuilder();
+      valueBuilder.setVal(bucket.getKey());
+      valueBuilder.setCount(bucket.getValue());
+      valueBuilder.build();
+    }
   }
 }

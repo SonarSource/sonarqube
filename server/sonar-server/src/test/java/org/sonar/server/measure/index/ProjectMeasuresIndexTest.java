@@ -33,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -54,7 +53,9 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -62,6 +63,7 @@ import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -104,11 +106,11 @@ public class ProjectMeasuresIndexTest {
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][]{{MAINTAINABILITY_RATING}, {NEW_MAINTAINABILITY_RATING_KEY}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING}};
+    return new Object[][] {{MAINTAINABILITY_RATING}, {NEW_MAINTAINABILITY_RATING_KEY}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING}};
   }
 
   private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, projectMeasureIndexer);
+  private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, projectMeasureIndexer);
   private ProjectMeasuresIndex underTest = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   @Test
@@ -519,8 +521,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 501_000d, COVERAGE, 81d, DUPLICATION, 20d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-        .addMetricCriterion(MetricCriterion.create(NCLOC, Operator.LT, 10_000d))
-        .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
+      .addMetricCriterion(MetricCriterion.create(NCLOC, Operator.LT, 10_000d))
+      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
       new SearchOptions().addFacets(NCLOC, COVERAGE)).getFacets();
 
     // Sticky facet on ncloc does not take into account ncloc filter
@@ -668,8 +670,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 501_000d, COVERAGE, 810d, DUPLICATION, 20d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d))
-        .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d))
+      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
       new SearchOptions().addFacets(COVERAGE, NCLOC)).getFacets();
 
     // Sticky facet on coverage does not take into account coverage filter
@@ -822,8 +824,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(DUPLICATION, 20d, NCLOC, 1000000d, COVERAGE, 40d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-        .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d))
-        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
+      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d))
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
       new SearchOptions().addFacets(DUPLICATION, NCLOC)).getFacets();
 
     // Sticky facet on duplication does not take into account duplication filter
@@ -980,8 +982,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(metricKey, 5d, NCLOC, 800000d, COVERAGE, 60d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-        .addMetricCriterion(MetricCriterion.create(metricKey, Operator.LT, 3d))
-        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
+      .addMetricCriterion(MetricCriterion.create(metricKey, Operator.LT, 3d))
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
       new SearchOptions().addFacets(metricKey, NCLOC)).getFacets();
 
     // Sticky facet on maintainability rating does not take into account maintainability rating filter
@@ -1074,8 +1076,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 13000d, COVERAGE, 60d).setQualityGateStatus(ERROR.name()));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-        .setQualityGateStatus(ERROR)
-        .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 55d)),
+      .setQualityGateStatus(ERROR)
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 55d)),
       new SearchOptions().addFacets(ALERT_STATUS_KEY, NCLOC)).getFacets();
 
     // Sticky facet on quality gate does not take into account quality gate filter
@@ -1397,29 +1399,17 @@ public class ProjectMeasuresIndexTest {
 
   private void index(ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
-    for (ProjectMeasuresDoc doc : docs) {
-      IndexPermissions access = new IndexPermissions(doc.getId(), Qualifiers.PROJECT);
-      access.allowAnyone();
-      authorizationIndexerTester.allow(access);
-    }
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).allowAnyone()).collect(toList()));
   }
 
   private void indexForUser(UserDto user, ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
-    for (ProjectMeasuresDoc doc : docs) {
-      IndexPermissions access = new IndexPermissions(doc.getId(), Qualifiers.PROJECT);
-      access.addUserId(user.getId());
-      authorizationIndexerTester.allow(access);
-    }
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addUserId(user.getId())).collect(toList()));
   }
 
   private void indexForGroup(GroupDto group, ProjectMeasuresDoc... docs) {
     es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
-    for (ProjectMeasuresDoc doc : docs) {
-      IndexPermissions access = new IndexPermissions(doc.getId(), Qualifiers.PROJECT);
-      access.addGroupId(group.getId());
-      authorizationIndexerTester.allow(access);
-    }
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addGroupId(group.getId())).collect(toList()));
   }
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {
