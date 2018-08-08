@@ -275,6 +275,9 @@ table#project-history tr > td {
   position: absolute;
   z-index: var(--aboveNormalZIndex);
   right: -8px;
+}
+
+th > .table-cell-doc {
   top: 50%;
   margin-top: -6px;
 }

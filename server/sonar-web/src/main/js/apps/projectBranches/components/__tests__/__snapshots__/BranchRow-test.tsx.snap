@@ -29,10 +29,11 @@ exports[`renders main branch 1`] = `
           "name": "master",
         }
       }
+      helpTooltipClassName="table-cell-doc"
     />
   </td>
   <td
-    className="thin nowrap text-right"
+    className="thin nowrap text-right big-spacer-left"
   />
   <td
     className="thin nowrap text-right"
@@ -79,10 +80,11 @@ exports[`renders pull request 1`] = `
           "title": "Feature PR",
         }
       }
+      helpTooltipClassName="table-cell-doc"
     />
   </td>
   <td
-    className="thin nowrap text-right"
+    className="thin nowrap text-right big-spacer-left"
   />
   <td
     className="thin nowrap text-right"
@@ -132,10 +134,11 @@ exports[`renders short-living branch 1`] = `
           "type": "SHORT",
         }
       }
+      helpTooltipClassName="table-cell-doc"
     />
   </td>
   <td
-    className="thin nowrap text-right"
+    className="thin nowrap text-right big-spacer-left"
   >
     <DateFromNow
       date="2017-09-27T00:05:19+0000"

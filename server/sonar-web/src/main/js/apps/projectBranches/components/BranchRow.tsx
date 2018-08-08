@@ -174,9 +174,9 @@ export default class BranchRow extends React.PureComponent<Props, State> {
           )}
         </td>
         <td className="thin nowrap text-right">
-          <BranchStatus branchLike={branchLike} />
+          <BranchStatus branchLike={branchLike} helpTooltipClassName="table-cell-doc" />
         </td>
-        <td className="thin nowrap text-right">
+        <td className="thin nowrap text-right big-spacer-left">
           {branchLike.analysisDate && <DateFromNow date={branchLike.analysisDate} />}
         </td>
         {this.renderActions()}

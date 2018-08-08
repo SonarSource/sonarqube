@@ -69,7 +69,7 @@ exports[`renders sorted list of branches 1`] = `
             status
           </th>
           <th
-            className="thin nowrap text-right"
+            className="thin nowrap text-right big-spacer-left"
           >
             branches.last_analysis_date
           </th>

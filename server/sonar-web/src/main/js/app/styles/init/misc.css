@@ -145,7 +145,8 @@ td.spacer-top {
   padding-top: 8px !important;
 }
 
-td.big-spacer-left {
+td.big-spacer-left,
+th.big-spacer-left {
   padding-left: 16px !important;
 }
 
