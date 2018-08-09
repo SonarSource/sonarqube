@@ -40,8 +40,8 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 
 public class IssueAssignerTest {
 
-  static final int FILE_REF = 1;
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
+  private static final int FILE_REF = 1;
+  private static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -52,13 +52,12 @@ public class IssueAssignerTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setAnalysisDate(123456789L);
 
-  ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
-  DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
-
-  IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueFieldsSetter());
+  private ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
+  private DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
+  private IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueFieldsSetter());
 
   @Test
-  public void nothing_to_do_if_no_changeset() {
+  public void do_not_set_author_if_no_changeset() {
     DefaultIssue issue = new DefaultIssue().setLine(1);
 
     underTest.onIssue(FILE, issue);
@@ -67,7 +66,7 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void set_author_to_issue() {
+  public void set_author_of_new_issue_if_changeset() {
     setSingleChangeset("john", 123456789L, "rev-1");
     DefaultIssue issue = new DefaultIssue().setLine(1);
 
@@ -77,30 +76,19 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void does_not_set_author_to_issue_if_already_set() {
+  public void do_not_reset_author_if_already_set() {
     setSingleChangeset("john", 123456789L, "rev-1");
     DefaultIssue issue = new DefaultIssue()
       .setLine(1)
-      .setAuthorLogin("j1234");
+      .setAuthorLogin("jane");
 
     underTest.onIssue(FILE, issue);
 
-    assertThat(issue.authorLogin()).isEqualTo("j1234");
+    assertThat(issue.authorLogin()).isEqualTo("jane");
   }
 
   @Test
-  public void set_assignee_to_issue() {
-    addScmUser("john", "John C");
-    setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(1);
-
-    underTest.onIssue(FILE, issue);
-
-    assertThat(issue.assignee()).isEqualTo("John C");
-  }
-
-  @Test
-  public void dont_store_author_too_long() {
+  public void assign_but_do_not_set_author_if_too_long() {
     String scmAuthor = range(0, 256).mapToObj(i -> "s").collect(joining());
     addScmUser(scmAuthor, "John C");
     setSingleChangeset(scmAuthor, 123456789L, "rev-1");
@@ -115,20 +103,29 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void set_default_assignee_if_author_not_found() {
-    addScmUser("john", null);
+  public void assign_new_issue_to_author_of_change() {
+    addScmUser("john", "u123");
     setSingleChangeset("john", 123456789L, "rev-1");
-    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("John C");
     DefaultIssue issue = new DefaultIssue().setLine(1);
 
     underTest.onIssue(FILE, issue);
 
-    assertThat(issue.assignee()).isEqualTo("John C");
+    assertThat(issue.assignee()).isEqualTo("u123");
   }
 
   @Test
-  public void doest_not_set_assignee_if_no_author() {
-    addScmUser("john", "John C");
+  public void assign_new_issue_to_default_assignee_if_author_not_found() {
+    setSingleChangeset("john", 123456789L, "rev-1");
+    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("u1234");
+    DefaultIssue issue = new DefaultIssue().setLine(1);
+
+    underTest.onIssue(FILE, issue);
+
+    assertThat(issue.assignee()).isEqualTo("u1234");
+  }
+
+  @Test
+  public void do_not_assign_new_issue_if_no_author_in_changeset() {
     setSingleChangeset(null, 123456789L, "rev-1");
     DefaultIssue issue = new DefaultIssue().setLine(1);
 
@@ -139,8 +136,8 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void doest_not_set_assignee_if_author_already_set_and_assignee_null() {
-    addScmUser("john", "John C");
+  public void do_not_assign_issue_if_unassigned_but_already_authored() {
+    addScmUser("john", "u1234");
     setSingleChangeset("john", 123456789L, "rev-1");
     DefaultIssue issue = new DefaultIssue().setLine(1)
       .setAuthorLogin("john")
@@ -153,7 +150,7 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void set_last_committer_when_line_is_null() {
+  public void assign_to_last_committer_of_file_if_issue_is_global_to_file() {
     addScmUser("henry", "Henry V");
     Changeset changeset1 = Changeset.newChangesetBuilder()
       .setAuthor("john")
@@ -176,17 +173,17 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void when_noscm_data_is_available_defaultAssignee_should_be_used() {
+  public void assign_to_default_assignee_if_no_author() {
     DefaultIssue issue = new DefaultIssue().setLine(null);
 
-    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("DefaultAssignee");
+    when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("u123");
     underTest.onIssue(FILE, issue);
 
-    assertThat(issue.assignee()).isEqualTo("DefaultAssignee");
+    assertThat(issue.assignee()).isEqualTo("u123");
   }
 
   @Test
-  public void set_last_committer_when_line_is_bigger_than_changeset_size() {
+  public void assign_to_default_assignee_if_scm_on_issue_locations() {
     addScmUser("john", "John C");
     Changeset changeset = Changeset.newChangesetBuilder()
       .setAuthor("john")
