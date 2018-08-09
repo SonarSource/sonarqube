@@ -21,22 +21,11 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.db.protobuf.DbCommons.TextRange;
-import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.protobuf.DbIssues.Flow;
-import org.sonar.db.protobuf.DbIssues.Location;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
@@ -46,6 +35,8 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.sonar.core.issue.IssueChangeContext.createScan;
@@ -84,13 +75,13 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       .orElseThrow(illegalStateException("The rule with key '%s' raised an issue, but no rule with that key was found", issue.getRuleKey()));
 
     if (rule.isExternal()) {
-      getScmChangeDate(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
+      getDateOfLatestChange(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
     } else {
       // Rule can't be inactive (see contract of IssueVisitor)
       ActiveRule activeRule = activeRulesHolder.get(issue.getRuleKey()).get();
       if (firstAnalysis || activeRuleIsNew(activeRule, lastAnalysisOptional.get())
         || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())) {
-        getScmChangeDate(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
+        getDateOfLatestChange(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
       }
     }
   }
@@ -124,9 +115,9 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     return lastAnalysisDate < ruleCreationDate;
   }
 
-  private Optional<Date> getScmChangeDate(Component component, DefaultIssue issue) {
+  private Optional<Date> getDateOfLatestChange(Component component, DefaultIssue issue) {
     return getScmInfo(component)
-      .flatMap(scmInfo -> getChangeset(component, scmInfo, issue))
+      .flatMap(scmInfo -> getLatestChangeset(component, scmInfo, issue))
       .map(IssueCreationDateCalculator::getChangeDate);
   }
 
@@ -138,34 +129,15 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     return scmInfoRepository.getScmInfo(component);
   }
 
-  private static Optional<Changeset> getChangeset(Component component, ScmInfo scmInfo, DefaultIssue issue) {
-    Set<Integer> involvedLines = new HashSet<>();
-    DbIssues.Locations locations = issue.getLocations();
-    if (locations != null) {
-      if (locations.hasTextRange()) {
-        addLines(involvedLines, locations.getTextRange());
-      }
-      for (Flow f : locations.getFlowList()) {
-        for (Location l : f.getLocationList()) {
-          if (Objects.equals(l.getComponentId(), component.getUuid())) {
-            // Ignore locations in other files, since it is currently not very common, and this is hard to load SCM by component UUID.
-            addLines(involvedLines, l.getTextRange());
-          }
-        }
-      }
-      if (!involvedLines.isEmpty()) {
-        return involvedLines.stream()
-          .filter(scmInfo::hasChangesetForLine)
-          .map(scmInfo::getChangesetForLine)
-          .max(Comparator.comparingLong(Changeset::getDate));
-      }
+  private static Optional<Changeset> getLatestChangeset(Component component, ScmInfo scmInfo, DefaultIssue issue) {
+    Optional<Changeset> mostRecentChangeset = IssueLocations.allLinesFor(issue, component.getUuid())
+      .filter(scmInfo::hasChangesetForLine)
+      .mapToObj(scmInfo::getChangesetForLine)
+      .max(Comparator.comparingLong(Changeset::getDate));
+    if (mostRecentChangeset.isPresent()) {
+      return mostRecentChangeset;
     }
-
     return Optional.of(scmInfo.getLatestChangeset());
-  }
-
-  private static void addLines(Set<Integer> involvedLines, TextRange range) {
-    IntStream.rangeClosed(range.getStartLine(), range.getEndLine()).forEach(involvedLines::add);
   }
 
   private static Date getChangeDate(Changeset changesetForLine) {

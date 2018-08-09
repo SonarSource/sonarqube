@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChangesetTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_changeset() {
@@ -55,17 +55,17 @@ public class ChangesetTest {
   }
 
   @Test
-  public void fail_with_NPE_when_setting_null_date() throws Exception {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Date cannot be null");
+  public void fail_with_NPE_when_setting_null_date() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Date cannot be null");
 
     Changeset.newChangesetBuilder().setDate(null);
   }
 
   @Test
   public void fail_with_NPE_when_building_without_date() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Date cannot be null");
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Date cannot be null");
 
     Changeset.newChangesetBuilder()
       .setAuthor("john")
@@ -85,7 +85,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void equals_and_hashcode_are_based_on_all_fields() throws Exception {
+  public void equals_and_hashcode_are_based_on_all_fields() {
     Changeset.Builder changesetBuilder = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(123456789L)
