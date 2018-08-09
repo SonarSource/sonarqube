@@ -19,9 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Arrays;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -29,6 +30,8 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static java.util.stream.Collectors.joining;
@@ -58,7 +61,7 @@ public class IssueAssignerTest {
 
   @Test
   public void do_not_set_author_if_no_changeset() {
-    DefaultIssue issue = new DefaultIssue().setLine(1);
+    DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -68,7 +71,7 @@ public class IssueAssignerTest {
   @Test
   public void set_author_of_new_issue_if_changeset() {
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(1);
+    DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -78,8 +81,7 @@ public class IssueAssignerTest {
   @Test
   public void do_not_reset_author_if_already_set() {
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue()
-      .setLine(1)
+    DefaultIssue issue = newIssueOnLines(1)
       .setAuthorLogin("jane");
 
     underTest.onIssue(FILE, issue);
@@ -92,7 +94,7 @@ public class IssueAssignerTest {
     String scmAuthor = range(0, 256).mapToObj(i -> "s").collect(joining());
     addScmUser(scmAuthor, "John C");
     setSingleChangeset(scmAuthor, 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(1);
+    DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -106,7 +108,7 @@ public class IssueAssignerTest {
   public void assign_new_issue_to_author_of_change() {
     addScmUser("john", "u123");
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(1);
+    DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -117,7 +119,7 @@ public class IssueAssignerTest {
   public void assign_new_issue_to_default_assignee_if_author_not_found() {
     setSingleChangeset("john", 123456789L, "rev-1");
     when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("u1234");
-    DefaultIssue issue = new DefaultIssue().setLine(1);
+    DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -127,7 +129,7 @@ public class IssueAssignerTest {
   @Test
   public void do_not_assign_new_issue_if_no_author_in_changeset() {
     setSingleChangeset(null, 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(1);
+    DefaultIssue issue = newIssueOnLines(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -139,7 +141,7 @@ public class IssueAssignerTest {
   public void do_not_assign_issue_if_unassigned_but_already_authored() {
     addScmUser("john", "u1234");
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(1)
+    DefaultIssue issue = newIssueOnLines(1)
       .setAuthorLogin("john")
       .setAssigneeUuid(null);
 
@@ -154,18 +156,18 @@ public class IssueAssignerTest {
     addScmUser("henry", "Henry V");
     Changeset changeset1 = Changeset.newChangesetBuilder()
       .setAuthor("john")
-      .setDate(123456789L)
+      .setDate(1_000L)
       .setRevision("rev-1")
       .build();
     // Latest changeset
     Changeset changeset2 = Changeset.newChangesetBuilder()
       .setAuthor("henry")
-      .setDate(1234567810L)
+      .setDate(2_000L)
       .setRevision("rev-2")
       .build();
     scmInfoRepository.setScmInfo(FILE_REF, changeset1, changeset2, changeset1);
 
-    DefaultIssue issue = new DefaultIssue().setLine(null);
+    DefaultIssue issue = newIssueOnLines();
 
     underTest.onIssue(FILE, issue);
 
@@ -174,7 +176,7 @@ public class IssueAssignerTest {
 
   @Test
   public void assign_to_default_assignee_if_no_author() {
-    DefaultIssue issue = new DefaultIssue().setLine(null);
+    DefaultIssue issue = newIssueOnLines();
 
     when(defaultAssignee.loadDefaultAssigneeUuid()).thenReturn("u123");
     underTest.onIssue(FILE, issue);
@@ -183,7 +185,7 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void assign_to_default_assignee_if_scm_on_issue_locations() {
+  public void assign_to_default_assignee_if_no_scm_on_issue_locations() {
     addScmUser("john", "John C");
     Changeset changeset = Changeset.newChangesetBuilder()
       .setAuthor("john")
@@ -191,7 +193,7 @@ public class IssueAssignerTest {
       .setRevision("rev-1")
       .build();
     scmInfoRepository.setScmInfo(FILE_REF, changeset, changeset);
-    DefaultIssue issue = new DefaultIssue().setLine(3);
+    DefaultIssue issue = newIssueOnLines(3);
 
     underTest.onIssue(FILE, issue);
 
@@ -199,22 +201,29 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void display_warning_when_line_is_above_max_size() {
-    setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(2).setType(RuleType.VULNERABILITY);
+  public void assign_to_author_of_the_most_recent_change_in_all_issue_locations() {
+    addScmUser("john", "u1");
+    addScmUser("jane", "u2");
+    Changeset commit1 = Changeset.newChangesetBuilder()
+      .setAuthor("john")
+      .setDate(1_000L)
+      .setRevision("rev-1")
+      .build();
+    Changeset commit2 = Changeset.newChangesetBuilder()
+      .setAuthor("jane")
+      .setDate(2_000L)
+      .setRevision("rev-2")
+      .build();
+    scmInfoRepository.setScmInfo(FILE_REF, commit1, commit1, commit2, commit1);
+    DefaultIssue issue = newIssueOnLines(2, 3, 4);
 
     underTest.onIssue(FILE, issue);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
-      "No SCM info has been found for issue DefaultIssue[key=<null>,type=VULNERABILITY,componentUuid=<null>,componentKey=<null>," +
-        "moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>," +
-        "manualSeverity=false,message=<null>,line=2,gap=<null>,effort=<null>,status=<null>,resolution=<null>," +
-        "assigneeUuid=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,comments=<null>,tags=<null>," +
-        "locations=<null>,isFromExternalRuleEngine=false,creationDate=<null>,updateDate=<null>,closeDate=<null>,isFromHotspot=false,currentChange=<null>,changes=<null>,isNew=true,isCopied=false," +
-        "beingClosed=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]");
+    assertThat(issue.authorLogin()).isEqualTo("jane");
+    assertThat(issue.assignee()).isEqualTo("u2");
   }
 
-  private void setSingleChangeset(String author, Long date, String revision) {
+  private void setSingleChangeset(@Nullable String author, Long date, String revision) {
     scmInfoRepository.setScmInfo(FILE_REF,
       Changeset.newChangesetBuilder()
         .setAuthor(author)
@@ -225,6 +234,23 @@ public class IssueAssignerTest {
 
   private void addScmUser(String scmAccount, String userUuid) {
     when(scmAccountToUser.getNullable(scmAccount)).thenReturn(userUuid);
+  }
+
+  private static DefaultIssue newIssueOnLines(int... lines) {
+    DefaultIssue issue = new DefaultIssue();
+    issue.setComponentUuid(FILE.getUuid());
+    DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder();
+    DbIssues.Flow.Builder flow = DbIssues.Flow.newBuilder();
+    Arrays.stream(lines).forEach(line -> flow.addLocation(newLocation(line)));
+    locations.addFlow(flow.build());
+    issue.setLocations(locations.build());
+    return issue;
+  }
+
+  private static DbIssues.Location newLocation(int line) {
+    return DbIssues.Location.newBuilder()
+      .setComponentId(FILE.getUuid())
+      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(line).setEndLine(line).build()).build();
   }
 
 }

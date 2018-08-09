@@ -19,22 +19,22 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.scm.Changeset;
+import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
+import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.core.issue.IssueChangeContext.createScan;
 
@@ -67,23 +67,24 @@ public class IssueAssigner extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.authorLogin() == null) {
-      loadScmChangesets(component);
-      String scmAuthor = guessScmAuthor(issue);
+    if (issue.authorLogin() != null) {
+      return;
+    }
+    loadScmChangesets(component);
+    Optional<String> scmAuthor = guessScmAuthor(issue, component);
 
-      if (!isNullOrEmpty(scmAuthor)) {
-        if (scmAuthor.length() <= IssueDto.AUTHOR_MAX_SIZE) {
-          issueUpdater.setNewAuthor(issue, scmAuthor, changeContext);
-        } else {
-          LOGGER.debug("SCM account '{}' is too long to be stored as issue author", scmAuthor);
-        }
+    if (scmAuthor.isPresent()) {
+      if (scmAuthor.get().length() <= IssueDto.AUTHOR_MAX_SIZE) {
+        issueUpdater.setNewAuthor(issue, scmAuthor.get(), changeContext);
+      } else {
+        LOGGER.debug("SCM account '{}' is too long to be stored as issue author", scmAuthor.get());
       }
+    }
 
-      if (issue.assignee() == null) {
-        String assigneeUuid = isNullOrEmpty(scmAuthor) ? null : scmAccountToUser.getNullable(scmAuthor);
-        assigneeUuid = defaultIfEmpty(assigneeUuid, defaultAssignee.loadDefaultAssigneeUuid());
-        issueUpdater.setNewAssignee(issue, assigneeUuid, changeContext);
-      }
+    if (issue.assignee() == null) {
+      String assigneeUuid = scmAuthor.map(scmAccountToUser::getNullable).orElse(null);
+      assigneeUuid = defaultIfEmpty(assigneeUuid, defaultAssignee.loadDefaultAssigneeUuid());
+      issueUpdater.setNewAssignee(issue, assigneeUuid, changeContext);
     }
   }
 
@@ -104,20 +105,21 @@ public class IssueAssigner extends IssueVisitor {
   }
 
   /**
-   * Get the SCM login of the last committer on the line. When line is zero,
-   * then get the last committer on the file.
+   * Author of the latest change on the lines involved by the issue.
+   * If no authors are set on the lines, then the author of the latest change on the file
+   * is returned.
    */
-  @CheckForNull
-  private String guessScmAuthor(DefaultIssue issue) {
-    Integer line = issue.line();
+  private Optional<String> guessScmAuthor(DefaultIssue issue, Component component) {
     String author = null;
-    if (line != null && scmChangesets != null) {
-      if (scmChangesets.hasChangesetForLine(line)) {
-        author = scmChangesets.getChangesetForLine(line).getAuthor();
-      } else {
-        LOGGER.warn("No SCM info has been found for issue {}", issue);
-      }
+    if (scmChangesets != null) {
+      author = IssueLocations.allLinesFor(issue, component.getUuid())
+        .filter(scmChangesets::hasChangesetForLine)
+        .mapToObj(scmChangesets::getChangesetForLine)
+        .filter(c -> StringUtils.isNotEmpty(c.getAuthor()))
+        .max(Comparator.comparingLong(Changeset::getDate))
+        .map(Changeset::getAuthor)
+        .orElse(null);
     }
-    return defaultIfEmpty(author, lastCommitAuthor);
+    return Optional.ofNullable(defaultIfEmpty(author, lastCommitAuthor));
   }
 }

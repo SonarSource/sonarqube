@@ -76,11 +76,11 @@ public class MultilineIssuesSensor implements Sensor {
     Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions = Maps.newHashMap();
 
     parseIssues(file, context, startIssuesPositions, endIssuesPositions);
-    parseFlows(file, context, startFlowsPositions, endFlowsPositions);
+    parseFlows(file, startFlowsPositions, endFlowsPositions);
     createIssues(file, context, startIssuesPositions, endIssuesPositions, startFlowsPositions, endFlowsPositions);
   }
 
-  private static void parseFlows(InputFile file, SensorContext context, Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions,
+  private static void parseFlows(InputFile file, Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions,
     Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions) {
     int currentLine = 0;
     try {
