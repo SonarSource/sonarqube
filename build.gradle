@@ -8,7 +8,7 @@ buildscript {
     // Ordered alphabeticly to avoid duplication
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
-    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.4'
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.6'
     classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
     classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
@@ -73,8 +73,6 @@ subprojects {
   apply plugin: "com.github.hierynomus.license"
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'java'
-  // protobuf must be applied after java
-  apply plugin: 'com.google.protobuf'
   apply plugin: 'jacoco'
   apply plugin: 'idea'
 
@@ -244,6 +242,12 @@ subprojects {
     from javadoc.destinationDir
   }
 
+  // generate code before opening project in IDE (Eclipse or Intellij)
+  task ide() {
+    // empty by default. Dependencies are added to the task
+    // when needed (see protobuf modules for example)
+  }
+
   test {
     systemProperty 'java.awt.headless', true
     jacoco.enabled = project.hasProperty('jacocoEnabled')
@@ -258,12 +262,18 @@ subprojects {
   def protoMainSrc = 'src/main/protobuf'
   def protoTestSrc = 'src/test/protobuf'
   if (file(protoMainSrc).exists() || file(protoTestSrc).exists()) {
+    // protobuf must be applied after java
+    apply plugin: 'com.google.protobuf'
+
     sourceSets.main.proto.srcDir protoMainSrc  // in addition to the default 'src/main/proto'
     sourceSets.test.proto.srcDir protoTestSrc  // in addition to the default 'src/test/proto'
     protobuf {
       protoc {
         artifact = "com.google.protobuf:protoc:${protobufVersion}"
       }
+    }
+    jar {
+      exclude('**/*.proto')
     }
     idea {
       module {
@@ -273,9 +283,7 @@ subprojects {
         generatedSourceDirs += file("${protobuf.generatedFilesBaseDir}/test/java")
       }
     }
-  }
-
-  task ide(dependsOn: ['generateProto', 'generateTestProto']) {
+    ide.dependsOn(['generateProto', 'generateTestProto'])
   }
 
   if (official) {
