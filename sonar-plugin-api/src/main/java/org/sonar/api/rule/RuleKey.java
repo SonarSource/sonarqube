@@ -43,10 +43,12 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
 
   private final String repository;
   private final String rule;
+  private final String toString;
 
   protected RuleKey(String repositoryKey, String ruleKey) {
     this.repository = repositoryKey;
     this.rule = ruleKey;
+    this.toString = repositoryKey + ":" + ruleKey;
   }
 
   /**
@@ -116,7 +118,7 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
    */
   @Override
   public String toString() {
-    return String.format("%s:%s", repository, rule);
+    return toString;
   }
 
   @Override
