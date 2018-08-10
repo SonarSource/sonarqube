@@ -37,6 +37,6 @@ public enum SetClosed implements Function {
     // closed issues are not "tracked" -> the line number does not evolve anymore
     // when code changes. That's misleading for end-users, so line number
     // is unset.
-    context.setLine(null);
+    context.unsetLine();
   }
 }

@@ -140,9 +140,10 @@ public class IssueFieldsSetter {
     return true;
   }
 
-  public boolean setLine(DefaultIssue issue, @Nullable Integer line) {
-    if (!Objects.equals(line, issue.line())) {
-      issue.setLine(line);
+  public boolean unsetLine(DefaultIssue issue) {
+    Integer currentValue = issue.line();
+    if (currentValue != null) {
+      issue.setLine(null);
       issue.setChanged(true);
       return true;
     }
@@ -152,7 +153,12 @@ public class IssueFieldsSetter {
   public boolean setPastLine(DefaultIssue issue, @Nullable Integer previousLine) {
     Integer currentLine = issue.line();
     issue.setLine(previousLine);
-    return setLine(issue, currentLine);
+    if (!Objects.equals(currentLine, previousLine)) {
+      issue.setLine(currentLine);
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
   }
 
   public boolean setLocations(DefaultIssue issue, @Nullable Object locations) {

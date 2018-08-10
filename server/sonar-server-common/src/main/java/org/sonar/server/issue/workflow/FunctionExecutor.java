@@ -89,8 +89,8 @@ public class FunctionExecutor {
     }
 
     @Override
-    public Function.Context setLine(@Nullable Integer line) {
-      updater.setLine(issue, line);
+    public Function.Context unsetLine() {
+      updater.unsetLine(issue);
       return this;
     }
 

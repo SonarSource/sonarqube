@@ -36,7 +36,7 @@ interface Function {
 
     Context unsetCloseDate();
 
-    Context setLine(@Nullable Integer line);
+    Context unsetLine();
 
     Context setType(@Nullable RuleType type);
   }

@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Random;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -211,35 +212,58 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void set_line() {
-    boolean updated = underTest.setLine(issue, 123);
+  public void unset_line() {
+    issue.setLine(new Random().nextInt());
+
+    boolean updated = underTest.unsetLine(issue);
+
     assertThat(updated).isTrue();
-    assertThat(issue.line()).isEqualTo(123);
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.line()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
     // do not save change
     assertThat(issue.currentChange()).isNull();
+  }
+
+  @Test
+  public void unset_line_has_no_effect_if_line_is_already_null() {
+    issue.setLine(null);
+
+    boolean updated = underTest.unsetLine(issue);
+
+    assertThat(updated).isFalse();
+    assertThat(issue.line()).isNull();
+    assertThat(issue.isChanged()).isFalse();
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
   public void set_past_line() {
     issue.setLine(42);
+
     boolean updated = underTest.setPastLine(issue, 123);
+
     assertThat(updated).isTrue();
+    assertThat(issue.isChanged()).isTrue();
     assertThat(issue.line()).isEqualTo(42);
     assertThat(issue.mustSendNotifications()).isFalse();
-
     // do not save change
     assertThat(issue.currentChange()).isNull();
   }
 
   @Test
-  public void line_is_not_changed() {
-    issue.setLine(123);
-    boolean updated = underTest.setLine(issue, 123);
+  public void set_past_line_has_no_effect_if_line_already_had_value() {
+    issue.setLine(42);
+
+    boolean updated = underTest.setPastLine(issue, 42);
+
     assertThat(updated).isFalse();
-    assertThat(issue.line()).isEqualTo(123);
-    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.isChanged()).isFalse();
+    assertThat(issue.line()).isEqualTo(42);
     assertThat(issue.mustSendNotifications()).isFalse();
+    // do not save change
+    assertThat(issue.currentChange()).isNull();
   }
 
   @Test

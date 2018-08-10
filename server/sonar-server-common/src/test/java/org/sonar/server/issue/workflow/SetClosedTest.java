@@ -31,7 +31,7 @@ import static org.sonar.server.issue.workflow.SetClosed.INSTANCE;
 
 public class SetClosedTest {
 
-  Function.Context context = mock(Function.Context.class);
+  private Function.Context context = mock(Function.Context.class);
 
   @Test
   public void should_resolve_as_fixed() {
@@ -54,6 +54,6 @@ public class SetClosedTest {
     Issue issue = new DefaultIssue().setBeingClosed(true).setLine(10);
     when(context.issue()).thenReturn(issue);
     INSTANCE.execute(context);
-    verify(context).setLine(null);
+    verify(context).unsetLine();
   }
 }
