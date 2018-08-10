@@ -174,7 +174,12 @@ export interface Facet {
 
 export function searchProjects(
   data: RequestData
-): Promise<{ components: Component[]; facets: Facet[]; paging: Paging }> {
+): Promise<{
+  components: Component[];
+  facets: Facet[];
+  organizations: Array<{ key: string; name: string }>;
+  paging: Paging;
+}> {
   const url = '/api/components/search_projects';
   return getJSON(url, data);
 }

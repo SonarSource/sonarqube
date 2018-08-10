@@ -68,6 +68,7 @@ a[class*=' icon-'] {
     box-shadow 0.4s ease;
 }
 
+.icon-checkbox:focus:before,
 .link-checkbox:focus:focus .icon-checkbox:before {
   box-shadow: 0 0 0 3px rgba(35, 106, 151, 0.25);
 }

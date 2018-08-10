@@ -26,6 +26,7 @@ import { getOrganizations } from '../../api/organizations';
 import { searchProjects, Facet } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
 import { isDiffMetric, getPeriodValue } from '../../helpers/measures';
+import { Organization } from '../../app/types';
 
 interface SortingOption {
   class?: string;
@@ -164,21 +165,25 @@ export function parseSorting(sort: string): { sortValue: string; sortDesc: boole
 export function fetchProjects(
   query: Query,
   isFavorite: boolean,
-  organization?: string,
+  organization: Organization | undefined,
   pageIndex = 1
 ) {
   const ps = query.view === 'visualizations' ? PAGE_SIZE_VISUALIZATIONS : PAGE_SIZE;
-  const data = convertToQueryData(query, isFavorite, organization, {
+  const data = convertToQueryData(query, isFavorite, organization && organization.key, {
     p: pageIndex > 1 ? pageIndex : undefined,
     ps,
     facets: defineFacets(query).join(),
     f: 'analysisDate,leakPeriodDate'
   });
-  return searchProjects(data).then(({ components, facets, paging }) => {
-    return Promise.all([
-      fetchProjectMeasures(components, query),
-      fetchProjectOrganizations(components)
-    ]).then(([measures, organizations]) => {
+  return searchProjects(data)
+    .then(response =>
+      Promise.all([
+        fetchProjectMeasures(response.components, query),
+        fetchProjectOrganizations(response.components, organization),
+        Promise.resolve(response)
+      ])
+    )
+    .then(([measures, organizations, { components, facets, paging }]) => {
       return {
         facets: getFacetsMap(facets),
         projects: components
@@ -201,7 +206,6 @@ export function fetchProjects(
         total: paging.total
       };
     });
-  });
 }
 
 function defineMetrics(query: Query): string[] {
@@ -254,7 +258,13 @@ function fetchProjectMeasures(projects: Array<{ key: string }>, query: Query) {
   return getMeasuresForProjects(projectKeys, metrics);
 }
 
-function fetchProjectOrganizations(projects: Array<{ organization: string }>) {
+function fetchProjectOrganizations(
+  projects: Array<{ organization: string }>,
+  organization: Organization | undefined
+) {
+  if (organization) {
+    return Promise.resolve([organization]);
+  }
   if (!projects.length) {
     return Promise.resolve([]);
   }

@@ -118,11 +118,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   fetchProjects = (query: any) => {
     this.setState({ loading: true, query });
-    fetchProjects(
-      query,
-      this.props.isFavorite,
-      this.props.organization && this.props.organization.key
-    ).then(response => {
+    fetchProjects(query, this.props.isFavorite, this.props.organization).then(response => {
       if (this.mounted) {
         this.setState({
           facets: response.facets,
@@ -139,20 +135,18 @@ export default class AllProjects extends React.PureComponent<Props, State> {
     const { pageIndex, projects, query } = this.state;
     if (pageIndex && projects && query) {
       this.setState({ loading: true });
-      fetchProjects(
-        query,
-        this.props.isFavorite,
-        this.props.organization && this.props.organization.key,
-        pageIndex + 1
-      ).then(response => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            pageIndex: pageIndex + 1,
-            projects: [...projects, ...response.projects]
-          });
-        }
-      }, this.stopLoading);
+      fetchProjects(query, this.props.isFavorite, this.props.organization, pageIndex + 1).then(
+        response => {
+          if (this.mounted) {
+            this.setState({
+              loading: false,
+              pageIndex: pageIndex + 1,
+              projects: [...projects, ...response.projects]
+            });
+          }
+        },
+        this.stopLoading
+      );
     }
   };
 
