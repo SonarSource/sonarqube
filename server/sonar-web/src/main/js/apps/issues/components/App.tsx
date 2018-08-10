@@ -451,10 +451,7 @@ export default class App extends React.PureComponent<Props, State> {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(parameters, requestOrganizations).then(reponse => {
-      this.setState({ loading: false });
-      return reponse;
-    });
+    return this.props.fetchIssues(parameters, requestOrganizations);
   };
 
   fetchFirstIssues() {
@@ -463,8 +460,9 @@ export default class App extends React.PureComponent<Props, State> {
       ({ facets, issues, paging, ...other }) => {
         if (this.mounted) {
           const openIssue = this.getOpenIssue(this.props, issues);
-          this.setState({
-            facets: parseFacets(facets),
+
+          this.setState(state => ({
+            facets: { ...state.facets, ...parseFacets(facets) },
             loading: false,
             issues,
             openIssue,
@@ -476,7 +474,7 @@ export default class App extends React.PureComponent<Props, State> {
             selected: issues.length > 0 ? (openIssue ? openIssue.key : issues[0].key) : undefined,
             selectedFlowIndex: undefined,
             selectedLocationIndex: undefined
-          });
+          }));
         }
         return issues;
       },
@@ -1040,10 +1038,10 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderPage() {
-    const { openIssue } = this.state;
+    const { loading, openIssue } = this.state;
     return (
       <div className="layout-page-main-inner">
-        <DeferredSpinner loading={this.state.loading}>
+        <DeferredSpinner loading={loading}>
           {openIssue ? (
             <IssuesSourceViewer
               branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
