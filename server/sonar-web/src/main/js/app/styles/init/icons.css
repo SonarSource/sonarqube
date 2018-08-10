@@ -64,9 +64,12 @@ a[class*=' icon-'] {
   height: 10px;
   border: 1px solid var(--darkBlue);
   border-radius: 2px;
-  transition-property: border-color, background-color, background-image;
-  transition-duration: 0.2s;
-  transition-timing-function: ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, background-image 0.2s ease,
+    box-shadow 0.4s ease;
+}
+
+.link-checkbox:focus:focus .icon-checkbox:before {
+  box-shadow: 0 0 0 3px rgba(35, 106, 151, 0.25);
 }
 
 .icon-checkbox-checked:before {
