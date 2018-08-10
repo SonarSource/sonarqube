@@ -53,17 +53,21 @@ export default class ProjectFacet extends React.PureComponent<Props> {
   ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
     const { component, organization } = this.props;
     if (component && ['VW', 'SVW', 'APP'].includes(component.qualifier)) {
-      return getTree(component.key, { p: page, ps: 30, q: query, qualifiers: 'TRK' }).then(
-        ({ components, paging }) => ({
-          paging,
-          results: components.map(component => ({
-            id: component.refId || component.id,
-            key: component.key,
-            name: component.name,
-            organization: component.organization
-          }))
-        })
-      );
+      return getTree({
+        component: component.key,
+        p: page,
+        ps: 30,
+        q: query,
+        qualifiers: 'TRK'
+      }).then(({ components, paging }) => ({
+        paging,
+        results: components.map(component => ({
+          id: component.refId || component.id,
+          key: component.key,
+          name: component.name,
+          organization: component.organization
+        }))
+      }));
     }
 
     return searchProjects({

@@ -197,6 +197,7 @@ export default class Sidebar extends React.PureComponent<Props> {
         )}
         {displayModulesFacet && (
           <ModuleFacet
+            componentKey={this.props.component!.key}
             fetching={this.props.loadingFacets.modules === true}
             loading={this.props.loading}
             modules={query.modules}
@@ -209,18 +210,19 @@ export default class Sidebar extends React.PureComponent<Props> {
         )}
         {displayDirectoriesFacet && (
           <DirectoryFacet
+            componentKey={this.props.component!.key}
             directories={query.directories}
             fetching={this.props.loadingFacets.directories === true}
             loading={this.props.loading}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.directories}
-            referencedComponents={this.props.referencedComponents}
             stats={facets.directories}
           />
         )}
         {displayFilesFacet && (
           <FileFacet
+            componentKey={this.props.component!.key}
             fetching={this.props.loadingFacets.files === true}
             files={query.files}
             loading={this.props.loading}
@@ -249,11 +251,13 @@ export default class Sidebar extends React.PureComponent<Props> {
         {displayAuthorFacet && (
           <AuthorFacet
             authors={query.authors}
+            componentKey={this.props.component && this.props.component.key}
             fetching={this.props.loadingFacets.authors === true}
             loading={this.props.loading}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.authors}
+            organization={organizationKey}
             stats={facets.authors}
           />
         )}

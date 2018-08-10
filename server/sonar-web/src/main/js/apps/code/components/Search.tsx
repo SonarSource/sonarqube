@@ -133,7 +133,8 @@ export default class Search extends React.PureComponent<Props, State> {
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
       const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
 
-      getTree(component.key, {
+      getTree({
+        component: component.key,
         q: query,
         s: 'qualifier,name',
         qualifiers,

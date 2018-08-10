@@ -18,18 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, without } from 'lodash';
-import { formatFacetStat, Query, ReferencedComponent } from '../utils';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import { Query, ReferencedComponent } from '../utils';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { TreeComponent, getTree } from '../../../api/components';
+import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
+  componentKey: string;
   fetching: boolean;
   loading?: boolean;
   modules: string[];
@@ -41,101 +38,65 @@ interface Props {
 }
 
 export default class ModuleFacet extends React.PureComponent<Props> {
-  property = 'modules';
-
-  static defaultProps = {
-    open: true
-  };
-
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { modules } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        modules.includes(itemValue) ? without(modules, itemValue) : [...modules, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]: modules.includes(itemValue) && modules.length < 2 ? [] : [itemValue]
-      });
-    }
-  };
-
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
-  };
-
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
-  };
-
-  getStat(module: string) {
-    const { stats } = this.props;
-    return stats ? stats[module] : undefined;
-  }
-
-  getModuleName(module: string) {
+  getModuleName = (module: string) => {
     const { referencedComponents } = this.props;
     return referencedComponents[module] ? referencedComponents[module].name : module;
-  }
+  };
 
-  renderName(module: string) {
-    return (
-      <span>
-        <QualifierIcon className="little-spacer-right" qualifier="BRC" />
-        {this.getModuleName(module)}
-      </span>
-    );
-  }
+  getSearchResultKey = (module: TreeComponent) => {
+    return module.id;
+  };
 
-  renderList() {
-    const { stats } = this.props;
+  getSearchResultText = (module: TreeComponent) => {
+    return module.name;
+  };
 
-    if (!stats) {
-      return null;
-    }
+  handleSearch = (query: string, page: number) => {
+    return getTree({
+      component: this.props.componentKey,
+      q: query,
+      qualifiers: 'BRC',
+      p: page,
+      ps: 30
+    }).then(({ components, paging }) => ({ paging, results: components }));
+  };
 
-    const modules = sortBy(Object.keys(stats), key => -stats[key]);
+  renderModule = (module: React.ReactNode) => (
+    <>
+      <QualifierIcon className="little-spacer-right" qualifier="BRC" />
+      {module}
+    </>
+  );
 
-    return (
-      <FacetItemsList>
-        {modules.map(module => (
-          <FacetItem
-            active={this.props.modules.includes(module)}
-            key={module}
-            loading={this.props.loading}
-            name={this.renderName(module)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(module))}
-            tooltip={this.getModuleName(module)}
-            value={module}
-          />
-        ))}
-      </FacetItemsList>
-    );
-  }
+  renderFacetItem = (module: string) => {
+    const name = this.getModuleName(module);
+    return this.renderModule(name);
+  };
+
+  renderSearchResult = (module: TreeComponent, term: string) => {
+    return this.renderModule(highlightTerm(module.name, term));
+  };
 
   render() {
-    const { modules, stats = {} } = this.props;
-    const values = modules.map(module => this.getModuleName(module));
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={values}
-        />
-
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            <MultipleSelectionHint options={Object.keys(stats).length} values={modules.length} />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.modules')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.getModuleName}
+        getSearchResultKey={this.getSearchResultKey}
+        getSearchResultText={this.getSearchResultText}
+        minSearchLength={3}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="modules"
+        renderFacetItem={this.renderFacetItem}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_modules')}
+        stats={this.props.stats}
+        values={this.props.modules}
+      />
     );
   }
 }

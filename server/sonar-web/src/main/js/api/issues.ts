@@ -165,3 +165,12 @@ export function setIssueType(data: { issue: string; type: string }): Promise<Iss
 export function bulkChangeIssues(issueKeys: string[], query: RequestData): Promise<void> {
   return post('/api/issues/bulk_change', { issues: issueKeys.join(), ...query });
 }
+
+export function searchIssueAuthors(data: {
+  organization?: string;
+  project?: string;
+  ps?: number;
+  q?: string;
+}): Promise<string[]> {
+  return getJSON('/api/issues/authors', data).then(r => r.authors, throwGlobalError);
+}

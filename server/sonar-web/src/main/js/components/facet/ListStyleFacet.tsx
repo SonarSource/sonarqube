@@ -41,8 +41,12 @@ export interface Props<S> {
   loading?: boolean;
   maxInitialItems?: number;
   maxItems?: number;
+  minSearchLength?: number;
   onChange: (changes: { [x: string]: string | string[] }) => void;
-  onSearch: (query: string, page?: number) => Promise<{ results: S[]; paging: Paging }>;
+  onSearch: (
+    query: string,
+    page?: number
+  ) => Promise<{ maxResults?: boolean; results: S[]; paging?: Paging }>;
   onToggle: (property: string) => void;
   open: boolean;
   property: string;
@@ -57,6 +61,7 @@ interface State<S> {
   autoFocus: boolean;
   query: string;
   searching: boolean;
+  searchMaxResults?: boolean;
   searchPaging?: Paging;
   searchResults?: S[];
   showFullList: boolean;
@@ -87,7 +92,13 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
       this.setState({ autoFocus: true });
     } else if (prevProps.open && !this.props.open) {
       // reset state when closing the facet
-      this.setState({ query: '', searchResults: undefined, searching: false, showFullList: false });
+      this.setState({
+        query: '',
+        searchMaxResults: undefined,
+        searchResults: undefined,
+        searching: false,
+        showFullList: false
+      });
     } else if (
       prevProps.stats !== this.props.stats &&
       Object.keys(this.props.stats || {}).length < this.props.maxInitialItems!
@@ -132,9 +143,14 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   search = (query: string) => {
     if (query.length >= 2) {
       this.setState({ query, searching: true });
-      this.props.onSearch(query).then(({ paging, results }) => {
+      this.props.onSearch(query).then(({ maxResults, paging, results }) => {
         if (this.mounted) {
-          this.setState({ searching: false, searchResults: results, searchPaging: paging });
+          this.setState({
+            searching: false,
+            searchMaxResults: maxResults,
+            searchResults: results,
+            searchPaging: paging
+          });
         }
       }, this.stopSearching);
     } else {
@@ -241,12 +257,14 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
       return null;
     }
 
+    const { minSearchLength = 2 } = this.props;
+
     return (
       <SearchBox
         autoFocus={this.state.autoFocus}
         className="little-spacer-top spacer-bottom"
         loading={this.state.searching}
-        minLength={2}
+        minLength={minSearchLength}
         onChange={this.search}
         placeholder={this.props.searchPlaceholder}
         value={this.state.query}
@@ -255,13 +273,13 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   renderSearchResults() {
-    const { searching, searchResults, searchPaging } = this.state;
+    const { searching, searchMaxResults, searchResults, searchPaging } = this.state;
 
     if (!searching && (!searchResults || !searchResults.length)) {
       return <div className="note spacer-bottom">{translate('no_results')}</div>;
     }
 
-    if (!searchResults || !searchPaging) {
+    if (!searchResults) {
       // initial search
       return null;
     }
@@ -271,13 +289,20 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         <FacetItemsList>
           {searchResults.map(result => this.renderSearchResult(result))}
         </FacetItemsList>
-        <ListFooter
-          className="spacer-bottom"
-          count={searchResults.length}
-          loadMore={this.searchMore}
-          ready={!searching}
-          total={searchPaging.total}
-        />
+        {searchMaxResults && (
+          <div className="alert alert-warning spacer-top">
+            {translate('facet_might_have_more_results')}
+          </div>
+        )}
+        {searchPaging && (
+          <ListFooter
+            className="spacer-bottom"
+            count={searchResults.length}
+            loadMore={this.searchMore}
+            ready={!searching}
+            total={searchPaging.total}
+          />
+        )}
       </>
     );
   }

@@ -18,107 +18,63 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, without } from 'lodash';
-import { formatFacetStat, Query } from '../utils';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import { Query } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { searchIssueAuthors } from '../../../api/issues';
+import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
+  componentKey: string | undefined;
   fetching: boolean;
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
+  organization: string | undefined;
   stats: { [x: string]: number } | undefined;
   authors: string[];
 }
 
+const SEARCH_SIZE = 100;
+
 export default class AuthorFacet extends React.PureComponent<Props> {
-  property = 'authors';
-
-  static defaultProps = {
-    open: true
+  identity = (author: string) => {
+    return author;
   };
 
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { authors } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        authors.includes(itemValue) ? without(authors, itemValue) : [...authors, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]: authors.includes(itemValue) && authors.length < 2 ? [] : [itemValue]
-      });
-    }
+  handleSearch = (query: string, _page: number) => {
+    return searchIssueAuthors({
+      organization: this.props.organization,
+      project: this.props.componentKey,
+      ps: SEARCH_SIZE, // maximum
+      q: query
+    }).then(authors => ({ maxResults: authors.length === SEARCH_SIZE, results: authors }));
   };
 
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
+  renderSearchResult = (author: string, term: string) => {
+    return highlightTerm(author, term);
   };
-
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
-  };
-
-  getStat(author: string) {
-    const { stats } = this.props;
-    return stats ? stats[author] : undefined;
-  }
-
-  renderList() {
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
-    const authors = sortBy(Object.keys(stats), key => -stats[key]);
-
-    return (
-      <FacetItemsList>
-        {authors.map(author => (
-          <FacetItem
-            active={this.props.authors.includes(author)}
-            key={author}
-            loading={this.props.loading}
-            name={author}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(author))}
-            tooltip={author}
-            value={author}
-          />
-        ))}
-      </FacetItemsList>
-    );
-  }
 
   render() {
-    const { authors, stats = {} } = this.props;
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={this.props.authors}
-        />
-
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            <MultipleSelectionHint options={Object.keys(stats).length} values={authors.length} />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.authors')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.identity}
+        getSearchResultKey={this.identity}
+        getSearchResultText={this.identity}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="authors"
+        renderFacetItem={this.identity}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_authors')}
+        stats={this.props.stats}
+        values={this.props.authors}
+      />
     );
   }
 }

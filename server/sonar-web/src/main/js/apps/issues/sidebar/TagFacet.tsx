@@ -39,14 +39,15 @@ interface Props {
   tags: string[];
 }
 
+const SEARCH_SIZE = 100;
+
 export default class TagFacet extends React.PureComponent<Props> {
   handleSearch = (query: string) => {
-    return searchIssueTags({ organization: this.props.organization, ps: 50, q: query }).then(
-      tags => ({
-        paging: { pageIndex: 1, pageSize: tags.length, total: tags.length },
-        results: tags
-      })
-    );
+    return searchIssueTags({
+      organization: this.props.organization,
+      ps: SEARCH_SIZE,
+      q: query
+    }).then(tags => ({ maxResults: tags.length === SEARCH_SIZE, results: tags }));
   };
 
   getTagName = (tag: string) => {

@@ -140,17 +140,26 @@ export function getComponent(
 export interface TreeComponent extends LightComponent {
   id: string;
   name: string;
+  path?: string;
   refId?: string;
   refKey?: string;
   tags?: string[];
   visibility: Visibility;
 }
 
-export function getTree(
-  component: string,
-  options: RequestData = {}
-): Promise<{ baseComponent: TreeComponent; components: TreeComponent[]; paging: Paging }> {
-  return getJSON('/api/components/tree', { ...options, component });
+export function getTree(data: {
+  asc?: boolean;
+  branch?: string;
+  component: string;
+  p?: number;
+  ps?: number;
+  pullRequest?: string;
+  q?: string;
+  qualifiers?: string;
+  s?: string;
+  strategy?: 'all' | 'leaves' | 'children';
+}): Promise<{ baseComponent: TreeComponent; components: TreeComponent[]; paging: Paging }> {
+  return getJSON('/api/components/tree', data).catch(throwGlobalError);
 }
 
 export function getComponentShow(data: { component: string } & BranchParameters): Promise<any> {

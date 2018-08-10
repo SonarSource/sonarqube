@@ -18,127 +18,83 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, without } from 'lodash';
-import { formatFacetStat, Query, ReferencedComponent } from '../utils';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import { Query } from '../utils';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { highlightTerm } from '../../../helpers/search';
+import { getTree, TreeComponent } from '../../../api/components';
 import { collapsePath } from '../../../helpers/path';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 
 interface Props {
+  componentKey: string;
   fetching: boolean;
   directories: string[];
   loading?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  referencedComponents: { [componentKey: string]: ReferencedComponent };
   stats: { [x: string]: number } | undefined;
 }
 
 export default class DirectoryFacet extends React.PureComponent<Props> {
-  property = 'directories';
-
-  static defaultProps = {
-    open: true
+  getFacetItemText = (directory: string) => {
+    return collapsePath(directory, 15);
   };
 
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { directories } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        directories.includes(itemValue)
-          ? without(directories, itemValue)
-          : [...directories, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]:
-          directories.includes(itemValue) && directories.length < 2 ? [] : [itemValue]
-      });
-    }
+  getSearchResultKey = (directory: TreeComponent) => {
+    return directory.name;
   };
 
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
+  getSearchResultText = (directory: TreeComponent) => {
+    return directory.name;
   };
 
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
+  handleSearch = (query: string, page: number) => {
+    return getTree({
+      component: this.props.componentKey,
+      q: query,
+      qualifiers: 'DIR',
+      p: page,
+      ps: 30
+    }).then(({ components, paging }) => ({ paging, results: components }));
   };
 
-  getStat(directory: string) {
-    const { stats } = this.props;
-    return stats ? stats[directory] : undefined;
-  }
+  renderDirectory = (directory: React.ReactNode) => (
+    <>
+      <QualifierIcon className="little-spacer-right" qualifier="DIR" />
+      {directory}
+    </>
+  );
 
-  renderName(directory: string) {
-    return (
-      <span>
-        <QualifierIcon className="little-spacer-right" qualifier="DIR" />
-        {directory}
-      </span>
-    );
-  }
+  renderFacetItem = (directory: string) => {
+    return this.renderDirectory(collapsePath(directory, 15));
+  };
 
-  renderList() {
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
-    // sort directories first by counts, then by path
-    const directories = sortBy(Object.keys(stats), key => -stats[key], d => d);
-
-    return (
-      <FacetItemsList>
-        {directories.map(directory => (
-          <FacetItem
-            active={this.props.directories.includes(directory)}
-            key={directory}
-            loading={this.props.loading}
-            name={this.renderName(directory)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(directory))}
-            tooltip={directory}
-            value={directory}
-          />
-        ))}
-      </FacetItemsList>
-    );
-  }
+  renderSearchResult = (directory: TreeComponent, term: string) => {
+    return this.renderDirectory(highlightTerm(collapsePath(directory.name), term));
+  };
 
   render() {
-    const { directories, stats = {} } = this.props;
-    const values = directories.map(dir => collapsePath(dir));
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={values}
-        />
-
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            <MultipleSelectionHint
-              options={Object.keys(stats).length}
-              values={directories.length}
-            />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.directories')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.getFacetItemText}
+        getSearchResultKey={this.getSearchResultKey}
+        getSearchResultText={this.getSearchResultText}
+        minSearchLength={3}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="directories"
+        renderFacetItem={this.renderFacetItem}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_directories')}
+        stats={this.props.stats}
+        values={this.props.directories}
+      />
     );
   }
 }

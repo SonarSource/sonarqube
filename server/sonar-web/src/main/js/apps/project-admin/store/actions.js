@@ -72,8 +72,7 @@ const receiveProjectModules = (projectKey, modules) => ({
 });
 
 export const fetchProjectModules = projectKey => dispatch => {
-  const options = { qualifiers: 'BRC', s: 'name', ps: 500 };
-  getTree(projectKey, options).then(
+  getTree({ component: projectKey, qualifiers: 'BRC', s: 'name', ps: 500 }).then(
     r => {
       dispatch(receiveProjectModules(projectKey, r.components));
     },

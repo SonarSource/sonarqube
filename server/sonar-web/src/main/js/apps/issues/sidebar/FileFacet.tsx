@@ -18,19 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, without } from 'lodash';
-import { formatFacetStat, Query, ReferencedComponent } from '../utils';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import { Query, ReferencedComponent } from '../utils';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import { TreeComponent, getTree } from '../../../api/components';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
+  componentKey: string;
   fetching: boolean;
   files: string[];
   loading?: boolean;
@@ -42,102 +39,70 @@ interface Props {
 }
 
 export default class FileFacet extends React.PureComponent<Props> {
-  property = 'files';
-
-  static defaultProps = {
-    open: true
-  };
-
-  handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { files } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        files.includes(itemValue) ? without(files, itemValue) : [...files, itemValue]
-      );
-      this.props.onChange({ [this.property]: newValue });
-    } else {
-      this.props.onChange({
-        [this.property]: files.includes(itemValue) && files.length < 2 ? [] : [itemValue]
-      });
-    }
-  };
-
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
-  };
-
-  handleClear = () => {
-    this.props.onChange({ [this.property]: [] });
-  };
-
-  getStat(file: string) {
-    const { stats } = this.props;
-    return stats ? stats[file] : undefined;
-  }
-
-  getFileName(file: string) {
+  getFile = (file: string) => {
     const { referencedComponents } = this.props;
     return referencedComponents[file] ? collapsePath(referencedComponents[file].path, 15) : file;
-  }
+  };
 
-  renderName(file: string) {
-    const name = this.getFileName(file);
-    return (
-      <span>
-        <QualifierIcon className="little-spacer-right" qualifier="FIL" />
-        {name}
-      </span>
-    );
-  }
+  getFacetItemText = (file: string) => {
+    const { referencedComponents } = this.props;
+    return referencedComponents[file] ? referencedComponents[file].path : file;
+  };
 
-  renderList() {
-    const { stats } = this.props;
+  getSearchResultKey = (file: TreeComponent) => {
+    return file.id;
+  };
 
-    if (!stats) {
-      return null;
-    }
+  getSearchResultText = (file: TreeComponent) => {
+    return file.path || file.name;
+  };
 
-    const files = sortBy(Object.keys(stats), key => -stats[key]);
+  handleSearch = (query: string, page: number) => {
+    return getTree({
+      component: this.props.componentKey,
+      q: query,
+      qualifiers: 'FIL',
+      p: page,
+      ps: 30
+    }).then(({ components, paging }) => ({ paging, results: components }));
+  };
 
-    return (
-      <FacetItemsList>
-        {files.map(file => (
-          <FacetItem
-            active={this.props.files.includes(file)}
-            key={file}
-            loading={this.props.loading}
-            name={this.renderName(file)}
-            onClick={this.handleItemClick}
-            stat={formatFacetStat(this.getStat(file))}
-            tooltip={this.getFileName(file)}
-            value={file}
-          />
-        ))}
-      </FacetItemsList>
-    );
-  }
+  renderFile = (file: React.ReactNode) => (
+    <>
+      <QualifierIcon className="little-spacer-right" qualifier="FIL" />
+      {file}
+    </>
+  );
+
+  renderFacetItem = (file: string) => {
+    const name = this.getFile(file);
+    return this.renderFile(name);
+  };
+
+  renderSearchResult = (file: TreeComponent, term: string) => {
+    return this.renderFile(highlightTerm(collapsePath(file.path || file.name, 15), term));
+  };
 
   render() {
-    const { files, stats = {} } = this.props;
-    const values = files.map(file => this.getFileName(file));
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          name={translate('issues.facet', this.property)}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={this.props.open}
-          values={values}
-        />
-
-        <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open && (
-          <>
-            {this.renderList()}
-            <MultipleSelectionHint options={Object.keys(stats).length} values={files.length} />
-          </>
-        )}
-      </FacetBox>
+      <ListStyleFacet
+        facetHeader={translate('issues.facet.files')}
+        fetching={this.props.fetching}
+        getFacetItemText={this.getFacetItemText}
+        getSearchResultKey={this.getSearchResultKey}
+        getSearchResultText={this.getSearchResultText}
+        minSearchLength={3}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
+        property="files"
+        renderFacetItem={this.renderFacetItem}
+        renderSearchResult={this.renderSearchResult}
+        searchPlaceholder={translate('search.search_for_files')}
+        stats={this.props.stats}
+        values={this.props.files}
+      />
     );
   }
 }
