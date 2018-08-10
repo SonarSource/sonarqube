@@ -39,7 +39,7 @@ public interface BatchReportReader {
   ScannerReport.Component readComponent(int componentRef);
 
   CloseableIterator<ScannerReport.Issue> readComponentIssues(int componentRef);
-  
+
   CloseableIterator<ScannerReport.ExternalIssue> readComponentExternalIssues(int componentRef);
 
   CloseableIterator<ScannerReport.Duplication> readComponentDuplications(int componentRef);
@@ -62,6 +62,8 @@ public interface BatchReportReader {
   CloseableIterator<ScannerReport.CoverageDetail> readCoverageDetails(int testFileRef);
 
   CloseableIterator<ScannerReport.ContextProperty> readContextProperties();
-  
+
   Optional<CloseableIterator<ScannerReport.LineSgnificantCode>> readComponentSignificantCode(int fileRef);
+
+  Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef);
 }

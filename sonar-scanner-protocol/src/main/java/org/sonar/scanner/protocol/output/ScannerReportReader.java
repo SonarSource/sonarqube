@@ -129,6 +129,15 @@ public class ScannerReportReader {
     return null;
   }
 
+  @CheckForNull
+  public ScannerReport.ChangedLines readComponentChangedLines(int fileRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.CHANGED_LINES, fileRef);
+    if (fileExists(file)) {
+      return Protobuf.read(file, ScannerReport.ChangedLines.parser());
+    }
+    return null;
+  }
+
   public boolean hasSignificantCode(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SGNIFICANT_CODE, fileRef);
     return fileExists(file);

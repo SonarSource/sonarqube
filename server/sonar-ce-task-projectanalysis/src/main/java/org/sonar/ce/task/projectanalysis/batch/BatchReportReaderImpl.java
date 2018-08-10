@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
@@ -111,7 +110,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
     ensureInitialized();
     return delegate.readComponentIssues(componentRef);
   }
-  
+
   @Override
   public CloseableIterator<ScannerReport.ExternalIssue> readComponentExternalIssues(int componentRef) {
     ensureInitialized();
@@ -257,7 +256,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
       fileInputStream.close();
     }
   }
-  
+
   public boolean hasSignificantCode(int fileRef) {
     return delegate.hasSignificantCode(fileRef);
   }
@@ -266,5 +265,9 @@ public class BatchReportReaderImpl implements BatchReportReader {
   public Optional<CloseableIterator<LineSgnificantCode>> readComponentSignificantCode(int fileRef) {
     ensureInitialized();
     return Optional.ofNullable(delegate.readComponentSignificantCode(fileRef));
+  }
+
+  @Override public Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef) {
+    return Optional.ofNullable(delegate.readComponentChangedLines(fileRef));
   }
 }

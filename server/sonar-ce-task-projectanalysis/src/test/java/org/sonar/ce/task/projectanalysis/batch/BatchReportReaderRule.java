@@ -55,6 +55,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, List<ScannerReport.Test>> tests = new HashMap<>();
   private Map<Integer, List<ScannerReport.CoverageDetail>> coverageDetails = new HashMap<>();
   private Map<Integer, List<ScannerReport.LineSgnificantCode>> significantCode = new HashMap<>();
+  private Map<Integer, ScannerReport.ChangedLines> changedLines = new HashMap<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -231,6 +232,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   public Optional<CloseableIterator<LineSgnificantCode>> readComponentSignificantCode(int fileRef) {
     List<LineSgnificantCode> list = significantCode.get(fileRef);
     return list == null ? Optional.empty() : Optional.of(CloseableIterator.from(list.iterator()));
+  }
+
+  public BatchReportReaderRule putChangedLines(int fileRef, ScannerReport.ChangedLines fileChangedLines) {
+    changedLines.put(fileRef, fileChangedLines);
+    return this;
+  }
+
+  @Override public Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef) {
+    return Optional.ofNullable(changedLines.get(fileRef));
   }
 
   @Override
