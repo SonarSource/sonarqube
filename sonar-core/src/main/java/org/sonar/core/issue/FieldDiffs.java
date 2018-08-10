@@ -20,7 +20,6 @@
 package org.sonar.core.issue;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Date;
@@ -28,6 +27,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
@@ -119,16 +119,13 @@ public class FieldDiffs implements Serializable {
     for (String field : fields) {
       String[] keyValues = field.split("=");
       if (keyValues.length == 2) {
-        String[] values = keyValues[1].split("\\|");
-        String oldValue = "";
-        String newValue = "";
-        if (values.length == 1) {
-          newValue = Strings.nullToEmpty(values[0]);
-        } else if (values.length == 2) {
-          oldValue = Strings.nullToEmpty(values[0]);
-          newValue = Strings.nullToEmpty(values[1]);
+        String values = keyValues[1];
+        int split = values.indexOf('|');
+        if (split > -1) {
+          diffs.setDiff(keyValues[0], values.substring(0, split), values.substring(split +1));
+        } else {
+          diffs.setDiff(keyValues[0], "", emptyToNull(values));
         }
-        diffs.setDiff(keyValues[0], oldValue, newValue);
       } else {
         diffs.setDiff(keyValues[0], "", "");
       }

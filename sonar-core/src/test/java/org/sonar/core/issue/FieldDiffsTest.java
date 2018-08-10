@@ -33,7 +33,7 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void test_diff() throws Exception {
+  public void test_diff() {
     diffs.setDiff("severity", "BLOCKER", "INFO");
     diffs.setDiff("resolution", "OPEN", "FIXED");
 
@@ -67,7 +67,7 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void test_diff_by_key() throws Exception {
+  public void test_diff_by_key() {
     diffs.setDiff("severity", "BLOCKER", "INFO");
     diffs.setDiff("resolution", "OPEN", "FIXED");
 
@@ -92,7 +92,7 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void test_toString() throws Exception {
+  public void test_toString() {
     diffs.setDiff("severity", "BLOCKER", "INFO");
     diffs.setDiff("resolution", "OPEN", "FIXED");
 
@@ -100,7 +100,7 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void test_toString_with_null_values() throws Exception {
+  public void test_toString_with_null_values() {
     diffs.setDiff("severity", null, "INFO");
     diffs.setDiff("assignee", "user1", null);
 
@@ -108,9 +108,9 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void test_parse() throws Exception {
-    diffs = FieldDiffs.parse("severity=BLOCKER|INFO,resolution=OPEN|FIXED");
-    assertThat(diffs.diffs()).hasSize(2);
+  public void test_parse() {
+    diffs = FieldDiffs.parse("severity=BLOCKER|INFO,resolution=OPEN|FIXED,donut=|new,acme=old|");
+    assertThat(diffs.diffs()).hasSize(4);
 
     FieldDiffs.Diff diff = diffs.diffs().get("severity");
     assertThat(diff.oldValue()).isEqualTo("BLOCKER");
@@ -119,10 +119,18 @@ public class FieldDiffsTest {
     diff = diffs.diffs().get("resolution");
     assertThat(diff.oldValue()).isEqualTo("OPEN");
     assertThat(diff.newValue()).isEqualTo("FIXED");
+
+    diff = diffs.diffs().get("donut");
+    assertThat(diff.oldValue()).isEqualTo("");
+    assertThat(diff.newValue()).isEqualTo("new");
+
+    diff = diffs.diffs().get("acme");
+    assertThat(diff.oldValue()).isEqualTo("old");
+    assertThat(diff.newValue()).isEqualTo("");
   }
 
   @Test
-  public void test_parse_empty_values() throws Exception {
+  public void test_parse_empty_values() {
     diffs = FieldDiffs.parse("severity=INFO,resolution=");
     assertThat(diffs.diffs()).hasSize(2);
 
@@ -136,13 +144,13 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void test_parse_null() throws Exception {
+  public void test_parse_null() {
     diffs = FieldDiffs.parse(null);
     assertThat(diffs.diffs()).isEmpty();
   }
 
   @Test
-  public void test_parse_empty() throws Exception {
+  public void test_parse_empty() {
     diffs = FieldDiffs.parse("");
     assertThat(diffs.diffs()).isEmpty();
   }
