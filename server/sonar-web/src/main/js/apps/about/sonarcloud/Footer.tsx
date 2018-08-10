@@ -137,14 +137,16 @@ export default function Footer() {
             rel="noopener noreferrer"
             target="_blank">
             SonarSource SA
-          </a>. All rights reserved. SonarCloud is a service operated by{' '}
+          </a>
+          . All rights reserved. SonarCloud is a service operated by{' '}
           <a
             className="sc-footer-link sc-footer-copy-link"
             href="https://www.sonarsource.com"
             rel="noopener noreferrer"
             target="_blank">
             SonarSource
-          </a>, the company that develops and promotes open source{' '}
+          </a>
+          , the company that develops and promotes open source{' '}
           <a
             className="sc-footer-link sc-footer-copy-link"
             href="http://sonarqube.org"
@@ -159,7 +161,8 @@ export default function Footer() {
             rel="noopener noreferrer"
             target="_blank">
             SonarLint
-          </a>.
+          </a>
+          .
         </div>
       </div>
     </footer>

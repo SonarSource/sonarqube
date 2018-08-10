@@ -131,8 +131,8 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
           profiles && (
             <Table
               allProfiles={allProfiles}
-              profiles={profiles}
               onChangeProfile={this.handleChangeProfile}
+              profiles={profiles}
             />
           )
         )}

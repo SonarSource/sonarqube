@@ -54,8 +54,8 @@ export default function MarkdownHelp() {
           </tr>
           <tr>
             <td className="text-top">
-              * first item<br />
-              * second item
+              * first item
+              <br />* second item
             </td>
             <td className="markdown">
               <ul>
@@ -66,7 +66,8 @@ export default function MarkdownHelp() {
           </tr>
           <tr>
             <td className="text-top">
-              1. first item<br />
+              1. first item
+              <br />
               1. second item
             </td>
             <td className="markdown text-top">
@@ -102,11 +103,15 @@ export default function MarkdownHelp() {
           </tr>
           <tr>
             <td className="text-top">
-              ``<br />
-              // code on multiple lines<br />
+              ``
+              {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
+              <br />
+              // code on multiple lines
+              <br />
               {'public void foo() {'}
               <br />
-              &nbsp;&nbsp;{'// do some logic here'}
+              &nbsp;&nbsp;
+              {'// do some logic here'}
               <br />
               {'}'}
               <br />
@@ -120,15 +125,20 @@ export default function MarkdownHelp() {
           </tr>
           <tr>
             <td className="text-top">
-              Standard text<br />
-              &gt; Blockquoted text<br />
-              &gt; that spans multiple lines<br />
+              Standard text
+              <br />
+              &gt; Blockquoted text
+              <br />
+              &gt; that spans multiple lines
+              <br />
             </td>
             <td className="markdown text-top">
               <p>Standard text</p>
               <blockquote>
-                Blockquoted text<br />
-                that spans multiple lines<br />
+                Blockquoted text
+                <br />
+                that spans multiple lines
+                <br />
               </blockquote>
             </td>
           </tr>

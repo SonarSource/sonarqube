@@ -40,8 +40,8 @@ export default function PageHeader(props: Props) {
           canRestart={!props.isCluster}
           cluster={props.isCluster}
           logLevel={props.logLevel}
-          serverId={props.serverId}
           onLogLevelChange={props.onLogLevelChange}
+          serverId={props.serverId}
         />
       )}
       {props.loading && (

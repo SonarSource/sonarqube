@@ -42,13 +42,13 @@ it('should render several qualifiers', () => {
 it('should render several qualifiers for default organization', () => {
   const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
   const organization = { isDefault: true };
-  const output = shallow(<Defaults permissionTemplate={sample} organization={organization} />);
+  const output = shallow(<Defaults organization={organization} permissionTemplate={sample} />);
   expect(output).toMatchSnapshot();
 });
 
 it('should render only projects for custom organization', () => {
   const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
   const organization = { isDefault: false };
-  const output = shallow(<Defaults permissionTemplate={sample} organization={organization} />);
+  const output = shallow(<Defaults organization={organization} permissionTemplate={sample} />);
   expect(output).toMatchSnapshot();
 });

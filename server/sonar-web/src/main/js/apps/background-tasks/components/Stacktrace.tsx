@@ -100,7 +100,7 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
         </div>
 
         <div className="modal-foot">
-          <a href="#" className="js-modal-close" onClick={this.handleCloseClick}>
+          <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
             {translate('close')}
           </a>
         </div>

@@ -44,8 +44,8 @@ export default function SonarLintIntegration() {
               <a className="sc-child-lead-link" href="https://www.sonarlint.org/">
                 SonarLint
               </a>{' '}
-              to provide developers maximum insight <br />in their IDEs on code quality and make
-              sure they do not introduce new issues.
+              to provide developers maximum insight <br />
+              in their IDEs on code quality and make sure they do not introduce new issues.
             </p>
             <img
               alt=""

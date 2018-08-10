@@ -25,10 +25,8 @@ import { isSonarCloud } from '../../../../helpers/system';
 jest.mock(
   'Docs/EmbedDocsSuggestions.json',
   () => ({
-    default: {
-      pageA: [{ link: '/foo', text: 'Foo' }, { link: '/bar', text: 'Bar', scope: 'sonarcloud' }],
-      pageB: [{ link: '/qux', text: 'Qux' }]
-    }
+    pageA: [{ link: '/foo', text: 'Foo' }, { link: '/bar', text: 'Bar', scope: 'sonarcloud' }],
+    pageB: [{ link: '/qux', text: 'Qux' }]
   }),
   { virtual: true }
 );

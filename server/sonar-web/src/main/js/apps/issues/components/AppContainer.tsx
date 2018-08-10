@@ -93,6 +93,7 @@ interface OwnProps {
   myIssues?: boolean;
 }
 
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
-  lazyLoad(() => import('./App'))
-);
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(lazyLoad(() => import('./App')));

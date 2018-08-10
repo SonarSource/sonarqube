@@ -44,7 +44,7 @@ export default function GraphsTooltipsContentEvents({ addSeparator, events } /*:
         <td colSpan="3">
           <span>{translate('events')}:</span>
           {events.map(event => (
-            <span key={event.key} className="spacer-left">
+            <span className="spacer-left" key={event.key}>
               <ProjectEventIcon className={'project-activity-event-icon ' + event.category} />
             </span>
           ))}

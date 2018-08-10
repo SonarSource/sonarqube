@@ -36,7 +36,7 @@ export default class Search extends React.PureComponent<Props> {
     const { query } = this.props;
 
     return (
-      <div id="users-search" className="panel panel-vertical bordered-bottom spacer-bottom">
+      <div className="panel panel-vertical bordered-bottom spacer-bottom" id="users-search">
         <SearchBox
           minLength={2}
           onChange={this.handleSearch}

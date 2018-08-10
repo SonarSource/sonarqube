@@ -219,7 +219,7 @@ export default class ZoomTimeLine extends React.PureComponent {
           const nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
           const x = (xScale(tick) + xScale(nextTick)) / 2;
           return (
-            <text key={index} className="chart-zoom-tick" x={x} y={y} dy="1.3em">
+            <text className="chart-zoom-tick" dy="1.3em" key={index} x={x} y={y}>
               {format(tick)}
             </text>
           );
@@ -235,11 +235,11 @@ export default class ZoomTimeLine extends React.PureComponent {
     const yRange = yScale.range();
     return (
       <rect
+        fill={theme.leakColor}
+        height={yRange[0] - yRange[yRange.length - 1]}
+        width={xScale.range()[1] - xScale(this.props.leakPeriodDate)}
         x={xScale(this.props.leakPeriodDate)}
         y={yRange[yRange.length - 1]}
-        width={xScale.range()[1] - xScale(this.props.leakPeriodDate)}
-        height={yRange[0] - yRange[yRange.length - 1]}
-        fill={theme.leakColor}
       />
     );
   };
@@ -256,9 +256,9 @@ export default class ZoomTimeLine extends React.PureComponent {
       <g>
         {this.props.series.map((serie, idx) => (
           <path
-            key={serie.name}
             className={classNames('line-chart-path', 'line-chart-path-' + idx)}
             d={lineGenerator(serie.data)}
+            key={serie.name}
           />
         ))}
       </g>
@@ -278,9 +278,9 @@ export default class ZoomTimeLine extends React.PureComponent {
       <g>
         {this.props.series.map((serie, idx) => (
           <path
-            key={serie.name}
             className={classNames('line-chart-area', 'line-chart-area-' + idx)}
             d={areaGenerator(serie.data)}
+            key={serie.name}
           />
         ))}
       </g>
@@ -300,7 +300,6 @@ export default class ZoomTimeLine extends React.PureComponent {
     <Draggable
       axis="x"
       bounds={{ left: options.xDim[0], right: options.xDim[1] }}
-      position={{ x: options.xPos, y: 0 }}
       onDrag={this.handleSelectionHandleDrag(
         options.xScale,
         options.fixedPos,
@@ -313,13 +312,14 @@ export default class ZoomTimeLine extends React.PureComponent {
         options.fixedPos,
         options.xDim,
         options.direction
-      )}>
+      )}
+      position={{ x: options.xPos, y: 0 }}>
       <rect
         className="zoom-selection-handle"
-        x={-3}
-        y={options.yDim[1]}
         height={options.yDim[0] - options.yDim[1] + 1}
         width={6}
+        x={-3}
+        y={options.yDim[1]}
       />
     </Draggable>
   );
@@ -341,31 +341,31 @@ export default class ZoomTimeLine extends React.PureComponent {
     return (
       <g className="chart-zoom">
         <DraggableCore
-          onStart={this.handleNewZoomDragStart(xDim)}
           onDrag={this.handleNewZoomDrag(xScale, xDim)}
+          onStart={this.handleNewZoomDragStart(xDim)}
           onStop={this.handleNewZoomDragEnd(xScale, xDim)}>
           <rect
             className="zoom-overlay"
-            x={xDim[0]}
-            y={yDim[1]}
             height={yDim[0] - yDim[1]}
             width={xDim[1] - xDim[0]}
+            x={xDim[0]}
+            y={yDim[1]}
           />
         </DraggableCore>
         {showZoomArea && (
           <Draggable
             axis="x"
             bounds={{ left: xDim[0], right: Math.floor(xDim[1] - zoomBoxWidth) }}
-            position={{ x: xArray[0], y: 0 }}
             onDrag={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim, true)}
-            onStop={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim)}>
+            onStop={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim)}
+            position={{ x: xArray[0], y: 0 }}>
             <rect
               className="zoom-selection"
+              height={yDim[0] - yDim[1] + 1}
+              onDoubleClick={this.handleDoubleClick(xScale, xDim)}
+              width={zoomBoxWidth}
               x={0}
               y={yDim[1]}
-              height={yDim[0] - yDim[1] + 1}
-              width={zoomBoxWidth}
-              onDoubleClick={this.handleDoubleClick(xScale, xDim)}
             />
           </Draggable>
         )}
@@ -399,7 +399,7 @@ export default class ZoomTimeLine extends React.PureComponent {
     const { xScale, yScale } = this.getScales();
 
     return (
-      <svg className="line-chart " width={this.props.width} height={this.props.height}>
+      <svg className="line-chart " height={this.props.height} width={this.props.width}>
         <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0] + 2})`}>
           {this.renderLeak(xScale, yScale)}
           {this.renderBaseLine(xScale, yScale)}

@@ -80,26 +80,26 @@ export default class ScreenPositionFixer extends React.Component<Props, Fixes> {
   position = () => {
     // eslint-disable-next-line react/no-find-dom-node
     const node = findDOMNode(this);
+    if (node && node instanceof Element) {
+      const { width, height, left, top } = node.getBoundingClientRect();
+      const { clientHeight, clientWidth } = document.body;
 
-    const { width, height, left, top } = node.getBoundingClientRect();
+      let leftFix = 0;
+      if (left < EDGE_MARGIN) {
+        leftFix = EDGE_MARGIN - left;
+      } else if (left + width > clientWidth - EDGE_MARGIN) {
+        leftFix = clientWidth - EDGE_MARGIN - left - width;
+      }
 
-    const { clientHeight, clientWidth } = document.body;
+      let topFix = 0;
+      if (top < EDGE_MARGIN) {
+        topFix = EDGE_MARGIN - top;
+      } else if (top + height > clientHeight - EDGE_MARGIN) {
+        topFix = clientHeight - EDGE_MARGIN - top - height;
+      }
 
-    let leftFix = 0;
-    if (left < EDGE_MARGIN) {
-      leftFix = EDGE_MARGIN - left;
-    } else if (left + width > clientWidth - EDGE_MARGIN) {
-      leftFix = clientWidth - EDGE_MARGIN - left - width;
+      this.setState({ leftFix, topFix });
     }
-
-    let topFix = 0;
-    if (top < EDGE_MARGIN) {
-      topFix = EDGE_MARGIN - top;
-    } else if (top + height > clientHeight - EDGE_MARGIN) {
-      topFix = clientHeight - EDGE_MARGIN - top - height;
-    }
-
-    this.setState({ leftFix, topFix });
   };
 
   render() {

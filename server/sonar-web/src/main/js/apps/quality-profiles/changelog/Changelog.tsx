@@ -59,7 +59,7 @@ export default function Changelog(props: Props) {
     const className = 'js-profile-changelog-event ' + (isEvenRow ? 'even' : 'odd');
 
     return (
-      <tr key={index} className={className}>
+      <tr className={className} key={index}>
         <td className="thin nowrap">{!isBulkChange && <DateTimeFormatter date={event.date} />}</td>
 
         <td className="thin nowrap">

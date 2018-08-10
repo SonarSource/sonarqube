@@ -29,9 +29,7 @@ jest.mock('lodash', () => {
 });
 
 jest.mock('react-dom', () => ({
-  findDOMNode: jest.fn(() => ({
-    getBoundingClientRect: () => ({ width: 0, height: 0, left: 0, top: 0 })
-  }))
+  findDOMNode: jest.fn()
 }));
 
 beforeEach(() => {
@@ -92,7 +90,7 @@ it('should re-position when window is resized', () => {
 
 function setNodeRect(rect: { width: number; height: number; left: number; top: number }) {
   const findDOMNode = require('react-dom').findDOMNode as jest.Mock<any>;
-  findDOMNode.mockImplementation(() => ({
-    getBoundingClientRect: () => rect
-  }));
+  const element = document.createElement('div');
+  Object.defineProperty(element, 'getBoundingClientRect', { value: () => rect });
+  findDOMNode.mockReturnValue(element);
 }

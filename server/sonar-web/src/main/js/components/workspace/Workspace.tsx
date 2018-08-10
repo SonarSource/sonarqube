@@ -97,7 +97,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   };
 
   openComponent = (component: ComponentDescriptor) => {
-    this.setState((state: State): Partial<State> => ({
+    this.setState((state: State) => ({
       components: uniqBy([...state.components, component], component => component.key),
       open: { component: component.key }
     }));
@@ -108,7 +108,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   };
 
   openRule = (rule: RuleDescriptor) => {
-    this.setState((state: State): Partial<State> => ({
+    this.setState((state: State) => ({
       open: { rule: rule.key },
       rules: uniqBy([...state.rules, rule], rule => rule.key)
     }));
@@ -119,7 +119,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   };
 
   closeComponent = (componentKey: string) => {
-    this.setState((state: State): Partial<State> => ({
+    this.setState((state: State) => ({
       components: state.components.filter(x => x.key !== componentKey),
       open: {
         ...state.open,
@@ -129,7 +129,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   };
 
   closeRule = (ruleKey: string) => {
-    this.setState((state: State): Partial<State> => ({
+    this.setState((state: State) => ({
       rules: state.rules.filter(x => x.key !== ruleKey),
       open: {
         ...state.open,
@@ -141,7 +141,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   handleComponentLoad = (details: { key: string; name: string; qualifier: string }) => {
     if (this.mounted) {
       const { key, name, qualifier } = details;
-      this.setState((state: State): Partial<State> => ({
+      this.setState((state: State) => ({
         components: state.components.map(
           component => (component.key === key ? { ...component, name, qualifier } : component)
         )
@@ -152,7 +152,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   handleRuleLoad = (details: { key: string; name: string }) => {
     if (this.mounted) {
       const { key, name } = details;
-      this.setState((state: State): Partial<State> => ({
+      this.setState((state: State) => ({
         rules: state.rules.map(rule => (rule.key === key ? { ...rule, name } : rule))
       }));
     }
@@ -173,7 +173,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   resize = (deltaY: number) => {
     const minHeight = window.innerHeight * MIN_HEIGHT;
     const maxHeight = window.innerHeight * MAX_HEIGHT;
-    this.setState((state: State): Partial<State> => ({
+    this.setState((state: State) => ({
       height: Math.min(maxHeight, Math.max(minHeight, state.height - deltaY))
     }));
   };

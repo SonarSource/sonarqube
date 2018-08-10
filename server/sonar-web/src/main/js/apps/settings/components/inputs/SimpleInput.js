@@ -50,12 +50,12 @@ export default class SimpleInput extends React.PureComponent {
   render() {
     return (
       <input
-        name={this.props.name}
         className={this.props.className + ' text-top'}
-        type={this.props.type}
-        value={this.props.value || ''}
+        name={this.props.name}
         onChange={this.handleInputChange}
         onKeyDown={this.handleKeyDown}
+        type={this.props.type}
+        value={this.props.value || ''}
       />
     );
   }

@@ -30,7 +30,7 @@ interface Props {
 
 export default function MainRating({ component, metric, value }: Props) {
   return (
-    <Link to={getMeasureTreemapUrl(component, metric)} className="portfolio-box-rating">
+    <Link className="portfolio-box-rating" to={getMeasureTreemapUrl(component, metric)}>
       <Rating value={value} />
     </Link>
   );

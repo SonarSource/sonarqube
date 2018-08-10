@@ -81,21 +81,21 @@ describe('Stats', () => {
   describe('Pending', () => {
     it('should show zero pending', () => {
       const result = shallow(
-        <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
+        <Stats onCancelAllPending={stub} onShowFailing={stub} pendingCount={0} />
       );
       expect(result.find('.js-pending-count').text()).toContain('0');
     });
 
     it('should show 5 pending', () => {
       const result = shallow(
-        <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
+        <Stats onCancelAllPending={stub} onShowFailing={stub} pendingCount={5} />
       );
       expect(result.find('.js-pending-count').text()).toContain('5');
     });
 
     it('should not show cancel pending button', () => {
       const result = shallow(
-        <Stats pendingCount={0} onCancelAllPending={stub} onShowFailing={stub} />
+        <Stats onCancelAllPending={stub} onShowFailing={stub} pendingCount={0} />
       );
       expect(result.find('.js-cancel-pending').length).toBe(0);
     });
@@ -104,9 +104,9 @@ describe('Stats', () => {
       const result = shallow(
         <Stats
           isSystemAdmin={true}
-          pendingCount={5}
           onCancelAllPending={stub}
           onShowFailing={stub}
+          pendingCount={5}
         />
       );
       expect(result.find('.js-cancel-pending').length).toBe(1);
@@ -117,9 +117,9 @@ describe('Stats', () => {
       const result = shallow(
         <Stats
           isSystemAdmin={true}
-          pendingCount={5}
           onCancelAllPending={spy}
           onShowFailing={stub}
+          pendingCount={5}
         />
       );
       expect(spy).not.toBeCalled();

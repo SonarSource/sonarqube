@@ -54,4 +54,7 @@ const mapStateToProps = () => ({});
 
 const mapDispatchToProps = { doLogout };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Logout as any);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Logout as any);

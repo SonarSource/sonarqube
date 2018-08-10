@@ -89,8 +89,8 @@ export default class LongBranchesPattern extends React.PureComponent<Props, Stat
         <EditButton className="button-small spacer-left" onClick={this.handleChangeClick} />
         {this.state.formOpen && (
           <LongBranchesPatternForm
-            onClose={this.closeForm}
             onChange={this.handleChange}
+            onClose={this.closeForm}
             project={this.props.project}
             setting={setting}
           />

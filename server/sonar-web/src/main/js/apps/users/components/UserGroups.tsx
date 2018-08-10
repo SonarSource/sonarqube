@@ -54,14 +54,14 @@ export default class UserGroups extends React.PureComponent<Props, State> {
     return (
       <ul>
         {groups.slice(0, limit).map(group => (
-          <li key={group} className="little-spacer-bottom">
+          <li className="little-spacer-bottom" key={group}>
             {group}
           </li>
         ))}
         {groups.length > GROUPS_LIMIT &&
           this.state.showMore &&
           groups.slice(limit).map(group => (
-            <li key={group} className="little-spacer-bottom">
+            <li className="little-spacer-bottom" key={group}>
               {group}
             </li>
           ))}

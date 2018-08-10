@@ -35,11 +35,12 @@ export default function BranchAnalysis() {
           <div className="sc-child-header">
             <img alt="" height="34" src={`${getBaseUrl()}/images/sonarcloud/branch-analysis.svg`} />
             <h1 className="sc-child-title">
-              Branch analysis & <br />pull request decoration
+              Branch analysis & <br />
+              pull request decoration
             </h1>
             <p className="sc-child-lead">
-              SonarCloud comes with a built-in feature to automatically analyze <br />project
-              branches and pull requests as soon as they get created.
+              SonarCloud comes with a built-in feature to automatically analyze <br />
+              project branches and pull requests as soon as they get created.
             </p>
           </div>
 

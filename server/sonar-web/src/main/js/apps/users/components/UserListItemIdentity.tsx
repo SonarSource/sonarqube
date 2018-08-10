@@ -60,15 +60,15 @@ export function ExternalProvider({ identityProvider, user }: Props) {
       <div
         className="identity-provider"
         style={{
-          'background-color': identityProvider.backgroundColor,
+          backgroundColor: identityProvider.backgroundColor,
           color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
         }}>
         <img
           alt={identityProvider.name}
           className="little-spacer-right"
+          height="14"
           src={getBaseUrl() + identityProvider.iconPath}
           width="14"
-          height="14"
         />
         {user.externalIdentity}
       </div>

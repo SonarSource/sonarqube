@@ -55,8 +55,8 @@ export default function GraphsTooltipsContentDuplication(
       )}
       <tr className="project-activity-graph-tooltip-line">
         <td
-          colSpan="2"
-          className="project-activity-graph-tooltip-value text-right spacer-right thin">
+          className="project-activity-graph-tooltip-value text-right spacer-right thin"
+          colSpan="2">
           {formatMeasure(duplicationDensityValue, 'PERCENT')}
         </td>
         <td>{translate('metric.duplicated_lines_density.name')}</td>

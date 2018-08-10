@@ -27,23 +27,23 @@ export default function FacetMeasureValue({ measure } /*: { measure: MeasureEnha
   if (isDiffMetric(measure.metric.key)) {
     return (
       <div
-        id={`measure-${measure.metric.key}-leak`}
-        className="domain-measures-value domain-measures-leak">
+        className="domain-measures-value domain-measures-leak"
+        id={`measure-${measure.metric.key}-leak`}>
         <Measure
-          value={measure.leak}
           metricKey={measure.metric.key}
           metricType={measure.metric.type}
+          value={measure.leak}
         />
       </div>
     );
   }
 
   return (
-    <div id={`measure-${measure.metric.key}-value`} className="domain-measures-value">
+    <div className="domain-measures-value" id={`measure-${measure.metric.key}-value`}>
       <Measure
-        value={measure.value}
         metricKey={measure.metric.key}
         metricType={measure.metric.type}
+        value={measure.value}
       />
     </div>
   );

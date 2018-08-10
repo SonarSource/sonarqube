@@ -89,11 +89,11 @@ export default class MeasureViewSelect extends React.PureComponent {
         autoBlur={true}
         className={this.props.className}
         clearable={false}
+        onChange={this.handleChange}
+        options={this.getOptions()}
         searchable={false}
         value={this.props.view}
         valueRenderer={this.renderValue}
-        options={this.getOptions()}
-        onChange={this.handleChange}
       />
     );
   }

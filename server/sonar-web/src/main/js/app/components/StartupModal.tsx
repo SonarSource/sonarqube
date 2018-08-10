@@ -106,7 +106,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
         this.props.skipOnboardingAction();
         return { automatic: false, modal: undefined };
       }
-      return undefined;
+      return null;
     });
   };
 
@@ -115,7 +115,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
       if (state.modal === ModalKey.license) {
         return { automatic: false, modal: undefined };
       }
-      return undefined;
+      return null;
     });
   };
 
@@ -223,6 +223,7 @@ const mapStateToProps = (state: any): StateProps => ({
 
 const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
 
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
-  StartupModal
-);
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(StartupModal);

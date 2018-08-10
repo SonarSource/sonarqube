@@ -43,7 +43,7 @@ interface OwnProps {
 interface StateProps {
   memberLogins: string[];
   members: OrganizationMember[];
-  organization?: Organization;
+  organization: Organization;
   organizationGroups: Group[];
   status: { loading?: boolean; total?: number; pageIndex?: number; query?: string };
 }
@@ -68,7 +68,7 @@ const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => {
   return {
     memberLogins,
     members: getUsersByLogins(state, memberLogins),
-    organization: getOrganizationByKey(state, organizationKey),
+    organization: getOrganizationByKey(state, organizationKey)!,
     organizationGroups: getOrganizationGroupsByKey(state, organizationKey),
     status: getOrganizationMembersState(state, organizationKey)
   };
@@ -83,6 +83,7 @@ const mapDispatchToProps = {
   updateOrganizationMemberGroups
 };
 
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
-  OrganizationMembers
-);
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(OrganizationMembers);

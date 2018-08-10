@@ -59,7 +59,7 @@ export default class CategoriesList extends React.PureComponent {
     const pathname = this.props.component ? '/project/settings' : '/settings';
 
     return (
-      <IndexLink to={{ pathname, query }} className={className} title={category.name}>
+      <IndexLink className={className} title={category.name} to={{ pathname, query }}>
         {category.name}
       </IndexLink>
     );
@@ -74,7 +74,9 @@ export default class CategoriesList extends React.PureComponent {
 
     return (
       <ul className="side-tabs-menu">
-        {sortedCategories.map(category => <li key={category.key}>{this.renderLink(category)}</li>)}
+        {sortedCategories.map(category => (
+          <li key={category.key}>{this.renderLink(category)}</li>
+        ))}
       </ul>
     );
   }

@@ -152,7 +152,10 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
                         <TestStatusIcon className="spacer-right" status={testCase.status} />
                         <div className="display-inline-block text-ellipsis">{testCase.name}</div>
                         {testCase.status !== 'SKIPPED' && (
-                          <span className="spacer-left note">{testCase.durationInMs}ms</span>
+                          <span className="spacer-left note">
+                            {testCase.durationInMs}
+                            ms
+                          </span>
                         )}
                       </li>
                     ))}

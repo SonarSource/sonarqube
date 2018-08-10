@@ -37,7 +37,7 @@ export default function AboutProjects({ count, loading } /*: Props */) {
       {!loading && (
         <div>
           <div>
-            <Link to="/projects" className="about-page-projects-link">
+            <Link className="about-page-projects-link" to="/projects">
               {formatMeasure(count, 'INT')}
             </Link>
           </div>

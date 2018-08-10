@@ -27,8 +27,8 @@ it('should render correctly the date inputs', () => {
     shallowWithIntl(
       <ProjectActivityDateInput
         from={parseDate('2016-10-27T12:21:15+0000')}
-        to={parseDate('2016-12-27T12:21:15+0000')}
         onChange={() => {}}
+        to={parseDate('2016-12-27T12:21:15+0000')}
       />
     )
   ).toMatchSnapshot();

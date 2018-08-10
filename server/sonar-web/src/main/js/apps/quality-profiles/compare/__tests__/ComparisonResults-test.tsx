@@ -26,12 +26,12 @@ import ComparisonEmpty from '../ComparisonEmpty';
 it('should render ComparisonEmpty', () => {
   const output = shallow(
     <ComparisonResults
-      left={{ name: 'left' }}
-      right={{ name: 'right' }}
       inLeft={[]}
       inRight={[]}
+      left={{ name: 'left' }}
       modified={[]}
       organization={null}
+      right={{ name: 'right' }}
     />
   );
   expect(output.is(ComparisonEmpty)).toBe(true);
@@ -60,12 +60,12 @@ it('should compare', () => {
 
   const output = shallow(
     <ComparisonResults
-      left={{ name: 'left' }}
-      right={{ name: 'right' }}
       inLeft={inLeft}
       inRight={inRight}
+      left={{ name: 'left' }}
       modified={modified}
       organization={null}
+      right={{ name: 'right' }}
     />
   );
 

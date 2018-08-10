@@ -49,8 +49,8 @@ it('should remove favorite', () => {
 function renderFavoriteBase(props: Partial<Props> = {}) {
   return shallow(
     <FavoriteBase
-      favorite={true}
       addFavorite={jest.fn()}
+      favorite={true}
       qualifier="TRK"
       removeFavorite={jest.fn()}
       {...props}

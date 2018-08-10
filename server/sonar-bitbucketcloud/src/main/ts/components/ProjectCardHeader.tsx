@@ -48,7 +48,8 @@ export default function ProjectCardHeader({ project }: Props) {
         <DateTimeFormatter date={project.analysisDate}>
           {formattedDate => (
             <small className="project-card-analysis-date">
-              Last analysis:<br className="hidden-big" />
+              Last analysis:
+              <br className="hidden-big" />
               <span className="little-spacer-left">{formattedDate}</span>
             </small>
           )}

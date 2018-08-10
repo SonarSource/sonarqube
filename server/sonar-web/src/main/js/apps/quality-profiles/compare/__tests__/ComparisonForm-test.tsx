@@ -32,10 +32,10 @@ it('should render Select with right options', () => {
 
   const output = shallow(
     <ComparisonForm
-      withKey="another"
+      onCompare={() => true}
       profile={profile}
       profiles={profiles}
-      onCompare={() => true}
+      withKey="another"
     />
   ).find('Select');
   expect(output.length).toBe(1);

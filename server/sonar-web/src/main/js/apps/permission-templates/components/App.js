@@ -80,8 +80,8 @@ export default class App extends React.PureComponent {
     return (
       <Template
         organization={this.props.organization}
-        template={template}
         refresh={this.requestPermissions}
+        template={template}
         topQualifiers={this.props.topQualifiers}
       />
     );
@@ -91,11 +91,11 @@ export default class App extends React.PureComponent {
     return (
       <Home
         organization={this.props.organization}
-        topQualifiers={this.props.topQualifiers}
         permissions={this.state.permissions}
         permissionTemplates={this.state.permissionTemplates}
         ready={this.state.ready}
         refresh={this.requestPermissions}
+        topQualifiers={this.props.topQualifiers}
       />
     );
   }
@@ -106,8 +106,8 @@ export default class App extends React.PureComponent {
       <div>
         <Suggestions suggestions="permission_templates" />
         <OrganizationHelmet
-          title={translate('permission_templates.page')}
           organization={this.props.organization}
+          title={translate('permission_templates.page')}
         />
 
         {id && this.renderTemplate(id)}

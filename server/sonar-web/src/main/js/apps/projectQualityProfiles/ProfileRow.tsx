@@ -90,8 +90,8 @@ export default class ProfileRow extends React.PureComponent<Props, State> {
         optionRenderer={this.renderProfileName}
         options={options}
         style={{ width: 300 }}
-        valueRenderer={this.renderProfileName}
         value={profile.key}
+        valueRenderer={this.renderProfileName}
       />
     );
   }

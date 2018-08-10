@@ -51,8 +51,8 @@ export default class ListItem extends React.PureComponent {
           <ActionsCell
             organization={this.props.organization}
             permissionTemplate={this.props.permissionTemplate}
-            topQualifiers={this.props.topQualifiers}
             refresh={this.props.refresh}
+            topQualifiers={this.props.topQualifiers}
           />
         </td>
       </tr>

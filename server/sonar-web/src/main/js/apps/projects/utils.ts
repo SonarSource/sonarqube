@@ -360,7 +360,7 @@ function format(periods: Array<{ value: number; label: string }>) {
 }
 
 export function formatDuration(value: number) {
-  if(value < ONE_MINUTE) {
+  if (value < ONE_MINUTE) {
     return translate('duration.seconds');
   }
   const years = Math.floor(value / ONE_YEAR);

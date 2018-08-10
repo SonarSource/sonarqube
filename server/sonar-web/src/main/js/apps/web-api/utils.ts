@@ -64,16 +64,19 @@ export const isDomainPathActive = (path: string, splat: string) => {
   return true;
 };
 
-export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
-  search: parseAsString(urlQuery['query']),
-  deprecated: parseAsOptionalBoolean(urlQuery['deprecated']) || false,
-  internal: parseAsOptionalBoolean(urlQuery['internal']) || false
-}));
-
-export const serializeQuery = memoize((query: Query): RawQuery =>
-  cleanQuery({
-    query: query.search ? serializeString(query.search) : undefined,
-    deprecated: query.deprecated || undefined,
-    internal: query.internal || undefined
+export const parseQuery = memoize(
+  (urlQuery: RawQuery): Query => ({
+    search: parseAsString(urlQuery['query']),
+    deprecated: parseAsOptionalBoolean(urlQuery['deprecated']) || false,
+    internal: parseAsOptionalBoolean(urlQuery['internal']) || false
   })
+);
+
+export const serializeQuery = memoize(
+  (query: Query): RawQuery =>
+    cleanQuery({
+      query: query.search ? serializeString(query.search) : undefined,
+      deprecated: query.deprecated || undefined,
+      internal: query.internal || undefined
+    })
 );

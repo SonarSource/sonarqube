@@ -52,12 +52,14 @@ function Jumbotron() {
     <div className="sc-sq-jumbotron">
       <div className="sc-sq-jumbotron-left">
         <h1 className="sc-sq-jumbotron-title">
-          Use SonarQube<br />
+          Use SonarQube
+          <br />
           <span className="sc-sq-jumbotron-title-orange">as a Service</span>
         </h1>
         <div className="sc-sq-jumbotron-login">
           {'—'}
-          <br />Log in or sign up with
+          <br />
+          Log in or sign up with
         </div>
         <div>
           <a

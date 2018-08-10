@@ -36,8 +36,8 @@ export default function AsAService() {
             <img alt="" height="34" src={`${getBaseUrl()}/images/sonarcloud/as-a-service.svg`} />
             <h1 className="sc-child-title">As a Service</h1>
             <p className="sc-child-lead">
-              We fully operate the SonarQube base service, <br />which is hosted in Frankfurt,
-              Germany.
+              We fully operate the SonarQube base service, <br />
+              which is hosted in Frankfurt, Germany.
             </p>
             <img
               alt=""

@@ -23,10 +23,10 @@ import CodeSnippet from '../CodeSnippet';
 
 it('renders correctly', () => {
   expect(mount(<CodeSnippet snippet={'foo\nbar'} />)).toMatchSnapshot();
-  expect(mount(<CodeSnippet snippet={'foo\nbar'} noCopy={true} />)).toMatchSnapshot();
+  expect(mount(<CodeSnippet noCopy={true} snippet={'foo\nbar'} />)).toMatchSnapshot();
 });
 
 it('renders correctly with array snippet', () => {
   expect(mount(<CodeSnippet snippet={['foo', 'bar']} />)).toMatchSnapshot();
-  expect(mount(<CodeSnippet snippet={['foo', 'bar']} isOneLine={true} />)).toMatchSnapshot();
+  expect(mount(<CodeSnippet isOneLine={true} snippet={['foo', 'bar']} />)).toMatchSnapshot();
 });

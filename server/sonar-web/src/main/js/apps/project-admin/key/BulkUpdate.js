@@ -127,10 +127,10 @@ class BulkUpdate extends React.PureComponent {
 
         {results != null && (
           <BulkUpdateResults
-            results={results}
-            replace={replace}
             by={by}
             onConfirm={this.handleConfirm.bind(this)}
+            replace={replace}
+            results={results}
           />
         )}
       </div>
@@ -138,8 +138,11 @@ class BulkUpdate extends React.PureComponent {
   }
 }
 
-export default connect(null, {
-  addGlobalErrorMessage,
-  addGlobalSuccessMessage,
-  closeAllGlobalMessages
-})(BulkUpdate);
+export default connect(
+  null,
+  {
+    addGlobalErrorMessage,
+    addGlobalSuccessMessage,
+    closeAllGlobalMessages
+  }
+)(BulkUpdate);

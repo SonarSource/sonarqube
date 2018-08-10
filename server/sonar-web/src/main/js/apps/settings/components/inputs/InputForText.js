@@ -30,11 +30,11 @@ export default class InputForText extends React.PureComponent {
   render() {
     return (
       <textarea
-        name={this.props.name}
         className="settings-large-input text-top"
+        name={this.props.name}
+        onChange={e => this.handleInputChange(e)}
         rows="5"
         value={this.props.value || ''}
-        onChange={e => this.handleInputChange(e)}
       />
     );
   }

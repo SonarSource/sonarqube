@@ -230,7 +230,9 @@ export default class AdvancedTimeline extends React.PureComponent {
     const parentBbox = this.getMouseOverlayPos(evt.target);
     const mouseXPos = (evt.pageX - parentBbox.left) / parentBbox.width;
     const xRange = xScale.range();
-    const speed = evt.deltaMode ? 25 / evt.deltaMode * this.props.zoomSpeed : this.props.zoomSpeed;
+    const speed = evt.deltaMode
+      ? (25 / evt.deltaMode) * this.props.zoomSpeed
+      : this.props.zoomSpeed;
     const leftPos = xRange[0] - Math.round(speed * evt.deltaY * mouseXPos);
     const rightPos = xRange[1] + Math.round(speed * evt.deltaY * (1 - mouseXPos));
     const startDate = leftPos > maxXRange[0] ? xScale.invert(leftPos) : null;

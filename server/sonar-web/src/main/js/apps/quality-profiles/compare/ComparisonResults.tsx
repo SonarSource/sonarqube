@@ -57,7 +57,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     return (
       <ul>
         {Object.keys(params).map(key => (
-          <li key={key} className="spacer-top">
+          <li className="spacer-top" key={key}>
             <code>
               {key}
               {': '}
@@ -88,7 +88,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
           <td>&nbsp;</td>
         </tr>
         {this.props.inLeft.map(rule => (
-          <tr key={`left-${rule.key}`} className="js-comparison-in-left">
+          <tr className="js-comparison-in-left" key={`left-${rule.key}`}>
             <td>{this.renderRule(rule, rule.severity)}</td>
             <td>&nbsp;</td>
           </tr>
@@ -116,7 +116,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
           </td>
         </tr>
         {this.props.inRight.map(rule => (
-          <tr key={`right-${rule.key}`} className="js-comparison-in-right">
+          <tr className="js-comparison-in-right" key={`right-${rule.key}`}>
             <td>&nbsp;</td>
             <td>{this.renderRule(rule, rule.severity)}</td>
           </tr>
@@ -132,7 +132,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     return (
       <>
         <tr>
-          <td colSpan={2} className="text-center">
+          <td className="text-center" colSpan={2}>
             <h6>
               {translateWithParameters(
                 'quality_profiles.x_rules_have_different_configuration',
@@ -150,7 +150,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
           </td>
         </tr>
         {this.props.modified.map(rule => (
-          <tr key={`modified-${rule.key}`} className="js-comparison-modified">
+          <tr className="js-comparison-modified" key={`modified-${rule.key}`}>
             <td>
               {this.renderRule(rule, rule.left.severity)}
               {this.renderParameters(rule.left.params)}

@@ -44,20 +44,20 @@ export default function DuplicationsFilter(props: Props) {
   const { property = 'duplications' } = props;
   return (
     <Filter
-      facet={props.facet}
-      maxFacetValue={props.maxFacetValue}
-      onQueryChange={props.onQueryChange}
-      value={props.value}
-      property={property}
       className={props.className}
-      options={[1, 2, 3, 4, 5, 6]}
-      query={props.query}
-      renderOption={renderOption}
-      organization={props.organization}
+      facet={props.facet}
       getFacetValueForOption={getFacetValueForOption}
+      header={<FilterHeader name={translate('metric_domain.Duplications')} />}
       highlightUnder={1}
       highlightUnderMax={5}
-      header={<FilterHeader name={translate('metric_domain.Duplications')} />}
+      maxFacetValue={props.maxFacetValue}
+      onQueryChange={props.onQueryChange}
+      options={[1, 2, 3, 4, 5, 6]}
+      organization={props.organization}
+      property={property}
+      query={props.query}
+      renderOption={renderOption}
+      value={props.value}
     />
   );
 }
@@ -72,9 +72,9 @@ function renderOption(option: number, selected: boolean) {
     <span>
       {option < 6 && (
         <DuplicationsRating
-          value={getDuplicationsRatingAverageValue(option)}
-          size="small"
           muted={!selected}
+          size="small"
+          value={getDuplicationsRatingAverageValue(option)}
         />
       )}
       <span className="spacer-left">

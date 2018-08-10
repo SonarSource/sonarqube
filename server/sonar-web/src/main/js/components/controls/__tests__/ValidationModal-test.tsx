@@ -40,15 +40,15 @@ function getWrapper(props = {}) {
       initialValues={{ field: 'foo' }}
       isInitialValid={true}
       onClose={jest.fn()}
-      validate={(values: Values) => ({ field: values.field.length < 2 && 'Too small' })}
       onSubmit={jest.fn(() => Promise.resolve())}
+      validate={(values: Values) => ({ field: values.field.length < 2 && 'Too small' })}
       {...props}>
       {(props: FormikProps<Values>) => (
         <form onSubmit={props.handleSubmit}>
           <input
-            onChange={props.handleChange}
-            onBlur={props.handleBlur}
             name="field"
+            onBlur={props.handleBlur}
+            onChange={props.handleChange}
             type="text"
             value={props.values.field}
           />

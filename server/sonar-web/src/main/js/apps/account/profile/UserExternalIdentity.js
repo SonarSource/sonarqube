@@ -87,11 +87,11 @@ export default class UserExternalIdentity extends React.PureComponent {
           color: getTextColor(identityProvider.backgroundColor, theme.secondFontColor)
         }}>
         <img
+          alt={identityProvider.name}
           className="little-spacer-right"
+          height="14"
           src={window.baseUrl + identityProvider.iconPath}
           width="14"
-          height="14"
-          alt={identityProvider.name}
         />{' '}
         {user.externalIdentity}
       </div>

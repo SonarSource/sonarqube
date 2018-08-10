@@ -28,8 +28,8 @@ it('should render correctly without children', () => {
   expect(
     shallow(
       <SelectList
-        items={['item', 'seconditem', 'third']}
         currentItem="seconditem"
+        items={['item', 'seconditem', 'third']}
         onSelect={onSelect}
       />
     )
@@ -41,10 +41,11 @@ it('should render correctly with children', () => {
   const items = ['item', 'seconditem', 'third'];
   expect(
     shallow(
-      <SelectList items={items} currentItem="seconditem" onSelect={onSelect}>
+      <SelectList currentItem="seconditem" items={items} onSelect={onSelect}>
         {items.map(item => (
-          <SelectListItem key={item} item={item}>
-            <i className="myicon" />item
+          <SelectListItem item={item} key={item}>
+            <i className="myicon" />
+            item
           </SelectListItem>
         ))}
       </SelectList>
@@ -56,10 +57,11 @@ it('should correclty handle user actions', () => {
   const onSelect = jest.fn();
   const items = ['item', 'seconditem', 'third'];
   const list = mount(
-    <SelectList items={items} currentItem="seconditem" onSelect={onSelect}>
+    <SelectList currentItem="seconditem" items={items} onSelect={onSelect}>
       {items.map(item => (
-        <SelectListItem key={item} item={item}>
-          <i className="myicon" />item
+        <SelectListItem item={item} key={item}>
+          <i className="myicon" />
+          item
         </SelectListItem>
       ))}
     </SelectList>

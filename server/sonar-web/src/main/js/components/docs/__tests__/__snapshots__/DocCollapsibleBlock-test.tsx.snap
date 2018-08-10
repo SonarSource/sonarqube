@@ -7,7 +7,7 @@ exports[`should render a collapsible block 1`] = `
   className="collapse-container"
 >
   <a
-    aria-expanded="false"
+    aria-expanded={false}
     aria-haspopup={true}
     className="link-no-underline"
     href="#"
@@ -27,7 +27,7 @@ exports[`should render a collapsible block 2`] = `
   className="collapse-container"
 >
   <a
-    aria-expanded="true"
+    aria-expanded={true}
     aria-haspopup={true}
     className="link-no-underline"
     href="#"

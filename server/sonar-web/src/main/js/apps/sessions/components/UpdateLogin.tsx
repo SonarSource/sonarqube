@@ -85,9 +85,9 @@ export default class UpdateLogin extends React.PureComponent<Props, State> {
         <img
           alt={identityProvider.name}
           className="little-spacer-right"
+          height="14"
           src={getBaseUrl() + identityProvider.iconPath}
           width="14"
-          height="14"
         />
         {login}
       </div>
@@ -102,8 +102,8 @@ export default class UpdateLogin extends React.PureComponent<Props, State> {
     const { query } = this.props.location;
 
     return (
-      <div id="bd" className="page-wrapper-simple">
-        <div id="nonav" className="page-simple">
+      <div className="page-wrapper-simple" id="bd">
+        <div className="page-simple" id="nonav">
           <div className="big-spacer-bottom js-provider-name">
             <p className="little-spacer-bottom">
               <FormattedMessage

@@ -246,4 +246,7 @@ class CreateOrganizationForm extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps: DispatchProps = { createOrganization: createOrganization as any };
 
-export default connect(null, mapDispatchToProps)(CreateOrganizationForm);
+export default connect(
+  null,
+  mapDispatchToProps
+)(CreateOrganizationForm);

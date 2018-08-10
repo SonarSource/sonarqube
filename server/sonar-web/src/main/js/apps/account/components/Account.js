@@ -50,7 +50,7 @@ class Account extends React.PureComponent {
         <header className="account-header">
           <div className="account-container clearfix">
             <UserCard user={currentUser} />
-            <Nav user={currentUser} customOrganizations={this.props.customOrganizations} />
+            <Nav customOrganizations={this.props.customOrganizations} user={currentUser} />
           </div>
         </header>
 

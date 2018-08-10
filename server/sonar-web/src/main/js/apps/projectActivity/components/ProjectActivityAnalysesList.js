@@ -189,8 +189,8 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
               {version.version && (
                 <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
                   <Tooltip
-                    overlay={`${translate('version')} ${version.version}`}
-                    mouseEnterDelay={0.5}>
+                    mouseEnterDelay={0.5}
+                    overlay={`${translate('version')} ${version.version}`}>
                     <span className="badge">{version.version}</span>
                   </Tooltip>
                 </div>
@@ -198,9 +198,9 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
               <ul className="project-activity-days-list">
                 {days.map(day => (
                   <li
-                    key={day}
                     className="project-activity-day"
-                    data-day={toShortNotSoISOString(Number(day))}>
+                    data-day={toShortNotSoISOString(Number(day))}
+                    key={day}>
                     <div className="project-activity-date">
                       <DateFormatter date={Number(day)} long={true} />
                     </div>
@@ -212,8 +212,8 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                             addVersion={this.props.addVersion}
                             analysis={analysis}
                             canAdmin={this.props.canAdmin}
-                            canDeleteAnalyses={this.props.canDeleteAnalyses}
                             canCreateVersion={this.props.project.qualifier === 'TRK'}
+                            canDeleteAnalyses={this.props.canDeleteAnalyses}
                             changeEvent={this.props.changeEvent}
                             deleteAnalysis={this.props.deleteAnalysis}
                             deleteEvent={this.props.deleteEvent}

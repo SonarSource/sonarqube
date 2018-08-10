@@ -58,11 +58,11 @@ export default class MultiValueInput extends React.PureComponent {
 
   renderInput(value, index, isLast) {
     return (
-      <li key={index} className="spacer-bottom">
+      <li className="spacer-bottom" key={index}>
         <PrimitiveInput
+          onChange={this.handleSingleInputChange.bind(this, index)}
           setting={this.prepareSetting()}
           value={value}
-          onChange={this.handleSingleInputChange.bind(this, index)}
         />
 
         {!isLast && (

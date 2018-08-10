@@ -60,8 +60,11 @@ const mapStateToProps = (state, ownProps) => ({
   links: getProjectAdminProjectLinks(state, ownProps.location.query.id)
 });
 
-export default connect(mapStateToProps, {
-  fetchProjectLinks,
-  createProjectLink,
-  deleteProjectLink
-})(Links);
+export default connect(
+  mapStateToProps,
+  {
+    fetchProjectLinks,
+    createProjectLink,
+    deleteProjectLink
+  }
+)(Links);

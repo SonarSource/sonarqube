@@ -90,7 +90,7 @@ export default function Params({ params, showDeprecated, showInternal }: Props) 
                     <h4>{translate('api_documentation.possible_values')}</h4>
                     <ul className="list-styled">
                       {param.possibleValues.map(value => (
-                        <li key={value} className="little-spacer-top">
+                        <li className="little-spacer-top" key={value}>
                           <code>{value}</code>
                         </li>
                       ))}

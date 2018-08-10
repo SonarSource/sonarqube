@@ -33,8 +33,8 @@ export default function Home() {
         <div className="page page-limited sc-page">
           <h1 className="sc-page-title">Continuous Code Quality Online</h1>
           <p className="sc-page-subtitle">
-            Analyze the quality of your source code to detect bugs, vulnerabilities <br />and code
-            smells throughout the development process.
+            Analyze the quality of your source code to detect bugs, vulnerabilities <br />
+            and code smells throughout the development process.
           </p>
 
           <ul className="sc-features-list">
@@ -91,8 +91,8 @@ export default function Home() {
           <div className="sc-narrow-container text-center">
             <h2 className="sc-feature-title">Explore open source projects on SonarCloud</h2>
             <p className="sc-feature-description">
-              SonarCloud offers free analysis for open source projects. <br />It is public and open
-              to anyone who wants to browse the service.
+              SonarCloud offers free analysis for open source projects. <br />
+              It is public and open to anyone who wants to browse the service.
             </p>
           </div>
 

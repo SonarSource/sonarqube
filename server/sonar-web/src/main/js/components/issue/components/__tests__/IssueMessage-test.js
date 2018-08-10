@@ -25,9 +25,9 @@ it('should render with the message and a link to open the rule', () => {
   const element = shallow(
     <IssueMessage
       manualVulnerability={false}
-      rule="javascript:S1067"
       message="Reduce the number of conditional operators (4) used in the expression"
       organization="myorg"
+      rule="javascript:S1067"
     />,
     { context: { workspace: {} } }
   );

@@ -59,8 +59,8 @@ export default class LanguagesFilter extends React.Component<Props> {
 
   renderOption = (option: string) => (
     <SearchableFilterOption
-      optionKey={option}
       option={getLanguageByKey(this.props.languages, option)}
+      optionKey={option}
     />
   );
 
@@ -69,26 +69,26 @@ export default class LanguagesFilter extends React.Component<Props> {
 
     return (
       <Filter
-        onQueryChange={this.props.onQueryChange}
-        property={property}
-        options={this.getSortedOptions(this.props.facet)}
-        query={this.props.query}
-        renderOption={this.renderOption}
-        value={this.props.value}
         facet={this.props.facet}
-        maxFacetValue={this.props.maxFacetValue}
-        organization={this.props.organization}
-        getFacetValueForOption={this.getFacetValueForOption}
-        header={<FilterHeader name={translate('projects.facets.languages')} />}
         footer={
           <SearchableFilterFooter
             onQueryChange={this.props.onQueryChange}
-            organization={this.props.organization}
             options={this.getSearchOptions()}
+            organization={this.props.organization}
             property={property}
             query={this.props.query}
           />
         }
+        getFacetValueForOption={this.getFacetValueForOption}
+        header={<FilterHeader name={translate('projects.facets.languages')} />}
+        maxFacetValue={this.props.maxFacetValue}
+        onQueryChange={this.props.onQueryChange}
+        options={this.getSortedOptions(this.props.facet)}
+        organization={this.props.organization}
+        property={property}
+        query={this.props.query}
+        renderOption={this.renderOption}
+        value={this.props.value}
       />
     );
   }

@@ -74,8 +74,8 @@ export default function WorstProjects({ component, subComponents, total }: Props
             <tr key={component.key}>
               <td>
                 <Link
-                  to={getProjectUrl(component.refKey || component.key)}
-                  className="link-with-icon">
+                  className="link-with-icon"
+                  to={getProjectUrl(component.refKey || component.key)}>
                   <QualifierIcon qualifier={component.qualifier} /> {component.name}
                 </Link>
               </td>
@@ -98,7 +98,7 @@ export default function WorstProjects({ component, subComponents, total }: Props
             formatMeasure(count, 'INT'),
             formatMeasure(total, 'INT')
           )}
-          <Link to={projectsPageUrl} className="spacer-left">
+          <Link className="spacer-left" to={projectsPageUrl}>
             {translate('show_more')}
           </Link>
         </footer>
@@ -117,15 +117,15 @@ function renderCell(measures: { [key: string]: string | undefined }, metric: str
 
 function renderNcloc(measures: { [key: string]: string | undefined }, maxLoc: number) {
   const ncloc = Number(measures['ncloc'] || 0);
-  const barWidth = maxLoc > 0 ? Math.max(1, Math.round(ncloc / maxLoc * 50)) : 0;
+  const barWidth = maxLoc > 0 ? Math.max(1, Math.round((ncloc / maxLoc) * 50)) : 0;
   return (
     <td className="text-right">
       <span className="note">
         <Measure metricKey="ncloc" metricType="SHORT_INT" value={measures['ncloc']} />
       </span>
       {maxLoc > 0 && (
-        <svg width="50" height="16" className="spacer-left">
-          <rect className="bar-chart-bar" x="0" y="3" width={barWidth} height="10" />
+        <svg className="spacer-left" height="16" width="50">
+          <rect className="bar-chart-bar" height="10" width={barWidth} x="0" y="3" />
         </svg>
       )}
     </td>

@@ -501,18 +501,16 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     }).then(
       r => {
         if (this.mounted) {
-          this.setState(() => {
-            const changes: Partial<State> = {
-              displayDuplications: true,
-              duplications: r.duplications,
-              duplicationsByLine: duplicationsByLine(r.duplications),
-              duplicatedFiles: r.files
-            };
-            if (r.duplications.length === 1) {
-              changes.linePopup = { index: 0, line: line.line, name: 'duplications' };
-            }
-            return changes;
-          });
+          this.setState(state => ({
+            displayDuplications: true,
+            duplications: r.duplications,
+            duplicationsByLine: duplicationsByLine(r.duplications),
+            duplicatedFiles: r.files,
+            linePopup:
+              r.duplications.length === 1
+                ? { index: 0, line: line.line, name: 'duplications' }
+                : state.linePopup
+          }));
         }
       },
       () => {

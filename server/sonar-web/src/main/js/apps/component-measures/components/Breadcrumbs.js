@@ -104,11 +104,11 @@ export default class Breadcrumbs extends React.PureComponent {
       <div className={this.props.className}>
         {breadcrumbs.map(component => (
           <Breadcrumb
-            key={component.key}
             canBrowse={component.key !== lastItem.key}
             component={component}
-            isLast={component.key === lastItem.key}
             handleSelect={this.props.handleSelect}
+            isLast={component.key === lastItem.key}
+            key={component.key}
           />
         ))}
       </div>

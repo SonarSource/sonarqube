@@ -222,6 +222,7 @@ const mapStateToProps = (state: any): StateProps => {
     userOrganizations: getMyOrganizations(state)
   };
 };
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
-  ManualProjectCreate
-);
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(ManualProjectCreate);

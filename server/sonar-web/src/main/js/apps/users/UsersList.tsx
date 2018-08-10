@@ -41,7 +41,7 @@ export default function UsersList({
 }: Props) {
   return (
     <div className="boxed-group boxed-group-inner">
-      <table id="users-list" className="data zebra">
+      <table className="data zebra" id="users-list">
         <thead>
           <tr>
             <th />

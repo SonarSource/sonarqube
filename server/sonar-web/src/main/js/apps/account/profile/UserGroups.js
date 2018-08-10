@@ -34,7 +34,7 @@ export default class UserGroups extends React.PureComponent {
         <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
         <ul id="groups">
           {groups.map(group => (
-            <li key={group} className="little-spacer-bottom" title={group}>
+            <li className="little-spacer-bottom" key={group} title={group}>
               {group}
             </li>
           ))}

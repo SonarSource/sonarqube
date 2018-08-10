@@ -142,12 +142,12 @@ export default class GraphsHistory extends React.PureComponent {
       <div className="project-activity-graphs">
         {this.props.graphs.map((series, idx) => (
           <GraphHistory
-            key={idx}
             events={events}
             graph={graph}
             graphEndDate={this.props.graphEndDate}
             graphStartDate={this.props.graphStartDate}
             isCustom={isCustom}
+            key={idx}
             leakPeriodDate={this.props.leakPeriodDate}
             measuresHistory={this.props.measuresHistory}
             metricsType={getSeriesMetricType(series)}

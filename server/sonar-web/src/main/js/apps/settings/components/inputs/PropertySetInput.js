@@ -61,9 +61,9 @@ export default class PropertySetInput extends React.PureComponent {
           <td key={field.key}>
             <PrimitiveInput
               name={this.getFieldName(field)}
+              onChange={this.handleInputChange.bind(this, index, field.key)}
               setting={{ definition: field, value: fieldValues[field.key] }}
               value={fieldValues[field.key]}
-              onChange={this.handleInputChange.bind(this, index, field.key)}
             />
           </td>
         ))}

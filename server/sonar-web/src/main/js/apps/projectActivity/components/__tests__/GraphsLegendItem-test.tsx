@@ -32,8 +32,8 @@ it('should render correctly an actionable legend', () => {
         className="myclass"
         metric="foo"
         name="Foo"
-        style="1"
         removeMetric={() => {}}
+        style="1"
       />
     )
   ).toMatchSnapshot();

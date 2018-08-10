@@ -44,12 +44,12 @@ export default class ComparisonForm extends React.PureComponent<Props> {
       <div className="display-inline-block">
         <label className="spacer-right">{translate('quality_profiles.compare_with')}</label>
         <Select
-          value={withKey}
+          className="input-large"
+          clearable={false}
+          onChange={this.handleChange.bind(this)}
           options={options}
           placeholder={translate('select_verb')}
-          clearable={false}
-          className="input-large"
-          onChange={this.handleChange.bind(this)}
+          value={withKey}
         />
       </div>
     );

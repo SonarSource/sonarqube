@@ -64,8 +64,8 @@
 }
 
 .boxed-group-list {
-  margin-top: - var(--gridSize);
-  margin-bottom: - var(--gridSize);
+  margin-top: -var(--gridSize);
+  margin-bottom: -var(--gridSize);
 }
 
 .boxed-group-list > li {

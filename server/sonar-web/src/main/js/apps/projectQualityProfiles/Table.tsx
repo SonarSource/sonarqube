@@ -37,9 +37,9 @@ export default function Table(props: Props) {
   const profileRows = orderedProfiles.map(profile => (
     <ProfileRow
       key={profile.language}
-      profile={profile}
-      possibleProfiles={profilesByLanguage[profile.language]}
       onChangeProfile={props.onChangeProfile}
+      possibleProfiles={profilesByLanguage[profile.language]}
+      profile={profile}
     />
   ));
 

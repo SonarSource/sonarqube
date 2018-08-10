@@ -28,4 +28,7 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = { onFail: addGlobalErrorMessage };
 
-export default connect<any, any, any>(mapStateToProps, mapDispatchToProps)(Extension);
+export default connect<any, any, any>(
+  mapStateToProps,
+  mapDispatchToProps
+)(Extension);

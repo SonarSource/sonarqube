@@ -53,8 +53,8 @@ export default function GraphsTooltipsContentCoverage(
       {uncoveredValue && (
         <tr className="project-activity-graph-tooltip-line">
           <td
-            colSpan="2"
-            className="project-activity-graph-tooltip-value text-right spacer-right thin">
+            className="project-activity-graph-tooltip-value text-right spacer-right thin"
+            colSpan="2">
             {formatMeasure(uncoveredValue, 'SHORT_INT')}
           </td>
           <td>{translate('metric.uncovered_lines.name')}</td>
@@ -63,8 +63,8 @@ export default function GraphsTooltipsContentCoverage(
       {coverageValue && (
         <tr className="project-activity-graph-tooltip-line">
           <td
-            colSpan="2"
-            className="project-activity-graph-tooltip-value text-right spacer-right thin">
+            className="project-activity-graph-tooltip-value text-right spacer-right thin"
+            colSpan="2">
             {formatMeasure(coverageValue, 'PERCENT')}
           </td>
           <td>{translate('metric.coverage.name')}</td>

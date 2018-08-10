@@ -50,7 +50,7 @@ export default function GraphsTooltipsContentIssues(props /*: Props */) {
   }
   const ratingValue = rating.history[props.tooltipIdx].value;
   return (
-    <tr key={props.name} className="project-activity-graph-tooltip-issues-line">
+    <tr className="project-activity-graph-tooltip-issues-line" key={props.name}>
       <td className="thin">
         <ChartLegendIcon
           className={classNames(

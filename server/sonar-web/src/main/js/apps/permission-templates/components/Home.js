@@ -47,10 +47,10 @@ export default class Home extends React.PureComponent {
 
         <List
           organization={this.props.organization}
-          permissionTemplates={this.props.permissionTemplates}
           permissions={this.props.permissions}
-          topQualifiers={this.props.topQualifiers}
+          permissionTemplates={this.props.permissionTemplates}
           refresh={this.props.refresh}
+          topQualifiers={this.props.topQualifiers}
         />
       </div>
     );

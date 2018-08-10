@@ -130,16 +130,18 @@ export default class Action extends React.PureComponent<Props, State> {
     const actionKey = getActionKey(domain.path, action.key);
 
     return (
-      <div id={actionKey} className="boxed-group">
+      <div className="boxed-group" id={actionKey}>
         <header className="web-api-action-header boxed-group-header">
           <Link
-            to={{ pathname: '/web_api/' + actionKey }}
-            className="spacer-right link-no-underline">
+            className="spacer-right link-no-underline"
+            to={{ pathname: '/web_api/' + actionKey }}>
             <LinkIcon />
           </Link>
 
           <h3 className="web-api-action-title">
-            {verb}&nbsp;{actionKey}
+            {verb}
+            &nbsp;
+            {actionKey}
           </h3>
 
           {action.internal && (
@@ -179,7 +181,7 @@ export default class Action extends React.PureComponent<Props, State> {
             )}
 
           {showResponse &&
-            action.hasResponseExample && <ResponseExample domain={domain} action={action} />}
+            action.hasResponseExample && <ResponseExample action={action} domain={domain} />}
 
           {showChangelog && <ActionChangelog changelog={action.changelog} />}
         </div>

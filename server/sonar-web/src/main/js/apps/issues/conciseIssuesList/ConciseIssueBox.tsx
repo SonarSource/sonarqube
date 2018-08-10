@@ -59,7 +59,9 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
     const locations =
       selectedFlowIndex !== undefined
         ? flows[selectedFlowIndex]
-        : flows.length > 0 ? flows[0] : secondaryLocations;
+        : flows.length > 0
+          ? flows[0]
+          : secondaryLocations;
 
     if (!locations || locations.length < 15) {
       // if there are no locations, or there are just few

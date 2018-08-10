@@ -31,7 +31,7 @@ export default function MetaKey({ componentKey, qualifier }: Props) {
     <>
       <h4 className="overview-meta-header">{translate('overview.project_key', qualifier)}</h4>
       <div className="display-flex-center">
-        <input className="overview-key" type="text" value={componentKey} readOnly={true} />
+        <input className="overview-key" readOnly={true} type="text" value={componentKey} />
         <ClipboardButton className="little-spacer-left" copyValue={componentKey} />
       </div>
     </>

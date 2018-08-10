@@ -109,7 +109,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <Link to={{ pathname: '/code', query: this.getQuery() }} activeClassName="active">
+        <Link activeClassName="active" to={{ pathname: '/code', query: this.getQuery() }}>
           {this.isPortfolio() || this.isApplication()
             ? translate('view_projects.page')
             : translate('code.page')}
@@ -128,8 +128,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li>
         <Link
-          to={{ pathname: '/project/activity', query: this.getQuery() }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/activity', query: this.getQuery() }}>
           {translate('project_activity.page')}
         </Link>
       </li>
@@ -161,8 +161,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li>
         <Link
-          to={{ pathname: '/component_measures', query: this.getQuery() }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/component_measures', query: this.getQuery() }}>
           {translate('layout.measures')}
         </Link>
       </li>
@@ -206,7 +206,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       <Dropdown overlay={this.renderSecurityReportsLink()} tagName="li">
         {({ onToggleClick, open }) => (
           <a
-            aria-expanded={String(open)}
+            aria-expanded={open}
             aria-haspopup="true"
             className={classNames('dropdown-toggle', { active: isActive || open })}
             href="#"
@@ -240,7 +240,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
         tagName="li">
         {({ onToggleClick, open }) => (
           <a
-            aria-expanded={String(open)}
+            aria-expanded={open}
             aria-haspopup="true"
             className={classNames('dropdown-toggle', { active: isSettingsActive || open })}
             href="#"
@@ -278,8 +278,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="settings">
         <Link
-          to={{ pathname: '/project/settings', query: this.getQuery() }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/settings', query: this.getQuery() }}>
           {translate('project_settings.page')}
         </Link>
       </li>
@@ -298,8 +298,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="branches">
         <Link
-          to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/branches', query: { id: this.props.component.key } }}>
           {translate('project_branches.page')}
         </Link>
       </li>
@@ -313,8 +313,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="profiles">
         <Link
-          to={{ pathname: '/project/quality_profiles', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/quality_profiles', query: { id: this.props.component.key } }}>
           {translate('project_quality_profiles.page')}
         </Link>
       </li>
@@ -328,8 +328,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="quality_gate">
         <Link
-          to={{ pathname: '/project/quality_gate', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/quality_gate', query: { id: this.props.component.key } }}>
           {translate('project_quality_gate.page')}
         </Link>
       </li>
@@ -343,8 +343,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="custom_measures">
         <Link
-          to={{ pathname: '/custom_measures', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/custom_measures', query: { id: this.props.component.key } }}>
           {translate('custom_measures.page')}
         </Link>
       </li>
@@ -358,8 +358,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="links">
         <Link
-          to={{ pathname: '/project/links', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/links', query: { id: this.props.component.key } }}>
           {translate('project_links.page')}
         </Link>
       </li>
@@ -373,8 +373,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="permissions">
         <Link
-          to={{ pathname: '/project_roles', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project_roles', query: { id: this.props.component.key } }}>
           {translate('permissions.page')}
         </Link>
       </li>
@@ -388,8 +388,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="background_tasks">
         <Link
-          to={{ pathname: '/project/background_tasks', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/background_tasks', query: { id: this.props.component.key } }}>
           {translate('background_tasks.page')}
         </Link>
       </li>
@@ -403,8 +403,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="update_key">
         <Link
-          to={{ pathname: '/project/key', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/key', query: { id: this.props.component.key } }}>
           {translate('update_key.page')}
         </Link>
       </li>
@@ -418,8 +418,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="webhooks">
         <Link
-          to={{ pathname: '/project/webhooks', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/webhooks', query: { id: this.props.component.key } }}>
           {translate('webhooks.page')}
         </Link>
       </li>
@@ -440,8 +440,8 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li key="project_delete">
         <Link
-          to={{ pathname: '/project/deletion', query: { id: this.props.component.key } }}
-          activeClassName="active">
+          activeClassName="active"
+          to={{ pathname: '/project/deletion', query: { id: this.props.component.key } }}>
           {translate('deletion.page')}
         </Link>
       </li>
@@ -481,7 +481,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
         tagName="li">
         {({ onToggleClick, open }) => (
           <a
-            aria-expanded={String(open)}
+            aria-expanded={open}
             aria-haspopup="true"
             className={classNames('dropdown-toggle', { active: open })}
             href="#"

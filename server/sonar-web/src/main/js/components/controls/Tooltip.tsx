@@ -157,7 +157,7 @@ export class TooltipInner extends React.Component<Props, State> {
     // eslint-disable-next-line react/no-find-dom-node
     const toggleNode = findDOMNode(this);
 
-    if (toggleNode && this.tooltipNode) {
+    if (toggleNode && toggleNode instanceof Element && this.tooltipNode) {
       const toggleRect = toggleNode.getBoundingClientRect();
       const tooltipRect = this.tooltipNode.getBoundingClientRect();
       const { width, height } = tooltipRect;

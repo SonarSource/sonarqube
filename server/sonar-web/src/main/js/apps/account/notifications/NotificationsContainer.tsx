@@ -23,4 +23,7 @@ import { fetchOrganizations } from '../../../store/rootActions';
 
 const mapDispatchToProps = { fetchOrganizations } as Pick<Props, 'fetchOrganizations'>;
 
-export default connect(null, mapDispatchToProps)(Notifications);
+export default connect(
+  null,
+  mapDispatchToProps
+)(Notifications);

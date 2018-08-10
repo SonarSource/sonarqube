@@ -45,5 +45,8 @@ const mapDispatchToProps = (dispatch: any) => ({
 });
 
 export default forSingleOrganization(
-  connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(App)
+  connect<StateProps, DispatchProps>(
+    mapStateToProps,
+    mapDispatchToProps
+  )(App)
 );

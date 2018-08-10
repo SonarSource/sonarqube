@@ -28,7 +28,7 @@ import { TYPE_STRING, TYPE_PROPERTY_SET } from '../../../constants';
 it('should render PrimitiveInput', () => {
   const setting = { definition: { key: 'example', type: TYPE_STRING } };
   const onChange = jest.fn();
-  const input = shallow(<Input setting={setting} value="foo" onChange={onChange} />).find(
+  const input = shallow(<Input onChange={onChange} setting={setting} value="foo" />).find(
     PrimitiveInput
   );
   expect(input.length).toBe(1);
@@ -41,7 +41,7 @@ it('should render MultiValueInput', () => {
   const setting = { definition: { key: 'example', type: TYPE_STRING, multiValues: true } };
   const value = ['foo', 'bar'];
   const onChange = jest.fn();
-  const input = shallow(<Input setting={setting} value={value} onChange={onChange} />).find(
+  const input = shallow(<Input onChange={onChange} setting={setting} value={value} />).find(
     MultiValueInput
   );
   expect(input.length).toBe(1);
@@ -54,7 +54,7 @@ it('should render PropertySetInput', () => {
   const setting = { definition: { key: 'example', type: TYPE_PROPERTY_SET, fields: [] } };
   const value = [{ foo: 'bar' }];
   const onChange = jest.fn();
-  const input = shallow(<Input setting={setting} value={value} onChange={onChange} />).find(
+  const input = shallow(<Input onChange={onChange} setting={setting} value={value} />).find(
     PropertySetInput
   );
   expect(input.length).toBe(1);

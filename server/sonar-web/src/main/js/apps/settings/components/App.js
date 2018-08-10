@@ -69,7 +69,7 @@ export default class App extends React.PureComponent {
     const selectedCategory = query.category || this.props.defaultCategory;
 
     return (
-      <div id="settings-page" className="page page-limited">
+      <div className="page page-limited" id="settings-page">
         <Suggestions suggestions="settings" />
         <Helmet title={translate('settings.page')} />
 
@@ -79,12 +79,12 @@ export default class App extends React.PureComponent {
           <div className="side-tabs-side">
             <AllCategoriesList
               component={this.props.component}
-              selectedCategory={selectedCategory}
               defaultCategory={this.props.defaultCategory}
+              selectedCategory={selectedCategory}
             />
           </div>
           <div className="side-tabs-main">
-            <CategoryDefinitionsList component={this.props.component} category={selectedCategory} />
+            <CategoryDefinitionsList category={selectedCategory} component={this.props.component} />
             {selectedCategory === 'exclusions' && <WildcardsHelp />}
           </div>
         </div>

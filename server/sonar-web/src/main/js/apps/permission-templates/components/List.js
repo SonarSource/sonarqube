@@ -38,14 +38,14 @@ export default class List extends React.PureComponent {
         key={p.id}
         organization={this.props.organization}
         permissionTemplate={p}
-        topQualifiers={this.props.topQualifiers}
         refresh={this.props.refresh}
+        topQualifiers={this.props.topQualifiers}
       />
     ));
 
     return (
       <div className="boxed-group boxed-group-inner">
-        <table id="permission-templates" className="data zebra permissions-table">
+        <table className="data zebra permissions-table" id="permission-templates">
           <ListHeader organization={this.props.organization} permissions={this.props.permissions} />
           <tbody>{permissionTemplates}</tbody>
         </table>

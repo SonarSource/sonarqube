@@ -339,8 +339,8 @@ export default class App extends React.PureComponent {
 
         <PageHeader
           component={this.props.component}
-          loading={this.state.loading}
           loadHolders={this.loadHolders}
+          loading={this.state.loading}
         />
         <PageError />
         <div>

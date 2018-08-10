@@ -35,7 +35,7 @@ interface Props {
 export default function List(props: Props) {
   return (
     <div className="boxed-group boxed-group-inner">
-      <table id="groups-list" className="data zebra zebra-hover">
+      <table className="data zebra zebra-hover" id="groups-list">
         <thead>
           <tr>
             <th />

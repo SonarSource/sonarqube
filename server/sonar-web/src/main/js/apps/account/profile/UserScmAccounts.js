@@ -45,7 +45,7 @@ export default class UserScmAccounts extends React.PureComponent {
           )}
 
           {scmAccounts.map(scmAccount => (
-            <li key={scmAccount} className="little-spacer-bottom" title={scmAccount}>
+            <li className="little-spacer-bottom" key={scmAccount} title={scmAccount}>
               {scmAccount}
             </li>
           ))}

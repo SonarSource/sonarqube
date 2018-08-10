@@ -222,11 +222,14 @@ const mapStateToProps = (state, ownProps) => ({
   validationMessage: getSettingsAppValidationMessage(state, ownProps.setting.definition.key)
 });
 
-export default connect(mapStateToProps, {
-  changeValue,
-  saveValue,
-  resetValue,
-  passValidation,
-  cancelChange,
-  checkValue
-})(Definition);
+export default connect(
+  mapStateToProps,
+  {
+    changeValue,
+    saveValue,
+    resetValue,
+    passValidation,
+    cancelChange,
+    checkValue
+  }
+)(Definition);

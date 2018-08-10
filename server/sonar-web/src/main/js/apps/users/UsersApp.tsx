@@ -124,7 +124,7 @@ export default class UsersApp extends React.PureComponent<Props, State> {
     const query = parseQuery(this.props.location.query);
     const { loading, paging, users } = this.state;
     return (
-      <div id="users-page" className="page page-limited">
+      <div className="page page-limited" id="users-page">
         <Suggestions suggestions="users" />
         <Helmet title={translate('users.page')} />
         <Header loading={loading} onUpdateUsers={this.fetchUsers} />
@@ -140,9 +140,9 @@ export default class UsersApp extends React.PureComponent<Props, State> {
         {paging !== undefined && (
           <ListFooter
             count={users.length}
-            total={paging.total}
-            ready={!loading}
             loadMore={this.fetchMoreUsers}
+            ready={!loading}
+            total={paging.total}
           />
         )}
       </div>

@@ -50,10 +50,10 @@ export default function LanguageDistribution(props: Props) {
       bars={data}
       height={distribution.length * 25}
       padding={[0, 60, 0, 80]}
+      width={props.width}
       yTicks={yTicks}
       yTooltips={yTooltips}
       yValues={yValues}
-      width={props.width}
     />
   );
 

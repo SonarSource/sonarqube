@@ -103,19 +103,19 @@ export default class UsersSelectSearch extends React.PureComponent<Props, State>
       <Select
         autoFocus={this.props.autoFocus}
         className="Select-big"
-        options={this.state.searchResult}
+        clearable={false}
         isLoading={this.state.isLoading}
-        optionComponent={UsersSelectSearchOption}
-        valueComponent={UsersSelectSearchValue}
+        labelKey="name"
+        noResultsText={noResult}
         onChange={this.props.handleValueChange}
         onInputChange={this.handleInputChange}
-        value={this.props.selectedUser}
+        optionComponent={UsersSelectSearchOption}
+        options={this.state.searchResult}
         placeholder=""
-        noResultsText={noResult}
-        labelKey="name"
-        valueKey="login"
-        clearable={false}
         searchable={true}
+        value={this.props.selectedUser}
+        valueComponent={UsersSelectSearchValue}
+        valueKey="login"
       />
     );
   }

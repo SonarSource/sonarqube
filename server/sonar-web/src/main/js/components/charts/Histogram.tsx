@@ -49,7 +49,7 @@ export default class Histogram extends React.PureComponent<Props> {
     const x = xScale.range()[0] + (alignTicks ? padding[3] : 0);
     const y = Math.round(yScale(index)! + yScale.bandwidth() / 2);
 
-    return <rect className="bar-chart-bar" x={x} y={y} width={width} height={BAR_HEIGHT} />;
+    return <rect className="bar-chart-bar" height={BAR_HEIGHT} width={width} x={x} y={y} />;
   }
 
   renderValue(d: number, index: number, xScale: XScale, yScale: YScale) {
@@ -66,7 +66,7 @@ export default class Histogram extends React.PureComponent<Props> {
 
     return (
       <Tooltip overlay={this.props.yTooltips && this.props.yTooltips[index]}>
-        <text className="bar-chart-tick histogram-value" x={x} y={y} dx="1em" dy="0.3em">
+        <text className="bar-chart-tick histogram-value" dx="1em" dy="0.3em" x={x} y={y}>
           {value}
         </text>
       </Tooltip>
@@ -89,10 +89,10 @@ export default class Histogram extends React.PureComponent<Props> {
     return (
       <text
         className={'bar-chart-tick ' + historyTickClass}
-        x={x}
-        y={y}
         dx={alignTicks ? 0 : '-1em'}
-        dy="0.3em">
+        dy="0.3em"
+        x={x}
+        y={y}>
         {tick}
       </text>
     );
@@ -128,7 +128,7 @@ export default class Histogram extends React.PureComponent<Props> {
       .rangeRound([0, availableHeight]);
 
     return (
-      <svg className="bar-chart" width={this.props.width} height={this.props.height}>
+      <svg className="bar-chart" height={this.props.height} width={this.props.width}>
         <g transform={`translate(${this.props.alignTicks ? 4 : padding[3]}, ${padding[0]})`}>
           {this.renderBars(xScale, yScale)}
         </g>

@@ -44,4 +44,7 @@ export class ProjectOnboardingPage extends React.PureComponent<DispatchProps> {
 
 const mapDispatchToProps: DispatchProps = { skipOnboarding };
 
-export default connect<{}, DispatchProps>(null, mapDispatchToProps)(ProjectOnboardingPage);
+export default connect<{}, DispatchProps>(
+  null,
+  mapDispatchToProps
+)(ProjectOnboardingPage);

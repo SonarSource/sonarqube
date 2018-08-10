@@ -73,7 +73,6 @@
   ],
   "plugins": [
     "transform-class-properties",
-    // use built-in `Object.assign`
     ["transform-object-rest-spread", { "useBuiltIns": true }],
     "lodash"
   ],

@@ -35,7 +35,7 @@ export default class InputForBoolean extends React.PureComponent {
 
     return (
       <div className="display-inline-block text-top">
-        <Toggle name={this.props.name} value={displayedValue} onChange={this.props.onChange} />
+        <Toggle name={this.props.name} onChange={this.props.onChange} value={displayedValue} />
 
         {!hasValue && <span className="spacer-left note">{translate('settings.not_set')}</span>}
       </div>

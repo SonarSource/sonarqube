@@ -23,7 +23,7 @@ import Section from '../Section';
 
 it('should render correctly', () => {
   expect(
-    shallow(<Section name="foo" items={{ foo: 1, bar: 'Bar', baz: false }} />)
+    shallow(<Section items={{ foo: 1, bar: 'Bar', baz: false }} name="foo" />)
   ).toMatchSnapshot();
 });
 

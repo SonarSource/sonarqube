@@ -100,4 +100,7 @@ const mapDispatchToProps = ({
   fetchMyOrganizations
 } as any) as DispatchProps;
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

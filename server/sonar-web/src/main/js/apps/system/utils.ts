@@ -192,14 +192,17 @@ export function groupSections(sysInfoData: SysValueObject) {
   return { mainSection, sections };
 }
 
-export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
-  expandedCards: parseAsArray(urlQuery.expand, parseAsString)
-}));
-
-export const serializeQuery = memoize((query: Query): RawQuery =>
-  cleanQuery({
-    expand: serializeStringArray(query.expandedCards)
+export const parseQuery = memoize(
+  (urlQuery: RawQuery): Query => ({
+    expandedCards: parseAsArray(urlQuery.expand, parseAsString)
   })
+);
+
+export const serializeQuery = memoize(
+  (query: Query): RawQuery =>
+    cleanQuery({
+      expand: serializeStringArray(query.expandedCards)
+    })
 );
 
 export function sortUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[] {

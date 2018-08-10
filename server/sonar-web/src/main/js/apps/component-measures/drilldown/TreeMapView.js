@@ -162,8 +162,8 @@ export default class TreeMapView extends React.PureComponent {
     return (
       <ColorGradientLegend
         className="measure-details-treemap-legend"
-        colorScale={colorScale}
         colorNA={theme.secondFontColor}
+        colorScale={colorScale}
         direction={metric.direction}
         height={20}
         width={200}

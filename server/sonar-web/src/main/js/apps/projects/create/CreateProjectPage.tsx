@@ -51,9 +51,7 @@ interface DispatchProps {
   skipOnboardingAction: () => void;
 }
 
-interface Props extends OwnProps, StateProps, DispatchProps {
-  currentUser: LoggedInUser;
-}
+type Props = StateProps & DispatchProps & OwnProps;
 
 interface State {
   identityProvider?: IdentityProvider;
@@ -101,7 +99,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   };
 
   canAutoCreate = ({ currentUser } = this.props) => {
-    return ['bitbucket', 'github'].includes(currentUser.externalProvider || '');
+    return ['bitbucket', 'github'].includes((currentUser as LoggedInUser).externalProvider || '');
   };
 
   fetchIdentityProviders = () => {
@@ -110,7 +108,8 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({
             identityProvider: identityProviders.find(
-              identityProvider => identityProvider.key === this.props.currentUser.externalProvider
+              identityProvider =>
+                identityProvider.key === (this.props.currentUser as LoggedInUser).externalProvider
             ),
             loading: false
           });
@@ -143,6 +142,11 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
 
   render() {
     const { currentUser } = this.props;
+
+    if (!isLoggedIn(currentUser)) {
+      return null;
+    }
+
     const { identityProvider, loading } = this.state;
     const displayManual = parseQuery(this.props.location.query).manual;
     const header = translate('onboarding.create_project.header');
@@ -208,14 +212,13 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => {
-  return {
-    currentUser: getCurrentUser(state)
-  };
-};
+const mapStateToProps = (state: any): StateProps => ({
+  currentUser: getCurrentUser(state)
+});
 
 const mapDispatchToProps: DispatchProps = { addGlobalErrorMessage, skipOnboardingAction };
 
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
-  CreateProjectPage
-);
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(CreateProjectPage);

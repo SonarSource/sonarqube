@@ -41,10 +41,10 @@ describe('UsersSelectSearch', () => {
     const onSearch = jest.fn(() => Promise.resolve(users));
     const wrapper = shallow(
       <UsersSelectSearch
-        selectedUser={selectedUser}
         excludedUsers={excludedUsers}
         handleValueChange={jest.fn()}
         searchUsers={onSearch}
+        selectedUser={selectedUser}
       />
     );
     expect(wrapper).toMatchSnapshot();
@@ -57,7 +57,7 @@ describe('UsersSelectSearch', () => {
 describe('UsersSelectSearchOption', () => {
   it('should render correctly without all parameters', () => {
     const wrapper = shallow(
-      <UsersSelectSearchOption option={selectedUser} onFocus={jest.fn()} onSelect={jest.fn()}>
+      <UsersSelectSearchOption onFocus={jest.fn()} onSelect={jest.fn()} option={selectedUser}>
         {selectedUser.name}
       </UsersSelectSearchOption>
     );
@@ -66,7 +66,7 @@ describe('UsersSelectSearchOption', () => {
 
   it('should render correctly with email instead of hash', () => {
     const wrapper = shallow(
-      <UsersSelectSearchOption option={users[0]} onFocus={jest.fn()} onSelect={jest.fn()}>
+      <UsersSelectSearchOption onFocus={jest.fn()} onSelect={jest.fn()} option={users[0]}>
         {users[0].name}
       </UsersSelectSearchOption>
     );

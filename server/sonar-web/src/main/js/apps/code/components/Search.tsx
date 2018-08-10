@@ -176,7 +176,7 @@ export default class Search extends React.PureComponent<Props, State> {
     const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
 
     return (
-      <div id="code-search" className={containerClassName}>
+      <div className={containerClassName} id="code-search">
         <SearchBox
           minLength={3}
           onChange={this.handleQueryChange}

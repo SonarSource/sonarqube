@@ -104,6 +104,7 @@ const mapDispatchToProps: DispatchToProps = {
   setAdminPages
 };
 
-export default connect<StateProps, DispatchToProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
-  AdminContainer
-);
+export default connect<StateProps, DispatchToProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(AdminContainer);

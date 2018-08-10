@@ -120,7 +120,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
         tagName="li">
         {({ onToggleClick, open }) => (
           <a
-            aria-expanded={String(open)}
+            aria-expanded={open}
             aria-haspopup="true"
             className={classNames('dropdown-toggle', {
               active:
@@ -165,7 +165,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
         tagName="li">
         {({ onToggleClick, open }) => (
           <a
-            aria-expanded={String(open)}
+            aria-expanded={open}
             aria-haspopup="true"
             className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
             href="#"
@@ -215,7 +215,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
         tagName="li">
         {({ onToggleClick, open }) => (
           <a
-            aria-expanded={String(open)}
+            aria-expanded={open}
             aria-haspopup="true"
             className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
             href="#"

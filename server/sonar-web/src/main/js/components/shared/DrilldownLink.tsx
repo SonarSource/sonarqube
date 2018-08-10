@@ -127,7 +127,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
     });
 
     return (
-      <Link to={url} className={this.props.className}>
+      <Link className={this.props.className} to={url}>
         {this.props.children}
       </Link>
     );

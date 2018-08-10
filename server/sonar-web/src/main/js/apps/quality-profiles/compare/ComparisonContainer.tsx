@@ -116,10 +116,10 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
       <div className="boxed-group boxed-group-inner js-profile-comparison">
         <header>
           <ComparisonForm
-            withKey={withKey}
+            onCompare={this.handleCompare}
             profile={profile}
             profiles={profiles}
-            onCompare={this.handleCompare}
+            withKey={withKey}
           />
 
           {this.state.loading && <i className="spinner spacer-left" />}
@@ -132,12 +132,12 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
           modified != null && (
             <div className="spacer-top">
               <ComparisonResults
-                left={left}
-                right={right}
                 inLeft={inLeft}
                 inRight={inRight}
+                left={left}
                 modified={modified}
                 organization={this.props.organization}
+                right={right}
               />
             </div>
           )}

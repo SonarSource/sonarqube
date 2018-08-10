@@ -48,8 +48,8 @@ export default function EntryIssueTypes(
             <tr>
               <td className="about-page-issue-type-number">
                 <Link
-                  to={getIssuesUrl({ resolved: 'false', types: 'BUG', s: 'CREATION_DATE' })}
-                  className="about-page-issue-type-link">
+                  className="about-page-issue-type-link"
+                  to={getIssuesUrl({ resolved: 'false', types: 'BUG', s: 'CREATION_DATE' })}>
                   {formatMeasure(bugs, 'SHORT_INT')}
                 </Link>
               </td>
@@ -63,12 +63,12 @@ export default function EntryIssueTypes(
             <tr>
               <td className="about-page-issue-type-number">
                 <Link
+                  className="about-page-issue-type-link"
                   to={getIssuesUrl({
                     resolved: 'false',
                     types: 'VULNERABILITY',
                     s: 'CREATION_DATE'
-                  })}
-                  className="about-page-issue-type-link">
+                  })}>
                   {formatMeasure(vulnerabilities, 'SHORT_INT')}
                 </Link>
               </td>
@@ -82,8 +82,8 @@ export default function EntryIssueTypes(
             <tr>
               <td className="about-page-issue-type-number">
                 <Link
-                  to={getIssuesUrl({ resolved: 'false', types: 'CODE_SMELL', s: 'CREATION_DATE' })}
-                  className="about-page-issue-type-link">
+                  className="about-page-issue-type-link"
+                  to={getIssuesUrl({ resolved: 'false', types: 'CODE_SMELL', s: 'CREATION_DATE' })}>
                   {formatMeasure(codeSmells, 'SHORT_INT')}
                 </Link>
               </td>

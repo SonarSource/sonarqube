@@ -33,7 +33,7 @@ type Props = {
 
 export default function GraphsTooltipsContent({ name, style, translatedName, value } /*: Props */) {
   return (
-    <tr key={name} className="project-activity-graph-tooltip-line">
+    <tr className="project-activity-graph-tooltip-line" key={name}>
       <td className="thin">
         <ChartLegendIcon
           className={classNames('spacer-right line-chart-legend', 'line-chart-legend-' + style)}

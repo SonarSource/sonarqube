@@ -57,11 +57,11 @@ export default class SelectListItem extends React.PureComponent {
     return (
       <li>
         <a
-          href="#"
           className={classNames({ active: this.props.active === this.props.item })}
+          href="#"
           onClick={this.handleSelect}
-          onMouseOver={this.handleHover}
-          onFocus={this.handleHover}>
+          onFocus={this.handleHover}
+          onMouseOver={this.handleHover}>
           {children}
         </a>
       </li>

@@ -51,7 +51,6 @@ export default function GraphsZoom(props /*: Props */) {
           <ZoomTimeLine
             endDate={props.graphEndDate}
             height={64}
-            width={width}
             interpolate="linear"
             leakPeriodDate={props.leakPeriodDate}
             metricType={props.metricsType}
@@ -60,6 +59,7 @@ export default function GraphsZoom(props /*: Props */) {
             showAreas={props.showAreas}
             startDate={props.graphStartDate}
             updateZoom={props.updateGraphZoom}
+            width={width}
           />
         )}
       </AutoSizer>

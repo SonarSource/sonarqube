@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { connect } from 'react-redux';
 import FavoriteFilter from './FavoriteFilter';
-import { withCurrentUser } from '../../../store/withCurrentUser';
+import { getCurrentUser } from '../../../store/rootReducer';
 
-export default withCurrentUser(FavoriteFilter);
+function mapStateToProps(state: any) {
+  return { currentUser: getCurrentUser(state) };
+}
+
+export default connect(mapStateToProps)(FavoriteFilter);

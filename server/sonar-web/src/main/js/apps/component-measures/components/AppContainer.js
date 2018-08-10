@@ -74,4 +74,7 @@ const fetchMeasures = (
 
 const mapDispatchToProps = { fetchMeasures, fetchMetrics };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(App));

@@ -244,9 +244,15 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     return !task.branch && !task.pullRequest;
   };
 
-  handleComponentChange = (changes: {}) => {
+  handleComponentChange = (changes: Partial<Component>) => {
     if (this.mounted) {
-      this.setState(state => ({ component: { ...state.component, ...changes } }));
+      this.setState(state => {
+        if (state.component) {
+          const newComponent: Component = { ...state.component, ...changes };
+          return { component: newComponent };
+        }
+        return null;
+      });
     }
   };
 
@@ -309,4 +315,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { fetchOrganizations };
 
-export default connect<any, any, any>(null, mapDispatchToProps)(ComponentContainer);
+export default connect<any, any, any>(
+  null,
+  mapDispatchToProps
+)(ComponentContainer);

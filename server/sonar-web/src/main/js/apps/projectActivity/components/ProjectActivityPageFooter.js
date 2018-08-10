@@ -36,5 +36,5 @@ export default function ProjectActivityPageFooter(
   if (!paging || analyses.length === 0) {
     return null;
   }
-  return <ListFooter count={analyses.length} total={paging.total} loadMore={fetchMoreActivity} />;
+  return <ListFooter count={analyses.length} loadMore={fetchMoreActivity} total={paging.total} />;
 }

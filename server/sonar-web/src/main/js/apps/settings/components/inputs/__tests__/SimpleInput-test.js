@@ -26,12 +26,12 @@ it('should render input', () => {
   const onChange = jest.fn();
   const input = shallow(
     <SimpleInput
-      type="text"
       className="input-large"
-      name="foo"
-      value="bar"
       isDefault={false}
+      name="foo"
       onChange={onChange}
+      type="text"
+      value="bar"
     />
   ).find('input');
   expect(input.length).toBe(1);
@@ -46,12 +46,12 @@ it('should call onChange', () => {
   const onChange = jest.fn();
   const input = shallow(
     <SimpleInput
-      type="text"
       className="input-large"
-      name="foo"
-      value="bar"
       isDefault={false}
+      name="foo"
       onChange={onChange}
+      type="text"
+      value="bar"
     />
   ).find('input');
   expect(input.length).toBe(1);

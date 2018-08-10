@@ -82,7 +82,7 @@ export default class GraphHistory extends React.PureComponent {
     return (
       <div className="project-activity-graph-container">
         {this.props.isCustom ? (
-          <GraphsLegendCustom series={series} removeMetric={this.props.removeCustomMetric} />
+          <GraphsLegendCustom removeMetric={this.props.removeCustomMetric} series={series} />
         ) : (
           <GraphsLegendStatic series={series} />
         )}
@@ -92,10 +92,9 @@ export default class GraphHistory extends React.PureComponent {
               <div>
                 <AdvancedTimeline
                   endDate={this.props.graphEndDate}
-                  height={height}
-                  width={width}
-                  interpolate="linear"
                   formatYTick={this.formatValue}
+                  height={height}
+                  interpolate="linear"
                   leakPeriodDate={this.props.leakPeriodDate}
                   metricType={this.props.metricsType}
                   selectedDate={selectedDate}
@@ -105,6 +104,7 @@ export default class GraphHistory extends React.PureComponent {
                   updateSelectedDate={this.props.updateSelectedDate}
                   updateTooltip={this.updateTooltip}
                   updateZoom={this.props.updateGraphZoom}
+                  width={width}
                 />
                 {selectedDate != null &&
                   tooltipXPos != null && (

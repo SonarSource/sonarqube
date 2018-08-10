@@ -50,7 +50,7 @@ export default function OrganizationCard({ organization }: Props) {
 
       {!!organization.url && (
         <div className="markdown spacer-top">
-          <a href={organization.url} title={organization.url} rel="nofollow">
+          <a href={organization.url} rel="nofollow" title={organization.url}>
             {organization.url}
           </a>
         </div>

@@ -31,10 +31,10 @@ export default class UserCard extends React.PureComponent {
 
     return (
       <div className="account-user">
-        <div id="avatar" className="pull-left account-user-avatar">
+        <div className="pull-left account-user-avatar" id="avatar">
           <Avatar hash={user.avatar} name={user.name} size={60} />
         </div>
-        <h1 id="name" className="pull-left">
+        <h1 className="pull-left" id="name">
           {user.name}
         </h1>
       </div>

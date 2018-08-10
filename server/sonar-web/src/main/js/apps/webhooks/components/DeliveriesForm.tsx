@@ -97,7 +97,9 @@ export default class DeliveriesForm extends React.PureComponent<Props, State> {
           <h2>{header}</h2>
         </header>
         <div className="modal-body modal-container">
-          {deliveries.map(delivery => <DeliveryAccordion delivery={delivery} key={delivery.id} />)}
+          {deliveries.map(delivery => (
+            <DeliveryAccordion delivery={delivery} key={delivery.id} />
+          ))}
           <div className="text-center">
             <DeferredSpinner loading={loading} />
           </div>

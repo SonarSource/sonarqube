@@ -31,8 +31,8 @@ it('should show the last element without clickable link', () => {
           name: 'Foo',
           qualifier: 'TRK'
         }}
-        isLast={true}
         handleSelect={() => {}}
+        isLast={true}
       />
     )
   ).toMatchSnapshot();
@@ -48,8 +48,8 @@ it('should correctly show a middle element', () => {
           name: 'Foo',
           qualifier: 'TRK'
         }}
-        isLast={false}
         handleSelect={() => {}}
+        isLast={false}
       />
     )
   ).toMatchSnapshot();

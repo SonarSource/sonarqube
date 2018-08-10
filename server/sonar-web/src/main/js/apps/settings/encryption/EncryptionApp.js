@@ -43,7 +43,7 @@ export default class EncryptionApp extends React.PureComponent {
 
   render() {
     return (
-      <div id="encryption-page" className="page page-limited">
+      <div className="page page-limited" id="encryption-page">
         <Helmet title={translate('property.category.security.encryption')} />
         <header className="page-header">
           <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
@@ -53,8 +53,8 @@ export default class EncryptionApp extends React.PureComponent {
         {!this.props.loading &&
           !this.props.secretKeyAvailable && (
             <GenerateSecretKeyForm
-              secretKey={this.props.secretKey}
               generateSecretKey={this.props.generateSecretKey}
+              secretKey={this.props.secretKey}
             />
           )}
 

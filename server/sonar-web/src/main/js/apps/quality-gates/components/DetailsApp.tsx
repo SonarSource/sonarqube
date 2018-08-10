@@ -96,7 +96,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
   handleAddCondition = (condition: Condition) => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
-        return undefined;
+        return null;
       }
       return { qualityGate: addCondition(qualityGate, condition) };
     });
@@ -105,7 +105,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
   handleSaveCondition = (newCondition: Condition, oldCondition: Condition) => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
-        return undefined;
+        return null;
       }
       return { qualityGate: replaceCondition(qualityGate, newCondition, oldCondition) };
     });
@@ -114,7 +114,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
   handleRemoveCondition = (condition: Condition) => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
-        return undefined;
+        return null;
       }
       return { qualityGate: deleteCondition(qualityGate, condition) };
     });
@@ -123,7 +123,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
   handleSetDefault = () => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
-        return undefined;
+        return null;
       }
       this.props.onSetDefault(qualityGate);
       const newQualityGate: QualityGate = {

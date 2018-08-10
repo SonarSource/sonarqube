@@ -306,15 +306,15 @@ export default class MeasureContent extends React.PureComponent {
                 isLoggedIn && (
                   <MeasureFavoriteContainer
                     branchLike={branchLike}
-                    component={component.key}
                     className="measure-favorite spacer-right"
+                    component={component.key}
                   />
                 )}
               {!isFile && (
                 <MeasureViewSelect
                   className="measure-view-select"
-                  metric={metric}
                   handleViewChange={this.props.updateView}
+                  metric={metric}
                   view={view}
                 />
               )}

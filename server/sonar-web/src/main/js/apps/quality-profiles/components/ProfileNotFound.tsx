@@ -30,7 +30,7 @@ export default function ProfileNotFound(props: Props) {
   return (
     <div className="quality-profile-not-found">
       <div className="note spacer-bottom">
-        <IndexLink to={getProfilesPath(props.organization)} className="text-muted">
+        <IndexLink className="text-muted" to={getProfilesPath(props.organization)}>
           {translate('quality_profiles.page')}
         </IndexLink>
       </div>

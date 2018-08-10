@@ -50,8 +50,8 @@ it('should render the titlebar correctly', () => {
   const element = shallow(
     <IssueTitleBar
       branchLike={{ isMain: false, name: 'feature-1.0', type: 'SHORT' }}
-      issue={issue}
       currentPopup={null}
+      issue={issue}
       onFail={jest.fn()}
       togglePopup={jest.fn()}
     />
@@ -62,8 +62,8 @@ it('should render the titlebar correctly', () => {
 it('should render the titlebar with the filter', () => {
   const element = shallow(
     <IssueTitleBar
-      issue={issue}
       currentPopup={null}
+      issue={issue}
       onFail={jest.fn()}
       onFilter={jest.fn()}
       togglePopup={jest.fn()}

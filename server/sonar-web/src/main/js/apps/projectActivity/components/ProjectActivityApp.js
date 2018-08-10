@@ -61,7 +61,7 @@ export default function ProjectActivityApp(props /*: Props */) {
     (configuration ? configuration.showHistory : false);
   const canDeleteAnalyses = configuration ? configuration.showHistory : false;
   return (
-    <div id="project-activity" className="page page-limited">
+    <div className="page page-limited" id="project-activity">
       <Suggestions suggestions="project_activity" />
       <Helmet title={translate('project_activity.page')} />
 
@@ -78,12 +78,12 @@ export default function ProjectActivityApp(props /*: Props */) {
           <ProjectActivityAnalysesList
             addCustomEvent={props.addCustomEvent}
             addVersion={props.addVersion}
-            analysesLoading={props.analysesLoading}
             analyses={analyses}
+            analysesLoading={props.analysesLoading}
             canAdmin={canAdmin}
             canDeleteAnalyses={canDeleteAnalyses}
-            className="boxed-group-inner"
             changeEvent={props.changeEvent}
+            className="boxed-group-inner"
             deleteAnalysis={props.deleteAnalysis}
             deleteEvent={props.deleteEvent}
             initializing={props.initializing}

@@ -38,7 +38,7 @@ export default function OrganizationAvatar({ organization, small }: Props) {
         'is-small': small
       })}>
       {organization.avatar ? (
-        <img className="rounded" src={organization.avatar} alt={organization.name} />
+        <img alt={organization.name} className="rounded" src={organization.avatar} />
       ) : (
         <GenericAvatar name={organization.name} size={small ? 15 : 30} />
       )}

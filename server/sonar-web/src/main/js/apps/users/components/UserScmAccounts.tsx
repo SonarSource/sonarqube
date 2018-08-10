@@ -44,14 +44,14 @@ export default class UserScmAccounts extends React.PureComponent<Props, State> {
     return (
       <ul>
         {scmAccounts.slice(0, limit).map((scmAccount, idx) => (
-          <li key={idx} className="little-spacer-bottom">
+          <li className="little-spacer-bottom" key={idx}>
             {scmAccount}
           </li>
         ))}
         {scmAccounts.length > SCM_LIMIT &&
           (this.state.showMore ? (
             scmAccounts.slice(limit).map((scmAccount, idx) => (
-              <li key={idx + limit} className="little-spacer-bottom">
+              <li className="little-spacer-bottom" key={idx + limit}>
                 {scmAccount}
               </li>
             ))

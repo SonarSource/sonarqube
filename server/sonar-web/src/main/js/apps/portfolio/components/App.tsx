@@ -224,6 +224,7 @@ const mapStateToProps = (state: any): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-export default connect<StateToProps, DispatchToProps, Props>(mapStateToProps, mapDispatchToProps)(
-  App
-);
+export default connect<StateToProps, DispatchToProps, Props>(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

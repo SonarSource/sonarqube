@@ -31,15 +31,18 @@ export interface Query {
   manual: boolean;
 }
 
-export const parseQuery = memoize((urlQuery: RawQuery): Query => {
-  return {
-    error: parseAsOptionalString(urlQuery['error']),
-    manual: parseAsBoolean(urlQuery['manual'], false)
-  };
-});
+export const parseQuery = memoize(
+  (urlQuery: RawQuery): Query => {
+    return {
+      error: parseAsOptionalString(urlQuery['error']),
+      manual: parseAsBoolean(urlQuery['manual'], false)
+    };
+  }
+);
 
-export const serializeQuery = memoize((query: Query): RawQuery =>
-  cleanQuery({
-    manual: serializeOptionalBoolean(query.manual || undefined)
-  })
+export const serializeQuery = memoize(
+  (query: Query): RawQuery =>
+    cleanQuery({
+      manual: serializeOptionalBoolean(query.manual || undefined)
+    })
 );

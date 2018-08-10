@@ -134,8 +134,8 @@ export default class MeasureContentContainer extends React.PureComponent {
         className={this.props.className}
         component={this.state.component}
         currentUser={this.props.currentUser}
-        loading={this.state.loading.measure || this.state.loading.components}
         leakPeriod={this.props.leakPeriod}
+        loading={this.state.loading.measure || this.state.loading.components}
         measure={this.state.measure}
         metric={this.props.metric}
         metrics={this.props.metrics}

@@ -53,13 +53,13 @@ export default class RadioToggle extends React.PureComponent<Props> {
     return (
       <li key={option.value}>
         <input
-          type="radio"
-          disabled={option.disabled}
-          name={this.props.name}
-          value={option.value}
-          id={htmlId}
           checked={checked}
+          disabled={option.disabled}
+          id={htmlId}
+          name={this.props.name}
           onChange={this.handleChange}
+          type="radio"
+          value={option.value}
         />
         <Tooltip overlay={option.tooltip || undefined}>
           <label htmlFor={htmlId}>{option.label}</label>

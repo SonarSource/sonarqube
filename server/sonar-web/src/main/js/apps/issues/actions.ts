@@ -20,7 +20,7 @@
 import { State } from './components/App';
 import { allLocationsEmpty } from './utils';
 
-export function enableLocationsNavigator(state: State): Partial<State> | undefined {
+export function enableLocationsNavigator(state: State) {
   const { openIssue, selectedLocationIndex } = state;
   if (openIssue && (openIssue.secondaryLocations.length > 0 || openIssue.flows.length > 0)) {
     const selectedFlowIndex =
@@ -36,15 +36,15 @@ export function enableLocationsNavigator(state: State): Partial<State> | undefin
       };
     }
   }
-  return undefined;
+  return null;
 }
 
-export function disableLocationsNavigator(): Partial<State> {
+export function disableLocationsNavigator() {
   return { locationsNavigator: false };
 }
 
 export function selectLocation(nextIndex: number | undefined) {
-  return (state: State): Partial<State> | undefined => {
+  return (state: State) => {
     const { selectedLocationIndex: index, openIssue } = state;
     if (openIssue) {
       if (!state.locationsNavigator) {
@@ -59,11 +59,11 @@ export function selectLocation(nextIndex: number | undefined) {
         };
       }
     }
-    return undefined;
+    return null;
   };
 }
 
-export function selectNextLocation(state: State): Partial<State> | undefined {
+export function selectNextLocation(state: State) {
   const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
     const locations =
@@ -79,10 +79,10 @@ export function selectNextLocation(state: State): Partial<State> | undefined {
       selectedLocationIndex: index !== undefined && index < lastLocationIdx ? index + 1 : index
     };
   }
-  return undefined;
+  return null;
 }
 
-export function selectPreviousLocation(state: State): Partial<State> | undefined {
+export function selectPreviousLocation(state: State) {
   const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
     if (index === -1) {
@@ -95,16 +95,16 @@ export function selectPreviousLocation(state: State): Partial<State> | undefined
     }
     return { selectedLocationIndex: index !== undefined && index > 0 ? index - 1 : index };
   }
-  return undefined;
+  return null;
 }
 
 export function selectFlow(nextIndex?: number) {
-  return (): Partial<State> => {
+  return () => {
     return { selectedFlowIndex: nextIndex, selectedLocationIndex: 0 };
   };
 }
 
-export function selectNextFlow(state: State): Partial<State> | undefined {
+export function selectNextFlow(state: State) {
   const { openIssue, selectedFlowIndex } = state;
   if (
     openIssue &&
@@ -113,13 +113,13 @@ export function selectNextFlow(state: State): Partial<State> | undefined {
   ) {
     return { selectedFlowIndex: selectedFlowIndex + 1, selectedLocationIndex: 0 };
   }
-  return undefined;
+  return null;
 }
 
-export function selectPreviousFlow(state: State): Partial<State> | undefined {
+export function selectPreviousFlow(state: State) {
   const { openIssue, selectedFlowIndex } = state;
   if (openIssue && selectedFlowIndex !== undefined && selectedFlowIndex > 0) {
     return { selectedFlowIndex: selectedFlowIndex - 1, selectedLocationIndex: 0 };
   }
-  return undefined;
+  return null;
 }

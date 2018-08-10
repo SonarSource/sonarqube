@@ -87,4 +87,7 @@ const mapStateToProps = (state: any): StateProps => ({
 
 const mapDispatchToProps: DispatchProps = { setHomePage };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomePageSelect);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(HomePageSelect);

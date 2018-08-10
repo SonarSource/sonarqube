@@ -97,4 +97,7 @@ const mapDispatchToProps = {
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MeasureFavoriteContainer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MeasureFavoriteContainer);

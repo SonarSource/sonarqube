@@ -21,5 +21,5 @@ import * as React from 'react';
 import CoverageFilter, { Props } from './CoverageFilter';
 
 export default function NewCoverageFilter(props: Props) {
-  return <CoverageFilter {...props} property="new_coverage" className="leak-facet-box" />;
+  return <CoverageFilter {...props} className="leak-facet-box" property="new_coverage" />;
 }

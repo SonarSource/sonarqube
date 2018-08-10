@@ -24,7 +24,7 @@ import MeasureViewSelect from '../MeasureViewSelect';
 it('should display correctly with treemap option', () => {
   expect(
     shallow(
-      <MeasureViewSelect metric={{ type: 'PERCENT' }} handleViewChange={() => {}} view="tree" />
+      <MeasureViewSelect handleViewChange={() => {}} metric={{ type: 'PERCENT' }} view="tree" />
     )
   ).toMatchSnapshot();
 });

@@ -219,4 +219,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { fetchAboutPageSettings };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AboutApp);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AboutApp);

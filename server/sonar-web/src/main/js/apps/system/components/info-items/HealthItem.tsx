@@ -42,7 +42,7 @@ export default function HealthItem({ biggerHealth, className, name, health, heal
     <div className={classNames('system-info-health-info', className)}>
       {hasHealthCauses &&
         healthCauses!.map((cause, idx) => (
-          <HealthCauseItem key={idx} className="spacer-right" health={health} healthCause={cause} />
+          <HealthCauseItem className="spacer-right" health={health} healthCause={cause} key={idx} />
         ))}
       {name ? (
         <Tooltip overlay={translateWithParameters('system.current_health_of_x', name)}>

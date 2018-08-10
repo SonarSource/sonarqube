@@ -54,7 +54,7 @@ export default class SearchShowMore extends React.PureComponent {
     const { loadingMore, qualifier, selected } = this.props;
 
     return (
-      <li key={`more-${qualifier}`} className={classNames('menu-footer', { active: selected })}>
+      <li className={classNames('menu-footer', { active: selected })} key={`more-${qualifier}`}>
         <DeferredSpinner className="navbar-search-icon" loading={loadingMore === qualifier}>
           <a
             className={classNames({ 'cursor-not-allowed': !this.props.allowMore })}

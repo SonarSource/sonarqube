@@ -131,13 +131,10 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const { value: name } = event.currentTarget;
-    this.setState((state: State) => {
-      const change: Partial<State> = { name };
-      if (!state.keyModifiedByUser) {
-        change.key = latinize(name).replace(/[^A-Za-z0-9]/g, '_');
-      }
-      return change;
-    });
+    this.setState(state => ({
+      name,
+      key: state.keyModifiedByUser ? state.key : latinize(name).replace(/[^A-Za-z0-9]/g, '_')
+    }));
   };
 
   handleKeyChange = (event: React.SyntheticEvent<HTMLInputElement>) =>

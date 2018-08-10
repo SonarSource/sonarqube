@@ -28,7 +28,7 @@ export default function ActionChangelog({ changelog }: Props) {
   return (
     <ul className="big-spacer-top">
       {changelog.map((item, index) => (
-        <li key={index} className="spacer-top">
+        <li className="spacer-top" key={index}>
           <span className="spacer-right badge">{item.version}</span>
           {item.description}
         </li>

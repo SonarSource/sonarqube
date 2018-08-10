@@ -84,7 +84,7 @@ export default class GlobalNavPlus extends React.PureComponent<Props, State> {
         {({ onToggleClick, open }) => (
           <>
             <a
-              aria-expanded={String(open)}
+              aria-expanded={open}
               aria-haspopup="true"
               className="navbar-plus"
               href="#"

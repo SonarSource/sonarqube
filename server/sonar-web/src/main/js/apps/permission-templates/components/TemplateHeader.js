@@ -40,9 +40,9 @@ export default class TemplateHeader extends React.PureComponent {
       : '/permission_templates';
 
     return (
-      <header id="project-permissions-header" className="page-header">
+      <header className="page-header" id="project-permissions-header">
         <div className="note spacer-bottom">
-          <Link to={pathname} className="text-muted">
+          <Link className="text-muted" to={pathname}>
             {translate('permission_templates.page')}
           </Link>
         </div>
@@ -53,11 +53,11 @@ export default class TemplateHeader extends React.PureComponent {
 
         <div className="pull-right">
           <ActionsCell
+            fromDetails={true}
             organization={this.props.organization}
             permissionTemplate={this.props.template}
-            topQualifiers={this.props.topQualifiers}
             refresh={this.props.refresh}
-            fromDetails={true}
+            topQualifiers={this.props.topQualifiers}
           />
         </div>
       </header>

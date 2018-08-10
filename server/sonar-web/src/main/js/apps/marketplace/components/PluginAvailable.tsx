@@ -71,7 +71,7 @@ export default function PluginAvailable({ plugin, readOnly, refreshPending, stat
       </td>
 
       {!readOnly && (
-        <PluginStatus plugin={plugin} status={status} refreshPending={refreshPending} />
+        <PluginStatus plugin={plugin} refreshPending={refreshPending} status={status} />
       )}
     </tr>
   );

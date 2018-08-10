@@ -55,11 +55,11 @@ export default function AboutScanners() {
         <p className="about-page-text">{translate('about_page.scanners.text')}</p>
         <div className="about-page-analyzers">
           {scanners.map(scanner => (
-            <a key={scanner.key} className="about-page-analyzer-box" href={scanner.link}>
+            <a className="about-page-analyzer-box" href={scanner.link} key={scanner.key}>
               <img
-                src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`}
-                height={60}
                 alt={translate('about_page.scanners', scanner.key)}
+                height={60}
+                src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`}
               />
             </a>
           ))}

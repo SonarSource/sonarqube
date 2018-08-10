@@ -76,7 +76,7 @@ export default function HealthCard({
       title={name}>
       {showFields && <Section items={mainSection} />}
       {showSections &&
-        map(sections, (section, name) => <Section key={name} items={section} name={name} />)}
+        map(sections, (section, name) => <Section items={section} key={name} name={name} />)}
     </BoxedGroupAccordion>
   );
 }

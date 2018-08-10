@@ -33,7 +33,8 @@ export default function Pricing() {
         <h3 className="sc-pricing-title">Private Projects</h3>
         <span className="sc-pricing-small">14 days free trial</span>
         <strong>
-          From <span className="sc-pricing-price">10€</span>/mo
+          From <span className="sc-pricing-price">10€</span>
+          /mo
         </strong>
         <Link className="sc-news-link" to="/documentation/sonarcloud-pricing">
           see prices

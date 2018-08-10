@@ -34,30 +34,30 @@ export default function Nav({ customOrganizations } /*: Props */) {
     <nav className="account-nav">
       <NavBarTabs>
         <li>
-          <IndexLink to="/account/" activeClassName="active">
+          <IndexLink activeClassName="active" to="/account/">
             {translate('my_account.profile')}
           </IndexLink>
         </li>
         <li>
-          <Link to="/account/security/" activeClassName="active">
+          <Link activeClassName="active" to="/account/security/">
             {translate('my_account.security')}
           </Link>
         </li>
         <li>
-          <Link to="/account/notifications" activeClassName="active">
+          <Link activeClassName="active" to="/account/notifications">
             {translate('my_account.notifications')}
           </Link>
         </li>
         {!customOrganizations && (
           <li>
-            <Link to="/account/projects/" activeClassName="active">
+            <Link activeClassName="active" to="/account/projects/">
               {translate('my_account.projects')}
             </Link>
           </li>
         )}
         {customOrganizations && (
           <li>
-            <Link to="/account/organizations" activeClassName="active">
+            <Link activeClassName="active" to="/account/organizations">
               {translate('my_account.organizations')}
             </Link>
           </li>

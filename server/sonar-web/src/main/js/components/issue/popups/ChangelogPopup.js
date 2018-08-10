@@ -110,7 +110,9 @@ export default class ChangelogPopup extends React.PureComponent {
                         {item.userName}
                       </p>
                     )}
-                    {item.diffs.map(diff => <IssueChangelogDiff diff={diff} key={diff.key} />)}
+                    {item.diffs.map(diff => (
+                      <IssueChangelogDiff diff={diff} key={diff.key} />
+                    ))}
                   </td>
                 </tr>
               ))}

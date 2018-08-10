@@ -114,7 +114,7 @@ export default class QualityGateCondition extends React.PureComponent {
     };
 
     return RATING_METRICS_MAPPING[metricKey] ? (
-      <Link to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])} className={className}>
+      <Link className={className} to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])}>
         {children}
       </Link>
     ) : (
@@ -153,15 +153,15 @@ export default class QualityGateCondition extends React.PureComponent {
         <div className="overview-quality-gate-condition-value">
           <Measure
             decimals={decimals}
-            value={actual}
             metricKey={measure.metric.key}
             metricType={measure.metric.type}
+            value={actual}
           />
         </div>
 
         <div>
           <div className="overview-quality-gate-condition-metric">
-            <IssueTypeIcon query={metric.key} className="little-spacer-right" />
+            <IssueTypeIcon className="little-spacer-right" query={metric.key} />
             {metric.name}
           </div>
           {!isDiff &&

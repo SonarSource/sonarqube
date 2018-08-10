@@ -45,8 +45,8 @@ export default class NameCell extends React.PureComponent {
         {t.defaultFor.length > 0 && (
           <div className="spacer-top js-defaults">
             <Defaults
-              permissionTemplate={this.props.permissionTemplate}
               organization={organization}
+              permissionTemplate={this.props.permissionTemplate}
             />
           </div>
         )}

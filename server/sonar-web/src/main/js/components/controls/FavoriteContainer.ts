@@ -52,4 +52,7 @@ const mapDispatchToProps = (dispatch: Function, ownProps: any) => ({
   removeFavorite: () => dispatch(removeFavorite(ownProps.componentKey))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(FavoriteBaseStateless);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(FavoriteBaseStateless);

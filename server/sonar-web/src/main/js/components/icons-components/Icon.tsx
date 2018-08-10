@@ -55,7 +55,7 @@ export default function Icon({
         fillRule: 'evenodd',
         clipRule: 'evenodd',
         strokeLinejoin: 'round',
-        strokeMiterlimit: '1.41421',
+        strokeMiterlimit: 1.41421,
         ...style
       }}
       version="1.1"

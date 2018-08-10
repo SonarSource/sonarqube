@@ -54,11 +54,11 @@ export default class PrimitiveInput extends React.PureComponent {
     if (definition.type === types.TYPE_SINGLE_SELECT_LIST) {
       return (
         <InputForSingleSelectList
-          name={name}
-          value={value}
           isDefault={isDefaultOrInherited(setting)}
-          options={definition.options}
+          name={name}
           onChange={onChange}
+          options={definition.options}
+          value={value}
           {...other}
         />
       );
@@ -67,10 +67,10 @@ export default class PrimitiveInput extends React.PureComponent {
     const InputComponent = typeMapping[definition.type] || InputForString;
     return (
       <InputComponent
-        name={name}
-        value={value}
         isDefault={isDefaultOrInherited(setting)}
+        name={name}
         onChange={onChange}
+        value={value}
         {...other}
       />
     );

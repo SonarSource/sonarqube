@@ -467,12 +467,14 @@ export class App extends React.PureComponent<Props, State> {
     });
 
   handleRuleDeactivate = (profile: string, rule: string) =>
-    this.setState((state: State) => {
+    this.setState(state => {
       const { actives } = state;
       if (actives && actives[rule]) {
-        return { actives: { ...actives, [rule]: { ...actives[rule], [profile]: undefined } } };
+        const newRule = { ...actives[rule] };
+        delete newRule[profile];
+        return { actives: { ...actives, [rule]: newRule } };
       }
-      return {};
+      return null;
     });
 
   handleSearch = (searchQuery: string) => this.handleFilterChange({ searchQuery });

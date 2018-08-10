@@ -34,7 +34,7 @@ export default class TemplateDetails extends React.PureComponent {
       <div className="big-spacer-bottom">
         {template.defaultFor.length > 0 && (
           <div className="spacer-top js-defaults">
-            <Defaults permissionTemplate={template} organization={this.props.organization} />
+            <Defaults organization={this.props.organization} permissionTemplate={template} />
           </div>
         )}
 

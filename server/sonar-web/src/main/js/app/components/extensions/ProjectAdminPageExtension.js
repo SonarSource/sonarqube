@@ -54,4 +54,7 @@ function ProjectAdminPageExtension(props /*: Props */) {
 
 const mapDispatchToProps = { onFail: addGlobalErrorMessage };
 
-export default connect(null, mapDispatchToProps)(ProjectAdminPageExtension);
+export default connect(
+  null,
+  mapDispatchToProps
+)(ProjectAdminPageExtension);

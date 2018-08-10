@@ -18,18 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import * as React from 'react';
-import { getCurrentUser } from './rootReducer';
-import { CurrentUser } from '../app/types';
+import GlobalMessages from '../../components/controls/GlobalMessages';
+import { getGlobalMessages } from '../../store/rootReducer';
+import { closeGlobalMessage } from '../../store/globalMessages/duck';
 
-interface StateProps {
-  currentUser: CurrentUser;
-}
+const mapStateToProps = (state: any) => ({
+  messages: getGlobalMessages(state)
+});
 
-export function withCurrentUser<P extends StateProps>(Component: React.ComponentClass<P>) {
-  function mapStateToProps(state: any): StateProps {
-    return { currentUser: getCurrentUser(state) };
-  }
+const mapDispatchToProps = { closeGlobalMessage };
 
-  return connect<StateProps>(mapStateToProps)(Component);
-}
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(GlobalMessages);

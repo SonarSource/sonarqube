@@ -52,7 +52,7 @@ function Profile(props /*: Props */) {
 
         {!user.local &&
           user.externalProvider !== 'sonarqube' && (
-            <div id="identity-provider" className="spacer-bottom">
+            <div className="spacer-bottom" id="identity-provider">
               <UserExternalIdentity user={user} />
             </div>
           )}
@@ -68,7 +68,7 @@ function Profile(props /*: Props */) {
 
         <hr />
 
-        <UserScmAccounts user={user} scmAccounts={user.scmAccounts} />
+        <UserScmAccounts scmAccounts={user.scmAccounts} user={user} />
       </div>
     </div>
   );

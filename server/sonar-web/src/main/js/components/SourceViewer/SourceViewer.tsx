@@ -47,6 +47,7 @@ const mapDispatchToProps: DispatchProps = { onReceiveComponent };
 
 type OwnProps = Omit<Props, keyof DispatchProps>;
 
-export default connect<null, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
-  lazyLoad(() => import(/* webpackPrefetch: true */ './SourceViewerBase'))
-);
+export default connect<null, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(lazyLoad(() => import(/* webpackPrefetch: true */ './SourceViewerBase')));

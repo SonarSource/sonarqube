@@ -28,8 +28,8 @@ it('should render correctly', () => {
         isCluster={true}
         loading={false}
         logLevel="INFO"
-        showActions={true}
         onLogLevelChange={() => {}}
+        showActions={true}
       />
     )
   ).toMatchSnapshot();
@@ -42,8 +42,8 @@ it('should show a loading spinner and no actions', () => {
         isCluster={true}
         loading={true}
         logLevel="INFO"
-        showActions={false}
         onLogLevelChange={() => {}}
+        showActions={false}
       />
     )
   ).toMatchSnapshot();

@@ -41,9 +41,9 @@ export default function GraphsLegendCustom({ removeMetric, series } /*: Props */
           <GraphsLegendItem
             metric={serie.name}
             name={serie.translatedName}
+            removeMetric={removeMetric}
             showWarning={!hasData}
             style={idx.toString()}
-            removeMetric={removeMetric}
           />
         );
         if (!hasData) {

@@ -68,7 +68,7 @@ export default class MetaSize extends React.PureComponent<Props> {
       this.props.component.qualifier === 'TRK' ? 'overview-meta-size-lang-dist' : 'big-spacer-top';
 
     return languageDistribution ? (
-      <div id="overview-language-distribution" className={className}>
+      <div className={className} id="overview-language-distribution">
         <LanguageDistributionContainer distribution={languageDistribution.value} width={160} />
       </div>
     ) : null;

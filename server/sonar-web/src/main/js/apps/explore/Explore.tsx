@@ -31,21 +31,21 @@ interface Props {
 export default function Explore(props: Props) {
   return (
     <div id="explore">
-      <ContextNavBar id="explore-navigation" height={theme.contextNavHeightRaw}>
+      <ContextNavBar height={theme.contextNavHeightRaw} id="explore-navigation">
         <header className="navbar-context-header">
           <h1>{translate('explore')}</h1>
         </header>
 
         <NavBarTabs>
           <li>
-            <Link to="/explore/projects" activeClassName="active">
+            <Link activeClassName="active" to="/explore/projects">
               {translate('projects.page')}
             </Link>
           </li>
           <li>
             <Link
-              to={{ pathname: '/explore/issues', query: { resolved: 'false' } }}
-              activeClassName="active">
+              activeClassName="active"
+              to={{ pathname: '/explore/issues', query: { resolved: 'false' } }}>
               {translate('issues.page')}
             </Link>
           </li>

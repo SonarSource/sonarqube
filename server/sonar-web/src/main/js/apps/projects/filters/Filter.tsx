@@ -97,7 +97,7 @@ export default class Filter extends React.PureComponent<Props> {
       <div className="projects-facet-bar">
         <div
           className="projects-facet-bar-inner"
-          style={{ width: facetValue / this.props.maxFacetValue * 60 }}
+          style={{ width: (facetValue / this.props.maxFacetValue) * 60 }}
         />
       </div>
     );

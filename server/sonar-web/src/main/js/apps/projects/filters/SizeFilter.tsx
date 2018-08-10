@@ -42,19 +42,19 @@ export default function SizeFilter(props: Props) {
 
   return (
     <Filter
+      className={props.className}
       facet={props.facet}
+      getFacetValueForOption={getFacetValueForOption}
+      header={<FilterHeader name={translate('metric_domain.Size')} />}
+      highlightUnder={1}
       maxFacetValue={props.maxFacetValue}
       onQueryChange={props.onQueryChange}
-      value={props.value}
-      property={property}
-      className={props.className}
       options={[1, 2, 3, 4, 5]}
+      organization={props.organization}
+      property={property}
       query={props.query}
       renderOption={renderOption}
-      organization={props.organization}
-      getFacetValueForOption={getFacetValueForOption}
-      highlightUnder={1}
-      header={<FilterHeader name={translate('metric_domain.Size')} />}
+      value={props.value}
     />
   );
 }
@@ -67,7 +67,7 @@ function getFacetValueForOption(facet: Facet, option: number) {
 function renderOption(option: number, selected: boolean) {
   return (
     <span>
-      <SizeRating value={getSizeRatingAverageValue(option)} small={true} muted={!selected} />
+      <SizeRating muted={!selected} small={true} value={getSizeRatingAverageValue(option)} />
       <span className="spacer-left">{getSizeRatingLabel(option)}</span>
     </span>
   );

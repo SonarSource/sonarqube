@@ -239,7 +239,7 @@ export default class App extends React.PureComponent<Props, State> {
 
           {sourceViewer === undefined &&
             components !== undefined && (
-              <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />
+              <ListFooter count={components.length} loadMore={this.handleLoadMore} total={total} />
             )}
 
           {sourceViewer !== undefined && (

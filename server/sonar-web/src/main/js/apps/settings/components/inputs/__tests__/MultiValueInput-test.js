@@ -34,7 +34,7 @@ const assertValues = (inputs, values) => {
 
 it('should render one value', () => {
   const multiValueInput = shallow(
-    <MultiValueInput setting={{ definition }} value={['foo']} onChange={jest.fn()} />
+    <MultiValueInput onChange={jest.fn()} setting={{ definition }} value={['foo']} />
   );
   const stringInputs = multiValueInput.find(PrimitiveInput);
   expect(stringInputs.length).toBe(1 + 1);
@@ -43,7 +43,7 @@ it('should render one value', () => {
 
 it('should render several values', () => {
   const multiValueInput = shallow(
-    <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={jest.fn()} />
+    <MultiValueInput onChange={jest.fn()} setting={{ definition }} value={['foo', 'bar', 'baz']} />
   );
   const stringInputs = multiValueInput.find(PrimitiveInput);
   expect(stringInputs.length).toBe(3 + 1);
@@ -53,7 +53,7 @@ it('should render several values', () => {
 it('should remove value', () => {
   const onChange = jest.fn();
   const multiValueInput = shallow(
-    <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={onChange} />
+    <MultiValueInput onChange={onChange} setting={{ definition }} value={['foo', 'bar', 'baz']} />
   );
   click(multiValueInput.find('.js-remove-value').at(1));
   expect(onChange).toBeCalledWith(['foo', 'baz']);
@@ -62,7 +62,7 @@ it('should remove value', () => {
 it('should change existing value', () => {
   const onChange = jest.fn();
   const multiValueInput = shallow(
-    <MultiValueInput setting={{ definition }} value={['foo', 'bar', 'baz']} onChange={onChange} />
+    <MultiValueInput onChange={onChange} setting={{ definition }} value={['foo', 'bar', 'baz']} />
   );
   multiValueInput
     .find(PrimitiveInput)
@@ -74,7 +74,7 @@ it('should change existing value', () => {
 it('should add new value', () => {
   const onChange = jest.fn();
   const multiValueInput = shallow(
-    <MultiValueInput setting={{ definition }} value={['foo']} onChange={onChange} />
+    <MultiValueInput onChange={onChange} setting={{ definition }} value={['foo']} />
   );
   multiValueInput
     .find(PrimitiveInput)

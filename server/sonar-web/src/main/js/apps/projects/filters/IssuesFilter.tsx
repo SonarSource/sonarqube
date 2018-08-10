@@ -41,23 +41,23 @@ interface Props {
 export default function IssuesFilter(props: Props) {
   return (
     <Filter
-      facet={props.facet}
-      maxFacetValue={props.maxFacetValue}
-      onQueryChange={props.onQueryChange}
-      value={props.value}
-      property={props.property}
       className={props.className}
-      options={[1, 2, 3, 4, 5]}
-      query={props.query}
-      renderOption={renderOption}
-      organization={props.organization}
+      facet={props.facet}
       getFacetValueForOption={getFacetValueForOption}
-      highlightUnder={1}
       header={
         <FilterHeader name={translate('metric_domain', props.name)}>
           {props.headerDetail}
         </FilterHeader>
       }
+      highlightUnder={1}
+      maxFacetValue={props.maxFacetValue}
+      onQueryChange={props.onQueryChange}
+      options={[1, 2, 3, 4, 5]}
+      organization={props.organization}
+      property={props.property}
+      query={props.query}
+      renderOption={renderOption}
+      value={props.value}
     />
   );
 }
@@ -69,7 +69,7 @@ function getFacetValueForOption(facet: Facet, option: number) {
 function renderOption(option: number, selected: boolean) {
   return (
     <span>
-      <Rating value={option} small={true} muted={!selected} />
+      <Rating muted={!selected} small={true} value={option} />
     </span>
   );
 }

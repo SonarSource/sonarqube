@@ -33,4 +33,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = { fetchValues };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SubCategoryDefinitionsList);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SubCategoryDefinitionsList);

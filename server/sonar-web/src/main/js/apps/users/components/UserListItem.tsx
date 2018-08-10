@@ -62,7 +62,7 @@ export default class UserListItem extends React.PureComponent<Props, State> {
         </td>
         {!organizationsEnabled && (
           <td>
-            <UserGroups groups={user.groups || []} user={user} onUpdateUsers={onUpdateUsers} />
+            <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
           </td>
         )}
         <td>
@@ -83,9 +83,9 @@ export default class UserListItem extends React.PureComponent<Props, State> {
         </td>
         {this.state.openTokenForm && (
           <TokensFormModal
-            user={user}
             onClose={this.handleCloseTokensForm}
             updateTokensCount={this.props.updateTokensCount}
+            user={user}
           />
         )}
       </tr>

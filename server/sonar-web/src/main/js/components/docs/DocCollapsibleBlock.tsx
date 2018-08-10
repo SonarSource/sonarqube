@@ -36,7 +36,7 @@ export default class DocCollapsibleBlock extends React.PureComponent<{}, State> 
   renderTitle(children: any) {
     return (
       <a
-        aria-expanded={String(this.state.open)}
+        aria-expanded={this.state.open}
         aria-haspopup={true}
         className="link-no-underline"
         href="#"

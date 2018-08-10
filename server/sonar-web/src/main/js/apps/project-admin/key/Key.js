@@ -144,10 +144,13 @@ const mapStateToProps = (state, ownProps) => ({
   modules: getProjectAdminProjectModules(state, ownProps.location.query.id)
 });
 
-export default connect(mapStateToProps, {
-  fetchProjectModules,
-  changeKey,
-  addGlobalErrorMessage,
-  addGlobalSuccessMessage,
-  closeAllGlobalMessages
-})(Key);
+export default connect(
+  mapStateToProps,
+  {
+    fetchProjectModules,
+    changeKey,
+    addGlobalErrorMessage,
+    addGlobalSuccessMessage,
+    closeAllGlobalMessages
+  }
+)(Key);

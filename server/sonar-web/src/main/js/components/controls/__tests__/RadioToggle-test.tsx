@@ -48,5 +48,5 @@ it('accepts advanced options fields', () => {
 
 function getSample(props?: any) {
   const options = [{ value: 'one', label: 'first' }, { value: 'two', label: 'second' }];
-  return <RadioToggle options={options} name="sample" onCheck={() => true} {...props} />;
+  return <RadioToggle name="sample" onCheck={() => true} options={options} {...props} />;
 }

@@ -31,9 +31,9 @@ it('should render items without the ones in the facet', () => {
   const wrapper = shallow(
     <SearchableFilterFooter
       onQueryChange={jest.fn()}
+      options={options}
       property="languages"
       query={{ languages: ['java'] }}
-      options={options}
     />,
     { context: { router: { push: jest.fn() } } }
   );
@@ -45,9 +45,9 @@ it('should render items without the ones in the facet', () => {
   const wrapper = shallow(
     <SearchableFilterFooter
       onQueryChange={onQueryChange}
+      options={options}
       property="languages"
       query={{ languages: ['java'] }}
-      options={options}
     />,
     { context: { router: { push: jest.fn() } } }
   );

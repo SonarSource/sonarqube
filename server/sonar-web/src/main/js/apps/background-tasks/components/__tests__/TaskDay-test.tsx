@@ -24,13 +24,13 @@ import TaskDay from '../TaskDay';
 it('renders', () => {
   expect(
     shallow(
-      <TaskDay submittedAt="2017-01-02T00:00:00.000Z" prevSubmittedAt="2017-01-01T00:00:00.000Z" />
+      <TaskDay prevSubmittedAt="2017-01-01T00:00:00.000Z" submittedAt="2017-01-02T00:00:00.000Z" />
     )
   ).toMatchSnapshot();
 
   expect(
     shallow(
-      <TaskDay submittedAt="2017-01-01T00:00:00.000Z" prevSubmittedAt="2017-01-01T00:00:00.000Z" />
+      <TaskDay prevSubmittedAt="2017-01-01T00:00:00.000Z" submittedAt="2017-01-01T00:00:00.000Z" />
     )
   ).toMatchSnapshot();
 });

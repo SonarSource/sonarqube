@@ -25,7 +25,7 @@ import { change } from '../../../../../helpers/testUtils';
 it('should render textarea', () => {
   const onChange = jest.fn();
   const textarea = shallow(
-    <InputForText name="foo" value="bar" isDefault={false} onChange={onChange} />
+    <InputForText isDefault={false} name="foo" onChange={onChange} value="bar" />
   ).find('textarea');
   expect(textarea.length).toBe(1);
   expect(textarea.prop('name')).toBe('foo');
@@ -36,7 +36,7 @@ it('should render textarea', () => {
 it('should call onChange', () => {
   const onChange = jest.fn();
   const textarea = shallow(
-    <InputForText name="foo" value="bar" isDefault={false} onChange={onChange} />
+    <InputForText isDefault={false} name="foo" onChange={onChange} value="bar" />
   ).find('textarea');
   expect(textarea.length).toBe(1);
   expect(textarea.prop('onChange')).toBeTruthy();

@@ -56,9 +56,9 @@ export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard
       </li>
       {sortBy(getAppNodes(sysInfoData), getNodeName).map(node => (
         <HealthCard
-          key={getNodeName(node)}
           health={getHealth(node)}
           healthCauses={getHealthCauses(node)}
+          key={getNodeName(node)}
           name={getNodeName(node)}
           onClick={toggleCard}
           open={expandedCards.includes(getNodeName(node))}
@@ -68,9 +68,9 @@ export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard
       <li className="note system-info-health-title">{translate('system.search_nodes_title')}</li>
       {sortBy(getSearchNodes(sysInfoData), getNodeName).map(node => (
         <HealthCard
-          key={getNodeName(node)}
           health={getHealth(node)}
           healthCauses={getHealthCauses(node)}
+          key={getNodeName(node)}
           name={getNodeName(node)}
           onClick={toggleCard}
           open={expandedCards.includes(getNodeName(node))}

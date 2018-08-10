@@ -168,9 +168,7 @@ export default class PreviewGraph extends React.PureComponent {
           <div>
             <AdvancedTimeline
               endDate={null}
-              startDate={null}
               height={80}
-              width={width}
               hideGrid={true}
               hideXAxis={true}
               interpolate="linear"
@@ -178,7 +176,9 @@ export default class PreviewGraph extends React.PureComponent {
               padding={GRAPH_PADDING}
               series={series}
               showAreas={['coverage', 'duplications'].includes(graph)}
+              startDate={null}
               updateTooltip={this.updateTooltip}
+              width={width}
             />
             {selectedDate != null &&
               tooltipXPos != null &&
@@ -210,8 +210,8 @@ export default class PreviewGraph extends React.PureComponent {
       <div
         className="overview-analysis-graph big-spacer-bottom spacer-top"
         onClick={this.handleClick}
-        tabIndex={0}
-        role="link">
+        role="link"
+        tabIndex={0}>
         {this.renderTimeline()}
       </div>
     );

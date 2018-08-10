@@ -19,15 +19,17 @@
  */
 import { memoize } from 'lodash';
 
-const parseCookies = memoize((documentCookie: string): { [key: string]: string } => {
-  const rawCookies = documentCookie.split('; ');
-  const cookies: { [key: string]: string } = {};
-  rawCookies.forEach(candidate => {
-    const [key, value] = candidate.split('=');
-    cookies[key] = value;
-  });
-  return cookies;
-});
+const parseCookies = memoize(
+  (documentCookie: string): { [key: string]: string } => {
+    const rawCookies = documentCookie.split('; ');
+    const cookies: { [key: string]: string } = {};
+    rawCookies.forEach(candidate => {
+      const [key, value] = candidate.split('=');
+      cookies[key] = value;
+    });
+    return cookies;
+  }
+);
 
 export function getCookie(name: string): string | undefined {
   return parseCookies(document.cookie)[name];

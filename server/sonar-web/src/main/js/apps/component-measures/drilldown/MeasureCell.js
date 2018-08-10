@@ -40,7 +40,7 @@ export default function MeasureCell({ component, measure, metric } /*: Props */)
   return (
     <td className="thin nowrap text-right">
       <span id={`component-measures-component-measure-${component.key}-${metric.key}`}>
-        <Measure value={value} metricKey={metric.key} metricType={metric.type} />
+        <Measure metricKey={metric.key} metricType={metric.type} value={value} />
       </span>
     </td>
   );

@@ -61,7 +61,8 @@ export default class RepoWidgetNotConfigured extends React.PureComponent<{}, Sta
               </a>
             ) : (
               'repository settings'
-            )}.
+            )}
+            .
           </>
         );
       } else {

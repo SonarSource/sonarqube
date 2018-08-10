@@ -30,7 +30,7 @@ export default function MetaOrganizationKey({ organization }: Props) {
     <>
       <h4 className="overview-meta-header big-spacer-top">{translate('organization_key')}</h4>
       <div className="display-flex-center">
-        <input className="overview-key" type="text" value={organization} readOnly={true} />
+        <input className="overview-key" readOnly={true} type="text" value={organization} />
         <ClipboardButton className="little-spacer-left" copyValue={organization} />
       </div>
     </>
