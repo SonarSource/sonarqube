@@ -46,10 +46,10 @@ dependencies {
   jdbc_postgresql 'org.postgresql:postgresql'
 
   bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.0.1.508@jar'
-  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.3.0.5690@jar'
+  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.3.2.6129@jar'
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.0.1612@jar'
-  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.6.0.15032@jar'
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.6.1.15064@jar'
   bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:4.2.0.6476@jar'
   bundledPlugin 'org.sonarsource.slang:sonar-kotlin-plugin:1.0.1.965@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
