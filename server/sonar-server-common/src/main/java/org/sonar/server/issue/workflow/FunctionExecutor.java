@@ -77,8 +77,14 @@ public class FunctionExecutor {
     }
 
     @Override
-    public Function.Context setCloseDate(boolean b) {
-      updater.setCloseDate(issue, b ? changeContext.date() : null, changeContext);
+    public Function.Context setCloseDate() {
+      updater.setCloseDate(issue, changeContext.date(), changeContext);
+      return this;
+    }
+
+    @Override
+    public Function.Context unsetCloseDate() {
+      updater.setCloseDate(issue, null, changeContext);
       return this;
     }
 

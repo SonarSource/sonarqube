@@ -19,27 +19,19 @@
  */
 package org.sonar.server.issue.workflow;
 
-import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
-import org.sonar.db.user.UserDto;
+import org.junit.Test;
 
-interface Function {
-  interface Context {
-    Issue issue();
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-    Context setAssignee(@Nullable UserDto user);
-
-    Context setResolution(@Nullable String s);
-
-    Context setCloseDate();
-
-    Context unsetCloseDate();
-
-    Context setLine(@Nullable Integer line);
-
-    Context setType(@Nullable RuleType type);
+public class UnsetCloseDateTest {
+  @Test
+  public void should_unset_close_date() {
+    UnsetCloseDate function = UnsetCloseDate.INSTANCE;
+    Function.Context context = mock(Function.Context.class);
+    function.execute(context);
+    verify(context, times(1)).unsetCloseDate();
   }
 
-  void execute(Context context);
 }

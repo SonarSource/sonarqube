@@ -19,15 +19,11 @@
  */
 package org.sonar.server.issue.workflow;
 
-class SetCloseDate implements Function {
-  private final boolean set;
-
-  public SetCloseDate(boolean set) {
-    this.set = set;
-  }
+enum  SetCloseDate implements Function {
+  INSTANCE;
 
   @Override
   public void execute(Context context) {
-    context.setCloseDate(set);
+    context.setCloseDate();
   }
 }

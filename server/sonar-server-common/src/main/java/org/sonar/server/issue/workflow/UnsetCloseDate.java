@@ -19,27 +19,11 @@
  */
 package org.sonar.server.issue.workflow;
 
-import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
-import org.sonar.db.user.UserDto;
+enum  UnsetCloseDate implements Function {
+  INSTANCE;
 
-interface Function {
-  interface Context {
-    Issue issue();
-
-    Context setAssignee(@Nullable UserDto user);
-
-    Context setResolution(@Nullable String s);
-
-    Context setCloseDate();
-
-    Context unsetCloseDate();
-
-    Context setLine(@Nullable Integer line);
-
-    Context setType(@Nullable RuleType type);
+  @Override
+  public void execute(Context context) {
+    context.unsetCloseDate();
   }
-
-  void execute(Context context);
 }
