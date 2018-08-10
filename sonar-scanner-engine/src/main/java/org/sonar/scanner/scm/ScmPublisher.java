@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -71,18 +72,20 @@ public final class ScmPublisher {
       LOG.info("SCM Publisher is disabled");
       return;
     }
-    if (configuration.provider() == null) {
+
+    ScmProvider provider = configuration.provider();
+    if (provider == null) {
       LOG.info("No SCM system was detected. You can use the '" + CoreProperties.SCM_PROVIDER_KEY + "' property to explicitly specify it.");
       return;
     }
 
     List<InputFile> filesToBlame = collectFilesToBlame(writer);
     if (!filesToBlame.isEmpty()) {
-      String key = configuration.provider().key();
+      String key = provider.key();
       LOG.info("SCM provider for this project is: " + key);
       DefaultBlameOutput output = new DefaultBlameOutput(writer, filesToBlame);
       try {
-        configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
+        provider.blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       } catch (Exception e) {
         output.finish(false);
         throw e;

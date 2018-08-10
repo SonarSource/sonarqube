@@ -63,4 +63,11 @@ public class ScannerUtils {
     return o.getClass().getName();
   }
 
+  public static String pluralize(String str, int i) {
+    if (i == 1) {
+      return str;
+    }
+    return str + "s";
+  }
+
 }

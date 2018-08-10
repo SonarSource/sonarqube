@@ -57,6 +57,7 @@ import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.mediumtest.ScanTaskObservers;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
+import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
 import org.sonar.scanner.report.CoveragePublisher;
@@ -118,9 +119,13 @@ public class ProjectScanContainer extends ComponentContainer {
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoriesInitializer.class).execute();
-    if (isTherePreviousAnalysis()) {
+
+    if (!isIssuesMode()) {
+      addReportPublishSteps();
+    } else if (isTherePreviousAnalysis()) {
       addIssueTrackingComponents();
     }
+
   }
 
   private void addBatchComponents() {
@@ -196,11 +201,6 @@ public class ProjectScanContainer extends ComponentContainer {
       AnalysisContextReportPublisher.class,
       MetadataPublisher.class,
       ActiveRulesPublisher.class,
-      ComponentsPublisher.class,
-      MeasuresPublisher.class,
-      CoveragePublisher.class,
-      SourcePublisher.class,
-      TestExecutionAndCoveragePublisher.class,
 
       // Cpd
       CpdExecutor.class,
@@ -216,6 +216,17 @@ public class ProjectScanContainer extends ComponentContainer {
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
   }
 
+  private void addReportPublishSteps() {
+    add(
+      ComponentsPublisher.class,
+      MeasuresPublisher.class,
+      CoveragePublisher.class,
+      SourcePublisher.class,
+      ChangedLinesPublisher.class,
+      TestExecutionAndCoveragePublisher.class
+    );
+  }
+
   private void addIssueTrackingComponents() {
     add(
       LocalIssueTracking.class,
@@ -226,6 +237,10 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private boolean isTherePreviousAnalysis() {
     return getComponentByType(ProjectRepositories.class).lastAnalysisDate() != null;
+  }
+
+  private boolean isIssuesMode() {
+    return getComponentByType(GlobalAnalysisMode.class).isIssues();
   }
 
   private void addBatchExtensions() {
@@ -250,7 +265,7 @@ public class ProjectScanContainer extends ComponentContainer {
     LOG.info("Project key: {}", tree.root().key());
     LOG.info("Project base dir: {}", tree.root().getBaseDir());
     properties.organizationKey().ifPresent(k -> LOG.info("Organization key: {}", k));
-    
+
     String branch = tree.root().definition().getBranch();
     if (branch != null) {
       LOG.info("Branch key: {}", branch);

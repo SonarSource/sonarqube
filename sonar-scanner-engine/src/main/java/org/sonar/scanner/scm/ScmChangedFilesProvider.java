@@ -30,6 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.util.ScannerUtils;
 
 public class ScmChangedFilesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(ScmChangedFilesProvider.class);
@@ -69,7 +70,7 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
         Collection<Path> changedFiles = scmProvider.branchChangedFiles(branchConfiguration.branchTarget(), rootBaseDir);
         profiler.stopInfo();
         if (changedFiles != null) {
-          LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), pluralize("file", changedFiles.size()));
+          LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), ScannerUtils.pluralize("file", changedFiles.size()));
           return changedFiles;
         }
       }
@@ -77,13 +78,6 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
       LOG.debug("SCM information about changed files in the branch is not available");
     }
     return null;
-  }
-
-  private static String pluralize(String str, int i) {
-    if (i == 1) {
-      return str;
-    }
-    return str + "s";
   }
 
 }

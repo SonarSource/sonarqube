@@ -137,6 +137,23 @@ public class ScannerReportWriterTest {
   }
 
   @Test
+  public void write_changed_lines() {
+    assertThat(underTest.hasComponentData(FileStructure.Domain.CHANGED_LINES, 1)).isFalse();
+
+    ScannerReport.ChangedLines changedLines = ScannerReport.ChangedLines.newBuilder()
+      .addLine(1)
+      .addLine(3)
+      .build();
+    underTest.writeComponentChangedLines(1, changedLines);
+
+    assertThat(underTest.hasComponentData(FileStructure.Domain.CHANGED_LINES, 1)).isTrue();
+    File file = underTest.getFileStructure().fileFor(FileStructure.Domain.CHANGED_LINES, 1);
+    assertThat(file).exists().isFile();
+    ScannerReport.ChangedLines loadedChangedLines = Protobuf.read(file, ScannerReport.ChangedLines.parser());
+    assertThat(loadedChangedLines.getLineList()).containsExactly(1, 3);
+  }
+
+  @Test
   public void write_measures() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
 

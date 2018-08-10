@@ -21,15 +21,15 @@ package org.sonar.api.batch.scm;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 
 /**
- * See {@link LINKS_SOURCES_DEV#LINKS_SOURCES_DEV} to get old Maven URL format.
  * @since 5.0
  */
 @ScannerSide
@@ -46,6 +46,7 @@ public abstract class ScmProvider {
   /**
    * Whether this provider is able to manage files located in this directory.
    * Used by autodetection. Not considered if user has forced the provider key.
+   *
    * @return false by default
    */
   public boolean supports(File baseDir) {
@@ -58,16 +59,32 @@ public abstract class ScmProvider {
 
   /**
    * Return absolute path of the files changed in the current branch, compared to the provided target branch.
-   * @return null if SCM provider was not able to compute the list of files.
+   *
+   * @return null if the SCM provider was not able to compute the list of files.
+   * @since 7.0
    */
-  @Nullable
+  @CheckForNull
   public Set<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
     return null;
   }
 
   /**
-  * The relative path from SCM root
-  */
+   * Return a map between paths given as argument and the corresponding line numbers which are new compared to the provided target branch.
+   * If null is returned or if a path is not included in the map, an imprecise fallback mechanism will be used to detect which lines
+   * are new (based on SCM dates).
+   *
+   * @param files Absolute path of files of interest
+   * @return null if the SCM provider was not able to compute the new lines
+   * @since 7.4
+   */
+  @CheckForNull
+  public Map<Path, Set<Integer>> branchChangedLines(String targetBranchName, Path rootBaseDir, Set<Path> files) {
+    return null;
+  }
+
+  /**
+   * The relative path from SCM root
+   */
   public Path relativePathFromScmRoot(Path path) {
     throw new UnsupportedOperationException(formatUnsupportedMessage("Getting relative path from SCM root"));
   }

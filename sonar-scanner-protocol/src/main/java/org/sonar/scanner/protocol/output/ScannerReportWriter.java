@@ -94,6 +94,12 @@ public class ScannerReportWriter {
     return file;
   }
 
+  public File writeComponentChangedLines(int componentRef, ScannerReport.ChangedLines changedLines) {
+    File file = fileStructure.fileFor(FileStructure.Domain.CHANGED_LINES, componentRef);
+    Protobuf.write(changedLines, file);
+    return file;
+  }
+
   public void appendComponentExternalIssue(int componentRef, ScannerReport.ExternalIssue issue) {
     File file = fileStructure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, componentRef);
     try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {

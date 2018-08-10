@@ -43,7 +43,8 @@ public class FileStructure {
     TESTS("tests-", Domain.PB),
     COVERAGE_DETAILS("coverage-details-", Domain.PB),
     SOURCE("source-", ".txt"),
-    SGNIFICANT_CODE("sgnificant-code-", Domain.PB);
+    SGNIFICANT_CODE("sgnificant-code-", Domain.PB),
+    CHANGED_LINES("changed-lines-", Domain.PB);
 
     private static final String PB = ".pb";
     private final String filePrefix;

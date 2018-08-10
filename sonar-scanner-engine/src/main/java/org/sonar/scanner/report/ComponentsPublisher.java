@@ -69,7 +69,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   public void publish(ScannerReportWriter writer) {
     this.reader = new ScannerReportReader(writer.getFileStructure().root());
     this.writer = writer;
-    recursiveWriteComponent((DefaultInputComponent) moduleHierarchy.root());
+    recursiveWriteComponent(moduleHierarchy.root());
   }
 
   /**
@@ -152,8 +152,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
-    if (component instanceof InputModule && children.isEmpty()
-      && (branchConfiguration.isShortOrPullRequest())) {
+    if (component instanceof InputModule && children.isEmpty() && (branchConfiguration.isShortOrPullRequest())) {
       // no children on a module in short branch analysis -> skip it (except root)
       return !moduleHierarchy.isRoot((InputModule) component);
     } else if (component instanceof InputDir && children.isEmpty()) {
