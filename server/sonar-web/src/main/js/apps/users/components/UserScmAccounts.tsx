@@ -42,7 +42,7 @@ export default class UserScmAccounts extends React.PureComponent<Props, State> {
     const { scmAccounts } = this.props;
     const limit = scmAccounts.length > SCM_LIMIT ? SCM_LIMIT - 1 : SCM_LIMIT;
     return (
-      <ul>
+      <ul className="js-scm-accounts">
         {scmAccounts.slice(0, limit).map((scmAccount, idx) => (
           <li className="little-spacer-bottom" key={idx}>
             {scmAccount}

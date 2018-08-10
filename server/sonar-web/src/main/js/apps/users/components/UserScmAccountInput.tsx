@@ -35,7 +35,7 @@ export default class UserScmAccountInput extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div>
+      <div className="js-scm-account">
         <input
           maxLength={255}
           onChange={this.handleChange}

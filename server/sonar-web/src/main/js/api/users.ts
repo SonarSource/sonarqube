@@ -88,9 +88,12 @@ export function updateUser(data: {
   email?: string;
   login: string;
   name?: string;
-  scmAccount?: string;
+  scmAccount: string[];
 }): Promise<User> {
-  return postJSON('/api/users/update', data);
+  return postJSON('/api/users/update', {
+    ...data,
+    scmAccount: data.scmAccount.length > 0 ? data.scmAccount : ''
+  });
 }
 
 export function deactivateUser(data: { login: string }): Promise<User> {

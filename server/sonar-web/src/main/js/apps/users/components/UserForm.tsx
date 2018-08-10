@@ -124,7 +124,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       email: this.state.email,
       login: this.state.login,
       name: this.state.name,
-      scmAccount: uniq(this.state.scmAccounts).join(',')
+      scmAccount: uniq(this.state.scmAccounts)
     }).then(() => {
       this.props.onUpdateUsers();
       this.props.onClose();
@@ -249,7 +249,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
                 />
               ))}
               <div className="spacer-bottom">
-                <Button onClick={this.handleAddScmAccount} type="reset">
+                <Button className="js-scm-account-add" onClick={this.handleAddScmAccount}>
                   {translate('add_verb')}
                 </Button>
               </div>
