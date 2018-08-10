@@ -64,6 +64,7 @@ public class IssueFieldsSetter {
    * It should be renamed to 'effort', but it hasn't been done to prevent a massive update in database
    */
   public static final String TECHNICAL_DEBT = "technicalDebt";
+  public static final String LINE = "line";
   public static final String TAGS = "tags";
 
   private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
@@ -140,9 +141,10 @@ public class IssueFieldsSetter {
     return true;
   }
 
-  public boolean unsetLine(DefaultIssue issue) {
+  public boolean unsetLine(DefaultIssue issue, IssueChangeContext context) {
     Integer currentValue = issue.line();
     if (currentValue != null) {
+      issue.setFieldChange(context, LINE, currentValue, "");
       issue.setLine(null);
       issue.setChanged(true);
       return true;

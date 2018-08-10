@@ -213,23 +213,28 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void unset_line() {
-    issue.setLine(new Random().nextInt());
+    int line = new Random().nextInt(500);
+    issue.setLine(line);
 
-    boolean updated = underTest.unsetLine(issue);
+    boolean updated = underTest.unsetLine(issue, context);
 
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.line()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
-    // do not save change
-    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.currentChange())
+      .extracting(FieldDiffs::diffs)
+      .hasSize(1);
+    FieldDiffs.Diff diff = issue.currentChange().diffs().get("line");
+    assertThat(diff.oldValue()).isEqualTo(line);
+    assertThat(diff.newValue()).isEqualTo("");
   }
 
   @Test
   public void unset_line_has_no_effect_if_line_is_already_null() {
     issue.setLine(null);
 
-    boolean updated = underTest.unsetLine(issue);
+    boolean updated = underTest.unsetLine(issue, context);
 
     assertThat(updated).isFalse();
     assertThat(issue.line()).isNull();

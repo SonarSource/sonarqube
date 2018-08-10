@@ -90,7 +90,7 @@ public class FunctionExecutor {
 
     @Override
     public Function.Context unsetLine() {
-      updater.unsetLine(issue);
+      updater.unsetLine(issue, changeContext);
       return this;
     }
 
