@@ -115,6 +115,7 @@ export interface State {
   lastChecked?: string;
   loading: boolean;
   loadingFacets: { [key: string]: boolean };
+  loadingMore: boolean;
   locationsNavigator: boolean;
   myIssues: boolean;
   openFacets: { [facet: string]: boolean };
@@ -148,6 +149,7 @@ export default class App extends React.PureComponent<Props, State> {
       issues: [],
       loading: true,
       loadingFacets: {},
+      loadingMore: false,
       locationsNavigator: false,
       myIssues: props.myIssues || areMyIssuesSelected(props.location.query),
       openFacets: { severities: true, types: true },
@@ -455,12 +457,16 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   fetchFirstIssues() {
+    const prevQuery = this.props.location.query;
     this.setState({ checked: [], loading: true });
     return this.fetchIssues({}, true).then(
       ({ facets, issues, paging, ...other }) => {
-        if (this.mounted) {
+        if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
           const openIssue = this.getOpenIssue(this.props, issues);
-
+          let selected: string | undefined = undefined;
+          if (issues.length > 0) {
+            selected = openIssue ? openIssue.key : issues[0].key;
+          }
           this.setState(state => ({
             facets: { ...state.facets, ...parseFacets(facets) },
             loading: false,
@@ -471,7 +477,7 @@ export default class App extends React.PureComponent<Props, State> {
             referencedLanguages: keyBy(other.languages, 'key'),
             referencedRules: keyBy(other.rules, 'key'),
             referencedUsers: keyBy(other.users, 'login'),
-            selected: issues.length > 0 ? (openIssue ? openIssue.key : issues[0].key) : undefined,
+            selected,
             selectedFlowIndex: undefined,
             selectedLocationIndex: undefined
           }));
@@ -479,7 +485,7 @@ export default class App extends React.PureComponent<Props, State> {
         return issues;
       },
       () => {
-        if (this.mounted) {
+        if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
           this.setState({ loading: false });
         }
         return [];
@@ -518,12 +524,12 @@ export default class App extends React.PureComponent<Props, State> {
 
     const p = paging.pageIndex + 1;
 
-    this.setState({ loading: true });
+    this.setState({ loadingMore: true });
     this.fetchIssuesPage(p).then(
       response => {
         if (this.mounted) {
           this.setState(state => ({
-            loading: false,
+            loadingMore: false,
             issues: [...state.issues, ...response.issues],
             paging: response.paging
           }));
@@ -531,7 +537,7 @@ export default class App extends React.PureComponent<Props, State> {
       },
       () => {
         if (this.mounted) {
-          this.setState({ loading: false });
+          this.setState({ loadingMore: false });
         }
       }
     );
@@ -918,7 +924,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderConciseIssuesList() {
-    const { issues, paging, query } = this.state;
+    const { issues, loadingMore, paging, query } = this.state;
 
     return (
       <div className="layout-page-filters">
@@ -944,6 +950,7 @@ export default class App extends React.PureComponent<Props, State> {
             <ListFooter
               count={issues.length}
               loadMore={this.fetchMoreIssues}
+              loading={loadingMore}
               total={paging.total}
             />
           )}
@@ -967,7 +974,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   renderList() {
     const { branchLike, component, currentUser, organization } = this.props;
-    const { issues, openIssue, paging, loading } = this.state;
+    const { issues, loading, loadingMore, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex !== undefined ? issues[selectedIndex] : undefined;
 
@@ -1006,7 +1013,12 @@ export default class App extends React.PureComponent<Props, State> {
         )}
 
         {paging.total > 0 && (
-          <ListFooter count={issues.length} loadMore={this.fetchMoreIssues} total={paging.total} />
+          <ListFooter
+            count={issues.length}
+            loadMore={this.fetchMoreIssues}
+            loading={loadingMore}
+            total={paging.total}
+          />
         )}
 
         {noIssuesMessage}
@@ -1041,23 +1053,21 @@ export default class App extends React.PureComponent<Props, State> {
     const { loading, openIssue } = this.state;
     return (
       <div className="layout-page-main-inner">
-        <DeferredSpinner loading={loading}>
-          {openIssue ? (
-            <IssuesSourceViewer
-              branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-              loadIssues={this.fetchIssuesForComponent}
-              locationsNavigator={this.state.locationsNavigator}
-              onIssueChange={this.handleIssueChange}
-              onIssueSelect={this.openIssue}
-              onLocationSelect={this.selectLocation}
-              openIssue={openIssue}
-              selectedFlowIndex={this.state.selectedFlowIndex}
-              selectedLocationIndex={this.state.selectedLocationIndex}
-            />
-          ) : (
-            this.renderList()
-          )}
-        </DeferredSpinner>
+        {openIssue ? (
+          <IssuesSourceViewer
+            branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+            loadIssues={this.fetchIssuesForComponent}
+            locationsNavigator={this.state.locationsNavigator}
+            onIssueChange={this.handleIssueChange}
+            onIssueSelect={this.openIssue}
+            onLocationSelect={this.selectLocation}
+            openIssue={openIssue}
+            selectedFlowIndex={this.state.selectedFlowIndex}
+            selectedLocationIndex={this.state.selectedLocationIndex}
+          />
+        ) : (
+          <DeferredSpinner loading={loading}>{this.renderList()}</DeferredSpinner>
+        )}
       </div>
     );
   }
