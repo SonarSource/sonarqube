@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BackButton from './BackButton';
-import ReloadButton from '../components/ReloadButton';
+import BackButton from '../../../components/controls/BackButton';
+import ReloadButton from '../../../components/controls/ReloadButton';
 import IssuesCounter from '../components/IssuesCounter';
 import { Paging } from '../../../app/types';
 
@@ -38,7 +38,9 @@ export default function ConciseIssuesListHeader(props: Props) {
   return (
     <header className="layout-page-header-panel concise-issues-list-header">
       <div className="layout-page-header-panel-inner concise-issues-list-header-inner">
-        {displayBackButton && <BackButton className="pull-left" onClick={props.onBackClick} />}
+        {displayBackButton && (
+          <BackButton className="pull-left" disabled={props.loading} onClick={props.onBackClick} />
+        )}
         {props.loading ? (
           <i className="spinner pull-right" />
         ) : (

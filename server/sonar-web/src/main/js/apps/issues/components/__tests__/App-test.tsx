@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import * as React from 'react';
-import { shallow, mount } from 'enzyme';
 import App from '../App';
 import { shallowWithIntl, waitAndUpdate } from '../../../../helpers/testUtils';
+import { Issue } from '../../../../app/types';
 
 const replace = jest.fn();
-const issues = [{ key: 'foo' }, { key: 'bar' }, { key: 'third' }, { key: 'fourth' }];
+const issues = [
+  { key: 'foo' } as Issue,
+  { key: 'bar' } as Issue,
+  { key: 'third' } as Issue,
+  { key: 'fourth' } as Issue
+];
 const facets = [{ property: 'severities', values: [{ val: 'MINOR', count: 4 }] }];
-const paging = [{ pageIndex: 1, pageSize: 100, total: 4 }];
+const paging = { pageIndex: 1, pageSize: 100, total: 4 };
 
-const eventNoShiftKey = { shiftKey: false };
-const eventWithShiftKey = { shiftKey: true };
+const eventNoShiftKey = { shiftKey: false } as MouseEvent;
+const eventWithShiftKey = { shiftKey: true } as MouseEvent;
 
 const PROPS = {
   branch: { isMain: true, name: 'master' },
@@ -40,12 +44,22 @@ const PROPS = {
     login: 'JohnDoe',
     name: 'John Doe'
   },
-  component: { key: 'foo', name: 'bar', organization: 'John', qualifier: 'Doe' },
+  component: { breadcrumbs: [], key: 'foo', name: 'bar', organization: 'John', qualifier: 'Doe' },
   location: { pathname: '/issues', query: {} },
-  fetchIssues: () => Promise.resolve({ facets, issues, paging }),
+  fetchIssues: () =>
+    Promise.resolve({
+      components: [],
+      facets,
+      issues,
+      languages: [],
+      paging,
+      rules: [],
+      users: []
+    }),
   onBranchesChange: () => {},
   onSonarCloud: false,
-  organization: { key: 'foo' }
+  organization: { key: 'foo' },
+  userOrganizations: []
 };
 
 it('should render a list of issue', async () => {
@@ -65,16 +79,17 @@ it('should be able to check/uncheck a group of issues with the Shift key', async
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
-  wrapper.instance().handleIssueCheck('foo', eventNoShiftKey);
+  const instance = wrapper.instance() as App;
+  instance.handleIssueCheck('foo', eventNoShiftKey);
   expect(wrapper.state().checked.length).toBe(1);
 
-  wrapper.instance().handleIssueCheck('fourth', eventWithShiftKey);
+  instance.handleIssueCheck('fourth', eventWithShiftKey);
   expect(wrapper.state().checked.length).toBe(4);
 
-  wrapper.instance().handleIssueCheck('third', eventNoShiftKey);
+  instance.handleIssueCheck('third', eventNoShiftKey);
   expect(wrapper.state().checked.length).toBe(3);
 
-  wrapper.instance().handleIssueCheck('foo', eventWithShiftKey);
+  instance.handleIssueCheck('foo', eventWithShiftKey);
   expect(wrapper.state().checked.length).toBe(1);
 });
 
@@ -86,10 +101,11 @@ it('should avoid non-existing keys', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
-  wrapper.instance().handleIssueCheck('foo', eventNoShiftKey);
+  const instance = wrapper.instance() as App;
+  instance.handleIssueCheck('foo', eventNoShiftKey);
   expect(wrapper.state().checked.length).toBe(1);
 
-  wrapper.instance().handleIssueCheck('non-existing-key', eventWithShiftKey);
+  instance.handleIssueCheck('non-existing-key', eventWithShiftKey);
   expect(wrapper.state().checked.length).toBe(1);
 });
 
@@ -101,11 +117,12 @@ it('should be able to uncheck all issue with global checkbox', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
-  wrapper.instance().handleIssueCheck('foo', eventNoShiftKey);
-  wrapper.instance().handleIssueCheck('bar', eventNoShiftKey);
+  const instance = wrapper.instance() as App;
+  instance.handleIssueCheck('foo', eventNoShiftKey);
+  instance.handleIssueCheck('bar', eventNoShiftKey);
   expect(wrapper.state().checked.length).toBe(2);
 
-  wrapper.instance().onCheckAll(false);
+  instance.onCheckAll(false);
   expect(wrapper.state().checked.length).toBe(0);
 });
 
@@ -116,7 +133,8 @@ it('should be able to check all issue with global checkbox', async () => {
 
   await waitAndUpdate(wrapper);
 
+  const instance = wrapper.instance() as App;
   expect(wrapper.state().checked.length).toBe(0);
-  wrapper.instance().onCheckAll(true);
+  instance.onCheckAll(true);
   expect(wrapper.state().checked.length).toBe(wrapper.state().issues.length);
 });

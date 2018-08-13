@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import IssuesCounter from './IssuesCounter';
-import ReloadButton from './ReloadButton';
 import { HomePageType, Paging } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
+import ReloadButton from '../../../components/controls/ReloadButton';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 

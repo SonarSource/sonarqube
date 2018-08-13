@@ -45,3 +45,11 @@ it('should "show more"', () => {
   click(link);
   expect(loadMore).toBeCalled();
 });
+
+it('should display spinner while loading', () => {
+  expect(
+    shallow(<ListFooter count={3} loadMore={jest.fn()} loading={true} total={10} />)
+      .find('DeferredSpinner')
+      .exists()
+  ).toBe(true);
+});

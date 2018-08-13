@@ -19,12 +19,14 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import DeferredSpinner from '../common/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
 interface Props {
   count: number;
   className?: string;
+  loading?: boolean;
   loadMore?: () => void;
   ready?: boolean;
   total?: number;
@@ -59,6 +61,9 @@ export default function ListFooter({ ready = true, ...props }: Props) {
         formatMeasure(props.total, 'INT', null)
       )}
       {props.loadMore != null && hasMore ? loadMoreLink : null}
+      {props.loading && (
+        <DeferredSpinner className="vertical-bottom spacer-left position-absolute" />
+      )}
     </footer>
   );
 }

@@ -308,6 +308,10 @@ td.big-spacer-top {
   align-items: center;
 }
 
+.position-absolute {
+  position: absolute !important;
+}
+
 .rounded {
   border-radius: 2px;
 }
