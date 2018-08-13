@@ -356,7 +356,6 @@ public class IssueIndexFacetsTest {
     IssueQuery query = IssueQuery.builder()
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2014-09-08T00:00:00+0100"))
-      .checkAuthorization(false)
       .build();
     SearchResponse result = underTest.search(query, options);
     Map<String, Long> buckets = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");

@@ -90,7 +90,6 @@ public class IssueQuery {
   private final String organizationUuid;
   private final String branchUuid;
   private final boolean mainBranch;
-  private final boolean checkAuthorization;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -122,7 +121,6 @@ public class IssueQuery {
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
     this.asc = builder.asc;
-    this.checkAuthorization = builder.checkAuthorization;
     this.facetMode = builder.facetMode;
     this.organizationUuid = builder.organizationUuid;
     this.branchUuid = builder.branchUuid;
@@ -253,10 +251,6 @@ public class IssueQuery {
     return asc;
   }
 
-  public boolean checkAuthorization() {
-    return checkAuthorization;
-  }
-
   @CheckForNull
   public String organizationUuid() {
     return organizationUuid;
@@ -314,7 +308,6 @@ public class IssueQuery {
     private Date createdBefore;
     private String sort;
     private Boolean asc = false;
-    private boolean checkAuthorization = true;
     private String facetMode;
     private String organizationUuid;
     private String branchUuid;
@@ -494,11 +487,6 @@ public class IssueQuery {
         checkArgument(issueKeys.size() <= MAX_LIMIT, "Number of issue keys must be less than " + MAX_LIMIT + " (got " + issueKeys.size() + ")");
       }
       return new IssueQuery(this);
-    }
-
-    public Builder checkAuthorization(boolean checkAuthorization) {
-      this.checkAuthorization = checkAuthorization;
-      return this;
     }
 
     public Builder facetMode(String facetMode) {

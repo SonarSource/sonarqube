@@ -75,12 +75,11 @@ public class EsUtils {
   }
 
   public static List<String> termsKeys(Terms terms) {
-    return terms.getBuckets().stream()
+    return terms.getBuckets()
+      .stream()
       .map(Terms.Bucket::getKeyAsString)
       .collect(MoreCollectors.toList(terms.getBuckets().size()));
   }
-
-
 
   @CheckForNull
   public static Date parseDateTime(@Nullable String s) {

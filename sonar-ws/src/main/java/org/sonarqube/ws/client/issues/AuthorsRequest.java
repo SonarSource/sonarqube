@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.issues;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -31,11 +30,38 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class AuthorsRequest {
 
+  private String organization;
+  private String project;
   private String ps;
   private String q;
 
   /**
-   * Example value: "25"
+   * This is part of the internal API.
+   * Example value: "my-org"
+   */
+  public AuthorsRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  /**
+   * Example value: "my_project"
+   */
+  public AuthorsRequest setProject(String project) {
+    this.project = project;
+    return this;
+  }
+
+  public String getProject() {
+    return project;
+  }
+
+  /**
+   * Example value: "20"
    */
   public AuthorsRequest setPs(String ps) {
     this.ps = ps;

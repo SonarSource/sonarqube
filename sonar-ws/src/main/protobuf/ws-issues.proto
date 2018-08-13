@@ -67,12 +67,6 @@ message AssignResponse {
   repeated sonarqube.ws.commons.Rule rules = 3;
   repeated Users.User users = 4;
 }
-message AuthorsResponse {
-  optional Issue issue = 1;
-  repeated Component components = 2;
-  repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
-}
 message DeleteCommentResponse {
   optional Issue issue = 1;
   repeated Component components = 2;
@@ -280,6 +274,11 @@ message Users {
     optional string avatar = 3;
     optional bool active = 4;
   }
+}
+
+// Response of GET api/issues/authors
+message AuthorsResponse {
+  repeated string authors = 1;
 }
 
 

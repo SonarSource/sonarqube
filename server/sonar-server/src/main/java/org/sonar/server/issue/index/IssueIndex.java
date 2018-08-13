@@ -322,7 +322,7 @@ public class IssueIndex {
 
   private Map<String, QueryBuilder> createFilters(IssueQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
-    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization()));
+    filters.put("__authorization", createAuthorizationFilter());
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
@@ -518,11 +518,8 @@ public class IssueIndex {
     return sorting.fillDefault();
   }
 
-  private QueryBuilder createAuthorizationFilter(boolean checkAuthorization) {
-    if (checkAuthorization) {
-      return authorizationTypeSupport.createQueryFilter();
-    }
-    return matchAllQuery();
+  private QueryBuilder createAuthorizationFilter() {
+    return authorizationTypeSupport.createQueryFilter();
   }
 
   private void addDatesFilter(Map<String, QueryBuilder> filters, IssueQuery query) {
@@ -705,8 +702,7 @@ public class IssueIndex {
       return emptyList();
     }
 
-    BoolQueryBuilder esQuery = boolQuery()
-      .filter(createAuthorizationFilter(true));
+    BoolQueryBuilder esQuery = boolQuery().filter(createAuthorizationFilter());
     if (organization != null) {
       esQuery.filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid()));
     }
@@ -737,7 +733,7 @@ public class IssueIndex {
     return EsUtils.termsToMap(terms);
   }
 
-  public List<String> listAuthors(IssueQuery query, @Nullable String textQuery, int maxNumberOfAuthors) {
+  public List<String> searchAuthors(IssueQuery query, @Nullable String textQuery, int maxNumberOfAuthors) {
     Terms terms = listTermsMatching(FIELD_ISSUE_AUTHOR_LOGIN, query, textQuery, Terms.Order.term(true), maxNumberOfAuthors);
     return EsUtils.termsKeys(terms);
   }
