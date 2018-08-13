@@ -252,7 +252,7 @@ public class IssueWorkflow implements Startable {
     // nothing to do
   }
 
-  public boolean doTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {
+  public boolean doManualTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {
     Transition transition = stateOf(issue).transition(transitionKey);
     if (!transition.automatic()) {
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);

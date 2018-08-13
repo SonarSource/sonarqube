@@ -228,7 +228,7 @@ public class IssueWorkflowTest {
       .setAssigneeUuid("morgan");
 
     workflow.start();
-    workflow.doTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
+    workflow.doManualTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
@@ -246,7 +246,7 @@ public class IssueWorkflowTest {
       .setAssigneeUuid("morgan");
 
     workflow.start();
-    workflow.doTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));
+    workflow.doManualTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));
 
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);

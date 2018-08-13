@@ -54,7 +54,7 @@ public class TransitionService {
   }
 
   public boolean doTransition(DefaultIssue defaultIssue, IssueChangeContext issueChangeContext, String transitionKey) {
-    return workflow.doTransition(defaultIssue, transitionKey, issueChangeContext);
+    return workflow.doManualTransition(defaultIssue, transitionKey, issueChangeContext);
   }
 
   public void checkTransitionPermission(String transitionKey, DefaultIssue defaultIssue) {
