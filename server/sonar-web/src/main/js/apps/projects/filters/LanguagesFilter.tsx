@@ -36,20 +36,17 @@ interface Props {
   organization?: { key: string };
   property?: string;
   query: { [x: string]: any };
-  value?: Array<string>;
+  value?: string[];
 }
-
-const LIST_SIZE = 10;
 
 export default class LanguagesFilter extends React.Component<Props> {
   getSearchOptions = () => {
-    let languageKeys = Object.keys(this.props.languages);
-    if (this.props.facet) {
-      languageKeys = difference(languageKeys, Object.keys(this.props.facet));
+    const { facet, languages } = this.props;
+    let languageKeys = Object.keys(languages);
+    if (facet) {
+      languageKeys = difference(languageKeys, Object.keys(facet));
     }
-    return languageKeys
-      .slice(0, LIST_SIZE)
-      .map(key => ({ label: this.props.languages[key].name, value: key }));
+    return languageKeys.map(key => ({ label: languages[key].name, value: key }));
   };
 
   getSortedOptions = (facet: Facet = {}) =>

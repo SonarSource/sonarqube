@@ -23,15 +23,15 @@ import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 
 interface Props {
-  onQueryChange: (change: RawQuery) => void;
-  property: string;
-  query: { [x: string]: any };
-  options: Array<{ label: string; value: string }>;
+  isFavorite?: boolean;
+  isLoading?: boolean;
   onInputChange?: (query: string) => void;
   onOpen?: () => void;
-  isLoading?: boolean;
-  isFavorite?: boolean;
+  onQueryChange: (change: RawQuery) => void;
+  options: Array<{ label: string; value: string }>;
   organization?: { key: string };
+  property: string;
+  query: { [x: string]: any };
 }
 
 export default class SearchableFilterFooter extends React.PureComponent<Props> {
