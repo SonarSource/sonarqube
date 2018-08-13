@@ -19,15 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.stream.Stream;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.db.component.BranchType;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 public class IssueTrackingDelegator {
@@ -49,7 +48,7 @@ public class IssueTrackingDelegator {
       return standardResult(shortBranchTracker.track(component));
     } else if (isFirstAnalysisSecondaryLongLivingBranch()) {
       Tracking<DefaultIssue, DefaultIssue> tracking = mergeBranchTracker.track(component);
-      return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), emptyList(), tracking.getUnmatchedRaws());
+      return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), Stream.empty(), tracking.getUnmatchedRaws());
     } else {
       return standardResult(tracker.track(component));
     }

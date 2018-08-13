@@ -20,11 +20,10 @@
 package org.sonar.core.issue.tracking;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 
 public class Tracking<RAW extends Trackable, BASE extends Trackable> {
@@ -38,9 +37,6 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   private final Collection<RAW> raws;
   private final Collection<BASE> bases;
 
-  private final Predicate<RAW> unmatchedRawPredicate = raw -> !rawToBase.containsKey(raw);
-  private final Predicate<BASE> unmatchedBasePredicate = raw -> !baseToRaw.containsKey(raw);
-
   public Tracking(Collection<RAW> rawInput, Collection<BASE> baseInput) {
     this.raws = rawInput;
     this.bases = baseInput;
@@ -51,8 +47,8 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
    * that the traversal does not fail if method {@link #match(Trackable, Trackable)}
    * is called.
    */
-  public Iterable<RAW> getUnmatchedRaws() {
-    return Iterables.filter(raws, unmatchedRawPredicate);
+  public Stream<RAW> getUnmatchedRaws() {
+    return raws.stream().filter(raw -> !rawToBase.containsKey(raw));
   }
 
   public Map<RAW, BASE> getMatchedRaws() {
@@ -67,8 +63,8 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   /**
    * The base issues that are not matched by a raw issue and that need to be closed.
    */
-  public Iterable<BASE> getUnmatchedBases() {
-    return Iterables.filter(bases, unmatchedBasePredicate);
+  public Stream<BASE> getUnmatchedBases() {
+    return bases.stream().filter(base -> !baseToRaw.containsKey(base));
   }
 
   boolean containsUnmatchedBase(BASE base) {

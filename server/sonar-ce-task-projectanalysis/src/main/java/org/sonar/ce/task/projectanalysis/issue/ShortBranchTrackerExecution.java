@@ -19,15 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.core.util.stream.MoreCollectors;
 
 public class ShortBranchTrackerExecution {
   private final TrackerBaseInputFactory baseInputFactory;
@@ -49,16 +47,11 @@ public class ShortBranchTrackerExecution {
     Input<DefaultIssue> mergeInput = mergeInputFactory.create(component);
 
     Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.track(rawInput, mergeInput);
-    List<DefaultIssue> unmatchedRaws = toList(mergeTracking.getUnmatchedRaws());
+    List<DefaultIssue> unmatchedRaws = mergeTracking.getUnmatchedRaws().collect(MoreCollectors.toList());
     Input<DefaultIssue> unmatchedRawInput = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
 
     // do second tracking with base branch using raws issues that are still unmatched
     return tracker.track(unmatchedRawInput, baseInput);
   }
 
-  private static <T> List<T> toList(Iterable<T> iterable) {
-    List<T> list = new ArrayList<>();
-    iterable.forEach(list::add);
-    return list;
-  }
 }

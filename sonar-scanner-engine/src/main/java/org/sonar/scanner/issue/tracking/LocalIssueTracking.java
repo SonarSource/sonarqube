@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.ScannerSide;
@@ -205,20 +206,20 @@ public class LocalIssueTracking {
     }
   }
 
-  private void addUnmatchedFromServer(Iterable<ServerIssueFromWs> unmatchedIssues, Collection<TrackedIssue> mergeTo, String componentKey) {
-    for (ServerIssueFromWs unmatchedIssue : unmatchedIssues) {
+  private void addUnmatchedFromServer(Stream<ServerIssueFromWs> unmatchedIssues, Collection<TrackedIssue> mergeTo, String componentKey) {
+    unmatchedIssues.forEach(unmatchedIssue -> {
       org.sonar.scanner.protocol.input.ScannerInput.ServerIssue unmatchedPreviousIssue = unmatchedIssue.getDto();
       TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue, componentKey);
       updateUnmatchedIssue(unmatched);
       mergeTo.add(unmatched);
-    }
+    });
   }
 
-  private static void addUnmatchedFromReport(Iterable<TrackedIssue> rawIssues, Collection<TrackedIssue> trackedIssues, Date analysisDate) {
-    for (TrackedIssue rawIssue : rawIssues) {
+  private static void addUnmatchedFromReport(Stream<TrackedIssue> rawIssues, Collection<TrackedIssue> trackedIssues, Date analysisDate) {
+    rawIssues.forEach(rawIssue -> {
       rawIssue.setCreationDate(analysisDate);
       trackedIssues.add(rawIssue);
-    }
+    });
   }
 
   private void addIssuesOnDeletedComponents(Collection<TrackedIssue> issues, String componentKey) {

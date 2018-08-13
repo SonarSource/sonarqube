@@ -40,11 +40,9 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
 
     Multimap<SearchKey, BASE> baseSearch = ArrayListMultimap.create();
-    for (BASE base : tracking.getUnmatchedBases()) {
-      baseSearch.put(searchKeyFactory.apply(base), base);
-    }
+    tracking.getUnmatchedBases().forEach(base -> baseSearch.put(searchKeyFactory.apply(base), base));
 
-    for (RAW raw : tracking.getUnmatchedRaws()) {
+    tracking.getUnmatchedRaws().forEach(raw -> {
       SearchKey rawKey = searchKeyFactory.apply(raw);
       Collection<BASE> bases = baseSearch.get(rawKey);
       bases.stream()
@@ -55,7 +53,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
           tracking.match(raw, match);
           baseSearch.remove(rawKey, match);
         });
-    }
+    });
   }
 
   private int statusRank(BASE i) {

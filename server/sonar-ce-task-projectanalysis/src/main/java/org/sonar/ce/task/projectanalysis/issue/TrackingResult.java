@@ -20,17 +20,17 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Map;
-
+import java.util.stream.Stream;
 import org.sonar.core.issue.DefaultIssue;
 
 public class TrackingResult {
   private final Map<DefaultIssue, DefaultIssue> issuesToCopy;
   private final Map<DefaultIssue, DefaultIssue> issuesToMerge;
-  private final Iterable<DefaultIssue> issuesToClose;
-  private final Iterable<DefaultIssue> newIssues;
+  private final Stream<DefaultIssue> issuesToClose;
+  private final Stream<DefaultIssue> newIssues;
 
   public TrackingResult(Map<DefaultIssue, DefaultIssue> issuesToCopy, Map<DefaultIssue, DefaultIssue> issuesToMerge,
-    Iterable<DefaultIssue> issuesToClose, Iterable<DefaultIssue> newIssues) {
+    Stream<DefaultIssue> issuesToClose, Stream<DefaultIssue> newIssues) {
     this.issuesToCopy = issuesToCopy;
     this.issuesToMerge = issuesToMerge;
     this.issuesToClose = issuesToClose;
@@ -45,11 +45,11 @@ public class TrackingResult {
     return issuesToMerge;
   }
 
-  public Iterable<DefaultIssue> issuesToClose() {
+  public Stream<DefaultIssue> issuesToClose() {
     return issuesToClose;
   }
 
-  public Iterable<DefaultIssue> newIssues() {
+  public Stream<DefaultIssue> newIssues() {
     return newIssues;
   }
 }

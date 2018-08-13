@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -72,7 +73,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private void fillNewOpenIssues(Component component, Iterable<DefaultIssue> newIssues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+  private void fillNewOpenIssues(Component component, Stream<DefaultIssue> newIssues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     List<DefaultIssue> list = new ArrayList<>();
 
     newIssues.forEach(issue -> {
@@ -115,13 +116,13 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private void closeIssues(Component component, Iterable<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
-    for (DefaultIssue issue : issues) {
+  private void closeIssues(Component component, Stream<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+    issues.forEach(issue -> {
       // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
       issue.setBeingClosed(true);
       // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
       process(component, issue, cacheAppender);
-    }
+    });
   }
 
   private void process(Component component, DefaultIssue issue, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {

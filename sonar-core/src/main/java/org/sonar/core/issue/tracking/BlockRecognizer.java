@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
 
@@ -134,14 +135,14 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  private static <T extends Trackable> Multimap<Integer, T> groupByLine(Iterable<T> trackables, BlockHashSequence hashSequence) {
+  private static <T extends Trackable> Multimap<Integer, T> groupByLine(Stream<T> trackables, BlockHashSequence hashSequence) {
     Multimap<Integer, T> result = LinkedHashMultimap.create();
-    for (T trackable : trackables) {
+    trackables.forEach(trackable -> {
       Integer line = trackable.getLine();
       if (hashSequence.hasLine(line)) {
         result.put(line, trackable);
       }
-    }
+    });
     return result;
   }
 
