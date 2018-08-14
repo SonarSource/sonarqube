@@ -19,15 +19,21 @@
  */
 package org.sonar.core.issue.tracking;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.issue.Issue;
+
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ScannerSide
 public class Tracker<RAW extends Trackable, BASE extends Trackable> extends AbstractTracker<RAW, BASE> {
 
-  public Tracking<RAW, BASE> track(Input<RAW> rawInput, Input<BASE> baseInput) {
-    Tracking<RAW, BASE> tracking = new Tracking<>(rawInput.getIssues(), baseInput.getIssues());
+  public NonClosedTracking<RAW, BASE> trackNonClosed(Input<RAW> rawInput, Input<BASE> baseInput) {
+    NonClosedTracking<RAW, BASE> tracking = NonClosedTracking.of(rawInput, baseInput);
 
     // 1. match issues with same rule, same line and same line hash, but not necessarily with same message
     match(tracking, LineAndLineHashKey::new);
@@ -48,9 +54,51 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> extends Abst
     return tracking;
   }
 
+  public Tracking<RAW, BASE> trackClosed(NonClosedTracking<RAW, BASE> nonClosedTracking, Input<BASE> baseInput) {
+    ClosedTracking<RAW, BASE> closedTracking = ClosedTracking.of(nonClosedTracking, baseInput);
+    match(closedTracking, LineAndLineHashAndMessage::new);
+
+    return new MergedTracking<>(nonClosedTracking, closedTracking);
+  }
+
   private void detectCodeMoves(Input<RAW> rawInput, Input<BASE> baseInput, Tracking<RAW, BASE> tracking) {
     if (!tracking.isComplete()) {
       new BlockRecognizer<RAW, BASE>().match(rawInput, baseInput, tracking);
+    }
+  }
+
+  private static class ClosedTracking<RAW extends Trackable, BASE extends Trackable> extends Tracking<RAW, BASE> {
+    private final Input<BASE> baseInput;
+
+    ClosedTracking(NonClosedTracking<RAW, BASE> nonClosedTracking, Input<BASE> closedBaseInput) {
+      super(nonClosedTracking.getRawInput().getIssues(), closedBaseInput.getIssues(), nonClosedTracking.rawToBase, nonClosedTracking.baseToRaw);
+      this.baseInput = closedBaseInput;
+    }
+
+    public static <RAW extends Trackable, BASE extends Trackable> ClosedTracking<RAW, BASE> of(NonClosedTracking<RAW, BASE> nonClosedTracking, Input<BASE> baseInput) {
+      Input<BASE> closedBaseInput = new FilteringBaseInputWrapper<>(baseInput, t -> Issue.STATUS_CLOSED.equals(t.getStatus()));
+      return new ClosedTracking<>(nonClosedTracking, closedBaseInput);
+    }
+
+    public Input<BASE> getBaseInput() {
+      return baseInput;
+    }
+  }
+
+  private static class MergedTracking<RAW extends Trackable, BASE extends Trackable> extends Tracking<RAW, BASE> {
+    private MergedTracking(NonClosedTracking<RAW, BASE> nonClosedTracking, ClosedTracking<RAW, BASE> closedTracking) {
+      super(
+        nonClosedTracking.getRawInput().getIssues(),
+        concatIssues(nonClosedTracking, closedTracking),
+        closedTracking.rawToBase, closedTracking.baseToRaw);
+    }
+
+    private static <RAW extends Trackable, BASE extends Trackable> List<BASE> concatIssues(
+      NonClosedTracking<RAW, BASE> nonClosedTracking, ClosedTracking<RAW, BASE> closedTracking) {
+      Collection<BASE> nonClosedIssues = nonClosedTracking.getBaseInput().getIssues();
+      Collection<BASE> closeIssues = closedTracking.getBaseInput().getIssues();
+      return Stream.concat(nonClosedIssues.stream(), closeIssues.stream())
+        .collect(toList(nonClosedIssues.size() + closeIssues.size()));
     }
   }
 }

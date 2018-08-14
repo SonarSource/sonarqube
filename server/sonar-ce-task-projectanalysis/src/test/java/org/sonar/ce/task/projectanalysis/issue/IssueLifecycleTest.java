@@ -39,6 +39,7 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -274,7 +275,9 @@ public class IssueLifecycleTest {
       .setGap(15d)
       .setEffort(Duration.create(15L))
       .setManualSeverity(false)
-      .setLocations(issueLocations);
+      .setLocations(issueLocations)
+      .addChange(new FieldDiffs().setDiff("foo", "bar", "donut"))
+      .addChange(new FieldDiffs().setDiff("file", "A", "B"));
 
     when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
 
@@ -293,6 +296,11 @@ public class IssueLifecycleTest {
     assertThat(raw.isOnDisabledRule()).isTrue();
     assertThat(raw.selectedAt()).isEqualTo(1000L);
     assertThat(raw.isChanged()).isFalse();
+    assertThat(raw.changes()).hasSize(2);
+    assertThat(raw.changes().get(0).diffs())
+      .containsOnly(entry("foo", new FieldDiffs.Diff("bar", "donut")));
+    assertThat(raw.changes().get(1).diffs())
+      .containsOnly(entry("file", new FieldDiffs.Diff("A", "B")));
 
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);

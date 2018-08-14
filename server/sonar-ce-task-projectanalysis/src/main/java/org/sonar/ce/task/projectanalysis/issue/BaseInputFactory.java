@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -31,42 +31,30 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
-public class TrackerMergeBranchInputFactory {
+public abstract class BaseInputFactory {
   private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.emptyList());
 
-  private final ComponentIssuesLoader mergeIssuesLoader;
-  private final DbClient dbClient;
-  private final MergeBranchComponentUuids mergeBranchComponentUuids;
+  abstract Input<DefaultIssue> create(Component component);
 
-  public TrackerMergeBranchInputFactory(ComponentIssuesLoader mergeIssuesLoader, MergeBranchComponentUuids mergeBranchComponentUuids, DbClient dbClient) {
-    this.mergeIssuesLoader = mergeIssuesLoader;
-    this.mergeBranchComponentUuids = mergeBranchComponentUuids;
-    this.dbClient = dbClient;
-    // TODO detect file moves?
-  }
+  abstract static class BaseLazyInput extends LazyInput<DefaultIssue> {
+    private final DbClient dbClient;
+    final Component component;
+    final String effectiveUuid;
 
-  public Input<DefaultIssue> create(Component component) {
-    String mergeBranchComponentUuid = mergeBranchComponentUuids.getUuid(component.getKey());
-    return new MergeLazyInput(component.getType(), mergeBranchComponentUuid);
-  }
-
-  private class MergeLazyInput extends LazyInput<DefaultIssue> {
-    private final Component.Type type;
-    private final String mergeBranchComponentUuid;
-
-    private MergeLazyInput(Component.Type type, @Nullable String mergeBranchComponentUuid) {
-      this.type = type;
-      this.mergeBranchComponentUuid = mergeBranchComponentUuid;
+    BaseLazyInput(DbClient dbClient, Component component, @Nullable MovedFilesRepository.OriginalFile originalFile) {
+      this.dbClient = dbClient;
+      this.component = component;
+      this.effectiveUuid = originalFile == null ? component.getUuid() : originalFile.getUuid();
     }
 
     @Override
     protected LineHashSequence loadLineHashSequence() {
-      if (mergeBranchComponentUuid == null || type != Component.Type.FILE) {
+      if (component.getType() != Component.Type.FILE) {
         return EMPTY_LINE_HASH_SEQUENCE;
       }
 
       try (DbSession session = dbClient.openSession(false)) {
-        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, mergeBranchComponentUuid);
+        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, effectiveUuid);
         if (hashes == null || hashes.isEmpty()) {
           return EMPTY_LINE_HASH_SEQUENCE;
         }
@@ -74,13 +62,5 @@ public class TrackerMergeBranchInputFactory {
       }
     }
 
-    @Override
-    protected List<DefaultIssue> loadIssues() {
-      if (mergeBranchComponentUuid == null) {
-        return Collections.emptyList();
-      }
-      return mergeIssuesLoader.loadOpenIssuesWithChanges(mergeBranchComponentUuid);
-    }
   }
-
 }

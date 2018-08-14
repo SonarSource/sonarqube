@@ -34,13 +34,13 @@ import static java.util.Comparator.comparing;
 public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
   protected void match(Tracking<RAW, BASE> tracking, Function<Trackable, SearchKey> searchKeyFactory) {
-
     if (tracking.isComplete()) {
       return;
     }
 
     Multimap<SearchKey, BASE> baseSearch = ArrayListMultimap.create();
-    tracking.getUnmatchedBases().forEach(base -> baseSearch.put(searchKeyFactory.apply(base), base));
+    tracking.getUnmatchedBases()
+      .forEach(base -> baseSearch.put(searchKeyFactory.apply(base), base));
 
     tracking.getUnmatchedRaws().forEach(raw -> {
       SearchKey rawKey = searchKeyFactory.apply(raw);
@@ -96,6 +96,38 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     @Override
     public int hashCode() {
       return Objects.hash(ruleKey, lineHash, line != null ? line : 0);
+    }
+  }
+
+  protected static class LineAndLineHashAndMessage implements SearchKey {
+    private final RuleKey ruleKey;
+    private final String lineHash;
+    private final String message;
+    private final Integer line;
+
+    protected LineAndLineHashAndMessage(Trackable trackable) {
+      this.ruleKey = trackable.getRuleKey();
+      this.line = trackable.getLine();
+      this.message = trackable.getMessage();
+      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
+    }
+
+    @Override
+    public boolean equals(@Nonnull Object o) {
+      if (this == o) {
+        return true;
+      }
+      LineAndLineHashAndMessage that = (LineAndLineHashAndMessage) o;
+      // start with most discriminant field
+      return Objects.equals(line, that.line)
+        && lineHash.equals(that.lineHash)
+        && message.equals(that.message)
+        && ruleKey.equals(that.ruleKey);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(ruleKey, lineHash, message, line != null ? line : 0);
     }
   }
 

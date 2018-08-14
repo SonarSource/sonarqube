@@ -26,8 +26,8 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
+import org.sonar.core.issue.tracking.NonClosedTracking;
 import org.sonar.core.issue.tracking.Tracker;
-import org.sonar.core.issue.tracking.Tracking;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,10 +55,10 @@ public class MergeBranchTrackerExecutionTest {
   public void testTracking() {
     Input<DefaultIssue> rawInput = mock(Input.class);
     Input<DefaultIssue> mergeInput = mock(Input.class);
-    Tracking<DefaultIssue, DefaultIssue> result = mock(Tracking.class);
+    NonClosedTracking<DefaultIssue, DefaultIssue> result = mock(NonClosedTracking.class);
     when(rawInputFactory.create(component)).thenReturn(rawInput);
     when(mergeInputFactory.create(component)).thenReturn(mergeInput);
-    when(tracker.track(rawInput, mergeInput)).thenReturn(result);
+    when(tracker.trackNonClosed(rawInput, mergeInput)).thenReturn(result);
 
     assertThat(underTest.track(component)).isEqualTo(result);
   }

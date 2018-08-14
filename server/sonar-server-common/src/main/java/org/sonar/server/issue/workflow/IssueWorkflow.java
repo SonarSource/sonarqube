@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkState;
 @ComputeEngineSide
 public class IssueWorkflow implements Startable {
 
-  public static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";
+  private static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";
   private final FunctionExecutor functionExecutor;
   private final IssueFieldsSetter updater;
   private StateMachine machine;
@@ -242,7 +242,42 @@ public class IssueWorkflow implements Startable {
         .conditions(new NotCondition(IsBeingClosed.INSTANCE), new HasResolution(Issue.RESOLUTION_FIXED), IsNotHotspotNorManualVulnerability.INSTANCE)
         .functions(new SetResolution(null), UnsetCloseDate.INSTANCE)
         .automatic()
-        .build());
+        .build())
+
+      .transition(Transition.builder("automaticuncloseopen")
+        .from(Issue.STATUS_CLOSED).to(Issue.STATUS_OPEN)
+        .conditions(
+          new PreviousStatusWas(Issue.STATUS_OPEN),
+          new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
+          IsNotHotspotNorManualVulnerability.INSTANCE)
+        .automatic()
+        .build())
+      .transition(Transition.builder("automaticunclosereopen")
+        .from(Issue.STATUS_CLOSED).to(Issue.STATUS_REOPENED)
+        .conditions(
+          new PreviousStatusWas(Issue.STATUS_REOPENED),
+          new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
+          IsNotHotspotNorManualVulnerability.INSTANCE)
+        .automatic()
+        .build())
+      .transition(Transition.builder("automaticuncloseconfirmed")
+        .from(Issue.STATUS_CLOSED).to(Issue.STATUS_CONFIRMED)
+        .conditions(
+          new PreviousStatusWas(Issue.STATUS_CONFIRMED),
+          new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
+          IsNotHotspotNorManualVulnerability.INSTANCE)
+        .automatic()
+        .build())
+      .transition(Transition.builder("automaticuncloseresolved")
+        .from(Issue.STATUS_CLOSED).to(Issue.STATUS_RESOLVED)
+        .conditions(
+          new PreviousStatusWas(Issue.STATUS_RESOLVED),
+          new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
+          IsNotHotspotNorManualVulnerability.INSTANCE)
+        .automatic()
+        .build())
+
+    ;
   }
 
   @Override

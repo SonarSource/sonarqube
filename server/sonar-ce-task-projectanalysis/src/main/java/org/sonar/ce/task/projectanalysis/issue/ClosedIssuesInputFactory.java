@@ -23,39 +23,34 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
-import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.DbClient;
 
-/**
- * Factory of {@link Input} of base data for issue tracking. Data are lazy-loaded.
- */
-public class TrackerBaseInputFactory extends BaseInputFactory {
-
+public class ClosedIssuesInputFactory extends BaseInputFactory {
   private final ComponentIssuesLoader issuesLoader;
   private final DbClient dbClient;
   private final MovedFilesRepository movedFilesRepository;
 
-  public TrackerBaseInputFactory(ComponentIssuesLoader issuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository) {
+  public ClosedIssuesInputFactory(ComponentIssuesLoader issuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository) {
     this.issuesLoader = issuesLoader;
     this.dbClient = dbClient;
     this.movedFilesRepository = movedFilesRepository;
   }
 
   public Input<DefaultIssue> create(Component component) {
-    return new TrackerBaseLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orNull());
+    return new ClosedIssuesLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orNull());
   }
 
-  private class TrackerBaseLazyInput extends BaseLazyInput {
+  private class ClosedIssuesLazyInput extends BaseLazyInput {
 
-    private TrackerBaseLazyInput(DbClient dbClient, Component component, @Nullable OriginalFile originalFile) {
+    ClosedIssuesLazyInput(DbClient dbClient, Component component, @Nullable MovedFilesRepository.OriginalFile originalFile) {
       super(dbClient, component, originalFile);
     }
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      return issuesLoader.loadOpenIssues(effectiveUuid);
+      return issuesLoader.loadClosedIssues(effectiveUuid);
     }
   }
 }

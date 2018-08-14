@@ -57,7 +57,7 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
     DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender();
     try {
       for (String deletedComponentUuid : deletedComponentUuids) {
-        List<DefaultIssue> issues = issuesLoader.loadForComponentUuid(deletedComponentUuid);
+        List<DefaultIssue> issues = issuesLoader.loadOpenIssues(deletedComponentUuid);
         for (DefaultIssue issue : issues) {
           issue.setBeingClosed(true);
           // TODO should be renamed

@@ -31,24 +31,24 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.ShortBranchIssueDto;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.utils.DateUtils.longToDate;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class ShortBranchIssuesLoader {
 
   private final ShortBranchComponentsWithIssues shortBranchComponentsWithIssues;
   private final DbClient dbClient;
+  private final ComponentIssuesLoader componentIssuesLoader;
 
-  public ShortBranchIssuesLoader(ShortBranchComponentsWithIssues shortBranchComponentsWithIssues, DbClient dbClient) {
+  public ShortBranchIssuesLoader(ShortBranchComponentsWithIssues shortBranchComponentsWithIssues, DbClient dbClient,
+    ComponentIssuesLoader componentIssuesLoader) {
     this.shortBranchComponentsWithIssues = shortBranchComponentsWithIssues;
     this.dbClient = dbClient;
+    this.componentIssuesLoader = componentIssuesLoader;
   }
 
   public Collection<ShortBranchIssue> loadCandidateIssuesForMergingInTargetBranch(Component component) {
@@ -57,6 +57,7 @@ public class ShortBranchIssuesLoader {
     if (uuids.isEmpty()) {
       return Collections.emptyList();
     }
+
     try (DbSession session = dbClient.openSession(false)) {
       return dbClient.issueDao().selectOpenByComponentUuids(session, uuids)
         .stream()
@@ -74,17 +75,16 @@ public class ShortBranchIssuesLoader {
     if (lightIssues.isEmpty()) {
       return Collections.emptyMap();
     }
+
     Map<String, ShortBranchIssue> issuesByKey = lightIssues.stream().collect(Collectors.toMap(ShortBranchIssue::getKey, i -> i));
     try (DbSession session = dbClient.openSession(false)) {
-
-      Map<String, List<IssueChangeDto>> changeDtoByIssueKey = dbClient.issueChangeDao()
-        .selectByIssueKeys(session, issuesByKey.keySet()).stream().collect(groupingBy(IssueChangeDto::getIssueKey));
-
-      return dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
+      List<DefaultIssue> issues = dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
         .stream()
         .map(IssueDto::toDefaultIssue)
-        .peek(i -> ComponentIssuesLoader.setChanges(changeDtoByIssueKey, i))
-        .collect(toMap(i -> issuesByKey.get(i.key()), i -> i));
+        .collect(toList(issuesByKey.size()));
+      componentIssuesLoader.loadChanges(session, issues);
+      return issues.stream()
+        .collect(uniqueIndex(i -> issuesByKey.get(i.key()), i -> i, issues.size()));
     }
   }
 

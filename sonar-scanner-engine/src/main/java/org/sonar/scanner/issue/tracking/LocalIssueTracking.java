@@ -94,7 +94,7 @@ public class LocalIssueTracking {
         Input<ServerIssueFromWs> baseIssues = createBaseInput(serverIssues, sourceHashHolder);
         Input<TrackedIssue> rawIssues = createRawInput(rIssues, sourceHashHolder);
 
-        Tracking<TrackedIssue, ServerIssueFromWs> track = tracker.track(rawIssues, baseIssues);
+        Tracking<TrackedIssue, ServerIssueFromWs> track = tracker.trackNonClosed(rawIssues, baseIssues);
 
         addUnmatchedFromServer(track.getUnmatchedBases(), trackedIssues, component.key());
         mergeMatched(track, trackedIssues, rIssues);

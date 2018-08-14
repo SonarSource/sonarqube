@@ -21,6 +21,10 @@ package org.sonar.server.issue.workflow;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -28,16 +32,21 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
+import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
@@ -45,6 +54,7 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 
+@RunWith(DataProviderRunner.class)
 public class IssueWorkflowTest {
 
   IssueFieldsSetter updater = new IssueFieldsSetter();
@@ -145,6 +155,151 @@ public class IssueWorkflowTest {
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+  }
+
+  @Test
+  @UseDataProvider("allStatusesLeadingToClosed")
+  public void automatically_reopen_closed_issue_to_its_previous_status_from_changelog(String previousStatus) {
+    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
+      .map(resolution -> {
+        DefaultIssue issue = newClosedIssue(resolution);
+        setStatusPreviousToClosed(issue, previousStatus);
+        return issue;
+      })
+      .toArray(DefaultIssue[]::new);
+    Date now = new Date();
+    workflow.start();
+
+    Arrays.stream(issues).forEach(issue -> {
+      workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+
+      assertThat(issue.status()).isEqualTo(previousStatus);
+      assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+      assertThat(issue.closeDate()).isNull();
+      assertThat(issue.isChanged()).isTrue();
+    });
+  }
+
+  @Test
+  @UseDataProvider("allStatusesLeadingToClosed")
+  public void automatically_reopen_closed_issue_to_most_recent_previous_status_from_changelog(String previousStatus) {
+    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
+      .map(resolution -> {
+        DefaultIssue issue = newClosedIssue(resolution);
+        Date now = new Date();
+        addStatusChange(issue, addDays(now, -60), STATUS_OPEN, STATUS_CONFIRMED);
+        addStatusChange(issue, addDays(now, -10), STATUS_CONFIRMED, previousStatus);
+        addStatusChange(issue, now, previousStatus, STATUS_CLOSED);
+        return issue;
+      })
+      .toArray(DefaultIssue[]::new);
+    Date now = new Date();
+    workflow.start();
+
+    Arrays.stream(issues).forEach(issue -> {
+      workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+
+      assertThat(issue.status()).isEqualTo(previousStatus);
+      assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    });
+  }
+
+  @DataProvider
+  public static Object[][] allStatusesLeadingToClosed() {
+    return new Object[][] {
+      {STATUS_OPEN},
+      {STATUS_REOPENED},
+      {STATUS_CONFIRMED},
+      {STATUS_RESOLVED}
+    };
+  }
+
+  private static final String[] SUPPORTED_RESOLUTIONS_FOR_UNCLOSING = new String[] {RESOLUTION_FIXED, RESOLUTION_REMOVED};
+
+  @DataProvider
+  public static Object[][] supportedResolutionsForUnClosing() {
+    return Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
+      .map(t -> new Object[] {t})
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  public void do_not_automatically_reopen_closed_issue_which_have_no_previous_status_in_changelog() {
+    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
+      .map(IssueWorkflowTest::newClosedIssue)
+      .toArray(DefaultIssue[]::new);
+    Date now = new Date();
+    workflow.start();
+
+    Arrays.stream(issues).forEach(issue -> {
+      workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+
+      assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+      assertThat(issue.updateDate()).isNull();
+    });
+  }
+
+  @Test
+  @UseDataProvider("allStatusesLeadingToClosed")
+  public void do_not_automatically_reopen_closed_issues_of_security_hotspots(String previousStatus) {
+    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
+      .map(resolution -> {
+        DefaultIssue issue = newClosedIssue(resolution);
+        setStatusPreviousToClosed(issue, previousStatus);
+        issue.setType(RuleType.SECURITY_HOTSPOT);
+        return issue;
+      })
+      .toArray(DefaultIssue[]::new);
+    Date now = new Date();
+    workflow.start();
+
+    Arrays.stream(issues).forEach(issue -> {
+      workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+
+      assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+      assertThat(issue.updateDate()).isNull();
+    });
+  }
+
+  @Test
+  @UseDataProvider("allStatusesLeadingToClosed")
+  public void do_not_automatically_reopen_closed_issues_of_manual_vulnerability(String previousStatus) {
+    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
+      .map(resolution -> {
+        DefaultIssue issue = newClosedIssue(resolution);
+        setStatusPreviousToClosed(issue, previousStatus);
+        issue.setIsFromHotspot(true);
+        return issue;
+      })
+      .toArray(DefaultIssue[]::new);
+    Date now = new Date();
+    workflow.start();
+
+    Arrays.stream(issues).forEach(issue -> {
+      workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+
+      assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+      assertThat(issue.updateDate()).isNull();
+    });
+  }
+
+  private static DefaultIssue newClosedIssue(String resolution) {
+    DefaultIssue res = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(RuleKey.of("js", "S001"))
+      .setResolution(resolution)
+      .setStatus(STATUS_CLOSED)
+      .setNew(false)
+      .setCloseDate(new Date(5_999_999L));
+    return res;
+  }
+
+  private static void setStatusPreviousToClosed(DefaultIssue issue, String previousStatus) {
+    addStatusChange(issue, new Date(), previousStatus, STATUS_CLOSED);
+  }
+
+  private static void addStatusChange(DefaultIssue issue, Date date, String previousStatus, String newStatus) {
+    issue.addChange(new FieldDiffs().setCreationDate(date).setDiff("status", previousStatus, newStatus));
   }
 
   @Test

@@ -19,17 +19,24 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
@@ -41,34 +48,48 @@ public class ComponentIssuesLoader {
   private final ActiveRulesHolder activeRulesHolder;
 
   public ComponentIssuesLoader(DbClient dbClient, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder) {
-    this.activeRulesHolder = activeRulesHolder;
     this.dbClient = dbClient;
+    this.activeRulesHolder = activeRulesHolder;
     this.ruleRepository = ruleRepository;
   }
 
-  public List<DefaultIssue> loadForComponentUuid(String componentUuid) {
+  public List<DefaultIssue> loadOpenIssues(String componentUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return loadForComponentUuid(componentUuid, dbSession);
+      return loadOpenIssues(componentUuid, dbSession);
     }
   }
 
-  public List<DefaultIssue> loadForComponentUuidWithChanges(String componentUuid) {
+  public List<DefaultIssue> loadOpenIssuesWithChanges(String componentUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<DefaultIssue> result = loadForComponentUuid(componentUuid, dbSession);
+      List<DefaultIssue> result = loadOpenIssues(componentUuid, dbSession);
 
-      Map<String, List<IssueChangeDto>> changeDtoByIssueKey = dbClient.issueChangeDao()
-        .selectByIssueKeys(dbSession, result.stream().map(DefaultIssue::key).collect(toList()))
-        .stream()
-        .collect(groupingBy(IssueChangeDto::getIssueKey));
-
-      return result
-        .stream()
-        .peek(i -> setChanges(changeDtoByIssueKey, i))
-        .collect(toList());
+      return loadChanges(dbSession, result);
     }
   }
 
-  private List<DefaultIssue> loadForComponentUuid(String componentUuid, DbSession dbSession) {
+  public void loadChanges(Collection<DefaultIssue> issues) {
+    if (issues.isEmpty()) {
+      return;
+    }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      loadChanges(dbSession, issues);
+    }
+  }
+
+  public List<DefaultIssue> loadChanges(DbSession dbSession, Collection<DefaultIssue> issues) {
+    Map<String, List<IssueChangeDto>> changeDtoByIssueKey = dbClient.issueChangeDao()
+      .selectByIssueKeys(dbSession, issues.stream().map(DefaultIssue::key).collect(toList()))
+      .stream()
+      .collect(groupingBy(IssueChangeDto::getIssueKey));
+
+    return issues
+      .stream()
+      .peek(i -> setChanges(changeDtoByIssueKey, i))
+      .collect(toList());
+  }
+
+  private List<DefaultIssue> loadOpenIssues(String componentUuid, DbSession dbSession) {
     List<DefaultIssue> result = new ArrayList<>();
     dbSession.getMapper(IssueMapper.class).scrollNonClosedByComponentUuid(componentUuid, resultContext -> {
       DefaultIssue issue = (resultContext.getResultObject()).toDefaultIssue();
@@ -84,10 +105,10 @@ public class ComponentIssuesLoader {
       issue.setSelectedAt(System.currentTimeMillis());
       result.add(issue);
     });
-    return result;
+    return ImmutableList.copyOf(result);
   }
 
-  public static void setChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {
+  private static void setChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {
     changeDtoByIssueKey.computeIfAbsent(i.key(), k -> emptyList()).forEach(c -> {
       switch (c.getChangeType()) {
         case IssueChangeDto.TYPE_FIELD_CHANGE:
@@ -104,5 +125,58 @@ public class ComponentIssuesLoader {
 
   private boolean isActive(RuleKey ruleKey) {
     return activeRulesHolder.get(ruleKey).isPresent();
+  }
+
+  /**
+   * Load closed issues for the specified Component, which have at least one line diff in changelog AND are
+   * neither hotspots nor manual vulnerabilities.
+   * <p>
+   * Closed issues do not have a line number in DB (it is unset when the issue is closed), this method
+   * returns {@link DefaultIssue} objects which line number is populated from the most recent diff logging
+   * the removal of the line. Closed issues which do not have such diff are not loaded.
+   */
+  public List<DefaultIssue> loadClosedIssues(String componentUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return loadClosedIssues(componentUuid, dbSession);
+    }
+  }
+
+  private static List<DefaultIssue> loadClosedIssues(String componentUuid, DbSession dbSession) {
+    ClosedIssuesResultHandler handler = new ClosedIssuesResultHandler();
+    dbSession.getMapper(IssueMapper.class).scrollClosedByComponentUuid(componentUuid, handler);
+    return ImmutableList.copyOf(handler.issues);
+  }
+
+  private static class ClosedIssuesResultHandler implements ResultHandler<IssueDto> {
+    private final List<DefaultIssue> issues = new ArrayList<>();
+    private String previousIssueKey = null;
+
+    @Override
+    public void handleResult(ResultContext<? extends IssueDto> resultContext) {
+      IssueDto resultObject = resultContext.getResultObject();
+
+      // issue are ordered by most recent change first, only the first row for a given issue is of interest
+      if (previousIssueKey != null && previousIssueKey.equals(resultObject.getKey())) {
+        return;
+      }
+
+      FieldDiffs fieldDiffs = FieldDiffs.parse(resultObject.getLineChangeData()
+        .orElseThrow(() -> new IllegalStateException("Line Change data should be populated")));
+      Optional<Integer> line = Optional.ofNullable(fieldDiffs.get("line"))
+        .map(diff -> (String) diff.oldValue())
+        .filter(str -> !str.isEmpty())
+        .map(Integer::parseInt);
+      if (!line.isPresent()) {
+        return;
+      }
+
+      previousIssueKey = resultObject.getKey();
+      DefaultIssue issue = resultObject.toDefaultIssue();
+      issue.setLine(line.get());
+      // FIXME
+      issue.setSelectedAt(System.currentTimeMillis());
+
+      issues.add(issue);
+    }
   }
 }

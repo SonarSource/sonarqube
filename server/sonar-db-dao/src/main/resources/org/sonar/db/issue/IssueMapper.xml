@@ -216,6 +216,30 @@
     i.issue_type &lt;&gt; 4 and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
   </select>
 
+  <select id="scrollClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+      <include refid="issueColumns"/>,
+      ic.change_data as lineChangeData
+    from issues i
+    inner join rules r on
+      r.id = i.rule_id
+    inner join projects p on
+      p.uuid = i.component_uuid
+    inner join projects root on
+      root.uuid = i.project_uuid
+    inner join issue_changes ic on
+      ic.issue_key = i.kee
+      and ic.change_type = 'diff'
+      and ic.change_data like '%line=%'
+    where
+      i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+      and i.status = 'CLOSED'
+      and i.issue_type &lt;&gt; 4
+      and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
+    order by
+      i.kee, ic.issue_change_creation_date desc
+  </select>
+
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
     select distinct(i.component_uuid)
     from issues i

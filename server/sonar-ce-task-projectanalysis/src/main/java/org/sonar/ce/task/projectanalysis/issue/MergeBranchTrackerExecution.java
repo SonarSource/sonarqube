@@ -23,7 +23,6 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class MergeBranchTrackerExecution {
   private final TrackerRawInputFactory rawInputFactory;
@@ -38,6 +37,6 @@ public class MergeBranchTrackerExecution {
   }
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.track(rawInputFactory.create(component), mergeInputFactory.create(component));
+    return tracker.trackNonClosed(rawInputFactory.create(component), mergeInputFactory.create(component));
   }
 }

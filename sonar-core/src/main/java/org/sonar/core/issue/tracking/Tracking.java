@@ -31,15 +31,21 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   /**
    * Matched issues -> a raw issue is associated to a base issue
    */
-  private final IdentityHashMap<RAW, BASE> rawToBase = new IdentityHashMap<>();
-  private final IdentityHashMap<BASE, RAW> baseToRaw = new IdentityHashMap<>();
-
+  protected final IdentityHashMap<RAW, BASE> rawToBase;
+  protected final IdentityHashMap<BASE, RAW> baseToRaw;
   private final Collection<RAW> raws;
   private final Collection<BASE> bases;
 
-  public Tracking(Collection<RAW> rawInput, Collection<BASE> baseInput) {
+  Tracking(Collection<RAW> rawInput, Collection<BASE> baseInput) {
+    this(rawInput, baseInput, new IdentityHashMap<>(), new IdentityHashMap<>());
+  }
+
+  protected Tracking(Collection<RAW> rawInput, Collection<BASE> baseInput,
+    IdentityHashMap<RAW, BASE> rawToBase, IdentityHashMap<BASE, RAW> baseToRaw) {
     this.raws = rawInput;
     this.bases = baseInput;
+    this.rawToBase = rawToBase;
+    this.baseToRaw = baseToRaw;
   }
 
   /**
@@ -78,7 +84,7 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  boolean isComplete() {
+  public boolean isComplete() {
     return rawToBase.size() == raws.size();
   }
 

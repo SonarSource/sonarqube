@@ -28,6 +28,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -97,6 +98,8 @@ public final class IssueDto implements Serializable {
   private String filePath;
   private String tags;
   private boolean isFromHotspot;
+  // populate only when retrieving closed issue for issue tracking
+  private String lineChangeData;
 
   /**
    * On batch side, component keys and uuid are useless
@@ -696,6 +699,10 @@ public final class IssueDto implements Serializable {
   public IssueDto setType(RuleType type) {
     this.type = type.getDbConstant();
     return this;
+  }
+
+  public Optional<String> getLineChangeData() {
+    return Optional.ofNullable(lineChangeData);
   }
 
   @Override

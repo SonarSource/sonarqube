@@ -46,12 +46,12 @@ public class ShortBranchTrackerExecution {
     Input<DefaultIssue> baseInput = baseInputFactory.create(component);
     Input<DefaultIssue> mergeInput = mergeInputFactory.create(component);
 
-    Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.track(rawInput, mergeInput);
+    Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.trackNonClosed(rawInput, mergeInput);
     List<DefaultIssue> unmatchedRaws = mergeTracking.getUnmatchedRaws().collect(MoreCollectors.toList());
     Input<DefaultIssue> unmatchedRawInput = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
 
     // do second tracking with base branch using raws issues that are still unmatched
-    return tracker.track(unmatchedRawInput, baseInput);
+    return tracker.trackNonClosed(unmatchedRawInput, baseInput);
   }
 
 }

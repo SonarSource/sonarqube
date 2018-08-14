@@ -88,34 +88,34 @@ public class IssueLifecycle {
   public void copyExistingOpenIssueFromLongLivingBranch(DefaultIssue raw, DefaultIssue base, String fromLongBranchName) {
     raw.setKey(Uuids.create());
     raw.setNew(false);
-    copyIssueAttributes(raw, base);
+    copyAttributesOfIssueFromOtherBranch(raw, base);
     raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_LONG_BRANCH, fromLongBranchName, analysisMetadataHolder.getBranch().getName());
   }
 
   public void mergeConfirmedOrResolvedFromShortLivingBranch(DefaultIssue raw, DefaultIssue base, String fromShortBranchName) {
-    copyIssueAttributes(raw, base);
+    copyAttributesOfIssueFromOtherBranch(raw, base);
     raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, fromShortBranchName, analysisMetadataHolder.getBranch().getName());
   }
 
-  private void copyIssueAttributes(DefaultIssue to, DefaultIssue from) {
+  private void copyAttributesOfIssueFromOtherBranch(DefaultIssue to, DefaultIssue from) {
     to.setCopied(true);
     copyFields(to, from);
     if (from.manualSeverity()) {
       to.setManualSeverity(true);
       to.setSeverity(from.severity());
     }
-    copyChanges(to, from);
+    copyChangesOfIssueFromOtherBranch(to, from);
   }
 
-  private static void copyChanges(DefaultIssue raw, DefaultIssue base) {
-    base.defaultIssueComments().forEach(c -> raw.addComment(copy(raw.key(), c)));
-    base.changes().forEach(c -> copy(raw.key(), c).ifPresent(raw::addChange));
+  private static void copyChangesOfIssueFromOtherBranch(DefaultIssue raw, DefaultIssue base) {
+    base.defaultIssueComments().forEach(c -> raw.addComment(copyComment(raw.key(), c)));
+    base.changes().forEach(c -> copyFieldDiffOfIssueFromOtherBranch(raw.key(), c).ifPresent(raw::addChange));
   }
 
   /**
    * Copy a comment from another issue
    */
-  private static DefaultIssueComment copy(String issueKey, DefaultIssueComment c) {
+  private static DefaultIssueComment copyComment(String issueKey, DefaultIssueComment c) {
     DefaultIssueComment comment = new DefaultIssueComment();
     comment.setIssueKey(issueKey);
     comment.setKey(Uuids.create());
@@ -129,7 +129,7 @@ public class IssueLifecycle {
   /**
    * Copy a diff from another issue
    */
-  private static Optional<FieldDiffs> copy(String issueKey, FieldDiffs c) {
+  private static Optional<FieldDiffs> copyFieldDiffOfIssueFromOtherBranch(String issueKey, FieldDiffs c) {
     FieldDiffs result = new FieldDiffs();
     result.setIssueKey(issueKey);
     result.setUserUuid(c.userUuid());
@@ -149,6 +149,7 @@ public class IssueLifecycle {
     raw.setNew(false);
     setType(raw);
     copyFields(raw, base);
+    base.changes().forEach(raw::addChange);
     if (raw.isFromHotspot() != base.isFromHotspot()) {
       // This is to force DB update of the issue
       raw.setChanged(true);

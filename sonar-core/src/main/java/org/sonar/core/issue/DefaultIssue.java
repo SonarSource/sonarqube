@@ -91,12 +91,12 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   private boolean isFromHotspot = false;
 
-  // FOLLOWING FIELDS ARE AVAILABLE ONLY DURING SCAN
-
   // Current changes
   private FieldDiffs currentChange = null;
 
   // all changes
+  // -- contains only current change (if any) on CE side unless reopening a closed issue or copying issue from base branch
+  //    when analyzing a long living branch from the first time
   private List<FieldDiffs> changes = null;
 
   // true if the issue did not exist in the previous scan.
@@ -519,11 +519,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
       changes = new ArrayList<>();
     }
     changes.add(change);
-    return this;
-  }
-
-  public DefaultIssue setChanges(List<FieldDiffs> changes) {
-    this.changes = changes;
     return this;
   }
 

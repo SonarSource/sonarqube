@@ -67,7 +67,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
 
     when(componentsWithUnprocessedIssues.getUuids()).thenReturn(newHashSet(fileUuid));
     DefaultIssue issue = new DefaultIssue().setKey(issueUuid);
-    when(issuesLoader.loadForComponentUuid(fileUuid)).thenReturn(Collections.singletonList(issue));
+    when(issuesLoader.loadOpenIssues(fileUuid)).thenReturn(Collections.singletonList(issue));
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
 

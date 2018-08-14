@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -190,6 +191,24 @@ public class FieldDiffs implements Serializable {
         sb.append(newValue.toString());
       }
       return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Diff<?> diff = (Diff<?>) o;
+      return Objects.equals(oldValue, diff.oldValue) &&
+        Objects.equals(newValue, diff.newValue);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(oldValue, newValue);
     }
   }
 
