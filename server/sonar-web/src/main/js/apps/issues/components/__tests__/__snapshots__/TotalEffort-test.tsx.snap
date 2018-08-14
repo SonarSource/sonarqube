@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="display-inline-block bordered-left spacer-left"
+>
+  <div
+    className="spacer-left"
+  >
+    <FormattedMessage
+      defaultMessage="issue.x_effort"
+      id="issue.x_effort"
+      values={
+        Object {
+          "0": <strong>
+            work_duration.x_hours.2 work_duration.x_minutes.5
+          </strong>,
+        }
+      }
+    />
+  </div>
+</div>
+`;

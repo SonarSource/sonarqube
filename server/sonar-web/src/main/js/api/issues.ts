@@ -31,7 +31,7 @@ export interface IssueResponse {
 
 interface IssuesResponse {
   components?: { key: string; organization: string; name: string; uuid: string }[];
-  debtTotal?: number;
+  effortTotal: number;
   facets: Array<{
     property: string;
     values: { count: number; val: string }[];

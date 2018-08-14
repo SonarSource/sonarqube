@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import IssuesCounter from './IssuesCounter';
+import TotalEffort from './TotalEffort';
 import { HomePageType, Paging } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import ReloadButton from '../../../components/controls/ReloadButton';
@@ -27,6 +28,7 @@ import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   canSetHome: boolean;
+  effortTotal: number | undefined;
   onReload: () => void;
   paging: Paging | undefined;
   selectedIndex: number | undefined;
@@ -52,7 +54,7 @@ export default class PageActions extends React.PureComponent<Props> {
   }
 
   render() {
-    const { paging, selectedIndex } = this.props;
+    const { effortTotal, paging, selectedIndex } = this.props;
 
     return (
       <div className="pull-right">
@@ -63,6 +65,7 @@ export default class PageActions extends React.PureComponent<Props> {
           {paging != null && (
             <IssuesCounter className="spacer-left" current={selectedIndex} total={paging.total} />
           )}
+          {effortTotal !== undefined && <TotalEffort effort={effortTotal} />}
         </div>
 
         {this.props.canSetHome && (

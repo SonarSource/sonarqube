@@ -119,7 +119,7 @@ public class SearchActionTestOnSonarCloud {
     JsonAssert.assertJson(input).isSimilarTo(this.getClass().getResource(this.getClass().getSimpleName() + "/no_authors_facet.json"));
 
     JsonElement gson = new JsonParser().parse(input);
-    assertThat(gson.getAsJsonObject().get("facets")).isNull();
+    assertThat(gson.getAsJsonObject().get("facets").getAsJsonArray()).isEmpty();
   }
 
   @Test
@@ -136,7 +136,7 @@ public class SearchActionTestOnSonarCloud {
     JsonAssert.assertJson(input).isSimilarTo(this.getClass().getResource(this.getClass().getSimpleName() + "/no_author_and_no_authors_facet.json"));
 
     JsonElement gson = new JsonParser().parse(input);
-    assertThat(gson.getAsJsonObject().get("facets")).isNull();
+    assertThat(gson.getAsJsonObject().get("facets").getAsJsonArray()).isEmpty();
 
   }
 

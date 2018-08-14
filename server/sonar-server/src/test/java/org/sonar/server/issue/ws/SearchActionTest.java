@@ -927,6 +927,23 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_total_effort() {
+    UserDto john = db.users().insertUser();
+    userSession.logIn(john);
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto issue1 = db.issues().insert(rule, project, file, i -> i.setEffort(10L));
+    IssueDto issue2 = db.issues().insert(rule, project, file, i -> i.setEffort(15L));
+    indexPermissions();
+    indexIssues();
+
+    Issues.SearchWsResponse response = ws.newRequest().executeProtobuf(Issues.SearchWsResponse.class);
+
+    assertThat(response.getEffortTotal()).isEqualTo(25L);
+  }
+
+  @Test
   public void paging() {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setDbKey("PROJECT_KEY"));

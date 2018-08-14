@@ -87,6 +87,7 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface FetchIssuesPromise {
   components: ReferencedComponent[];
+  effortTotal: number;
   facets: RawFacet[];
   issues: Issue[];
   languages: ReferencedLanguage[];
@@ -111,6 +112,7 @@ interface Props {
 export interface State {
   bulkChange?: 'all' | 'selected';
   checked: string[];
+  effortTotal?: number;
   facets: { [facet: string]: Facet };
   issues: Issue[];
   lastChecked?: string;
@@ -461,7 +463,7 @@ export default class App extends React.PureComponent<Props, State> {
     const prevQuery = this.props.location.query;
     this.setState({ checked: [], loading: true });
     return this.fetchIssues({}, true).then(
-      ({ facets, issues, paging, ...other }) => {
+      ({ effortTotal, facets, issues, paging, ...other }) => {
         if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
           const openIssue = this.getOpenIssue(this.props, issues);
           let selected: string | undefined = undefined;
@@ -469,6 +471,7 @@ export default class App extends React.PureComponent<Props, State> {
             selected = openIssue ? openIssue.key : issues[0].key;
           }
           this.setState(state => ({
+            effortTotal,
             facets: { ...state.facets, ...parseFacets(facets) },
             loading: false,
             issues,
@@ -1131,6 +1134,7 @@ export default class App extends React.PureComponent<Props, State> {
                         !this.props.component &&
                         (!isSonarCloud() || this.props.myIssues)
                     )}
+                    effortTotal={this.state.effortTotal}
                     onReload={this.handleReload}
                     paging={paging}
                     selectedIndex={selectedIndex}

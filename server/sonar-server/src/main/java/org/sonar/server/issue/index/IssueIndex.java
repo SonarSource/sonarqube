@@ -298,6 +298,7 @@ public class IssueIndex {
     }
 
     configureStickyFacets(query, options, filters, esQuery, requestBuilder);
+    requestBuilder.addAggregation(EFFORT_AGGREGATION);
     requestBuilder.setFetchSource(false);
     return requestBuilder.get();
   }
@@ -587,10 +588,6 @@ public class IssueIndex {
         getCreatedAtFacet(query, filters, esQuery).ifPresent(esSearch::addAggregation);
       }
       addAssignedToMeFacetIfNeeded(esSearch, options, query, filters, esQuery);
-    }
-
-    if (hasQueryEffortFacet(query)) {
-      esSearch.addAggregation(EFFORT_AGGREGATION);
     }
   }
 

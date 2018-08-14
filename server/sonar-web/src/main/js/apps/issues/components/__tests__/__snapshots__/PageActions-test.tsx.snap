@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="pull-right"
+>
+  <span
+    className="note big-spacer-right"
+  >
+    <span
+      className="big-spacer-right"
+    >
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ↑
+      </span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ↓
+      </span>
+      issues.to_select_issues
+    </span>
+    <span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ←
+      </span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        →
+      </span>
+      issues.to_navigate
+    </span>
+  </span>
+  <div
+    className="issues-page-actions"
+  >
+    <ReloadButton
+      onClick={[MockFunction]}
+    />
+    <IssuesCounter
+      className="spacer-left"
+      current={5}
+      total={12345}
+    />
+    <TotalEffort
+      effort={125}
+    />
+  </div>
+  <Connect(HomePageSelect)
+    className="huge-spacer-left"
+    currentPage={
+      Object {
+        "type": "ISSUES",
+      }
+    }
+  />
+</div>
+`;

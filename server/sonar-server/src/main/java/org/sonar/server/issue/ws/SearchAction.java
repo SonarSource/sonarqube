@@ -443,9 +443,8 @@ public class SearchAction implements IssuesWsAction {
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(additionalFields, issueKeys);
     collectLoggedInUser(collector);
     collectRequestParams(collector, request);
-    Facets facets = null;
+    Facets facets = new Facets(result, system2.getDefaultTimeZone());
     if (!options.getFacets().isEmpty()) {
-      facets = new Facets(result, system2.getDefaultTimeZone());
       // add missing values to facets. For example if assignee "john" and facet on "assignees" are requested, then
       // "john" should always be listed in the facet. If it is not present, then it is added with value zero.
       // This is a constraint from webapp UX.

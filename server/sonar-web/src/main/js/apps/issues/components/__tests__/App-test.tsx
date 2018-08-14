@@ -49,6 +49,7 @@ const PROPS = {
   fetchIssues: () =>
     Promise.resolve({
       components: [],
+      effortTotal: 1,
       facets,
       issues,
       languages: [],
