@@ -46,7 +46,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -215,18 +217,6 @@ public class IssueQueryFactoryTest {
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys, componentUuids, components, componentRoots, componentUuids");
-
-    underTest.create(request);
-  }
-
-  @Test
-  public void fail_if_both_projects_and_projectUuids_params_are_set() {
-    SearchRequest request = new SearchRequest()
-      .setProjectKeys(asList("foo"))
-      .setProjectUuids(asList("bar"));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameters projects and projectUuids cannot be set simultaneously");
 
     underTest.create(request);
   }
@@ -468,6 +458,50 @@ public class IssueQueryFactoryTest {
       .setBranch("master")))
         .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
         .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+  }
+
+  @Test
+  public void search_by_application_key() {
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.components().insertComponents(newProjectCopy(project1, application));
+    db.components().insertComponents(newProjectCopy(project2, application));
+    userSession.addProjectPermission(USER, application);
+
+    assertThat(underTest.create(new SearchRequest()
+      .setComponentKeys(singletonList(application.getKey())))
+      .viewUuids()).containsExactly(application.uuid());
+  }
+
+  @Test
+  public void search_by_application_key_and_branch() {
+    ComponentDto application = db.components().insertMainBranch(c -> c.setQualifier(APP).setDbKey("app"));
+    ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
+    ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setDbKey("prj1"));
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
+    ComponentDto fileOnProject1Branch1 = db.components().insertComponent(newFileDto(project1Branch1));
+    ComponentDto project1Branch2 = db.components().insertProjectBranch(project1);
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setDbKey("prj2"));
+    db.components().insertComponents(newProjectCopy(project1Branch1, applicationBranch1));
+    db.components().insertComponents(newProjectCopy(project2, applicationBranch1));
+    db.components().insertComponents(newProjectCopy(project1Branch2, applicationBranch2));
+
+    // Search on applicationBranch1
+    assertThat(underTest.create(new SearchRequest()
+      .setComponentKeys(singletonList(applicationBranch1.getKey()))
+      .setBranch(applicationBranch1.getBranch())))
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+        .containsOnly(applicationBranch1.uuid(), Collections.emptyList(), false);
+
+    // Search on project1Branch1
+    assertThat(underTest.create(new SearchRequest()
+      .setComponentKeys(singletonList(applicationBranch1.getKey()))
+      .setProjectKeys(singletonList(project1.getKey()))
+      .setBranch(applicationBranch1.getBranch())))
+        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+        .containsOnly(applicationBranch1.uuid(), singletonList(project1.uuid()), false);
   }
 
   @Test

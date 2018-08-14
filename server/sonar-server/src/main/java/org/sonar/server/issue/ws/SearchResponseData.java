@@ -50,7 +50,7 @@ public class SearchResponseData {
 
   private Long effortTotal = null;
   private final Map<String, UserDto> usersByUuid = new HashMap<>();
-  private List<RuleDefinitionDto> rules = null;
+  private final List<RuleDefinitionDto> rules = new ArrayList<>();
   private final Map<String, String> organizationKeysByUuid = new HashMap<>();
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
   private final ListMultimap<String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
@@ -78,7 +78,7 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public ComponentDto getComponentByUuid(String uuid) {
+  ComponentDto getComponentByUuid(String uuid) {
     return componentsByUuid.get(uuid);
   }
 
@@ -86,7 +86,6 @@ public class SearchResponseData {
     return new ArrayList<>(usersByUuid.values());
   }
 
-  @CheckForNull
   public List<RuleDefinitionDto> getRules() {
     return rules;
   }
@@ -98,7 +97,7 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public List<IssueChangeDto> getCommentsForIssueKey(String issueKey) {
+  List<IssueChangeDto> getCommentsForIssueKey(String issueKey) {
     if (commentsByIssueKey.containsKey(issueKey)) {
       return commentsByIssueKey.get(issueKey);
     }
@@ -106,7 +105,7 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public List<String> getActionsForIssueKey(String issueKey) {
+  List<String> getActionsForIssueKey(String issueKey) {
     if (actionsByIssueKey.containsKey(issueKey)) {
       return actionsByIssueKey.get(issueKey);
     }
@@ -114,21 +113,23 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public List<Transition> getTransitionsForIssueKey(String issueKey) {
+  List<Transition> getTransitionsForIssueKey(String issueKey) {
     if (transitionsByIssueKey.containsKey(issueKey)) {
       return transitionsByIssueKey.get(issueKey);
     }
     return null;
   }
 
-  public void addUsers(@Nullable List<UserDto> users) {
+  void addUsers(@Nullable List<UserDto> users) {
     if (users != null) {
       users.forEach(u -> usersByUuid.put(u.getUuid(), u));
     }
   }
 
-  public void setRules(@Nullable List<RuleDefinitionDto> rules) {
-    this.rules = rules;
+  public void addRules(@Nullable List<RuleDefinitionDto> rules) {
+    if (rules != null) {
+      this.rules.addAll(rules);
+    }
   }
 
   public void setComments(@Nullable List<IssueChangeDto> comments) {
@@ -145,45 +146,45 @@ public class SearchResponseData {
     }
   }
 
-  public void addActions(String issueKey, Iterable<String> actions) {
+  void addActions(String issueKey, Iterable<String> actions) {
     actionsByIssueKey.putAll(issueKey, actions);
   }
 
-  public void addTransitions(String issueKey, List<Transition> transitions) {
+  void addTransitions(String issueKey, List<Transition> transitions) {
     transitionsByIssueKey.putAll(issueKey, transitions);
   }
 
-  public void addUpdatableComment(String commentKey) {
+  void addUpdatableComment(String commentKey) {
     updatableComments.add(commentKey);
   }
 
-  public boolean isUpdatableComment(String commentKey) {
+  boolean isUpdatableComment(String commentKey) {
     return updatableComments.contains(commentKey);
   }
 
   @CheckForNull
-  public Long getEffortTotal() {
+  Long getEffortTotal() {
     return effortTotal;
   }
 
-  public void setEffortTotal(@Nullable Long effortTotal) {
+  void setEffortTotal(@Nullable Long effortTotal) {
     this.effortTotal = effortTotal;
   }
 
-  public void addOrganization(OrganizationDto organizationDto) {
+  void addOrganization(OrganizationDto organizationDto) {
     this.organizationKeysByUuid.put(organizationDto.getUuid(), organizationDto.getKey());
   }
 
-  public void setUserOrganizationUuids(Set<String> organizationUuids) {
+  void setUserOrganizationUuids(Set<String> organizationUuids) {
     this.userOrganizationUuids.addAll(organizationUuids);
   }
 
-  public Set<String> getUserOrganizationUuids() {
+  Set<String> getUserOrganizationUuids() {
     return this.userOrganizationUuids;
   }
 
   @CheckForNull
-  public UserDto getUserByUuid(@Nullable String userUuid) {
+  UserDto getUserByUuid(@Nullable String userUuid) {
     UserDto userDto = usersByUuid.get(userUuid);
     if (userDto == null) {
       return null;

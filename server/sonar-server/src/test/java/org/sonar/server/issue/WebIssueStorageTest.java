@@ -23,48 +23,45 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.rule.DefaultRuleFinder;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.issue.IssueTesting.newIssue;
 
 public class WebIssueStorageTest {
 
-  private System2 system2 = mock(System2.class);
+  private System2 system2 = new TestSystem2().setNow(2_000_000_000L);
 
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
 
   private DbClient dbClient = db.getDbClient();
 
-  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new FakeRuleFinder(), mock(IssueIndexer.class));
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  @Before
-  public void setup() {
-    when(system2.now()).thenReturn(2_000_000_000L);
-  }
+  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), mock(IssueIndexer.class));
 
   @Test
   public void load_component_id_from_db() {
@@ -102,22 +99,22 @@ public class WebIssueStorageTest {
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
-        .setKey(issueKey)
-        .setType(RuleType.BUG)
-        .setNew(true)
-        .setRuleKey(rule.getKey())
-        .setProjectUuid(project.uuid())
-        .setComponentUuid(file.uuid())
-        .setLine(5000)
-        .setEffort(Duration.create(10L))
-        .setResolution("OPEN")
-        .setStatus("OPEN")
-        .setSeverity("BLOCKER")
-        .setAttribute("foo", "bar")
-        .addComment(comment)
-        .setCreationDate(date)
-        .setUpdateDate(date)
-        .setCloseDate(date);
+      .setKey(issueKey)
+      .setType(RuleType.BUG)
+      .setNew(true)
+      .setRuleKey(rule.getKey())
+      .setProjectUuid(project.uuid())
+      .setComponentUuid(file.uuid())
+      .setLine(5000)
+      .setEffort(Duration.create(10L))
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date);
 
     underTest.save(db.getSession(), singletonList(issue));
 
@@ -147,21 +144,21 @@ public class WebIssueStorageTest {
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
-        .setKey("ABCDE")
-        .setType(RuleType.BUG)
-        .setNew(true)
-        .setRuleKey(rule.getKey())
-        .setProjectUuid(project.uuid())
-        .setComponentUuid(file.uuid())
-        .setLine(5000)
-        .setEffort(Duration.create(10L))
-        .setResolution("OPEN")
-        .setStatus("OPEN")
-        .setSeverity("BLOCKER")
-        .setAttribute("foo", "bar")
-        .setCreationDate(date)
-        .setUpdateDate(date)
-        .setCloseDate(date);
+      .setKey("ABCDE")
+      .setType(RuleType.BUG)
+      .setNew(true)
+      .setRuleKey(rule.getKey())
+      .setProjectUuid(project.uuid())
+      .setComponentUuid(file.uuid())
+      .setLine(5000)
+      .setEffort(Duration.create(10L))
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date);
 
     underTest.save(db.getSession(), singletonList(issue));
 
@@ -169,32 +166,32 @@ public class WebIssueStorageTest {
     assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(0);
 
     DefaultIssue updated = new DefaultIssue()
-        .setKey(issue.key())
-        .setType(RuleType.VULNERABILITY)
-        .setNew(false)
-        .setChanged(true)
+      .setKey(issue.key())
+      .setType(RuleType.VULNERABILITY)
+      .setNew(false)
+      .setChanged(true)
 
-        // updated fields
-        .setLine(issue.getLine() + 10)
-        .setProjectUuid("foo")
-        .setEffort(Duration.create(issue.effortInMinutes() + 10L))
-        .setChecksum("FFFFF")
-        .setAuthorLogin("simon")
-        .setAssigneeUuid("loic")
-        .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
-        .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
-        .setResolution("FIXED")
-        .setStatus("RESOLVED")
-        .setSeverity("MAJOR")
-        .setAttribute("fox", "bax")
-        .setCreationDate(DateUtils.addDays(date, 1))
-        .setUpdateDate(DateUtils.addDays(date, 1))
-        .setCloseDate(DateUtils.addDays(date, 1))
+      // updated fields
+      .setLine(issue.getLine() + 10)
+      .setProjectUuid("foo")
+      .setEffort(Duration.create(issue.effortInMinutes() + 10L))
+      .setChecksum("FFFFF")
+      .setAuthorLogin("simon")
+      .setAssigneeUuid("loic")
+      .setFieldChange(IssueChangeContext.createUser(new Date(), "user_uuid"), "severity", "INFO", "BLOCKER")
+      .addComment(DefaultIssueComment.create("ABCDE", "user_uuid", "the comment"))
+      .setResolution("FIXED")
+      .setStatus("RESOLVED")
+      .setSeverity("MAJOR")
+      .setAttribute("fox", "bax")
+      .setCreationDate(DateUtils.addDays(date, 1))
+      .setUpdateDate(DateUtils.addDays(date, 1))
+      .setCloseDate(DateUtils.addDays(date, 1))
 
-        // unmodifiable fields
-        .setRuleKey(RuleKey.of("xxx", "unknown"))
-        .setComponentKey("struts:Action")
-        .setProjectKey("struts");
+      // unmodifiable fields
+      .setRuleKey(rule.getKey())
+      .setComponentKey("struts:Action")
+      .setProjectKey("struts");
 
     underTest.save(db.getSession(), singletonList(updated));
 
@@ -217,40 +214,39 @@ public class WebIssueStorageTest {
     List<Map<String, Object>> rows = db.select("select * from issue_changes order by id");
     assertThat(rows).hasSize(2);
     assertThat(rows.get(0))
-        .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
-        .containsExactlyInAnyOrder("the comment", "comment", "user_uuid");
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("the comment", "comment", "user_uuid");
     assertThat(rows.get(1))
-        .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
-        .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
+      .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")
+      .containsExactlyInAnyOrder("severity=INFO|BLOCKER", "diff", "user_uuid");
   }
 
-  private static class FakeRuleFinder implements RuleFinder {
+  @Test
+  public void rule_id_is_set_on_updated_issue() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    DefaultIssue issue = newIssue(rule, project, file).toDefaultIssue();
 
-    @Override
-    public Rule findById(int ruleId) {
-      return null;
-    }
+    Collection<IssueDto> results = underTest.save(db.getSession(), singletonList(issue));
 
-    @Override
-    public Rule findByKey(String repositoryKey, String key) {
-      return null;
-    }
-
-    @Override
-    public Rule findByKey(RuleKey key) {
-      Rule rule = Rule.create().setRepositoryKey(key.repository()).setKey(key.rule());
-      rule.setId(200);
-      return rule;
-    }
-
-    @Override
-    public Rule find(RuleQuery query) {
-      return null;
-    }
-
-    @Override
-    public Collection<Rule> findAll(RuleQuery query) {
-      return null;
-    }
+    assertThat(results).hasSize(1);
+    assertThat(results.iterator().next().getRuleId()).isEqualTo(rule.getId());
   }
+
+  @Test
+  public void rule_id_is_not_set_on_updated_issue_when_rule_is_removed() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setStatus(REMOVED));
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    DefaultIssue issue = newIssue(rule, project, file).toDefaultIssue();
+
+    Collection<IssueDto> results = underTest.save(db.getSession(), singletonList(issue));
+
+    assertThat(results).hasSize(1);
+    assertThat(results.iterator().next().getRuleId()).isNull();
+  }
+
 }

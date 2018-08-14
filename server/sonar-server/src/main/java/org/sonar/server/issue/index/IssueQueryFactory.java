@@ -104,6 +104,7 @@ public class IssueQueryFactory {
         .resolved(request.getResolved())
         .rules(ruleKeysToRuleId(dbSession, request.getRules()))
         .assigneeUuids(request.getAssigneeUuids())
+        .authors(request.getAuthors())
         .languages(request.getLanguages())
         .tags(request.getTags())
         .types(request.getTypes())
@@ -221,13 +222,8 @@ public class IssueQueryFactory {
       return;
     }
 
-    builder.authors(request.getAuthors());
-    List<String> projectUuids = request.getProjectUuids();
     List<String> projectKeys = request.getProjectKeys();
-    checkArgument(projectUuids == null || projectKeys == null, "Parameters projects and projectUuids cannot be set simultaneously");
-    if (projectUuids != null) {
-      builder.projectUuids(projectUuids);
-    } else if (projectKeys != null) {
+    if (projectKeys != null) {
       List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, request.getBranch(), request.getPullRequest());
       builder.projectUuids(projects.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
       setBranch(builder, projects.get(0), request.getBranch(), request.getPullRequest());
@@ -260,6 +256,7 @@ public class IssueQueryFactory {
         break;
       case Qualifiers.APP:
         addApplications(builder, dbSession, components, request);
+        addProjectUuidsForApplication(builder, dbSession, request);
         break;
       case Qualifiers.PROJECT:
         builder.projectUuids(components.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
@@ -276,6 +273,15 @@ public class IssueQueryFactory {
         break;
       default:
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(components));
+    }
+  }
+
+  private void addProjectUuidsForApplication(IssueQuery.Builder builder, DbSession session, SearchRequest request) {
+    List<String> projectKeys = request.getProjectKeys();
+    if (projectKeys != null) {
+      // On application, branch should only be applied on the application, not on projects
+      List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, null, null);
+      builder.projectUuids(projects.stream().map(ComponentDto::uuid).collect(toList()));
     }
   }
 

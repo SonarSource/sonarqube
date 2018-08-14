@@ -147,8 +147,7 @@ public class IssuesService extends BaseService {
         .setParam("componentUuid", request.getComponentUuid())
         .setParam("createdAfter", request.getCreatedAfter())
         .setParam("ps", request.getPs())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -192,8 +191,7 @@ public class IssuesService extends BaseService {
       new PostRequest(path("edit_comment"))
         .setParam("comment", request.getComment())
         .setParam("text", request.getText())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -231,7 +229,6 @@ public class IssuesService extends BaseService {
         .setParam("onComponentOnly", request.getOnComponentOnly())
         .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
-        .setParam("projectUuids", request.getProjectUuids() == null ? null : request.getProjectUuids().stream().collect(Collectors.joining(",")))
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("ps", request.getPs())
         .setParam("pullRequest", request.getPullRequest())
@@ -246,8 +243,7 @@ public class IssuesService extends BaseService {
         .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(",")))
         .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("sansTop25", request.getSansTop25() == null ? null : request.getSansTop25().stream().collect(Collectors.joining(",")))
-        .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(",")))
-      ,
+        .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(","))),
       SearchWsResponse.parser());
   }
 

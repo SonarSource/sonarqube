@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -43,6 +44,7 @@ import org.sonar.server.issue.index.IssueIndexer;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
@@ -118,7 +120,7 @@ public class WebIssueStorage extends IssueStorage {
   private IssueDto doInsert(DbSession session, long now, DefaultIssue issue) {
     ComponentDto component = component(session, issue);
     ComponentDto project = project(session, issue);
-    int ruleId = rule(issue).getId();
+    int ruleId = requireNonNull(getRuleId(issue), "Rule not found: " + issue.ruleKey());
     IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
     getDbClient().issueDao().insert(session, dto);
@@ -155,14 +157,14 @@ public class WebIssueStorage extends IssueStorage {
   private IssueDto doUpdate(DbSession session, long now, DefaultIssue issue) {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
     getDbClient().issueDao().update(session, dto);
-    return dto;
+    // Rule id does not exist in DefaultIssue
+    Integer ruleId = getRuleId(issue);
+    return dto.setRuleId(ruleId);
   }
 
-  protected Rule rule(Issue issue) {
+  @CheckForNull
+  protected Integer getRuleId(Issue issue) {
     Rule rule = ruleFinder.findByKey(issue.ruleKey());
-    if (rule == null) {
-      throw new IllegalStateException("Rule not found: " + issue.ruleKey());
-    }
-    return rule;
+    return rule != null ? rule.getId() : null;
   }
 }

@@ -146,8 +146,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_INSE
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.UNKNOWN_STANDARD;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_ASSIGNED_TO_ME;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
@@ -158,7 +156,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
@@ -173,6 +170,9 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
  */
 public class IssueIndex {
 
+  public static final String FACET_PROJECTS = "projects";
+  public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
+
   private static final int DEFAULT_FACET_SIZE = 15;
   private static final int MAX_FACET_SIZE = 100;
 
@@ -186,7 +186,7 @@ public class IssueIndex {
     RULES(PARAM_RULES, FIELD_ISSUE_RULE_ID, MAX_FACET_SIZE),
     TAGS(PARAM_TAGS, FIELD_ISSUE_TAGS, MAX_FACET_SIZE),
     AUTHORS(PARAM_AUTHORS, FIELD_ISSUE_AUTHOR_LOGIN, MAX_FACET_SIZE),
-    PROJECT_UUIDS(PARAM_PROJECT_UUIDS, FIELD_ISSUE_PROJECT_UUID, MAX_FACET_SIZE),
+    PROJECT_UUIDS(FACET_PROJECTS, FIELD_ISSUE_PROJECT_UUID, MAX_FACET_SIZE),
     MODULE_UUIDS(PARAM_MODULE_UUIDS, FIELD_ISSUE_MODULE_UUID, MAX_FACET_SIZE),
     FILE_UUIDS(PARAM_FILE_UUIDS, FIELD_ISSUE_COMPONENT_UUID, MAX_FACET_SIZE),
     DIRECTORIES(PARAM_DIRECTORIES, FIELD_ISSUE_DIRECTORY_PATH, MAX_FACET_SIZE),
@@ -439,7 +439,7 @@ public class IssueIndex {
   }
 
   private static boolean hasQueryEffortFacet(IssueQuery query) {
-    return FACET_MODE_EFFORT.equals(query.facetMode()) || DEPRECATED_FACET_MODE_DEBT.equals(query.facetMode());
+    return FACET_MODE_EFFORT.equals(query.facetMode());
   }
 
   private static AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {

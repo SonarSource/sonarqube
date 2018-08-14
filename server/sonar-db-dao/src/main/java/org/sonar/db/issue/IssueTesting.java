@@ -45,8 +45,8 @@ public class IssueTesting {
   }
 
   public static IssueDto newIssue(RuleDefinitionDto rule, ComponentDto project, ComponentDto file) {
-    checkArgument(project.qualifier().equals(Qualifiers.PROJECT));
-    checkArgument(file.projectUuid().equals(project.uuid()));
+    checkArgument(project.qualifier().equals(Qualifiers.PROJECT), "Second parameter should be a project");
+    checkArgument(file.projectUuid().equals(project.uuid()), "The file doesn't belong to the project");
 
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))

@@ -21,13 +21,11 @@ package org.sonar.server.issue.ws;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -64,9 +62,16 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
+import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 
 public class SearchResponseFormat {
 
@@ -82,17 +87,15 @@ public class SearchResponseFormat {
     this.avatarFactory = avatarFactory;
   }
 
-  public SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, @Nullable Facets facets) {
+  SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets) {
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
     formatEffortTotal(data, response);
     response.addAllIssues(formatIssues(fields, data));
     response.addAllComponents(formatComponents(data));
-    if (facets != null) {
-      formatFacets(facets, response);
-    }
-    if (fields.contains(SearchAdditionalField.RULE_IDS_AND_KEYS)) {
+    formatFacets(data, facets, response);
+    if (fields.contains(SearchAdditionalField.RULES)) {
       response.setRules(formatRules(data));
     }
     if (fields.contains(SearchAdditionalField.USERS)) {
@@ -104,7 +107,7 @@ public class SearchResponseFormat {
     return response.build();
   }
 
-  public Operation formatOperation(SearchResponseData data) {
+  Operation formatOperation(SearchResponseData data) {
     Operation.Builder response = Operation.newBuilder();
 
     if (data.getIssues().size() == 1) {
@@ -122,7 +125,7 @@ public class SearchResponseFormat {
     return response.build();
   }
 
-  private void formatEffortTotal(SearchResponseData data, SearchWsResponse.Builder response) {
+  private static void formatEffortTotal(SearchResponseData data, SearchWsResponse.Builder response) {
     Long effort = data.getEffortTotal();
     if (effort != null) {
       response.setDebtTotal(effort);
@@ -159,7 +162,7 @@ public class SearchResponseFormat {
 
   private void formatIssue(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
-    setNullable(dto.getType(), issueBuilder::setType, Common.RuleType::valueOf);
+    setNullable(dto.getType(), issueBuilder::setType, Common.RuleType::forNumber);
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
@@ -370,29 +373,102 @@ public class SearchResponseFormat {
     return wsLangs;
   }
 
-  private static void formatFacets(Facets facets, SearchWsResponse.Builder wsSearch) {
+  private static void formatFacets(SearchResponseData data, Facets facets, SearchWsResponse.Builder wsSearch) {
     Common.Facets.Builder wsFacets = Common.Facets.newBuilder();
-    Common.Facet.Builder wsFacet = Common.Facet.newBuilder();
-    for (Map.Entry<String, LinkedHashMap<String, Long>> facet : facets.getAll().entrySet()) {
-      wsFacet.clear();
-      wsFacet.setProperty(facet.getKey());
-      LinkedHashMap<String, Long> buckets = facet.getValue();
-      if (buckets == null) {
-        wsFacet.addAllValues(Collections.emptyList());
-      } else {
-        addFacetValues(wsFacet, buckets.entrySet());
-      }
-      wsFacets.addFacets(wsFacet);
-    }
-    wsSearch.setFacets(wsFacets);
+    SearchAction.SUPPORTED_FACETS.stream()
+      .filter(f -> !f.equals(FACET_PROJECTS))
+      .filter(f -> !f.equals(FACET_ASSIGNED_TO_ME))
+      .filter(f -> !f.equals(PARAM_ASSIGNEES))
+      .filter(f -> !f.equals(PARAM_RULES))
+      .forEach(f -> computeStandardFacet(wsFacets, facets, f));
+    computeAssigneesFacet(wsFacets, facets, data);
+    computeAssignedToMeFacet(wsFacets, facets, data);
+    computeRulesFacet(wsFacets, facets, data);
+    computeProjectsFacet(wsFacets, facets, data);
+    wsSearch.setFacets(wsFacets.build());
   }
 
-  private static void addFacetValues(Common.Facet.Builder wsFacet, Set<Map.Entry<String, Long>> entries) {
-    for (Map.Entry<String, Long> bucket : entries) {
-      Common.FacetValue.Builder valueBuilder = wsFacet.addValuesBuilder();
-      valueBuilder.setVal(bucket.getKey());
-      valueBuilder.setCount(bucket.getValue());
-      valueBuilder.build();
+  private static void computeStandardFacet(Common.Facets.Builder wsFacets, Facets facets, String facetKey) {
+    LinkedHashMap<String, Long> facet = facets.get(facetKey);
+    if (facet == null) {
+      return;
     }
+    Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
+    wsFacet.setProperty(facetKey);
+    facet.forEach((value, count) -> wsFacet.addValuesBuilder()
+      .setVal(value)
+      .setCount(count)
+      .build());
+    wsFacet.build();
   }
+
+  private static void computeAssigneesFacet(Common.Facets.Builder wsFacets, Facets facets, SearchResponseData data) {
+    LinkedHashMap<String, Long> facet = facets.get(PARAM_ASSIGNEES);
+    if (facet == null) {
+      return;
+    }
+    Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
+    wsFacet.setProperty(PARAM_ASSIGNEES);
+    facet
+      .forEach((userUuid, count) -> {
+        UserDto user = data.getUserByUuid(userUuid);
+        wsFacet.addValuesBuilder()
+          .setVal(user == null ? "" : user.getLogin())
+          .setCount(count)
+          .build();
+      });
+    wsFacet.build();
+  }
+
+  private static void computeAssignedToMeFacet(Common.Facets.Builder wsFacets, Facets facets, SearchResponseData data) {
+    LinkedHashMap<String, Long> facet = facets.get(FACET_ASSIGNED_TO_ME);
+    if (facet == null) {
+      return;
+    }
+    Map.Entry<String, Long> entry = facet.entrySet().iterator().next();
+    UserDto user = data.getUserByUuid(entry.getKey());
+    checkState(user != null, "User with uuid '%s' has not been found", entry.getKey());
+
+    Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
+    wsFacet.setProperty(FACET_ASSIGNED_TO_ME);
+    wsFacet.addValuesBuilder()
+      .setVal(user.getLogin())
+      .setCount(entry.getValue())
+      .build();
+  }
+
+  private static void computeRulesFacet(Common.Facets.Builder wsFacets, Facets facets, SearchResponseData data) {
+    LinkedHashMap<String, Long> facet = facets.get(PARAM_RULES);
+    if (facet == null) {
+      return;
+    }
+
+    Map<Integer, RuleKey> ruleIdsByRuleKeys = data.getRules().stream().collect(uniqueIndex(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
+    Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
+    wsFacet.setProperty(PARAM_RULES);
+    facet.forEach((ruleId, count) -> wsFacet.addValuesBuilder()
+      .setVal(ruleIdsByRuleKeys.get(Integer.parseInt(ruleId)).toString())
+      .setCount(count)
+      .build());
+    wsFacet.build();
+  }
+
+  private static void computeProjectsFacet(Common.Facets.Builder wsFacets, Facets facets, SearchResponseData datas) {
+    LinkedHashMap<String, Long> facet = facets.get(FACET_PROJECTS);
+    if (facet == null) {
+      return;
+    }
+    Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
+    wsFacet.setProperty(FACET_PROJECTS);
+    facet.forEach((uuid, count) -> {
+      ComponentDto component = datas.getComponentByUuid(uuid);
+      requireNonNull(component, format("Component has not been found for uuid '%s'", uuid));
+      wsFacet.addValuesBuilder()
+        .setVal(component.getKey())
+        .setCount(count)
+        .build();
+    });
+    wsFacet.build();
+  }
+
 }

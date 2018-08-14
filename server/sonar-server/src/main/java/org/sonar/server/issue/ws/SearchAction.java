@@ -24,22 +24,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
@@ -49,13 +44,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
@@ -79,6 +71,8 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
+import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_RISKY_RESOURCE;
@@ -90,9 +84,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_ASSIGNED_TO_ME;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_COUNT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -120,10 +112,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUID
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLANNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REPORTERS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
@@ -136,22 +126,23 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
-public class SearchAction implements IssuesWsAction {
+public class SearchAction implements IssuesWsAction, Startable {
 
-  public static final String LOGIN_MYSELF = "__me__";
-  private static final List<String> SUPPORTED_FACETS = ImmutableList.of(
+  private static final String LOGIN_MYSELF = "__me__";
+
+  static final List<String> SUPPORTED_FACETS = ImmutableList.of(
+    FACET_PROJECTS,
+    PARAM_MODULE_UUIDS,
+    PARAM_FILE_UUIDS,
+    FACET_ASSIGNED_TO_ME,
     PARAM_SEVERITIES,
     PARAM_STATUSES,
     PARAM_RESOLUTIONS,
     DEPRECATED_PARAM_ACTION_PLANS,
-    PARAM_PROJECT_UUIDS,
     PARAM_RULES,
     PARAM_ASSIGNEES,
-    FACET_ASSIGNED_TO_ME,
     PARAM_REPORTERS,
     PARAM_AUTHORS,
-    PARAM_MODULE_UUIDS,
-    PARAM_FILE_UUIDS,
     PARAM_DIRECTORIES,
     PARAM_LANGUAGES,
     PARAM_TAGS,
@@ -162,28 +153,27 @@ public class SearchAction implements IssuesWsAction {
     PARAM_CREATED_AT);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
-  private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);
-  private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_FILE_UUIDS, PARAM_DIRECTORIES, PARAM_MODULE_UUIDS);
+  private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILE_UUIDS, PARAM_DIRECTORIES);
   private static final Joiner COMA_JOINER = Joiner.on(",");
-  private static final Logger LOGGER = Loggers.get(SearchAction.class);
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
   private final IssueQueryFactory issueQueryFactory;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
+  private final Configuration config;
   private final System2 system2;
   private final DbClient dbClient;
-  private final boolean isOnSonarCloud;
+  private boolean isOnSonarCloud;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory, SearchResponseLoader searchResponseLoader,
     SearchResponseFormat searchResponseFormat, Configuration config, System2 system2, DbClient dbClient) {
-    this.isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
+    this.config = config;
     this.system2 = system2;
     this.dbClient = dbClient;
   }
@@ -200,15 +190,18 @@ public class SearchAction implements IssuesWsAction {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
       .setChangelog(
+        new Change("7.4", "The facet 'projectUuids' is dropped in favour of the new facet 'projects'. " +
+          "Note that they are not strictly identical, the latter returns the project keys."),
+        new Change("7.4", format("Parameter '%s' does not accept anymore deprecated value 'debt'", FACET_MODE)),
+        new Change("7.3", "response field 'fromHotspot' added to issues that are security hotspots"),
+        new Change("7.3", "added facets 'sansTop25', 'owaspTop10' and 'cwe'"),
+        new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"),
+        new Change("7.2", format("value '%s' in parameter '%s' is deprecated, it won't have any effect", SORT_BY_ASSIGNEE, Param.SORT)),
         new Change("6.5", "parameters 'projects', 'projectUuids', 'moduleUuids', 'directories', 'fileUuids' are marked as internal"),
         new Change("6.3", "response field 'email' is renamed 'avatar'"),
         new Change("5.5", "response fields 'reporter' and 'actionPlan' are removed (drop of action plan and manual issue features)"),
         new Change("5.5", "parameters 'reporters', 'actionPlans' and 'planned' are dropped and therefore ignored (drop of action plan and manual issue features)"),
-        new Change("5.5", "response field 'debt' is renamed 'effort'"),
-        new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"),
-        new Change("7.2", format("value '%s' in parameter '%s' is deprecated, it won't have any effect", SORT_BY_ASSIGNEE, Param.SORT)),
-        new Change("7.3", "response field 'fromHotspot' added to issues that are security hotspots"),
-        new Change("7.3", "added facets 'sansTop25', 'owaspTop10' and 'cwe'"))
+        new Change("5.5", "response field 'debt' is renamed 'effort'"))
       .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
@@ -217,9 +210,8 @@ public class SearchAction implements IssuesWsAction {
       .setPossibleValues(SUPPORTED_FACETS);
     action.createParam(FACET_MODE)
       .setDefaultValue(FACET_MODE_COUNT)
-      .setDescription("Choose the returned value for facet items, either count of issues or sum of debt.<br/>" +
-        "Since 5.5, 'debt' mode is deprecated and replaced by 'effort'")
-      .setPossibleValues(FACET_MODE_COUNT, FACET_MODE_EFFORT, DEPRECATED_FACET_MODE_DEBT);
+      .setDescription("Choose the returned value for facet items, either count of issues or sum of remediation effort.")
+      .setPossibleValues(FACET_MODE_COUNT, FACET_MODE_EFFORT);
     action.addSortParams(IssueQuery.SORTS, null, true);
     action.createParam(PARAM_ADDITIONAL_FIELDS)
       .setSince("5.2")
@@ -344,13 +336,6 @@ public class SearchAction implements IssuesWsAction {
       .setInternal(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
-    action.createParam(PARAM_PROJECT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project IDs). " +
-        INTERNAL_PARAMETER_DISCLAIMER +
-        "Portfolios are not supported. If this parameter is set, '%s' must not be set.", PARAM_PROJECTS)
-      .setInternal(true)
-      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
-
     action.createParam(PARAM_MODULE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER)
@@ -393,45 +378,25 @@ public class SearchAction implements IssuesWsAction {
 
   @Override
   public final void handle(Request request, Response response) {
-    SearchRequest searchRequest = toSearchWsRequest(request)
-      .setAssigneesUuid(getLogins(request));
-    SearchWsResponse searchWsResponse = doHandle(searchRequest, request);
-    writeProtobuf(searchWsResponse, request, response);
-  }
-
-  private List<String> getLogins(Request request) {
-    List<String> assigneeLogins = request.paramAsStrings(PARAM_ASSIGNEES);
-    List<String> onlyLogins = new ArrayList<>();
-
-    for (String login : ofNullable(assigneeLogins).orElse(emptyList())) {
-      if (LOGIN_MYSELF.equals(login)) {
-        if (userSession.getLogin() == null) {
-          onlyLogins.add(UNKNOWN);
-        } else {
-          onlyLogins.add(userSession.getLogin());
-        }
-      } else {
-        onlyLogins.add(login);
-      }
-    }
-
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<UserDto> userDtos = dbClient.userDao().selectByLogins(dbSession, onlyLogins);
-      List<String> assigneeUuid = userDtos.stream().map(UserDto::getUuid).collect(toList());
-
-      if ((assigneeLogins != null) && firstNonNull(assigneeUuid, emptyList()).isEmpty()) {
-        assigneeUuid = ImmutableList.of("non-existent-uuid");
-      }
-      return assigneeUuid;
+      SearchRequest searchRequest = toSearchWsRequest(dbSession, request);
+      SearchWsResponse searchWsResponse = doHandle(dbSession, searchRequest);
+      writeProtobuf(searchWsResponse, request, response);
     }
   }
 
-  private SearchWsResponse doHandle(SearchRequest request, Request wsRequest) {
+  private SearchWsResponse doHandle(DbSession dbSession, SearchRequest request) {
     // prepare the Elasticsearch request
-    SearchOptions options = createSearchOptionsFromRequest(request);
+    SearchOptions options = createSearchOptionsFromRequest(dbSession, request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
-
     IssueQuery query = issueQueryFactory.create(request);
+
+    Set<String> facetsRequiringProjectOrOrganizationParameter = options.getFacets().stream()
+      .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
+      .collect(toSet());
+    checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
+      (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
+      COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
 
     // execute request
     SearchResponse result = issueIndex.search(query, options);
@@ -440,7 +405,7 @@ public class SearchAction implements IssuesWsAction {
       .collect(MoreCollectors.toList(result.getHits().getHits().length));
 
     // load the additional information to be returned in response
-    SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(additionalFields, issueKeys);
+    SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(issueKeys);
     collectLoggedInUser(collector);
     collectRequestParams(collector, request);
     Facets facets = new Facets(result, system2.getDefaultTimeZone());
@@ -448,122 +413,19 @@ public class SearchAction implements IssuesWsAction {
       // add missing values to facets. For example if assignee "john" and facet on "assignees" are requested, then
       // "john" should always be listed in the facet. If it is not present, then it is added with value zero.
       // This is a constraint from webapp UX.
-      completeFacets(facets, request, wsRequest);
+      completeFacets(facets, request, query);
       collectFacets(collector, facets);
-
-      Set<String> facetsRequiringProjectOrOrganizationParameter = facets.getNames().stream()
-        .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
-        .collect(toSet());
-      checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
-          (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
-        COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
     }
     SearchResponseData preloadedData = new SearchResponseData(emptyList());
-    preloadedData.setRules(ImmutableList.copyOf(query.rules()));
-    SearchResponseData data = searchResponseLoader.load(preloadedData, collector, facets);
-
-    if (userSession.isLoggedIn()) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        data.setUserOrganizationUuids(dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, userSession.getUserId()));
-      }
-    }
-    // format response
-
-    // Filter and reorder facets according to the requested ordered names.
-    // Must be done after loading of data as the "hidden" facet "debt"
-    // can be used to get total debt.
-    facets = reorderFacets(facets, options.getFacets());
-    replaceRuleIdsByRuleKeys(facets, firstNonNull(data.getRules(), emptyList()));
-    replaceAssigneeUuidByUserLogin(facets, data, PARAM_ASSIGNEES);
-    replaceAssigneeUuidByUserLogin(facets, data, FACET_ASSIGNED_TO_ME);
+    preloadedData.addRules(ImmutableList.copyOf(query.rules()));
+    SearchResponseData data = searchResponseLoader.load(preloadedData, collector, additionalFields, facets);
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits());
-
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 
-  private static void replaceAssigneeUuidByUserLogin(@Nullable Facets facets, SearchResponseData data, String facet) {
-    if (facets == null) {
-      return;
-    }
-    LinkedHashMap<String, Long> assigneeFacets = facets.get(facet);
-    if (assigneeFacets == null) {
-      return;
-    }
-
-    LinkedHashMap<String, Long> newAssigneeFacets = new LinkedHashMap<>();
-    assigneeFacets
-      .forEach((userUuid, v) -> {
-        UserDto user = data.getUserByUuid(userUuid);
-        newAssigneeFacets.put(user == null ? "" : user.getLogin(), v);
-      });
-    assigneeFacets.clear();
-    assigneeFacets.putAll(newAssigneeFacets);
-  }
-
-  private void replaceRuleIdsByRuleKeys(@Nullable Facets facets, List<RuleDefinitionDto> alreadyLoadedRules) {
-    if (facets == null) {
-      return;
-    }
-    LinkedHashMap<String, Long> rulesFacet = facets.get(PARAM_RULES);
-    if (rulesFacet == null) {
-      return;
-    }
-
-    // The facet for PARAM_RULES contains the id of the rule as the key
-    // We need to update the key to be a RuleKey
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<Integer> ruleIdsToLoad = new HashSet<>();
-      rulesFacet.keySet().forEach(s -> {
-        try {
-          ruleIdsToLoad.add(Integer.parseInt(s));
-        } catch (NumberFormatException e) {
-          // ignore, this is already a key
-        }
-      });
-      ruleIdsToLoad.removeAll(
-        alreadyLoadedRules
-          .stream()
-          .map(RuleDefinitionDto::getId)
-          .collect(toList()));
-
-      List<RuleDefinitionDto> ruleDefinitions = Stream.concat(
-        alreadyLoadedRules.stream(),
-        dbClient.ruleDao().selectDefinitionByIds(dbSession, ruleIdsToLoad).stream())
-        .collect(MoreCollectors.toList());
-      Map<Integer, RuleKey> ruleKeyById = ruleDefinitions.stream()
-        .collect(Collectors.toMap(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
-      Map<String, Integer> idByRuleKeyAsString = ruleDefinitions.stream()
-        .collect(Collectors.toMap(s -> s.getKey().toString(), RuleDefinitionDto::getId));
-
-      LinkedHashMap<String, Long> newRulesFacet = new LinkedHashMap<>();
-      rulesFacet.forEach((k, v) -> {
-        try {
-          int ruleId = Integer.parseInt(k);
-          RuleKey ruleKey = ruleKeyById.get(ruleId);
-          if (ruleKey != null) {
-            newRulesFacet.put(ruleKey.toString(), v);
-          } else {
-            // RuleKey not found ES/DB incorrect?
-            LOGGER.error("Rule with id {} is not available in database", k);
-          }
-        } catch (NumberFormatException e) {
-          // RuleKey are added into the facet from the HTTP request, there may be a result for this rule from the
-          // ES search (with the ruleId as a key). If so, do not add this entry again (anyway, value for ruleKey is
-          // always 0 since it is added SearchAction#completeFacets).
-          String ruleId = String.valueOf(idByRuleKeyAsString.get(k));
-          if (!rulesFacet.containsKey(ruleId)) {
-            newRulesFacet.put(k, v);
-          }
-        }
-      });
-      rulesFacet.clear();
-      rulesFacet.putAll(newRulesFacet);
-    }
-  }
-
-  private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
+  private SearchOptions createSearchOptionsFromRequest(DbSession dbSession, SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
 
@@ -573,16 +435,12 @@ public class SearchAction implements IssuesWsAction {
       return options;
     }
 
-    List<String> requestedFacets = new ArrayList<>(facets.size());
-    requestedFacets.addAll(facets);
-
+    List<String> requestedFacets = new ArrayList<>(facets);
     if (isOnSonarCloud) {
       Optional<OrganizationDto> organizationDto = Optional.empty();
       String organizationKey = request.getOrganization();
       if (organizationKey != null) {
-        try (DbSession dbSession = dbClient.openSession(false)) {
-          organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
-        }
+        organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
       }
 
       if (!organizationDto.isPresent() || !userSession.hasMembership(organizationDto.get())) {
@@ -593,29 +451,17 @@ public class SearchAction implements IssuesWsAction {
     }
 
     options.addFacets(requestedFacets);
-
     return options;
   }
 
-  private Facets reorderFacets(@Nullable Facets facets, Collection<String> orderedNames) {
-    if (facets == null) {
-      return null;
-    }
-    LinkedHashMap<String, LinkedHashMap<String, Long>> orderedFacets = new LinkedHashMap<>();
-    for (String facetName : orderedNames) {
-      LinkedHashMap<String, Long> facet = facets.get(facetName);
-      if (facet != null) {
-        orderedFacets.put(facetName, facet);
-      }
-    }
-    return new Facets(orderedFacets, system2.getDefaultTimeZone());
-  }
-
-  private void completeFacets(Facets facets, SearchRequest request, Request wsRequest) {
+  private void completeFacets(Facets facets, SearchRequest request, IssueQuery query) {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
     addMandatoryValuesToFacet(facets, PARAM_STATUSES, Issue.STATUSES);
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), Issue.RESOLUTIONS));
-    addMandatoryValuesToFacet(facets, PARAM_PROJECT_UUIDS, request.getProjectUuids());
+    addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
+    addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());
+    addMandatoryValuesToFacet(facets, PARAM_FILE_UUIDS, query.fileUuids());
+    addMandatoryValuesToFacet(facets, PARAM_COMPONENT_UUIDS, request.getComponentUuids());
 
     List<String> assignees = Lists.newArrayList("");
     List<String> assigneesFromRequest = request.getAssigneeUuids();
@@ -625,34 +471,13 @@ public class SearchAction implements IssuesWsAction {
     }
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getUuid()));
-    addMandatoryValuesToFacet(facets, PARAM_RULES, request.getRules());
+    addMandatoryValuesToFacet(facets, PARAM_RULES, query.rules().stream().map(r -> Integer.toString(r.getId())).collect(toList()));
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
     addMandatoryValuesToFacet(facets, PARAM_TYPES, RuleType.names());
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
-    addMandatoryValuesToFacet(facets, PARAM_COMPONENT_UUIDS, request.getComponentUuids());
-
-    List<String> requestedFacets = request.getFacets();
-    if (requestedFacets == null) {
-      return;
-    }
-    requestedFacets.stream()
-      .filter(facetName -> !FACET_ASSIGNED_TO_ME.equals(facetName))
-      .filter(facetName -> !PARAM_ASSIGNEES.equals(facetName))
-      .filter(facetName -> !IGNORED_FACETS.contains(facetName))
-      .forEach(facetName -> {
-        LinkedHashMap<String, Long> buckets = facets.get(facetName);
-        List<String> requestParams = wsRequest.paramAsStrings(facetName);
-        if (buckets == null || requestParams == null) {
-          return;
-        }
-        requestParams.stream()
-          .filter(param -> !buckets.containsKey(param) && !LOGIN_MYSELF.equals(param))
-          // Prevent appearance of a glitch value due to dedicated parameter for this facet
-          .forEach(param -> buckets.put(param, 0L));
-      });
   }
 
   private static void addMandatoryValuesToFacet(Facets facets, String facetName, @Nullable Iterable<String> mandatoryValues) {
@@ -668,35 +493,32 @@ public class SearchAction implements IssuesWsAction {
 
   private void collectLoggedInUser(SearchResponseLoader.Collector collector) {
     if (userSession.isLoggedIn()) {
-      collector.add(SearchAdditionalField.USERS, userSession.getUuid());
+      collector.addUserUuids(singletonList(userSession.getUuid()));
     }
   }
 
   private static void collectFacets(SearchResponseLoader.Collector collector, Facets facets) {
-    Set<String> facetRules = facets.getBucketKeys(PARAM_RULES);
-    if (facetRules != null) {
-      collector.addAll(SearchAdditionalField.RULE_IDS_AND_KEYS, facetRules);
-    }
-    collector.addProjectUuids(facets.getBucketKeys(PARAM_PROJECT_UUIDS));
-    collector.addComponentUuids(facets.getBucketKeys(PARAM_COMPONENT_UUIDS));
-    collector.addComponentUuids(facets.getBucketKeys(PARAM_FILE_UUIDS));
+    collector.addProjectUuids(facets.getBucketKeys(FACET_PROJECTS));
     collector.addComponentUuids(facets.getBucketKeys(PARAM_MODULE_UUIDS));
-    collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(PARAM_ASSIGNEES));
+    collector.addComponentUuids(facets.getBucketKeys(PARAM_FILE_UUIDS));
+    collector.addComponentUuids(facets.getBucketKeys(PARAM_COMPONENT_UUIDS));
+    collector.addRuleIds(facets.getBucketKeys(PARAM_RULES));
+    collector.addUserUuids(facets.getBucketKeys(PARAM_ASSIGNEES));
   }
 
   private static void collectRequestParams(SearchResponseLoader.Collector collector, SearchRequest request) {
-    collector.addProjectUuids(request.getProjectUuids());
     collector.addComponentUuids(request.getFileUuids());
     collector.addComponentUuids(request.getModuleUuids());
     collector.addComponentUuids(request.getComponentRootUuids());
-    collector.addAll(SearchAdditionalField.USERS, request.getAssigneeUuids());
+    collector.addUserUuids(request.getAssigneeUuids());
   }
 
-  private static SearchRequest toSearchWsRequest(Request request) {
+  private SearchRequest toSearchWsRequest(DbSession dbSession, Request request) {
     return new SearchRequest()
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
       .setAsc(request.mandatoryParamAsBoolean(PARAM_ASC))
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
+      .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
       .setAuthors(request.paramAsStrings(PARAM_AUTHORS))
       .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))
       .setComponentRootUuids(request.paramAsStrings(PARAM_COMPONENT_ROOT_UUIDS))
@@ -721,7 +543,6 @@ public class SearchAction implements IssuesWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setProjectKeys(request.paramAsStrings(PARAM_PROJECTS))
-      .setProjectUuids(request.paramAsStrings(PARAM_PROJECT_UUIDS))
       .setProjects(request.paramAsStrings(PARAM_PROJECTS))
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
@@ -735,5 +556,39 @@ public class SearchAction implements IssuesWsAction {
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setCwe(request.paramAsStrings(PARAM_CWE));
+  }
+
+  private List<String> getLogins(DbSession dbSession, @Nullable List<String> assigneeLogins) {
+    List<String> userLogins = new ArrayList<>();
+
+    for (String login : ofNullable(assigneeLogins).orElse(emptyList())) {
+      if (LOGIN_MYSELF.equals(login)) {
+        if (userSession.getLogin() == null) {
+          userLogins.add(UNKNOWN);
+        } else {
+          userLogins.add(userSession.getLogin());
+        }
+      } else {
+        userLogins.add(login);
+      }
+    }
+
+    List<UserDto> userDtos = dbClient.userDao().selectByLogins(dbSession, userLogins);
+    List<String> assigneeUuid = userDtos.stream().map(UserDto::getUuid).collect(toList());
+
+    if ((assigneeLogins != null) && firstNonNull(assigneeUuid, emptyList()).isEmpty()) {
+      assigneeUuid = ImmutableList.of("non-existent-uuid");
+    }
+    return assigneeUuid;
+  }
+
+  @Override
+  public void start() {
+    this.isOnSonarCloud = config.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to do
   }
 }

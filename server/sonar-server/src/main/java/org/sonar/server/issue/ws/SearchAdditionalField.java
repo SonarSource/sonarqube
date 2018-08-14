@@ -38,8 +38,7 @@ public enum SearchAdditionalField {
   DEPRECATED_ACTION_PLANS("actionPlans"),
   COMMENTS("comments"),
   LANGUAGES("languages"),
-  // may contain strings representing rule ids (from ES facets) or string representing ruleKeys (from HTTP request)
-  RULE_IDS_AND_KEYS("rules"),
+  RULES("rules"),
   TRANSITIONS("transitions"),
   USERS("users");
 

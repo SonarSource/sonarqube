@@ -1,4 +1,4 @@
-package org.sonar.server.issue.ws;/*
+/*
  * SonarQube
  * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,6 +17,7 @@ package org.sonar.server.issue.ws;/*
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.issue.ws;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -55,8 +56,8 @@ import org.sonar.test.JsonAssert;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
 
 public class SearchActionTestOnSonarCloud {
   @Rule
@@ -66,13 +67,11 @@ public class SearchActionTestOnSonarCloud {
   @Rule
   public EsTester es = EsTester.create();
 
-  private MapSettings mapSettings = new MapSettings()
-    .setProperty("sonar.sonarcloud.enabled", true);
+  private MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", true);
 
   private DbClient dbClient = db.getDbClient();
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-  //private ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
@@ -81,8 +80,9 @@ public class SearchActionTestOnSonarCloud {
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
-    mapSettings.asConfig(), System2.INSTANCE, dbClient));
+  private SearchAction underTest = new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat,
+    mapSettings.asConfig(), System2.INSTANCE, dbClient);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   private OrganizationDto organization;
   private UserDto user;
@@ -90,6 +90,7 @@ public class SearchActionTestOnSonarCloud {
 
   @Before
   public void setup() {
+    underTest.start();
     organization = db.organizations().insert(o -> o.setKey("org-1"));
     user = db.users().insertUser();
 
@@ -111,7 +112,7 @@ public class SearchActionTestOnSonarCloud {
       .addMembership(organization);
 
     String input = ws.newRequest()
-      .setParam(PARAM_PROJECT_UUIDS, project.uuid())
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(FACETS, "authors")
       .execute()
       .getInput();
@@ -128,7 +129,7 @@ public class SearchActionTestOnSonarCloud {
       .logIn(user);
 
     String input = ws.newRequest()
-      .setParam(PARAM_PROJECT_UUIDS, project.uuid())
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(FACETS, "authors")
       .execute()
       .getInput();
@@ -149,7 +150,7 @@ public class SearchActionTestOnSonarCloud {
       .addMembership(organization);
 
     ws.newRequest()
-      .setParam(PARAM_PROJECT_UUIDS, project.uuid())
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(FACETS, "authors")
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()

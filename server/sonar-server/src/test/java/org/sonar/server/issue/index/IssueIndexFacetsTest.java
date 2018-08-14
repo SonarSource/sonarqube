@@ -98,7 +98,7 @@ public class IssueIndexFacetsTest {
       newDoc("I2", newFileDto(project, null)),
       newDoc("I3", newFileDto(project2, null)));
 
-    assertThatFacetHasExactly(IssueQuery.builder(), "projectUuids", entry("ABCD", 2L), entry("EFGH", 1L));
+    assertThatFacetHasExactly(IssueQuery.builder(), "projects", entry("ABCD", 2L), entry("EFGH", 1L));
   }
 
   @Test
@@ -109,12 +109,12 @@ public class IssueIndexFacetsTest {
     IssueDoc issue2 = newDoc(newPrivateProjectDto(organizationDto, "project2"));
     indexIssues(issue1, issue2);
 
-    assertThatFacetHasSize(IssueQuery.builder().build(), "projectUuids", 100);
-    assertThatFacetHasSize(IssueQuery.builder().projectUuids(asList(issue1.projectUuid(), issue2.projectUuid())).build(), "projectUuids", 102);
+    assertThatFacetHasSize(IssueQuery.builder().build(), "projects", 100);
+    assertThatFacetHasSize(IssueQuery.builder().projectUuids(asList(issue1.projectUuid(), issue2.projectUuid())).build(), "projects", 102);
   }
 
   @Test
-  public void facets_on_components() {
+  public void facets_on_files() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto(), "A");
     ComponentDto file1 = newFileDto(project, null, "ABCD");
     ComponentDto file2 = newFileDto(project, null, "BCDE");
@@ -131,7 +131,7 @@ public class IssueIndexFacetsTest {
   }
 
   @Test
-  public void facet_on_components_return_100_entries_plus_selected_values() {
+  public void facet_on_files_return_100_entries_plus_selected_values() {
     OrganizationDto organizationDto = newOrganizationDto();
     ComponentDto project = newPrivateProjectDto(organizationDto);
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null, "a" + i))).toArray(IssueDoc[]::new));

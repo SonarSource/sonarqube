@@ -58,7 +58,6 @@ public class SearchRequest {
   private String organization;
   private List<String> owaspTop10;
   private String p;
-  private List<String> projectUuids;
   private List<String> projects;
   private String ps;
   private String pullRequest;
@@ -473,19 +472,6 @@ public class SearchRequest {
 
   public String getP() {
     return p;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "7d8749e8-3070-4903-9188-bdd82933bb92"
-   */
-  public SearchRequest setProjectUuids(List<String> projectUuids) {
-    this.projectUuids = projectUuids;
-    return this;
-  }
-
-  public List<String> getProjectUuids() {
-    return projectUuids;
   }
 
   /**

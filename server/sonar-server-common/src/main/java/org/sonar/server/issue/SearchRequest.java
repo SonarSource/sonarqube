@@ -50,10 +50,9 @@ public class SearchRequest {
   private String branch;
   private String pullRequest;
   private String organization;
-  private Integer page;
-  private Integer pageSize;
+  private int page;
+  private int pageSize;
   private List<String> projectKeys;
-  private List<String> projectUuids;
   private List<String> projects;
   private List<String> resolutions;
   private Boolean resolved;
@@ -278,8 +277,7 @@ public class SearchRequest {
     return this;
   }
 
-  @CheckForNull
-  public Integer getPage() {
+  public int getPage() {
     return page;
   }
 
@@ -288,8 +286,7 @@ public class SearchRequest {
     return this;
   }
 
-  @CheckForNull
-  public Integer getPageSize() {
+  public int getPageSize() {
     return pageSize;
   }
 
@@ -305,16 +302,6 @@ public class SearchRequest {
 
   public SearchRequest setProjectKeys(@Nullable List<String> projectKeys) {
     this.projectKeys = projectKeys;
-    return this;
-  }
-
-  @CheckForNull
-  public List<String> getProjectUuids() {
-    return projectUuids;
-  }
-
-  public SearchRequest setProjectUuids(@Nullable List<String> projectUuids) {
-    this.projectUuids = projectUuids;
     return this;
   }
 

@@ -53,7 +53,6 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 
 public class IssueIndexDebtTest {
@@ -82,9 +81,9 @@ public class IssueIndexDebtTest {
       IssueDocTesting.newDoc("I2", ComponentTesting.newFileDto(project, null)).setEffort(10L),
       IssueDocTesting.newDoc("I3", ComponentTesting.newFileDto(project2, null)).setEffort(10L));
 
-    Facets facets = search("projectUuids");
-    assertThat(facets.getNames()).containsOnly("projectUuids", FACET_MODE_EFFORT);
-    assertThat(facets.get("projectUuids")).containsOnly(entry("ABCD", 20L), entry("EFGH", 10L));
+    Facets facets = search("projects");
+    assertThat(facets.getNames()).containsOnly("projects", FACET_MODE_EFFORT);
+    assertThat(facets.get("projects")).containsOnly(entry("ABCD", 20L), entry("EFGH", 10L));
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 30L));
   }
 
@@ -233,24 +232,6 @@ public class IssueIndexDebtTest {
       entry("2013-01-01", 0L),
       entry("2014-01-01", 50L),
       entry("2015-01-01", 10L));
-  }
-
-  @Test
-  public void deprecated_debt_facets() {
-    OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD");
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto, "EFGH");
-
-    indexIssues(
-      IssueDocTesting.newDoc("I1", ComponentTesting.newFileDto(project, null)).setEffort(10L),
-      IssueDocTesting.newDoc("I2", ComponentTesting.newFileDto(project, null)).setEffort(10L),
-      IssueDocTesting.newDoc("I3", ComponentTesting.newFileDto(project2, null)).setEffort(10L));
-
-    Facets facets = new Facets(underTest.search(IssueQuery.builder().facetMode(DEPRECATED_FACET_MODE_DEBT).build(),
-      new SearchOptions().addFacets(asList("projectUuids"))), system2.getDefaultTimeZone());
-    assertThat(facets.getNames()).containsOnly("projectUuids", FACET_MODE_EFFORT);
-    assertThat(facets.get("projectUuids")).containsOnly(entry("ABCD", 20L), entry("EFGH", 10L));
-    assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 30L));
   }
 
   private SearchOptions fixtureForCreatedAtFacet() {

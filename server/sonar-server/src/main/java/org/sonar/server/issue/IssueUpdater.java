@@ -70,7 +70,7 @@ public class IssueUpdater {
     IssueDto issueDto = doSaveIssue(dbSession, issue, context, comment, rule, project, component);
 
     SearchResponseData result = new SearchResponseData(issueDto);
-    rule.ifPresent(r -> result.setRules(singletonList(r)));
+    rule.ifPresent(r -> result.addRules(singletonList(r)));
     result.addComponents(singleton(project));
     result.addComponents(singleton(component));
 
