@@ -108,9 +108,12 @@ export function getProjects(query: RequestData) {
   return getFacet(query, 'projectUuids').then(r => extractProjects(r.facet, r.response));
 }
 
-export function searchIssueTags(
-  data: { organization?: string; ps?: number; q?: string } = { ps: 100 }
-): Promise<string[]> {
+export function searchIssueTags(data: {
+  organization?: string;
+  project?: string;
+  ps?: number;
+  q?: string;
+}): Promise<string[]> {
   return getJSON('/api/issues/tags', data)
     .then(r => r.tags)
     .catch(throwGlobalError);

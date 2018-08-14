@@ -24,9 +24,10 @@ import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { searchIssueAuthors } from '../../../api/issues';
 import { highlightTerm } from '../../../helpers/search';
+import { Component } from '../../../app/types';
 
 interface Props {
-  componentKey: string | undefined;
+  component: Component | undefined;
   fetching: boolean;
   loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   onChange: (changes: Partial<Query>) => void;
@@ -46,9 +47,12 @@ export default class AuthorFacet extends React.PureComponent<Props> {
   };
 
   handleSearch = (query: string, _page: number) => {
+    const { component } = this.props;
+    const project =
+      component && ['TRK', 'VW', 'APP'].includes(component.qualifier) ? component.key : undefined;
     return searchIssueAuthors({
       organization: this.props.organization,
-      project: this.props.componentKey,
+      project,
       ps: SEARCH_SIZE, // maximum
       q: query
     }).then(authors => ({ maxResults: authors.length === SEARCH_SIZE, results: authors }));

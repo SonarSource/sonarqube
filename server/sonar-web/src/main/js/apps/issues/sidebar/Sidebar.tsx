@@ -255,7 +255,7 @@ export default class Sidebar extends React.PureComponent<Props> {
         {displayAuthorFacet && (
           <AuthorFacet
             authors={query.authors}
-            componentKey={this.props.component && this.props.component.key}
+            component={component}
             fetching={this.props.loadingFacets.authors === true}
             loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}

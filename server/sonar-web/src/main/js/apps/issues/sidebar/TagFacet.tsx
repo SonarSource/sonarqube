@@ -45,8 +45,12 @@ const SEARCH_SIZE = 100;
 
 export default class TagFacet extends React.PureComponent<Props> {
   handleSearch = (query: string) => {
+    const { component } = this.props;
+    const project =
+      component && ['TRK', 'VW', 'APP'].includes(component.qualifier) ? component.key : undefined;
     return searchIssueTags({
       organization: this.props.organization,
+      project,
       ps: SEARCH_SIZE,
       q: query
     }).then(tags => ({ maxResults: tags.length === SEARCH_SIZE, results: tags }));
