@@ -114,15 +114,16 @@ export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(PrivacyBadge
 
 function getDoc(visibility: Visibility, icon: JSX.Element | null, organization: Organization) {
   let doc;
+  const canAdmin = organization.canAdmin || organization.isAdmin;
   if (visibility === Visibility.Private) {
     doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-private.md');
   } else if (icon) {
-    if (organization.canAdmin) {
+    if (canAdmin) {
       doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org-admin.md');
     } else {
       doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org.md');
     }
-  } else if (organization.canAdmin) {
+  } else if (canAdmin) {
     doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-admin.md');
   } else {
     doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public.md');
