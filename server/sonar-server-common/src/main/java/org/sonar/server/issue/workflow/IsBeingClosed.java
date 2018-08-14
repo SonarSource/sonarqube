@@ -20,7 +20,6 @@
 package org.sonar.server.issue.workflow;
 
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.Condition;
 import org.sonar.core.issue.DefaultIssue;
 
 enum IsBeingClosed implements Condition {

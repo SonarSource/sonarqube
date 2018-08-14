@@ -17,23 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.condition;
+package org.sonar.server.issue.workflow;
 
 import org.sonar.api.issue.Issue;
 
-/**
- * @since 3.6
- */
-public class NotCondition implements Condition {
-  private final Condition condition;
+public interface Condition {
 
-  public NotCondition(Condition condition) {
-    this.condition = condition;
-  }
-
-  @Override
-  public boolean matches(Issue issue) {
-    return !condition.matches(issue);
-  }
+  boolean matches(Issue issue);
 
 }

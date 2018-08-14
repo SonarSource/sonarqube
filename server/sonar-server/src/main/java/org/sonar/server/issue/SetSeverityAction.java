@@ -22,7 +22,7 @@ package org.sonar.server.issue;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.IsUnResolved;
+import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;

@@ -26,7 +26,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.Condition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

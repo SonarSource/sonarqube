@@ -24,8 +24,6 @@ import org.picocontainer.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.HasResolution;
-import org.sonar.api.issue.condition.NotCondition;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;

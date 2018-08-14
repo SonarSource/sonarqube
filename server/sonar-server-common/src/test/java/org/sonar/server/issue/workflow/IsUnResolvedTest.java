@@ -17,15 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.condition;
+package org.sonar.server.issue.workflow;
 
+import org.junit.Test;
 import org.sonar.api.issue.Issue;
 
-/**
- * @since 3.6
- */
-public interface Condition {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-  boolean matches(Issue issue);
+public class IsUnResolvedTest {
 
+  Issue issue = mock(Issue.class);
+
+  @Test
+  public void should_match() {
+    IsUnResolved condition = new IsUnResolved();
+
+    assertThat(condition.matches(issue)).isTrue();
+
+    when(issue.resolution()).thenReturn("FIXED");
+    assertThat(condition.matches(issue)).isFalse();
+  }
 }

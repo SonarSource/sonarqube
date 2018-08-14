@@ -22,7 +22,6 @@ package org.sonar.server.issue.workflow;
 import java.util.EnumSet;
 import java.util.Set;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 

@@ -17,30 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.condition;
+package org.sonar.server.issue.workflow;
 
-import org.junit.Test;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.issue.Issue;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static java.util.Arrays.asList;
 
-public class HasResolutionTest {
+public class HasResolution implements Condition {
 
-  Issue issue = mock(Issue.class);
+  private final Set<String> resolutions;
 
-  @Test
-  public void should_match() {
-    HasResolution condition = new HasResolution(Issue.RESOLUTION_FIXED, Issue.RESOLUTION_FALSE_POSITIVE);
+  public HasResolution(String first, String... others) {
+    this.resolutions = new HashSet<>();
+    this.resolutions.add(first);
+    this.resolutions.addAll(asList(others));
+  }
 
-    when(issue.resolution()).thenReturn("FIXED");
-    assertThat(condition.matches(issue)).isTrue();
-
-    when(issue.resolution()).thenReturn("FALSE-POSITIVE");
-    assertThat(condition.matches(issue)).isTrue();
-
-    when(issue.resolution()).thenReturn("Fixed");
-    assertThat(condition.matches(issue)).isFalse();
+  @Override
+  public boolean matches(Issue issue) {
+    return issue.resolution() != null && resolutions.contains(issue.resolution());
   }
 }

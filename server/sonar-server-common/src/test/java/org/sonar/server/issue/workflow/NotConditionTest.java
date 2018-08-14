@@ -17,29 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.condition;
+package org.sonar.server.issue.workflow;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.issue.Issue;
+import org.sonar.server.issue.workflow.Condition;
+import org.sonar.server.issue.workflow.NotCondition;
 
-import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-/**
- * @since 3.6
- */
-public class HasResolution implements Condition {
+public class NotConditionTest {
 
-  private final Set<String> resolutions;
+  Condition target = Mockito.mock(Condition.class);
+  Issue issue = mock(Issue.class);
 
-  public HasResolution(String first, String... others) {
-    this.resolutions = new HashSet<>();
-    this.resolutions.add(first);
-    this.resolutions.addAll(asList(others));
-  }
+  @Test
+  public void should_match_opposite() {
+    NotCondition condition = new NotCondition(target);
 
-  @Override
-  public boolean matches(Issue issue) {
-    return issue.resolution() != null && resolutions.contains(issue.resolution());
+    when(target.matches(any(Issue.class))).thenReturn(true);
+    assertThat(condition.matches(issue)).isFalse();
+
+    when(target.matches(any(Issue.class))).thenReturn(false);
+    assertThat(condition.matches(issue)).isTrue();
   }
 }

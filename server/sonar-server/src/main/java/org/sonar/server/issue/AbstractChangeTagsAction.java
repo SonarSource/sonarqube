@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.issue.condition.IsUnResolved;
+import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.core.issue.DefaultIssue;

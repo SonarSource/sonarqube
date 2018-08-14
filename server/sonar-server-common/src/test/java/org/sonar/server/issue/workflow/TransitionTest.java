@@ -20,7 +20,6 @@
 package org.sonar.server.issue.workflow;
 
 import org.junit.Test;
-import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 

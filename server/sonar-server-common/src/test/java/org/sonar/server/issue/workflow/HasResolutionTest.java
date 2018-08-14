@@ -17,32 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.condition;
+package org.sonar.server.issue.workflow;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
 import org.sonar.api.issue.Issue;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-/**
- * @since 3.6
- */
-public final class HasIssuePropertyCondition implements Condition {
+public class HasResolutionTest {
 
-  private final String propertyKey;
+  Issue issue = mock(Issue.class);
 
-  public HasIssuePropertyCondition(String propertyKey) {
-    Preconditions.checkArgument(!isEmpty(propertyKey));
-    this.propertyKey = propertyKey;
-  }
+  @Test
+  public void should_match() {
+    HasResolution condition = new HasResolution(Issue.RESOLUTION_FIXED, Issue.RESOLUTION_FALSE_POSITIVE);
 
-  public String getPropertyKey() {
-    return propertyKey;
-  }
+    when(issue.resolution()).thenReturn("FIXED");
+    assertThat(condition.matches(issue)).isTrue();
 
-  @Override
-  public boolean matches(Issue issue) {
-    return !StringUtils.isEmpty(issue.attribute(propertyKey));
+    when(issue.resolution()).thenReturn("FALSE-POSITIVE");
+    assertThat(condition.matches(issue)).isTrue();
+
+    when(issue.resolution()).thenReturn("Fixed");
+    assertThat(condition.matches(issue)).isFalse();
   }
 }
