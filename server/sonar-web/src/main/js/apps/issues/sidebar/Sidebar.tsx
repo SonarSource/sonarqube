@@ -48,7 +48,7 @@ export interface Props {
   component: Component | undefined;
   facets: { [facet: string]: Facet };
   hideAuthorFacet?: boolean;
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   loadingFacets: { [key: string]: boolean };
   myIssues: boolean;
   onFacetToggle: (property: string) => void;
@@ -81,7 +81,6 @@ export default class Sidebar extends React.PureComponent<Props> {
       <>
         <TypeFacet
           fetching={this.props.loadingFacets.types === true}
-          loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.types}
@@ -90,7 +89,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         />
         <SeverityFacet
           fetching={this.props.loadingFacets.severities === true}
-          loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.severities}
@@ -99,7 +97,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         />
         <ResolutionFacet
           fetching={this.props.loadingFacets.resolutions === true}
-          loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.resolutions}
@@ -109,7 +106,6 @@ export default class Sidebar extends React.PureComponent<Props> {
         />
         <StatusFacet
           fetching={this.props.loadingFacets.statuses === true}
-          loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.statuses}
@@ -123,7 +119,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           createdBefore={query.createdBefore}
           createdInLast={query.createdInLast}
           fetching={this.props.loadingFacets.createdAt === true}
-          loading={this.props.loading}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.createdAt}
@@ -133,21 +128,23 @@ export default class Sidebar extends React.PureComponent<Props> {
         <LanguageFacet
           fetching={this.props.loadingFacets.languages === true}
           languages={query.languages}
-          loading={this.props.loading}
+          loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.languages}
+          query={query}
           referencedLanguages={this.props.referencedLanguages}
           stats={facets.languages}
         />
         <RuleFacet
           fetching={this.props.loadingFacets.rules === true}
           languages={query.languages}
-          loading={this.props.loading}
+          loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.rules}
           organization={organizationKey}
+          query={query}
           referencedRules={this.props.referencedRules}
           rules={query.rules}
           stats={facets.rules}
@@ -159,13 +156,14 @@ export default class Sidebar extends React.PureComponent<Props> {
           fetchingCwe={this.props.loadingFacets.cwe === true}
           fetchingOwaspTop10={this.props.loadingFacets.owaspTop10 === true}
           fetchingSansTop25={this.props.loadingFacets.sansTop25 === true}
-          loading={this.props.loading}
+          loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets[STANDARDS]}
           owaspTop10={query.owaspTop10}
           owaspTop10Open={!!openFacets.owaspTop10}
           owaspTop10Stats={facets.owaspTop10}
+          query={query}
           sansTop25={query.sansTop25}
           sansTop25Open={!!openFacets.sansTop25}
           sansTop25Stats={facets.sansTop25}
@@ -173,11 +171,12 @@ export default class Sidebar extends React.PureComponent<Props> {
         <TagFacet
           component={component}
           fetching={this.props.loadingFacets.tags === true}
-          loading={this.props.loading}
+          loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.tags}
           organization={organizationKey}
+          query={query}
           stats={facets.tags}
           tags={query.tags}
         />
@@ -185,12 +184,13 @@ export default class Sidebar extends React.PureComponent<Props> {
           <ProjectFacet
             component={component}
             fetching={this.props.loadingFacets.projects === true}
-            loading={this.props.loading}
+            loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.projects}
             organization={this.props.organization}
             projects={query.projects}
+            query={query}
             referencedComponents={this.props.referencedComponents}
             stats={facets.projects}
           />
@@ -199,11 +199,12 @@ export default class Sidebar extends React.PureComponent<Props> {
           <ModuleFacet
             componentKey={this.props.component!.key}
             fetching={this.props.loadingFacets.modules === true}
-            loading={this.props.loading}
-            modules={query.modules}
+            loadSearchResultCount={this.props.loadSearchResultCount}
+            modules={query.files}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.modules}
+            query={query}
             referencedComponents={this.props.referencedComponents}
             stats={facets.modules}
           />
@@ -213,10 +214,11 @@ export default class Sidebar extends React.PureComponent<Props> {
             componentKey={this.props.component!.key}
             directories={query.directories}
             fetching={this.props.loadingFacets.directories === true}
-            loading={this.props.loading}
+            loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.directories}
+            query={query}
             stats={facets.directories}
           />
         )}
@@ -225,10 +227,11 @@ export default class Sidebar extends React.PureComponent<Props> {
             componentKey={this.props.component!.key}
             fetching={this.props.loadingFacets.files === true}
             files={query.files}
-            loading={this.props.loading}
+            loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.files}
+            query={query}
             referencedComponents={this.props.referencedComponents}
             stats={facets.files}
           />
@@ -239,11 +242,12 @@ export default class Sidebar extends React.PureComponent<Props> {
             assignees={query.assignees}
             component={component}
             fetching={this.props.loadingFacets.assignees === true}
-            loading={this.props.loading}
+            loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.assignees}
             organization={organizationKey}
+            query={query}
             referencedUsers={this.props.referencedUsers}
             stats={facets.assignees}
           />
@@ -253,11 +257,12 @@ export default class Sidebar extends React.PureComponent<Props> {
             authors={query.authors}
             componentKey={this.props.component && this.props.component.key}
             fetching={this.props.loadingFacets.authors === true}
-            loading={this.props.loading}
+            loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
             open={!!openFacets.authors}
             organization={organizationKey}
+            query={query}
             stats={facets.authors}
           />
         )}

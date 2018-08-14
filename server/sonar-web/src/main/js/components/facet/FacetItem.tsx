@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import DeferredSpinner from '../common/DeferredSpinner';
 
 export interface Props {
   active?: boolean;
@@ -47,6 +48,22 @@ export default class FacetItem extends React.PureComponent<Props> {
     this.props.onClick(this.props.value, event.ctrlKey || event.metaKey);
   };
 
+  renderValue() {
+    if (this.props.loading) {
+      return (
+        <span className="facet-stat">
+          <DeferredSpinner />
+        </span>
+      );
+    }
+
+    if (this.props.stat == null) {
+      return null;
+    }
+
+    return <span className="facet-stat">{this.props.stat}</span>;
+  }
+
   render() {
     const { name } = this.props;
     const className = classNames('search-navigator-facet', this.props.className, {
@@ -57,7 +74,7 @@ export default class FacetItem extends React.PureComponent<Props> {
     return this.props.disabled ? (
       <span className={className} data-facet={this.props.value} title={this.props.tooltip}>
         <span className="facet-name">{name}</span>
-        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
+        {this.renderValue()}
       </span>
     ) : (
       <a
@@ -67,7 +84,7 @@ export default class FacetItem extends React.PureComponent<Props> {
         onClick={this.handleClick}
         title={this.props.tooltip}>
         <span className="facet-name">{name}</span>
-        {this.props.stat != null && <span className="facet-stat">{this.props.stat}</span>}
+        {this.renderValue()}
       </a>
     );
   }

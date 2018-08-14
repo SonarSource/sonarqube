@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { sortBy, without } from 'lodash';
+import * as classNames from 'classnames';
 import FacetBox from './FacetBox';
 import FacetHeader from './FacetHeader';
 import FacetItem from './FacetItem';
@@ -31,18 +32,24 @@ import { Paging } from '../../app/types';
 import SearchBox from '../controls/SearchBox';
 import ListFooter from '../controls/ListFooter';
 import { formatMeasure } from '../../helpers/measures';
+import MouseOverHandler from '../controls/MouseOverHandler';
+import { queriesEqual, RawQuery } from '../../helpers/query';
+import './ListStyleFacet.css';
 
 export interface Props<S> {
+  className?: string;
   facetHeader: string;
   fetching: boolean;
   getFacetItemText: (item: string) => string;
   getSearchResultKey: (result: S) => string;
   getSearchResultText: (result: S) => string;
-  loading?: boolean;
+  loadSearchResultCount?: (result: S) => Promise<number>;
   maxInitialItems?: number;
   maxItems?: number;
   minSearchLength?: number;
   onChange: (changes: { [x: string]: string | string[] }) => void;
+  onClear?: () => void;
+  onItemClick?: (itemValue: string, multiple: boolean) => void;
   onSearch: (
     query: string,
     page?: number
@@ -50,9 +57,11 @@ export interface Props<S> {
   onToggle: (property: string) => void;
   open: boolean;
   property: string;
+  query?: RawQuery;
   renderFacetItem: (item: string) => React.ReactNode;
   renderSearchResult: (result: S, query: string) => React.ReactNode;
   searchPlaceholder: string;
+  getSortedItems?: () => string[];
   stats: { [x: string]: number } | undefined;
   values: string[];
 }
@@ -64,6 +73,8 @@ interface State<S> {
   searchMaxResults?: boolean;
   searchPaging?: Paging;
   searchResults?: S[];
+  searchResultsCounts: { [key: string]: number };
+  searchResultsCountLoading: { [key: string]: boolean };
   showFullList: boolean;
 }
 
@@ -79,6 +90,8 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     autoFocus: false,
     query: '',
     searching: false,
+    searchResultsCounts: {},
+    searchResultsCountLoading: {},
     showFullList: false
   };
 
@@ -87,16 +100,31 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   componentDidUpdate(prevProps: Props<S>) {
+    // always remember issue counts from `stats`
+    if (prevProps.stats !== this.props.stats) {
+      this.setState(state => ({
+        searchResultsCounts: {
+          ...state.searchResultsCounts,
+          ...this.props.stats
+        }
+      }));
+    }
+
     if (!prevProps.open && this.props.open) {
       // focus search field *only* if it was manually open
       this.setState({ autoFocus: true });
-    } else if (prevProps.open && !this.props.open) {
-      // reset state when closing the facet
+    } else if (
+      (prevProps.open && !this.props.open) ||
+      !queriesEqual(prevProps.query || {}, this.props.query || {})
+    ) {
+      // reset state when closing the facet, or when query changes
       this.setState({
         query: '',
         searchMaxResults: undefined,
         searchResults: undefined,
         searching: false,
+        searchResultsCounts: {},
+        searchResultsCountLoading: {},
         showFullList: false
       });
     } else if (
@@ -113,16 +141,20 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
-    const { values } = this.props;
-    if (multiple) {
-      const newValue = sortBy(
-        values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
-      );
-      this.props.onChange({ [this.props.property]: newValue });
+    if (this.props.onItemClick) {
+      this.props.onItemClick(itemValue, multiple);
     } else {
-      this.props.onChange({
-        [this.props.property]: values.includes(itemValue) && values.length < 2 ? [] : [itemValue]
-      });
+      const { values } = this.props;
+      if (multiple) {
+        const newValue = sortBy(
+          values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
+        );
+        this.props.onChange({ [this.props.property]: newValue });
+      } else {
+        this.props.onChange({
+          [this.props.property]: values.includes(itemValue) && values.length < 2 ? [] : [itemValue]
+        });
+      }
     }
   };
 
@@ -131,7 +163,9 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   };
 
   handleClear = () => {
-    this.props.onChange({ [this.props.property]: [] });
+    if (this.props.onClear) {
+      this.props.onClear();
+    } else this.props.onChange({ [this.props.property]: [] });
   };
 
   stopSearching = () => {
@@ -174,10 +208,50 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     }
   };
 
-  getStat(item: string, zeroIfAbsent = false) {
+  handleSearchResultMouseOver = (result: S) => {
+    if (
+      this.props.loadSearchResultCount &&
+      this.state.searchResultsCounts[this.props.getSearchResultKey(result)] === undefined
+    ) {
+      this.setState(state => ({
+        searchResultsCountLoading: {
+          ...state.searchResultsCountLoading,
+          [this.props.getSearchResultKey(result)]: true
+        }
+      }));
+
+      this.props.loadSearchResultCount(result).then(
+        count => {
+          if (this.mounted) {
+            this.setState(state => ({
+              searchResultsCounts: {
+                ...state.searchResultsCounts,
+                [this.props.getSearchResultKey(result)]: count
+              },
+              searchResultsCountLoading: {
+                ...state.searchResultsCountLoading,
+                [this.props.getSearchResultKey(result)]: false
+              }
+            }));
+          }
+        },
+        () => {
+          if (this.mounted) {
+            this.setState(state => ({
+              searchResultsCountLoading: {
+                ...state.searchResultsCountLoading,
+                [this.props.getSearchResultKey(result)]: false
+              }
+            }));
+          }
+        }
+      );
+    }
+  };
+
+  getStat(item: string) {
     const { stats } = this.props;
-    const defaultValue = zeroIfAbsent ? 0 : undefined;
-    return stats && stats[item] !== undefined ? stats && stats[item] : defaultValue;
+    return stats && stats[item] !== undefined ? stats && stats[item] : undefined;
   }
 
   showFullList = () => {
@@ -204,11 +278,9 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
       return null;
     }
 
-    const sortedItems = sortBy(
-      Object.keys(stats),
-      key => -stats[key],
-      key => this.props.getFacetItemText(key)
-    );
+    const sortedItems = this.props.getSortedItems
+      ? this.props.getSortedItems()
+      : sortBy(Object.keys(stats), key => -stats[key], key => this.props.getFacetItemText(key));
 
     // limit the number of items to this.props.maxInitialItems,
     // but make sure all (in other words, the last) selected items are displayed
@@ -227,7 +299,6 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
             <FacetItem
               active={this.props.values.includes(item)}
               key={item}
-              loading={this.props.loading}
               name={this.props.renderFacetItem(item)}
               onClick={this.handleItemClick}
               stat={formatFacetStat(this.getStat(item))}
@@ -313,14 +384,28 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
 
     // default to 0 if we're sure there are not more results
     const isFacetExhaustive = Object.keys(this.props.stats || {}).length < this.props.maxItems!;
-    const stat = this.getStat(key, isFacetExhaustive);
 
-    return (
+    let stat: number | undefined = this.getStat(key);
+    let disabled = isFacetExhaustive && !active && stat === 0;
+    if (stat === undefined) {
+      stat = this.state.searchResultsCounts[key];
+      disabled = false; // do not disable facet if the count was requested after mouse over
+    }
+    if (stat === undefined && isFacetExhaustive) {
+      stat = 0;
+      disabled = !active;
+    }
+
+    const loading = this.state.searchResultsCountLoading[key];
+    const canBeLoaded =
+      !loading && this.props.loadSearchResultCount !== undefined && stat === undefined;
+
+    const facetItem = (
       <FacetItem
         active={active}
-        disabled={!active && stat === 0}
-        key={key}
-        loading={this.props.loading}
+        className={classNames({ 'list-style-facet-mouse-over-animation': canBeLoaded })}
+        disabled={disabled}
+        loading={loading}
         name={this.props.renderSearchResult(result, this.state.query)}
         onClick={this.handleItemClick}
         stat={formatFacetStat(stat)}
@@ -328,13 +413,29 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         value={key}
       />
     );
+
+    return (
+      <React.Fragment key={key}>
+        {canBeLoaded ? (
+          <MouseOverHandler delay={500} onOver={() => this.handleSearchResultMouseOver(result)}>
+            {facetItem}
+          </MouseOverHandler>
+        ) : (
+          facetItem
+        )}
+      </React.Fragment>
+    );
   }
 
   render() {
     const { stats = {} } = this.props;
+    const { query, searching, searchResults } = this.state;
     const values = this.props.values.map(item => this.props.getFacetItemText(item));
+    const loadingResults =
+      query !== '' && searching && (searchResults === undefined || searchResults.length === 0);
+    const showList = !query || loadingResults;
     return (
-      <FacetBox property={this.props.property}>
+      <FacetBox className={this.props.className} property={this.props.property}>
         <FacetHeader
           name={this.props.facetHeader}
           onClear={this.handleClear}
@@ -347,9 +448,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         {this.props.open && (
           <>
             {this.renderSearch()}
-            {this.state.query && this.state.searchResults !== undefined
-              ? this.renderSearchResults()
-              : this.renderList()}
+            {showList ? this.renderList() : this.renderSearchResults()}
             <MultipleSelectionHint options={Object.keys(stats).length} values={values.length} />
           </>
         )}

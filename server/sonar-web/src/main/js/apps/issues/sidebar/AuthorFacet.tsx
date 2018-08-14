@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { omit } from 'lodash';
 import { Query } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
@@ -27,11 +28,12 @@ import { highlightTerm } from '../../../helpers/search';
 interface Props {
   componentKey: string | undefined;
   fetching: boolean;
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   organization: string | undefined;
+  query: Query;
   stats: { [x: string]: number } | undefined;
   authors: string[];
 }
@@ -52,23 +54,29 @@ export default class AuthorFacet extends React.PureComponent<Props> {
     }).then(authors => ({ maxResults: authors.length === SEARCH_SIZE, results: authors }));
   };
 
+  loadSearchResultCount = (author: string) => {
+    return this.props.loadSearchResultCount({ authors: [author] });
+  };
+
   renderSearchResult = (author: string, term: string) => {
     return highlightTerm(author, term);
   };
 
   render() {
     return (
-      <ListStyleFacet
+      <ListStyleFacet<string>
         facetHeader={translate('issues.facet.authors')}
         fetching={this.props.fetching}
         getFacetItemText={this.identity}
         getSearchResultKey={this.identity}
         getSearchResultText={this.identity}
+        loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
         open={this.props.open}
         property="authors"
+        query={omit(this.props.query, 'authors')}
         renderFacetItem={this.identity}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_authors')}

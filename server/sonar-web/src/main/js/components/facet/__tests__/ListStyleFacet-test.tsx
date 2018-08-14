@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, ShallowWrapper } from 'enzyme';
 import ListStyleFacet, { Props } from '../ListStyleFacet';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 
@@ -146,10 +146,14 @@ it('should reset state when closes', () => {
   });
 
   wrapper.setProps({ open: false });
-  expect(wrapper.state('query')).toBe('');
-  expect(wrapper.state('searchResults')).toBe(undefined);
-  expect(wrapper.state('searching')).toBe(false);
-  expect(wrapper.state('showFullList')).toBe(false);
+  checkInitialState(wrapper);
+});
+
+it('should reset search when query changes', () => {
+  const wrapper = shallowRender({ query: { a: ['foo'] } });
+  wrapper.setState({ query: 'foo', searchResults: ['foo'], searchResultsCounts: { foo: 3 } });
+  wrapper.setProps({ query: { a: ['foo'], b: ['bar'] } });
+  checkInitialState(wrapper);
 });
 
 it('should collapse list when new stats have few results', () => {
@@ -158,6 +162,33 @@ it('should collapse list when new stats have few results', () => {
 
   wrapper.setProps({ stats: { d: 1 } });
   expect(wrapper.state('showFullList')).toBe(false);
+});
+
+it('should load count on mouse over', async () => {
+  const loadSearchResultCount = jest.fn().mockResolvedValue(5);
+  const onSearch = jest.fn().mockResolvedValue({
+    results: ['d', 'e'],
+    paging: { pageIndex: 1, pageSize: 2, total: 3 }
+  });
+  const wrapper = shallowRender({ loadSearchResultCount, maxItems: 1, onSearch });
+
+  // search
+  wrapper.find('SearchBox').prop<Function>('onChange')('query');
+  await waitAndUpdate(wrapper);
+
+  expect(firstFacetItem().prop('stat')).toBeUndefined();
+  wrapper
+    .find('MouseOverHandler')
+    .first()
+    .prop<Function>('onOver')();
+  expect(loadSearchResultCount).toBeCalledWith('d');
+  await waitAndUpdate(wrapper);
+
+  expect(firstFacetItem().prop('stat')).toBe('5');
+
+  function firstFacetItem() {
+    return wrapper.find('FacetItem').first();
+  }
 });
 
 function shallowRender(props: Partial<Props<string>> = {}) {
@@ -185,4 +216,13 @@ function shallowRender(props: Partial<Props<string>> = {}) {
 
 function identity(str: string) {
   return str;
+}
+
+function checkInitialState(wrapper: ShallowWrapper) {
+  expect(wrapper.state('query')).toBe('');
+  expect(wrapper.state('searchResults')).toBe(undefined);
+  expect(wrapper.state('searching')).toBe(false);
+  expect(wrapper.state('searchResultsCounts')).toEqual({});
+  expect(wrapper.state('searchResultsCountLoading')).toEqual({});
+  expect(wrapper.state('showFullList')).toBe(false);
 }

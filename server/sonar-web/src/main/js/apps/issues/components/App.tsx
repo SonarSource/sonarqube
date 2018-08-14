@@ -658,6 +658,30 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
+  loadSearchResultCount = (changes: Partial<Query>) => {
+    const { component } = this.props;
+    const { myIssues, query } = this.state;
+
+    const organizationKey =
+      (component && component.organization) ||
+      (this.props.organization && this.props.organization.key);
+
+    const parameters = {
+      ...getBranchLikeQuery(this.props.branchLike),
+      componentKeys: component && component.key,
+      s: 'FILE_LINE',
+      ...serializeQuery({ ...query, ...changes }),
+      ps: 1,
+      organization: organizationKey
+    };
+
+    if (myIssues) {
+      Object.assign(parameters, { assignees: '__me__' });
+    }
+
+    return this.props.fetchIssues(parameters, false).then(reponse => reponse.paging.total);
+  };
+
   closeFacet = (property: string) => {
     this.setState(state => ({
       openFacets: { ...state.openFacets, [property]: false }
@@ -907,7 +931,7 @@ export default class App extends React.PureComponent<Props, State> {
           component={component}
           facets={this.state.facets}
           hideAuthorFacet={hideAuthorFacet}
-          loading={this.state.loading}
+          loadSearchResultCount={this.loadSearchResultCount}
           loadingFacets={this.state.loadingFacets}
           myIssues={this.state.myIssues}
           onFacetToggle={this.handleFacetToggle}

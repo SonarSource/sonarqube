@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy, without } from 'lodash';
+import { sortBy, without, omit } from 'lodash';
 import { Query, STANDARDS, formatFacetStat } from '../utils';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
@@ -33,8 +33,8 @@ import {
 } from '../../securityReports/utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import SearchBox from '../../../components/controls/SearchBox';
 import { highlightTerm } from '../../../helpers/search';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 
 export interface Props {
   cwe: string[];
@@ -43,13 +43,14 @@ export interface Props {
   fetchingOwaspTop10: boolean;
   fetchingSansTop25: boolean;
   fetchingCwe: boolean;
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   owaspTop10: string[];
   owaspTop10Open: boolean;
   owaspTop10Stats: { [x: string]: number } | undefined;
+  query: Query;
   sansTop25: string[];
   sansTop25Open: boolean;
   sansTop25Stats: { [x: string]: number } | undefined;
@@ -132,10 +133,6 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     this.props.onToggle('sansTop25');
   };
 
-  handleCWEHeaderClick = () => {
-    this.props.onToggle('cwe');
-  };
-
   handleClear = () => {
     this.props.onChange({ [this.property]: [], owaspTop10: [], sansTop25: [], cwe: [] });
   };
@@ -158,20 +155,22 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     this.handleItemClick('owaspTop10', itemValue, multiple);
   };
 
-  handleCWEItemClick = (itemValue: string, multiple: boolean) => {
-    this.handleItemClick('cwe', itemValue, multiple);
-  };
-
   handleSansTop25ItemClick = (itemValue: string, multiple: boolean) => {
     this.handleItemClick('sansTop25', itemValue, multiple);
   };
 
-  handleCWESelect = ({ value }: { value: string }) => {
-    this.handleItemClick('cwe', value, true);
+  handleCWESearch = (query: string) => {
+    return Promise.resolve({
+      results: Object.keys(this.state.standards.cwe).filter(cwe =>
+        renderCWECategory(this.state.standards, cwe)
+          .toLowerCase()
+          .includes(query.toLowerCase())
+      )
+    });
   };
 
-  handleCWESearch = (query: string) => {
-    this.setState({ cweQuery: query });
+  loadCWESearchResultCount = (category: string) => {
+    return this.props.loadSearchResultCount({ cwe: [category] });
   };
 
   renderList = (
@@ -216,7 +215,6 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
           <FacetItem
             active={values.includes(category)}
             key={category}
-            loading={this.props.loading}
             name={renderName(this.state.standards, category)}
             onClick={onClick}
             stat={formatFacetStat(getStat(category))}
@@ -245,45 +243,6 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
   renderOwaspTop10Hint() {
     return this.renderHint('owaspTop10Stats', 'owaspTop10');
-  }
-
-  renderCWEList() {
-    const { cweQuery } = this.state;
-    if (cweQuery) {
-      const results = Object.keys(this.state.standards.cwe).filter(cwe =>
-        renderCWECategory(this.state.standards, cwe)
-          .toLowerCase()
-          .includes(cweQuery.toLowerCase())
-      );
-
-      return this.renderFacetItemsList(
-        this.props.cweStats,
-        this.props.cwe,
-        results,
-        (standards: Standards, category: string) =>
-          highlightTerm(renderCWECategory(standards, category), cweQuery),
-        renderCWECategory,
-        this.handleCWEItemClick
-      );
-    } else {
-      return this.renderList('cweStats', 'cwe', renderCWECategory, this.handleCWEItemClick);
-    }
-  }
-
-  renderCWESearch() {
-    return (
-      <SearchBox
-        autoFocus={true}
-        className="little-spacer-top spacer-bottom"
-        onChange={this.handleCWESearch}
-        placeholder={translate('search.search_for_cwe')}
-        value={this.state.cweQuery}
-      />
-    );
-  }
-
-  renderCWEHint() {
-    return this.renderHint('cweStats', 'cwe');
   }
 
   renderSansTop25List() {
@@ -336,22 +295,28 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             </>
           )}
         </FacetBox>
-        <FacetBox className="is-inner" property="cwe">
-          <FacetHeader
-            name={translate('issues.facet.cwe')}
-            onClick={this.handleCWEHeaderClick}
-            open={this.props.cweOpen}
-            values={this.props.cwe.map(item => renderCWECategory(this.state.standards, item))}
-          />
-          <DeferredSpinner loading={this.props.fetchingCwe} />
-          {this.props.cweOpen && (
-            <>
-              {this.renderCWESearch()}
-              {this.renderCWEList()}
-              {this.renderCWEHint()}
-            </>
-          )}
-        </FacetBox>
+        <ListStyleFacet<string>
+          className="is-inner"
+          facetHeader={translate('issues.facet.cwe')}
+          fetching={this.props.fetchingCwe}
+          getFacetItemText={item => renderCWECategory(this.state.standards, item)}
+          getSearchResultKey={item => item}
+          getSearchResultText={item => renderCWECategory(this.state.standards, item)}
+          loadSearchResultCount={this.loadCWESearchResultCount}
+          onChange={this.props.onChange}
+          onSearch={this.handleCWESearch}
+          onToggle={this.props.onToggle}
+          open={this.props.cweOpen}
+          property="cwe"
+          query={omit(this.props.query, 'cwe')}
+          renderFacetItem={item => renderCWECategory(this.state.standards, item)}
+          renderSearchResult={(item, query) =>
+            highlightTerm(renderCWECategory(this.state.standards, item), query)
+          }
+          searchPlaceholder={translate('search.search_for_cwe')}
+          stats={this.props.cweStats}
+          values={this.props.cwe}
+        />
       </>
     );
   }

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { omit } from 'lodash';
 import { Query } from '../utils';
 import { searchIssueTags } from '../../../api/issues';
 import * as theme from '../../../app/theme';
@@ -30,11 +31,12 @@ import { highlightTerm } from '../../../helpers/search';
 interface Props {
   component: Component | undefined;
   fetching: boolean;
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   organization: string | undefined;
+  query: Query;
   stats: { [x: string]: number } | undefined;
   tags: string[];
 }
@@ -52,6 +54,10 @@ export default class TagFacet extends React.PureComponent<Props> {
 
   getTagName = (tag: string) => {
     return tag;
+  };
+
+  loadSearchResultCount = (tag: string) => {
+    return this.props.loadSearchResultCount({ tags: [tag] });
   };
 
   renderTag = (tag: string) => {
@@ -72,17 +78,19 @@ export default class TagFacet extends React.PureComponent<Props> {
 
   render() {
     return (
-      <ListStyleFacet
+      <ListStyleFacet<string>
         facetHeader={translate('issues.facet.tags')}
         fetching={this.props.fetching}
         getFacetItemText={this.getTagName}
         getSearchResultKey={tag => tag}
         getSearchResultText={tag => tag}
+        loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
         open={this.props.open}
         property="tags"
+        query={omit(this.props.query, 'tags')}
         renderFacetItem={this.renderTag}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_tags')}

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import StandardFacet, { Props } from '../StandardFacet';
 import { click } from '../../../../helpers/testUtils';
+import { Query } from '../../utils';
 
 it('should render closed', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -84,7 +85,6 @@ it('should select items', () => {
   selectAndCheck('owaspTop10', 'a1');
   selectAndCheck('owaspTop10', 'a1', true, ['a1', 'a3']);
   selectAndCheck('sansTop25', 'foo');
-  selectAndCheck('cwe', '173');
 
   function selectAndCheck(facet: string, value: string, multiple = false, expectedValue = [value]) {
     wrapper
@@ -100,8 +100,6 @@ it('should toggle sub-facets', () => {
   const wrapper = shallowRender({ onToggle, open: true });
   click(wrapper.find('FacetBox[property="owaspTop10"]').children('FacetHeader'));
   expect(onToggle).lastCalledWith('owaspTop10');
-  click(wrapper.find('FacetBox[property="cwe"]').children('FacetHeader'));
-  expect(onToggle).lastCalledWith('cwe');
   click(wrapper.find('FacetBox[property="sansTop25"]').children('FacetHeader'));
   expect(onToggle).lastCalledWith('sansTop25');
 });
@@ -124,7 +122,6 @@ it('should display correct selection', () => {
     'Unknown CWE'
   ]);
   checkValues('owaspTop10', ['A1 - a1 title', 'A3', 'Not OWAPS']);
-  checkValues('cwe', ['CWE-42 - cwe-42 title', 'CWE-1111', 'Unknown CWE']);
   checkValues('sansTop25', ['Risky Resource Management', 'foo']);
 
   function checkValues(property: string, values: string[]) {
@@ -137,16 +134,6 @@ it('should display correct selection', () => {
   }
 });
 
-it('should search CWE', () => {
-  const wrapper = shallowRender({ open: true, cwe: ['42'], cweOpen: true });
-  wrapper
-    .find('FacetBox[property="cwe"]')
-    .find('SearchBox')
-    .prop<Function>('onChange')('unkn');
-  wrapper.update();
-  expect(wrapper).toMatchSnapshot();
-});
-
 function shallowRender(props: Partial<Props> = {}) {
   const wrapper = shallow(
     <StandardFacet
@@ -156,12 +143,14 @@ function shallowRender(props: Partial<Props> = {}) {
       fetchingCwe={false}
       fetchingOwaspTop10={false}
       fetchingSansTop25={false}
+      loadSearchResultCount={jest.fn()}
       onChange={jest.fn()}
       onToggle={jest.fn()}
       open={false}
       owaspTop10={[]}
       owaspTop10Open={false}
       owaspTop10Stats={{}}
+      query={{} as Query}
       sansTop25={[]}
       sansTop25Open={false}
       sansTop25Stats={{}}

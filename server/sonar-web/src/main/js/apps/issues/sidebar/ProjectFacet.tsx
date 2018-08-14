@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { omit } from 'lodash';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedComponent } from '../utils';
 import { searchProjects, getTree } from '../../../api/components';
@@ -29,13 +30,14 @@ import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
   component: Component | undefined;
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   fetching: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   organization: { key: string } | undefined;
   projects: string[];
+  query: Query;
   referencedComponents: { [componentKey: string]: ReferencedComponent };
   stats: { [x: string]: number } | undefined;
 }
@@ -91,6 +93,10 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     return referencedComponents[project] ? referencedComponents[project].name : project;
   };
 
+  loadSearchResultCount = (project: SearchedProject) => {
+    return this.props.loadSearchResultCount({ projects: [project.id] });
+  };
+
   renderFacetItem = (project: string) => {
     const { referencedComponents } = this.props;
     return referencedComponents[project] ? (
@@ -125,17 +131,19 @@ export default class ProjectFacet extends React.PureComponent<Props> {
 
   render() {
     return (
-      <ListStyleFacet
+      <ListStyleFacet<SearchedProject>
         facetHeader={translate('issues.facet.projects')}
         fetching={this.props.fetching}
         getFacetItemText={this.getProjectName}
-        getSearchResultKey={(project: SearchedProject) => project.id}
-        getSearchResultText={(project: SearchedProject) => project.name}
+        getSearchResultKey={project => project.id}
+        getSearchResultText={project => project.name}
+        loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
         open={this.props.open}
         property="projects"
+        query={omit(this.props.query, 'projects')}
         renderFacetItem={this.renderFacetItem}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_projects')}

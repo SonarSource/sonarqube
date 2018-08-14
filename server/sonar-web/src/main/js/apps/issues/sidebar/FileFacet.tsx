@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { omit } from 'lodash';
 import { Query, ReferencedComponent } from '../utils';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
@@ -30,10 +31,11 @@ interface Props {
   componentKey: string;
   fetching: boolean;
   files: string[];
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
+  query: Query;
   referencedComponents: { [componentKey: string]: ReferencedComponent };
   stats: { [x: string]: number } | undefined;
 }
@@ -67,6 +69,10 @@ export default class FileFacet extends React.PureComponent<Props> {
     }).then(({ components, paging }) => ({ paging, results: components }));
   };
 
+  loadSearchResultCount = (file: TreeComponent) => {
+    return this.props.loadSearchResultCount({ files: [file.id] });
+  };
+
   renderFile = (file: React.ReactNode) => (
     <>
       <QualifierIcon className="little-spacer-right" qualifier="FIL" />
@@ -85,18 +91,20 @@ export default class FileFacet extends React.PureComponent<Props> {
 
   render() {
     return (
-      <ListStyleFacet
+      <ListStyleFacet<TreeComponent>
         facetHeader={translate('issues.facet.files')}
         fetching={this.props.fetching}
         getFacetItemText={this.getFacetItemText}
         getSearchResultKey={this.getSearchResultKey}
         getSearchResultText={this.getSearchResultText}
+        loadSearchResultCount={this.loadSearchResultCount}
         minSearchLength={3}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
         open={this.props.open}
         property="files"
+        query={omit(this.props.query, 'files')}
         renderFacetItem={this.renderFacetItem}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_files')}

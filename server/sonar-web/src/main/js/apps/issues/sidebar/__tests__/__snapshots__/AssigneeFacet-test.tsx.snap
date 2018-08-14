@@ -1,321 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<FacetBox
+<ListStyleFacet
+  facetHeader="issues.facet.assignees"
+  fetching={false}
+  getFacetItemText={[Function]}
+  getSearchResultKey={[Function]}
+  getSearchResultText={[Function]}
+  getSortedItems={[Function]}
+  loadSearchResultCount={[Function]}
+  maxInitialItems={15}
+  maxItems={100}
+  onChange={[MockFunction]}
+  onClear={[Function]}
+  onItemClick={[Function]}
+  onSearch={[Function]}
+  onToggle={[MockFunction]}
+  open={true}
   property="assignees"
->
-  <FacetHeader
-    name="issues.facet.assignees"
-    onClear={[Function]}
-    onClick={[Function]}
-    open={true}
-    values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={true}
-      className="little-spacer-top spacer-bottom"
-      loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search.search_for_users"
-      value=""
-    />
-    <FacetItemsList>
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        loading={false}
-        name="unassigned"
-        onClick={[Function]}
-        stat="5"
-        tooltip="unassigned"
-        value=""
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="foo"
-        loading={false}
-        name={
-          <span>
-            <Connect(Avatar)
-              className="little-spacer-right"
-              hash="avatart-foo"
-              name="name-foo"
-              size={16}
-            />
-            name-foo
-          </span>
-        }
-        onClick={[Function]}
-        stat="13"
-        tooltip="name-foo"
-        value="foo"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="bar"
-        loading={false}
-        name="bar"
-        onClick={[Function]}
-        stat="7"
-        tooltip="bar"
-        value="bar"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="baz"
-        loading={false}
-        name="baz"
-        onClick={[Function]}
-        stat="6"
-        tooltip="baz"
-        value="baz"
-      />
-    </FacetItemsList>
-    <MultipleSelectionHint
-      options={4}
-      values={0}
-    />
-  </React.Fragment>
-</FacetBox>
-`;
-
-exports[`should render footer select option 1`] = `
-<span>
-  <Connect(Avatar)
-    className="little-spacer-right"
-    hash="avatar-foo"
-    name="name-foo"
-    size={16}
-  />
-  name-foo
-</span>
-`;
-
-exports[`should render without stats 1`] = `
-<FacetBox
-  property="assignees"
->
-  <FacetHeader
-    name="issues.facet.assignees"
-    onClear={[Function]}
-    onClick={[Function]}
-    open={true}
-    values={Array []}
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
-  <React.Fragment>
-    <MultipleSelectionHint
-      options={0}
-      values={0}
-    />
-  </React.Fragment>
-</FacetBox>
-`;
-
-exports[`should select unassigned 1`] = `
-<FacetBox
-  property="assignees"
->
-  <FacetHeader
-    name="issues.facet.assignees"
-    onClear={[Function]}
-    onClick={[Function]}
-    open={true}
-    values={
-      Array [
-        "unassigned",
-      ]
+  query={Object {}}
+  renderFacetItem={[Function]}
+  renderSearchResult={[Function]}
+  searchPlaceholder="search.search_for_users"
+  stats={
+    Object {
+      "": 5,
+      "bar": 7,
+      "baz": 6,
+      "foo": 13,
     }
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={true}
-      className="little-spacer-top spacer-bottom"
-      loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search.search_for_users"
-      value=""
-    />
-    <FacetItemsList>
-      <FacetItem
-        active={true}
-        disabled={false}
-        halfWidth={false}
-        loading={false}
-        name="unassigned"
-        onClick={[Function]}
-        stat="5"
-        tooltip="unassigned"
-        value=""
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="foo"
-        loading={false}
-        name={
-          <span>
-            <Connect(Avatar)
-              className="little-spacer-right"
-              hash="avatart-foo"
-              name="name-foo"
-              size={16}
-            />
-            name-foo
-          </span>
-        }
-        onClick={[Function]}
-        stat="13"
-        tooltip="name-foo"
-        value="foo"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="bar"
-        loading={false}
-        name="bar"
-        onClick={[Function]}
-        stat="7"
-        tooltip="bar"
-        value="bar"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="baz"
-        loading={false}
-        name="baz"
-        onClick={[Function]}
-        stat="6"
-        tooltip="baz"
-        value="baz"
-      />
-    </FacetItemsList>
-    <MultipleSelectionHint
-      options={4}
-      values={0}
-    />
-  </React.Fragment>
-</FacetBox>
-`;
-
-exports[`should select user 1`] = `
-<FacetBox
-  property="assignees"
->
-  <FacetHeader
-    name="issues.facet.assignees"
-    onClear={[Function]}
-    onClick={[Function]}
-    open={true}
-    values={
-      Array [
-        "name-foo",
-      ]
-    }
-  />
-  <DeferredSpinner
-    loading={false}
-    timeout={100}
-  />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={true}
-      className="little-spacer-top spacer-bottom"
-      loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search.search_for_users"
-      value=""
-    />
-    <FacetItemsList>
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        loading={false}
-        name="unassigned"
-        onClick={[Function]}
-        stat="5"
-        tooltip="unassigned"
-        value=""
-      />
-      <FacetItem
-        active={true}
-        disabled={false}
-        halfWidth={false}
-        key="foo"
-        loading={false}
-        name={
-          <span>
-            <Connect(Avatar)
-              className="little-spacer-right"
-              hash="avatart-foo"
-              name="name-foo"
-              size={16}
-            />
-            name-foo
-          </span>
-        }
-        onClick={[Function]}
-        stat="13"
-        tooltip="name-foo"
-        value="foo"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="bar"
-        loading={false}
-        name="bar"
-        onClick={[Function]}
-        stat="7"
-        tooltip="bar"
-        value="bar"
-      />
-      <FacetItem
-        active={false}
-        disabled={false}
-        halfWidth={false}
-        key="baz"
-        loading={false}
-        name="baz"
-        onClick={[Function]}
-        stat="6"
-        tooltip="baz"
-        value="baz"
-      />
-    </FacetItemsList>
-    <MultipleSelectionHint
-      options={4}
-      values={1}
-    />
-  </React.Fragment>
-</FacetBox>
+  }
+  values={
+    Array [
+      "foo",
+    ]
+  }
+/>
 `;

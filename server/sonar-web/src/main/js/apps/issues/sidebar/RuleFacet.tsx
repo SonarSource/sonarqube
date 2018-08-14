@@ -18,33 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { omit } from 'lodash';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedRule } from '../utils';
 import { searchRules } from '../../../api/rules';
-import { Rule, Paging } from '../../../app/types';
+import { Rule } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   fetching: boolean;
   languages: string[];
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   organization: string | undefined;
+  query: Query;
   referencedRules: { [ruleKey: string]: ReferencedRule };
   rules: string[];
   stats: { [x: string]: number } | undefined;
 }
 
-interface State {
-  query: string;
-  searching: boolean;
-  searchResults?: Rule[];
-  searchPaging?: Paging;
-}
-
-export default class RuleFacet extends React.PureComponent<Props, State> {
+export default class RuleFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page = 1) => {
     const { languages, organization } = this.props;
     return searchRules({
@@ -63,6 +58,10 @@ export default class RuleFacet extends React.PureComponent<Props, State> {
     }));
   };
 
+  loadSearchResultCount = (rule: Rule) => {
+    return this.props.loadSearchResultCount({ rules: [rule.key] });
+  };
+
   getRuleName = (rule: string) => {
     const { referencedRules } = this.props;
     return referencedRules[rule]
@@ -76,17 +75,19 @@ export default class RuleFacet extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <ListStyleFacet
+      <ListStyleFacet<Rule>
         facetHeader={translate('issues.facet.rules')}
         fetching={this.props.fetching}
         getFacetItemText={this.getRuleName}
-        getSearchResultKey={result => result.key}
-        getSearchResultText={result => result.name}
+        getSearchResultKey={rule => rule.key}
+        getSearchResultText={rule => rule.name}
+        loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
         open={this.props.open}
         property="rules"
+        query={omit(this.props.query, 'rules')}
         renderFacetItem={this.getRuleName}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_rules')}

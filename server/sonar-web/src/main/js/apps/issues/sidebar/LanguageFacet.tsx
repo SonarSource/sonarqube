@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { uniqBy } from 'lodash';
+import { uniqBy, omit } from 'lodash';
 import { connect } from 'react-redux';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedLanguage } from '../utils';
@@ -35,10 +35,11 @@ interface Props {
   fetching: boolean;
   installedLanguages: InstalledLanguage[];
   languages: string[];
-  loading?: boolean;
+  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
+  query: Query;
   referencedLanguages: { [languageKey: string]: ReferencedLanguage };
   stats: { [x: string]: number } | undefined;
 }
@@ -70,23 +71,29 @@ class LanguageFacet extends React.PureComponent<Props> {
     );
   };
 
+  loadSearchResultCount = (language: InstalledLanguage) => {
+    return this.props.loadSearchResultCount({ languages: [language.key] });
+  };
+
   renderSearchResult = ({ name }: InstalledLanguage, term: string) => {
     return highlightTerm(name, term);
   };
 
   render() {
     return (
-      <ListStyleFacet
+      <ListStyleFacet<InstalledLanguage>
         facetHeader={translate('issues.facet.languages')}
         fetching={this.props.fetching}
         getFacetItemText={this.getLanguageName}
-        getSearchResultKey={(language: InstalledLanguage) => language.key}
-        getSearchResultText={(language: InstalledLanguage) => language.name}
+        getSearchResultKey={language => language.key}
+        getSearchResultText={language => language.name}
+        loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
         open={this.props.open}
         property="languages"
+        query={omit(this.props.query, 'languages')}
         renderFacetItem={this.getLanguageName}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_languages')}

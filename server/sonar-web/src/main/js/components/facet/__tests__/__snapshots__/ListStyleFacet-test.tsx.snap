@@ -105,30 +105,38 @@ exports[`should search 1`] = `
     />
     <React.Fragment>
       <FacetItemsList>
-        <FacetItem
-          active={false}
-          disabled={true}
-          halfWidth={false}
+        <React.Fragment
           key="d"
-          loading={false}
-          name="d"
-          onClick={[Function]}
-          stat={0}
-          tooltip="d"
-          value="d"
-        />
-        <FacetItem
-          active={false}
-          disabled={true}
-          halfWidth={false}
+        >
+          <FacetItem
+            active={false}
+            className=""
+            disabled={true}
+            halfWidth={false}
+            loading={false}
+            name="d"
+            onClick={[Function]}
+            stat={0}
+            tooltip="d"
+            value="d"
+          />
+        </React.Fragment>
+        <React.Fragment
           key="e"
-          loading={false}
-          name="e"
-          onClick={[Function]}
-          stat={0}
-          tooltip="e"
-          value="e"
-        />
+        >
+          <FacetItem
+            active={false}
+            className=""
+            disabled={true}
+            halfWidth={false}
+            loading={false}
+            name="e"
+            onClick={[Function]}
+            stat={0}
+            tooltip="e"
+            value="e"
+          />
+        </React.Fragment>
       </FacetItemsList>
       <ListFooter
         className="spacer-bottom"
@@ -173,42 +181,54 @@ exports[`should search 2`] = `
     />
     <React.Fragment>
       <FacetItemsList>
-        <FacetItem
-          active={false}
-          disabled={true}
-          halfWidth={false}
+        <React.Fragment
           key="d"
-          loading={false}
-          name="d"
-          onClick={[Function]}
-          stat={0}
-          tooltip="d"
-          value="d"
-        />
-        <FacetItem
-          active={false}
-          disabled={true}
-          halfWidth={false}
+        >
+          <FacetItem
+            active={false}
+            className=""
+            disabled={true}
+            halfWidth={false}
+            loading={false}
+            name="d"
+            onClick={[Function]}
+            stat={0}
+            tooltip="d"
+            value="d"
+          />
+        </React.Fragment>
+        <React.Fragment
           key="e"
-          loading={false}
-          name="e"
-          onClick={[Function]}
-          stat={0}
-          tooltip="e"
-          value="e"
-        />
-        <FacetItem
-          active={false}
-          disabled={true}
-          halfWidth={false}
+        >
+          <FacetItem
+            active={false}
+            className=""
+            disabled={true}
+            halfWidth={false}
+            loading={false}
+            name="e"
+            onClick={[Function]}
+            stat={0}
+            tooltip="e"
+            value="e"
+          />
+        </React.Fragment>
+        <React.Fragment
           key="f"
-          loading={false}
-          name="f"
-          onClick={[Function]}
-          stat={0}
-          tooltip="f"
-          value="f"
-        />
+        >
+          <FacetItem
+            active={false}
+            className=""
+            disabled={true}
+            halfWidth={false}
+            loading={false}
+            name="f"
+            onClick={[Function]}
+            stat={0}
+            tooltip="f"
+            value="f"
+          />
+        </React.Fragment>
       </FacetItemsList>
       <ListFooter
         className="spacer-bottom"

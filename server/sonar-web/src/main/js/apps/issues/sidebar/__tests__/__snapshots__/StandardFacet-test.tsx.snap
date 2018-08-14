@@ -163,166 +163,37 @@ exports[`should render sub-facets 1`] = `
         />
       </React.Fragment>
     </FacetBox>
-    <FacetBox
+    <ListStyleFacet
       className="is-inner"
+      facetHeader="issues.facet.cwe"
+      fetching={false}
+      getFacetItemText={[Function]}
+      getSearchResultKey={[Function]}
+      getSearchResultText={[Function]}
+      loadSearchResultCount={[Function]}
+      maxInitialItems={15}
+      maxItems={100}
+      onChange={[MockFunction]}
+      onSearch={[Function]}
+      onToggle={[MockFunction]}
+      open={true}
       property="cwe"
-    >
-      <FacetHeader
-        name="issues.facet.cwe"
-        onClick={[Function]}
-        open={true}
-        values={
-          Array [
-            "CWE-42 - cwe-42 title",
-          ]
+      query={Object {}}
+      renderFacetItem={[Function]}
+      renderSearchResult={[Function]}
+      searchPlaceholder="search.search_for_cwe"
+      stats={
+        Object {
+          "173": 3,
+          "42": 5,
         }
-      />
-      <DeferredSpinner
-        loading={false}
-        timeout={100}
-      />
-      <React.Fragment>
-        <SearchBox
-          autoFocus={true}
-          className="little-spacer-top spacer-bottom"
-          onChange={[Function]}
-          placeholder="search.search_for_cwe"
-          value=""
-        />
-        <FacetItemsList>
-          <FacetItem
-            active={true}
-            disabled={false}
-            halfWidth={false}
-            key="42"
-            loading={false}
-            name="CWE-42 - cwe-42 title"
-            onClick={[Function]}
-            stat="5"
-            tooltip="CWE-42 - cwe-42 title"
-            value="42"
-          />
-          <FacetItem
-            active={false}
-            disabled={false}
-            halfWidth={false}
-            key="173"
-            loading={false}
-            name="CWE-173"
-            onClick={[Function]}
-            stat="3"
-            tooltip="CWE-173"
-            value="173"
-          />
-        </FacetItemsList>
-        <MultipleSelectionHint
-          options={2}
-          values={1}
-        />
-      </React.Fragment>
-    </FacetBox>
-  </React.Fragment>
-</FacetBox>
-`;
-
-exports[`should search CWE 1`] = `
-<FacetBox
-  property="standards"
->
-  <FacetHeader
-    name="issues.facet.standards"
-    onClear={[Function]}
-    onClick={[Function]}
-    open={true}
-    values={
-      Array [
-        "CWE-42 - cwe-42 title",
-      ]
-    }
-  />
-  <React.Fragment>
-    <FacetBox
-      className="is-inner"
-      property="owaspTop10"
-    >
-      <FacetHeader
-        name="issues.facet.owaspTop10"
-        onClick={[Function]}
-        open={false}
-        values={Array []}
-      />
-      <DeferredSpinner
-        loading={false}
-        timeout={100}
-      />
-    </FacetBox>
-    <FacetBox
-      className="is-inner"
-      property="sansTop25"
-    >
-      <FacetHeader
-        name="issues.facet.sansTop25"
-        onClick={[Function]}
-        open={false}
-        values={Array []}
-      />
-      <DeferredSpinner
-        loading={false}
-        timeout={100}
-      />
-    </FacetBox>
-    <FacetBox
-      className="is-inner"
-      property="cwe"
-    >
-      <FacetHeader
-        name="issues.facet.cwe"
-        onClick={[Function]}
-        open={true}
-        values={
-          Array [
-            "CWE-42 - cwe-42 title",
-          ]
-        }
-      />
-      <DeferredSpinner
-        loading={false}
-        timeout={100}
-      />
-      <React.Fragment>
-        <SearchBox
-          autoFocus={true}
-          className="little-spacer-top spacer-bottom"
-          onChange={[Function]}
-          placeholder="search.search_for_cwe"
-          value="unkn"
-        />
-        <FacetItemsList>
-          <FacetItem
-            active={false}
-            disabled={false}
-            halfWidth={false}
-            key="unknown"
-            loading={false}
-            name={
-              <React.Fragment>
-                <mark>
-                  Unkn
-                </mark>
-                own CWE
-              </React.Fragment>
-            }
-            onClick={[Function]}
-            tooltip="Unknown CWE"
-            value="unknown"
-          />
-        </FacetItemsList>
-        <MultipleSelectionHint
-          options={0}
-          values={1}
-        />
-      </React.Fragment>
-    </FacetBox>
+      }
+      values={
+        Array [
+          "42",
+        ]
+      }
+    />
   </React.Fragment>
 </FacetBox>
 `;
