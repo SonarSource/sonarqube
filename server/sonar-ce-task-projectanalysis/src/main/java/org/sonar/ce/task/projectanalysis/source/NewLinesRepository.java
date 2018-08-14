@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -38,24 +37,18 @@ public class NewLinesRepository {
   private final BatchReportReader reportReader;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final ScmInfoRepository scmInfoRepository;
-  @Nullable
-  private final Period period;
+  private final PeriodHolder periodHolder;
   private final Map<Component, Optional<Set<Integer>>> changedLinesCache = new HashMap<>();
 
   public NewLinesRepository(BatchReportReader reportReader, AnalysisMetadataHolder analysisMetadataHolder, PeriodHolder periodHolder, ScmInfoRepository scmInfoRepository) {
     this.reportReader = reportReader;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.scmInfoRepository = scmInfoRepository;
-    this.period = periodHolder.getPeriod();
+    this.periodHolder = periodHolder;
   }
 
-  public boolean newLinesAvailable(Component component) {
-    return getNewLines(component).isPresent();
-  }
-
-  public boolean isLineNew(Component component, int line) {
-    return getNewLines(component).map(s -> s.contains(line))
-      .orElseThrow(() -> new IllegalStateException("No data about new lines available"));
+  public boolean newLinesAvailable() {
+    return periodHolder.hasPeriod();
   }
 
   public Optional<Set<Integer>> getNewLines(Component component) {
@@ -67,11 +60,16 @@ public class NewLinesRepository {
     if (reportChangedLines.isPresent()) {
       return reportChangedLines;
     }
-    return generateNewLinesFromScm(component);
+    return computeNewLinesFromScm(component);
   }
 
-  private Optional<Set<Integer>> generateNewLinesFromScm(Component component) {
-    if (period == null) {
+  /**
+   * If the changed lines are not in the report or if we are not analyzing a short lived branch (or P/R) we fall back to this method.
+   * If there is a period and SCM information, we compare the change dates of each line with the start of the period to figure out
+   * if a line is new or not.
+   */
+  private Optional<Set<Integer>> computeNewLinesFromScm(Component component) {
+    if (!periodHolder.hasPeriod()) {
       return Optional.empty();
     }
 
@@ -85,7 +83,7 @@ public class NewLinesRepository {
     Set<Integer> lines = new HashSet<>();
 
     for (Map.Entry<Integer, Changeset> e : allChangesets.entrySet()) {
-      if (isLineInPeriod(e.getValue().getDate(), period)) {
+      if (isLineInPeriod(e.getValue().getDate(), periodHolder.getPeriod())) {
         lines.add(e.getKey());
       }
     }

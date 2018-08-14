@@ -25,7 +25,6 @@ import org.sonar.core.hash.LineRange;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class SignificantCodeRepository {
   private final BatchReportReader reportReader;

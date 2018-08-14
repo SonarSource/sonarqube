@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -29,13 +28,12 @@ import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWith
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.mockito.Mockito.mock;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
@@ -74,8 +72,7 @@ public class ViewsNewCoverageMeasuresStepTest {
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
+
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(CoreMetrics.COVERAGE_LINE_HITS_DATA)
@@ -91,13 +88,7 @@ public class ViewsNewCoverageMeasuresStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, periodsHolder,
-    measureRepository, metricRepository);
-
-  @Before
-  public void setUp() {
-    periodsHolder.setPeriod(new Period("mode_p_1", null, parseDate("2009-12-25").getTime(), "U1"));
-  }
+  private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, measureRepository, metricRepository);
 
   @Test
   public void verify_aggregation_of_measures_for_new_conditions() {

@@ -20,23 +20,26 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepositoryRule;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
-import org.sonar.ce.task.projectanalysis.scm.Changeset;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryRule;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES;
@@ -45,7 +48,6 @@ import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KE
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
-import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
@@ -66,6 +68,11 @@ public class NewSizeMeasuresStepTest {
   private static final int FILE_2_REF = 12342;
   private static final int FILE_3_REF = 1261;
   private static final int FILE_4_REF = 1262;
+  private static final Component FILE_1 = builder(FILE, FILE_1_REF).build();
+  private static final Component FILE_2 = builder(FILE, FILE_2_REF).build();
+  private static final Component FILE_3 = builder(FILE, FILE_3_REF).build();
+  private static final Component FILE_4 = builder(FILE, FILE_4_REF).build();
+
   private static final String SOME_FILE_KEY = "some file key";
 
   @Rule
@@ -78,26 +85,15 @@ public class NewSizeMeasuresStepTest {
               builder(MODULE, SUB_MODULE_1_REF)
                 .addChildren(
                   builder(DIRECTORY, DIRECTORY_REF)
-                    .addChildren(
-                      builder(FILE, FILE_1_REF).build(),
-                      builder(FILE, FILE_2_REF).build())
+                    .addChildren(FILE_1, FILE_2)
                     .build(),
                   builder(DIRECTORY, DIRECTORY_2_REF).build())
                 .build(),
               builder(MODULE, SUB_MODULE_2_REF)
-                .addChildren(
-                  builder(FILE, FILE_3_REF).build(),
-                  builder(FILE, FILE_4_REF).build())
+                .addChildren(FILE_3, FILE_4)
                 .build())
             .build())
         .build());
-
-  @Rule
-  public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(
-    new Period("mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"));
-
-  @Rule
-  public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
@@ -111,14 +107,13 @@ public class NewSizeMeasuresStepTest {
 
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
+  private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
 
-  private NewSizeMeasuresStep underTest = new NewSizeMeasuresStep(treeRootHolder, periodsHolder, metricRepository, measureRepository, scmInfoRepository,
-    duplicationRepository);
+  private NewSizeMeasuresStep underTest = new NewSizeMeasuresStep(treeRootHolder, metricRepository, measureRepository, newLinesRepository, duplicationRepository);
 
   @Test
   public void compute_new_lines() {
-    setChangesets(FILE_1_REF, FILE_2_REF, FILE_4_REF);
-
+    setNewLines(FILE_1, FILE_2, FILE_4);
     underTest.execute(new TestComputationStepContext());
 
     assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_LINES_KEY, 11);
@@ -135,7 +130,7 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void compute_new_lines_with_only_some_lines_having_changesets() {
-    setChangesetsForFirstThreeLines(FILE_1_REF, FILE_2_REF, FILE_4_REF);
+    setFirstTwoLinesAsNew(FILE_1, FILE_2, FILE_4);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -161,7 +156,7 @@ public class NewSizeMeasuresStepTest {
   @Test
   public void compute_duplicated_lines_counts_lines_from_original_and_InnerDuplicate_of_a_single_line() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), new TextBlock(2, 2));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -172,7 +167,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_duplicated_lines_counts_lines_from_original_and_ignores_InProjectDuplicate() {
     TextBlock original = new TextBlock(1, 1);
     duplicationRepository.addDuplication(FILE_1_REF, original, FILE_2_REF, new TextBlock(2, 2));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -183,7 +178,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_duplicated_lines_counts_lines_from_original_and_ignores_CrossProjectDuplicate() {
     TextBlock original = new TextBlock(1, 1);
     duplicationRepository.addDuplication(FILE_1_REF, original, SOME_FILE_KEY, new TextBlock(2, 2));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -194,7 +189,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_duplicated_lines_counts_lines_from_original_and_InnerDuplicate() {
     TextBlock original = new TextBlock(1, 5);
     duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(10, 11));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -206,7 +201,7 @@ public class NewSizeMeasuresStepTest {
     TextBlock original = new TextBlock(1, 10);
     duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(10, 11), new TextBlock(11, 12));
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(2, 2), new TextBlock(4, 4));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -218,10 +213,7 @@ public class NewSizeMeasuresStepTest {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_3_REF, 10);
     addDuplicatedBlock(FILE_4_REF, 12);
-    setChangesets(FILE_1_REF);
-    setChangesets(FILE_2_REF);
-    setChangesets(FILE_3_REF);
-    setChangesets(FILE_4_REF);
+    setNewLines(FILE_1, FILE_2, FILE_3, FILE_4);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -243,10 +235,7 @@ public class NewSizeMeasuresStepTest {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_3_REF, 10);
     addDuplicatedBlock(FILE_4_REF, 12);
-    setChangesetsForFirstThreeLines(FILE_1_REF);
-    setChangesetsForFirstThreeLines(FILE_2_REF);
-    setChangesetsForFirstThreeLines(FILE_3_REF);
-    setChangesetsForFirstThreeLines(FILE_4_REF);
+    setFirstTwoLinesAsNew(FILE_1, FILE_2, FILE_3, FILE_4);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -264,10 +253,7 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void compute_and_aggregate_zero_duplicated_line_when_no_duplication() {
-    setChangesets(FILE_1_REF);
-    setChangesets(FILE_2_REF);
-    setChangesets(FILE_3_REF);
-    setChangesets(FILE_4_REF);
+    setNewLines(FILE_1, FILE_2, FILE_3, FILE_4);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -278,7 +264,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_duplicated_blocks_one_for_original_one_for_each_InnerDuplicate() {
     TextBlock original = new TextBlock(1, 1);
     duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 2), new TextBlock(4, 4), new TextBlock(3, 4));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -289,7 +275,7 @@ public class NewSizeMeasuresStepTest {
   public void compute_duplicated_blocks_does_not_count_blocks_only_once_it_assumes_consistency_from_duplication_data() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), new TextBlock(4, 4));
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(2, 2), new TextBlock(4, 4));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -299,7 +285,7 @@ public class NewSizeMeasuresStepTest {
   @Test
   public void compute_duplicated_blocks_one_for_original_and_ignores_InProjectDuplicate() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), FILE_2_REF, new TextBlock(2, 2));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -309,7 +295,7 @@ public class NewSizeMeasuresStepTest {
   @Test
   public void compute_duplicated_blocks_one_for_original_and_ignores_CrossProjectDuplicate() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), SOME_FILE_KEY, new TextBlock(2, 2));
-    setChangesets(FILE_1_REF);
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -321,7 +307,7 @@ public class NewSizeMeasuresStepTest {
     addDuplicatedBlock(FILE_1_REF, 11);
     addDuplicatedBlock(FILE_2_REF, 2);
     addDuplicatedBlock(FILE_4_REF, 7);
-    setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
+    setNewLines(FILE_1, FILE_2, FILE_3, FILE_4);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -338,7 +324,7 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void compute_and_aggregate_duplicated_blocks_to_zero_when_no_duplication() {
-    setChangesets(FILE_1_REF, FILE_2_REF, FILE_3_REF, FILE_4_REF);
+    setNewLines(FILE_1, FILE_2, FILE_3, FILE_4);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -347,7 +333,7 @@ public class NewSizeMeasuresStepTest {
 
   @Test
   public void compute_new_duplicated_lines_density() {
-    setChangesets(FILE_1_REF, FILE_2_REF, FILE_4_REF);
+    setNewLines(FILE_1, FILE_2, FILE_4);
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_3_REF, 10);
     addDuplicatedBlock(FILE_4_REF, 12);
@@ -375,7 +361,6 @@ public class NewSizeMeasuresStepTest {
 
   /**
    * Adds duplication blocks of a single line (each line is specific to its block).
-   *
    * This is a very simple use case, convenient for unit tests but more realistic and complex use cases must be tested separately.
    */
   private void addDuplicatedBlock(int fileRef, int blockCount) {
@@ -388,31 +373,20 @@ public class NewSizeMeasuresStepTest {
     duplicationRepository.addDuplication(fileRef, original, duplicates);
   }
 
-  private void setChangesetsForFirstThreeLines(int... componentRefs) {
-    Arrays.stream(componentRefs)
-      .forEach(componentRef -> scmInfoRepository.setScmInfo(componentRef,
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        // line 3 is older, part of no period
-        Changeset.newChangesetBuilder().setDate(parseDate("2007-01-15").getTime()).setRevision("rev-2").build()));
+  private void setFirstTwoLinesAsNew(Component... components) {
+    when(newLinesRepository.newLinesAvailable()).thenReturn(true);
+    Set<Integer> newLines = new HashSet<>(Arrays.asList(1, 2));
+    for (Component c : components) {
+      when(newLinesRepository.getNewLines(c)).thenReturn(Optional.of(newLines));
+    }
   }
 
-  private void setChangesets(int... componentRefs) {
-    Arrays.stream(componentRefs)
-      .forEach(componentRef -> scmInfoRepository.setScmInfo(componentRef,
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        // line 3 is older, part of no period
-        Changeset.newChangesetBuilder().setDate(parseDate("2007-01-15").getTime()).setRevision("rev-2").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-        Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build()));
+  private void setNewLines(Component... components) {
+    when(newLinesRepository.newLinesAvailable()).thenReturn(true);
+    Set<Integer> newLines = new HashSet<>(Arrays.asList(1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+    for (Component c : components) {
+      when(newLinesRepository.getNewLines(c)).thenReturn(Optional.of(newLines));
+    }
   }
 
   private void assertRawMeasureValueOnPeriod(int componentRef, String metricKey, double expectedVariation) {

@@ -28,7 +28,6 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -49,7 +48,7 @@ public class AverageFormulaTest {
 
   CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
   CreateMeasureContext createMeasureContext = new DumbCreateMeasureContext(
-    ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodHolder.class));
+    ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class));
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

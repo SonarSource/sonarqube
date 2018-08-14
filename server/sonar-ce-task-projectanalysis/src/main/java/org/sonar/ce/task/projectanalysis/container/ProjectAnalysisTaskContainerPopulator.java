@@ -112,6 +112,7 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.DbLineHashVersion;
 import org.sonar.ce.task.projectanalysis.source.LastCommitVisitor;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SignificantCodeRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceHashRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiffImpl;
@@ -205,6 +206,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       DbLineHashVersion.class,
       SignificantCodeRepository.class,
       SourceLinesHashCache.class,
+      NewLinesRepository.class,
 
       // issues
       RuleRepositoryImpl.class,

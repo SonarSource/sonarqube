@@ -21,10 +21,7 @@ package org.sonar.ce.task.projectanalysis.formula;
 
 import com.google.common.base.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
-import org.sonar.ce.task.projectanalysis.period.Period;
 
 /**
  * The context passing information to {@link Counter#initialize(CounterInitializationContext)}.
@@ -40,15 +37,5 @@ public interface CounterInitializationContext {
    * Retrieve the measure for the current component for the specified metric key if it exists.
    */
   Optional<Measure> getMeasure(String metricKey);
-
-  /**
-   * Return Period defined for the current project. It can be used to retrieve variation Measure.
-   */
-  Period getPeriod();
-
-  /**
-   * Finds out whether the a period is definfed or not
-   */
-  boolean hasPeriod();
 
 }

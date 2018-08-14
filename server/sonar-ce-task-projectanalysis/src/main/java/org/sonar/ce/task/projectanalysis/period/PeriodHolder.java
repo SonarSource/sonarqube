@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.period;
 
+import javax.annotation.CheckForNull;
+
 /**
  * Repository of period used to compute differential measures.
  * Here are the steps to retrieve the period :
@@ -40,6 +42,7 @@ public interface PeriodHolder {
    *
    * @throws IllegalStateException if the periods haven't been initialized
    */
+  @CheckForNull
   Period getPeriod();
 
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
-import com.google.common.base.Joiner;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.core.hash.SourceHashComputer;
@@ -28,8 +27,6 @@ import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl.Li
 import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 
 public class ComputeFileSourceData {
-  private static final Joiner LINE_RETURN_JOINER = Joiner.on('\n');
-
   private final List<LineReader> lineReaders;
   private final Iterator<String> linesIterator;
   private final SourceHashComputer sourceHashComputer;

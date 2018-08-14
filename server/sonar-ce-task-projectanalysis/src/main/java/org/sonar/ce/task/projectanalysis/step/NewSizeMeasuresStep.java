@@ -40,11 +40,7 @@ import org.sonar.ce.task.projectanalysis.formula.counter.IntValue;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
-import org.sonar.ce.task.projectanalysis.scm.Changeset;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.ComputationStep;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
@@ -58,18 +54,16 @@ import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 public class NewSizeMeasuresStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
-  private final PeriodHolder periodHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final NewDuplicationFormula duplicationFormula;
 
-  public NewSizeMeasuresStep(TreeRootHolder treeRootHolder, PeriodHolder periodHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
-    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
+  public NewSizeMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
+    NewLinesRepository newLinesRepository, DuplicationRepository duplicationRepository) {
     this.treeRootHolder = treeRootHolder;
-    this.periodHolder = periodHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
-    this.duplicationFormula = new NewDuplicationFormula(scmInfoRepository, duplicationRepository);
+    this.duplicationFormula = new NewDuplicationFormula(newLinesRepository, duplicationRepository);
   }
 
   @Override
@@ -81,22 +75,21 @@ public class NewSizeMeasuresStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-        .withVariationSupport(periodHolder)
         .buildFor(ImmutableList.of(duplicationFormula)))
-          .visit(treeRootHolder.getRoot());
+      .visit(treeRootHolder.getRoot());
   }
 
   private static class NewSizeCounter implements Counter<NewSizeCounter> {
     private final DuplicationRepository duplicationRepository;
-    private final ScmInfoRepository scmInfoRepository;
+    private final NewLinesRepository newLinesRepository;
+
     private final IntValue newLines = new IntValue();
     private final IntValue newDuplicatedLines = new IntValue();
     private final IntValue newDuplicatedBlocks = new IntValue();
 
-    private NewSizeCounter(DuplicationRepository duplicationRepository,
-      ScmInfoRepository scmInfoRepository) {
+    private NewSizeCounter(DuplicationRepository duplicationRepository, NewLinesRepository newLinesRepository) {
       this.duplicationRepository = duplicationRepository;
-      this.scmInfoRepository = scmInfoRepository;
+      this.newLinesRepository = newLinesRepository;
     }
 
     @Override
@@ -109,8 +102,8 @@ public class NewSizeMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
-      java.util.Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
-      if (!scmInfo.isPresent() || !context.hasPeriod()) {
+      java.util.Optional<Set<Integer>> changedLines = newLinesRepository.getNewLines(leaf);
+      if (!changedLines.isPresent()) {
         return;
       }
 
@@ -118,21 +111,18 @@ public class NewSizeMeasuresStep implements ComputationStep {
       if (leaf.getType() != Component.Type.FILE) {
         newDuplicatedLines.increment(0);
         newDuplicatedBlocks.increment(0);
-        return;
+      } else {
+        initNewLines(changedLines.get());
+        initNewDuplicated(leaf, changedLines.get());
       }
-
-      initNewLines(scmInfo.get(), context.getPeriod());
-      initNewDuplicated(leaf, scmInfo.get(), context.getPeriod());
     }
 
-    private void initNewLines(ScmInfo scmInfo, Period period) {
-      scmInfo.getAllChangesets().values().stream()
-        .filter(changeset -> isLineInPeriod(changeset, period))
-        .forEach(changeset -> newLines.increment(1));
+    private void initNewLines(Set<Integer> changedLines) {
+      newLines.increment(changedLines.size());
     }
 
-    private void initNewDuplicated(Component component, ScmInfo scmInfo, Period period) {
-      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo, period, scmInfo.getAllChangesets().size());
+    private void initNewDuplicated(Component component, Set<Integer> changedLines) {
+      DuplicationCounters duplicationCounters = new DuplicationCounters(changedLines);
       Iterable<Duplication> duplications = duplicationRepository.getDuplications(component);
       for (Duplication duplication : duplications) {
         duplicationCounters.addBlock(duplication.getOriginal());
@@ -145,29 +135,22 @@ public class NewSizeMeasuresStep implements ComputationStep {
       newDuplicatedLines.increment(duplicationCounters.getNewLinesDuplicated());
       newDuplicatedBlocks.increment(duplicationCounters.getNewBlocksDuplicated());
     }
-
-    private static boolean isLineInPeriod(Changeset changeset, Period period) {
-      return changeset.getDate() > period.getSnapshotDate();
-    }
   }
 
   private static class DuplicationCounters {
-    private final ScmInfo scmInfo;
-    private final Period period;
+    private final Set<Integer> changedLines;
     private final Set<Integer> lineCounts;
     private int blockCounts;
 
-    private DuplicationCounters(ScmInfo scmInfo, Period period, int changesetSize) {
-      this.scmInfo = scmInfo;
-      this.period = period;
-      this.lineCounts = new HashSet<>(changesetSize);
+    private DuplicationCounters(Set<Integer> changedLines) {
+      this.changedLines = changedLines;
+      this.lineCounts = new HashSet<>(changedLines.size());
     }
 
     void addBlock(TextBlock textBlock) {
       Boolean[] newBlock = new Boolean[] {false};
       IntStream.rangeClosed(textBlock.getStart(), textBlock.getEnd())
-        .filter(scmInfo::hasChangesetForLine)
-        .filter(line -> isLineInPeriod(line, period))
+        .filter(changedLines::contains)
         .forEach(line -> {
           lineCounts.add(line);
           newBlock[0] = true;
@@ -184,25 +167,20 @@ public class NewSizeMeasuresStep implements ComputationStep {
     int getNewBlocksDuplicated() {
       return blockCounts;
     }
-
-    private boolean isLineInPeriod(int lineNumber, Period period) {
-      return scmInfo.getChangesetForLine(lineNumber).getDate() > period.getSnapshotDate();
-    }
   }
 
   private static final class NewDuplicationFormula implements Formula<NewSizeCounter> {
     private final DuplicationRepository duplicationRepository;
-    private final ScmInfoRepository scmInfoRepository;
+    private final NewLinesRepository newLinesRepository;
 
-    private NewDuplicationFormula(ScmInfoRepository scmInfoRepository,
-      DuplicationRepository duplicationRepository) {
+    private NewDuplicationFormula(NewLinesRepository newLinesRepository, DuplicationRepository duplicationRepository) {
       this.duplicationRepository = duplicationRepository;
-      this.scmInfoRepository = scmInfoRepository;
+      this.newLinesRepository = newLinesRepository;
     }
 
     @Override
     public NewSizeCounter createNewCounter() {
-      return new NewSizeCounter(duplicationRepository, scmInfoRepository);
+      return new NewSizeCounter(duplicationRepository, newLinesRepository);
     }
 
     @Override

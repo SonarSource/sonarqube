@@ -34,8 +34,6 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
@@ -92,8 +90,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
     .add(CoreMetrics.NEW_COVERAGE);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  @Rule
-  public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("some mode", null, 95l, "756l"));
 
   @Test
   public void verify_aggregation_on_value() {
@@ -294,7 +290,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
 
   private FormulaExecutorComponentVisitor formulaExecutorComponentVisitor(Formula formula) {
     return FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-      .withVariationSupport(periodsHolder)
       .buildFor(ImmutableList.of(formula));
   }
 
@@ -321,7 +316,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
     @Override
     public Optional<Measure> createMeasure(FakeCounter counter, CreateMeasureContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NCLOC_KEY));
 
@@ -344,7 +338,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
     @Override
     public Optional<Measure> createMeasure(FakeCounter counter, CreateMeasureContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric())
         .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_COVERAGE_KEY));
@@ -380,7 +373,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
     public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
       assertThat(context.getLeaf().getChildren()).isEmpty();
-      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
 
       Optional<Measure> measureOptional = context.getMeasure(LINES_KEY);
       if (measureOptional.isPresent()) {
@@ -399,7 +391,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
     @Override
     public Optional<Measure> createMeasure(FakeVariationCounter counter, CreateMeasureContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_COVERAGE_KEY));
 
@@ -431,10 +422,9 @@ public class ReportFormulaExecutorComponentVisitorTest {
     public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
       assertThat(context.getLeaf().getChildren()).isEmpty();
-      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
 
       Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);
-      if (!measureOptional.isPresent() || !context.hasPeriod()) {
+      if (!measureOptional.isPresent()) {
         return;
       }
       this.values.increment((int) measureOptional.get().getVariation());

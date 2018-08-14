@@ -19,7 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import org.junit.Before;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -32,14 +36,14 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryRule;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY;
@@ -67,6 +71,9 @@ public class ReportNewCoverageMeasuresStepTest {
   private static final int DIRECTORY_2_REF = 1112;
   private static final int FILE_2_REF = 11121;
   private static final int FILE_3_REF = 11122;
+  private static final Component FILE_1 = builder(FILE, FILE_1_REF).build();
+  private static final Component FILE_2 = builder(FILE, FILE_2_REF).build();
+  private static final Component FILE_3 = builder(FILE, FILE_3_REF).build();
 
   private static final ReportComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
     .addChildren(
@@ -75,24 +82,17 @@ public class ReportNewCoverageMeasuresStepTest {
           builder(MODULE, SUB_MODULE_REF)
             .addChildren(
               builder(DIRECTORY, DIRECTORY_1_REF)
-                .addChildren(
-                  builder(FILE, FILE_1_REF).build())
+                .addChildren(FILE_1)
                 .build(),
               builder(DIRECTORY, DIRECTORY_2_REF)
-                .addChildren(
-                  builder(FILE, FILE_2_REF).build(),
-                  builder(FILE, FILE_3_REF).build())
+                .addChildren(FILE_2, FILE_3)
                 .build())
             .build())
         .build())
     .build();
 
   @Rule
-  public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
-  @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(CoreMetrics.COVERAGE_LINE_HITS_DATA)
@@ -108,15 +108,10 @@ public class ReportNewCoverageMeasuresStepTest {
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-
-  private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, periodsHolder, measureRepository, metricRepository, scmInfoRepository);
+  private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
+  private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, measureRepository, metricRepository, newLinesRepository);
   public static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, FILE_1_REF)
     .setFileAttributes(new FileAttributes(false, null, 1)).build();
-
-  @Before
-  public void setUp() {
-    periodsHolder.setPeriod(new Period("mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"));
-  }
 
   @Test
   public void no_measure_for_PROJECT_component() {
@@ -166,13 +161,8 @@ public class ReportNewCoverageMeasuresStepTest {
   @Test
   public void zero_measures_when_nothing_has_changed() {
     treeRootHolder.setRoot(FILE_COMPONENT);
-    scmInfoRepository.setScmInfo(FILE_1_REF,
-      Changeset.newChangesetBuilder().setDate(parseDate("2008-08-02").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2008-08-02").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2008-08-02").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2008-08-02").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2008-08-02").getTime()).setRevision("rev-1").build());
-
+    when(newLinesRepository.newLinesAvailable()).thenReturn(true);
+    when(newLinesRepository.getNewLines(FILE_COMPONENT)).thenReturn(Optional.of(Collections.emptySet()));
     measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), COVERAGE_LINE_HITS_DATA_KEY, newMeasureBuilder().create("2=1;3=1"));
     measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
     measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), COVERED_CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
@@ -185,9 +175,7 @@ public class ReportNewCoverageMeasuresStepTest {
   @Test
   public void zero_measures_for_FILE_component_without_CoverageData() {
     treeRootHolder.setRoot(FILE_COMPONENT);
-    scmInfoRepository.setScmInfo(FILE_1_REF,
-      Changeset.newChangesetBuilder().setDate(parseDate("2008-05-18").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2008-05-18").getTime()).setRevision("rev-1").build());
+    setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -196,6 +184,8 @@ public class ReportNewCoverageMeasuresStepTest {
 
   @Test
   public void verify_computation_of_measures_for_new_lines_for_FILE() {
+    when(newLinesRepository.newLinesAvailable()).thenReturn(true);
+
     String coverageLineHitsData = COVERAGE_LINE_HITS_DATA_KEY;
     String newLinesToCover = NEW_LINES_TO_COVER_KEY;
     String newUncoveredLines = NEW_UNCOVERED_LINES_KEY;
@@ -209,11 +199,7 @@ public class ReportNewCoverageMeasuresStepTest {
   private void verify_computation_of_measures_for_new_lines(String coverageLineHitsData,
     String newLinesToCover, String newUncoveredLines, String newConditionsToCover, String newUncoveredConditions) {
     treeRootHolder.setRoot(FILE_COMPONENT);
-    scmInfoRepository.setScmInfo(FILE_1_REF,
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2007-01-15").getTime()).setRevision("rev-2").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build());
+    setNewLines(FILE_1, 1, 2, 4);
 
     measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), coverageLineHitsData, newMeasureBuilder().create("2=0;3=2;4=3"));
 
@@ -228,6 +214,8 @@ public class ReportNewCoverageMeasuresStepTest {
 
   @Test
   public void verify_computation_of_measures_for_new_conditions_for_FILE() {
+    when(newLinesRepository.newLinesAvailable()).thenReturn(true);
+
     String coverageLineHitsData = COVERAGE_LINE_HITS_DATA_KEY;
     String conditionsByLine = CONDITIONS_BY_LINE_KEY;
     String coveredConditionsByLine = COVERED_CONDITIONS_BY_LINE_KEY;
@@ -242,6 +230,8 @@ public class ReportNewCoverageMeasuresStepTest {
 
   @Test
   public void verify_aggregation_of_measures_for_new_conditions() {
+    when(newLinesRepository.newLinesAvailable()).thenReturn(true);
+
     String coverageLineHitsData = CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY;
     String conditionsByLine = CoreMetrics.CONDITIONS_BY_LINE_KEY;
     String coveredConditionsByLine = CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY;
@@ -254,9 +244,9 @@ public class ReportNewCoverageMeasuresStepTest {
       newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
 
     treeRootHolder.setRoot(MULTIPLE_FILES_TREE);
-    defineChangeSetsAndMeasures(FILE_1_REF, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
-    defineChangeSetsAndMeasures(FILE_2_REF, metricKeys, new MeasureValues(0, 14, 6), new MeasureValues(0, 13, 7));
-    defineChangeSetsAndMeasures(FILE_3_REF, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(1, 13, 7));
+    defineNewLinesAndMeasures(FILE_1, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
+    defineNewLinesAndMeasures(FILE_2, metricKeys, new MeasureValues(0, 14, 6), new MeasureValues(0, 13, 7));
+    defineNewLinesAndMeasures(FILE_3, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(1, 13, 7));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -365,19 +355,11 @@ public class ReportNewCoverageMeasuresStepTest {
       entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(0d)));
   }
 
-  private void defineChangeSetsAndMeasures(int componentRef, MetricKeys metricKeys, MeasureValues line4, MeasureValues line6) {
-    scmInfoRepository.setScmInfo(componentRef,
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2007-01-15").getTime()).setRevision("rev-2").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2012-02-23").getTime()).setRevision("rev-3").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2012-02-23").getTime()).setRevision("rev-3").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2012-02-23").getTime()).setRevision("rev-3").build());
-
-    measureRepository.addRawMeasure(componentRef, metricKeys.coverageLineHitsData, newMeasureBuilder().create("2=0;3=2;4=" + line4.lineHits + ";5=1;6=" + line6.lineHits + ";7=0"));
-    measureRepository.addRawMeasure(componentRef, metricKeys.conditionsByLine, newMeasureBuilder().create("4=" + line4.coveredConditions + ";6=" + line6.coveredConditions));
-    measureRepository.addRawMeasure(componentRef, metricKeys.coveredConditionsByLine,
+  private void defineNewLinesAndMeasures(Component c, MetricKeys metricKeys, MeasureValues line4, MeasureValues line6) {
+    setNewLines(c, 1, 2, 4,5,6,7);
+    measureRepository.addRawMeasure(c.getReportAttributes().getRef(), metricKeys.coverageLineHitsData, newMeasureBuilder().create("2=0;3=2;4=" + line4.lineHits + ";5=1;6=" + line6.lineHits + ";7=0"));
+    measureRepository.addRawMeasure(c.getReportAttributes().getRef(), metricKeys.conditionsByLine, newMeasureBuilder().create("4=" + line4.coveredConditions + ";6=" + line6.coveredConditions));
+    measureRepository.addRawMeasure(c.getReportAttributes().getRef(), metricKeys.coveredConditionsByLine,
       newMeasureBuilder().create("4=" + line4.uncoveredConditions + ";6=" + line6.uncoveredConditions));
   }
 
@@ -416,7 +398,7 @@ public class ReportNewCoverageMeasuresStepTest {
 
   private void verify_computation_of_measures_for_new_conditions(MetricKeys metricKeys) {
     treeRootHolder.setRoot(FILE_COMPONENT);
-    defineChangeSetsAndMeasures(FILE_COMPONENT.getReportAttributes().getRef(), metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
+    defineNewLinesAndMeasures(FILE_COMPONENT, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -433,4 +415,9 @@ public class ReportNewCoverageMeasuresStepTest {
       .createNoValue();
   }
 
+  private void setNewLines(Component c, Integer... lines) {
+    when(newLinesRepository.newLinesAvailable()).thenReturn(true);
+    Set<Integer> newLines = new HashSet<>(Arrays.asList(lines));
+    when(newLinesRepository.getNewLines(c)).thenReturn(Optional.of(newLines));
+  }
 }

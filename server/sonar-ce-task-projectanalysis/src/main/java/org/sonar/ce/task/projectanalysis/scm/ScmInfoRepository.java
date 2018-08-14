@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.scm;
 
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 /**
  * Return SCM information of components.
@@ -33,10 +32,10 @@ public interface ScmInfoRepository {
   /**
    * Returns Scm info for the specified component if there is any, first looking into the report, then into the database
    * <p>
-   * If there's nothing in the report and in the db (on first analysis for instance), then it return a {@link Optional#absent()}.
+   * If there's nothing in the report and in the db (on first analysis for instance), then it return a {@link Optional#empty()}.
    * </p>
    * <p>
-   * This method will always return {@link Optional#absent()} if the specified component's type is not {@link Component.Type#FILE}.
+   * This method will always return {@link Optional#empty()} if the specified component's type is not {@link Component.Type#FILE}.
    * </p>
    *
    * @throws NullPointerException if argument is {@code null}

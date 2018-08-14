@@ -29,7 +29,6 @@ import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
-import org.sonar.ce.task.projectanalysis.period.Period;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -134,14 +133,5 @@ public class CoverageUtilsTest {
       return Optional.fromNullable(measures.get(metricKey));
     }
 
-    @Override
-    public Period getPeriod() {
-      throw new UnsupportedOperationException("getPeriod is not supported");
-    }
-
-    @Override
-    public boolean hasPeriod() {
-      throw new UnsupportedOperationException("hasPeriod is not supported");
-    }
   }
 }
