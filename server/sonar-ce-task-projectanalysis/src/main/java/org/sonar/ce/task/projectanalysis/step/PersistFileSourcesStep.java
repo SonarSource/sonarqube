@@ -20,69 +20,45 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
-import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
-import org.sonar.ce.task.projectanalysis.source.ComputeFileSourceData;
+import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl.LineHashesComputer;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
-import org.sonar.ce.task.projectanalysis.source.linereader.CoverageLineReader;
-import org.sonar.ce.task.projectanalysis.source.linereader.DuplicationLineReader;
-import org.sonar.ce.task.projectanalysis.source.linereader.HighlightingLineReader;
-import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
-import org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter;
-import org.sonar.ce.task.projectanalysis.source.linereader.ScmLineReader;
-import org.sonar.ce.task.projectanalysis.source.linereader.SymbolsLineReader;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
-import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistFileSourcesStep implements ComputationStep {
-
   private final DbClient dbClient;
   private final System2 system2;
   private final TreeRootHolder treeRootHolder;
-  private final BatchReportReader reportReader;
-  private final SourceLinesRepository sourceLinesRepository;
-  private final ScmInfoRepository scmInfoRepository;
-  private final DuplicationRepository duplicationRepository;
   private final SourceLinesHashRepository sourceLinesHash;
+  private final FileSourceDataComputer fileSourceDataComputer;
 
-  public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesRepository sourceLinesRepository,
-    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository, SourceLinesHashRepository sourceLinesHash) {
+  public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder,
+    SourceLinesHashRepository sourceLinesHash, FileSourceDataComputer fileSourceDataComputer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
-    this.reportReader = reportReader;
-    this.sourceLinesRepository = sourceLinesRepository;
-    this.scmInfoRepository = scmInfoRepository;
-    this.duplicationRepository = duplicationRepository;
     this.sourceLinesHash = sourceLinesHash;
+    this.fileSourceDataComputer = fileSourceDataComputer;
   }
 
   @Override
@@ -95,7 +71,6 @@ public class PersistFileSourcesStep implements ComputationStep {
   }
 
   private class FileSourceVisitor extends TypeAwareVisitorAdapter {
-
     private final DbSession session;
 
     private Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
@@ -118,22 +93,19 @@ public class PersistFileSourcesStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
-        LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file)) {
-        LineHashesComputer lineHashesComputer = sourceLinesHash.getLineHashesComputerToPersist(file);
-        ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), lineHashesComputer);
-        ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
-        persistSource(fileSourceData, file, lineReaders.getLatestChangeWithRevision());
+      try {
+        FileSourceDataComputer.Data fileSourceData = fileSourceDataComputer.compute(file);
+        persistSource(fileSourceData, file, fileSourceData.getLatestChangeWithRevision());
       } catch (Exception e) {
         throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getKey()), e);
       }
     }
 
-    private void persistSource(ComputeFileSourceData.Data fileSourceData, Component file, @Nullable Changeset latestChangeWithRevision) {
-      DbFileSources.Data fileData = fileSourceData.getFileSourceData();
+    private void persistSource(FileSourceDataComputer.Data fileSourceData, Component file, @Nullable Changeset latestChangeWithRevision) {
+      DbFileSources.Data lineData = fileSourceData.getLineData();
 
-      byte[] data = FileSourceDto.encodeSourceData(fileData);
-      String dataHash = DigestUtils.md5Hex(data);
+      byte[] binaryData = FileSourceDto.encodeSourceData(lineData);
+      String dataHash = DigestUtils.md5Hex(binaryData);
       String srcHash = fileSourceData.getSrcHash();
       List<String> lineHashes = fileSourceData.getLineHashes();
       Integer lineHashesVersion = sourceLinesHash.getLineHashesVersion(file);
@@ -144,7 +116,7 @@ public class PersistFileSourcesStep implements ComputationStep {
           .setProjectUuid(projectUuid)
           .setFileUuid(file.getUuid())
           .setDataType(Type.SOURCE)
-          .setBinaryData(data)
+          .setBinaryData(binaryData)
           .setSrcHash(srcHash)
           .setDataHash(dataHash)
           .setLineHashes(lineHashes)
@@ -160,10 +132,10 @@ public class PersistFileSourcesStep implements ComputationStep {
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
         String revision = computeRevision(latestChangeWithRevision);
         boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
-        boolean lineHashesVersionUpdated = previousDto.getLineHashesVersion() != lineHashesVersion;
+        boolean lineHashesVersionUpdated = !previousDto.getLineHashesVersion().equals(lineHashesVersion);
         if (binaryDataUpdated || srcHashUpdated || revisionUpdated || lineHashesVersionUpdated) {
           previousDto
-            .setBinaryData(data)
+            .setBinaryData(binaryData)
             .setDataHash(dataHash)
             .setSrcHash(srcHash)
             .setLineHashes(lineHashes)
@@ -182,54 +154,6 @@ public class PersistFileSourcesStep implements ComputationStep {
         return null;
       }
       return latestChangeWithRevision.getRevision();
-    }
-  }
-
-  private static class LineReaders implements AutoCloseable {
-    private final List<LineReader> readers = new ArrayList<>();
-    private final List<CloseableIterator<?>> closeables = new ArrayList<>();
-    @CheckForNull
-    private final ScmLineReader scmLineReader;
-
-    LineReaders(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository, Component component) {
-      int componentRef = component.getReportAttributes().getRef();
-      CloseableIterator<ScannerReport.LineCoverage> coverageIt = reportReader.readComponentCoverage(componentRef);
-      closeables.add(coverageIt);
-      readers.add(new CoverageLineReader(coverageIt));
-
-      Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(component);
-      if (scmInfoOptional.isPresent()) {
-        this.scmLineReader = new ScmLineReader(scmInfoOptional.get());
-        readers.add(scmLineReader);
-      } else {
-        this.scmLineReader = null;
-      }
-
-      RangeOffsetConverter rangeOffsetConverter = new RangeOffsetConverter();
-      CloseableIterator<ScannerReport.SyntaxHighlightingRule> highlightingIt = reportReader.readComponentSyntaxHighlighting(componentRef);
-      closeables.add(highlightingIt);
-      readers.add(new HighlightingLineReader(component, highlightingIt, rangeOffsetConverter));
-
-      CloseableIterator<ScannerReport.Symbol> symbolsIt = reportReader.readComponentSymbols(componentRef);
-      closeables.add(symbolsIt);
-      readers.add(new SymbolsLineReader(component, symbolsIt, rangeOffsetConverter));
-      readers.add(new DuplicationLineReader(duplicationRepository.getDuplications(component)));
-    }
-
-    List<LineReader> readers() {
-      return readers;
-    }
-
-    @Override
-    public void close() {
-      for (CloseableIterator<?> reportIterator : closeables) {
-        reportIterator.close();
-      }
-    }
-
-    @CheckForNull
-    public Changeset getLatestChangeWithRevision() {
-      return scmLineReader == null ? null : scmLineReader.getLatestChangeWithRevision();
     }
   }
 

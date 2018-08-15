@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.source.linereader;
 
 import org.sonar.db.protobuf.DbFileSources;
 
+@FunctionalInterface
 public interface LineReader {
 
   void read(DbFileSources.Line.Builder lineBuilder);

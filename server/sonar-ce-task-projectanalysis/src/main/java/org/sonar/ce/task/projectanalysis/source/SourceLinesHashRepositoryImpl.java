@@ -27,7 +27,6 @@ import org.sonar.core.hash.LineRange;
 import org.sonar.core.hash.SourceLineHashesComputer;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.source.LineHashVersion;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository {
   private final SourceLinesRepository sourceLinesRepository;
@@ -95,7 +94,7 @@ public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository 
     return processor.getResult();
   }
 
-  public static interface LineHashesComputer {
+  public interface LineHashesComputer {
     void addLine(String line);
 
     List<String> getResult();

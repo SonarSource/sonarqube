@@ -27,13 +27,12 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
-import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
+import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
-
+import org.sonar.ce.task.projectanalysis.metric.Metric;
+import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 
 import static java.util.Objects.requireNonNull;
 
@@ -217,7 +216,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     }
   }
 
-  private class CreateMeasureContextImpl implements CreateMeasureContext {
+  private static class CreateMeasureContextImpl implements CreateMeasureContext {
     private final Component component;
     private final Metric metric;
 
