@@ -628,6 +628,7 @@ export interface SourceLine {
   coverageStatus?: string;
   coveredConditions?: number;
   duplicated?: boolean;
+  isNew?: boolean;
   line: number;
   lineHits?: number;
   scmAuthor?: string;

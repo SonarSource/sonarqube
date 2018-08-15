@@ -37,6 +37,7 @@ const EMPTY_ARRAY: any[] = [];
 const ZERO_LINE = {
   code: '',
   duplicated: false,
+  isNew: false,
   line: 0
 };
 
@@ -49,7 +50,6 @@ interface Props {
   displayLocationMarkers?: boolean;
   duplications: Duplication[] | undefined;
   duplicationsByLine: { [line: number]: number[] };
-  filterLine?: (line: SourceLine) => boolean;
   hasSourcesAfter: boolean;
   hasSourcesBefore: boolean;
   highlightedLine: number | undefined;
@@ -126,8 +126,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     displayDuplications: boolean;
     displayIssues: boolean;
   }) => {
-    const { filterLine, highlightedLocationMessage, selectedIssue, sources } = this.props;
-    const filtered = filterLine && filterLine(line);
+    const { highlightedLocationMessage, selectedIssue, sources } = this.props;
 
     const secondaryIssueLocations = this.getSecondaryIssueLocationsForLine(line);
 
@@ -175,7 +174,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.getDuplicationsForLine(line)}
         duplicationsCount={duplicationsCount}
-        filtered={filtered}
         highlighted={line.line === this.props.highlightedLine}
         highlightedLocationMessage={optimizedLocationMessage}
         highlightedSymbols={optimizedHighlightedSymbols}

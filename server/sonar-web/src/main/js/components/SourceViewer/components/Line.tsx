@@ -41,7 +41,6 @@ interface Props {
   displayLocationMarkers?: boolean;
   duplications: number[];
   duplicationsCount: number;
-  filtered: boolean | undefined;
   highlighted: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
@@ -101,17 +100,10 @@ export default class Line extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      displayCoverage,
-      duplications,
-      duplicationsCount,
-      filtered,
-      issuePopup,
-      line
-    } = this.props;
+    const { displayCoverage, duplications, duplicationsCount, issuePopup, line } = this.props;
     const className = classNames('source-line', {
       'source-line-highlighted': this.props.highlighted,
-      'source-line-filtered': filtered === true,
+      'source-line-filtered': line.isNew,
       'source-line-filtered-dark':
         displayCoverage &&
         (line.coverageStatus === 'uncovered' || line.coverageStatus === 'partially-covered'),

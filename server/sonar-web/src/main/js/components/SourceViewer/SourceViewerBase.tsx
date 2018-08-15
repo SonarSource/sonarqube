@@ -593,14 +593,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     }
   };
 
-  handleFilterLine = (line: SourceLine) => {
-    const { component } = this.state;
-    const leakPeriodDate = component && component.leakPeriodDate;
-    return leakPeriodDate
-      ? line.scmDate !== undefined && parseDate(line.scmDate) > parseDate(leakPeriodDate)
-      : false;
-  };
-
   renderDuplicationPopup = (index: number, line: number) => {
     const { component, duplicatedFiles, duplications } = this.state;
 
@@ -648,7 +640,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.state.duplications}
         duplicationsByLine={this.state.duplicationsByLine}
-        filterLine={this.handleFilterLine}
         hasSourcesAfter={this.state.hasSourcesAfter}
         hasSourcesBefore={hasSourcesBefore}
         highlightedLine={this.props.highlightedLine}

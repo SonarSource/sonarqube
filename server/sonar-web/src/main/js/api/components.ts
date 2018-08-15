@@ -20,6 +20,7 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import {
+  SourceLine,
   Paging,
   Visibility,
   BranchParameters,
@@ -294,7 +295,7 @@ export function getComponentForSourceViewer(
 
 export function getSources(
   data: { key: string; from?: number; to?: number } & BranchParameters
-): Promise<any> {
+): Promise<SourceLine[]> {
   return getJSON('/api/sources/lines', data).then(r => r.sources);
 }
 
