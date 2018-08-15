@@ -25,7 +25,6 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDao;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class SourceLinesDiffImpl implements SourceLinesDiff {
 

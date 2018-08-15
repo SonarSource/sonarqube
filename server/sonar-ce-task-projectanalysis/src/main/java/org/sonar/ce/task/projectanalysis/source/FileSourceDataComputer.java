@@ -34,7 +34,8 @@ public class FileSourceDataComputer {
   private final SourceLinesHashRepository sourceLinesHash;
   private final SourceHashComputer sourceHashComputer;
 
-  public FileSourceDataComputer(SourceLinesRepository sourceLinesRepository, SourceLineReadersFactory sourceLineReadersFactory, SourceLinesHashRepository sourceLinesHash) {
+  public FileSourceDataComputer(SourceLinesRepository sourceLinesRepository, SourceLineReadersFactory sourceLineReadersFactory,
+    SourceLinesHashRepository sourceLinesHash) {
     this.sourceLinesRepository = sourceLinesRepository;
     this.sourceLineReadersFactory = sourceLineReadersFactory;
     this.sourceLinesHash = sourceLinesHash;
@@ -44,7 +45,6 @@ public class FileSourceDataComputer {
   public Data compute(Component file) {
     try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
       SourceLineReadersFactory.LineReaders lineReaders = sourceLineReadersFactory.getLineReaders(file)) {
-
       SourceLinesHashRepositoryImpl.LineHashesComputer lineHashesComputer = sourceLinesHash.getLineHashesComputerToPersist(file);
       DbFileSources.Data.Builder fileSourceBuilder = DbFileSources.Data.newBuilder();
       int currentLine = 0;
@@ -54,7 +54,8 @@ public class FileSourceDataComputer {
         read(fileSourceBuilder, lineHashesComputer, lineReaders, currentLine, linesIterator.next(), linesIterator.hasNext());
       }
 
-      return new Data(fileSourceBuilder.build(), lineHashesComputer.getResult(), sourceHashComputer.getHash(), lineReaders.getLatestChangeWithRevision());
+      Changeset latestChangeWithRevision = lineReaders.getLatestChangeWithRevision();
+      return new Data(fileSourceBuilder.build(), lineHashesComputer.getResult(), sourceHashComputer.getHash(), latestChangeWithRevision);
     }
   }
 

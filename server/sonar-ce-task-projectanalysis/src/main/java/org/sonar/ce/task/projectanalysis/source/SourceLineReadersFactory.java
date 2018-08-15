@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.ce.task.projectanalysis.source.linereader.CoverageLineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.DuplicationLineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.HighlightingLineReader;
+import org.sonar.ce.task.projectanalysis.source.linereader.IsNewLineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 import org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter;
 import org.sonar.ce.task.projectanalysis.source.linereader.ScmLineReader;
@@ -45,11 +46,14 @@ public class SourceLineReadersFactory {
   private final BatchReportReader reportReader;
   private final ScmInfoRepository scmInfoRepository;
   private final DuplicationRepository duplicationRepository;
+  private final NewLinesRepository newLinesRepository;
 
-  SourceLineReadersFactory(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
+  public SourceLineReadersFactory(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository,
+    NewLinesRepository newLinesRepository) {
     this.reportReader = reportReader;
     this.scmInfoRepository = scmInfoRepository;
     this.duplicationRepository = duplicationRepository;
+    this.newLinesRepository = newLinesRepository;
   }
 
   public LineReaders getLineReaders(Component component) {
@@ -77,6 +81,7 @@ public class SourceLineReadersFactory {
     closeables.add(symbolsIt);
     readers.add(new SymbolsLineReader(component, symbolsIt, rangeOffsetConverter));
     readers.add(new DuplicationLineReader(duplicationRepository.getDuplications(component)));
+    readers.add(new IsNewLineReader(newLinesRepository, component));
 
     return new LineReaders(readers, scmLineReader, closeables);
   }

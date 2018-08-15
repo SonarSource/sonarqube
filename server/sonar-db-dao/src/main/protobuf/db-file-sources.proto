@@ -60,6 +60,8 @@ message Line {
   optional int32 line_hits = 18;
   optional int32 conditions = 19;
   optional int32 covered_conditions = 20;
+
+  optional bool is_new_line = 21;
 }
 
 message Range {

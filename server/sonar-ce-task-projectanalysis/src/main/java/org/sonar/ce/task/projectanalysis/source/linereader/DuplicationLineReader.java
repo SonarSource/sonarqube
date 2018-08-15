@@ -33,9 +33,6 @@ import org.sonar.ce.task.projectanalysis.duplication.Duplication;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
 import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.ce.task.projectanalysis.duplication.Duplication;
-import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
-import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.size;

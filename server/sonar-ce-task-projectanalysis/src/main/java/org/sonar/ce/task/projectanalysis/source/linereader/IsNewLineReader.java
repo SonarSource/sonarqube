@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.source;
+package org.sonar.ce.task.projectanalysis.source.linereader;
 
+import java.util.Collections;
+import java.util.Set;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
+import org.sonar.db.protobuf.DbFileSources;
 
-public interface SourceHashRepository {
+public class IsNewLineReader implements LineReader {
+  private final Set<Integer> newLines;
 
-  /**
-   * The hash of the source of the specified FILE component in the analysis report.
-   * <p>
-   * The source hash will be cached by the repository so that only the first call to this method will cost a file
-   * access on disk.
-   * </p>
-   *
-   * @throws NullPointerException if specified component is {@code null}
-   * @throws IllegalArgumentException if specified component if not a {@link Component.Type#FILE}
-   * @throws IllegalStateException if source hash for the specified component can not be computed
-   */
-  String getRawSourceHash(Component file);
+  public IsNewLineReader(NewLinesRepository newLinesRepository, Component file) {
+    this.newLines = newLinesRepository.getNewLines(file).orElse(Collections.emptySet());
+  }
 
+  @Override public void read(DbFileSources.Line.Builder lineBuilder) {
+    lineBuilder.setIsNewLine(newLines.contains(lineBuilder.getLine()));
+  }
 }

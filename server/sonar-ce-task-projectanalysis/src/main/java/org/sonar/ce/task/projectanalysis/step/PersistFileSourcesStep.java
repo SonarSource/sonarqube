@@ -95,20 +95,21 @@ public class PersistFileSourcesStep implements ComputationStep {
     public void visitFile(Component file) {
       try {
         FileSourceDataComputer.Data fileSourceData = fileSourceDataComputer.compute(file);
-        persistSource(fileSourceData, file, fileSourceData.getLatestChangeWithRevision());
+        persistSource(fileSourceData, file);
       } catch (Exception e) {
         throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getKey()), e);
       }
     }
 
-    private void persistSource(FileSourceDataComputer.Data fileSourceData, Component file, @Nullable Changeset latestChangeWithRevision) {
+    private void persistSource(FileSourceDataComputer.Data fileSourceData, Component file) {
       DbFileSources.Data lineData = fileSourceData.getLineData();
 
       byte[] binaryData = FileSourceDto.encodeSourceData(lineData);
       String dataHash = DigestUtils.md5Hex(binaryData);
       String srcHash = fileSourceData.getSrcHash();
       List<String> lineHashes = fileSourceData.getLineHashes();
-      Integer lineHashesVersion = sourceLinesHash.getLineHashesVersion(file);
+      Changeset latestChangeWithRevision = fileSourceData.getLatestChangeWithRevision();
+      int lineHashesVersion = sourceLinesHash.getLineHashesVersion(file);
       FileSourceDto previousDto = previousFileSourcesByUuid.get(file.getUuid());
 
       if (previousDto == null) {

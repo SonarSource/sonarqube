@@ -111,10 +111,12 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.DbLineHashVersion;
+import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
 import org.sonar.ce.task.projectanalysis.source.LastCommitVisitor;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SignificantCodeRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceHashRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.source.SourceLineReadersFactory;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesDiffImpl;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashCache;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl;
@@ -207,6 +209,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SignificantCodeRepository.class,
       SourceLinesHashCache.class,
       NewLinesRepository.class,
+      FileSourceDataComputer.class,
+      SourceLineReadersFactory.class,
 
       // issues
       RuleRepositoryImpl.class,

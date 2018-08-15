@@ -60,12 +60,13 @@ public class SourceLineReadersFactoryTest {
   public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
+  private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
 
   private SourceLineReadersFactory underTest;
 
   @Before
   public void setUp() {
-    underTest = new SourceLineReadersFactory(reportReader, scmInfoRepository, duplicationRepository);
+    underTest = new SourceLineReadersFactory(reportReader, scmInfoRepository, duplicationRepository, newLinesRepository);
   }
 
   @Test
@@ -75,7 +76,7 @@ public class SourceLineReadersFactoryTest {
 
     assertThat(lineReaders).isNotNull();
     assertThat(lineReaders.closeables).hasSize(3);
-    assertThat(lineReaders.readers).hasSize(4);
+    assertThat(lineReaders.readers).hasSize(5);
   }
 
   @Test
