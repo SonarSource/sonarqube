@@ -55,9 +55,8 @@ public class CeQueueCleaner implements Startable {
   public void start() {
     if (serverUpgradeStatus.isUpgraded() && !isBlueGreenDeployment()) {
       cleanOnUpgrade();
-    } else {
-      cleanUpTaskInputOrphans();
     }
+    cleanUpTaskInputOrphans();
   }
 
   private boolean isBlueGreenDeployment() {
