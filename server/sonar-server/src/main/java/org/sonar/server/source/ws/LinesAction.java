@@ -95,7 +95,8 @@ public class LinesAction implements SourcesWsAction {
           "has been renamed \"lineHits\", \"conditions\" and \"coveredConditions\""),
         new Change("6.2", "fields \"itLineHits\", \"itConditions\" and \"itCoveredConditions\" " +
           "are no more returned"),
-        new Change("6.6", "field \"branch\" added"))
+        new Change("6.6", "field \"branch\" added"),
+        new Change("7.4", "field \"isNew\" added"))
       .setHandler(this);
 
     action
@@ -201,6 +202,7 @@ public class LinesAction implements SourcesWsAction {
         json.prop("coveredConditions", coveredConditions.get());
       }
       json.prop("duplicated", line.getDuplicationCount() > 0);
+      json.prop("isNew", line.getIsNewLine());
       json.endObject();
     }
     json.endArray();

@@ -9,7 +9,8 @@
       "lineHits": 1,
       "conditions": 2,
       "coveredConditions": 3,
-      "duplicated": false
+      "duplicated": false,
+      "isNew": false
     }
   ]
 }

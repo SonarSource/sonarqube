@@ -65,6 +65,7 @@ public class FileSourceTesting {
         .setHighlighting("HIGHLIGHTING_" + i)
         .setSymbols("SYMBOLS_" + i)
         .addAllDuplication(Arrays.asList(i))
+        .setIsNewLine(true)
         .build();
     }
     return dataBuilder;

@@ -12,7 +12,8 @@
       "utConditions": 2,
       "coveredConditions": 3,
       "utCoveredConditions": 3,
-      "duplicated": true
+      "duplicated": true,
+      "isNew": true
     }
   ]
 }

@@ -9,7 +9,8 @@
       "lineHits": 1,
       "conditions": 2,
       "coveredConditions": 3,
-      "duplicated": true
+      "duplicated": true,
+      "isNew": true
     },
     {
       "line": 2,
@@ -20,7 +21,8 @@
       "lineHits": 2,
       "conditions": 3,
       "coveredConditions": 4,
-      "duplicated": true
+      "duplicated": true,
+      "isNew": true
     },
     {
       "line": 3,
@@ -31,7 +33,8 @@
       "lineHits": 3,
       "conditions": 4,
       "coveredConditions": 5,
-      "duplicated": true
+      "duplicated": true,
+      "isNew": true
     }
   ]
 }

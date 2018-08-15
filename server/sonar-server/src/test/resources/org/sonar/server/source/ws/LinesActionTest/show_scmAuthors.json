@@ -6,7 +6,8 @@
       "scmAuthor": "isaac@asimov.com",
       "scmRevision": "REVISION_1",
       "scmDate": "1974-10-03T03:40:00+0100",
-      "duplicated": false
+      "duplicated": false,
+      "isNew": false
     }
   ]
 }
