@@ -19,35 +19,38 @@
  */
 package org.sonar.server.issue.ws;
 
-import java.util.Collections;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Issues.TagsResponse;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.rule.RuleTesting.setSystemTags;
-import static org.sonar.db.rule.RuleTesting.setTags;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class TagsActionTest {
@@ -55,144 +58,232 @@ public class TagsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbTester.getDbClient(), new IssueIteratorFactory(dbTester.getDbClient()));
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());
-  private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
+  private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
 
-  private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, ruleIndex, dbTester.getDbClient()));
-  private OrganizationDto organization;
+  private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes)));
 
-  @Before
-  public void before() {
-    organization = dbTester.organizations().insert();
+  @Test
+  public void search_tags() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project);
+
+    TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
+
+    assertThat(result.getTagsList()).containsExactly("tag1", "tag2", "tag3", "tag4", "tag5");
   }
 
   @Test
-  public void return_tags_from_issues() {
-    userSession.logIn();
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
+  public void search_tags_by_query() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project);
 
-    String result = ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"]}");
+    TagsResponse result = ws.newRequest()
+      .setParam("q", "ag1")
+      .executeProtobuf(TagsResponse.class);
+
+    assertThat(result.getTagsList()).containsExactly("tag1", "tag12");
   }
 
   @Test
-  public void return_tags_from_rules() {
-    userSession.logIn();
-    RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag1"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId());
-    dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag2"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId(), organization);
+  public void search_tags_by_organization() {
+    RuleDefinitionDto rule = db.rules().insert();
+    // Tags on issues of organization 1
+    OrganizationDto organization1 = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization1);
+    db.issues().insert(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
+    // Tags on issues of organization 2
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project2 = db.components().insertPrivateProject(organization2);
+    db.issues().insert(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project1, project2);
 
-    RuleDefinitionDto r2 = dbTester.rules().insert(setSystemTags("tag3"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getId());
-    dbTester.rules().insertOrUpdateMetadata(r2, organization, setTags("tag4", "tag5"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getId(), organization);
+    TagsResponse result = ws.newRequest()
+      .setParam("organization", organization1.getKey())
+      .executeProtobuf(TagsResponse.class);
 
-    String result = ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"]}");
+    assertThat(result.getTagsList()).containsExactly("tag1", "tag2");
   }
 
   @Test
-  public void return_tags_from_issue_and_rule_tags() {
-    userSession.logIn();
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
+  public void search_tags_by_project() {
+    RuleDefinitionDto rule = db.rules().insert();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    db.issues().insert(rule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
+    db.issues().insert(rule, project2, project2, issue -> issue.setTags(singletonList("tag2")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project1, project2);
 
-    RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag6"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId());
-    dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag7"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId(), organization);
-
-    String result = ws.newRequest()
+    TagsResponse result = ws.newRequest()
       .setParam("organization", organization.getKey())
-      .execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\", \"tag6\", \"tag7\"]}");
+      .setParam("project", project1.getKey())
+      .executeProtobuf(TagsResponse.class);
+
+    assertThat(result.getTagsList()).containsExactly("tag1");
+  }
+
+  @Test
+  public void search_tags_by_portfolio() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto portfolio = db.components().insertPrivatePortfolio(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    db.components().insertComponent(newProjectCopy(project, portfolio));
+    permissionIndexer.allowOnlyAnyone(project);
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    issueIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexOnStartup(emptySet());
+    userSession.logIn().addMembership(organization);
+
+    TagsResponse result = ws.newRequest()
+      .setParam("project", portfolio.getKey())
+      .executeProtobuf(TagsResponse.class);
+
+    assertThat(result.getTagsList()).containsExactly("cwe");
+  }
+
+  @Test
+  public void search_tags_by_application() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto application = db.components().insertPrivateApplication(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    db.components().insertComponent(newProjectCopy(project, application));
+    permissionIndexer.allowOnlyAnyone(project);
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    issueIndexer.indexOnStartup(emptySet());
+    viewIndexer.indexOnStartup(emptySet());
+    userSession.logIn().addMembership(organization);
+
+    TagsResponse result = ws.newRequest()
+      .setParam("project", application.getKey())
+      .executeProtobuf(TagsResponse.class);
+
+    assertThat(result.getTagsList()).containsExactly("cwe");
   }
 
   @Test
   public void return_limited_size() {
-    userSession.logIn();
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4", "tag5");
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project);
 
-    String result = ws.newRequest()
+    TagsResponse result = ws.newRequest()
       .setParam("ps", "2")
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\"]}");
-  }
+      .executeProtobuf(TagsResponse.class);
 
-  @Test
-  public void return_tags_matching_query() {
-    userSession.logIn();
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag12", "tag4", "tag5");
-
-    String result = ws.newRequest()
-      .setParam("q", "ag1")
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag12\"]}");
+    assertThat(result.getTagsList()).containsExactly("tag1", "tag2");
   }
 
   @Test
   public void do_not_return_issues_without_permission() {
-    userSession.logIn();
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "tag1", "tag2");
-    insertIssueWithoutBrowsePermission(insertRuleWithoutTags(), "tag3", "tag4");
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.issues().insert(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insert(rule, project2, project2, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    issueIndexer.indexOnStartup(emptySet());
+    // Project 2 is not visible to current user
+    permissionIndexer.allowOnlyAnyone(project1);
 
-    String result = ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\"]}");
-    assertThat(result).doesNotContain("tag3").doesNotContain("tag4");
-  }
+    TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
 
-  @Test
-  public void empty_list() {
-    userSession.logIn();
-    String result = ws.newRequest().execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[]}");
+    assertThat(result.getTagsList()).containsExactly("tag1", "tag2");
   }
 
   @Test
   public void without_organization_parameter_is_cross_organization() {
-    userSession.logIn();
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    insertIssueWithBrowsePermission(organization, insertRuleWithoutTags(), "tag1");
-    insertIssueWithBrowsePermission(anotherOrganization, insertRuleWithoutTags(), "tag2");
+    RuleDefinitionDto rule = db.rules().insert();
+    // Tags on issues of organization 1
+    OrganizationDto organization1 = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization1);
+    db.issues().insert(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
+    // Tags on issues of organization 2
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project2 = db.components().insertPrivateProject(organization2);
+    db.issues().insert(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project1, project2);
 
-    String result = ws.newRequest().execute().getInput();
+    TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
 
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\"]}");
+    assertThat(result.getTagsList()).containsExactly("tag1", "tag2", "tag3");
+  }
+
+  @Test
+  public void empty_list() {
+    TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
+
+    assertThat(result.getTagsList()).isEmpty();
+  }
+
+  @Test
+  public void fail_when_project_does_not_belong_to_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(otherOrganization);
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project, project);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Project '%s' is not part of the organization '%s'", project.getKey(), organization.getKey()));
+
+    ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .setParam("project", project.getKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_project_parameter_does_not_match_a_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project, project);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Component '%s' must be a project", file.getKey()));
+
+    ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .setParam("project", file.getKey())
+      .execute();
   }
 
   @Test
   public void json_example() {
-    userSession.logIn();
-    insertIssueWithBrowsePermission(insertRuleWithoutTags(), "convention");
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("convention", "security")));
+    db.issues().insert(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    issueIndexer.indexOnStartup(emptySet());
+    permissionIndexer.allowOnlyAnyone(project);
 
-    RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("cwe"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId());
-    dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("security"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getId(), organization);
-
-    String result = ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
+    String result = ws.newRequest().execute().getInput();
 
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
@@ -205,57 +296,13 @@ public class TagsActionTest {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("q", "ps", "organization");
-
-    Param query = action.param("q");
-    assertThat(query.isRequired()).isFalse();
-    assertThat(query.description()).isNotEmpty();
-    assertThat(query.exampleValue()).isNotEmpty();
-
-    Param pageSize = action.param("ps");
-    assertThat(pageSize.isRequired()).isFalse();
-    assertThat(pageSize.defaultValue()).isEqualTo("10");
-    assertThat(pageSize.description()).isNotEmpty();
-    assertThat(pageSize.exampleValue()).isNotEmpty();
-
-    Param organization = action.param("organization");
-    assertThat(organization).isNotNull();
-    assertThat(organization.isRequired()).isFalse();
-    assertThat(organization.description()).isNotEmpty();
-    assertThat(organization.exampleValue()).isNotEmpty();
-    assertThat(organization.isInternal()).isTrue();
-    assertThat(organization.since()).isEqualTo("6.4");
+    assertThat(action.params())
+      .extracting(Param::key, Param::defaultValue, Param::since, Param::isRequired, Param::isInternal)
+      .containsExactlyInAnyOrder(
+        tuple("q", null, null, false, false),
+        tuple("ps", "10", null, false, false),
+        tuple("organization", null, "6.4", false, true),
+        tuple("project", null, "7.4", false, false));
   }
 
-  private RuleDefinitionDto insertRuleWithoutTags() {
-    return dbTester.rules().insert(setSystemTags());
-  }
-
-  private void insertIssueWithBrowsePermission(OrganizationDto organization, RuleDefinitionDto rule, String... tags) {
-    IssueDto issue = insertIssueWithoutBrowsePermission(organization, rule, tags);
-    grantAccess(issue);
-  }
-
-  private void insertIssueWithBrowsePermission(RuleDefinitionDto rule, String... tags) {
-    IssueDto issue = insertIssueWithoutBrowsePermission(rule, tags);
-    grantAccess(issue);
-  }
-
-  private IssueDto insertIssueWithoutBrowsePermission(RuleDefinitionDto rule, String... tags) {
-    return insertIssueWithoutBrowsePermission(organization, rule, tags);
-  }
-
-  private IssueDto insertIssueWithoutBrowsePermission(OrganizationDto organization, RuleDefinitionDto rule, String... tags) {
-    IssueDto issue = dbTester.issues().insertIssue(organization, i -> i.setRule(rule).setTags(asList(tags)));
-    ComponentDto project = dbTester.getDbClient().componentDao().selectByUuid(dbTester.getSession(), issue.getProjectUuid()).get();
-    userSession.addProjectPermission(USER, project);
-    issueIndexer.commitAndIndexIssues(dbTester.getSession(), Collections.singletonList(issue));
-    return issue;
-  }
-
-  private void grantAccess(IssueDto issue) {
-    IndexPermissions access = new IndexPermissions(issue.getProjectUuid(), "TRK");
-    access.addUserId(userSession.getUserId());
-    permissionIndexerTester.allow(access);
-  }
 }

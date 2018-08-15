@@ -226,23 +226,13 @@ public class IssueIndexTest {
       newDoc("I3", file).setOrganizationUuid(org.getUuid()).setRuleId(r2.getId()),
       newDoc("I4", file).setOrganizationUuid(org.getUuid()).setRuleId(r1.getId()).setTags(of("convention")));
 
-    assertThat(underTest.listTags(org, null, 100)).containsOnly("convention", "java8", "bug");
-    assertThat(underTest.listTags(org, null, 2)).containsOnly("bug", "convention");
-    assertThat(underTest.listTags(org, "vent", 100)).containsOnly("convention");
-    assertThat(underTest.listTags(org, null, 1)).containsOnly("bug");
-    assertThat(underTest.listTags(org, null, 100)).containsOnly("convention", "java8", "bug");
-    assertThat(underTest.listTags(org, "invalidRegexp[", 100)).isEmpty();
-    assertThat(underTest.listTags(null, null, 100)).containsExactlyInAnyOrder("another", "convention", "java8", "bug");
-  }
-
-  @Test
-  public void fail_to_list_tags_when_size_greater_than_500() {
-    OrganizationDto organization = db.organizations().insert();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be lower than or equals to 500");
-
-    underTest.listTags(organization, null, 501);
+    assertThat(underTest.searchTags(IssueQuery.builder().organizationUuid(org.getUuid()).build(), null, 100)).containsOnly("convention", "java8", "bug");
+    assertThat(underTest.searchTags(IssueQuery.builder().organizationUuid(org.getUuid()).build(), null, 2)).containsOnly("bug", "convention");
+    assertThat(underTest.searchTags(IssueQuery.builder().organizationUuid(org.getUuid()).build(), "vent", 100)).containsOnly("convention");
+    assertThat(underTest.searchTags(IssueQuery.builder().organizationUuid(org.getUuid()).build(), null, 1)).containsOnly("bug");
+    assertThat(underTest.searchTags(IssueQuery.builder().organizationUuid(org.getUuid()).build(), null, 100)).containsOnly("convention", "java8", "bug");
+    assertThat(underTest.searchTags(IssueQuery.builder().organizationUuid(org.getUuid()).build(), "invalidRegexp[", 100)).isEmpty();
+    assertThat(underTest.searchTags(IssueQuery.builder().build(), null, 100)).containsExactlyInAnyOrder("another", "convention", "java8", "bug");
   }
 
   @Test

@@ -19,29 +19,33 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import javax.annotation.CheckForNull;
+import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.issue.index.IssueQuery;
 import org.sonarqube.ws.Issues;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 /**
  * List issue tags matching a given query.
@@ -49,14 +53,17 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
  */
 public class TagsAction implements IssuesWsAction {
 
-  private final IssueIndex issueIndex;
-  private final RuleIndex ruleIndex;
-  private final DbClient dbClient;
+  private static final String PARAM_ORGANIZATION = "organization";
+  private static final String PARAM_PROJECT = "project";
 
-  public TagsAction(IssueIndex issueIndex, RuleIndex ruleIndex, DbClient dbClient) {
+  private final IssueIndex issueIndex;
+  private final DbClient dbClient;
+  private final ComponentFinder componentFinder;
+
+  public TagsAction(IssueIndex issueIndex, DbClient dbClient, ComponentFinder componentFinder) {
     this.issueIndex = issueIndex;
-    this.ruleIndex = ruleIndex;
     this.dbClient = dbClient;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -65,7 +72,8 @@ public class TagsAction implements IssuesWsAction {
       .setHandler(this)
       .setSince("5.1")
       .setDescription("List tags matching a given query")
-      .setResponseExample(Resources.getResource(getClass(), "tags-example.json"));
+      .setResponseExample(Resources.getResource(getClass(), "tags-example.json"))
+      .setChangelog(new Change("7.4", "Result doesn't include rules tags anymore"));
     action.createSearchQuery("misra", "tags");
     action.createPageSize(10, 100);
     action.createParam(PARAM_ORGANIZATION)
@@ -74,37 +82,60 @@ public class TagsAction implements IssuesWsAction {
       .setInternal(true)
       .setExampleValue("my-org")
       .setSince("6.4");
+    action.createParam(PARAM_PROJECT)
+      .setDescription("Project key")
+      .setRequired(false)
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
+      .setSince("7.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String query = request.param(Param.TEXT_QUERY);
-    int pageSize = request.mandatoryParamAsInt("ps");
-    OrganizationDto organization = getOrganization(request.param(PARAM_ORGANIZATION));
-    List<String> tags = listTags(organization, query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
-
-    Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
-    tags.forEach(tagsResponseBuilder::addTags);
-    writeProtobuf(tagsResponseBuilder.build(), request, response);
-  }
-
-  private List<String> listTags(@Nullable OrganizationDto organization, @Nullable String textQuery, int pageSize) {
-    Collection<String> issueTags = issueIndex.listTags(organization, textQuery, pageSize);
-    Collection<String> ruleTags = ruleIndex.listTags(organization, textQuery, pageSize);
-
-    SortedSet<String> result = new TreeSet<>();
-    result.addAll(issueTags);
-    result.addAll(ruleTags);
-    List<String> resultAsList = new ArrayList<>(result);
-    return resultAsList.size() > pageSize && pageSize > 0 ? resultAsList.subList(0, pageSize) : resultAsList;
-  }
-
-  @CheckForNull
-  private OrganizationDto getOrganization(@Nullable String organizationKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return organizationKey == null ? null
-        : checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'", organizationKey);
+      Optional<OrganizationDto> organization = getOrganization(dbSession, request.param(PARAM_ORGANIZATION));
+      Optional<ComponentDto> project = getProject(dbSession, organization, request.param(PARAM_PROJECT));
+      List<String> tags = searchTags(organization, project, request);
+      Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
+      tags.forEach(tagsResponseBuilder::addTags);
+      writeProtobuf(tagsResponseBuilder.build(), request, response);
     }
+  }
+
+  private Optional<OrganizationDto> getOrganization(DbSession dbSession, @Nullable String organizationKey) {
+    return organizationKey == null ? Optional.empty()
+      : Optional.of(checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'", organizationKey));
+  }
+
+  private Optional<ComponentDto> getProject(DbSession dbSession, Optional<OrganizationDto> organization, @Nullable String projectKey) {
+    if (projectKey == null) {
+      return Optional.empty();
+    }
+    ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
+    checkArgument(project.scope().equals(Scopes.PROJECT), "Component '%s' must be a project", projectKey);
+    organization.ifPresent(o -> checkArgument(project.getOrganizationUuid().equals(o.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, o.getKey()));
+    return Optional.of(project);
+  }
+
+  private List<String> searchTags(Optional<OrganizationDto> organization, Optional<ComponentDto> project, Request request) {
+    IssueQuery.Builder issueQueryBuilder = IssueQuery.builder();
+    organization.ifPresent(o -> issueQueryBuilder.organizationUuid(o.getUuid()));
+    project.ifPresent(p -> {
+      switch (p.qualifier()) {
+        case Qualifiers.PROJECT:
+          issueQueryBuilder.projectUuids(ImmutableSet.of(p.uuid()));
+          return;
+        case Qualifiers.APP:
+        case Qualifiers.VIEW:
+          issueQueryBuilder.viewUuids(ImmutableSet.of(p.uuid()));
+          return;
+        default:
+          throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", p.qualifier()));
+      }
+    });
+    return issueIndex.searchTags(
+      issueQueryBuilder.build(),
+      request.param(TEXT_QUERY),
+      request.mandatoryParamAsInt(PAGE_SIZE));
   }
 
 }

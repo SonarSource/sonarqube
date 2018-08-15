@@ -31,6 +31,7 @@ import javax.annotation.Generated;
 public class TagsRequest {
 
   private String organization;
+  private String project;
   private String ps;
   private String q;
 
@@ -45,6 +46,18 @@ public class TagsRequest {
 
   public String getOrganization() {
     return organization;
+  }
+
+  /**
+   * Example value: "my_project"
+   */
+  public TagsRequest setProject(String project) {
+    this.project = project;
+    return this;
+  }
+
+  public String getProject() {
+    return project;
   }
 
   /**

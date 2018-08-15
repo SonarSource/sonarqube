@@ -307,6 +307,7 @@ public class IssuesService extends BaseService {
     return call(
       new GetRequest(path("tags"))
         .setParam("organization", request.getOrganization())
+        .setParam("project", request.getProject())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),
       TagsResponse.parser());

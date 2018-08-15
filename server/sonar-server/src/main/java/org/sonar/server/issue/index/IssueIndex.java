@@ -70,7 +70,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
@@ -83,11 +82,9 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
@@ -232,7 +229,6 @@ public class IssueIndex {
     }
   }
 
-  public static final String AGGREGATION_NAME_FOR_TAGS = "tags__issues";
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
   // TODO to be documented
   // TODO move to Facets ?
@@ -692,37 +688,9 @@ public class IssueIndex {
     }
   }
 
-  public List<String> listTags(@Nullable OrganizationDto organization, @Nullable String textQuery, int size) {
-    int maxPageSize = 500;
-    checkArgument(size <= maxPageSize, "Page size must be lower than or equals to " + maxPageSize);
-    if (size <= 0) {
-      return emptyList();
-    }
-
-    BoolQueryBuilder esQuery = boolQuery().filter(createAuthorizationFilter());
-    if (organization != null) {
-      esQuery.filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid()));
-    }
-
-    SearchRequestBuilder requestBuilder = client
-      .prepareSearch(INDEX_TYPE_ISSUE)
-      .setQuery(esQuery)
-      .setSize(0);
-
-    TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
-      .field(FIELD_ISSUE_TAGS)
-      .size(size)
-      .order(Terms.Order.term(true))
-      .minDocCount(1L);
-    if (textQuery != null) {
-      String escapedTextQuery = escapeSpecialRegexChars(textQuery);
-      termsAggregation.includeExclude(new IncludeExclude(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery), null));
-    }
-    requestBuilder.addAggregation(termsAggregation);
-
-    SearchResponse searchResponse = requestBuilder.get();
-    Terms issuesResult = searchResponse.getAggregations().get(AGGREGATION_NAME_FOR_TAGS);
-    return EsUtils.termsKeys(issuesResult);
+  public List<String> searchTags(IssueQuery query, @Nullable String textQuery, int size) {
+    Terms terms = listTermsMatching(FIELD_ISSUE_TAGS, query, textQuery, Terms.Order.term(true), size);
+    return EsUtils.termsKeys(terms);
   }
 
   public Map<String, Long> countTags(IssueQuery query, int maxNumberOfTags) {
@@ -735,7 +703,7 @@ public class IssueIndex {
     return EsUtils.termsKeys(terms);
   }
 
-  private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int maxNumberOfTags) {
+  private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int size) {
     SearchRequestBuilder requestBuilder = client
       .prepareSearch(INDEX_TYPE_ISSUE)
       // Avoids returning search hits
@@ -745,7 +713,7 @@ public class IssueIndex {
 
     TermsAggregationBuilder aggreg = AggregationBuilders.terms("_ref")
       .field(fieldName)
-      .size(maxNumberOfTags)
+      .size(size)
       .order(termsOrder)
       .minDocCount(1L);
     if (textQuery != null) {
