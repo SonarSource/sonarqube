@@ -22,14 +22,16 @@ package org.sonar.ce.queue;
 import java.util.List;
 import org.picocontainer.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.process.ProcessProperties;
 
 /**
- * Cleans-up the Compute Engine queue and resets the JMX counters.
+ * Cleans-up the Compute Engine queue.
  * CE workers must not be started before execution of this class.
  */
 @ComputeEngineSide
@@ -40,22 +42,26 @@ public class CeQueueCleaner implements Startable {
   private final DbClient dbClient;
   private final ServerUpgradeStatus serverUpgradeStatus;
   private final InternalCeQueue queue;
+  private final Configuration configuration;
 
-  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, InternalCeQueue queue) {
+  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, InternalCeQueue queue, Configuration configuration) {
     this.dbClient = dbClient;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.queue = queue;
+    this.configuration = configuration;
   }
 
   @Override
   public void start() {
-    if (serverUpgradeStatus.isUpgraded()) {
+    if (serverUpgradeStatus.isUpgraded() && !isBlueGreenDeployment()) {
       cleanOnUpgrade();
     } else {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        verifyConsistency(dbSession);
-      }
+      cleanUpTaskInputOrphans();
     }
+  }
+
+  private boolean isBlueGreenDeployment() {
+    return configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
   }
 
   private void cleanOnUpgrade() {
@@ -65,13 +71,15 @@ public class CeQueueCleaner implements Startable {
     queue.clear();
   }
 
-  private void verifyConsistency(DbSession dbSession) {
-    // Reports that have been processed are not kept in database yet.
-    // They are supposed to be systematically dropped.
-    // Let's clean-up orphans if any.
-    List<String> uuids = dbClient.ceTaskInputDao().selectUuidsNotInQueue(dbSession);
-    dbClient.ceTaskInputDao().deleteByUuids(dbSession, uuids);
-    dbSession.commit();
+  private void cleanUpTaskInputOrphans() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      // Reports that have been processed are not kept in database yet.
+      // They are supposed to be systematically dropped.
+      // Let's clean-up orphans if any.
+      List<String> uuids = dbClient.ceTaskInputDao().selectUuidsNotInQueue(dbSession);
+      dbClient.ceTaskInputDao().deleteByUuids(dbSession, uuids);
+      dbSession.commit();
+    }
   }
 
   @Override
