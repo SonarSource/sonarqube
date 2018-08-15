@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -50,8 +51,15 @@ class IssueLocations {
       locations.hasTextRange() ? Stream.of(locations.getTextRange()) : Stream.empty(),
       locations.getFlowList().stream()
         .flatMap(f -> f.getLocationList().stream())
-        .filter(l -> Objects.equals(l.getComponentId(), componentId))
+        .filter(l -> Objects.equals(componentIdOf(issue, l), componentId))
         .map(DbIssues.Location::getTextRange));
     return textRanges.flatMapToInt(range -> IntStream.rangeClosed(range.getStartLine(), range.getEndLine()));
+  }
+
+  private static String componentIdOf(DefaultIssue issue, DbIssues.Location location) {
+    if (location.hasComponentId()) {
+      return StringUtils.defaultIfEmpty(location.getComponentId(), issue.componentUuid());
+    }
+    return issue.componentUuid();
   }
 }

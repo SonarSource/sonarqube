@@ -19,8 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.Protobuf;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 
@@ -80,10 +82,27 @@ public class IssueLocationsTest {
     assertThat(IssueLocations.allLinesFor(issue, "file1")).isEmpty();
   }
 
-  private static DbIssues.Location newLocation(String componentId, int startLine, int endLine) {
-    return DbIssues.Location.newBuilder()
-      .setComponentId(componentId)
-      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(startLine).setEndLine(endLine).build())
+  @Test
+  public void allLinesFor_default_component_of_location_is_the_issue_component() {
+    DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder();
+    locations.addFlowBuilder()
+      .addLocation(newLocation("", 5, 5))
+      .addLocation(newLocation(null, 7, 7))
+      .addLocation(newLocation("file2", 9, 9))
       .build();
+    DefaultIssue issue = new DefaultIssue()
+      .setComponentUuid("file1")
+      .setLocations(locations.build());
+
+    assertThat(IssueLocations.allLinesFor(issue, "file1")).containsExactlyInAnyOrder(5, 7);
+    assertThat(IssueLocations.allLinesFor(issue, "file2")).containsExactlyInAnyOrder(9);
+    assertThat(IssueLocations.allLinesFor(issue, "file3")).isEmpty();
+  }
+
+  private static DbIssues.Location newLocation(@Nullable String componentId, int startLine, int endLine) {
+    DbIssues.Location.Builder builder = DbIssues.Location.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(startLine).setEndLine(endLine).build());
+    Protobuf.setNullable(componentId, builder::setComponentId);
+    return builder.build();
   }
 }
