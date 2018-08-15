@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import * as utils from '../utils';
 
 const MEASURES = [
   {
     metric: {
+      id: '1',
       key: 'lines_to_cover',
       type: 'INT',
       name: 'Lines to Cover',
@@ -34,6 +34,7 @@ const MEASURES = [
   },
   {
     metric: {
+      id: '2',
       key: 'coverage',
       type: 'PERCENT',
       name: 'Coverage',
@@ -45,6 +46,7 @@ const MEASURES = [
   },
   {
     metric: {
+      id: '3',
       key: 'duplicated_lines_density',
       type: 'PERCENT',
       name: 'Duplicated Lines (%)',
@@ -60,8 +62,10 @@ describe('filterMeasures', () => {
   it('should exclude banned measures', () => {
     expect(
       utils.filterMeasures([
-        { metric: { key: 'bugs', name: 'Bugs', type: 'INT' } },
-        { metric: { key: 'critical_violations', name: 'Critical Violations', type: 'INT' } }
+        { metric: { id: '1', key: 'bugs', name: 'Bugs', type: 'INT' } },
+        {
+          metric: { id: '2', key: 'critical_violations', name: 'Critical Violations', type: 'INT' }
+        }
       ])
     ).toHaveLength(1);
   });
@@ -71,10 +75,14 @@ describe('sortMeasures', () => {
   it('should sort based on the config', () => {
     expect(
       utils.sortMeasures('Reliability', [
-        { metric: { key: 'reliability_remediation_effort', name: 'new_bugs', type: 'INT' } },
-        { metric: { key: 'new_reliability_remediation_effort', name: 'bugs', type: 'INT' } },
-        { metric: { key: 'new_bugs', name: 'new_bugs', type: 'INT' } },
-        { metric: { key: 'bugs', name: 'bugs', type: 'INT' } },
+        {
+          metric: { id: '1', key: 'reliability_remediation_effort', name: 'new_bugs', type: 'INT' }
+        },
+        {
+          metric: { id: '2', key: 'new_reliability_remediation_effort', name: 'bugs', type: 'INT' }
+        },
+        { metric: { id: '3', key: 'new_bugs', name: 'new_bugs', type: 'INT' } },
+        { metric: { id: '4', key: 'bugs', name: 'bugs', type: 'INT' } },
         'overall_category'
       ])
     ).toMatchSnapshot();

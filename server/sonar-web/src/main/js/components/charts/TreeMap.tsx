@@ -23,12 +23,12 @@ import TreeMapRect from './TreeMapRect';
 import { translate } from '../../helpers/l10n';
 import './TreeMap.css';
 
-interface TreeMapItem {
+export interface TreeMapItem {
   color: string;
   icon?: React.ReactNode;
   key: string;
   label: string;
-  link?: string;
+  link?: string | Location;
   size: number;
   tooltip?: React.ReactNode;
 }

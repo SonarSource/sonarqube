@@ -17,14 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import MeasureViewSelect from '../MeasureViewSelect';
+import Breadcrumb from '../Breadcrumb';
 
-it('should display correctly with treemap option', () => {
+it('should show the last element without clickable link', () => {
   expect(
     shallow(
-      <MeasureViewSelect handleViewChange={() => {}} metric={{ type: 'PERCENT' }} view="tree" />
+      <Breadcrumb
+        canBrowse={false}
+        component={{
+          key: 'foo',
+          name: 'Foo',
+          organization: 'foo',
+          qualifier: 'TRK'
+        }}
+        handleSelect={() => {}}
+        isLast={true}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('should correctly show a middle element', () => {
+  expect(
+    shallow(
+      <Breadcrumb
+        canBrowse={true}
+        component={{
+          key: 'foo',
+          name: 'Foo',
+          organization: 'foo',
+          qualifier: 'TRK'
+        }}
+        handleSelect={() => {}}
+        isLast={false}
+      />
     )
   ).toMatchSnapshot();
 });

@@ -23,14 +23,15 @@ import { Metric } from '../app/types';
 const HOURS_IN_DAY = 8;
 
 export interface MeasurePeriod {
+  bestValue?: boolean;
   index: number;
   value: string;
-  bestValue?: boolean;
 }
 
 export interface MeasureIntern {
-  value?: string;
+  bestValue?: boolean;
   periods?: MeasurePeriod[];
+  value?: string;
 }
 
 export interface Measure extends MeasureIntern {

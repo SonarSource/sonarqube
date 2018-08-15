@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { InjectedRouter } from 'react-router';
 import Breadcrumbs from './Breadcrumbs';
 import MeasureFavoriteContainer from './MeasureFavoriteContainer';
 import MeasureHeader from './MeasureHeader';
@@ -33,62 +33,58 @@ import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType, isViewType } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
-import { isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric, MeasureEnhanced } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-/*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  BranchLike,
+  Metric,
+  Paging
+} from '../../../app/types';
+import { RequestData } from '../../../helpers/request';
+import { Period } from '../../../helpers/periods';
 
-// Switching to the following type will make flow crash with :
-// https://github.com/facebook/flow/issues/3147
-// router: { push: ({ pathname: string, query?: RawQuery }) => void }
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  className?: string,
-  component: Component,
-  currentUser: { isLoggedIn: boolean },
-  loading: boolean,
-  leakPeriod?: Period,
-  measure: ?MeasureEnhanced,
-  metric: Metric,
-  metrics: { [string]: Metric },
-  rootComponent: Component,
-  router: Object,
-  secondaryMeasure: ?MeasureEnhanced,
-  updateLoading: ({ [string]: boolean }) => void,
-  updateSelected: string => void,
-  updateView: string => void,
-  view: string
-|}; */
+interface Props {
+  branchLike?: BranchLike;
+  className?: string;
+  component: ComponentMeasure;
+  currentUser: { isLoggedIn: boolean };
+  loading: boolean;
+  leakPeriod?: Period;
+  measure?: MeasureEnhanced;
+  metric: Metric;
+  metrics: { [metric: string]: Metric };
+  rootComponent: ComponentMeasure;
+  router: InjectedRouter;
+  secondaryMeasure?: MeasureEnhanced;
+  updateLoading: (param: { [key: string]: boolean }) => void;
+  updateSelected: (component: string) => void;
+  updateView: (view: string) => void;
+  view: string;
+}
 
-/*:: type State = {
-  bestValue?: string,
-  components: Array<ComponentEnhanced>,
-  metric: ?Metric,
-  paging?: Paging,
-  selected: ?string,
-  view: ?string
-}; */
+interface State {
+  bestValue?: string;
+  components: ComponentMeasureEnhanced[];
+  metric?: Metric;
+  paging?: Paging;
+  selected?: string;
+  view?: string;
+}
 
-export default class MeasureContent extends React.PureComponent {
-  /*:: container: HTMLElement; */
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    components: [],
-    metric: null,
-    paging: null,
-    selected: null,
-    view: null
-  };
+export default class MeasureContent extends React.PureComponent<Props, State> {
+  container?: HTMLElement | null;
+  mounted = false;
+  state: State = { components: [] };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchComponents(this.props);
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (
       !isSameBranchLike(nextProps.branchLike, this.props.branchLike) ||
       nextProps.component !== this.props.component ||
@@ -107,17 +103,13 @@ export default class MeasureContent extends React.PureComponent {
       ? this.props.component.key
       : this.state.selected;
     const index = this.state.components.findIndex(component => component.key === componentKey);
-    return index !== -1 ? index : null;
+    return index !== -1 ? index : undefined;
   };
 
-  getComponentRequestParams = (
-    view /*: string */,
-    metric /*: Metric */,
-    options /*: Object */ = {}
-  ) => {
+  getComponentRequestParams = (view: string, metric: Metric, options: Object = {}) => {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
-    const opts /*: Object */ = {
+    const opts: RequestData = {
       ...getBranchLikeQuery(this.props.branchLike),
       additionalFields: 'metrics',
       metricSortFilter: 'withMeasuresOnly'
@@ -142,9 +134,10 @@ export default class MeasureContent extends React.PureComponent {
     return { metricKeys, opts: { ...opts, ...options }, strategy };
   };
 
-  fetchComponents = ({ component, metric, metrics, view } /*: Props */) => {
+  fetchComponents = ({ component, metric, metrics, view }: Props) => {
     if (isFileType(component)) {
-      return this.setState({ metric: null, view: null });
+      this.setState({ metric: undefined, view: undefined });
+      return;
     }
 
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric);
@@ -153,7 +146,7 @@ export default class MeasureContent extends React.PureComponent {
       r => {
         if (metric === this.props.metric) {
           if (this.mounted) {
-            this.setState(({ selected } /*: State */) => ({
+            this.setState(({ selected }: State) => ({
               bestValue: r.metrics[0].bestValue,
               components: r.components.map(component =>
                 enhanceComponent(component, metric, metrics)
@@ -206,12 +199,12 @@ export default class MeasureContent extends React.PureComponent {
     );
   };
 
-  onOpenComponent = (componentKey /*: string */) => {
+  onOpenComponent = (componentKey: string) => {
     if (isViewType(this.props.rootComponent)) {
       const component = this.state.components.find(
         component => component.refKey === componentKey || component.key === componentKey
       );
-      if (component && component.refKey != null) {
+      if (component && component.refKey !== undefined) {
         if (this.props.view === 'treemap') {
           this.props.router.push(getProjectUrl(componentKey));
         }
@@ -225,7 +218,7 @@ export default class MeasureContent extends React.PureComponent {
     }
   };
 
-  onSelectComponent = (componentKey /*: string */) => this.setState({ selected: componentKey });
+  onSelectComponent = (componentKey: string) => this.setState({ selected: componentKey });
 
   renderCode() {
     return (
@@ -245,8 +238,8 @@ export default class MeasureContent extends React.PureComponent {
 
   renderMeasure() {
     const { metric, view } = this.state;
-    if (metric != null) {
-      if (['list', 'tree'].includes(view)) {
+    if (metric !== undefined) {
+      if (!view || ['list', 'tree'].includes(view)) {
         const selectedIdx = this.getSelectedIndex();
         return (
           <FilesView
@@ -261,7 +254,7 @@ export default class MeasureContent extends React.PureComponent {
             paging={this.state.paging}
             rootComponent={this.props.rootComponent}
             selectedIdx={selectedIdx}
-            selectedKey={selectedIdx != null ? this.state.selected : null}
+            selectedKey={selectedIdx !== undefined ? this.state.selected : undefined}
           />
         );
       }
@@ -289,8 +282,7 @@ export default class MeasureContent extends React.PureComponent {
     return (
       <div
         className={classNames('no-outline', this.props.className)}
-        ref={container => (this.container = container)}
-        tabIndex={0}>
+        ref={container => (this.container = container)}>
         <div className="layout-page-header-panel layout-page-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner">
@@ -319,7 +311,9 @@ export default class MeasureContent extends React.PureComponent {
                 />
               )}
               <PageActions
-                current={selectedIdx != null && view !== 'treemap' ? selectedIdx + 1 : null}
+                current={
+                  selectedIdx !== undefined && view !== 'treemap' ? selectedIdx + 1 : undefined
+                }
                 isFile={isFile}
                 paging={this.state.paging}
                 totalLoadedComponents={this.state.components.length}
@@ -328,10 +322,8 @@ export default class MeasureContent extends React.PureComponent {
             </div>
           </div>
         </div>
-        {metric == null && (
-          <MetricNotFound className="layout-page-main-inner measure-details-content" />
-        )}
-        {metric != null && (
+        {!metric && <MetricNotFound className="layout-page-main-inner measure-details-content" />}
+        {metric && (
           <div className="layout-page-main-inner measure-details-content">
             <MeasureHeader
               branchLike={branchLike}

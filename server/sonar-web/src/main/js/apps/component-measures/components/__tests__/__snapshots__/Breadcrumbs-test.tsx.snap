@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly for the list view 1`] = `
+<Breadcrumbs
+  backToFirst={false}
+  component={
+    Object {
+      "key": "bar",
+      "name": "Bar",
+      "organization": "bar",
+      "qualifier": "TRK",
+    }
+  }
+  handleSelect={[Function]}
+  rootComponent={
+    Object {
+      "key": "foo",
+      "name": "Foo",
+      "organization": "bar",
+      "qualifier": "TRK",
+    }
+  }
+/>
+`;
+
+exports[`should display only the root component 1`] = `
+Object {
+  "breadcrumbs": Array [
+    Object {
+      "key": "foo",
+      "name": "Foo",
+      "organization": "bar",
+      "qualifier": "TRK",
+    },
+  ],
+}
+`;

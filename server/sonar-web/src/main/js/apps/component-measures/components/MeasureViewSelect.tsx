@@ -17,71 +17,66 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import ListIcon from '../../../components/icons-components/ListIcon';
 import TreeIcon from '../../../components/icons-components/TreeIcon';
 import TreemapIcon from '../../../components/icons-components/TreemapIcon';
 import Select from '../../../components/controls/Select';
 import { hasList, hasTree, hasTreemap } from '../utils';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+import { Metric } from '../../../app/types';
 
-/*:: type Props = {
-  className?: string,
-  metric: Metric,
-  handleViewChange: (view: string) => void,
-  view: string
-}; */
+interface Props {
+  className?: string;
+  metric: Metric;
+  handleViewChange: (view: string) => void;
+  view: string;
+}
 
-export default class MeasureViewSelect extends React.PureComponent {
-  /*:: props: Props; */
-
+export default class MeasureViewSelect extends React.PureComponent<Props> {
   getOptions = () => {
     const { metric } = this.props;
     const options = [];
     if (hasList(metric.key)) {
       options.push({
-        value: 'list',
-        label: (
-          <div>
-            <ListIcon className="little-spacer-right" />
-            {translate('component_measures.tab.list')}
-          </div>
-        ),
-        icon: <ListIcon />
+        icon: <ListIcon />,
+        label: translate('component_measures.tab.list'),
+        value: 'list'
       });
     }
     if (hasTree(metric.key)) {
       options.push({
-        value: 'tree',
-        label: (
-          <div>
-            <TreeIcon className="little-spacer-right" />
-            {translate('component_measures.tab.tree')}
-          </div>
-        ),
-        icon: <TreeIcon />
+        icon: <TreeIcon />,
+        label: translate('component_measures.tab.tree'),
+        value: 'tree'
       });
     }
     if (hasTreemap(metric.key, metric.type)) {
       options.push({
-        value: 'treemap',
-        label: (
-          <div>
-            <TreemapIcon className="little-spacer-right" />
-            {translate('component_measures.tab.treemap')}
-          </div>
-        ),
-        icon: <TreemapIcon />
+        icon: <TreemapIcon />,
+        label: translate('component_measures.tab.treemap'),
+        value: 'treemap'
       });
     }
     return options;
   };
 
-  handleChange = (option /*: { value: string } */) => this.props.handleViewChange(option.value);
+  handleChange = (option: { value: string }) => {
+    return this.props.handleViewChange(option.value);
+  };
 
-  renderValue = (value /*: { icon: Element<*> } */) => value.icon;
+  renderOption = (option: { icon: JSX.Element; label: string }) => {
+    return (
+      <>
+        {option.icon}
+        <span className="little-spacer-left">{option.label}</span>
+      </>
+    );
+  };
+
+  renderValue = (value: { icon: JSX.Element }) => {
+    return value.icon;
+  };
 
   render() {
     return (
@@ -90,6 +85,7 @@ export default class MeasureViewSelect extends React.PureComponent {
         className={this.props.className}
         clearable={false}
         onChange={this.handleChange}
+        optionRenderer={this.renderOption}
         options={this.getOptions()}
         searchable={false}
         value={this.props.view}

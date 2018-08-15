@@ -1,3 +1,5 @@
+import { Measure, MeasureEnhanced } from '../helpers/measures';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2018 SonarSource SA
@@ -340,18 +342,43 @@ export interface MainBranch extends Branch {
   status?: { qualityGateStatus: string };
 }
 
+interface ComponentMeasureIntern {
+  isFavorite?: boolean;
+  isRecentlyBrowsed?: boolean;
+  key: string;
+  match?: string;
+  name: string;
+  organization?: string;
+  project?: string;
+  qualifier: string;
+  refKey?: string;
+}
+
+export interface ComponentMeasure extends ComponentMeasureIntern {
+  measures?: Measure[];
+}
+
+export interface ComponentMeasureEnhanced extends ComponentMeasureIntern {
+  value?: string;
+  leak?: string;
+  measures: MeasureEnhanced[];
+}
+
 export interface Metric {
+  bestValue?: string;
   custom?: boolean;
   decimalScale?: number;
   description?: string;
   direction?: number;
   domain?: string;
   hidden?: boolean;
+  higherValuesAreBetter?: boolean;
   id: string;
   key: string;
   name: string;
   qualitative?: boolean;
   type: string;
+  worstValue?: string;
 }
 
 export interface MyProject {

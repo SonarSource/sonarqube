@@ -17,25 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
-/*:: import type { Component } from '../types'; */
+import { ComponentMeasure } from '../../../app/types';
 
-/*:: type Props = {
-  canBrowse: boolean,
-  component: Component,
-  isLast: boolean,
-  handleSelect: string => void
-}; */
+interface Props {
+  canBrowse: boolean;
+  component: ComponentMeasure;
+  isLast: boolean;
+  handleSelect: (component: string) => void;
+}
 
-export default class Breadcrumb extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleClick = (e /*: Event & { target: HTMLElement } */) => {
-    e.preventDefault();
-    e.target.blur();
+export default class Breadcrumb extends React.PureComponent<Props> {
+  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
     this.props.handleSelect(this.props.component.key);
   };
 

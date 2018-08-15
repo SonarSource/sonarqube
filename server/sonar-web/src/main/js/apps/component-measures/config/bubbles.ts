@@ -17,8 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-export const bubbles = {
+export const bubbles: {
+  [domain: string]: {
+    x: string;
+    y: string;
+    size: string;
+    colors?: string[];
+    yDomain?: number[];
+  };
+} = {
   Reliability: {
     x: 'ncloc',
     y: 'reliability_remediation_effort',
@@ -39,6 +46,7 @@ export const bubbles = {
   },
   Coverage: { x: 'complexity', y: 'coverage', size: 'uncovered_lines', yDomain: [100, 0] },
   Duplications: { x: 'ncloc', y: 'duplicated_lines', size: 'duplicated_blocks' },
+  // eslint-disable-next-line
   project_overview: {
     x: 'sqale_index',
     y: 'coverage',

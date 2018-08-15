@@ -17,10 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
+/* eslint-disable camelcase */
+export const complementary: { [metric: string]: string[] } = {
+  coverage: ['uncovered_lines', 'uncovered_conditions'],
+  line_coverage: ['uncovered_lines'],
+  branch_coverage: ['uncovered_conditions'],
+  uncovered_lines: ['line_coverage'],
+  uncovered_conditions: ['branch_coverage'],
 
-export default function EmptyResult() {
-  return <div className="note">{translate('no_results')}</div>;
-}
+  new_coverage: ['new_uncovered_lines', 'new_uncovered_conditions'],
+  new_line_coverage: ['new_uncovered_lines'],
+  new_branch_coverage: ['new_uncovered_conditions'],
+  new_uncovered_lines: ['new_line_coverage'],
+  new_uncovered_conditions: ['new_branch_coverage'],
+
+  duplicated_lines_density: ['duplicated_lines'],
+  new_duplicated_lines_density: ['new_duplicated_lines'],
+  duplicated_lines: ['duplicated_lines_density'],
+  new_duplicated_lines: ['new_duplicated_lines_density']
+};

@@ -19,7 +19,14 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
-import { Paging, Visibility, BranchParameters, MyProject } from '../app/types';
+import {
+  Paging,
+  Visibility,
+  BranchParameters,
+  MyProject,
+  Metric,
+  ComponentMeasure
+} from '../app/types';
 
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
@@ -93,7 +100,11 @@ export function getComponentTree(
   componentKey: string,
   metrics: string[] = [],
   additional: RequestData = {}
-): Promise<any> {
+): Promise<{
+  components: ComponentMeasure[];
+  metrics: Metric[];
+  paging: Paging;
+}> {
   const url = '/api/measures/component_tree';
   const data = Object.assign({}, additional, {
     baseComponentKey: componentKey,

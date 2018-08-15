@@ -17,33 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import key from 'keymaster';
+import * as React from 'react';
+import * as key from 'keymaster';
 import Breadcrumb from './Breadcrumb';
 import { getBreadcrumbs } from '../../../api/components';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-/*:: import type { Component } from '../types'; */
+import { BranchLike, ComponentMeasure } from '../../../app/types';
 
-/*:: type Props = {|
-  backToFirst: boolean,
-  branchLike?: { id?: string, name: string },
-  className?: string,
-  component: Component,
-  handleSelect: string => void,
-  rootComponent: Component
-|}; */
+interface Props {
+  backToFirst: boolean;
+  branchLike?: BranchLike;
+  className?: string;
+  component: ComponentMeasure;
+  handleSelect: (component: string) => void;
+  rootComponent: ComponentMeasure;
+}
 
-/*:: type State = {
-  breadcrumbs: Array<Component>
-}; */
+interface State {
+  breadcrumbs: ComponentMeasure[];
+}
 
-export default class Breadcrumbs extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    breadcrumbs: []
-  };
+export default class Breadcrumbs extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { breadcrumbs: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -51,7 +47,7 @@ export default class Breadcrumbs extends React.PureComponent {
     this.attachShortcuts();
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.props.component !== nextProps.component) {
       this.fetchBreadcrumbs(nextProps);
     }
@@ -77,7 +73,7 @@ export default class Breadcrumbs extends React.PureComponent {
     key.unbind('left', 'measures-files');
   }
 
-  fetchBreadcrumbs = ({ branchLike, component, rootComponent } /*: Props */) => {
+  fetchBreadcrumbs = ({ branchLike, component, rootComponent }: Props) => {
     const isRoot = component.key === rootComponent.key;
     if (isRoot) {
       if (this.mounted) {
@@ -90,7 +86,8 @@ export default class Breadcrumbs extends React.PureComponent {
         if (this.mounted) {
           this.setState({ breadcrumbs });
         }
-      }
+      },
+      () => {}
     );
   };
 

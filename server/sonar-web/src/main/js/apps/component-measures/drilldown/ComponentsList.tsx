@@ -17,74 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
-/*:: import type { Component, ComponentEnhanced } from '../types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+import { ComponentMeasure, ComponentMeasureEnhanced, Metric, BranchLike } from '../../../app/types';
+import { Button } from '../../../components/ui/buttons';
 
-/*:: type Props = {|
-  bestValue?: string,
-  branchLike?: { id?: string; name: string },
-  components: Array<ComponentEnhanced>,
-  onClick: string => void,
-  metric: Metric,
-  metrics: { [string]: Metric },
-  rootComponent: Component,
-  selectedComponent?: ?string
-|}; */
+interface Props {
+  bestValue?: string;
+  branchLike?: BranchLike;
+  components: ComponentMeasureEnhanced[];
+  onClick: (component: string) => void;
+  metric: Metric;
+  metrics: { [metric: string]: Metric };
+  rootComponent: ComponentMeasure;
+  selectedComponent?: string;
+}
 
-/*:: type State = {
-  hideBest: boolean
-}; */
+interface State {
+  hideBest: boolean;
+}
 
-export default class ComponentsList extends React.PureComponent {
-  /*:: props: Props; */
-  state /*: State */ = {
-    hideBest: true
-  };
+export default class ComponentsList extends React.PureComponent<Props, State> {
+  state: State = { hideBest: true };
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.metric !== this.props.metric) {
       this.setState({ hideBest: true });
     }
   }
 
-  displayAll = (event /*: Event */) => {
-    event.preventDefault();
+  displayAll = () => {
     this.setState({ hideBest: false });
   };
 
-  hasBestValue(component /*: Component*/, otherMetrics /*: Array<Metric> */) {
+  hasBestValue = (component: ComponentMeasureEnhanced) => {
     const { metric } = this.props;
     const focusedMeasure = component.measures.find(measure => measure.metric.key === metric.key);
-    if (isDiffMetric(focusedMeasure.metric.key)) {
+    if (focusedMeasure && isDiffMetric(focusedMeasure.metric.key)) {
       return isPeriodBestValue(focusedMeasure, 1);
     }
-    return focusedMeasure.bestValue;
-  }
+    return Boolean(focusedMeasure && focusedMeasure.bestValue);
+  };
 
-  renderComponent(component /*: Component*/, otherMetrics /*: Array<Metric> */) {
-    const { branchLike, metric, selectedComponent, onClick, rootComponent } = this.props;
-    return (
-      <ComponentsListRow
-        branchLike={branchLike}
-        component={component}
-        isSelected={component.key === selectedComponent}
-        key={component.id}
-        metric={metric}
-        onClick={onClick}
-        otherMetrics={otherMetrics}
-        rootComponent={rootComponent}
-      />
-    );
-  }
-
-  renderHiddenLink(hiddenCount /*: number*/, colCount /*: number*/) {
+  renderHiddenLink = (hiddenCount: number) => {
     return (
       <div className="alert alert-info spacer-top">
         {translateWithParameters(
@@ -92,12 +71,12 @@ export default class ComponentsList extends React.PureComponent {
           hiddenCount,
           formatMeasure(this.props.bestValue, this.props.metric.type)
         )}
-        <a className="spacer-left" href="#" onClick={this.displayAll}>
+        <Button className="button-link spacer-left" onClick={this.displayAll}>
           {translate('show_all')}
-        </a>
+        </Button>
       </div>
     );
-  }
+  };
 
   render() {
     const { components, metric, metrics } = this.props;
@@ -106,9 +85,7 @@ export default class ComponentsList extends React.PureComponent {
     }
 
     const otherMetrics = (complementary[metric.key] || []).map(key => metrics[key]);
-    const notBestComponents = components.filter(
-      component => !this.hasBestValue(component, otherMetrics)
-    );
+    const notBestComponents = components.filter(component => !this.hasBestValue(component));
     const hiddenCount = components.length - notBestComponents.length;
     const shouldHideBest = this.state.hideBest && hiddenCount !== components.length;
     return (
@@ -131,14 +108,21 @@ export default class ComponentsList extends React.PureComponent {
           )}
 
           <tbody>
-            {(shouldHideBest ? notBestComponents : components).map(component =>
-              this.renderComponent(component, otherMetrics)
-            )}
+            {(shouldHideBest ? notBestComponents : components).map(component => (
+              <ComponentsListRow
+                branchLike={this.props.branchLike}
+                component={component}
+                isSelected={component.key === this.props.selectedComponent}
+                key={component.key}
+                metric={metric}
+                onClick={this.props.onClick}
+                otherMetrics={otherMetrics}
+                rootComponent={this.props.rootComponent}
+              />
+            ))}
           </tbody>
         </table>
-        {shouldHideBest &&
-          hiddenCount > 0 &&
-          this.renderHiddenLink(hiddenCount, otherMetrics.length + 3)}
+        {shouldHideBest && hiddenCount > 0 && this.renderHiddenLink(hiddenCount)}
       </React.Fragment>
     );
   }

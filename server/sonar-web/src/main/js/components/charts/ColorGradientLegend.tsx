@@ -26,7 +26,7 @@ interface Props {
   colorNA?: string;
   colorScale:
     | ScaleOrdinal<string, string> // used for LEVEL type
-    | ScaleLinear<number, string | number>; // used for RATING or PERCENT type
+    | ScaleLinear<string, string | number>; // used for RATING or PERCENT type
   direction?: number;
   height: number;
   padding?: [number, number, number, number];

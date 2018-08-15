@@ -35,7 +35,7 @@ interface Props {
   icon?: React.ReactNode;
   itemKey: string;
   label: string;
-  link?: string;
+  link?: string | Location;
   onClick?: (item: string) => void;
   placement?: Placement;
   prefix: string;

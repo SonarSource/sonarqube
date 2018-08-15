@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import key from 'keymaster';
+import * as React from 'react';
+import * as key from 'keymaster';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-/*:: import type { ComponentEnhanced, Paging, Period } from '../types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+import { BranchLike, ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../app/types';
+import { Period } from '../../../helpers/periods';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  component: ComponentEnhanced,
-  components: Array<ComponentEnhanced>,
-  leakPeriod?: Period,
-  metric: Metric,
-  selectedIdx: ?number,
-  updateSelected: string => void,
-|}; */
+interface Props {
+  branchLike?: BranchLike;
+  component: ComponentMeasure;
+  components: Array<ComponentMeasureEnhanced>;
+  leakPeriod?: Period;
+  metric: Metric;
+  selectedIdx?: number;
+  updateSelected: (component: string) => void;
+}
 
-export default class CodeView extends React.PureComponent {
-  /*:: props: Props; */
-
+export default class CodeView extends React.PureComponent<Props> {
   componentDidMount() {
     this.attachShortcuts();
   }
@@ -57,7 +54,7 @@ export default class CodeView extends React.PureComponent {
   }
 
   detachShortcuts() {
-    ['j', 'k'].map(action => key.unbind(action, 'measures-files'));
+    ['j', 'k'].forEach(action => key.unbind(action, 'measures-files'));
   }
 
   selectPrevious = () => {

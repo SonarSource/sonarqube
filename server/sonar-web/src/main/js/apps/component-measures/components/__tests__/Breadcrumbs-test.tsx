@@ -17,28 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { mount } from 'enzyme';
 import Breadcrumbs from '../Breadcrumbs';
-import { doAsync } from '../../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { getBreadcrumbs } from '../../../../api/components';
 
 jest.mock('../../../../api/components', () => ({
-  getBreadcrumbs: () =>
-    Promise.resolve([
+  getBreadcrumbs: jest
+    .fn()
+    .mockResolvedValue([
       { key: 'anc1', name: 'Ancestor1' },
       { key: 'anc2', name: 'Ancestor2' },
       { key: 'bar', name: 'Bar' }
     ])
 }));
 
+const componentFoo = {
+  key: 'foo',
+  name: 'Foo',
+  organization: 'bar',
+  qualifier: 'TRK'
+};
+
+const componentBar = {
+  key: 'bar',
+  name: 'Bar',
+  organization: 'bar',
+  qualifier: 'TRK'
+};
+
+beforeEach(() => {
+  (getBreadcrumbs as jest.Mock<any>).mockClear();
+});
+
 it('should display correctly for the list view', () => {
   const wrapper = mount(
     <Breadcrumbs
-      branch={{ isMain: true }}
-      component={{ key: 'bar', name: 'Bar' }}
+      backToFirst={false}
+      component={componentBar}
       handleSelect={() => {}}
-      rootComponent={{ key: 'foo', name: 'Foo' }}
-      view="list"
+      rootComponent={componentFoo}
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -47,27 +66,24 @@ it('should display correctly for the list view', () => {
 it('should display only the root component', () => {
   const wrapper = mount(
     <Breadcrumbs
-      branch={{ isMain: true }}
-      component={{ key: 'foo', name: 'Foo' }}
+      backToFirst={false}
+      component={componentFoo}
       handleSelect={() => {}}
-      rootComponent={{ key: 'foo', name: 'Foo' }}
-      view="tree"
+      rootComponent={componentFoo}
     />
   );
   expect(wrapper.state()).toMatchSnapshot();
 });
 
-it.only('should load the breadcrumb from the api', () => {
+it('should load the breadcrumb from the api', async () => {
   const wrapper = mount(
     <Breadcrumbs
-      branch={{ isMain: true }}
-      component={{ key: 'bar', name: 'Bar' }}
+      backToFirst={false}
+      component={componentBar}
       handleSelect={() => {}}
-      rootComponent={{ key: 'foo', name: 'Foo' }}
-      view="tree"
+      rootComponent={componentFoo}
     />
   );
-  return doAsync(() => {
-    expect(wrapper.state()).toMatchSnapshot();
-  });
+  await waitAndUpdate(wrapper);
+  expect(getBreadcrumbs).toHaveBeenCalled();
 });

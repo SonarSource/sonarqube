@@ -17,107 +17,105 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-// $FlowFixMe
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+
+import * as React from 'react';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
 import EmptyResult from './EmptyResult';
 import * as theme from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
-import TreeMap from '../../../components/charts/TreeMap';
+import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
-/*:: import type { ComponentEnhanced } from '../types'; */
-/*:: import type { TreeMapItem } from '../../../components/charts/TreeMap'; */
+import { BranchLike, ComponentMeasureEnhanced, Metric } from '../../../app/types';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  components: Array<ComponentEnhanced>,
-  handleSelect: string => void,
-  metric: Metric
-|}; */
+interface Props {
+  branchLike?: BranchLike;
+  components: ComponentMeasureEnhanced[];
+  handleSelect: (component: string) => void;
+  metric: Metric;
+}
 
-/*:: type State = {
-  treemapItems: Array<TreeMapItem>
-}; */
+interface State {
+  treemapItems: TreeMapItem[];
+}
 
 const HEIGHT = 500;
 const COLORS = [theme.green, theme.lightGreen, theme.yellow, theme.orange, theme.red];
 const LEVEL_COLORS = [theme.red, theme.orange, theme.green, theme.gray71];
 
-export default class TreeMapView extends React.PureComponent {
-  /*:: props: Props; */
-  /*:: state: State; */
+export default class TreeMapView extends React.PureComponent<Props, State> {
+  state: State;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.state = { treemapItems: this.getTreemapComponents(props) };
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.components !== this.props.components || nextProps.metric !== this.props.metric) {
       this.setState({ treemapItems: this.getTreemapComponents(nextProps) });
     }
   }
 
-  getTreemapComponents = ({ branchLike, components, metric } /*: Props */) => {
+  getTreemapComponents = ({ branchLike, components, metric }: Props) => {
     const colorScale = this.getColorScale(metric);
     return components
       .map(component => {
         const colorMeasure = component.measures.find(measure => measure.metric.key === metric.key);
         const sizeMeasure = component.measures.find(measure => measure.metric.key !== metric.key);
-        if (sizeMeasure == null) {
-          return null;
+        if (!sizeMeasure) {
+          return undefined;
         }
         const colorValue =
           colorMeasure && (isDiffMetric(metric.key) ? colorMeasure.leak : colorMeasure.value);
-        const sizeValue = isDiffMetric(sizeMeasure.metric.key)
-          ? sizeMeasure.leak
-          : sizeMeasure.value;
-        if (sizeValue == null) {
-          return null;
+        const sizeValue = Number(
+          isDiffMetric(sizeMeasure.metric.key) ? sizeMeasure.leak : sizeMeasure.value
+        );
+        if (isNaN(sizeValue)) {
+          return undefined;
         }
+
         return {
+          color:
+            colorValue !== undefined ? (colorScale as Function)(colorValue) : theme.secondFontColor,
+          icon: <QualifierIcon fill={theme.baseFontColor} qualifier={component.qualifier} />,
           key: component.refKey || component.key,
-          size: sizeValue,
-          color: colorValue != null ? colorScale(colorValue) : theme.secondFontColor,
-          icon: <QualifierIcon color={theme.baseFontColor} qualifier={component.qualifier} />,
-          tooltip: this.getTooltip(
-            component.name,
-            metric,
-            sizeMeasure.metric,
-            colorValue,
-            sizeValue
-          ),
           label: component.name,
-          link: getBranchLikeUrl(component.refKey || component.key, branchLike)
+          link: getBranchLikeUrl(component.refKey || component.key, branchLike),
+          size: sizeValue,
+          tooltip: this.getTooltip({
+            colorMetric: metric,
+            colorValue,
+            componentName: component.name,
+            sizeMetric: sizeMeasure.metric,
+            sizeValue
+          })
         };
       })
-      .filter(Boolean);
+      .filter(Boolean) as TreeMapItem[];
   };
 
   getLevelColorScale = () =>
-    scaleOrdinal()
+    scaleOrdinal<string, string>()
       .domain(['ERROR', 'WARN', 'OK', 'NONE'])
       .range(LEVEL_COLORS);
 
-  getPercentColorScale = (metric /*: Metric */) => {
-    const color = scaleLinear().domain([0, 25, 50, 75, 100]);
-    color.range(metric.direction === 1 ? COLORS.reverse() : COLORS);
+  getPercentColorScale = (metric: Metric) => {
+    const color = scaleLinear<string, string>().domain([0, 25, 50, 75, 100]);
+    color.range(metric.direction === 1 ? [...COLORS].reverse() : COLORS);
     return color;
   };
 
   getRatingColorScale = () =>
-    scaleLinear()
+    scaleLinear<string, string>()
       .domain([1, 2, 3, 4, 5])
       .range(COLORS);
 
-  getColorScale = (metric /*: Metric */) => {
+  getColorScale = (metric: Metric) => {
     if (metric.type === 'LEVEL') {
       return this.getLevelColorScale();
     }
@@ -127,15 +125,21 @@ export default class TreeMapView extends React.PureComponent {
     return this.getPercentColorScale(metric);
   };
 
-  getTooltip = (
-    componentName /*: string */,
-    colorMetric /*: Metric */,
-    sizeMetric /*: Metric */,
-    colorValue /*: ?number */,
-    sizeValue /*: number */
-  ) => {
+  getTooltip = ({
+    colorMetric,
+    colorValue,
+    componentName,
+    sizeMetric,
+    sizeValue
+  }: {
+    colorMetric: Metric;
+    colorValue?: string;
+    componentName: string;
+    sizeMetric: Metric;
+    sizeValue: number;
+  }) => {
     const formatted =
-      colorMetric != null && colorValue != null ? formatMeasure(colorValue, colorMetric.type) : '—';
+      colorMetric && colorValue !== undefined ? formatMeasure(colorValue, colorMetric.type) : '—';
     return (
       <div className="text-left">
         {componentName}

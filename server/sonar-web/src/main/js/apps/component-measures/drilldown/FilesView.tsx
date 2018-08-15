@@ -17,36 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import key from 'keymaster';
+import * as React from 'react';
+import * as key from 'keymaster';
 import { throttle } from 'lodash';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../components/controls/ListFooter';
 import { scrollToElement } from '../../../helpers/scrolling';
-/*:: import type { Component, ComponentEnhanced, Paging } from '../types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  Metric,
+  Paging,
+  BranchLike
+} from '../../../app/types';
 
-/*:: type Props = {|
-  bestValue?: string,
-  branchLike?: { id?: string; name: string },
-  components: Array<ComponentEnhanced>,
-  fetchMore: () => void,
-  handleSelect: string => void,
-  handleOpen: string => void,
-  metric: Metric,
-  metrics: { [string]: Metric },
-  paging: ?Paging,
-  rootComponent: Component,
-  selectedKey: ?string,
-  selectedIdx: ?number
-|}; */
+interface Props {
+  bestValue?: string;
+  branchLike?: BranchLike;
+  components: ComponentMeasureEnhanced[];
+  fetchMore: () => void;
+  handleSelect: (component: string) => void;
+  handleOpen: (component: string) => void;
+  metric: Metric;
+  metrics: { [metric: string]: Metric };
+  paging?: Paging;
+  rootComponent: ComponentMeasure;
+  selectedKey?: string;
+  selectedIdx?: number;
+}
 
-export default class ListView extends React.PureComponent {
-  /*:: listContainer: HTMLElement; */
-  /*:: props: Props; */
+export default class ListView extends React.PureComponent<Props> {
+  listContainer?: HTMLElement | null;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.selectNext = throttle(this.selectNext, 100);
     this.selectPrevious = throttle(this.selectPrevious, 100);
@@ -54,13 +57,13 @@ export default class ListView extends React.PureComponent {
 
   componentDidMount() {
     this.attachShortcuts();
-    if (this.props.selectedKey != null) {
+    if (this.props.selectedKey !== undefined) {
       this.scrollToElement();
     }
   }
 
-  componentDidUpdate(prevProps /*: Props */) {
-    if (this.props.selectedKey != null && prevProps.selectedKey !== this.props.selectedKey) {
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.selectedKey !== undefined && prevProps.selectedKey !== this.props.selectedKey) {
       this.scrollToElement();
     }
   }
@@ -85,18 +88,18 @@ export default class ListView extends React.PureComponent {
   }
 
   detachShortcuts() {
-    ['up', 'down', 'right'].map(action => key.unbind(action, 'measures-files'));
+    ['up', 'down', 'right'].forEach(action => key.unbind(action, 'measures-files'));
   }
 
   openSelected = () => {
-    if (this.props.selectedKey != null) {
+    if (this.props.selectedKey !== undefined) {
       this.props.handleOpen(this.props.selectedKey);
     }
   };
 
   selectPrevious = () => {
     const { selectedIdx } = this.props;
-    if (selectedIdx != null && selectedIdx > 0) {
+    if (selectedIdx !== undefined && selectedIdx > 0) {
       this.props.handleSelect(this.props.components[selectedIdx - 1].key);
     } else {
       this.props.handleSelect(this.props.components[this.props.components.length - 1].key);
@@ -105,7 +108,7 @@ export default class ListView extends React.PureComponent {
 
   selectNext = () => {
     const { selectedIdx } = this.props;
-    if (selectedIdx != null && selectedIdx < this.props.components.length - 1) {
+    if (selectedIdx !== undefined && selectedIdx < this.props.components.length - 1) {
       this.props.handleSelect(this.props.components[selectedIdx + 1].key);
     } else {
       this.props.handleSelect(this.props.components[0].key);

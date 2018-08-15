@@ -17,17 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { domains } from './config/domains';
 import { bubbles } from './config/bubbles';
 import { getLocalizedMetricName } from '../../helpers/l10n';
-import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
+import { ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../app/types';
 import { enhanceMeasure } from '../../components/measure/utils';
-/*:: import type { Component, ComponentEnhanced, Query } from './types'; */
-/*:: import type { RawQuery } from '../../helpers/query'; */
-/*:: import type { Metric } from '../../store/metrics/actions'; */
-/*:: import type { MeasureEnhanced } from '../../components/measure/types'; */
+import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
+import { MeasureEnhanced } from '../../helpers/measures';
 
 export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW = 'list';
@@ -55,33 +52,32 @@ const BANNED_MEASURES = [
   'new_info_violations'
 ];
 
-export function filterMeasures(
-  measures /*: Array<MeasureEnhanced> */
-) /*: Array<MeasureEnhanced> */ {
+export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
   return measures.filter(measure => !BANNED_MEASURES.includes(measure.metric.key));
 }
 
 export function sortMeasures(
-  domainName /*: string */,
-  measures /*: Array<MeasureEnhanced | string> */
-) /*: Array<MeasureEnhanced | string> */ {
+  domainName: string,
+  measures: Array<MeasureEnhanced | string>
+): Array<MeasureEnhanced | string> {
   const config = domains[domainName] || {};
   const configOrder = config.order || [];
   return sortBy(measures, [
-    item => {
+    (item: MeasureEnhanced | string) => {
       if (typeof item === 'string') {
         return configOrder.indexOf(item);
       }
       const idx = configOrder.indexOf(item.metric.key);
       return idx >= 0 ? idx : configOrder.length;
     },
-    item => (typeof item === 'string' ? item : getLocalizedMetricName(item.metric))
+    (item: MeasureEnhanced | string) =>
+      typeof item === 'string' ? item : getLocalizedMetricName(item.metric)
   ]);
 }
 
 export function addMeasureCategories(
-  domainName /*: string */,
-  measures /*: Array<MeasureEnhanced> */
+  domainName: string,
+  measures: MeasureEnhanced[]
 ) /*: Array<any> */ {
   const categories = domains[domainName] && domains[domainName].categories;
   if (categories && categories.length > 0) {
@@ -91,34 +87,37 @@ export function addMeasureCategories(
 }
 
 export function enhanceComponent(
-  component /*: Component */,
-  metric /*: ?Metric */,
-  metrics /*: { [string]: Metric } */
-) /*: ComponentEnhanced */ {
+  component: ComponentMeasure,
+  metric: Metric | undefined,
+  metrics: { [key: string]: Metric }
+): ComponentMeasureEnhanced {
+  if (!component.measures) {
+    return { ...component, measures: [] };
+  }
+
   const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metrics));
-  // $FlowFixMe metric can't be null since there is a guard for it
   const measure = metric && enhancedMeasures.find(measure => measure.metric.key === metric.key);
-  const value = measure ? measure.value : null;
-  const leak = measure ? measure.leak : null;
+  const value = measure && measure.value;
+  const leak = measure && measure.leak;
   return { ...component, value, leak, measures: enhancedMeasures };
 }
 
-export function isFileType(component /*: Component */) /*: boolean */ {
+export function isFileType(component: ComponentMeasure): boolean {
   return ['FIL', 'UTS'].includes(component.qualifier);
 }
 
-export function isViewType(component /*: Component */) /*: boolean */ {
+export function isViewType(component: ComponentMeasure): boolean {
   return ['VW', 'SVW', 'APP'].includes(component.qualifier);
 }
 
-export const groupByDomains = memoize((measures /*: Array<MeasureEnhanced> */) => {
+export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
   const domains = toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => ({
     name: r[0],
     measures: r[1]
   }));
 
   return sortBy(domains, [
-    domain => {
+    (domain: { name: string; measure: MeasureEnhanced[] }) => {
       const idx = KNOWN_DOMAINS.indexOf(domain.name);
       return idx >= 0 ? idx : KNOWN_DOMAINS.length;
     },
@@ -126,34 +125,34 @@ export const groupByDomains = memoize((measures /*: Array<MeasureEnhanced> */) =
   ]);
 });
 
-export function getDefaultView(metric /*: string */) /*: string */ {
+export function getDefaultView(metric: string): string {
   if (!hasList(metric)) {
     return 'tree';
   }
   return DEFAULT_VIEW;
 }
 
-export function hasList(metric /*: string */) /*: boolean */ {
+export function hasList(metric: string): boolean {
   return !['releasability_rating', 'releasability_effort'].includes(metric);
 }
 
-export function hasTree(metric /*: string */) /*: boolean */ {
+export function hasTree(metric: string): boolean {
   return metric !== 'alert_status';
 }
 
-export function hasTreemap(metric /*: string */, type /*: string */) /*: boolean */ {
+export function hasTreemap(metric: string, type: string): boolean {
   return ['PERCENT', 'RATING', 'LEVEL'].includes(type) && hasTree(metric);
 }
 
-export function hasBubbleChart(domainName /*: string */) /*: boolean */ {
+export function hasBubbleChart(domainName: string): boolean {
   return bubbles[domainName] != null;
 }
 
-export function hasFacetStat(metric /*: string */) /*: boolean */ {
+export function hasFacetStat(metric: string): boolean {
   return metric !== 'alert_status';
 }
 
-export function getBubbleMetrics(domain /*: string */, metrics /*: { [string]: Metric } */) {
+export function getBubbleMetrics(domain: string, metrics: { [key: string]: Metric }) {
   const conf = bubbles[domain];
   return {
     x: metrics[conf.x],
@@ -163,15 +162,15 @@ export function getBubbleMetrics(domain /*: string */, metrics /*: { [string]: M
   };
 }
 
-export function getBubbleYDomain(domain /*: string */) {
+export function getBubbleYDomain(domain: string) {
   return bubbles[domain].yDomain;
 }
 
-export function isProjectOverview(metric /*: string */) {
+export function isProjectOverview(metric: string) {
   return metric === PROJECT_OVERVEW;
 }
 
-const parseView = memoize((rawView /*:: ? */ /*: string */, metric /*: string */) => {
+const parseView = (metric: string, rawView?: string) => {
   const view = parseAsString(rawView) || DEFAULT_VIEW;
   if (!hasTree(metric)) {
     return 'list';
@@ -179,18 +178,24 @@ const parseView = memoize((rawView /*:: ? */ /*: string */, metric /*: string */
     return 'tree';
   }
   return view;
-});
+};
 
-export const parseQuery = memoize((urlQuery /*: RawQuery */) => {
+export interface Query {
+  metric?: string;
+  selected?: string;
+  view: string;
+}
+
+export const parseQuery = memoize((urlQuery: RawQuery) => {
   const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
   return {
     metric,
     selected: parseAsString(urlQuery['selected']),
-    view: parseView(urlQuery['view'], metric)
+    view: parseView(metric, urlQuery['view'])
   };
 });
 
-export const serializeQuery = memoize((query /*: Query */) => {
+export const serializeQuery = memoize((query: Query) => {
   return cleanQuery({
     metric: query.metric === DEFAULT_METRIC ? null : serializeString(query.metric),
     selected: serializeString(query.selected),
