@@ -56,7 +56,6 @@ public class NewLinesRepositoryTest {
 
   @Test
   public void load_new_lines_from_report_if_available_and_pullrequest() {
-    periodHolder.setPeriod(new Period("", null, Long.MAX_VALUE, ""));
     setPullRequest();
     createChangedLinesInReport(1, 2, 5);
 
@@ -80,7 +79,7 @@ public class NewLinesRepositoryTest {
   }
 
   @Test
-  public void return_empty_if_no_period() {
+  public void return_empty_if_no_period_and_not_pullrequest() {
     periodHolder.setPeriod(null);
 
     // even though we have lines in the report and scm data, nothing should be returned since we have no period

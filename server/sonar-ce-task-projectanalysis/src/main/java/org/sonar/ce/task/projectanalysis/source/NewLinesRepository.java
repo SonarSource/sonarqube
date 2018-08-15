@@ -38,7 +38,7 @@ public class NewLinesRepository {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final ScmInfoRepository scmInfoRepository;
   private final PeriodHolder periodHolder;
-  private final Map<Component, Optional<Set<Integer>>> changedLinesCache = new HashMap<>();
+  private final Map<Component, Optional<Set<Integer>>> reportChangedLinesCache = new HashMap<>();
 
   public NewLinesRepository(BatchReportReader reportReader, AnalysisMetadataHolder analysisMetadataHolder, PeriodHolder periodHolder, ScmInfoRepository scmInfoRepository) {
     this.reportReader = reportReader;
@@ -48,14 +48,10 @@ public class NewLinesRepository {
   }
 
   public boolean newLinesAvailable() {
-    return periodHolder.hasPeriod();
+    return isPullRequestOrShortLivedBranch() || periodHolder.hasPeriod();
   }
 
   public Optional<Set<Integer>> getNewLines(Component component) {
-    return changedLinesCache.computeIfAbsent(component, this::computeNewLines);
-  }
-
-  private Optional<Set<Integer>> computeNewLines(Component component) {
     Optional<Set<Integer>> reportChangedLines = getChangedLinesFromReport(component);
     if (reportChangedLines.isPresent()) {
       return reportChangedLines;
@@ -98,11 +94,19 @@ public class NewLinesRepository {
   }
 
   private Optional<Set<Integer>> getChangedLinesFromReport(Component component) {
-    if (analysisMetadataHolder.isPullRequest() || analysisMetadataHolder.isShortLivingBranch()) {
-      return reportReader.readComponentChangedLines(component.getReportAttributes().getRef())
-        .map(c -> new HashSet<>(c.getLineList()));
+    if (isPullRequestOrShortLivedBranch()) {
+      return reportChangedLinesCache.computeIfAbsent(component, this::readFromReport);
     }
 
     return Optional.empty();
+  }
+
+  private boolean isPullRequestOrShortLivedBranch() {
+    return analysisMetadataHolder.isPullRequest() || analysisMetadataHolder.isShortLivingBranch();
+  }
+
+  private Optional<Set<Integer>> readFromReport(Component component) {
+    return reportReader.readComponentChangedLines(component.getReportAttributes().getRef())
+      .map(c -> new HashSet<>(c.getLineList()));
   }
 }
