@@ -21,10 +21,14 @@ import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { domains } from './config/domains';
 import { bubbles } from './config/bubbles';
 import { getLocalizedMetricName } from '../../helpers/l10n';
-import { ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../app/types';
+import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  Metric,
+  MeasureEnhanced
+} from '../../app/types';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
-import { MeasureEnhanced } from '../../helpers/measures';
 
 export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW = 'list';

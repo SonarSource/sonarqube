@@ -17,13 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  getRatingTooltip as nextGetRatingTooltip,
-  isDiffMetric,
-  Measure,
-  MeasureEnhanced
-} from '../../helpers/measures';
-import { Metric } from '../../app/types';
+import { getRatingTooltip as nextGetRatingTooltip, isDiffMetric } from '../../helpers/measures';
+import { Metric, Measure, MeasureEnhanced } from '../../app/types';
 
 const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
 

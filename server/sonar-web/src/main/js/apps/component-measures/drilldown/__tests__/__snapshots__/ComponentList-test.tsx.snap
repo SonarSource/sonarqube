@@ -1,0 +1,140 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should renders correctly 1`] = `
+<React.Fragment>
+  <table
+    className="data zebra zebra-hover"
+  >
+    <tbody>
+      <ComponentsListRow
+        component={
+          Object {
+            "key": "foo",
+            "measures": Array [],
+            "name": "Foo",
+            "organization": "foo",
+            "qualifier": "TRK",
+          }
+        }
+        isSelected={false}
+        key="foo"
+        metric={
+          Object {
+            "id": "2",
+            "key": "new_bugs",
+            "name": "New Bugs",
+            "type": "INT",
+          }
+        }
+        onClick={[MockFunction]}
+        otherMetrics={Array []}
+        rootComponent={
+          Object {
+            "key": "foo",
+            "measures": Array [],
+            "name": "Foo",
+            "organization": "foo",
+            "qualifier": "TRK",
+          }
+        }
+      />
+    </tbody>
+  </table>
+</React.Fragment>
+`;
+
+exports[`should renders empty 1`] = `<EmptyResult />`;
+
+exports[`should renders with multiple measures 1`] = `
+<React.Fragment>
+  <table
+    className="data zebra zebra-hover"
+  >
+    <thead>
+      <tr>
+        <th>
+           
+        </th>
+        <th
+          className="text-right"
+        >
+          <span
+            className="small"
+          >
+            Coverage
+          </span>
+        </th>
+        <th
+          className="text-right"
+          key="uncovered_lines"
+        >
+          <span
+            className="small"
+          >
+            Lines
+          </span>
+        </th>
+        <th
+          className="text-right"
+          key="uncovered_conditions"
+        >
+          <span
+            className="small"
+          >
+            Conditions
+          </span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <ComponentsListRow
+        component={
+          Object {
+            "key": "foo",
+            "measures": Array [],
+            "name": "Foo",
+            "organization": "foo",
+            "qualifier": "TRK",
+          }
+        }
+        isSelected={false}
+        key="foo"
+        metric={
+          Object {
+            "id": "1",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          }
+        }
+        onClick={[MockFunction]}
+        otherMetrics={
+          Array [
+            Object {
+              "id": "3",
+              "key": "uncovered_lines",
+              "name": "Lines",
+              "type": "INT",
+            },
+            Object {
+              "id": "4",
+              "key": "uncovered_conditions",
+              "name": "Conditions",
+              "type": "INT",
+            },
+          ]
+        }
+        rootComponent={
+          Object {
+            "key": "foo",
+            "measures": Array [],
+            "name": "Foo",
+            "organization": "foo",
+            "qualifier": "TRK",
+          }
+        }
+      />
+    </tbody>
+  </table>
+</React.Fragment>
+`;

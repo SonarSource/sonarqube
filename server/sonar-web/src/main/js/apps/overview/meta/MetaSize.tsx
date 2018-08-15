@@ -22,10 +22,10 @@ import * as classNames from 'classnames';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import SizeRating from '../../../components/ui/SizeRating';
-import { formatMeasure, MeasureEnhanced } from '../../../helpers/measures';
+import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
 import { translate } from '../../../helpers/l10n';
-import { LightComponent, BranchLike } from '../../../app/types';
+import { LightComponent, BranchLike, MeasureEnhanced } from '../../../app/types';
 
 interface Props {
   branchLike?: BranchLike;

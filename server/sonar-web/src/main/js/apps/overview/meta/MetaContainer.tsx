@@ -35,11 +35,11 @@ import {
   Metric,
   BranchLike,
   CurrentUser,
-  Organization
+  Organization,
+  MeasureEnhanced
 } from '../../../app/types';
 import { History } from '../../../api/time-machine';
 import { translate } from '../../../helpers/l10n';
-import { MeasureEnhanced } from '../../../helpers/measures';
 import { hasPrivateAccess } from '../../../helpers/organizations';
 import {
   getCurrentUser,

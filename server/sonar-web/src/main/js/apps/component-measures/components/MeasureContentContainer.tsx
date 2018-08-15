@@ -17,64 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { InjectedRouter } from 'react-router';
 import MeasureContent from './MeasureContent';
-/*:: import type { Component, Period, Query } from '../types'; */
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
-/*:: import type { RawQuery } from '../../../helpers/query'; */
+import { Query } from '../utils';
+import {
+  ComponentMeasure,
+  Metric,
+  BranchLike,
+  CurrentUser,
+  MeasureEnhanced
+} from '../../../app/types';
+import { Period } from '../../../helpers/periods';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  className?: string,
-  currentUser: { isLoggedIn: boolean },
-  rootComponent: Component,
+interface Props {
+  branchLike?: BranchLike;
+  className?: string;
+  currentUser: CurrentUser;
+  rootComponent: ComponentMeasure;
   fetchMeasures: (
     component: string,
-    metricsKey: Array<string>,
-    branchLike?: { id?: string; name: string }
-  ) => Promise<{ component: Component, measures: Array<MeasureEnhanced> }>,
-  leakPeriod?: Period,
-  metric: Metric,
-  metrics: { [string]: Metric },
-  router: {
-    push: ({ pathname: string, query?: RawQuery }) => void
-  },
-  selected: ?string,
-  updateQuery: Query => void,
-  view: string
-|}; */
+    metricsKey: string[],
+    branchLike?: BranchLike
+  ) => Promise<{ component: ComponentMeasure; measures: MeasureEnhanced[] }>;
+  leakPeriod?: Period;
+  metric: Metric;
+  metrics: { [metric: string]: Metric };
+  router: InjectedRouter;
+  selected?: string;
+  updateQuery: (query: Partial<Query>) => void;
+  view: string;
+}
 
-/*:: type State = {
-  component: ?Component,
-  loading: {
-    measure: boolean,
-    components: boolean
-  },
-  measure: ?MeasureEnhanced,
-  secondaryMeasure: ?MeasureEnhanced
-}; */
+interface LoadingState {
+  measure: boolean;
+  components: boolean;
+  moreComponents: boolean;
+}
 
-export default class MeasureContentContainer extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    component: null,
-    loading: {
-      measure: false,
-      components: false
-    },
-    measure: null,
-    secondaryMeasure: null
-  };
+interface State {
+  component?: ComponentMeasure;
+  loading: LoadingState;
+  measure?: MeasureEnhanced;
+  secondaryMeasure?: MeasureEnhanced;
+}
+
+export default class MeasureContentContainer extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { loading: { measure: false, components: false, moreComponents: false } };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchMeasure(this.props);
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     const { component } = this.state;
     const componentChanged =
       !component ||
@@ -89,7 +86,7 @@ export default class MeasureContentContainer extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchMeasure = ({ branchLike, rootComponent, fetchMeasures, metric, selected } /*: Props */) => {
+  fetchMeasure = ({ branchLike, rootComponent, fetchMeasures, metric, selected }: Props) => {
     this.updateLoading({ measure: true });
 
     const metricKeys = [metric.key];
@@ -110,18 +107,19 @@ export default class MeasureContentContainer extends React.PureComponent {
     );
   };
 
-  updateLoading = (loading /*: { [string]: boolean } */) => {
+  updateLoading = (loading: Partial<LoadingState>) => {
     if (this.mounted) {
       this.setState(state => ({ loading: { ...state.loading, ...loading } }));
     }
   };
 
-  updateSelected = (component /*: string */) =>
+  updateSelected = (component: string) => {
     this.props.updateQuery({
-      selected: component !== this.props.rootComponent.key ? component : null
+      selected: component !== this.props.rootComponent.key ? component : undefined
     });
+  };
 
-  updateView = (view /*: string */) => this.props.updateQuery({ view });
+  updateView = (view: string) => this.props.updateQuery({ view });
 
   render() {
     if (!this.state.component) {
@@ -136,6 +134,7 @@ export default class MeasureContentContainer extends React.PureComponent {
         currentUser={this.props.currentUser}
         leakPeriod={this.props.leakPeriod}
         loading={this.state.loading.measure || this.state.loading.components}
+        loadingMore={this.state.loading.moreComponents}
         measure={this.state.measure}
         metric={this.props.metric}
         metrics={this.props.metrics}

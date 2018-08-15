@@ -33,15 +33,18 @@ import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';
 import { enhanceComponent, isFileType, isViewType } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
-import { isDiffMetric, MeasureEnhanced } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import {
+  BranchLike,
   ComponentMeasure,
   ComponentMeasureEnhanced,
-  BranchLike,
+  CurrentUser,
+  isLoggedIn,
   Metric,
-  Paging
+  Paging,
+  MeasureEnhanced
 } from '../../../app/types';
 import { RequestData } from '../../../helpers/request';
 import { Period } from '../../../helpers/periods';
@@ -50,8 +53,9 @@ interface Props {
   branchLike?: BranchLike;
   className?: string;
   component: ComponentMeasure;
-  currentUser: { isLoggedIn: boolean };
+  currentUser: CurrentUser;
   loading: boolean;
+  loadingMore: boolean;
   leakPeriod?: Period;
   measure?: MeasureEnhanced;
   metric: Metric;
@@ -66,7 +70,6 @@ interface Props {
 }
 
 interface State {
-  bestValue?: string;
   components: ComponentMeasureEnhanced[];
   metric?: Metric;
   paging?: Paging;
@@ -147,16 +150,15 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         if (metric === this.props.metric) {
           if (this.mounted) {
             this.setState(({ selected }: State) => ({
-              bestValue: r.metrics[0].bestValue,
               components: r.components.map(component =>
                 enhanceComponent(component, metric, metrics)
               ),
-              metric,
+              metric: { ...metric, ...r.metrics.find(m => m.key === metric.key) },
               paging: r.paging,
               selected:
-                r.components.length > 0 && !r.components.find(c => c.key === selected)
-                  ? r.components[0].key
-                  : selected,
+                r.components.length > 0 && r.components.find(c => c.key === selected)
+                  ? selected
+                  : undefined,
               view
             }));
           }
@@ -176,26 +178,25 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric, {
       p: paging.pageIndex + 1
     });
-    this.props.updateLoading({ components: true });
+    this.props.updateLoading({ moreComponents: true });
     getComponentTree(strategy, component.key, metricKeys, opts).then(
       r => {
         if (metric === this.props.metric) {
           if (this.mounted) {
             this.setState(state => ({
-              bestValue: r.metrics[0].bestValue,
               components: [
                 ...state.components,
                 ...r.components.map(component => enhanceComponent(component, metric, metrics))
               ],
-              metric,
+              metric: { ...metric, ...r.metrics.find(m => m.key === metric.key) },
               paging: r.paging,
               view
             }));
           }
-          this.props.updateLoading({ components: false });
+          this.props.updateLoading({ moreComponents: false });
         }
       },
-      () => this.props.updateLoading({ components: false })
+      () => this.props.updateLoading({ moreComponents: false })
     );
   };
 
@@ -243,12 +244,12 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         const selectedIdx = this.getSelectedIndex();
         return (
           <FilesView
-            bestValue={this.state.bestValue}
             branchLike={this.props.branchLike}
             components={this.state.components}
             fetchMore={this.fetchMoreComponents}
             handleOpen={this.onOpenComponent}
             handleSelect={this.onSelectComponent}
+            loadingMore={this.props.loadingMore}
             metric={metric}
             metrics={this.props.metrics}
             paging={this.state.paging}
@@ -276,7 +277,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
   render() {
     const { branchLike, component, currentUser, measure, metric, rootComponent, view } = this.props;
-    const isLoggedIn = currentUser && currentUser.isLoggedIn;
     const isFile = isFileType(component);
     const selectedIdx = this.getSelectedIndex();
     return (
@@ -295,7 +295,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                 rootComponent={rootComponent}
               />
               {component.key !== rootComponent.key &&
-                isLoggedIn && (
+                isLoggedIn(currentUser) && (
                   <MeasureFavoriteContainer
                     branchLike={branchLike}
                     className="measure-favorite spacer-right"

@@ -72,13 +72,14 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
         }
         const colorValue =
           colorMeasure && (isDiffMetric(metric.key) ? colorMeasure.leak : colorMeasure.value);
-        const sizeValue = Number(
-          isDiffMetric(sizeMeasure.metric.key) ? sizeMeasure.leak : sizeMeasure.value
-        );
-        if (isNaN(sizeValue)) {
+        const rawSizeValue = isDiffMetric(sizeMeasure.metric.key)
+          ? sizeMeasure.leak
+          : sizeMeasure.value;
+        if (rawSizeValue === undefined) {
           return undefined;
         }
 
+        const sizeValue = Number(rawSizeValue);
         return {
           color:
             colorValue !== undefined ? (colorScale as Function)(colorValue) : theme.secondFontColor,

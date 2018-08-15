@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with best values hidden 1`] = `
+<div>
+  <ComponentsList
+    components={
+      Array [
+        Object {
+          "key": "foo",
+          "measures": Array [],
+          "name": "Foo",
+          "organization": "foo",
+          "qualifier": "TRK",
+        },
+      ]
+    }
+    metric={
+      Object {
+        "id": "1",
+        "key": "coverage",
+        "name": "Coverage",
+        "type": "PERCENT",
+      }
+    }
+    metrics={
+      Object {
+        "coverage": Object {
+          "id": "1",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        },
+      }
+    }
+    onClick={[MockFunction]}
+    rootComponent={
+      Object {
+        "key": "parent",
+        "measures": Array [],
+        "name": "Parent",
+        "organization": "foo",
+        "qualifier": "TRK",
+      }
+    }
+  />
+  <div
+    className="alert alert-info spacer-top"
+  >
+    component_measures.hidden_best_score_metrics.1.
+    <Button
+      className="button-link spacer-left"
+      onClick={[Function]}
+    >
+      show_all
+    </Button>
+  </div>
+</div>
+`;
+
+exports[`should renders correctly 1`] = `
+<div>
+  <ComponentsList
+    components={
+      Array [
+        Object {
+          "key": "foo",
+          "measures": Array [],
+          "name": "Foo",
+          "organization": "foo",
+          "qualifier": "TRK",
+        },
+      ]
+    }
+    metric={
+      Object {
+        "id": "1",
+        "key": "coverage",
+        "name": "Coverage",
+        "type": "PERCENT",
+      }
+    }
+    metrics={
+      Object {
+        "coverage": Object {
+          "id": "1",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        },
+      }
+    }
+    onClick={[MockFunction]}
+    rootComponent={
+      Object {
+        "key": "parent",
+        "measures": Array [],
+        "name": "Parent",
+        "organization": "foo",
+        "qualifier": "TRK",
+      }
+    }
+  />
+  <ListFooter
+    count={1}
+    loadMore={[MockFunction]}
+    loading={false}
+    total={10}
+  />
+</div>
+`;

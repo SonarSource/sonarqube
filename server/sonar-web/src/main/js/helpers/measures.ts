@@ -18,30 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, translateWithParameters, getCurrentLocale } from './l10n';
-import { Metric } from '../app/types';
+import { Metric, Measure, MeasureEnhanced } from '../app/types';
 
 const HOURS_IN_DAY = 8;
-
-export interface MeasurePeriod {
-  bestValue?: boolean;
-  index: number;
-  value: string;
-}
-
-export interface MeasureIntern {
-  bestValue?: boolean;
-  periods?: MeasurePeriod[];
-  value?: string;
-}
-
-export interface Measure extends MeasureIntern {
-  metric: string;
-}
-
-export interface MeasureEnhanced extends MeasureIntern {
-  metric: Metric;
-  leak?: string;
-}
 
 interface Formatter {
   (value: string | number, options?: any): string;

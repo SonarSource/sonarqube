@@ -31,7 +31,7 @@ import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData, History } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
-import { enhanceMeasuresWithMetrics, MeasureEnhanced } from '../../../helpers/measures';
+import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod, Period } from '../../../helpers/periods';
 import { get } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
@@ -48,7 +48,7 @@ import {
 } from '../../../helpers/branches';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
-import { BranchLike, Component, Metric } from '../../../app/types';
+import { BranchLike, Component, Metric, MeasureEnhanced } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 

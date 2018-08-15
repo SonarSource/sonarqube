@@ -19,8 +19,14 @@
  */
 import { getJSON, RequestData, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Measure, MeasurePeriod } from '../helpers/measures';
-import { Metric, CustomMeasure, Paging, BranchParameters } from '../app/types';
+import {
+  Metric,
+  CustomMeasure,
+  Paging,
+  BranchParameters,
+  Measure,
+  MeasurePeriod
+} from '../app/types';
 import { Period } from '../helpers/periods';
 
 export function getMeasures(

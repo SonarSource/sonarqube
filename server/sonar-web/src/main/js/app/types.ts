@@ -1,5 +1,3 @@
-import { Measure, MeasureEnhanced } from '../helpers/measures';
-
 /*
  * SonarQube
  * Copyright (C) 2009-2018 SonarSource SA
@@ -99,6 +97,28 @@ export interface ComponentQualityProfile {
   key: string;
   language: string;
   name: string;
+}
+
+interface ComponentMeasureIntern {
+  isFavorite?: boolean;
+  isRecentlyBrowsed?: boolean;
+  key: string;
+  match?: string;
+  name: string;
+  organization?: string;
+  project?: string;
+  qualifier: string;
+  refKey?: string;
+}
+
+export interface ComponentMeasure extends ComponentMeasureIntern {
+  measures?: Measure[];
+}
+
+export interface ComponentMeasureEnhanced extends ComponentMeasureIntern {
+  value?: string;
+  leak?: string;
+  measures: MeasureEnhanced[];
 }
 
 export interface Condition {
@@ -342,26 +362,25 @@ export interface MainBranch extends Branch {
   status?: { qualityGateStatus: string };
 }
 
-interface ComponentMeasureIntern {
-  isFavorite?: boolean;
-  isRecentlyBrowsed?: boolean;
-  key: string;
-  match?: string;
-  name: string;
-  organization?: string;
-  project?: string;
-  qualifier: string;
-  refKey?: string;
+export interface MeasurePeriod {
+  bestValue?: boolean;
+  index: number;
+  value: string;
 }
 
-export interface ComponentMeasure extends ComponentMeasureIntern {
-  measures?: Measure[];
-}
-
-export interface ComponentMeasureEnhanced extends ComponentMeasureIntern {
+interface MeasureIntern {
+  bestValue?: boolean;
+  periods?: MeasurePeriod[];
   value?: string;
+}
+
+export interface Measure extends MeasureIntern {
+  metric: string;
+}
+
+export interface MeasureEnhanced extends MeasureIntern {
+  metric: Metric;
   leak?: string;
-  measures: MeasureEnhanced[];
 }
 
 export interface Metric {

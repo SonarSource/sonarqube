@@ -26,7 +26,7 @@ import { Button } from '../../ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import { FacetValue, SourceViewerFile, BranchLike } from '../../../app/types';
+import { FacetValue, SourceViewerFile, BranchLike, MeasureEnhanced } from '../../../app/types';
 import Modal from '../../controls/Modal';
 import Measure from '../../measure/Measure';
 import QualifierIcon from '../../icons-components/QualifierIcon';
@@ -38,7 +38,6 @@ import { SEVERITIES, TYPES } from '../../../helpers/constants';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import {
   formatMeasure,
-  MeasureEnhanced,
   getDisplayMetrics,
   enhanceMeasuresWithMetrics
 } from '../../../helpers/measures';

@@ -30,8 +30,7 @@ import {
   isDiffMetric,
   getPeriodValue,
   getShortType,
-  getRatingTooltip,
-  MeasureEnhanced
+  getRatingTooltip
 } from '../../../helpers/measures';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
@@ -40,7 +39,7 @@ import {
   getComponentIssuesUrl,
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
-import { Component, BranchLike } from '../../../app/types';
+import { Component, BranchLike, MeasureEnhanced } from '../../../app/types';
 import { History } from '../../../api/time-machine';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 

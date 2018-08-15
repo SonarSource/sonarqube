@@ -22,7 +22,7 @@ import * as key from 'keymaster';
 import { throttle } from 'lodash';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../components/controls/ListFooter';
-import { scrollToElement } from '../../../helpers/scrolling';
+import { Button } from '../../../components/ui/buttons';
 import {
   ComponentMeasure,
   ComponentMeasureEnhanced,
@@ -30,14 +30,17 @@ import {
   Paging,
   BranchLike
 } from '../../../app/types';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { isPeriodBestValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
+import { scrollToElement } from '../../../helpers/scrolling';
 
 interface Props {
-  bestValue?: string;
   branchLike?: BranchLike;
   components: ComponentMeasureEnhanced[];
   fetchMore: () => void;
   handleSelect: (component: string) => void;
   handleOpen: (component: string) => void;
+  loadingMore: boolean;
   metric: Metric;
   metrics: { [metric: string]: Metric };
   paging?: Paging;
@@ -46,11 +49,16 @@ interface Props {
   selectedIdx?: number;
 }
 
-export default class ListView extends React.PureComponent<Props> {
+interface State {
+  showBestMeasures: boolean;
+}
+
+export default class ListView extends React.PureComponent<Props, State> {
   listContainer?: HTMLElement | null;
 
   constructor(props: Props) {
     super(props);
+    this.state = { showBestMeasures: false };
     this.selectNext = throttle(this.selectNext, 100);
     this.selectPrevious = throttle(this.selectPrevious, 100);
   }
@@ -65,6 +73,9 @@ export default class ListView extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     if (this.props.selectedKey !== undefined && prevProps.selectedKey !== this.props.selectedKey) {
       this.scrollToElement();
+    }
+    if (prevProps.metric.key !== this.props.metric.key) {
+      this.setState({ showBestMeasures: false });
     }
   }
 
@@ -91,6 +102,30 @@ export default class ListView extends React.PureComponent<Props> {
     ['up', 'down', 'right'].forEach(action => key.unbind(action, 'measures-files'));
   }
 
+  getVisibleComponents = (components: ComponentMeasureEnhanced[], showBestMeasures: boolean) => {
+    if (showBestMeasures) {
+      return components;
+    }
+    const filtered = components.filter(component => !this.hasBestValue(component));
+    if (filtered.length === 0) {
+      return components;
+    }
+    return filtered;
+  };
+
+  handleShowBestMeasures = () => {
+    this.setState({ showBestMeasures: true });
+  };
+
+  hasBestValue = (component: ComponentMeasureEnhanced) => {
+    const { metric } = this.props;
+    const focusedMeasure = component.measures.find(measure => measure.metric.key === metric.key);
+    if (focusedMeasure && isDiffMetric(metric.key)) {
+      return isPeriodBestValue(focusedMeasure, 1);
+    }
+    return Boolean(focusedMeasure && focusedMeasure.bestValue);
+  };
+
   openSelected = () => {
     if (this.props.selectedKey !== undefined) {
       this.props.handleOpen(this.props.selectedKey);
@@ -98,20 +133,22 @@ export default class ListView extends React.PureComponent<Props> {
   };
 
   selectPrevious = () => {
-    const { selectedIdx } = this.props;
+    const { components, selectedIdx } = this.props;
+    const visibleComponents = this.getVisibleComponents(components, this.state.showBestMeasures);
     if (selectedIdx !== undefined && selectedIdx > 0) {
-      this.props.handleSelect(this.props.components[selectedIdx - 1].key);
+      this.props.handleSelect(visibleComponents[selectedIdx - 1].key);
     } else {
-      this.props.handleSelect(this.props.components[this.props.components.length - 1].key);
+      this.props.handleSelect(visibleComponents[visibleComponents.length - 1].key);
     }
   };
 
   selectNext = () => {
-    const { selectedIdx } = this.props;
-    if (selectedIdx !== undefined && selectedIdx < this.props.components.length - 1) {
-      this.props.handleSelect(this.props.components[selectedIdx + 1].key);
+    const { components, selectedIdx } = this.props;
+    const visibleComponents = this.getVisibleComponents(components, this.state.showBestMeasures);
+    if (selectedIdx !== undefined && selectedIdx < visibleComponents.length - 1) {
+      this.props.handleSelect(visibleComponents[selectedIdx + 1].key);
     } else {
-      this.props.handleSelect(this.props.components[0].key);
+      this.props.handleSelect(visibleComponents[0].key);
     }
   };
 
@@ -125,23 +162,39 @@ export default class ListView extends React.PureComponent<Props> {
   };
 
   render() {
+    const { components } = this.props;
+    const filteredComponents = this.getVisibleComponents(components, this.state.showBestMeasures);
+    const hidingBestMeasures = filteredComponents.length < components.length;
     return (
       <div ref={elem => (this.listContainer = elem)}>
         <ComponentsList
-          bestValue={this.props.bestValue}
           branchLike={this.props.branchLike}
-          components={this.props.components}
+          components={filteredComponents}
           metric={this.props.metric}
           metrics={this.props.metrics}
           onClick={this.props.handleOpen}
           rootComponent={this.props.rootComponent}
           selectedComponent={this.props.selectedKey}
         />
-        {this.props.paging &&
+        {hidingBestMeasures && (
+          <div className="alert alert-info spacer-top">
+            {translateWithParameters(
+              'component_measures.hidden_best_score_metrics',
+              components.length - filteredComponents.length,
+              formatMeasure(this.props.metric.bestValue, this.props.metric.type)
+            )}
+            <Button className="button-link spacer-left" onClick={this.handleShowBestMeasures}>
+              {translate('show_all')}
+            </Button>
+          </div>
+        )}
+        {!hidingBestMeasures &&
+          this.props.paging &&
           this.props.components.length > 0 && (
             <ListFooter
               count={this.props.components.length}
               loadMore={this.props.fetchMore}
+              loading={this.props.loadingMore}
               total={this.props.paging.total}
             />
           )}
