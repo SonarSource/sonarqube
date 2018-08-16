@@ -104,13 +104,13 @@ public class FieldDiffsTest {
     diffs.setDiff("severity", null, "INFO");
     diffs.setDiff("assignee", "user1", null);
 
-    assertThat(diffs.toString()).isEqualTo("severity=INFO,assignee=");
+    assertThat(diffs.toString()).isEqualTo("severity=INFO,assignee=user1|");
   }
 
   @Test
   public void test_parse() {
-    diffs = FieldDiffs.parse("severity=BLOCKER|INFO,resolution=OPEN|FIXED,donut=|new,acme=old|");
-    assertThat(diffs.diffs()).hasSize(4);
+    diffs = FieldDiffs.parse("severity=BLOCKER|INFO,resolution=OPEN|FIXED,donut=|new,gambas=miam,acme=old|");
+    assertThat(diffs.diffs()).hasSize(5);
 
     FieldDiffs.Diff diff = diffs.diffs().get("severity");
     assertThat(diff.oldValue()).isEqualTo("BLOCKER");
@@ -123,6 +123,10 @@ public class FieldDiffsTest {
     diff = diffs.diffs().get("donut");
     assertThat(diff.oldValue()).isEqualTo("");
     assertThat(diff.newValue()).isEqualTo("new");
+
+    diff = diffs.diffs().get("gambas");
+    assertThat(diff.oldValue()).isEqualTo("");
+    assertThat(diff.newValue()).isEqualTo("miam");
 
     diff = diffs.diffs().get("acme");
     assertThat(diff.oldValue()).isEqualTo("old");

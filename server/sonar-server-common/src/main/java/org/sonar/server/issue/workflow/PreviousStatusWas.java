@@ -39,6 +39,7 @@ class PreviousStatusWas implements Condition {
     Optional<String> lastPreviousStatus = defaultIssue.changes().stream()
       // exclude current change (if any)
       .filter(change -> change != defaultIssue.currentChange())
+      .filter(change -> change.creationDate() != null)
       .sorted(Comparator.comparing(FieldDiffs::creationDate).reversed())
       .map(change -> change.get("status"))
       .filter(Objects::nonNull)

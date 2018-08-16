@@ -250,7 +250,7 @@ public class IssueWorkflow implements Startable {
           new PreviousStatusWas(Issue.STATUS_OPEN),
           new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
           IsNotHotspotNorManualVulnerability.INSTANCE)
-        .functions(UnsetCloseDate.INSTANCE)
+        .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
         .build())
       .transition(Transition.builder("automaticunclosereopen")
@@ -259,7 +259,7 @@ public class IssueWorkflow implements Startable {
           new PreviousStatusWas(Issue.STATUS_REOPENED),
           new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
           IsNotHotspotNorManualVulnerability.INSTANCE)
-        .functions(UnsetCloseDate.INSTANCE)
+        .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
         .build())
       .transition(Transition.builder("automaticuncloseconfirmed")
@@ -268,7 +268,7 @@ public class IssueWorkflow implements Startable {
           new PreviousStatusWas(Issue.STATUS_CONFIRMED),
           new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
           IsNotHotspotNorManualVulnerability.INSTANCE)
-        .functions(UnsetCloseDate.INSTANCE)
+        .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
         .build())
       .transition(Transition.builder("automaticuncloseresolved")
@@ -277,7 +277,7 @@ public class IssueWorkflow implements Startable {
           new PreviousStatusWas(Issue.STATUS_RESOLVED),
           new HasResolution(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED),
           IsNotHotspotNorManualVulnerability.INSTANCE)
-        .functions(UnsetCloseDate.INSTANCE)
+        .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
         .build())
 
