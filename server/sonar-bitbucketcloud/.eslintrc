@@ -1,8 +1,0 @@
-{
-  "extends": "sonarqube",
-
-  "rules": {
-    // some dependencies are provided by the platform, therefore not installed in a plugin
-    "import/no-extraneous-dependencies": "off"
-  }
-}
