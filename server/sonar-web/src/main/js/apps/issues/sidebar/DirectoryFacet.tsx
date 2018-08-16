@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
-import { Query } from '../utils';
+import { Query, Facet } from '../utils';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
@@ -31,7 +31,7 @@ interface Props {
   componentKey: string;
   fetching: boolean;
   directories: string[];
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -62,8 +62,10 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
     }).then(({ components, paging }) => ({ paging, results: components }));
   };
 
-  loadSearchResultCount = (directory: TreeComponent) => {
-    return this.props.loadSearchResultCount({ directories: [directory.name] });
+  loadSearchResultCount = (directories: TreeComponent[]) => {
+    return this.props.loadSearchResultCount('directories', {
+      directories: directories.map(directory => directory.name)
+    });
   };
 
   renderDirectory = (directory: React.ReactNode) => (

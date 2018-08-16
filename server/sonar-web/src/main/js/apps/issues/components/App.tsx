@@ -661,7 +661,7 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
-  loadSearchResultCount = (changes: Partial<Query>) => {
+  loadSearchResultCount = (property: string, changes: Partial<Query>) => {
     const { component } = this.props;
     const { myIssues, query } = this.state;
 
@@ -672,6 +672,7 @@ export default class App extends React.PureComponent<Props, State> {
     const parameters = {
       ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
+      facets: mapFacet(property),
       s: 'FILE_LINE',
       ...serializeQuery({ ...query, ...changes }),
       ps: 1,
@@ -682,7 +683,9 @@ export default class App extends React.PureComponent<Props, State> {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(parameters, false).then(reponse => reponse.paging.total);
+    return this.props
+      .fetchIssues(parameters, false)
+      .then(({ facets }) => parseFacets(facets)[property]);
   };
 
   closeFacet = (property: string) => {

@@ -173,6 +173,7 @@ exports[`should render sub-facets 1`] = `
       loadSearchResultCount={[Function]}
       maxInitialItems={15}
       maxItems={100}
+      minSearchLength={2}
       onChange={[MockFunction]}
       onSearch={[Function]}
       onToggle={[MockFunction]}

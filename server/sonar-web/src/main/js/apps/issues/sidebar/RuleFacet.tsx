@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { omit } from 'lodash';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import { Query, ReferencedRule } from '../utils';
+import { Query, ReferencedRule, Facet } from '../utils';
 import { searchRules } from '../../../api/rules';
 import { Rule } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
@@ -28,7 +28,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   fetching: boolean;
   languages: string[];
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -58,8 +58,8 @@ export default class RuleFacet extends React.PureComponent<Props> {
     }));
   };
 
-  loadSearchResultCount = (rule: Rule) => {
-    return this.props.loadSearchResultCount({ rules: [rule.key] });
+  loadSearchResultCount = (rules: Rule[]) => {
+    return this.props.loadSearchResultCount('rules', { rules: rules.map(rule => rule.key) });
   };
 
   getRuleName = (ruleKey: string) => {

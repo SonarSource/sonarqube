@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
-import { Query } from '../utils';
+import { Query, Facet } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { searchIssueAuthors } from '../../../api/issues';
@@ -29,7 +29,7 @@ import { Component } from '../../../app/types';
 interface Props {
   component: Component | undefined;
   fetching: boolean;
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -58,8 +58,8 @@ export default class AuthorFacet extends React.PureComponent<Props> {
     }).then(authors => ({ maxResults: authors.length === SEARCH_SIZE, results: authors }));
   };
 
-  loadSearchResultCount = (author: string) => {
-    return this.props.loadSearchResultCount({ authors: [author] });
+  loadSearchResultCount = (authors: string[]) => {
+    return this.props.loadSearchResultCount('authors', { authors });
   };
 
   renderSearchResult = (author: string, term: string) => {

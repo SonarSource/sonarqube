@@ -19,14 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import DeferredSpinner from '../common/DeferredSpinner';
 
 export interface Props {
   active?: boolean;
   className?: string;
   disabled?: boolean;
   halfWidth?: boolean;
-  loading?: boolean;
   name: React.ReactNode;
   onClick: (x: string, multiple?: boolean) => void;
   stat?: React.ReactNode;
@@ -49,14 +47,6 @@ export default class FacetItem extends React.PureComponent<Props> {
   };
 
   renderValue() {
-    if (this.props.loading) {
-      return (
-        <span className="facet-stat">
-          <DeferredSpinner />
-        </span>
-      );
-    }
-
     if (this.props.stat == null) {
       return null;
     }

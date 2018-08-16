@@ -19,8 +19,7 @@
  */
 import * as React from 'react';
 import { omit, sortBy, without } from 'lodash';
-import { searchAssignees, Query, ReferencedUser, SearchedAssignee } from '../utils';
-import { Component } from '../../../app/types';
+import { searchAssignees, Query, ReferencedUser, SearchedAssignee, Facet } from '../utils';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
@@ -29,9 +28,8 @@ import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 export interface Props {
   assigned: boolean;
   assignees: string[];
-  component: Component | undefined;
   fetching: boolean;
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -77,8 +75,11 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     }
   };
 
-  loadSearchResultCount = (assignee: SearchedAssignee) => {
-    return this.props.loadSearchResultCount({ assigned: undefined, assignees: [assignee.login] });
+  loadSearchResultCount = (assignees: SearchedAssignee[]) => {
+    return this.props.loadSearchResultCount('assignees', {
+      assigned: undefined,
+      assignees: assignees.map(assignee => assignee.login)
+    });
   };
 
   getSortedItems = () => {

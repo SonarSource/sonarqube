@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { omit } from 'lodash';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import { Query, ReferencedComponent } from '../utils';
+import { Query, ReferencedComponent, Facet } from '../utils';
 import { searchProjects, getTree } from '../../../api/components';
 import { Component, Paging } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
@@ -30,7 +30,7 @@ import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
   component: Component | undefined;
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   fetching: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -93,8 +93,10 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     return referencedComponents[project] ? referencedComponents[project].name : project;
   };
 
-  loadSearchResultCount = (project: SearchedProject) => {
-    return this.props.loadSearchResultCount({ projects: [project.id] });
+  loadSearchResultCount = (projects: SearchedProject[]) => {
+    return this.props.loadSearchResultCount('projects', {
+      projects: projects.map(project => project.id)
+    });
   };
 
   renderFacetItem = (project: string) => {

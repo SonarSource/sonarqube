@@ -48,7 +48,7 @@ export interface Props {
   component: Component | undefined;
   facets: { [facet: string]: Facet };
   hideAuthorFacet?: boolean;
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   loadingFacets: { [key: string]: boolean };
   myIssues: boolean;
   onFacetToggle: (property: string) => void;
@@ -63,14 +63,56 @@ export interface Props {
 }
 
 export default class Sidebar extends React.PureComponent<Props> {
+  renderComponentFacets() {
+    const { component, facets, loadingFacets, openFacets, query } = this.props;
+    if (!component) {
+      return null;
+    }
+    const commonProps = {
+      componentKey: component.key,
+      loadSearchResultCount: this.props.loadSearchResultCount,
+      onChange: this.props.onFilterChange,
+      onToggle: this.props.onFacetToggle,
+      query
+    };
+    return (
+      <>
+        {component.qualifier !== 'DIR' && (
+          <ModuleFacet
+            fetching={loadingFacets.modules === true}
+            modules={query.modules}
+            open={!!openFacets.modules}
+            referencedComponents={this.props.referencedComponents}
+            stats={facets.modules}
+            {...commonProps}
+          />
+        )}
+        {component.qualifier !== 'DIR' && (
+          <DirectoryFacet
+            directories={query.directories}
+            fetching={loadingFacets.directories === true}
+            open={!!openFacets.directories}
+            stats={facets.directories}
+            {...commonProps}
+          />
+        )}
+        <FileFacet
+          fetching={loadingFacets.files === true}
+          files={query.files}
+          open={!!openFacets.files}
+          referencedComponents={this.props.referencedComponents}
+          stats={facets.files}
+          {...commonProps}
+        />
+      </>
+    );
+  }
+
   render() {
     const { component, facets, hideAuthorFacet, openFacets, query } = this.props;
 
     const displayProjectsFacet =
       !component || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
-    const displayModulesFacet = component !== undefined && component.qualifier !== 'DIR';
-    const displayDirectoriesFacet = component !== undefined && component.qualifier !== 'DIR';
-    const displayFilesFacet = component !== undefined;
     const displayAuthorFacet = !hideAuthorFacet && (!component || component.qualifier !== 'DEV');
 
     const organizationKey =
@@ -195,52 +237,11 @@ export default class Sidebar extends React.PureComponent<Props> {
             stats={facets.projects}
           />
         )}
-        {displayModulesFacet && (
-          <ModuleFacet
-            componentKey={this.props.component!.key}
-            fetching={this.props.loadingFacets.modules === true}
-            loadSearchResultCount={this.props.loadSearchResultCount}
-            modules={query.files}
-            onChange={this.props.onFilterChange}
-            onToggle={this.props.onFacetToggle}
-            open={!!openFacets.modules}
-            query={query}
-            referencedComponents={this.props.referencedComponents}
-            stats={facets.modules}
-          />
-        )}
-        {displayDirectoriesFacet && (
-          <DirectoryFacet
-            componentKey={this.props.component!.key}
-            directories={query.directories}
-            fetching={this.props.loadingFacets.directories === true}
-            loadSearchResultCount={this.props.loadSearchResultCount}
-            onChange={this.props.onFilterChange}
-            onToggle={this.props.onFacetToggle}
-            open={!!openFacets.directories}
-            query={query}
-            stats={facets.directories}
-          />
-        )}
-        {displayFilesFacet && (
-          <FileFacet
-            componentKey={this.props.component!.key}
-            fetching={this.props.loadingFacets.files === true}
-            files={query.files}
-            loadSearchResultCount={this.props.loadSearchResultCount}
-            onChange={this.props.onFilterChange}
-            onToggle={this.props.onFacetToggle}
-            open={!!openFacets.files}
-            query={query}
-            referencedComponents={this.props.referencedComponents}
-            stats={facets.files}
-          />
-        )}
+        {this.renderComponentFacets()}
         {!this.props.myIssues && (
           <AssigneeFacet
             assigned={query.assigned}
             assignees={query.assignees}
-            component={component}
             fetching={this.props.loadingFacets.assignees === true}
             loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}

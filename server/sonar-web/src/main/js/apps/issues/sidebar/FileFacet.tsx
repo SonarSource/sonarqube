@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
-import { Query, ReferencedComponent } from '../utils';
+import { Query, ReferencedComponent, Facet } from '../utils';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
@@ -31,7 +31,7 @@ interface Props {
   componentKey: string;
   fetching: boolean;
   files: string[];
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -69,8 +69,8 @@ export default class FileFacet extends React.PureComponent<Props> {
     }).then(({ components, paging }) => ({ paging, results: components }));
   };
 
-  loadSearchResultCount = (file: TreeComponent) => {
-    return this.props.loadSearchResultCount({ files: [file.id] });
+  loadSearchResultCount = (files: TreeComponent[]) => {
+    return this.props.loadSearchResultCount('files', { files: files.map(file => file.id) });
   };
 
   renderFile = (file: React.ReactNode) => (

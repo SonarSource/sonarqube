@@ -157,7 +157,7 @@ export function mapFacet(facet: string) {
   return propertyMapping[facet] || facet;
 }
 
-export function parseFacets(facets: RawFacet[]) {
+export function parseFacets(facets: RawFacet[]): { [x: string]: Facet } {
   if (!facets) {
     return {};
   }

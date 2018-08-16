@@ -11,6 +11,7 @@ exports[`should render 1`] = `
   loadSearchResultCount={[Function]}
   maxInitialItems={15}
   maxItems={100}
+  minSearchLength={2}
   onChange={[MockFunction]}
   onClear={[Function]}
   onItemClick={[Function]}

@@ -18,34 +18,47 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, ShallowWrapper } from 'enzyme';
+import { flatten } from 'lodash';
 import Sidebar, { Props } from '../Sidebar';
 import { Query } from '../../utils';
 
 jest.mock('../../../../store/rootReducer', () => ({}));
 
-const renderSidebar = (props?: Partial<Props>) =>
-  shallow(
-    <Sidebar
-      component={undefined}
-      facets={{}}
-      loadSearchResultCount={jest.fn()}
-      loadingFacets={{}}
-      myIssues={false}
-      onFacetToggle={jest.fn()}
-      onFilterChange={jest.fn()}
-      openFacets={{}}
-      organization={undefined}
-      query={{} as Query}
-      referencedComponents={{}}
-      referencedLanguages={{}}
-      referencedRules={{}}
-      referencedUsers={{}}
-      {...props}
-    />
-  )
-    .children()
-    .map(node => node.name());
+const renderSidebar = (props?: Partial<Props>) => {
+  return flatten(
+    mapChildren(
+      shallow(
+        <Sidebar
+          component={undefined}
+          facets={{}}
+          loadSearchResultCount={jest.fn()}
+          loadingFacets={{}}
+          myIssues={false}
+          onFacetToggle={jest.fn()}
+          onFilterChange={jest.fn()}
+          openFacets={{}}
+          organization={undefined}
+          query={{} as Query}
+          referencedComponents={{}}
+          referencedLanguages={{}}
+          referencedRules={{}}
+          referencedUsers={{}}
+          {...props}
+        />
+      )
+    )
+  );
+
+  function mapChildren(wrapper: ShallowWrapper) {
+    return wrapper.children().map(node => {
+      if (typeof node.type() === 'symbol') {
+        return node.children().map(node => node.name());
+      }
+      return node.name();
+    });
+  }
+};
 
 const component = {
   breadcrumbs: [],

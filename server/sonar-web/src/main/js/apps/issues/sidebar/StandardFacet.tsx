@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { sortBy, without, omit } from 'lodash';
-import { Query, STANDARDS, formatFacetStat } from '../utils';
+import { Query, STANDARDS, formatFacetStat, Facet } from '../utils';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import { translate } from '../../../helpers/l10n';
@@ -43,7 +43,7 @@ export interface Props {
   fetchingOwaspTop10: boolean;
   fetchingSansTop25: boolean;
   fetchingCwe: boolean;
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -169,8 +169,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     });
   };
 
-  loadCWESearchResultCount = (category: string) => {
-    return this.props.loadSearchResultCount({ cwe: [category] });
+  loadCWESearchResultCount = (categories: string[]) => {
+    return this.props.loadSearchResultCount('cwe', { cwe: categories });
   };
 
   renderList = (

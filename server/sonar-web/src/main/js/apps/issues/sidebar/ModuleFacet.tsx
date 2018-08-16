@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
-import { Query, ReferencedComponent } from '../utils';
+import { Query, ReferencedComponent, Facet } from '../utils';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
@@ -29,7 +29,7 @@ import { highlightTerm } from '../../../helpers/search';
 interface Props {
   componentKey: string;
   fetching: boolean;
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   modules: string[];
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -63,8 +63,10 @@ export default class ModuleFacet extends React.PureComponent<Props> {
     }).then(({ components, paging }) => ({ paging, results: components }));
   };
 
-  loadSearchResultCount = (module: TreeComponent) => {
-    return this.props.loadSearchResultCount({ files: [module.id] });
+  loadSearchResultCount = (modules: TreeComponent[]) => {
+    return this.props.loadSearchResultCount('modules', {
+      modules: modules.map(module => module.id)
+    });
   };
 
   renderModule = (module: React.ReactNode) => (

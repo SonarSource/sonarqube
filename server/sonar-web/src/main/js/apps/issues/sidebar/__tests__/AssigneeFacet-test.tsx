@@ -56,7 +56,6 @@ function renderAssigneeFacet(props?: Partial<Props>) {
     <AssigneeFacet
       assigned={true}
       assignees={[]}
-      component={undefined}
       fetching={false}
       loadSearchResultCount={jest.fn()}
       onChange={jest.fn()}

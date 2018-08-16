@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { omit } from 'lodash';
-import { Query } from '../utils';
+import { Query, Facet } from '../utils';
 import { searchIssueTags } from '../../../api/issues';
 import * as theme from '../../../app/theme';
 import { Component } from '../../../app/types';
@@ -31,7 +31,7 @@ import { highlightTerm } from '../../../helpers/search';
 interface Props {
   component: Component | undefined;
   fetching: boolean;
-  loadSearchResultCount: (changes: Partial<Query>) => Promise<number>;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -60,8 +60,8 @@ export default class TagFacet extends React.PureComponent<Props> {
     return tag;
   };
 
-  loadSearchResultCount = (tag: string) => {
-    return this.props.loadSearchResultCount({ tags: [tag] });
+  loadSearchResultCount = (tags: string[]) => {
+    return this.props.loadSearchResultCount('tags', { tags });
   };
 
   renderTag = (tag: string) => {

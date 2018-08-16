@@ -76,19 +76,22 @@ it('should search', async () => {
     results: ['d', 'e'],
     paging: { pageIndex: 1, pageSize: 2, total: 3 }
   });
-  const wrapper = shallowRender({ onSearch });
+  const loadSearchResultCount = jest.fn().mockResolvedValue({ d: 7, e: 3 });
+  const wrapper = shallowRender({ loadSearchResultCount, onSearch });
 
   // search
   wrapper.find('SearchBox').prop<Function>('onChange')('query');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(onSearch).lastCalledWith('query');
+  expect(loadSearchResultCount).lastCalledWith(['d', 'e']);
 
   // load more results
   onSearch.mockResolvedValue({
     results: ['f'],
     paging: { pageIndex: 2, pageSize: 2, total: 3 }
   });
+  loadSearchResultCount.mockResolvedValue({ f: 5 });
   wrapper.find('ListFooter').prop<Function>('loadMore')();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -96,10 +99,12 @@ it('should search', async () => {
 
   // clear search
   onSearch.mockClear();
+  loadSearchResultCount.mockClear();
   wrapper.find('SearchBox').prop<Function>('onChange')('');
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(onSearch).not.toBeCalled();
+  expect(loadSearchResultCount).not.toBeCalled();
 
   // search for no results
   onSearch.mockResolvedValue({ results: [], paging: { pageIndex: 1, pageSize: 2, total: 0 } });
@@ -107,6 +112,7 @@ it('should search', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(onSearch).lastCalledWith('blabla');
+  expect(loadSearchResultCount).not.toBeCalled();
 
   // search fails
   onSearch.mockRejectedValue(undefined);
@@ -114,6 +120,7 @@ it('should search', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot(); // should render previous results
   expect(onSearch).lastCalledWith('blabla');
+  expect(loadSearchResultCount).not.toBeCalled();
 });
 
 it('should limit the number of items', () => {
@@ -164,33 +171,6 @@ it('should collapse list when new stats have few results', () => {
   expect(wrapper.state('showFullList')).toBe(false);
 });
 
-it('should load count on mouse over', async () => {
-  const loadSearchResultCount = jest.fn().mockResolvedValue(5);
-  const onSearch = jest.fn().mockResolvedValue({
-    results: ['d', 'e'],
-    paging: { pageIndex: 1, pageSize: 2, total: 3 }
-  });
-  const wrapper = shallowRender({ loadSearchResultCount, maxItems: 1, onSearch });
-
-  // search
-  wrapper.find('SearchBox').prop<Function>('onChange')('query');
-  await waitAndUpdate(wrapper);
-
-  expect(firstFacetItem().prop('stat')).toBeUndefined();
-  wrapper
-    .find('MouseOverHandler')
-    .first()
-    .prop<Function>('onOver')();
-  expect(loadSearchResultCount).toBeCalledWith('d');
-  await waitAndUpdate(wrapper);
-
-  expect(firstFacetItem().prop('stat')).toBe('5');
-
-  function firstFacetItem() {
-    return wrapper.find('FacetItem').first();
-  }
-});
-
 function shallowRender(props: Partial<Props<string>> = {}) {
   return shallow(
     <ListStyleFacet
@@ -223,6 +203,5 @@ function checkInitialState(wrapper: ShallowWrapper) {
   expect(wrapper.state('searchResults')).toBe(undefined);
   expect(wrapper.state('searching')).toBe(false);
   expect(wrapper.state('searchResultsCounts')).toEqual({});
-  expect(wrapper.state('searchResultsCountLoading')).toEqual({});
   expect(wrapper.state('showFullList')).toBe(false);
 }
