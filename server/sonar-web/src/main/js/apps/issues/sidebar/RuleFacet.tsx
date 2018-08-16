@@ -62,15 +62,19 @@ export default class RuleFacet extends React.PureComponent<Props> {
     return this.props.loadSearchResultCount({ rules: [rule.key] });
   };
 
-  getRuleName = (rule: string) => {
-    const { referencedRules } = this.props;
-    return referencedRules[rule]
-      ? `(${referencedRules[rule].langName}) ${referencedRules[rule].name}`
-      : rule;
+  getRuleName = (ruleKey: string) => {
+    const rule = this.props.referencedRules[ruleKey];
+    return rule ? this.formatRuleName(rule.name, rule.langName) : ruleKey;
+  };
+
+  formatRuleName = (name: string, langName: string | undefined) => {
+    // external rules don't have a language associated
+    // see https://jira.sonarsource.com/browse/MMF-1407
+    return langName ? `(${langName}) ${name}` : name;
   };
 
   renderSearchResult = (rule: Rule) => {
-    return `(${rule.langName}) ${rule.name}`;
+    return this.formatRuleName(rule.name, rule.langName);
   };
 
   render() {

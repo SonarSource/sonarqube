@@ -522,8 +522,8 @@ export interface QualityGate {
 export interface Rule {
   isTemplate?: boolean;
   key: string;
-  lang: string;
-  langName: string;
+  lang?: string;
+  langName?: string;
   name: string;
   params?: RuleParameter[];
   severity: string;

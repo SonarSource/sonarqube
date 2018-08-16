@@ -202,7 +202,7 @@ export interface ReferencedLanguage {
 }
 
 export interface ReferencedRule {
-  langName: string;
+  langName?: string;
   name: string;
 }
 

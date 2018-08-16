@@ -36,7 +36,9 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
   handleLanguageClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.props.onFilterChange({ languages: [this.props.rule.lang] });
+    if (this.props.rule.lang) {
+      this.props.onFilterChange({ languages: [this.props.rule.lang] });
+    }
   };
 
   handleTypeClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {

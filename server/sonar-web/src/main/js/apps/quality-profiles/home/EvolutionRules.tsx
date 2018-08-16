@@ -122,12 +122,12 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
                   {rule.activations
                     ? translateWithParameters(
                         'quality_profiles.latest_new_rules.activated',
-                        rule.langName,
+                        rule.langName!,
                         rule.activations
                       )
                     : translateWithParameters(
                         'quality_profiles.latest_new_rules.not_activated',
-                        rule.langName
+                        rule.langName!
                       )}
                 </div>
               </div>
