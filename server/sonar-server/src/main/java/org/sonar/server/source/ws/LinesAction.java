@@ -86,6 +86,7 @@ public class LinesAction implements SourcesWsAction {
         "<li>Line hits from coverage</li>" +
         "<li>Number of conditions to cover in tests</li>" +
         "<li>Number of conditions covered by tests</li>" +
+        "<li>Whether the line is new</li>" +
         "</ol>")
       .setSince("5.0")
       .setInternal(true)
