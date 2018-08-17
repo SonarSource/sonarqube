@@ -17,64 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter from '../../../components/intl/DateFormatter';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
-import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import { getPeriodDate, getPeriodLabel, Period, PeriodMode } from '../../../helpers/periods';
 import { translateWithParameters } from '../../../helpers/l10n';
+import { differenceInDays } from '../../../helpers/dates';
 
-/*::
-type DaysPeriod = {
-  date: string,
-  mode: 'days',
-  parameter: string
-};
-*/
+interface Props {
+  period: Period;
+}
 
-/*::
-type DatePeriod = {
-  date: string,
-  mode: 'date',
-  parameter: string
-};
-*/
-
-/*::
-type VersionPeriod = {
-  date: string,
-  mode: 'version',
-  parameter: string
-};
-*/
-
-/*::
-type PreviousAnalysisPeriod = {
-  date: string,
-  mode: 'previous_analysis'
-};
-*/
-
-/*::
-type PreviousVersionPeriod = {
-  date: string,
-  mode: 'previous_version'
-};
-*/
-
-/*::
-type Period =
-  | DaysPeriod
-  | DatePeriod
-  | VersionPeriod
-  | PreviousAnalysisPeriod
-  | PreviousVersionPeriod; */
-
-export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
+export default function LeakPeriodLegend({ period }: Props) {
   const leakPeriodLabel = getPeriodLabel(period);
+  if (!leakPeriodLabel) {
+    return null;
+  }
 
-  if (period.mode === 'days') {
+  if (period.mode === PeriodMode.days) {
     return (
       <div className="overview-legend overview-legend-spaced-line">
         {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
@@ -83,20 +45,30 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
   }
 
   const leakPeriodDate = getPeriodDate(period);
-  const tooltip = (
-    <DateFormatter date={leakPeriodDate} long={true}>
-      {formattedLeakPeriodDate => (
-        <span>
-          {translateWithParameters(
-            ['date'].includes(period.mode)
-              ? 'overview.last_analysis_on_x'
-              : 'overview.started_on_x',
-            formattedLeakPeriodDate
-          )}
-        </span>
+  if (!leakPeriodDate) {
+    return null;
+  }
+
+  const formattedDateFunction = (formattedLeakPeriodDate: string) => (
+    <span>
+      {translateWithParameters(
+        period.mode === PeriodMode.previousAnalysis
+          ? 'overview.previous_analysis_on_x'
+          : 'overview.started_on_x',
+        formattedLeakPeriodDate
       )}
-    </DateFormatter>
+    </span>
   );
+
+  const tooltip =
+    differenceInDays(new Date(), leakPeriodDate) < 1 ? (
+      <DateTimeFormatter date={leakPeriodDate}>{formattedDateFunction}</DateTimeFormatter>
+    ) : (
+      <DateFormatter date={leakPeriodDate} long={true}>
+        {formattedDateFunction}
+      </DateFormatter>
+    );
+
   return (
     <Tooltip overlay={tooltip}>
       <div className="overview-legend">
@@ -106,7 +78,9 @@ export default function LeakPeriodLegend({ period } /*: { period: Period } */) {
           {fromNow => (
             <span className="note">
               {translateWithParameters(
-                ['date'].includes(period.mode) ? 'overview.last_analysis_x' : 'overview.started_x',
+                period.mode === PeriodMode.previousAnalysis
+                  ? 'overview.previous_analysis_x'
+                  : 'overview.started_x',
                 fromNow
               )}
             </span>

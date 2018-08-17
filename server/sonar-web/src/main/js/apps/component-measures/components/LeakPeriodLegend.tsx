@@ -17,45 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter from '../../../components/intl/DateFormatter';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
-import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
+import { getPeriodLabel, getPeriodDate, Period, PeriodMode } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-/*:: import type { Component, Period } from '../types'; */
+import { differenceInDays } from '../../../helpers/dates';
+import { ComponentMeasure } from '../../../app/types';
 
-/*:: type Props = {
-  className?: string,
-  component: Component,
-  period: Period
-}; */
+interface Props {
+  className?: string;
+  component: ComponentMeasure;
+  period: Period;
+}
 
-export default function LeakPeriodLegend({ className, component, period } /*: Props */) {
+export default function LeakPeriodLegend({ className, component, period }: Props) {
   const leakClass = classNames('domain-measures-leak-header', className);
   if (component.qualifier === 'APP') {
     return <div className={leakClass}>{translate('issues.new_code_period')}</div>;
   }
 
+  const leakPeriodLabel = getPeriodLabel(period);
+  if (!leakPeriodLabel) {
+    return null;
+  }
+
   const label = (
     <div className={leakClass}>
-      {translateWithParameters('overview.new_code_period_x', getPeriodLabel(period))}
+      {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
     </div>
   );
 
-  if (period.mode === 'days') {
+  if (period.mode === PeriodMode.days) {
     return label;
   }
 
   const date = getPeriodDate(period);
-  const tooltip = (
+  const tooltip = date && (
     <div>
       <DateFromNow date={date} />
       {', '}
-      <DateFormatter date={date} long={true} />
+      {differenceInDays(new Date(), date) < 1 ? (
+        <DateTimeFormatter date={date} />
+      ) : (
+        <DateFormatter date={date} long={true} />
+      )}
     </div>
   );
+
   return <Tooltip overlay={tooltip}>{label}</Tooltip>;
 }

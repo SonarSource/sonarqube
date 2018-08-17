@@ -33,7 +33,7 @@ import {
   getRatingTooltip
 } from '../../../helpers/measures';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
-import { getPeriodDate } from '../../../helpers/periods';
+import { getPeriodDate, Period } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
@@ -47,7 +47,7 @@ export interface EnhanceProps {
   branchLike?: BranchLike;
   component: Component;
   measures: MeasureEnhanced[];
-  leakPeriod?: { index: number; date?: string };
+  leakPeriod?: Period;
   history?: History;
   historyStartDate?: Date;
 }

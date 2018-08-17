@@ -1,5 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render a more precise date 1`] = `
+<Tooltip
+  overlay={
+    <div>
+      <DateFromNow
+        date={2017-05-16T11:50:02.000Z}
+      />
+      , 
+      <DateTimeFormatter
+        date={2017-05-16T11:50:02.000Z}
+      />
+    </div>
+  }
+>
+  <div
+    className="domain-measures-leak-header"
+  >
+    overview.new_code_period_x.overview.period.previous_version.6,4
+  </div>
+</Tooltip>
+`;
+
 exports[`should render correctly 1`] = `
 <Tooltip
   overlay={

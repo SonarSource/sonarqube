@@ -20,15 +20,23 @@
 import { translate, translateWithParameters } from './l10n';
 import { parseDate } from './dates';
 
+export enum PeriodMode {
+  days = 'days',
+  date = 'date',
+  version = 'version',
+  previousAnalysis = 'previous_analysis',
+  previousVersion = 'previous_version'
+}
+
 export interface Period {
   date: string;
   index: number;
-  mode: string;
+  mode: PeriodMode;
   modeParam?: string;
-  parameter: string;
+  parameter?: string;
 }
 
-export function getPeriod(periods: Period[] | undefined, index: number): Period | undefined {
+export function getPeriod(periods: Period[] | undefined, index: number) {
   if (!Array.isArray(periods)) {
     return undefined;
   }
@@ -36,22 +44,21 @@ export function getPeriod(periods: Period[] | undefined, index: number): Period 
   return periods.find(period => period.index === index);
 }
 
-export function getLeakPeriod(periods: Period[] | undefined): Period | undefined {
+export function getLeakPeriod(periods: Period[] | undefined) {
   return getPeriod(periods, 1);
 }
 
-export function getPeriodLabel(period: Period | undefined): string | undefined {
+export function getPeriodLabel(period: Period | undefined) {
   if (!period) {
     return undefined;
   }
 
   const parameter = period.modeParam || period.parameter;
-
   if (period.mode === 'previous_version' && !parameter) {
     return translate('overview.period.previous_version_only_date');
   }
 
-  return translateWithParameters(`overview.period.${period.mode}`, parameter);
+  return translateWithParameters(`overview.period.${period.mode}`, parameter || '');
 }
 
 export function getPeriodDate(period?: { date?: string }): Date | undefined {

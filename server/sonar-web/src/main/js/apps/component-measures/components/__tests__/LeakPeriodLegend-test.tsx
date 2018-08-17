@@ -17,31 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import LeakPeriodLegend from '../LeakPeriodLegend';
+import { PeriodMode } from '../../../../helpers/periods';
+import { differenceInDays } from '../../../../helpers/dates';
+
+jest.mock('../../../../helpers/dates', () => {
+  const dates = require.requireActual('../../../../helpers/dates');
+  dates.differenceInDays = jest.fn().mockReturnValue(10);
+  return dates;
+});
 
 const PROJECT = {
   key: 'foo',
+  name: 'Foo',
   qualifier: 'TRK'
 };
 
 const APP = {
   key: 'bar',
+  name: 'Bar',
   qualifier: 'APP'
 };
 
 const PERIOD = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
-  mode: 'previous_version',
+  mode: PeriodMode.previousVersion,
   parameter: '6,4'
 };
 
 const PERIOD_DAYS = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
-  mode: 'days',
+  mode: PeriodMode.days,
   parameter: '18'
 };
 
@@ -52,4 +62,9 @@ it('should render correctly', () => {
 
 it('should render correctly for APP', () => {
   expect(shallow(<LeakPeriodLegend component={APP} period={PERIOD} />)).toMatchSnapshot();
+});
+
+it('should render a more precise date', () => {
+  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
+  expect(shallow(<LeakPeriodLegend component={PROJECT} period={PERIOD} />)).toMatchSnapshot();
 });
