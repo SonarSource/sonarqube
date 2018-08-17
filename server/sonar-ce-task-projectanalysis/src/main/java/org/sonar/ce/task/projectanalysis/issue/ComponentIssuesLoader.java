@@ -29,9 +29,11 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -49,17 +51,34 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 
 public class ComponentIssuesLoader {
   private static final int DEFAULT_CLOSED_ISSUES_MAX_AGE = 30;
+  private static final String PROPERTY_CLOSED_ISSUE_MAX_AGE = "sonar.issuetracking.closedissues.maxage";
 
   private final DbClient dbClient;
   private final RuleRepository ruleRepository;
   private final ActiveRulesHolder activeRulesHolder;
   private final System2 system2;
+  private final int closedIssueMaxAge;
 
-  public ComponentIssuesLoader(DbClient dbClient, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder, System2 system2) {
+  public ComponentIssuesLoader(DbClient dbClient, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder,
+    Configuration configuration, System2 system2) {
     this.dbClient = dbClient;
     this.activeRulesHolder = activeRulesHolder;
     this.ruleRepository = ruleRepository;
     this.system2 = system2;
+    this.closedIssueMaxAge = configuration.get(PROPERTY_CLOSED_ISSUE_MAX_AGE)
+      .map(ComponentIssuesLoader::safelyParseClosedIssueMaxAge)
+      .filter(i -> i >= 0)
+      .orElse(DEFAULT_CLOSED_ISSUES_MAX_AGE);
+  }
+
+  private static Integer safelyParseClosedIssueMaxAge(String str) {
+    try {
+      return Integer.parseInt(str);
+    } catch (NumberFormatException e) {
+      Loggers.get(ComponentIssuesLoader.class)
+        .warn("Value of property {} should be an integer >= 0: {}", PROPERTY_CLOSED_ISSUE_MAX_AGE, str);
+      return null;
+    }
   }
 
   public List<DefaultIssue> loadOpenIssues(String componentUuid) {
@@ -148,9 +167,13 @@ public class ComponentIssuesLoader {
    * 00H00 are returned.
    */
   public List<DefaultIssue> loadClosedIssues(String componentUuid) {
+    if (closedIssueMaxAge == 0) {
+      return emptyList();
+    }
+
     Date date = new Date(system2.now());
     long closeDateAfter = date.toInstant()
-      .minus(DEFAULT_CLOSED_ISSUES_MAX_AGE, ChronoUnit.DAYS)
+      .minus(closedIssueMaxAge, ChronoUnit.DAYS)
       .truncatedTo(ChronoUnit.DAYS)
       .toEpochMilli();
     try (DbSession dbSession = dbClient.openSession(false)) {
