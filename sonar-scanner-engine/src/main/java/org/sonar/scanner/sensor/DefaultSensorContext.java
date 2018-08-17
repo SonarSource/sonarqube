@@ -52,7 +52,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
-import org.sonar.scanner.sensor.noop.NoOpNewCoverage;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.scanner.sensor.noop.NoOpNewExternalIssue;
 import org.sonar.scanner.sensor.noop.NoOpNewHighlighting;
@@ -66,7 +65,6 @@ public class DefaultSensorContext implements SensorContext {
   static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
   static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
   static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
-  static final NoOpNewCoverage NO_OP_NEW_COVERAGE = new NoOpNewCoverage();
   static final NoOpNewExternalIssue NO_OP_NEW_EXTERNAL_ISSUE = new NoOpNewExternalIssue();
   static final NoOpNewSignificantCode NO_OP_NEW_SIGNIFICANT_CODE = new NoOpNewSignificantCode();
 
@@ -165,9 +163,6 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewCoverage newCoverage() {
-    if (branchConfiguration.isShortOrPullRequest()) {
-      return NO_OP_NEW_COVERAGE;
-    }
     return new DefaultCoverage(sensorStorage);
   }
 
