@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -39,16 +40,23 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.utils.DateUtils.addDays;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class ComponentIssuesLoaderTest {
+  private static final Date NOW = parseDateTime("2018-08-17T13:44:53+0000");
+  private static final Date DATE_LIMIT_30_DAYS_BACK_MIDNIGHT = parseDateTime("2018-07-18T00:00:00+0000");
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = dbTester.getDbClient();
+  private System2 system2 = mock(System2.class);
   private ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
-    null /* not used in loadClosedIssues */, null /* not used in loadClosedIssues */);
+    null /* not used in loadClosedIssues */, null /* not used in loadClosedIssues */, system2);
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_by_issue_based_on_first_row() {
@@ -56,11 +64,12 @@ public class ComponentIssuesLoaderTest {
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
-    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
-    Date creationDate = new Date();
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -5), 10));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(creationDate, 20));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -10), 30));
+    Date issueDate = addDays(NOW, -10);
+    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 3), 20));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
+    when(system2.now()).thenReturn(NOW.getTime());
 
     List<DefaultIssue> defaultIssues = underTest.loadClosedIssues(file.uuid());
 
@@ -74,16 +83,67 @@ public class ComponentIssuesLoaderTest {
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
-    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
-    Date creationDate = new Date();
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -5), 10));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(creationDate, null));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -10), 30));
+    Date issueDate = addDays(NOW, -10);
+    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 2), null));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
+    when(system2.now()).thenReturn(NOW.getTime());
 
     List<DefaultIssue> defaultIssues = underTest.loadClosedIssues(file.uuid());
 
     assertThat(defaultIssues).hasSize(1);
     assertThat(defaultIssues.iterator().next().getLine()).isNull();
+  }
+
+  @Test
+  public void loadClosedIssues_returns_only_closed_issues_with_close_date() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
+    Date issueDate = addDays(NOW, -10);
+    IssueDto closedIssue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
+    dbTester.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
+    IssueDto issueNoCloseDate = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
+    dbTester.issues().insertFieldDiffs(issueNoCloseDate, newToClosedDiffsWithLine(issueDate, 10));
+    when(system2.now()).thenReturn(NOW.getTime());
+
+    List<DefaultIssue> defaultIssues = underTest.loadClosedIssues(file.uuid());
+
+    assertThat(defaultIssues)
+      .extracting(DefaultIssue::key)
+      .containsOnly(closedIssue.getKey());
+  }
+
+  @Test
+  public void loadClosedIssues_returns_only_closed_issues_which_close_date_is_from_day_30_days_ago() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
+    Date[] issueDates = new Date[] {
+      addDays(NOW, -10),
+      addDays(NOW, -31),
+      addDays(NOW, -30),
+      DATE_LIMIT_30_DAYS_BACK_MIDNIGHT,
+      addDays(NOW, -29),
+      addDays(NOW, -60),
+    };
+    IssueDto[] issues = Arrays.stream(issueDates)
+      .map(issueDate -> {
+        IssueDto closedIssue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
+        dbTester.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
+        return closedIssue;
+      })
+      .toArray(IssueDto[]::new);
+    when(system2.now()).thenReturn(NOW.getTime());
+
+    List<DefaultIssue> defaultIssues = underTest.loadClosedIssues(file.uuid());
+
+    assertThat(defaultIssues)
+      .extracting(DefaultIssue::key)
+      .containsOnly(issues[0].getKey(), issues[2].getKey(), issues[3].getKey(), issues[4].getKey());
   }
 
   private static FieldDiffs newToClosedDiffsWithLine(Date creationDate, @Nullable Integer oldLineValue) {

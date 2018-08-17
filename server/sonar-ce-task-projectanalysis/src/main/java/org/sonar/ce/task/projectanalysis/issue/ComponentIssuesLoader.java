@@ -20,8 +20,10 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.collect.ImmutableList;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +31,7 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -45,14 +48,18 @@ import static java.util.stream.Collectors.toList;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 
 public class ComponentIssuesLoader {
+  private static final int DEFAULT_CLOSED_ISSUES_MAX_AGE = 30;
+
   private final DbClient dbClient;
   private final RuleRepository ruleRepository;
   private final ActiveRulesHolder activeRulesHolder;
+  private final System2 system2;
 
-  public ComponentIssuesLoader(DbClient dbClient, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder) {
+  public ComponentIssuesLoader(DbClient dbClient, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder, System2 system2) {
     this.dbClient = dbClient;
     this.activeRulesHolder = activeRulesHolder;
     this.ruleRepository = ruleRepository;
+    this.system2 = system2;
   }
 
   public List<DefaultIssue> loadOpenIssues(String componentUuid) {
@@ -136,16 +143,24 @@ public class ComponentIssuesLoader {
    * Closed issues do not have a line number in DB (it is unset when the issue is closed), this method
    * returns {@link DefaultIssue} objects which line number is populated from the most recent diff logging
    * the removal of the line. Closed issues which do not have such diff are not loaded.
+   * <p>
+   * To not depend on purge configuration of closed issues, only issues which close date is less than 30 days ago at
+   * 00H00 are returned.
    */
   public List<DefaultIssue> loadClosedIssues(String componentUuid) {
+    Date date = new Date(system2.now());
+    long closeDateAfter = date.toInstant()
+      .minus(DEFAULT_CLOSED_ISSUES_MAX_AGE, ChronoUnit.DAYS)
+      .truncatedTo(ChronoUnit.DAYS)
+      .toEpochMilli();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return loadClosedIssues(componentUuid, dbSession);
+      return loadClosedIssues(dbSession, componentUuid, closeDateAfter);
     }
   }
 
-  private static List<DefaultIssue> loadClosedIssues(String componentUuid, DbSession dbSession) {
+  private static List<DefaultIssue> loadClosedIssues(DbSession dbSession, String componentUuid, long closeDateAfter) {
     ClosedIssuesResultHandler handler = new ClosedIssuesResultHandler();
-    dbSession.getMapper(IssueMapper.class).scrollClosedByComponentUuid(componentUuid, handler);
+    dbSession.getMapper(IssueMapper.class).scrollClosedByComponentUuid(componentUuid, closeDateAfter, handler);
     return ImmutableList.copyOf(handler.issues);
   }
 

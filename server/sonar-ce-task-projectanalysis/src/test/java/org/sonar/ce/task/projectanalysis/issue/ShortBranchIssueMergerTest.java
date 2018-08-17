@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.core.issue.DefaultIssue;
@@ -94,7 +95,7 @@ public class ShortBranchIssueMergerTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     DbClient dbClient = db.getDbClient();
-    copier = new ShortBranchIssueMerger(new ShortBranchIssuesLoader(new ShortBranchComponentsWithIssues(treeRootHolder, dbClient), dbClient, new ComponentIssuesLoader(dbClient, null, null)), tracker,
+    copier = new ShortBranchIssueMerger(new ShortBranchIssuesLoader(new ShortBranchComponentsWithIssues(treeRootHolder, dbClient), dbClient, new ComponentIssuesLoader(dbClient, null, null, System2.INSTANCE)), tracker,
       issueLifecycle);
     projectDto = db.components().insertMainBranch(p -> p.setDbKey(PROJECT_KEY).setUuid(PROJECT_UUID));
     branch1Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch1")

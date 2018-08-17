@@ -44,7 +44,7 @@ public interface IssueMapper {
 
   void scrollNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> handler);
 
-  void scrollClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> handler);
+  void scrollClosedByComponentUuid(@Param("componentUuid") String componentUuid, @Param("closeDateAfter") long closeDateAfter, ResultHandler<IssueDto> handler);
 
   List<IssueDto> selectNonClosedByComponentUuidExcludingExternals(@Param("componentUuid") String componentUuid);
 

@@ -39,6 +39,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
@@ -57,6 +58,8 @@ import static org.assertj.core.api.Assertions.tuple;
 @RunWith(DataProviderRunner.class)
 public class IssueMapperTest {
 
+  private static final long NO_FILTERING_ON_CLOSE_DATE = 1L;
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -67,6 +70,7 @@ public class IssueMapperTest {
   private ComponentDto project, file, file2;
   private RuleDto rule;
   private Random random = new Random();
+  private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Before
   public void setUp() throws Exception {
@@ -241,7 +245,7 @@ public class IssueMapperTest {
     String componentUuid = randomAlphabetic(10);
     RecorderResultHandler resultHandler = new RecorderResultHandler();
 
-    underTest.scrollClosedByComponentUuid(componentUuid, resultHandler);
+    underTest.scrollClosedByComponentUuid(componentUuid, new Date().getTime(), resultHandler);
 
     assertThat(resultHandler.issues).isEmpty();
   }
@@ -255,7 +259,7 @@ public class IssueMapperTest {
     IssueChangeDto changeDto = insertToClosedDiff(expected);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues).hasSize(1);
     IssueDto issue = resultHandler.issues.iterator().next();
@@ -274,7 +278,7 @@ public class IssueMapperTest {
     insertToClosedDiff(issueWithoutRule);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
@@ -294,7 +298,7 @@ public class IssueMapperTest {
     insertToClosedDiff(issueMissingProject);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
@@ -311,7 +315,7 @@ public class IssueMapperTest {
     insertNewClosedIssue(component, ruleType);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
@@ -319,8 +323,8 @@ public class IssueMapperTest {
   }
 
   @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_type_SECURITY_HOTSPOT(RuleType ruleType) {
+  public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_type_SECURITY_HOTSPOT() {
+    RuleType ruleType = randomSupportedRuleType();
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto securityHotspotIssue = insertNewClosedIssue(component, RuleType.SECURITY_HOTSPOT);
@@ -329,7 +333,7 @@ public class IssueMapperTest {
     IssueChangeDto issueChange = insertToClosedDiff(issue);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
@@ -337,8 +341,8 @@ public class IssueMapperTest {
   }
 
   @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_return_closed_issues_without_isHotspot_flag(RuleType ruleType) {
+  public void scrollClosedByComponentUuid_returns_closed_issues_without_isHotspot_flag() {
+    RuleType ruleType = randomSupportedRuleType();
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto noHotspotFlagIssue = insertNewClosedIssue(component, ruleType);
@@ -348,13 +352,80 @@ public class IssueMapperTest {
     IssueChangeDto issueChange = insertToClosedDiff(issue);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(
         tuple(issue.getKey(), issueChange.getChangeData()),
         tuple(noHotspotFlagIssue.getKey(), noFlagIssueChange.getChangeData()));
+  }
+
+  @Test
+  public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_close_date() {
+    RuleType ruleType = randomSupportedRuleType();
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto component = randomComponent(organization);
+    IssueDto issueWithoutCloseDate = insertNewClosedIssue(component, ruleType, t -> t.setIssueCloseDate(null));
+    insertToClosedDiff(issueWithoutCloseDate);
+    IssueDto issueCloseDate = insertNewClosedIssue(component, ruleType);
+    IssueChangeDto changeDto = insertToClosedDiff(issueCloseDate);
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
+
+    assertThat(resultHandler.issues).hasSize(1);
+    IssueDto issue = resultHandler.issues.iterator().next();
+    assertThat(issue.getKey()).isEqualTo(issue.getKey());
+    assertThat(issue.getClosedChangeData()).contains(changeDto.getChangeData());
+  }
+
+  @Test
+  public void scrollClosedByComponentUuid_returns_closed_issues_which_close_date_is_greater_or_equal_to_requested() {
+    RuleType ruleType = randomSupportedRuleType();
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto component = randomComponent(organization);
+    RuleDefinitionDto rule1 = dbTester.rules().insert(t -> t.setType(ruleType));
+    IssueDto[] issues = new IssueDto[] {
+      insertNewClosedIssue(component, rule1, 1_999_999L),
+      insertNewClosedIssue(component, rule1, 3_999_999L),
+      insertNewClosedIssue(component, rule1, 2_999_999L),
+      insertNewClosedIssue(component, rule1, 10_999_999L)
+    };
+    Arrays.stream(issues).forEach(this::insertToClosedDiff);
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), 4_000_000L, resultHandler);
+
+    assertThat(resultHandler.issues)
+      .extracting(IssueDto::getKey)
+      .containsOnly(issues[3].getKey());
+
+    resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), 11_999_999L, resultHandler);
+
+    assertThat(resultHandler.issues).isEmpty();
+
+    resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), 3_999_999L, resultHandler);
+
+    assertThat(resultHandler.issues)
+      .extracting(IssueDto::getKey)
+      .containsOnly(issues[3].getKey(), issues[1].getKey());
+
+    resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), 2_999_999L, resultHandler);
+
+    assertThat(resultHandler.issues)
+      .extracting(IssueDto::getKey)
+      .containsOnly(issues[3].getKey(), issues[1].getKey(), issues[2].getKey());
+
+    resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), 1L, resultHandler);
+
+    assertThat(resultHandler.issues)
+      .extracting(IssueDto::getKey)
+      .containsOnly(issues[3].getKey(), issues[1].getKey(), issues[2].getKey(), issues[0].getKey());
   }
 
   private void manuallySetToNullFromHotpotsColumn(IssueDto fromHostSpotIssue) {
@@ -373,7 +444,7 @@ public class IssueMapperTest {
     IssueChangeDto issueChange = insertToClosedDiff(issue);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
@@ -395,7 +466,7 @@ public class IssueMapperTest {
     };
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .hasSize(4)
@@ -422,7 +493,7 @@ public class IssueMapperTest {
     };
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
-    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
       .hasSize(3)
@@ -460,30 +531,43 @@ public class IssueMapperTest {
   @SafeVarargs
   private final IssueDto insertNewClosedIssue(ComponentDto component, RuleType ruleType, Consumer<IssueDto>... consumers) {
     RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
-    return insertNewClosedIssue(component, rule, consumers);
+    return insertNewClosedIssue(component, rule, system2.now(), consumers);
   }
 
   @SafeVarargs
   private final IssueDto insertNewClosedIssue(ComponentDto component, RuleDefinitionDto rule, Consumer<IssueDto>... consumers) {
+    return insertNewClosedIssue(component, rule, system2.now(), consumers);
+  }
+
+  @SafeVarargs
+  private final IssueDto insertNewClosedIssue(ComponentDto component, RuleDefinitionDto rule, long issueCloseTime, Consumer<IssueDto>... consumers) {
     IssueDto res = new IssueDto()
       .setKee(UuidFactoryFast.getInstance().create())
       .setRuleId(rule.getId())
       .setType(rule.getType())
       .setComponentUuid(component.uuid())
       .setProjectUuid(component.projectUuid())
-      .setStatus(Issue.STATUS_CLOSED);
+      .setStatus(Issue.STATUS_CLOSED)
+      .setIssueCloseTime(issueCloseTime);
     Arrays.asList(consumers).forEach(c -> c.accept(res));
     underTest.insert(res);
     dbSession.commit();
     return res;
   }
 
+  private static final RuleType[] SUPPORTED_RULE_TYPES = Arrays.stream(RuleType.values())
+    .filter(t -> t != RuleType.SECURITY_HOTSPOT)
+    .toArray(RuleType[]::new);
+
   @DataProvider
   public static Object[][] closedIssuesSupportedRuleTypes() {
-    return Arrays.stream(RuleType.values())
-      .filter(t -> t != RuleType.SECURITY_HOTSPOT)
+    return Arrays.stream(SUPPORTED_RULE_TYPES)
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
+  }
+
+  private static RuleType randomSupportedRuleType() {
+    return SUPPORTED_RULE_TYPES[new Random().nextInt(SUPPORTED_RULE_TYPES.length)];
   }
 
   private ComponentDto randomComponent(OrganizationDto organization) {

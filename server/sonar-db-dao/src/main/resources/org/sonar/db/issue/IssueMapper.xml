@@ -216,7 +216,7 @@
     i.issue_type &lt;&gt; 4 and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
   </select>
 
-  <select id="scrollClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollClosedByComponentUuid" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       <include refid="issueColumns"/>,
       ic.change_data as closedChangeData
@@ -234,8 +234,10 @@
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'
+      and i.issue_close_date is not null
+      and i.issue_close_date >= #{closeDateAfter,jdbcType=BIGINT}
       and i.issue_type &lt;&gt; 4
-      and (i.from_hotspot is NULL or i.from_hotspot = ${_false})
+      and (i.from_hotspot is null or i.from_hotspot = ${_false})
     order by
       i.kee, ic.issue_change_creation_date desc
   </select>
