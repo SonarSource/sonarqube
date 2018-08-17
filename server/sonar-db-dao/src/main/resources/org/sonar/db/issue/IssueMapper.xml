@@ -219,7 +219,7 @@
   <select id="scrollClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       <include refid="issueColumns"/>,
-      ic.change_data as lineChangeData
+      ic.change_data as closedChangeData
     from issues i
     inner join rules r on
       r.id = i.rule_id
@@ -230,7 +230,7 @@
     inner join issue_changes ic on
       ic.issue_key = i.kee
       and ic.change_type = 'diff'
-      and ic.change_data like '%line=%'
+      and ic.change_data like '%status=%|CLOSED%'
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'

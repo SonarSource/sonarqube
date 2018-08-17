@@ -99,7 +99,7 @@ public final class IssueDto implements Serializable {
   private String tags;
   private boolean isFromHotspot;
   // populate only when retrieving closed issue for issue tracking
-  private String lineChangeData;
+  private String closedChangeData;
 
   /**
    * On batch side, component keys and uuid are useless
@@ -701,8 +701,8 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Optional<String> getLineChangeData() {
-    return Optional.ofNullable(lineChangeData);
+  public Optional<String> getClosedChangeData() {
+    return Optional.ofNullable(closedChangeData);
   }
 
   @Override

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Before;
@@ -51,7 +50,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -250,11 +248,11 @@ public class IssueMapperTest {
 
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_returns_closed_issues_with_at_least_one_line_diff(RuleType ruleType) {
+  public void scrollClosedByComponentUuid_returns_closed_issues_with_at_least_one_diff_to_CLOSED(RuleType ruleType) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto expected = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto changeDto = insertNewLineDiff(expected);
+    IssueChangeDto changeDto = insertToClosedDiff(expected);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
@@ -262,7 +260,7 @@ public class IssueMapperTest {
     assertThat(resultHandler.issues).hasSize(1);
     IssueDto issue = resultHandler.issues.iterator().next();
     assertThat(issue.getKey()).isEqualTo(issue.getKey());
-    assertThat(issue.getLineChangeData()).contains(changeDto.getChangeData());
+    assertThat(issue.getClosedChangeData()).contains(changeDto.getChangeData());
   }
 
   @Test
@@ -271,15 +269,15 @@ public class IssueMapperTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto issueWithRule = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertNewLineDiff(issueWithRule);
+    IssueChangeDto issueChange = insertToClosedDiff(issueWithRule);
     IssueDto issueWithoutRule = insertNewClosedIssue(component, new RuleDefinitionDto().setType(ruleType).setId(-50));
-    insertNewLineDiff(issueWithoutRule);
+    insertToClosedDiff(issueWithoutRule);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getLineChangeData().get())
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(tuple(issueWithRule.getKey(), issueChange.getChangeData()));
   }
 
@@ -289,34 +287,34 @@ public class IssueMapperTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertNewLineDiff(issue);
+    IssueChangeDto issueChange = insertToClosedDiff(issue);
     IssueDto issueMissingComponent = insertNewClosedIssue(component, ruleType, t -> t.setComponentUuid("does_not_exist"));
-    insertNewLineDiff(issueMissingComponent);
+    insertToClosedDiff(issueMissingComponent);
     IssueDto issueMissingProject = insertNewClosedIssue(component, ruleType, t -> t.setProjectUuid("does_not_exist"));
-    insertNewLineDiff(issueMissingProject);
+    insertToClosedDiff(issueMissingProject);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getLineChangeData().get())
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(tuple(issue.getKey(), issueChange.getChangeData()));
   }
 
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_any_line_diff(RuleType ruleType) {
+  public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_any_status_diff_to_CLOSED(RuleType ruleType) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto issueWithLineDiff = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertNewLineDiff(issueWithLineDiff);
+    IssueChangeDto issueChange = insertToClosedDiff(issueWithLineDiff);
     insertNewClosedIssue(component, ruleType);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getLineChangeData().get())
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(tuple(issueWithLineDiff.getKey(), issueChange.getChangeData()));
   }
 
@@ -326,15 +324,15 @@ public class IssueMapperTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto securityHotspotIssue = insertNewClosedIssue(component, RuleType.SECURITY_HOTSPOT);
-    insertNewLineDiff(securityHotspotIssue);
+    insertToClosedDiff(securityHotspotIssue);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertNewLineDiff(issue);
+    IssueChangeDto issueChange = insertToClosedDiff(issue);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getLineChangeData().get())
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(tuple(issue.getKey(), issueChange.getChangeData()));
   }
 
@@ -344,16 +342,16 @@ public class IssueMapperTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto noHotspotFlagIssue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto noFlagIssueChange = insertNewLineDiff(noHotspotFlagIssue);
+    IssueChangeDto noFlagIssueChange = insertToClosedDiff(noHotspotFlagIssue);
     manuallySetToNullFromHotpotsColumn(noHotspotFlagIssue);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertNewLineDiff(issue);
+    IssueChangeDto issueChange = insertToClosedDiff(issue);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getLineChangeData().get())
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(
         tuple(issue.getKey(), issueChange.getChangeData()),
         tuple(noHotspotFlagIssue.getKey(), noFlagIssueChange.getChangeData()));
@@ -370,30 +368,30 @@ public class IssueMapperTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto fromHostSpotIssue = insertNewClosedIssue(component, ruleType, t -> t.setIsFromHotspot(true));
-    insertNewLineDiff(fromHostSpotIssue);
+    insertToClosedDiff(fromHostSpotIssue);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
-    IssueChangeDto issueChange = insertNewLineDiff(issue);
+    IssueChangeDto issueChange = insertToClosedDiff(issue);
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
     underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
 
     assertThat(resultHandler.issues)
-      .extracting(IssueDto::getKey, t -> t.getLineChangeData().get())
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsOnly(tuple(issue.getKey(), issueChange.getChangeData()));
   }
 
   @Test
   @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_return_one_row_per_line_diff_sorted_by_most_recent_creation_date_first(RuleType ruleType) {
+  public void scrollClosedByComponentUuid_return_one_row_per_status_diff_to_CLOSED_sorted_by_most_recent_creation_date_first(RuleType ruleType) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto component = randomComponent(organization);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     Date date = new Date();
     IssueChangeDto changes[] = new IssueChangeDto[] {
-      insertNewLineDiff(issue, DateUtils.addDays(date, -10)),
-      insertNewLineDiff(issue, DateUtils.addDays(date, -60)),
-      insertNewLineDiff(issue, date),
-      insertNewLineDiff(issue, DateUtils.addDays(date, -5))
+      insertToClosedDiff(issue, DateUtils.addDays(date, -10)),
+      insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
+      insertToClosedDiff(issue, date),
+      insertToClosedDiff(issue, DateUtils.addDays(date, -5))
     };
 
     RecorderResultHandler resultHandler = new RecorderResultHandler();
@@ -401,7 +399,7 @@ public class IssueMapperTest {
 
     assertThat(resultHandler.issues)
       .hasSize(4)
-      .extracting(IssueDto::getKey, t -> t.getLineChangeData().get())
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsExactly(
         tuple(issue.getKey(), changes[2].getChangeData()),
         tuple(issue.getKey(), changes[3].getChangeData()),
@@ -409,38 +407,54 @@ public class IssueMapperTest {
         tuple(issue.getKey(), changes[1].getChangeData()));
   }
 
-  private IssueChangeDto insertNewLineDiff(IssueDto issueDto) {
-    return insertNewLineDiff(issueDto, new Date());
-  }
-
-  private IssueChangeDto insertNewLineDiff(IssueDto issueDto, Date date) {
-    Integer oldLine = random.nextInt(10);
-    Integer newLine = 10 + random.nextInt(10);
-    Integer[][] values = new Integer[][] {
-      {oldLine, newLine},
-      {oldLine, null},
-      {null, newLine},
+  @Test
+  @UseDataProvider("closedIssuesSupportedRuleTypes")
+  public void scrollClosedByComponentUuid_does_not_return_row_for_status_change_from_close(RuleType ruleType) {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto component = randomComponent(organization);
+    IssueDto issue = insertNewClosedIssue(component, ruleType);
+    Date date = new Date();
+    IssueChangeDto changes[] = new IssueChangeDto[] {
+      insertToClosedDiff(issue, DateUtils.addDays(date, -10), Issue.STATUS_CLOSED, Issue.STATUS_REOPENED),
+      insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
+      insertToClosedDiff(issue, date),
+      insertToClosedDiff(issue, DateUtils.addDays(date, -5))
     };
-    Integer[] choice = values[random.nextInt(values.length)];
-    return insertNewLineDiff(issueDto, date, choice[0], choice[1]);
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), resultHandler);
+
+    assertThat(resultHandler.issues)
+      .hasSize(3)
+      .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
+      .containsExactly(
+        tuple(issue.getKey(), changes[2].getChangeData()),
+        tuple(issue.getKey(), changes[3].getChangeData()),
+        tuple(issue.getKey(), changes[1].getChangeData()));
   }
 
-  private IssueChangeDto insertNewLineDiff(IssueDto issue, Date creationDate, @Nullable Integer before, @Nullable Integer after) {
-    checkArgument(before != null || after != null);
+  private IssueChangeDto insertToClosedDiff(IssueDto issueDto) {
+    return insertToClosedDiff(issueDto, new Date());
+  }
 
+  private IssueChangeDto insertToClosedDiff(IssueDto issueDto, Date date) {
+    String[] statusesButClosed = Issue.STATUSES.stream()
+      .filter(t -> !Issue.STATUS_CLOSED.equals(t))
+      .toArray(String[]::new);
+    String previousStatus = statusesButClosed[random.nextInt(statusesButClosed.length)];
+    return insertToClosedDiff(issueDto, date, previousStatus, Issue.STATUS_CLOSED);
+  }
+
+  private IssueChangeDto insertToClosedDiff(IssueDto issue, Date creationDate, String previousStatus, String nextStatus) {
     FieldDiffs diffs = new FieldDiffs()
       .setCreationDate(creationDate);
     IntStream.range(0, random.nextInt(3)).forEach(i -> diffs.setDiff("key_b" + i, "old_" + i, "new_" + i));
-    diffs.setDiff("line", toDiffValue(before), toDiffValue(after));
+    diffs.setDiff("status", previousStatus, nextStatus);
     IntStream.range(0, random.nextInt(3)).forEach(i -> diffs.setDiff("key_a" + i, "old_" + i, "new_" + i));
 
     IssueChangeDto changeDto = IssueChangeDto.of(issue.getKey(), diffs);
     dbTester.getDbClient().issueChangeDao().insert(dbSession, changeDto);
     return changeDto;
-  }
-
-  private static String toDiffValue(@Nullable Integer after) {
-    return after == null ? "" : String.valueOf(after);
   }
 
   @SafeVarargs

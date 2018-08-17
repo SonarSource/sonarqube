@@ -38,9 +38,11 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 
 public class ComponentIssuesLoader {
   private final DbClient dbClient;
@@ -160,19 +162,21 @@ public class ComponentIssuesLoader {
         return;
       }
 
-      FieldDiffs fieldDiffs = FieldDiffs.parse(resultObject.getLineChangeData()
-        .orElseThrow(() -> new IllegalStateException("Line Change data should be populated")));
-      Optional<Integer> line = Optional.ofNullable(fieldDiffs.get("line"))
+      FieldDiffs fieldDiffs = FieldDiffs.parse(resultObject.getClosedChangeData()
+        .orElseThrow(() -> new IllegalStateException("Close change data should be populated")));
+      checkState(Optional.ofNullable(fieldDiffs.get("status"))
+        .map(FieldDiffs.Diff::newValue)
+        .filter(STATUS_CLOSED::equals)
+        .isPresent(), "Close change data should have a status diff with new value %s", STATUS_CLOSED);
+      Integer line = Optional.ofNullable(fieldDiffs.get("line"))
         .map(diff -> (String) diff.oldValue())
         .filter(str -> !str.isEmpty())
-        .map(Integer::parseInt);
-      if (!line.isPresent()) {
-        return;
-      }
+        .map(Integer::parseInt)
+        .orElse(null);
 
       previousIssueKey = resultObject.getKey();
       DefaultIssue issue = resultObject.toDefaultIssue();
-      issue.setLine(line.get());
+      issue.setLine(line);
       // FIXME
       issue.setSelectedAt(System.currentTimeMillis());
 

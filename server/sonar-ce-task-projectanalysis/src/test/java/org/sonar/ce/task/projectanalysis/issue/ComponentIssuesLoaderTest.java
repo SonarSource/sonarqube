@@ -21,6 +21,8 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
@@ -37,6 +39,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.utils.DateUtils.addDays;
 
 public class ComponentIssuesLoaderTest {
@@ -53,11 +56,11 @@ public class ComponentIssuesLoaderTest {
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
-    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(Issue.STATUS_CLOSED).setIsFromHotspot(false));
+    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
     Date creationDate = new Date();
-    dbTester.issues().insertFieldDiffs(issue, new FieldDiffs().setCreationDate(addDays(creationDate, -5)).setDiff("line", 10, ""));
-    dbTester.issues().insertFieldDiffs(issue, new FieldDiffs().setCreationDate(creationDate).setDiff("line", 20, ""));
-    dbTester.issues().insertFieldDiffs(issue, new FieldDiffs().setCreationDate(addDays(creationDate, -10)).setDiff("line", 30, ""));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -5), 10));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(creationDate, 20));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -10), 30));
 
     List<DefaultIssue> defaultIssues = underTest.loadClosedIssues(file.uuid());
 
@@ -66,20 +69,36 @@ public class ComponentIssuesLoaderTest {
   }
 
   @Test
-  public void loadClosedIssues_returns_single_DefaultIssue_ignoring_lines_without_old_values() {
+  public void loadClosedIssues_returns_single_DefaultIssue_with_null_line_if_first_row_has_no_line_diff() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
-    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(Issue.STATUS_CLOSED).setIsFromHotspot(false));
+    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
     Date creationDate = new Date();
-    dbTester.issues().insertFieldDiffs(issue, new FieldDiffs().setCreationDate(addDays(creationDate, -5)).setDiff("line", null, ""));
-    dbTester.issues().insertFieldDiffs(issue, new FieldDiffs().setCreationDate(creationDate).setDiff("line", 20, null)); // if new value is null, neither old nor new is stored in DB
-    dbTester.issues().insertFieldDiffs(issue, new FieldDiffs().setCreationDate(addDays(creationDate, -10)).setDiff("line", 30, ""));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -5), 10));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(creationDate, null));
+    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(creationDate, -10), 30));
 
     List<DefaultIssue> defaultIssues = underTest.loadClosedIssues(file.uuid());
 
     assertThat(defaultIssues).hasSize(1);
-    assertThat(defaultIssues.iterator().next().getLine()).isEqualTo(30);
+    assertThat(defaultIssues.iterator().next().getLine()).isNull();
+  }
+
+  private static FieldDiffs newToClosedDiffsWithLine(Date creationDate, @Nullable Integer oldLineValue) {
+    FieldDiffs fieldDiffs = new FieldDiffs().setCreationDate(addDays(creationDate, -5))
+      .setDiff("status", randomNonCloseStatus(), STATUS_CLOSED);
+    if (oldLineValue != null) {
+      fieldDiffs.setDiff("line", oldLineValue, "");
+    }
+    return fieldDiffs;
+  }
+
+  private static String randomNonCloseStatus() {
+    String[] nonCloseStatuses = Issue.STATUSES.stream()
+      .filter(t -> !STATUS_CLOSED.equals(t))
+      .toArray(String[]::new);
+    return nonCloseStatuses[new Random().nextInt(nonCloseStatuses.length)];
   }
 }
