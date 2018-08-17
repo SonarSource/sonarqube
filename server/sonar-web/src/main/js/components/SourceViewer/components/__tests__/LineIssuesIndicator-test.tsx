@@ -37,7 +37,7 @@ const issueBase: Issue = {
   project: '',
   projectName: '',
   projectOrganization: '',
-  projectUuid: '',
+  projectKey: '',
   rule: '',
   ruleName: '',
   secondaryLocations: [],

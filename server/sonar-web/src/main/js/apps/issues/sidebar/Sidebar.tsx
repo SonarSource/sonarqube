@@ -56,7 +56,8 @@ export interface Props {
   openFacets: { [facet: string]: boolean };
   organization: { key: string } | undefined;
   query: Query;
-  referencedComponents: { [componentKey: string]: ReferencedComponent };
+  referencedComponentsById: { [id: string]: ReferencedComponent };
+  referencedComponentsByKey: { [key: string]: ReferencedComponent };
   referencedLanguages: { [languageKey: string]: ReferencedLanguage };
   referencedRules: { [ruleKey: string]: ReferencedRule };
   referencedUsers: { [login: string]: ReferencedUser };
@@ -82,7 +83,7 @@ export default class Sidebar extends React.PureComponent<Props> {
             fetching={loadingFacets.modules === true}
             modules={query.modules}
             open={!!openFacets.modules}
-            referencedComponents={this.props.referencedComponents}
+            referencedComponents={this.props.referencedComponentsById}
             stats={facets.modules}
             {...commonProps}
           />
@@ -100,7 +101,7 @@ export default class Sidebar extends React.PureComponent<Props> {
           fetching={loadingFacets.files === true}
           files={query.files}
           open={!!openFacets.files}
-          referencedComponents={this.props.referencedComponents}
+          referencedComponents={this.props.referencedComponentsById}
           stats={facets.files}
           {...commonProps}
         />
@@ -233,7 +234,7 @@ export default class Sidebar extends React.PureComponent<Props> {
             organization={this.props.organization}
             projects={query.projects}
             query={query}
-            referencedComponents={this.props.referencedComponents}
+            referencedComponents={this.props.referencedComponentsByKey}
             stats={facets.projects}
           />
         )}

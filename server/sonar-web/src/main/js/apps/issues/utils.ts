@@ -85,7 +85,7 @@ export function parseQuery(query: RawQuery): Query {
     languages: parseAsArray(query.languages, parseAsString),
     modules: parseAsArray(query.moduleUuids, parseAsString),
     owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
-    projects: parseAsArray(query.projectUuids, parseAsString),
+    projects: parseAsArray(query.projects, parseAsString),
     resolutions: parseAsArray(query.resolutions, parseAsString),
     resolved: parseAsBoolean(query.resolved),
     rules: parseAsArray(query.rules, parseAsString),
@@ -121,7 +121,7 @@ export function serializeQuery(query: Query): RawQuery {
     languages: serializeStringArray(query.languages),
     moduleUuids: serializeStringArray(query.modules),
     owaspTop10: serializeStringArray(query.owaspTop10),
-    projectUuids: serializeStringArray(query.projects),
+    projects: serializeStringArray(query.projects),
     resolutions: serializeStringArray(query.resolutions),
     resolved: query.resolved ? undefined : 'false',
     rules: serializeStringArray(query.rules),
@@ -151,8 +151,7 @@ export interface Facet {
 export function mapFacet(facet: string) {
   const propertyMapping: { [x: string]: string } = {
     files: 'fileUuids',
-    modules: 'moduleUuids',
-    projects: 'projectUuids'
+    modules: 'moduleUuids'
   };
   return propertyMapping[facet] || facet;
 }
@@ -165,8 +164,7 @@ export function parseFacets(facets: RawFacet[]): { [x: string]: Facet } {
   // for readability purpose
   const propertyMapping: { [x: string]: string } = {
     fileUuids: 'files',
-    moduleUuids: 'modules',
-    projectUuids: 'projects'
+    moduleUuids: 'modules'
   };
 
   const result: { [x: string]: Facet } = {};
@@ -189,7 +187,8 @@ export interface ReferencedComponent {
   key: string;
   name: string;
   organization: string;
-  path: string;
+  path?: string;
+  uuid: string;
 }
 
 export interface ReferencedUser {

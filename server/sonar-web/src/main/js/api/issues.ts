@@ -30,7 +30,7 @@ export interface IssueResponse {
 }
 
 interface IssuesResponse {
-  components?: { key: string; organization: string; name: string; uuid: string }[];
+  components?: { key: string; organization: string; name: string }[];
   effortTotal: number;
   facets: Array<{
     property: string;
@@ -46,13 +46,34 @@ interface IssuesResponse {
   users?: { login: string }[];
 }
 
+type FacetName =
+  | 'assigned_to_me'
+  | 'assignees'
+  | 'authors'
+  | 'createdAt'
+  | 'cwe'
+  | 'directories'
+  | 'files'
+  | 'languages'
+  | 'modules'
+  | 'owaspTop10'
+  | 'projects'
+  | 'reporters'
+  | 'resolutions'
+  | 'rules'
+  | 'sansTop25'
+  | 'severities'
+  | 'statuses'
+  | 'tags'
+  | 'types';
+
 export function searchIssues(query: RequestData): Promise<IssuesResponse> {
   return getJSON('/api/issues/search', query);
 }
 
 export function getFacets(
   query: RequestData,
-  facets: string[]
+  facets: FacetName[]
 ): Promise<{
   facets: Array<{ property: string; values: FacetValue[] }>;
   response: IssuesResponse;
@@ -70,42 +91,11 @@ export function getFacets(
 
 export function getFacet(
   query: RequestData,
-  facet: string
+  facet: FacetName
 ): Promise<{ facet: { count: number; val: string }[]; response: IssuesResponse }> {
   return getFacets(query, [facet]).then(r => {
     return { facet: r.facets[0].values, response: r.response };
   });
-}
-
-export function getSeverities(query: RequestData): Promise<any> {
-  return getFacet(query, 'severities').then(r => r.facet);
-}
-
-export function getTags(query: RequestData): Promise<any> {
-  return getFacet(query, 'tags').then(r => r.facet);
-}
-
-export function extractAssignees(facet: Array<{ val: string }>, response: IssuesResponse): any {
-  return facet.map(item => {
-    const user = response.users ? response.users.find(user => user.login === item.val) : null;
-    return { ...item, user };
-  });
-}
-
-export function getAssignees(query: RequestData): Promise<any> {
-  return getFacet(query, 'assignees').then(r => extractAssignees(r.facet, r.response));
-}
-
-export function extractProjects(facet: { val: string }[], response: IssuesResponse) {
-  return facet.map(item => {
-    const project =
-      response.components && response.components.find(component => component.uuid === item.val);
-    return { ...item, project };
-  });
-}
-
-export function getProjects(query: RequestData) {
-  return getFacet(query, 'projectUuids').then(r => extractProjects(r.facet, r.response));
 }
 
 export function searchIssueTags(data: {

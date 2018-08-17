@@ -126,7 +126,8 @@ export interface State {
   openPopup?: { issue: string; name: string };
   paging?: Paging;
   query: Query;
-  referencedComponents: { [componentKey: string]: ReferencedComponent };
+  referencedComponentsById: { [id: string]: ReferencedComponent };
+  referencedComponentsByKey: { [key: string]: ReferencedComponent };
   referencedLanguages: { [languageKey: string]: ReferencedLanguage };
   referencedRules: { [ruleKey: string]: ReferencedRule };
   referencedUsers: { [login: string]: ReferencedUser };
@@ -157,7 +158,8 @@ export default class App extends React.PureComponent<Props, State> {
       myIssues: props.myIssues || areMyIssuesSelected(props.location.query),
       openFacets: { severities: true, types: true },
       query: parseQuery(props.location.query),
-      referencedComponents: {},
+      referencedComponentsById: {},
+      referencedComponentsByKey: {},
       referencedLanguages: {},
       referencedRules: {},
       referencedUsers: {},
@@ -477,7 +479,8 @@ export default class App extends React.PureComponent<Props, State> {
             issues,
             openIssue,
             paging,
-            referencedComponents: keyBy(other.components, 'uuid'),
+            referencedComponentsById: keyBy(other.components, 'uuid'),
+            referencedComponentsByKey: keyBy(other.components, 'key'),
             referencedLanguages: keyBy(other.languages, 'key'),
             referencedRules: keyBy(other.rules, 'key'),
             referencedUsers: keyBy(other.users, 'login'),
@@ -602,9 +605,13 @@ export default class App extends React.PureComponent<Props, State> {
           this.setState(state => ({
             facets: { ...state.facets, ...parseFacets(facets) },
             loadingFacets: omit(state.loadingFacets, facet),
-            referencedComponents: {
-              ...state.referencedComponents,
+            referencedComponentsById: {
+              ...state.referencedComponentsById,
               ...keyBy(other.components, 'uuid')
+            },
+            referencedComponentsByKey: {
+              ...state.referencedComponentsByKey,
+              ...keyBy(other.components, 'key')
             },
             referencedLanguages: {
               ...state.referencedLanguages,
@@ -945,7 +952,8 @@ export default class App extends React.PureComponent<Props, State> {
           openFacets={this.state.openFacets}
           organization={this.props.organization}
           query={query}
-          referencedComponents={this.state.referencedComponents}
+          referencedComponentsById={this.state.referencedComponentsById}
+          referencedComponentsByKey={this.state.referencedComponentsByKey}
           referencedLanguages={this.state.referencedLanguages}
           referencedRules={this.state.referencedRules}
           referencedUsers={this.state.referencedUsers}

@@ -33,7 +33,7 @@ const issue = {
   project: '',
   projectName: '',
   projectOrganization: '',
-  projectUuid: '',
+  projectKey: '',
   rule: '',
   ruleName: '',
   severity: '',

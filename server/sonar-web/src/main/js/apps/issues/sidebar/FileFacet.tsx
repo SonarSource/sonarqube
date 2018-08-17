@@ -43,12 +43,14 @@ interface Props {
 export default class FileFacet extends React.PureComponent<Props> {
   getFile = (file: string) => {
     const { referencedComponents } = this.props;
-    return referencedComponents[file] ? collapsePath(referencedComponents[file].path, 15) : file;
+    return referencedComponents[file]
+      ? collapsePath(referencedComponents[file].path || '', 15)
+      : file;
   };
 
   getFacetItemText = (file: string) => {
     const { referencedComponents } = this.props;
-    return referencedComponents[file] ? referencedComponents[file].path : file;
+    return referencedComponents[file] ? referencedComponents[file].path || '' : file;
   };
 
   getSearchResultKey = (file: TreeComponent) => {

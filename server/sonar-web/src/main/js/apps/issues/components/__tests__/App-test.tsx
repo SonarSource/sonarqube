@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ShallowWrapper } from 'enzyme';
 import App from '../App';
 import { shallowWithIntl, waitAndUpdate } from '../../../../helpers/testUtils';
 import { Issue } from '../../../../app/types';
@@ -35,6 +36,7 @@ const paging = { pageIndex: 1, pageSize: 100, total: 4 };
 const eventNoShiftKey = { shiftKey: false } as MouseEvent;
 const eventWithShiftKey = { shiftKey: true } as MouseEvent;
 
+const referencedComponent = { key: 'foo-key', name: 'bar', organization: 'John', uuid: 'foo-uuid' };
 const PROPS = {
   branch: { isMain: true, name: 'master' },
   currentUser: {
@@ -48,7 +50,7 @@ const PROPS = {
   location: { pathname: '/issues', query: {} },
   fetchIssues: () =>
     Promise.resolve({
-      components: [],
+      components: [referencedComponent],
       effortTotal: 1,
       facets,
       issues,
@@ -64,12 +66,14 @@ const PROPS = {
 };
 
 it('should render a list of issue', async () => {
-  const wrapper = shallowWithIntl(<App {...PROPS} />, {
+  const wrapper: ShallowWrapper<App['props'], App['state']> = shallowWithIntl(<App {...PROPS} />, {
     context: { router: { replace } }
   });
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
+  expect(wrapper.state().referencedComponentsById).toEqual({ 'foo-uuid': referencedComponent });
+  expect(wrapper.state().referencedComponentsByKey).toEqual({ 'foo-key': referencedComponent });
 });
 
 it('should be able to check/uncheck a group of issues with the Shift key', async () => {

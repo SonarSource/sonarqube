@@ -34,7 +34,6 @@ interface Props {
 
 interface Project {
   count: number;
-  id: string;
   key: string;
   name: string;
 }
@@ -73,21 +72,16 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
     this.setState({ loading: true });
     getFacet(
       { organization: this.props.organization, rules: this.props.ruleKey, resolved: false },
-      'projectUuids'
+      'projects'
     ).then(
       ({ facet, response }) => {
         if (this.mounted) {
           const { components = [], paging } = response;
           const projects = [];
           for (const item of facet) {
-            const project = components.find(component => component.uuid === item.val);
+            const project = components.find(component => component.key === item.val);
             if (project) {
-              projects.push({
-                count: item.count,
-                id: item.val,
-                key: project.key,
-                name: project.name
-              });
+              projects.push({ count: item.count, key: project.key, name: project.name });
             }
           }
           this.setState({ projects, loading: false, total: paging.total });
@@ -130,7 +124,7 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
 
   renderProject = (project: Project) => {
     const path = getIssuesUrl(
-      { projectUuids: project.id, resolved: 'false', rules: this.props.ruleKey },
+      { projects: project.key, resolved: 'false', rules: this.props.ruleKey },
       this.props.organization
     );
     return (

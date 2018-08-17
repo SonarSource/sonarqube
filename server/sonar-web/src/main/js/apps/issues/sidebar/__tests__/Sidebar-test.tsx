@@ -40,7 +40,8 @@ const renderSidebar = (props?: Partial<Props>) => {
           openFacets={{}}
           organization={undefined}
           query={{} as Query}
-          referencedComponents={{}}
+          referencedComponentsById={{}}
+          referencedComponentsByKey={{}}
           referencedLanguages={{}}
           referencedRules={{}}
           referencedUsers={{}}

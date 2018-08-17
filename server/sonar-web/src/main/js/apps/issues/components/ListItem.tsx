@@ -83,7 +83,7 @@ export default class ListItem extends React.PureComponent<Props, State> {
           onFilterChange({ ...issuesReset, rules: [issue.rule] });
           break;
         case 'project':
-          onFilterChange({ ...issuesReset, projects: [issue.projectUuid] });
+          onFilterChange({ ...issuesReset, projects: [issue.projectKey] });
           break;
         case 'module':
           if (issue.subProjectUuid) {

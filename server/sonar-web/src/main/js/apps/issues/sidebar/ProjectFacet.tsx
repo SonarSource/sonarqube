@@ -43,7 +43,7 @@ interface Props {
 }
 
 interface SearchedProject {
-  id: string;
+  key: string;
   name: string;
   organization: string;
 }
@@ -64,8 +64,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
       }).then(({ components, paging }) => ({
         paging,
         results: components.map(component => ({
-          id: component.refId || component.id,
-          key: component.key,
+          key: component.refKey || component.key,
           name: component.name,
           organization: component.organization
         }))
@@ -80,7 +79,6 @@ export default class ProjectFacet extends React.PureComponent<Props> {
     }).then(({ components, paging }) => ({
       paging,
       results: components.map(component => ({
-        id: component.id,
         key: component.key,
         name: component.name,
         organization: component.organization
@@ -95,7 +93,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
 
   loadSearchResultCount = (projects: SearchedProject[]) => {
     return this.props.loadSearchResultCount('projects', {
-      projects: projects.map(project => project.id)
+      projects: projects.map(project => project.key)
     });
   };
 
@@ -137,7 +135,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
         facetHeader={translate('issues.facet.projects')}
         fetching={this.props.fetching}
         getFacetItemText={this.getProjectName}
-        getSearchResultKey={project => project.id}
+        getSearchResultKey={project => project.key}
         getSearchResultText={project => project.name}
         loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}

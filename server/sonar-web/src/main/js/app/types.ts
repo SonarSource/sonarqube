@@ -296,7 +296,7 @@ export interface Issue {
   project: string;
   projectName: string;
   projectOrganization: string;
-  projectUuid: string;
+  projectKey: string;
   pullRequest?: string;
   resolution?: string;
   rule: string;

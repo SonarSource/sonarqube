@@ -49,7 +49,7 @@ it('should display form when issues are present', async () => {
       project: 'foo',
       projectName: 'foo',
       projectOrganization: 'foo',
-      projectUuid: 'foo',
+      projectKey: 'foo',
       rule: 'foo',
       ruleName: 'foo',
       secondaryLocations: [],

@@ -75,7 +75,7 @@ export type Issue = {
   project: string,
   projectName: string,
   projectOrganization: string,
-  projectUuid: string,
+  projectKey: string,
   resolution?: string,
   rule: string,
   ruleName: string,
