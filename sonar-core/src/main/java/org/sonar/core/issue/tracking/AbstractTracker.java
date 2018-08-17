@@ -113,9 +113,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
 
     @Override
-    public boolean equals(@Nonnull Object o) {
+    public boolean equals(Object o) {
       if (this == o) {
         return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
       }
       LineAndLineHashAndMessage that = (LineAndLineHashAndMessage) o;
       // start with most discriminant field
@@ -143,9 +146,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
 
     @Override
-    public boolean equals(@Nonnull Object o) {
+    public boolean equals(Object o) {
       if (this == o) {
         return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
       }
       LineHashAndMessageKey that = (LineHashAndMessageKey) o;
       // start with most discriminant field
@@ -172,9 +178,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
 
     @Override
-    public boolean equals(@Nonnull Object o) {
+    public boolean equals(Object o) {
       if (this == o) {
         return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
       }
       LineAndMessageKey that = (LineAndMessageKey) o;
       // start with most discriminant field
@@ -199,9 +208,12 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
 
     @Override
-    public boolean equals(@Nonnull Object o) {
+    public boolean equals(Object o) {
       if (this == o) {
         return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
       }
       LineHashKey that = (LineHashKey) o;
       // start with most discriminant field
