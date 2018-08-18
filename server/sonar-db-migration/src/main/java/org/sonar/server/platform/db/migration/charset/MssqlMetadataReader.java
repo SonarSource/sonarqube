@@ -33,7 +33,7 @@ public class MssqlMetadataReader {
   }
 
   public String getDefaultCollation(Connection connection) throws SQLException {
-    return sqlExecutor.selectSingleString(connection, "SELECT CONVERT(VARCHAR, DATABASEPROPERTYEX(DB_NAME(), 'Collation'))");
+    return sqlExecutor.selectSingleString(connection, "SELECT CONVERT(VARCHAR(128), DATABASEPROPERTYEX(DB_NAME(), 'Collation'))");
   }
 
   public List<ColumnDef> getColumnDefs(Connection connection) throws SQLException {
