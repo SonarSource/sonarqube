@@ -19,7 +19,6 @@
  */
 import { combineReducers } from 'redux';
 import appState from './appState/duck';
-import marketplace, * as fromMarketplace from './marketplace/reducer';
 import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
@@ -36,7 +35,6 @@ export default combineReducers({
   globalMessages,
   favorites,
   languages,
-  marketplace,
   metrics,
   organizations,
   organizationsMembers,
@@ -72,9 +70,6 @@ export const isFavorite = (state, componentKey) =>
   fromFavorites.isFavorite(state.favorites, componentKey);
 
 export const getMarketplaceState = state => state.marketplace;
-
-export const getMarketplacePendingPlugins = state =>
-  fromMarketplace.getPendingPlugins(state.marketplace);
 
 export const getMetrics = state => fromMetrics.getMetrics(state.metrics);
 

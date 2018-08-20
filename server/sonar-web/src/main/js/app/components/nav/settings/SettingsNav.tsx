@@ -34,7 +34,7 @@ interface Props {
   extensions: Extension[];
   fetchPendingPlugins: () => void;
   location: {};
-  organizationsEnabled: boolean;
+  organizationsEnabled?: boolean;
   pendingPlugins: PluginPendingResult;
 }
 

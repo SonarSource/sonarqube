@@ -17,17 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { connect } from 'react-redux';
 import App from './App';
 import { EditionKey } from './utils';
-import {
-  getAppState,
-  getGlobalSettingValue,
-  getMarketplacePendingPlugins
-} from '../../store/rootReducer';
-import { fetchPendingPlugins } from '../../store/marketplace/actions';
+import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
 import { RawQuery } from '../../helpers/query';
-import { PluginPendingResult } from '../../api/plugins';
+import MarketplaceContext from '../../app/components/MarketplaceContext';
 
 interface OwnProps {
   location: { pathname: string; query: RawQuery };
@@ -35,28 +31,25 @@ interface OwnProps {
 
 interface StateToProps {
   currentEdition?: EditionKey;
-  pendingPlugins: PluginPendingResult;
   standaloneMode: boolean;
   updateCenterActive: boolean;
-}
-
-interface DispatchToProps {
-  fetchPendingPlugins: () => void;
 }
 
 const mapStateToProps = (state: any) => {
   return {
     currentEdition: getAppState(state).edition,
-    pendingPlugins: getMarketplacePendingPlugins(state),
     standaloneMode: getAppState(state).standalone,
     updateCenterActive:
       (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value === 'true'
   };
 };
 
-const mapDispatchToProps = { fetchPendingPlugins };
+const WithMarketplaceContext = (props: StateToProps & OwnProps) => (
+  <MarketplaceContext.Consumer>
+    {({ fetchPendingPlugins, pendingPlugins }) => (
+      <App fetchPendingPlugins={fetchPendingPlugins} pendingPlugins={pendingPlugins} {...props} />
+    )}
+  </MarketplaceContext.Consumer>
+);
 
-export default connect<StateToProps, DispatchToProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(App);
+export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(WithMarketplaceContext);

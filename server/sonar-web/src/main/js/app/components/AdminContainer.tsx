@@ -21,28 +21,21 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import MarketplaceContext, { defaultPendingPlugins } from './MarketplaceContext';
 import SettingsNav from './nav/settings/SettingsNav';
-import { getAppState, getMarketplacePendingPlugins } from '../../store/rootReducer';
+import { getAppState } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState/duck';
-import { fetchPendingPlugins } from '../../store/marketplace/actions';
 import { translate } from '../../helpers/l10n';
-import { Extension } from '../types';
-import { PluginPendingResult } from '../../api/plugins';
+import { Extension, AppState } from '../types';
+import { PluginPendingResult, getPendingPlugins } from '../../api/plugins';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 interface StateProps {
-  appState: {
-    adminPages: Extension[];
-    edition: string;
-    organizationsEnabled: boolean;
-    version: string;
-  };
-  pendingPlugins: PluginPendingResult;
+  appState: Pick<AppState, 'adminPages' | 'organizationsEnabled'>;
 }
 
 interface DispatchToProps {
-  fetchPendingPlugins: () => void;
   setAdminPages: (adminPages: Extension[]) => void;
 }
 
@@ -52,21 +45,49 @@ interface OwnProps {
 
 type Props = StateProps & DispatchToProps & OwnProps;
 
-class AdminContainer extends React.PureComponent<Props> {
+interface State {
+  pendingPlugins: PluginPendingResult;
+}
+
+class AdminContainer extends React.PureComponent<Props, State> {
+  mounted = false;
+
   static contextTypes = {
     canAdmin: PropTypes.bool.isRequired
   };
 
+  state: State = {
+    pendingPlugins: defaultPendingPlugins
+  };
+
   componentDidMount() {
+    this.mounted = true;
     if (!this.context.canAdmin) {
       handleRequiredAuthorization();
     } else {
       this.fetchNavigationSettings();
+      this.fetchPendingPlugins();
     }
   }
 
-  fetchNavigationSettings = () =>
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  fetchNavigationSettings = () => {
     getSettingsNavigation().then(r => this.props.setAdminPages(r.extensions), () => {});
+  };
+
+  fetchPendingPlugins = () => {
+    getPendingPlugins().then(
+      pendingPlugins => {
+        if (this.mounted) {
+          this.setState({ pendingPlugins });
+        }
+      },
+      () => {}
+    );
+  };
 
   render() {
     const { adminPages, organizationsEnabled } = this.props.appState;
@@ -83,24 +104,28 @@ class AdminContainer extends React.PureComponent<Props> {
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
         <SettingsNav
           extensions={adminPages}
-          fetchPendingPlugins={this.props.fetchPendingPlugins}
+          fetchPendingPlugins={this.fetchPendingPlugins}
           location={this.props.location}
           organizationsEnabled={organizationsEnabled}
-          pendingPlugins={this.props.pendingPlugins}
+          pendingPlugins={this.state.pendingPlugins}
         />
-        {this.props.children}
+        <MarketplaceContext.Provider
+          value={{
+            fetchPendingPlugins: this.fetchPendingPlugins,
+            pendingPlugins: this.state.pendingPlugins
+          }}>
+          {this.props.children}
+        </MarketplaceContext.Provider>
       </div>
     );
   }
 }
 
 const mapStateToProps = (state: any): StateProps => ({
-  appState: getAppState(state),
-  pendingPlugins: getMarketplacePendingPlugins(state)
+  appState: getAppState(state)
 });
 
 const mapDispatchToProps: DispatchToProps = {
-  fetchPendingPlugins,
   setAdminPages
 };
 

@@ -17,23 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Action } from './actions';
+import * as React from 'react';
 import { PluginPendingResult } from '../../api/plugins';
 
-interface State {
-  pending: PluginPendingResult;
+export interface MarketplaceContextInterface {
+  fetchPendingPlugins: () => void;
+  pendingPlugins: PluginPendingResult;
 }
 
-const defaultState: State = { pending: { installing: [], removing: [], updating: [] } };
+export const defaultPendingPlugins = { installing: [], removing: [], updating: [] };
 
-export default function(state: State = defaultState, action: Action): State {
-  if (action.type === 'SET_PENDING_PLUGINS') {
-    return {
-      ...state,
-      pending: action.pending
-    };
-  }
-  return state;
-}
-
-export const getPendingPlugins = (state: State) => state.pending;
+const MarketplaceContext = React.createContext<MarketplaceContextInterface>({
+  fetchPendingPlugins: () => {},
+  pendingPlugins: defaultPendingPlugins
+});
+export default MarketplaceContext;

@@ -65,7 +65,6 @@ export default class App extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchPendingPlugins();
     this.fetchQueryPlugins();
   }
 
