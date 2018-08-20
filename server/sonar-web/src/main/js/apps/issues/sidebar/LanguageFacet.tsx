@@ -90,6 +90,7 @@ class LanguageFacet extends React.PureComponent<Props> {
         getSearchResultKey={language => language.key}
         getSearchResultText={language => language.name}
         loadSearchResultCount={this.loadSearchResultCount}
+        minSearchLength={1}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
