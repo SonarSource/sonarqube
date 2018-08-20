@@ -54,7 +54,11 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
 import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
@@ -243,6 +247,56 @@ public class InternalCeQueueImplTest {
     assertThat(activityDto.getErrorType()).isEqualTo("aType");
     assertThat(activityDto.getErrorMessage()).isEqualTo("aMessage");
     assertThat(activityDto.getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
+  }
+
+  @Test
+  public void remove_updates_queueStatus_success_even_if_task_does_not_exist_in_DB() {
+    CEQueueStatus queueStatus = mock(CEQueueStatus.class);
+
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
+    db.commit();
+
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatus, null, null);
+
+    try {
+      underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
+      fail("remove should have thrown a IllegalStateException");
+    } catch (IllegalStateException e) {
+      verify(queueStatus).addSuccess(anyLong());
+    }
+  }
+
+  @Test
+  public void remove_updates_queueStatus_failure_even_if_task_does_not_exist_in_DB() {
+    CEQueueStatus queueStatusMock = mock(CEQueueStatus.class);
+
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
+    db.commit();
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null);
+
+    try {
+      underTest.remove(task, CeActivityDto.Status.FAILED, null, null);
+      fail("remove should have thrown a IllegalStateException");
+    } catch (IllegalStateException e) {
+      verify(queueStatusMock).addError(anyLong());
+    }
+  }
+
+  @Test
+  public void cancelWornOuts_does_not_update_queueStatus() {
+    CEQueueStatus queueStatusMock = mock(CEQueueStatus.class);
+
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    db.executeUpdateSql("update ce_queue set status = 'PENDING', started_at = 123 where uuid = '" + task.getUuid() + "'");
+    db.commit();
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null);
+
+    underTest.cancelWornOuts();
+
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid())).isPresent();
+    verifyZeroInteractions(queueStatusMock);
   }
 
   private static class TypedExceptionImpl extends RuntimeException implements TypedException {

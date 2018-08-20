@@ -114,15 +114,27 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   @Override
   public void remove(CeTask task, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
     checkArgument(error == null || status == CeActivityDto.Status.FAILED, "Error can be provided only when status is FAILED");
+
+    long executionTimeInMs = 0L;
     try (DbSession dbSession = dbClient.openSession(false)) {
       CeQueueDto queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid())
         .orElseThrow(() -> new IllegalStateException("Task does not exist anymore: " + task));
       CeActivityDto activityDto = new CeActivityDto(queueDto);
       activityDto.setStatus(status);
-      updateQueueStatus(status, activityDto);
+      executionTimeInMs = updateExecutionFields(activityDto);
       updateTaskResult(activityDto, taskResult);
       updateError(activityDto, error);
       remove(dbSession, queueDto, activityDto);
+    } finally {
+      updateQueueStatus(status, executionTimeInMs);
+    }
+  }
+
+  private void updateQueueStatus(CeActivityDto.Status status, long executionTimeInMs) {
+    if (status == CeActivityDto.Status.SUCCESS) {
+      queueStatus.addSuccess(executionTimeInMs);
+    } else {
+      queueStatus.addError(executionTimeInMs);
     }
   }
 
@@ -165,19 +177,16 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
     }
   }
 
-  private void updateQueueStatus(CeActivityDto.Status status, CeActivityDto activityDto) {
+  private long updateExecutionFields(CeActivityDto activityDto) {
     Long startedAt = activityDto.getStartedAt();
     if (startedAt == null) {
-      return;
+      return 0L;
     }
-    activityDto.setExecutedAt(system2.now());
-    long executionTimeInMs = activityDto.getExecutedAt() - startedAt;
+    long now = system2.now();
+    long executionTimeInMs = now - startedAt;
+    activityDto.setExecutedAt(now);
     activityDto.setExecutionTimeMs(executionTimeInMs);
-    if (status == CeActivityDto.Status.SUCCESS) {
-      queueStatus.addSuccess(executionTimeInMs);
-    } else {
-      queueStatus.addError(executionTimeInMs);
-    }
+    return executionTimeInMs;
   }
 
   @Override
@@ -187,7 +196,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       wornOutTasks.forEach(queueDto -> {
         CeActivityDto activityDto = new CeActivityDto(queueDto);
         activityDto.setStatus(CeActivityDto.Status.CANCELED);
-        updateQueueStatus(CeActivityDto.Status.CANCELED, activityDto);
+        updateExecutionFields(activityDto);
         remove(dbSession, queueDto, activityDto);
       });
     }
