@@ -18,11 +18,37 @@ exports[`should render correctly 1`] = `
   />
   <MeasureContentContainer
     className="layout-page-main"
-    fetchMeasures={[Function]}
-    leakPeriod={null}
+    currentUser={
+      Object {
+        "isLoggedIn": false,
+      }
+    }
+    fetchMeasures={
+      [MockFunction] {
+        "calls": Array [
+          Array [
+            "foo",
+            Array [
+              "lines_to_cover",
+              "coverage",
+              "duplicated_lines_density",
+              "new_bugs",
+            ],
+            undefined,
+          ],
+        ],
+        "results": Array [
+          Object {
+            "isThrow": false,
+            "value": Promise {},
+          },
+        ],
+      }
+    }
     metric={
       Object {
         "domain": "Coverage",
+        "id": "2",
         "key": "coverage",
         "name": "Coverage",
         "type": "PERCENT",
@@ -32,24 +58,28 @@ exports[`should render correctly 1`] = `
       Object {
         "coverage": Object {
           "domain": "Coverage",
+          "id": "2",
           "key": "coverage",
           "name": "Coverage",
           "type": "PERCENT",
         },
         "duplicated_lines_density": Object {
           "domain": "Duplications",
+          "id": "3",
           "key": "duplicated_lines_density",
           "name": "Duplicated Lines (%)",
           "type": "PERCENT",
         },
         "lines_to_cover": Object {
           "domain": "Coverage",
+          "id": "1",
           "key": "lines_to_cover",
           "name": "Lines to Cover",
           "type": "INT",
         },
         "new_bugs": Object {
           "domain": "Reliability",
+          "id": "4",
           "key": "new_bugs",
           "name": "New Bugs",
           "type": "INT",
@@ -59,11 +89,13 @@ exports[`should render correctly 1`] = `
     rootComponent={
       Object {
         "key": "foo",
+        "name": "Foo",
+        "qualifier": "TRK",
       }
     }
     router={
       Object {
-        "push": [Function],
+        "push": [MockFunction],
       }
     }
     selected=""

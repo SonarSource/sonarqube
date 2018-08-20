@@ -28,14 +28,16 @@ import { event, select } from 'd3-selection';
 import { sortBy, uniq } from 'lodash';
 import Tooltip from '../controls/Tooltip';
 import { translate } from '../../helpers/l10n';
+import { Location } from '../../helpers/urls';
 import './BubbleChart.css';
 
 const TICKS_COUNT = 5;
 
-interface BubbleProps {
+interface BubbleProps<T> {
   color?: string;
-  link?: string;
-  onClick?: (link?: string) => void;
+  link?: string | Location;
+  onClick?: (ref?: T) => void;
+  data?: T;
   r: number;
   scale: number;
   tooltip?: string | React.ReactNode;
@@ -43,12 +45,12 @@ interface BubbleProps {
   y: number;
 }
 
-export class Bubble extends React.PureComponent<BubbleProps> {
+export class Bubble<T> extends React.PureComponent<BubbleProps<T>> {
   handleClick = (event: React.MouseEvent<SVGCircleElement>) => {
     if (this.props.onClick) {
       event.stopPropagation();
       event.preventDefault();
-      this.props.onClick(this.props.link);
+      this.props.onClick(this.props.data);
     }
   };
 
@@ -75,17 +77,18 @@ export class Bubble extends React.PureComponent<BubbleProps> {
   }
 }
 
-interface Item {
+export interface BubbleItem<T> {
   color?: string;
   key?: string;
-  link?: any;
+  link?: string | Location;
+  data?: T;
   size: number;
   tooltip?: React.ReactNode;
   x: number;
   y: number;
 }
 
-interface Props {
+interface Props<T> {
   displayXGrid?: boolean;
   displayXTicks?: boolean;
   displayYGrid?: boolean;
@@ -93,8 +96,8 @@ interface Props {
   formatXTick?: (tick: number) => string;
   formatYTick?: (tick: number) => string;
   height: number;
-  items: Item[];
-  onBubbleClick?: (link?: string) => void;
+  items: BubbleItem<T>[];
+  onBubbleClick?: (ref?: T) => void;
   padding?: [number, number, number, number];
   sizeDomain?: [number, number];
   sizeRange?: [number, number];
@@ -108,7 +111,7 @@ interface State {
 
 type Scale = ScaleLinear<number, number>;
 
-export default class BubbleChart extends React.Component<Props, State> {
+export default class BubbleChart<T> extends React.Component<Props<T>, State> {
   node: SVGSVGElement | null = null;
   selection: any = null;
   transform: any = null;
@@ -122,7 +125,7 @@ export default class BubbleChart extends React.Component<Props, State> {
     sizeRange: [5, 45]
   };
 
-  constructor(props: Props) {
+  constructor(props: Props<T>) {
     super(props);
     this.state = { transform: { x: 0, y: 0, k: 1 } };
   }
@@ -317,6 +320,7 @@ export default class BubbleChart extends React.Component<Props, State> {
           key={item.key || index}
           link={item.link}
           onClick={this.props.onBubbleClick}
+          data={item.data}
           r={sizeScale(item.size)}
           scale={1 / transform.k}
           tooltip={item.tooltip}

@@ -275,7 +275,6 @@
 }
 
 .modal-foot {
-  line-height: var(--controlHeight);
   padding: 10px;
   border-top: 1px solid #ccc;
   background-color: var(--gray94);

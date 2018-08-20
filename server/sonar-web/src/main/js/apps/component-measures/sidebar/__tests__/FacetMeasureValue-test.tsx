@@ -17,31 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import MeasureCell from '../MeasureCell';
+import FacetMeasureValue from '../FacetMeasureValue';
 
-describe('should correctly take the value', () => {
-  const renderAndTakeValue = props =>
-    shallow(<MeasureCell {...props} />)
-      .find('Measure')
-      .prop('value');
+const MEASURE = {
+  metric: {
+    id: '1',
+    key: 'bugs',
+    type: 'INT',
+    name: 'Bugs',
+    domain: 'Reliability'
+  },
+  value: '5',
+  periods: [{ index: 1, value: '5' }],
+  leak: '5'
+};
+const LEAK_MEASURE = {
+  metric: {
+    id: '2',
+    key: 'new_bugs',
+    type: 'INT',
+    name: 'New Bugs',
+    domain: 'Reliability'
+  },
+  periods: [{ index: 1, value: '5' }],
+  leak: '5'
+};
 
-  it('absolute value', () => {
-    const component = { value: '123' };
-    const metric = { key: 'coverage' };
-    const measure = { value: '567' };
+it('should display measure value', () => {
+  expect(shallow(<FacetMeasureValue measure={MEASURE} />)).toMatchSnapshot();
+});
 
-    expect(renderAndTakeValue({ component, metric })).toEqual('123');
-    expect(renderAndTakeValue({ component, metric, measure })).toEqual('567');
-  });
-
-  it('leak value', () => {
-    const component = { leak: '234' };
-    const metric = { key: 'new_coverage' };
-    const measure = { leak: '678' };
-
-    expect(renderAndTakeValue({ component, metric })).toEqual('234');
-    expect(renderAndTakeValue({ component, metric, measure })).toEqual('678');
-  });
+it('should display leak measure value', () => {
+  expect(shallow(<FacetMeasureValue measure={LEAK_MEASURE} />)).toMatchSnapshot();
 });

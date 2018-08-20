@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
@@ -29,21 +28,18 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
-/*:: import type { Component, Period } from '../types'; */
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
-/*:: import type { Metric } from '../../../app/flow-types'; */
+import { MeasureEnhanced, Metric, ComponentMeasure, BranchLike, Period } from '../../../app/types';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  component: Component,
-  components: Array<Component>,
-  leakPeriod?: Period,
-  measure?: MeasureEnhanced,
-  metric: Metric,
-  secondaryMeasure: ?MeasureEnhanced
-|}; */
+interface Props {
+  branchLike?: BranchLike;
+  component: ComponentMeasure;
+  leakPeriod?: Period;
+  measure?: MeasureEnhanced;
+  metric: Metric;
+  secondaryMeasure?: MeasureEnhanced;
+}
 
-export default function MeasureHeader(props /*: Props*/) {
+export default function MeasureHeader(props: Props) {
   const { branchLike, component, leakPeriod, measure, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
   const hasHistory = component.qualifier !== 'FIL' && component.qualifier !== 'UTS';
@@ -83,13 +79,14 @@ export default function MeasureHeader(props /*: Props*/) {
             )}
         </div>
         <div className="measure-details-primary-actions">
-          {leakPeriod != null && (
+          {leakPeriod && (
             <LeakPeriodLegend className="spacer-left" component={component} period={leakPeriod} />
           )}
         </div>
       </div>
       {secondaryMeasure &&
-        secondaryMeasure.metric.key === 'ncloc_language_distribution' && (
+        secondaryMeasure.metric.key === 'ncloc_language_distribution' &&
+        secondaryMeasure.value !== undefined && (
           <div className="measure-details-secondary">
             <LanguageDistributionContainer
               alignTicks={true}

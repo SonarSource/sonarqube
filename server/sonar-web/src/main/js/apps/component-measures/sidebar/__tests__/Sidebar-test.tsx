@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import Sidebar from '../Sidebar';
 
 const MEASURES = [
   {
     metric: {
+      id: '1',
       key: 'lines_to_cover',
       type: 'INT',
       name: 'Lines to Cover',
@@ -35,6 +36,7 @@ const MEASURES = [
   },
   {
     metric: {
+      id: '2',
       key: 'coverage',
       type: 'PERCENT',
       name: 'Coverage',
@@ -46,6 +48,7 @@ const MEASURES = [
   },
   {
     metric: {
+      id: '3',
       key: 'duplicated_lines_density',
       type: 'PERCENT',
       name: 'Duplicated Lines (%)',
@@ -70,8 +73,8 @@ it('should display two facets', () => {
 it('should correctly toggle facets', () => {
   const wrapper = shallow(<Sidebar {...PROPS} />);
   expect(wrapper.state('openFacets').bugs).toBeUndefined();
-  wrapper.instance().toggleFacet('bugs');
+  (wrapper.instance() as Sidebar).toggleFacet('bugs');
   expect(wrapper.state('openFacets').bugs).toBeTruthy();
-  wrapper.instance().toggleFacet('bugs');
+  (wrapper.instance() as Sidebar).toggleFacet('bugs');
   expect(wrapper.state('openFacets').bugs).toBeFalsy();
 });

@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import DomainFacet from '../DomainFacet';
 
@@ -27,6 +26,7 @@ const DOMAIN = {
   measures: [
     {
       metric: {
+        id: '1',
         key: 'bugs',
         type: 'INT',
         name: 'Bugs',
@@ -38,6 +38,7 @@ const DOMAIN = {
     },
     {
       metric: {
+        id: '2',
         key: 'new_bugs',
         type: 'INT',
         name: 'New Bugs',
@@ -75,7 +76,7 @@ it('should not display subtitles of new measures if there is none', () => {
     name: 'Reliability',
     measures: [
       {
-        metric: { key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' },
+        metric: { id: '1', key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' },
         value: '5'
       }
     ]
@@ -99,7 +100,7 @@ it('should not display subtitles of new measures if there is none, even on last 
     name: 'Reliability',
     measures: [
       {
-        metric: { key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' },
+        metric: { id: '2', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' },
         value: '5'
       }
     ]

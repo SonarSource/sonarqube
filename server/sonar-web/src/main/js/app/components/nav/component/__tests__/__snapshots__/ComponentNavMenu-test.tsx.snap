@@ -1104,6 +1104,24 @@ exports[`should work for short-living branches 1`] = `
       style={Object {}}
       to={
         Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": "feature",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      layout.measures
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
           "pathname": "/code",
           "query": Object {
             "branch": "feature",

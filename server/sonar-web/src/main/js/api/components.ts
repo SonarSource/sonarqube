@@ -114,14 +114,14 @@ export function getComponentTree(
     metricKeys: metrics.join(','),
     strategy
   });
-  return getJSON(url, data);
+  return getJSON(url, data).catch(throwGlobalError);
 }
 
 export function getChildren(
   componentKey: string,
   metrics: string[] = [],
   additional: RequestData = {}
-): Promise<any> {
+) {
   return getComponentTree('children', componentKey, metrics, additional);
 }
 
@@ -129,14 +129,14 @@ export function getComponentLeaves(
   componentKey: string,
   metrics: string[] = [],
   additional: RequestData = {}
-): Promise<any> {
+) {
   return getComponentTree('leaves', componentKey, metrics, additional);
 }
 
 export function getComponent(
   data: { componentKey: string; metricKeys: string } & BranchParameters
 ): Promise<any> {
-  return getJSON('/api/measures/component', data).then(r => r.component);
+  return getJSON('/api/measures/component', data).then(r => r.component, throwGlobalError);
 }
 
 export interface TreeComponent extends LightComponent {
@@ -165,7 +165,7 @@ export function getTree(data: {
 }
 
 export function getComponentShow(data: { component: string } & BranchParameters): Promise<any> {
-  return getJSON('/api/components/show', data);
+  return getJSON('/api/components/show', data).catch(throwGlobalError);
 }
 
 export function getParents(component: string): Promise<any> {

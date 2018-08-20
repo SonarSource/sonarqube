@@ -130,8 +130,8 @@ exports[`should render bubble links 2`] = `
 
 exports[`should render bubbles with click handlers 1`] = `
 <Bubble
+  data="foo"
   key="0"
-  link="foo"
   onClick={[MockFunction]}
   r={45}
   scale={1}
@@ -159,8 +159,8 @@ exports[`should render bubbles with click handlers 1`] = `
 
 exports[`should render bubbles with click handlers 2`] = `
 <Bubble
+  data="bar"
   key="1"
-  link="bar"
   onClick={[MockFunction]}
   r={33.57142857142857}
   scale={1}

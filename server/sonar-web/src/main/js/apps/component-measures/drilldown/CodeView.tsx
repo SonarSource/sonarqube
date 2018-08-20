@@ -20,8 +20,13 @@
 import * as React from 'react';
 import * as key from 'keymaster';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import { BranchLike, ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../app/types';
-import { Period } from '../../../helpers/periods';
+import {
+  BranchLike,
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  Metric,
+  Period
+} from '../../../app/types';
 
 interface Props {
   branchLike?: BranchLike;

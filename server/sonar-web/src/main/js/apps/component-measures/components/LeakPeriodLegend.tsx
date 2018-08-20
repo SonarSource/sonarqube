@@ -24,10 +24,10 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
-import { getPeriodLabel, getPeriodDate, Period, PeriodMode } from '../../../helpers/periods';
+import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { differenceInDays } from '../../../helpers/dates';
-import { ComponentMeasure } from '../../../app/types';
+import { ComponentMeasure, Period, PeriodMode } from '../../../app/types';
 
 interface Props {
   className?: string;

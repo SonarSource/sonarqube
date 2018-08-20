@@ -1,53 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display correctly for open file 1`] = `
-<div
-  className="measure-details-primary-actions"
->
-  <LeakPeriodLegend
-    className="spacer-left"
-    component={
-      Object {
-        "key": "bar",
-        "qualifier": "FIL",
-      }
-    }
-    period={
-      Object {
-        "date": "2017-05-16T13:50:02+0200",
-        "index": 1,
-        "mode": "previous_version",
-        "parameter": "6,4",
-      }
-    }
-  />
-</div>
-`;
-
-exports[`should display correctly for open file 2`] = `
-<div
-  className="measure-details-primary-actions"
->
-  <LeakPeriodLegend
-    className="spacer-left"
-    component={
-      Object {
-        "key": "bar",
-        "qualifier": "FIL",
-      }
-    }
-    period={
-      Object {
-        "date": "2017-05-16T13:50:02+0200",
-        "index": 1,
-        "mode": "previous_version",
-        "parameter": "6,4",
-      }
-    }
-  />
-</div>
-`;
-
 exports[`should render correctly 1`] = `
 <div
   className="measure-details-header big-spacer-bottom"
@@ -104,6 +56,7 @@ exports[`should render correctly 1`] = `
         component={
           Object {
             "key": "foo",
+            "name": "Foo",
             "qualifier": "TRK",
           }
         }
@@ -157,6 +110,7 @@ exports[`should render correctly for leak 1`] = `
         component={
           Object {
             "key": "foo",
+            "name": "Foo",
             "qualifier": "TRK",
           }
         }
@@ -250,6 +204,7 @@ exports[`should work with measure without value 1`] = `
         component={
           Object {
             "key": "foo",
+            "name": "Foo",
             "qualifier": "TRK",
           }
         }

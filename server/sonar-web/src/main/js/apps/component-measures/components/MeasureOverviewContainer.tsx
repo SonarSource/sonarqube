@@ -17,49 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { InjectedRouter } from 'react-router';
 import MeasureOverview from './MeasureOverview';
 import { getComponentShow } from '../../../api/components';
 import { getProjectUrl } from '../../../helpers/urls';
-import { isViewType } from '../utils';
+import { isViewType, Query } from '../utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-/*:: import type { Component, Period, Query } from '../types'; */
-/*:: import type { RawQuery } from '../../../helpers/query'; */
-/*:: import type { Metric } from '../../../app/flow-types'; */
+import { BranchLike, ComponentMeasure, CurrentUser, Metric, Period } from '../../../app/types';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  className?: string,
-  rootComponent: Component,
-  currentUser: { isLoggedIn: boolean },
-  domain: string,
-  leakPeriod: Period,
-  metrics: { [string]: Metric },
-  router: {
-    push: ({ pathname: string, query?: RawQuery }) => void
-  },
-  selected: ?string,
-  updateQuery: Query => void
-|}; */
+interface Props {
+  branchLike?: BranchLike;
+  className?: string;
+  currentUser: CurrentUser;
+  domain: string;
+  leakPeriod?: Period;
+  metrics: { [metric: string]: Metric };
+  rootComponent: ComponentMeasure;
+  router: InjectedRouter;
+  selected?: string;
+  updateQuery: (query: Partial<Query>) => void;
+}
 
-/*:: type State = {
-  component: ?Component,
-  loading: {
-    component: boolean,
-    bubbles: boolean
-  }
-}; */
+interface LoadingState {
+  bubbles: boolean;
+  component: boolean;
+}
 
-export default class MeasureOverviewContainer extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    component: null,
-    loading: {
-      component: false,
-      bubbles: false
-    }
+interface State {
+  component?: ComponentMeasure;
+  loading: LoadingState;
+}
+
+export default class MeasureOverviewContainer extends React.PureComponent<Props, State> {
+  mounted = false;
+
+  state: State = {
+    loading: { bubbles: false, component: false }
   };
 
   componentDidMount() {
@@ -67,7 +61,7 @@ export default class MeasureOverviewContainer extends React.PureComponent {
     this.fetchComponent(this.props);
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     const { component } = this.state;
     const componentChanged =
       !component ||
@@ -82,7 +76,7 @@ export default class MeasureOverviewContainer extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchComponent = ({ branchLike, rootComponent, selected } /*: Props */) => {
+  fetchComponent = ({ branchLike, rootComponent, selected }: Props) => {
     if (!selected || rootComponent.key === selected) {
       this.setState({ component: rootComponent });
       this.updateLoading({ component: false });
@@ -100,18 +94,18 @@ export default class MeasureOverviewContainer extends React.PureComponent {
     );
   };
 
-  updateLoading = (loading /*: { [string]: boolean } */) => {
+  updateLoading = (loading: Partial<LoadingState>) => {
     if (this.mounted) {
       this.setState(state => ({ loading: { ...state.loading, ...loading } }));
     }
   };
 
-  updateSelected = (component /*: string */) => {
+  updateSelected = (component: string) => {
     if (this.state.component && isViewType(this.state.component)) {
       this.props.router.push(getProjectUrl(component));
     } else {
       this.props.updateQuery({
-        selected: component !== this.props.rootComponent.key ? component : null
+        selected: component !== this.props.rootComponent.key ? component : undefined
       });
     }
   };

@@ -79,10 +79,7 @@ export function sortMeasures(
   ]);
 }
 
-export function addMeasureCategories(
-  domainName: string,
-  measures: MeasureEnhanced[]
-) /*: Array<any> */ {
+export function addMeasureCategories(domainName: string, measures: MeasureEnhanced[]) {
   const categories = domains[domainName] && domains[domainName].categories;
   if (categories && categories.length > 0) {
     return [...categories, ...measures];
@@ -121,7 +118,7 @@ export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
   }));
 
   return sortBy(domains, [
-    (domain: { name: string; measure: MeasureEnhanced[] }) => {
+    (domain: { name: string; measures: MeasureEnhanced[] }) => {
       const idx = KNOWN_DOMAINS.indexOf(domain.name);
       return idx >= 0 ? idx : KNOWN_DOMAINS.length;
     },
@@ -162,7 +159,7 @@ export function getBubbleMetrics(domain: string, metrics: { [key: string]: Metri
     x: metrics[conf.x],
     y: metrics[conf.y],
     size: metrics[conf.size],
-    colors: conf.colors ? conf.colors.map(color => metrics[color]) : null
+    colors: conf.colors && conf.colors.map(color => metrics[color])
   };
 }
 

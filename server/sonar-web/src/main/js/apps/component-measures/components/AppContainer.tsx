@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
+import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { withRouter, WithRouterProps } from 'react-router';
 import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getCurrentUser, getMetrics, getMetricsKey } from '../../../store/rootReducer';
@@ -28,31 +28,57 @@ import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-/*:: import type { Component, Period } from '../types'; */
-/*:: import type { Measure, MeasureEnhanced } from '../../../components/measure/types'; */
+import {
+  BranchLike,
+  ComponentMeasure,
+  CurrentUser,
+  Measure,
+  MeasureEnhanced,
+  Metric,
+  Period
+} from '../../../app/types';
 
-const mapStateToProps = state => ({
+interface StateToProps {
+  currentUser: CurrentUser;
+  metrics: { [metric: string]: Metric };
+  metricsKey: string[];
+}
+
+interface DispatchToProps {
+  fetchMeasures: (
+    component: string,
+    metricsKey: string[],
+    branchLike?: BranchLike
+  ) => Promise<{ component: ComponentMeasure; measures: MeasureEnhanced[]; leakPeriod?: Period }>;
+  fetchMetrics: () => void;
+}
+
+interface OwnProps {
+  branchLike?: BranchLike;
+  component: ComponentMeasure;
+}
+
+const mapStateToProps = (state: any): StateToProps => ({
   currentUser: getCurrentUser(state),
   metrics: getMetrics(state),
   metricsKey: getMetricsKey(state)
 });
 
-function banQualityGate(component /*: Component */) /*: Array<Measure> */ {
-  const bannedMetrics = [];
-  if (!['VW', 'SVW'].includes(component.qualifier)) {
+function banQualityGate({ measures = [], qualifier }: ComponentMeasure): Measure[] {
+  const bannedMetrics: string[] = [];
+  if (!['VW', 'SVW'].includes(qualifier)) {
     bannedMetrics.push('alert_status');
   }
-  if (component.qualifier === 'APP') {
+  if (qualifier === 'APP') {
     bannedMetrics.push('releasability_rating', 'releasability_effort');
   }
-  return component.measures.filter(measure => !bannedMetrics.includes(measure.metric));
+  return measures.filter(measure => !bannedMetrics.includes(measure.metric));
 }
 
-const fetchMeasures = (
-  component /*: string */,
-  metricsKey /*: Array<string> */,
-  branchLike /*: { id?: string; name: string } | void */
-) => (dispatch, getState) => {
+const fetchMeasures = (component: string, metricsKey: string[], branchLike?: BranchLike) => (
+  _dispatch: Dispatch<any>,
+  getState: () => any
+) => {
   if (metricsKey.length <= 0) {
     return Promise.resolve({ component: {}, measures: [], leakPeriod: null });
   }
@@ -60,21 +86,23 @@ const fetchMeasures = (
   return getMeasuresAndMeta(component, metricsKey, {
     additionalFields: 'periods',
     ...getBranchLikeQuery(branchLike)
-  }).then(r => {
-    const measures = banQualityGate(r.component).map(measure =>
+  }).then(({ component, periods }) => {
+    const measures = banQualityGate(component).map(measure =>
       enhanceMeasure(measure, getMetrics(getState()))
     );
 
     const newBugs = measures.find(measure => measure.metric.key === 'new_bugs');
-    const applicationPeriods = newBugs ? [{ index: 1 }] : [];
-    const periods = r.component.qualifier === 'APP' ? applicationPeriods : r.periods;
-    return { component: r.component, measures, leakPeriod: getLeakPeriod(periods) };
+    const applicationPeriods = newBugs ? [{ index: 1 } as Period] : [];
+    const leakPeriod = getLeakPeriod(component.qualifier === 'APP' ? applicationPeriods : periods);
+    return { component, measures, leakPeriod };
   }, throwGlobalError);
 };
 
-const mapDispatchToProps = { fetchMeasures, fetchMetrics };
+const mapDispatchToProps: DispatchToProps = { fetchMeasures: fetchMeasures as any, fetchMetrics };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(App));
+export default withRouter<OwnProps>(
+  connect<StateToProps, DispatchToProps, OwnProps & WithRouterProps>(
+    mapStateToProps,
+    mapDispatchToProps
+  )(App)
+);

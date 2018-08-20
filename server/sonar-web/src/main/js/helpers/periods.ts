@@ -19,32 +19,16 @@
  */
 import { translate, translateWithParameters } from './l10n';
 import { parseDate } from './dates';
+import { Period, PeriodMode, PeriodMeasure } from '../app/types';
 
-export enum PeriodMode {
-  Days = 'days',
-  Date = 'date',
-  Version = 'version',
-  PreviousAnalysis = 'previous_analysis',
-  PreviousVersion = 'previous_version'
-}
-
-export interface Period {
-  date: string;
-  index: number;
-  mode: PeriodMode;
-  modeParam?: string;
-  parameter?: string;
-}
-
-function getPeriod(periods: Period[] | undefined, index: number) {
+function getPeriod<T extends Period | PeriodMeasure>(periods: T[] | undefined, index: number) {
   if (!Array.isArray(periods)) {
     return undefined;
   }
-
   return periods.find(period => period.index === index);
 }
 
-export function getLeakPeriod(periods: Period[] | undefined) {
+export function getLeakPeriod<T extends Period | PeriodMeasure>(periods: T[] | undefined) {
   return getPeriod(periods, 1);
 }
 

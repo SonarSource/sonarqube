@@ -26,9 +26,9 @@ import {
   Metric,
   BranchLike,
   CurrentUser,
-  MeasureEnhanced
+  MeasureEnhanced,
+  Period
 } from '../../../app/types';
-import { Period } from '../../../helpers/periods';
 
 interface Props {
   branchLike?: BranchLike;

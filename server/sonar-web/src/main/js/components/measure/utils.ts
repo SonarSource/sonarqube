@@ -19,6 +19,7 @@
  */
 import { getRatingTooltip as nextGetRatingTooltip, isDiffMetric } from '../../helpers/measures';
 import { Metric, Measure, MeasureEnhanced } from '../../app/types';
+import { getLeakPeriod } from '../../helpers/periods';
 
 const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
 
@@ -37,7 +38,7 @@ export function getLeakValue(measure: Measure | undefined): string | undefined {
   if (!measure || !measure.periods) {
     return undefined;
   }
-  const period = measure.periods.find(period => period.index === 1);
+  const period = getLeakPeriod(measure.periods);
   return period && period.value;
 }
 

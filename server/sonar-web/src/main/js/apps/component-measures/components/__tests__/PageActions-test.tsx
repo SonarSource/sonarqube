@@ -17,9 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import PageActions from '../PageActions';
+
+const PAGING = {
+  pageIndex: 1,
+  pageSize: 100,
+  total: 120
+};
 
 it('should display correctly for a project', () => {
   expect(
@@ -46,7 +52,7 @@ it('should display the total of files', () => {
       <PageActions
         current={12}
         isFile={false}
-        paging={{ total: 120 }}
+        paging={PAGING}
         totalLoadedComponents={20}
         view="treemap"
       />
@@ -57,7 +63,7 @@ it('should display the total of files', () => {
       <PageActions
         current={12}
         isFile={true}
-        paging={{ total: 120 }}
+        paging={PAGING}
         totalLoadedComponents={20}
         view="list"
       />

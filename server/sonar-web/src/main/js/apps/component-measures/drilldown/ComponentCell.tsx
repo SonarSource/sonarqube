@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
@@ -27,80 +26,72 @@ import { splitPath } from '../../../helpers/path';
 import {
   getPathUrlAsString,
   getBranchLikeUrl,
-  getLongLivingBranchUrl,
-  getComponentDrilldownUrlWithSelection
+  getComponentDrilldownUrlWithSelection,
+  getProjectUrl
 } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Component, ComponentEnhanced } from '../types'; */
-/*:: import type { Metric } from '../../../app/flow-types'; */
+import { BranchLike, ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../app/types';
 
-/*:: type Props = {
-  branchLike?: { id?: string; name: string },
-  component: ComponentEnhanced,
-  onClick: string => void,
-  metric: Metric,
-  rootComponent: Component
-}; */
+interface Props {
+  branchLike?: BranchLike;
+  component: ComponentMeasureEnhanced;
+  onClick: (component: string) => void;
+  metric: Metric;
+  rootComponent: ComponentMeasure;
+}
 
-export default class ComponentCell extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleClick = (e /*: MouseEvent */) => {
-    const isLeftClickEvent = e.button === 0;
-    const isModifiedEvent = !!(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey);
+export default class ComponentCell extends React.PureComponent<Props> {
+  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const isLeftClickEvent = event.button === 0;
+    const isModifiedEvent = !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 
     if (isLeftClickEvent && !isModifiedEvent) {
-      e.preventDefault();
+      event.preventDefault();
       this.props.onClick(this.props.component.key);
     }
   };
 
-  renderInner() {
+  renderInner(componentKey: string) {
     const { component } = this.props;
     let head = '';
     let tail = component.name;
-    let branch = null;
+    let branchComponent = null;
 
-    if (['DIR', 'FIL', 'UTS'].includes(component.qualifier)) {
-      const parts = splitPath(component.path);
-      ({ head, tail } = parts);
+    if (['DIR', 'FIL', 'UTS'].includes(component.qualifier) && component.path) {
+      ({ head, tail } = splitPath(component.path));
     }
 
     if (this.props.rootComponent.qualifier === 'APP') {
-      branch = (
-        <React.Fragment>
+      branchComponent = (
+        <>
           {component.branch ? (
-            <React.Fragment>
+            <>
               <LongLivingBranchIcon className="spacer-left little-spacer-right" />
               <span className="note">{component.branch}</span>
-            </React.Fragment>
+            </>
           ) : (
             <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
           )}
-        </React.Fragment>
+        </>
       );
     }
     return (
-      <span title={component.refKey || component.key}>
+      <span title={componentKey}>
         <QualifierIcon qualifier={component.qualifier} />
         &nbsp;
         {head.length > 0 && <span className="note">{head}/</span>}
         <span>{tail}</span>
-        {branch}
+        {branchComponent}
       </span>
     );
   }
 
   render() {
     const { branchLike, component, metric, rootComponent } = this.props;
-    const to =
-      this.props.rootComponent.qualifier === 'APP'
-        ? getLongLivingBranchUrl(component.refKey, component.branch)
-        : getBranchLikeUrl(component.refKey, branchLike);
     return (
       <td className="measure-details-component-cell">
         <div className="text-ellipsis">
-          {component.refKey == null ? (
+          {!component.refKey ? (
             <a
               className="link-no-underline"
               href={getPathUrlAsString(
@@ -113,17 +104,21 @@ export default class ComponentCell extends React.PureComponent {
               )}
               id={'component-measures-component-link-' + component.key}
               onClick={this.handleClick}>
-              {this.renderInner()}
+              {this.renderInner(component.key)}
             </a>
           ) : (
             <Link
               className="link-no-underline"
-              id={'component-measures-component-link-' + component.key}
-              to={to}>
+              id={'component-measures-component-link-' + component.refKey}
+              to={
+                this.props.rootComponent.qualifier === 'APP'
+                  ? getProjectUrl(component.refKey, component.branch)
+                  : getBranchLikeUrl(component.refKey, branchLike)
+              }>
               <span className="big-spacer-right">
                 <LinkIcon />
               </span>
-              {this.renderInner()}
+              {this.renderInner(component.refKey)}
             </Link>
           )}
         </div>

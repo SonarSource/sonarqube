@@ -44,10 +44,10 @@ import {
   isLoggedIn,
   Metric,
   Paging,
-  MeasureEnhanced
+  MeasureEnhanced,
+  Period
 } from '../../../app/types';
 import { RequestData } from '../../../helpers/request';
-import { Period } from '../../../helpers/periods';
 
 interface Props {
   branchLike?: BranchLike;
@@ -328,10 +328,8 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
             <MeasureHeader
               branchLike={branchLike}
               component={component}
-              components={this.state.components}
               leakPeriod={this.props.leakPeriod}
-              // fall back to `undefined` to be compatible with typescript files where we compare with `=== undefined`
-              measure={measure || undefined}
+              measure={measure}
               metric={metric}
               secondaryMeasure={this.props.secondaryMeasure}
             />

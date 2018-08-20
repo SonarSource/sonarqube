@@ -30,6 +30,7 @@ exports[`should display facet item list 1`] = `
           size={14}
         />
       }
+      tooltip="component_measures.domain_overview"
       value="Reliability"
     />
     <span
@@ -64,6 +65,7 @@ exports[`should display facet item list 1`] = `
               "leak": "5",
               "metric": Object {
                 "domain": "Reliability",
+                "id": "2",
                 "key": "new_bugs",
                 "name": "New Bugs",
                 "type": "INT",
@@ -78,6 +80,7 @@ exports[`should display facet item list 1`] = `
           }
         />
       }
+      tooltip="New Bugs"
       value="new_bugs"
     />
     <span
@@ -112,6 +115,7 @@ exports[`should display facet item list 1`] = `
               "leak": "5",
               "metric": Object {
                 "domain": "Reliability",
+                "id": "1",
                 "key": "bugs",
                 "name": "Bugs",
                 "type": "INT",
@@ -127,6 +131,7 @@ exports[`should display facet item list 1`] = `
           }
         />
       }
+      tooltip="Bugs"
       value="bugs"
     />
   </FacetItemsList>
@@ -167,6 +172,7 @@ exports[`should display facet item list with bugs selected 1`] = `
           size={14}
         />
       }
+      tooltip="component_measures.domain_overview"
       value="Reliability"
     />
     <span
@@ -201,6 +207,7 @@ exports[`should display facet item list with bugs selected 1`] = `
               "leak": "5",
               "metric": Object {
                 "domain": "Reliability",
+                "id": "2",
                 "key": "new_bugs",
                 "name": "New Bugs",
                 "type": "INT",
@@ -215,6 +222,7 @@ exports[`should display facet item list with bugs selected 1`] = `
           }
         />
       }
+      tooltip="New Bugs"
       value="new_bugs"
     />
     <span
@@ -249,6 +257,7 @@ exports[`should display facet item list with bugs selected 1`] = `
               "leak": "5",
               "metric": Object {
                 "domain": "Reliability",
+                "id": "1",
                 "key": "bugs",
                 "name": "Bugs",
                 "type": "INT",
@@ -264,6 +273,7 @@ exports[`should display facet item list with bugs selected 1`] = `
           }
         />
       }
+      tooltip="Bugs"
       value="bugs"
     />
   </FacetItemsList>
@@ -300,6 +310,7 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
           size={14}
         />
       }
+      tooltip="component_measures.domain_overview"
       value="Reliability"
     />
     <span
@@ -333,6 +344,7 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
             Object {
               "metric": Object {
                 "domain": "Reliability",
+                "id": "1",
                 "key": "bugs",
                 "name": "Bugs",
                 "type": "INT",
@@ -342,6 +354,7 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
           }
         />
       }
+      tooltip="Bugs"
       value="bugs"
     />
   </FacetItemsList>
@@ -378,6 +391,7 @@ exports[`should not display subtitles of new measures if there is none, even on 
           size={14}
         />
       }
+      tooltip="component_measures.domain_overview"
       value="Reliability"
     />
     <span
@@ -411,6 +425,7 @@ exports[`should not display subtitles of new measures if there is none, even on 
             Object {
               "metric": Object {
                 "domain": "Reliability",
+                "id": "2",
                 "key": "new_bugs",
                 "name": "New Bugs",
                 "type": "INT",
@@ -420,6 +435,7 @@ exports[`should not display subtitles of new measures if there is none, even on 
           }
         />
       }
+      tooltip="New Bugs"
       value="new_bugs"
     />
   </FacetItemsList>

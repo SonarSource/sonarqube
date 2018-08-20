@@ -17,14 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import FilesCounter from '../FilesCounter';
+import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 
-it('should display x files on y total', () => {
-  expect(shallow(<FilesCounter current={12} total={123455} />)).toMatchSnapshot();
-});
+interface Props {
+  className?: string;
+  current?: number;
+  total: number;
+}
 
-it('should display only total of files', () => {
-  expect(shallow(<FilesCounter current={null} total={123455} />)).toMatchSnapshot();
-});
+export default function FilesCounter({ className, current, total }: Props) {
+  return (
+    <span className={className}>
+      <strong>
+        {current !== undefined && (
+          <span>
+            {formatMeasure(current, 'INT')}
+            {' / '}
+          </span>
+        )}
+        {formatMeasure(total, 'INT')}
+      </strong>{' '}
+      {translate('component_measures.files')}
+    </span>
+  );
+}

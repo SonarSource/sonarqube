@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import FacetMeasureValue from './FacetMeasureValue';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import FacetBox from '../../../components/facet/FacetBox';
@@ -38,26 +37,22 @@ import {
   getLocalizedMetricName,
   translate
 } from '../../../helpers/l10n';
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+import { MeasureEnhanced } from '../../../app/types';
 
-/*:: type Props = {|
-  onChange: (metric: string) => void,
-  onToggle: (property: string) => void,
-  open: boolean,
-  domain: { name: string, measures: Array<MeasureEnhanced> },
-  selected: string
-|}; */
+interface Props {
+  domain: { name: string; measures: MeasureEnhanced[] };
+  onChange: (metric: string) => void;
+  onToggle: (property: string) => void;
+  open: boolean;
+  selected: string;
+}
 
-export default class DomainFacet extends React.PureComponent {
-  /*:: props: Props; */
+export default class DomainFacet extends React.PureComponent<Props> {
+  handleHeaderClick = () => {
+    this.props.onToggle(this.props.domain.name);
+  };
 
-  handleHeaderClick = () => this.props.onToggle(this.props.domain.name);
-
-  hasFacetSelected = (
-    domain /*: { name: string } */,
-    measures /*: Array<MeasureEnhanced> */,
-    selected /*: string */
-  ) => {
+  hasFacetSelected = (domain: { name: string }, measures: MeasureEnhanced[], selected: string) => {
     const measureSelected = measures.find(measure => measure.metric.key === selected);
     const overviewSelected = domain.name === selected && hasBubbleChart(domain.name);
     return measureSelected || overviewSelected;
@@ -73,8 +68,9 @@ export default class DomainFacet extends React.PureComponent {
     return overviewSelected ? [translate('component_measures.domain_overview')] : [];
   };
 
-  renderItemFacetStat = (item /*: MeasureEnhanced */) =>
-    hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null;
+  renderItemFacetStat = (item: MeasureEnhanced) => {
+    return hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null;
+  };
 
   renderItemsFacet = () => {
     const { domain, selected } = this.props;
@@ -110,6 +106,7 @@ export default class DomainFacet extends React.PureComponent {
             }
             onClick={this.props.onChange}
             stat={this.renderItemFacetStat(item)}
+            tooltip={translateMetric(item.metric)}
             value={item.metric.key}
           />
         )
@@ -133,6 +130,7 @@ export default class DomainFacet extends React.PureComponent {
         }
         onClick={this.props.onChange}
         stat={<BubblesIcon size={14} />}
+        tooltip={translate('component_measures.domain_overview')}
         value={domain.name}
       />
     );

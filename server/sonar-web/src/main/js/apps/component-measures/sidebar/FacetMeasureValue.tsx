@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+import { MeasureEnhanced } from '../../../app/types';
 
-export default function FacetMeasureValue({ measure } /*: { measure: MeasureEnhanced } */) {
+interface Props {
+  measure: MeasureEnhanced;
+}
+
+export default function FacetMeasureValue({ measure }: Props) {
   if (isDiffMetric(measure.metric.key)) {
     return (
       <div

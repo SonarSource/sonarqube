@@ -20,14 +20,14 @@
 import { getJSON, RequestData, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import {
-  Metric,
   CustomMeasure,
-  Paging,
   BranchParameters,
   Measure,
-  MeasurePeriod
+  Metric,
+  Paging,
+  Period,
+  PeriodMeasure
 } from '../app/types';
-import { Period } from '../helpers/periods';
 
 export function getMeasures(
   data: { componentKey: string; metricKeys: string } & BranchParameters
@@ -55,7 +55,7 @@ export function getMeasuresAndMeta(
 interface MeasuresForProjects {
   component: string;
   metric: string;
-  periods?: MeasurePeriod[];
+  periods?: PeriodMeasure[];
   value?: string;
 }
 

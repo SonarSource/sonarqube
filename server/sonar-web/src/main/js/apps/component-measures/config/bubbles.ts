@@ -23,7 +23,7 @@ export const bubbles: {
     y: string;
     size: string;
     colors?: string[];
-    yDomain?: number[];
+    yDomain?: [number, number];
   };
 } = {
   Reliability: {

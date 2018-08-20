@@ -48,7 +48,6 @@ import {
   SourceViewerFile
 } from '../../app/types';
 import { isSameBranchLike, getBranchLikeQuery } from '../../helpers/branches';
-import { parseDate } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import './styles.css';
 

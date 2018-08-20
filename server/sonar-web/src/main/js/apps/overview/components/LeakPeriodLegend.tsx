@@ -23,9 +23,10 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
-import { getPeriodDate, getPeriodLabel, Period, PeriodMode } from '../../../helpers/periods';
+import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { differenceInDays } from '../../../helpers/dates';
+import { Period, PeriodMode } from '../../../app/types';
 
 interface Props {
   period: Period;

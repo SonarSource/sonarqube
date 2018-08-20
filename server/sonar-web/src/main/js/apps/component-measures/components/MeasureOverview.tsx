@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureFavoriteContainer from './MeasureFavoriteContainer';
@@ -29,44 +28,47 @@ import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-/*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
-/*:: import type { Metric } from '../../../app/flow-types'; */
+import {
+  BranchLike,
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  CurrentUser,
+  Metric,
+  Paging,
+  Period
+} from '../../../app/types';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  className?: string,
-  component: Component,
-  currentUser: { isLoggedIn: boolean },
-  domain: string,
-  leakPeriod: Period,
-  loading: boolean,
-  metrics: { [string]: Metric },
-  rootComponent: Component,
-  updateLoading: ({ [string]: boolean }) => void,
-  updateSelected: string => void
-|}; */
+interface Props {
+  branchLike?: BranchLike;
+  className?: string;
+  component: ComponentMeasure;
+  currentUser: CurrentUser;
+  domain: string;
+  leakPeriod?: Period;
+  loading: boolean;
+  metrics: { [metric: string]: Metric };
+  rootComponent: ComponentMeasure;
+  updateLoading: (param: { [key: string]: boolean }) => void;
+  updateSelected: (component: string) => void;
+}
 
-/*:: type State = {
-  components: Array<ComponentEnhanced>,
-  paging?: Paging
-}; */
+interface State {
+  components: ComponentMeasureEnhanced[];
+  paging?: Paging;
+}
 
 const BUBBLES_LIMIT = 500;
 
-export default class MeasureOverview extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    components: [],
-    paging: null
-  };
+export default class MeasureOverview extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { components: [] };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchComponents(this.props);
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (
       nextProps.component !== this.props.component ||
       nextProps.metrics !== this.props.metrics ||
@@ -80,16 +82,16 @@ export default class MeasureOverview extends React.PureComponent {
     this.mounted = false;
   }
 
-  fetchComponents = (props /*: Props */) => {
+  fetchComponents = (props: Props) => {
     const { branchLike, component, domain, metrics } = props;
     if (isFileType(component)) {
-      this.setState({ components: [], paging: null });
+      this.setState({ components: [], paging: undefined });
       return;
     }
     const { x, y, size, colors } = getBubbleMetrics(domain, metrics);
     const metricsKey = [x.key, y.key, size.key];
     if (colors) {
-      metricsKey.push(colors.map(metric => metric.key));
+      metricsKey.push(...colors.map(metric => metric.key));
     }
     const options = {
       ...getBranchLikeQuery(branchLike),
@@ -105,7 +107,9 @@ export default class MeasureOverview extends React.PureComponent {
         if (domain === this.props.domain) {
           if (this.mounted) {
             this.setState({
-              components: r.components.map(component => enhanceComponent(component, null, metrics)),
+              components: r.components.map(component =>
+                enhanceComponent(component, undefined, metrics)
+              ),
               paging: r.paging
             });
           }
@@ -171,7 +175,7 @@ export default class MeasureOverview extends React.PureComponent {
         </div>
         <div className="layout-page-main-inner measure-details-content">
           <div className="clearfix big-spacer-bottom">
-            {leakPeriod != null && (
+            {leakPeriod && (
               <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
             )}
           </div>

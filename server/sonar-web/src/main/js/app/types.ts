@@ -107,12 +107,14 @@ export interface ComponentQualityProfile {
 }
 
 interface ComponentMeasureIntern {
+  branch?: string;
   isFavorite?: boolean;
   isRecentlyBrowsed?: boolean;
   key: string;
   match?: string;
   name: string;
   organization?: string;
+  path?: string;
   project?: string;
   qualifier: string;
   refKey?: string;
@@ -376,18 +378,6 @@ export interface MainBranch extends Branch {
   status?: { qualityGateStatus: string };
 }
 
-export interface MeasurePeriod {
-  bestValue?: boolean;
-  index: number;
-  value: string;
-}
-
-interface MeasureIntern {
-  bestValue?: boolean;
-  periods?: MeasurePeriod[];
-  value?: string;
-}
-
 export interface Measure extends MeasureIntern {
   metric: string;
 }
@@ -395,6 +385,12 @@ export interface Measure extends MeasureIntern {
 export interface MeasureEnhanced extends MeasureIntern {
   metric: Metric;
   leak?: string;
+}
+
+interface MeasureIntern {
+  bestValue?: boolean;
+  periods?: PeriodMeasure[];
+  value?: string;
 }
 
 export interface Metric {
@@ -476,6 +472,28 @@ export interface Paging {
   pageIndex: number;
   pageSize: number;
   total: number;
+}
+
+export interface Period {
+  date: string;
+  index: number;
+  mode: PeriodMode;
+  modeParam?: string;
+  parameter?: string;
+}
+
+export interface PeriodMeasure {
+  bestValue?: boolean;
+  index: number;
+  value: string;
+}
+
+export enum PeriodMode {
+  Days = 'days',
+  Date = 'date',
+  Version = 'version',
+  PreviousAnalysis = 'previous_analysis',
+  PreviousVersion = 'previous_version'
 }
 
 export interface PermissionTemplate {

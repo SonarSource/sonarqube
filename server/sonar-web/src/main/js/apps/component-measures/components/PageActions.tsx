@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import FilesCounter from './FilesCounter';
 import { translate } from '../../../helpers/l10n';
-/*:: import type { Paging } from '../types'; */
+import { Paging } from '../../../app/types';
 
-/*:: type Props = {|
-  current: ?number,
-  isFile: ?boolean,
-  paging: ?Paging,
-  totalLoadedComponents?: number,
-  view?: string
-|}; */
+interface Props {
+  current?: number;
+  isFile?: boolean;
+  paging?: Paging;
+  totalLoadedComponents?: number;
+  view?: string;
+}
 
-export default function PageActions(props /*: Props */) {
+export default function PageActions(props: Props) {
   const { isFile, paging, totalLoadedComponents } = props;
-  const showShortcuts = ['list', 'tree'].includes(props.view);
+  const showShortcuts = props.view && ['list', 'tree'].includes(props.view);
   return (
     <div className="pull-right">
       {!isFile && showShortcuts && renderShortcuts()}

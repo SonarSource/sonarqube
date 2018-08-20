@@ -17,25 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
-/*:: import type { Component, ComponentEnhanced } from '../types'; */
-/*:: import type { Metric } from '../../../app/flow-types'; */
+import { ComponentMeasure, Metric, ComponentMeasureEnhanced, BranchLike } from '../../../app/types';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  component: ComponentEnhanced,
-  isSelected: boolean,
-  onClick: string => void,
-  otherMetrics: Array<Metric>,
-  metric: Metric,
-  rootComponent: Component
-|}; */
+interface Props {
+  branchLike?: BranchLike;
+  component: ComponentMeasureEnhanced;
+  isSelected: boolean;
+  onClick: (component: string) => void;
+  otherMetrics: Metric[];
+  metric: Metric;
+  rootComponent: ComponentMeasure;
+}
 
-export default function ComponentsListRow(props /*: Props */) {
+export default function ComponentsListRow(props: Props) {
   const { branchLike, component, rootComponent } = props;
   const otherMeasures = props.otherMetrics.map(metric => {
     const measure = component.measures.find(measure => measure.metric.key === metric.key);

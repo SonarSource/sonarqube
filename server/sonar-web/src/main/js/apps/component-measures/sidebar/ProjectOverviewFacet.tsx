@@ -17,30 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import FacetBox from '../../../components/facet/FacetBox';
+import FacetItem from '../../../components/facet/FacetItem';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 
-/*:: type Props = {
-  className?: string,
-  current: ?number,
-  total: number
-}; */
+interface Props {
+  onChange: (metric: string) => void;
+  selected: string;
+  value: string;
+}
 
-export default function FilesCounter({ className, current, total } /*: Props */) {
+export default function ProjectOverviewFacet({ value, selected, onChange }: Props) {
+  const facetName = translate('component_measures.overview', value, 'facet');
   return (
-    <span className={className}>
-      <strong>
-        {current != null && (
-          <span>
-            {formatMeasure(current, 'INT')}
-            {' / '}
-          </span>
-        )}
-        {formatMeasure(total, 'INT')}
-      </strong>{' '}
-      {translate('component_measures.files')}
-    </span>
+    <FacetBox property={value}>
+      <FacetItemsList>
+        <FacetItem
+          active={value === selected}
+          disabled={false}
+          key={value}
+          name={<strong id={`measure-overview-${value}-name`}>{facetName}</strong>}
+          onClick={onChange}
+          tooltip={facetName}
+          value={value}
+        />
+      </FacetItemsList>
+    </FacetBox>
   );
 }

@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const domains: { [domain: string]: { categories?: string[]; order: string[] } } = {
+
+interface Domains {
+  [domain: string]: { categories?: string[]; order: string[] };
+}
+
+export const domains: Domains = {
   Reliability: {
     categories: ['new_code_category', 'overall_category'],
     order: [

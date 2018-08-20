@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import MeasureHeader from '../MeasureHeader';
+import { PeriodMode } from '../../../../app/types';
 
 const METRIC = {
+  id: '1',
   key: 'reliability_rating',
   type: 'RATING',
   name: 'Reliability Rating'
@@ -35,6 +37,7 @@ const MEASURE = {
 };
 
 const LEAK_METRIC = {
+  id: '2',
   key: 'new_reliability_rating',
   type: 'RATING',
   name: 'Reliability Rating on New Code'
@@ -49,28 +52,23 @@ const LEAK_MEASURE = {
 const SECONDARY = {
   value: 'java=175123;js=26382',
   metric: {
+    id: '3',
     key: 'ncloc_language_distribution',
     type: 'DATA',
     name: 'Lines of Code Per Language'
-  },
-  leak: null
+  }
 };
 
 const PROPS = {
-  component: { key: 'foo', qualifier: 'TRK' },
-  components: [],
-  handleSelect: () => {},
+  component: { key: 'foo', name: 'Foo', qualifier: 'TRK' },
   leakPeriod: {
     date: '2017-05-16T13:50:02+0200',
     index: 1,
-    mode: 'previous_version',
+    mode: PeriodMode.PreviousVersion,
     parameter: '6,4'
   },
   measure: MEASURE,
-  metric: METRIC,
-  paging: null,
-  secondaryMeasure: null,
-  selectedIdx: null
+  metric: METRIC
 };
 
 it('should render correctly', () => {
@@ -107,20 +105,6 @@ it('should not render link to activity page for files', () => {
 it('should display secondary measure too', () => {
   const wrapper = shallow(<MeasureHeader {...PROPS} secondaryMeasure={SECONDARY} />);
   expect(wrapper.find('Connect(LanguageDistribution)')).toHaveLength(1);
-});
-
-it('should display correctly for open file', () => {
-  const wrapper = shallow(
-    <MeasureHeader
-      {...PROPS}
-      component={{ key: 'bar', qualifier: 'FIL' }}
-      components={[{ key: 'foo' }, { key: 'bar' }, { key: 'baz' }]}
-      selectedIdx={1}
-    />
-  );
-  expect(wrapper.find('.measure-details-primary-actions')).toMatchSnapshot();
-  wrapper.setProps({ components: [{ key: 'foo' }, { key: 'bar' }] });
-  expect(wrapper.find('.measure-details-primary-actions')).toMatchSnapshot();
 });
 
 it('should work with measure without value', () => {

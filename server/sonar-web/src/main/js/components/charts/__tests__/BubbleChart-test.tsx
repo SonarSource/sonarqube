@@ -35,7 +35,7 @@ it('should render bubble links', () => {
 
 it('should render bubbles with click handlers', () => {
   const onClick = jest.fn();
-  const items = [{ x: 1, y: 10, size: 7, link: 'foo' }, { x: 2, y: 30, size: 5, link: 'bar' }];
+  const items = [{ x: 1, y: 10, size: 7, data: 'foo' }, { x: 2, y: 30, size: 5, data: 'bar' }];
   const chart = mount(<BubbleChart height={100} items={items} onBubbleClick={onClick} />);
   chart.find(Bubble).forEach(bubble => expect(bubble).toMatchSnapshot());
 });

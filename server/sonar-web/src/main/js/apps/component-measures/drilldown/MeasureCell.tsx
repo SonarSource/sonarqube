@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
-/*:: import type { ComponentEnhanced } from '../types'; */
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
-/*:: import type { Metric } from '../../../app/flow-types'; */
+import { Metric, MeasureEnhanced, ComponentMeasureEnhanced } from '../../../app/types';
 
-/*:: type Props = {
-  component: ComponentEnhanced,
-  measure?: MeasureEnhanced,
-  metric: Metric
-}; */
+interface Props {
+  component: ComponentMeasureEnhanced;
+  measure?: MeasureEnhanced;
+  metric: Metric;
+}
 
-export default function MeasureCell({ component, measure, metric } /*: Props */) {
-  const getValue = (item /*: { leak?: ?string; value?: string } */) =>
+export default function MeasureCell({ component, measure, metric }: Props) {
+  const getValue = (item: { leak?: string; value?: string }) =>
     isDiffMetric(metric.key) ? item.leak : item.value;
 
   const value = getValue(measure || component);

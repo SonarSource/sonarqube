@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import * as key from 'keymaster';
+import { InjectedRouter } from 'react-router';
 import Helmet from 'react-helmet';
-import key from 'keymaster';
 import MeasureContentContainer from './MeasureContentContainer';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { isProjectOverview, hasBubbleChart, parseQuery, serializeQuery } from '../utils';
+import { isProjectOverview, hasBubbleChart, parseQuery, serializeQuery, Query } from '../utils';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
@@ -34,67 +34,64 @@ import {
   translate
 } from '../../../helpers/l10n';
 import { getDisplayMetrics } from '../../../helpers/measures';
-/*:: import type { Component, Query, Period } from '../types'; */
-/*:: import type { RawQuery } from '../../../helpers/query'; */
-/*:: import type { Metric } from '../../../app/flow-types'; */
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+import { RawQuery } from '../../../helpers/query';
+import {
+  BranchLike,
+  ComponentMeasure,
+  MeasureEnhanced,
+  Metric,
+  CurrentUser,
+  Period
+} from '../../../app/types';
 import '../../../components/search-navigator.css';
 import '../style.css';
 
-/*:: type Props = {|
-  branchLike?: { id?: string; name: string },
-  component: Component,
-  currentUser: { isLoggedIn: boolean },
-  location: { pathname: string, query: RawQuery },
+interface Props {
+  branchLike?: BranchLike;
+  component: ComponentMeasure;
+  currentUser: CurrentUser;
+  location: { pathname: string; query: RawQuery };
   fetchMeasures: (
     component: string,
-    metricsKey: Array<string>,
-    branchLike?: { id?: string; name: string }
-  ) => Promise<{ component: Component, measures: Array<MeasureEnhanced>, leakPeriod: ?Period }>,
-  fetchMetrics: () => void,
-  metrics: { [string]: Metric },
-  metricsKey: Array<string>,
-  router: {
-    push: ({ pathname: string, query?: RawQuery }) => void
-  }
-|}; */
+    metricsKey: string[],
+    branchLike?: BranchLike
+  ) => Promise<{ component: ComponentMeasure; measures: MeasureEnhanced[]; leakPeriod?: Period }>;
+  fetchMetrics: () => void;
+  metrics: { [metric: string]: Metric };
+  metricsKey: string[];
+  router: InjectedRouter;
+}
 
-/*:: type State = {|
-  loading: boolean,
-  measures: Array<MeasureEnhanced>,
-  leakPeriod: ?Period
-|}; */
+interface State {
+  loading: boolean;
+  measures: MeasureEnhanced[];
+  leakPeriod?: Period;
+}
 
-export default class App extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  /*:: state: State; */
+export default class App extends React.PureComponent<Props, State> {
+  mounted = false;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
-    this.state = {
-      loading: true,
-      measures: [],
-      leakPeriod: null
-    };
+    this.state = { loading: true, measures: [] };
   }
 
   componentDidMount() {
     this.mounted = true;
-    // $FlowFixMe
+
     document.body.classList.add('white-page');
-    // $FlowFixMe
     document.documentElement.classList.add('white-page');
-    this.props.fetchMetrics();
-    this.fetchMeasures(this.props);
-    key.setScope('measures-files');
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.add('page-footer-with-sidebar');
     }
+
+    key.setScope('measures-files');
+    this.props.fetchMetrics();
+    this.fetchMeasures(this.props);
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (
       !isSameBranchLike(nextProps.branchLike, this.props.branchLike) ||
       nextProps.component.key !== this.props.component.key ||
@@ -106,27 +103,31 @@ export default class App extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
-    // $FlowFixMe
+
     document.body.classList.remove('white-page');
-    // $FlowFixMe
     document.documentElement.classList.remove('white-page');
-    key.deleteScope('measures-files');
+
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.remove('page-footer-with-sidebar');
     }
+
+    key.deleteScope('measures-files');
   }
 
-  fetchMeasures = ({ branchLike, component, fetchMeasures, metrics } /*: Props */) => {
+  fetchMeasures = ({ branchLike, component, fetchMeasures, metrics }: Props) => {
     this.setState({ loading: true });
     const filteredKeys = getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
+
     fetchMeasures(component.key, filteredKeys, branchLike).then(
       ({ measures, leakPeriod }) => {
         if (this.mounted) {
           this.setState({
             loading: false,
             leakPeriod,
-            measures: measures.filter(measure => measure.value != null || measure.leak != null)
+            measures: measures.filter(
+              measure => measure.value !== undefined || measure.leak !== undefined
+            )
           });
         }
       },
@@ -138,7 +139,7 @@ export default class App extends React.PureComponent {
     );
   };
 
-  updateQuery = (newQuery /*: Query */) => {
+  updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({
       ...parseQuery(this.props.location.query),
       ...newQuery
@@ -153,19 +154,16 @@ export default class App extends React.PureComponent {
     });
   };
 
-  getHelmetTitle = (
-    metric /*: Metric */,
-    query /*: {metric: string, selected: string, view: string }*/
-  ) => {
-    if (metric == null && hasBubbleChart(query.metric)) {
-      return isProjectOverview(query.metric)
+  getHelmetTitle = (metric?: Metric) => {
+    if (metric && hasBubbleChart(metric.key)) {
+      return isProjectOverview(metric.key)
         ? translate('component_measures.overview.project_overview.facet')
         : translateWithParameters(
             'component_measures.domain_x_overview',
-            getLocalizedMetricDomain(query.metric)
+            getLocalizedMetricDomain(metric.key)
           );
     }
-    return metric != null ? metric.name : translate('layout.measures');
+    return metric ? metric.name : translate('layout.measures');
   };
 
   render() {
@@ -180,7 +178,7 @@ export default class App extends React.PureComponent {
     return (
       <div className="layout-page" id="component-measures">
         <Suggestions suggestions="component_measures" />
-        <Helmet title={this.getHelmetTitle(metric, query)} />
+        <Helmet title={this.getHelmetTitle(metric)} />
 
         <ScreenPositionHelper className="layout-page-side-outer">
           {({ top }) => (
@@ -198,7 +196,7 @@ export default class App extends React.PureComponent {
           )}
         </ScreenPositionHelper>
 
-        {metric != null && (
+        {metric && (
           <MeasureContentContainer
             branchLike={branchLike}
             className="layout-page-main"
@@ -214,7 +212,7 @@ export default class App extends React.PureComponent {
             view={query.view}
           />
         )}
-        {metric == null &&
+        {!metric &&
           hasBubbleChart(query.metric) && (
             <MeasureOverviewContainer
               branchLike={branchLike}

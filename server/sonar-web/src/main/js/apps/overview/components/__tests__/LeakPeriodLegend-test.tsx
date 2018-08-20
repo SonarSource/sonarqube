@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LeakPeriodLegend from '../LeakPeriodLegend';
-import { PeriodMode, Period } from '../../../../helpers/periods';
 import { differenceInDays } from '../../../../helpers/dates';
+import { Period, PeriodMode } from '../../../../app/types';
 
 jest.mock('../../../../helpers/dates', () => {
   const dates = require.requireActual('../../../../helpers/dates');

@@ -33,13 +33,13 @@ import {
   getRatingTooltip
 } from '../../../helpers/measures';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
-import { getPeriodDate, Period } from '../../../helpers/periods';
+import { getPeriodDate } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
-import { Component, BranchLike, MeasureEnhanced } from '../../../app/types';
+import { Component, BranchLike, MeasureEnhanced, Period } from '../../../app/types';
 import { History } from '../../../api/time-machine';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 

@@ -17,36 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+/* eslint-disable camelcase */
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
 
+const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
+
 const METRICS = {
   lines_to_cover: {
+    id: '1',
     key: 'lines_to_cover',
     type: 'INT',
     name: 'Lines to Cover',
     domain: 'Coverage'
   },
-  coverage: { key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
+  coverage: { id: '2', key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
   duplicated_lines_density: {
+    id: '3',
     key: 'duplicated_lines_density',
     type: 'PERCENT',
     name: 'Duplicated Lines (%)',
     domain: 'Duplications'
   },
-  new_bugs: { key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
+  new_bugs: { id: '4', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
 };
 
 const PROPS = {
   branch: { isMain: true, name: 'master' },
-  component: { key: 'foo' },
+  component: COMPONENT,
+  currentUser: { isLoggedIn: false },
   location: { pathname: '/component_measures', query: { metric: 'coverage' } },
-  fetchMeasures: () => Promise.resolve({ measures: [] }),
-  fetchMetrics: () => {},
+  fetchMeasures: jest.fn().mockResolvedValue({ component: COMPONENT, measures: [] }),
+  fetchMetrics: jest.fn(),
   metrics: METRICS,
   metricsKey: ['lines_to_cover', 'coverage', 'duplicated_lines_density', 'new_bugs'],
-  router: { push: () => {} }
+  router: { push: jest.fn() } as any
 };
 
 it('should render correctly', () => {

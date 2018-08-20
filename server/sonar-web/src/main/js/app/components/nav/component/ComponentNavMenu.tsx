@@ -152,12 +152,6 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderComponentMeasuresLink() {
-    const { branchLike } = this.props;
-
-    if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
-      return null;
-    }
-
     return (
       <li>
         <Link

@@ -17,37 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import FacetMeasureValue from '../FacetMeasureValue';
+import FilesCounter from '../FilesCounter';
 
-const MEASURE = {
-  metric: {
-    key: 'bugs',
-    type: 'INT',
-    name: 'Bugs',
-    domain: 'Reliability'
-  },
-  value: '5',
-  periods: [{ index: 1, value: '5' }],
-  leak: '5'
-};
-const LEAK_MEASURE = {
-  metric: {
-    key: 'new_bugs',
-    type: 'INT',
-    name: 'New Bugs',
-    domain: 'Reliability'
-  },
-  periods: [{ index: 1, value: '5' }],
-  leak: '5'
-};
-
-it('should display measure value', () => {
-  expect(shallow(<FacetMeasureValue measure={MEASURE} />)).toMatchSnapshot();
+it('should display x files on y total', () => {
+  expect(shallow(<FilesCounter current={12} total={123455} />)).toMatchSnapshot();
 });
 
-it('should display leak measure value', () => {
-  expect(shallow(<FacetMeasureValue measure={LEAK_MEASURE} />)).toMatchSnapshot();
+it('should display only total of files', () => {
+  expect(shallow(<FilesCounter current={undefined} total={123455} />)).toMatchSnapshot();
 });
