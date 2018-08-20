@@ -20,6 +20,8 @@
 package org.sonar.api.utils.log;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import org.junit.rules.ExternalResource;
 
 /**
@@ -90,12 +92,31 @@ public class LogTester extends ExternalResource {
     return ((ListInterceptor) LogInterceptors.get()).logs();
   }
 
+  public Optional<String> findFirstLog(Predicate<String> msgPredicate) {
+    return ((ListInterceptor) LogInterceptors.get()).findFirst(msgPredicate);
+  }
+
   /**
    * Logs in chronological order (item at index 0 is the oldest one) for
    * a given level
    */
   public List<String> logs(LoggerLevel level) {
     return ((ListInterceptor) LogInterceptors.get()).logs(level);
+  }
+
+  /**
+   * Logs with arguments in chronological order (item at index 0 is the oldest one)
+   */
+  public List<LogAndArguments> getLogs() {
+    return ((ListInterceptor) LogInterceptors.get()).getLogs();
+  }
+
+  /**
+   * Logs with arguments in chronological order (item at index 0 is the oldest one) for
+   * a given level
+   */
+  public List<LogAndArguments> getLogs(LoggerLevel level) {
+    return ((ListInterceptor) LogInterceptors.get()).getLogs(level);
   }
 
   public LogTester clear() {

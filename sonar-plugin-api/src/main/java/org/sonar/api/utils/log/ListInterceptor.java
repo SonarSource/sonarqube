@@ -21,55 +21,73 @@ package org.sonar.api.utils.log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-
-import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
-class ListInterceptor implements LogInterceptor {
+public class ListInterceptor implements LogInterceptor {
 
-  private final List<String> logs = new ArrayList<>();
-  private final ListMultimap<LoggerLevel, String> logsByLevel = ArrayListMultimap.create();
+  private final List<LogAndArguments> logs = new ArrayList<>();
+  private final ListMultimap<LoggerLevel, LogAndArguments> logsByLevel = ArrayListMultimap.create();
 
   @Override
   public void log(LoggerLevel level, String msg) {
-    logs.add(msg);
-    logsByLevel.put(level, msg);
+    LogAndArguments l = new LogAndArguments(msg, msg);
+    add(level, l);
   }
 
   @Override
   public void log(LoggerLevel level, String msg, @Nullable Object arg) {
     String s = ConsoleFormatter.format(msg, arg);
-    logs.add(s);
-    logsByLevel.put(level, s);
+    LogAndArguments l = new LogAndArguments(s, msg, arg);
+    add(level, l);
   }
 
   @Override
   public void log(LoggerLevel level, String msg, @Nullable Object arg1, @Nullable Object arg2) {
     String s = ConsoleFormatter.format(msg, arg1, arg2);
-    logs.add(s);
-    logsByLevel.put(level, s);
+    LogAndArguments l = new LogAndArguments(s, msg, arg1, arg2);
+    add(level, l);
   }
 
   @Override
   public void log(LoggerLevel level, String msg, Object... args) {
     String s = ConsoleFormatter.format(msg, args);
-    logs.add(s);
-    logsByLevel.put(level, s);
+    LogAndArguments l = new LogAndArguments(s, msg, args);
+    add(level, l);
   }
 
   @Override
   public void log(LoggerLevel level, String msg, Throwable thrown) {
-    logs.add(msg);
-    logsByLevel.put(level, msg);
+    LogAndArguments l = new LogAndArguments(msg, msg, thrown);
+    add(level, l);
+  }
+
+  private void add(LoggerLevel level, LogAndArguments l) {
+    logs.add(l);
+    logsByLevel.put(level, l);
   }
 
   public List<String> logs() {
-    return logs;
+    return logs.stream().map(LogAndArguments::getFormattedMsg).collect(Collectors.toList());
+  }
+
+  public Optional<String> findFirst(Predicate<String> logPredicate) {
+    return logs.stream().map(LogAndArguments::getFormattedMsg).filter(logPredicate).findFirst();
   }
 
   public List<String> logs(LoggerLevel level) {
+    return logsByLevel.get(level).stream().map(LogAndArguments::getFormattedMsg).collect(Collectors.toList());
+  }
+
+  public List<LogAndArguments> getLogs() {
+    return logs;
+  }
+
+  public List<LogAndArguments> getLogs(LoggerLevel level) {
     return logsByLevel.get(level);
   }
 
@@ -77,4 +95,5 @@ class ListInterceptor implements LogInterceptor {
     logs.clear();
     logsByLevel.clear();
   }
+
 }

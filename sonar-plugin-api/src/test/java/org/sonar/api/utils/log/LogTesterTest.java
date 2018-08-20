@@ -99,7 +99,7 @@ public class LogTesterTest {
     assertThat(touchedTrace.get()).isFalse();
     assertThat(touchedDebug.get()).isTrue();
     touchedDebug.set(false);
-    underTest.logs().clear();
+    underTest.clear();
 
     // change level to TRACE
     underTest.setLevel(LoggerLevel.TRACE);
