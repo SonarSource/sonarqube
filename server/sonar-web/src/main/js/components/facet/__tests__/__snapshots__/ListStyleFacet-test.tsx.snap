@@ -1,5 +1,98 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should display all selected items 1`] = `
+<FacetBox
+  property="foo"
+>
+  <FacetHeader
+    name="facet header"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={
+      Array [
+        "a",
+        "b",
+        "c",
+      ]
+    }
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <React.Fragment>
+    <SearchBox
+      autoFocus={false}
+      className="little-spacer-top spacer-bottom"
+      loading={false}
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search for foo..."
+      value=""
+    />
+    <React.Fragment>
+      <FacetItemsList>
+        <FacetItem
+          active={true}
+          disabled={false}
+          halfWidth={false}
+          key="a"
+          loading={false}
+          name="a"
+          onClick={[Function]}
+          stat="10"
+          tooltip="a"
+          value="a"
+        />
+        <FacetItem
+          active={true}
+          disabled={false}
+          halfWidth={false}
+          key="b"
+          loading={false}
+          name="b"
+          onClick={[Function]}
+          stat="5"
+          tooltip="b"
+          value="b"
+        />
+      </FacetItemsList>
+      <React.Fragment>
+        <div
+          className="note spacer-bottom text-center"
+        >
+          ⋯
+        </div>
+        <FacetItemsList>
+          <FacetItem
+            active={true}
+            disabled={false}
+            halfWidth={false}
+            key="c"
+            loading={false}
+            name="c"
+            onClick={[Function]}
+            stat="3"
+            tooltip="c"
+            value="c"
+          />
+        </FacetItemsList>
+      </React.Fragment>
+      <ListStyleFacetFooter
+        count={3}
+        showMore={[Function]}
+        total={3}
+      />
+    </React.Fragment>
+    <MultipleSelectionHint
+      options={3}
+      values={3}
+    />
+  </React.Fragment>
+</FacetBox>
+`;
+
 exports[`should render 1`] = `
 <FacetBox
   property="foo"

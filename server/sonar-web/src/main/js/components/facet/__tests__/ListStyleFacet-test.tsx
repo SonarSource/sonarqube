@@ -171,6 +171,15 @@ it('should collapse list when new stats have few results', () => {
   expect(wrapper.state('showFullList')).toBe(false);
 });
 
+it('should display all selected items', () => {
+  const wrapper = shallowRender({
+    maxInitialItems: 2,
+    stats: { a: 10, b: 5, c: 3 },
+    values: ['a', 'b', 'c']
+  });
+  expect(wrapper).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<Props<string>> = {}) {
   return shallow(
     <ListStyleFacet

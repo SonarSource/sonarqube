@@ -232,15 +232,6 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     this.setState({ showFullList: false });
   };
 
-  getLastActiveIndex = (list: string[]) => {
-    for (let i = list.length - 1; i >= 0; i--) {
-      if (this.props.values.includes(list[i])) {
-        return i;
-      }
-    }
-    return 0;
-  };
-
   renderList() {
     const { stats } = this.props;
 
@@ -252,13 +243,16 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
       ? this.props.getSortedItems()
       : sortBy(Object.keys(stats), key => -stats[key], key => this.props.getFacetItemText(key));
 
-    // limit the number of items to this.props.maxInitialItems,
-    // but make sure all (in other words, the last) selected items are displayed
-    const lastSelectedIndex = this.getLastActiveIndex(sortedItems);
-    const countToDisplay = Math.max(this.props.maxInitialItems, lastSelectedIndex + 1);
     const limitedList = this.state.showFullList
       ? sortedItems
-      : sortedItems.slice(0, countToDisplay);
+      : sortedItems.slice(0, this.props.maxInitialItems);
+
+    // make sure all selected items are displayed
+    const selectedBelowLimit = this.state.showFullList
+      ? []
+      : sortedItems
+          .slice(this.props.maxInitialItems)
+          .filter(item => this.props.values.includes(item));
 
     const mightHaveMoreResults = sortedItems.length >= this.props.maxItems;
 
@@ -277,8 +271,26 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
             />
           ))}
         </FacetItemsList>
+        {selectedBelowLimit.length > 0 && (
+          <>
+            <div className="note spacer-bottom text-center">⋯</div>
+            <FacetItemsList>
+              {selectedBelowLimit.map(item => (
+                <FacetItem
+                  active={true}
+                  key={item}
+                  name={this.props.renderFacetItem(item)}
+                  onClick={this.handleItemClick}
+                  stat={formatFacetStat(this.getStat(item))}
+                  tooltip={this.props.getFacetItemText(item)}
+                  value={item}
+                />
+              ))}
+            </FacetItemsList>
+          </>
+        )}
         <ListStyleFacetFooter
-          count={limitedList.length}
+          count={limitedList.length + selectedBelowLimit.length}
           showLess={this.state.showFullList ? this.hideFullList : undefined}
           showMore={this.showFullList}
           total={sortedItems.length}
