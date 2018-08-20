@@ -144,7 +144,7 @@ public class CeWorkerImpl implements CeWorker {
       error = e;
     } catch (Throwable e) {
       // error
-      LOG.error(format("Failed to execute task %s", task.getUuid()), e);
+      LOG.error("Failed to execute task {}", task.getUuid(), e);
       error = e;
     } finally {
       finalizeTask(task, ceProfiler, status, taskResult, error);
@@ -166,12 +166,10 @@ public class CeWorkerImpl implements CeWorker {
     try {
       queue.remove(task, status, taskResult, error);
     } catch (Exception e) {
-      String errorMessage = format("Failed to finalize task with uuid '%s' and persist its state to db", task.getUuid());
-      if (error instanceof MessageException) {
-        LOG.error(format("%s. Task failed with MessageException \"%s\"", errorMessage, error.getMessage()), e);
-      } else {
-        LOG.error(errorMessage, e);
+      if (error != null) {
+        e.addSuppressed(error);
       }
+      LOG.error(format("Failed to finalize task with uuid '%s' and persist its state to db", task.getUuid()), e);
     } finally {
       // finalize
       stopLogProfiler(ceProfiler, status);
