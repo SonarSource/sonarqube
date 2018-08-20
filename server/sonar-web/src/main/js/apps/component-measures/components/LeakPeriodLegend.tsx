@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import * as PropTypes from 'prop-types';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import DateFormatter from '../../../components/intl/DateFormatter';
+import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate, Period, PeriodMode } from '../../../helpers/periods';
@@ -34,39 +35,50 @@ interface Props {
   period: Period;
 }
 
-export default function LeakPeriodLegend({ className, component, period }: Props) {
-  const leakClass = classNames('domain-measures-leak-header', className);
-  if (component.qualifier === 'APP') {
-    return <div className={leakClass}>{translate('issues.new_code_period')}</div>;
+export default class LeakPeriodLegend extends React.PureComponent<Props> {
+  static contextTypes = {
+    intl: PropTypes.object.isRequired
+  };
+
+  formatDate = (date: string) => {
+    return this.context.intl.formatDate(date, longFormatterOption);
+  };
+
+  render() {
+    const { className, component, period } = this.props;
+    const leakClass = classNames('domain-measures-leak-header', className);
+    if (component.qualifier === 'APP') {
+      return <div className={leakClass}>{translate('issues.new_code_period')}</div>;
+    }
+
+    const leakPeriodLabel = getPeriodLabel(period, this.formatDate);
+    if (!leakPeriodLabel) {
+      return null;
+    }
+
+    const label = (
+      <div className={leakClass}>
+        {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
+      </div>
+    );
+
+    if (period.mode === PeriodMode.Days) {
+      return label;
+    }
+
+    const date = getPeriodDate(period);
+    const tooltip = date && (
+      <div>
+        <DateFromNow date={date} />
+        {', '}
+        {differenceInDays(new Date(), date) < 1 ? (
+          <DateTimeFormatter date={date} />
+        ) : (
+          <DateFormatter date={date} long={true} />
+        )}
+      </div>
+    );
+
+    return <Tooltip overlay={tooltip}>{label}</Tooltip>;
   }
-
-  const leakPeriodLabel = getPeriodLabel(period);
-  if (!leakPeriodLabel) {
-    return null;
-  }
-
-  const label = (
-    <div className={leakClass}>
-      {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
-    </div>
-  );
-
-  if (period.mode === PeriodMode.days) {
-    return label;
-  }
-
-  const date = getPeriodDate(period);
-  const tooltip = date && (
-    <div>
-      <DateFromNow date={date} />
-      {', '}
-      {differenceInDays(new Date(), date) < 1 ? (
-        <DateTimeFormatter date={date} />
-      ) : (
-        <DateFormatter date={date} long={true} />
-      )}
-    </div>
-  );
-
-  return <Tooltip overlay={tooltip}>{label}</Tooltip>;
 }

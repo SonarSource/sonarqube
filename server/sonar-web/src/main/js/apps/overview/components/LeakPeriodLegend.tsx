@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import DateFormatter from '../../../components/intl/DateFormatter';
+import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodDate, getPeriodLabel, Period, PeriodMode } from '../../../helpers/periods';
@@ -30,63 +31,74 @@ interface Props {
   period: Period;
 }
 
-export default function LeakPeriodLegend({ period }: Props) {
-  const leakPeriodLabel = getPeriodLabel(period);
-  if (!leakPeriodLabel) {
-    return null;
-  }
+export default class LeakPeriodLegend extends React.PureComponent<Props> {
+  static contextTypes = {
+    intl: PropTypes.object.isRequired
+  };
 
-  if (period.mode === PeriodMode.days) {
+  formatDate = (date: string) => {
+    return this.context.intl.formatDate(date, longFormatterOption);
+  };
+
+  render() {
+    const { period } = this.props;
+    const leakPeriodLabel = getPeriodLabel(period, this.formatDate);
+    if (!leakPeriodLabel) {
+      return null;
+    }
+
+    if (period.mode === PeriodMode.Days) {
+      return (
+        <div className="overview-legend overview-legend-spaced-line">
+          {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
+        </div>
+      );
+    }
+
+    const leakPeriodDate = getPeriodDate(period);
+    if (!leakPeriodDate) {
+      return null;
+    }
+
+    const formattedDateFunction = (formattedLeakPeriodDate: string) => (
+      <span>
+        {translateWithParameters(
+          period.mode === PeriodMode.PreviousAnalysis
+            ? 'overview.previous_analysis_on_x'
+            : 'overview.started_on_x',
+          formattedLeakPeriodDate
+        )}
+      </span>
+    );
+
+    const tooltip =
+      differenceInDays(new Date(), leakPeriodDate) < 1 ? (
+        <DateTimeFormatter date={leakPeriodDate}>{formattedDateFunction}</DateTimeFormatter>
+      ) : (
+        <DateFormatter date={leakPeriodDate} long={true}>
+          {formattedDateFunction}
+        </DateFormatter>
+      );
+
     return (
-      <div className="overview-legend overview-legend-spaced-line">
-        {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
-      </div>
+      <Tooltip overlay={tooltip}>
+        <div className="overview-legend">
+          {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
+          <br />
+          <DateFromNow date={leakPeriodDate}>
+            {fromNow => (
+              <span className="note">
+                {translateWithParameters(
+                  period.mode === PeriodMode.PreviousAnalysis
+                    ? 'overview.previous_analysis_x'
+                    : 'overview.started_x',
+                  fromNow
+                )}
+              </span>
+            )}
+          </DateFromNow>
+        </div>
+      </Tooltip>
     );
   }
-
-  const leakPeriodDate = getPeriodDate(period);
-  if (!leakPeriodDate) {
-    return null;
-  }
-
-  const formattedDateFunction = (formattedLeakPeriodDate: string) => (
-    <span>
-      {translateWithParameters(
-        period.mode === PeriodMode.previousAnalysis
-          ? 'overview.previous_analysis_on_x'
-          : 'overview.started_on_x',
-        formattedLeakPeriodDate
-      )}
-    </span>
-  );
-
-  const tooltip =
-    differenceInDays(new Date(), leakPeriodDate) < 1 ? (
-      <DateTimeFormatter date={leakPeriodDate}>{formattedDateFunction}</DateTimeFormatter>
-    ) : (
-      <DateFormatter date={leakPeriodDate} long={true}>
-        {formattedDateFunction}
-      </DateFormatter>
-    );
-
-  return (
-    <Tooltip overlay={tooltip}>
-      <div className="overview-legend">
-        {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
-        <br />
-        <DateFromNow date={leakPeriodDate}>
-          {fromNow => (
-            <span className="note">
-              {translateWithParameters(
-                period.mode === PeriodMode.previousAnalysis
-                  ? 'overview.previous_analysis_x'
-                  : 'overview.started_x',
-                fromNow
-              )}
-            </span>
-          )}
-        </DateFromNow>
-      </div>
-    </Tooltip>
-  );
 }

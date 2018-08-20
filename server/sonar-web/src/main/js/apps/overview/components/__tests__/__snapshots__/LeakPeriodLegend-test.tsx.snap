@@ -22,7 +22,7 @@ exports[`date 1`] = `
   <div
     className="overview-legend"
   >
-    overview.new_code_period_x.overview.period.date.2013-01-01
+    overview.new_code_period_x.overview.period.date.formatted.2013-01-01
     <br />
     <DateFromNow
       date={2013-09-21T22:00:00.000Z}

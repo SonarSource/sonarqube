@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LeakPeriodLegend from '../LeakPeriodLegend';
-import { PeriodMode } from '../../../../helpers/periods';
+import { PeriodMode, Period } from '../../../../helpers/periods';
 import { differenceInDays } from '../../../../helpers/dates';
 
 jest.mock('../../../../helpers/dates', () => {
@@ -30,59 +30,73 @@ jest.mock('../../../../helpers/dates', () => {
 });
 
 it('10 days', () => {
-  const period = {
-    date: '2013-09-22T00:00:00+0200',
-    index: 0,
-    mode: PeriodMode.days,
-    parameter: '10'
-  };
-  expect(shallow(<LeakPeriodLegend period={period} />)).toMatchSnapshot();
+  expect(
+    getWrapper({
+      date: '2013-09-22T00:00:00+0200',
+      index: 0,
+      mode: PeriodMode.Days,
+      parameter: '10'
+    })
+  ).toMatchSnapshot();
 });
 
 it('date', () => {
-  const period = {
-    date: '2013-09-22T00:00:00+0200',
-    index: 0,
-    mode: PeriodMode.date,
-    parameter: '2013-01-01'
-  };
-  expect(shallow(<LeakPeriodLegend period={period} />)).toMatchSnapshot();
+  expect(
+    getWrapper({
+      date: '2013-09-22T00:00:00+0200',
+      index: 0,
+      mode: PeriodMode.Date,
+      parameter: '2013-01-01'
+    })
+  ).toMatchSnapshot();
 });
 
 it('version', () => {
-  const period = {
-    date: '2013-09-22T00:00:00+0200',
-    index: 0,
-    mode: PeriodMode.version,
-    parameter: '0.1'
-  };
-  expect(shallow(<LeakPeriodLegend period={period} />).find('.overview-legend')).toMatchSnapshot();
+  expect(
+    getWrapper({
+      date: '2013-09-22T00:00:00+0200',
+      index: 0,
+      mode: PeriodMode.Version,
+      parameter: '0.1'
+    }).find('.overview-legend')
+  ).toMatchSnapshot();
 });
 
 it('previous_version', () => {
-  const period = {
-    date: '2013-09-22T00:00:00+0200',
-    index: 0,
-    mode: PeriodMode.previousVersion
-  };
-  expect(shallow(<LeakPeriodLegend period={period} />).find('.overview-legend')).toMatchSnapshot();
+  expect(
+    getWrapper({
+      date: '2013-09-22T00:00:00+0200',
+      index: 0,
+      mode: PeriodMode.PreviousVersion
+    }).find('.overview-legend')
+  ).toMatchSnapshot();
 });
 
 it('previous_analysis', () => {
-  const period = {
-    date: '2013-09-22T00:00:00+0200',
-    index: 0,
-    mode: PeriodMode.previousAnalysis
-  };
-  expect(shallow(<LeakPeriodLegend period={period} />).find('.overview-legend')).toMatchSnapshot();
+  expect(
+    getWrapper({
+      date: '2013-09-22T00:00:00+0200',
+      index: 0,
+      mode: PeriodMode.PreviousAnalysis
+    }).find('.overview-legend')
+  ).toMatchSnapshot();
 });
 
 it('should render a more precise date', () => {
   (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
-  const period = {
-    date: '2018-08-17T00:00:00+0200',
-    index: 0,
-    mode: PeriodMode.previousVersion
-  };
-  expect(shallow(<LeakPeriodLegend period={period} />)).toMatchSnapshot();
+  expect(
+    getWrapper({
+      date: '2018-08-17T00:00:00+0200',
+      index: 0,
+      mode: PeriodMode.PreviousVersion
+    })
+  ).toMatchSnapshot();
 });
+
+function getWrapper(period: Period) {
+  return shallow(<LeakPeriodLegend period={period} />, {
+    context: {
+      intl: { formatDate: (date: string) => 'formatted.' + date }
+    }
+  });
+}

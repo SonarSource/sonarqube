@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LeakPeriodLegend from '../LeakPeriodLegend';
-import { PeriodMode } from '../../../../helpers/periods';
+import { PeriodMode, Period } from '../../../../helpers/periods';
 import { differenceInDays } from '../../../../helpers/dates';
+import { ComponentMeasure } from '../../../../app/types';
 
 jest.mock('../../../../helpers/dates', () => {
   const dates = require.requireActual('../../../../helpers/dates');
@@ -44,27 +45,35 @@ const APP = {
 const PERIOD = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
-  mode: PeriodMode.previousVersion,
+  mode: PeriodMode.PreviousVersion,
   parameter: '6,4'
 };
 
 const PERIOD_DAYS = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
-  mode: PeriodMode.days,
+  mode: PeriodMode.Days,
   parameter: '18'
 };
 
 it('should render correctly', () => {
-  expect(shallow(<LeakPeriodLegend component={PROJECT} period={PERIOD} />)).toMatchSnapshot();
-  expect(shallow(<LeakPeriodLegend component={PROJECT} period={PERIOD_DAYS} />)).toMatchSnapshot();
+  expect(getWrapper(PROJECT, PERIOD)).toMatchSnapshot();
+  expect(getWrapper(PROJECT, PERIOD_DAYS)).toMatchSnapshot();
 });
 
 it('should render correctly for APP', () => {
-  expect(shallow(<LeakPeriodLegend component={APP} period={PERIOD} />)).toMatchSnapshot();
+  expect(getWrapper(APP, PERIOD)).toMatchSnapshot();
 });
 
 it('should render a more precise date', () => {
   (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
-  expect(shallow(<LeakPeriodLegend component={PROJECT} period={PERIOD} />)).toMatchSnapshot();
+  expect(getWrapper(PROJECT, PERIOD)).toMatchSnapshot();
 });
+
+function getWrapper(component: ComponentMeasure, period: Period) {
+  return shallow(<LeakPeriodLegend component={component} period={period} />, {
+    context: {
+      intl: { formatDate: (date: string) => 'formatted.' + date }
+    }
+  });
+}
