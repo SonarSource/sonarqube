@@ -124,6 +124,8 @@ public class RuleIndex {
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
 
+  private static final int MAX_FACET_SIZE = 100;
+
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = Arrays.stream(RuleStatus.values())
     .filter(status -> !RuleStatus.REMOVED.equals(status))
     .map(RuleStatus::toString)
@@ -410,7 +412,7 @@ public class RuleIndex {
     if (options.getFacets().contains(FACET_LANGUAGES) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> languages = query.getLanguages();
       aggregations.put(FACET_LANGUAGES,
-        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_LANGUAGE, FACET_LANGUAGES,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_LANGUAGE, FACET_LANGUAGES, MAX_FACET_SIZE,
           (languages == null) ? (new String[0]) : languages.toArray()));
     }
     if (options.getFacets().contains(FACET_TAGS) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
@@ -431,7 +433,7 @@ public class RuleIndex {
       };
 
       aggregations.put(FACET_TAGS,
-        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_EXTENSION_TAGS, FACET_TAGS, childFeature,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_EXTENSION_TAGS, FACET_TAGS, MAX_FACET_SIZE, childFeature,
           (tags == null) ? (new String[0]) : tags.toArray()));
     }
     if (options.getFacets().contains(FACET_TYPES)) {
@@ -440,7 +442,7 @@ public class RuleIndex {
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_TYPE, FACET_TYPES,
           (types == null) ? (new String[0]) : types.toArray()));
     }
-    if (options.getFacets().contains("repositories") || options.getFacets().contains(FACET_OLD_DEFAULT)) {
+    if (options.getFacets().contains(FACET_REPOSITORIES) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> repositories = query.getRepositories();
       aggregations.put(FACET_REPOSITORIES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_REPOSITORY, FACET_REPOSITORIES,

@@ -346,8 +346,9 @@ public class SearchActionTest {
   @Test
   public void should_list_tags_in_tags_facet() {
     OrganizationDto organization = db.organizations().insert();
-    RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag1", "tag3", "tag5", "tag7", "tag9", "x"));
-    RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
+    String[] tags = get101Tags();
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("x"));
+    insertMetadata(organization, rule, setTags(tags));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -356,16 +357,16 @@ public class SearchActionTest {
       .setParam("organization", organization.getKey())
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> v.getVal(), v -> v.getCount())
-      .containsExactly(tuple("tag1", 1L), tuple("tag2", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L), tuple("tag7", 1L), tuple("tag8", 1L),
-        tuple("tag9", 1L), tuple("tagA", 1L));
+      .contains(tuple("tag0", 1L), tuple("tag25", 1L), tuple("tag99", 1L))
+      .doesNotContain(tuple("x", 1L));
   }
 
   @Test
   public void should_list_tags_ordered_by_count_then_by_name_in_tags_facet() {
     OrganizationDto organization = db.organizations().insert();
-    RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag7", "tag5", "tag3", "tag1", "tag9", "x"));
-    RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
-    RuleDefinitionDto rule2 = db.rules().insert(setSystemTags("tag2"));
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag7", "tag5", "tag3", "tag1", "tag9"));
+    insertMetadata(organization, rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
+    db.rules().insert(setSystemTags("tag2"));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -1042,6 +1043,15 @@ public class SearchActionTest {
 
   private void indexActiveRules() {
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+  }
+
+  private String[] get101Tags() {
+    String[] tags = new String[101];
+    for (int i = 0; i < 100; i++) {
+      tags[i] = "tag" + i;
+    }
+    tags[100] = "tagA";
+    return tags;
   }
 
 }

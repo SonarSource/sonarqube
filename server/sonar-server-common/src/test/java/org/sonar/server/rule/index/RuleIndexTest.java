@@ -26,21 +26,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
@@ -53,6 +49,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
+import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
@@ -100,16 +97,10 @@ public class RuleIndexTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private RuleIndex underTest;
-  private RuleIndexer ruleIndexer;
-  private ActiveRuleIndexer activeRuleIndexer;
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
 
-  @Before
-  public void setUp() {
-    ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-    activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
-    underTest = new RuleIndex(es.client(), system2);
-  }
+  private RuleIndex underTest = new RuleIndex(es.client(), system2);
 
   @Test
   public void search_all_rules() {
@@ -407,7 +398,7 @@ public class RuleIndexTest {
 
     // Only external
     RuleQuery query = new RuleQuery().setIncludeExternal(true);
-    SearchIdResult<Integer>  results = underTest.search(query, new SearchOptions());
+    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(ruleIsExternal.getId(), ruleIsNotExternal.getId());
 
     // Only not external
@@ -850,6 +841,26 @@ public class RuleIndexTest {
   }
 
   @Test
+  public void languages_facet_should_return_top_100_items() {
+    rangeClosed(1, 101).forEach(i ->  db.rules().insert(r -> r.setLanguage("lang" + i)));
+    index();
+
+    SearchIdResult result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_LANGUAGES)));
+
+    assertThat(result.getFacets().get(FACET_LANGUAGES).size()).isEqualTo(100);
+  }
+
+  @Test
+  public void repositories_facet_should_return_top_10_items() {
+    rangeClosed(1, 11).forEach(i ->  db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
+    index();
+
+    SearchIdResult result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));
+
+    assertThat(result.getFacets().get(FACET_REPOSITORIES).size()).isEqualTo(10);
+  }
+
+  @Test
   public void tags_facet_should_find_tags_of_specified_organization() {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule = createRule(setSystemTags());
@@ -864,41 +875,40 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void tags_facet_should_return_top_10_items() {
-    // default number of items returned in facets = 10
-    RuleDefinitionDto rule = createRule(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9",
-      "tagA", "tagB"));
+  public void tags_facet_should_return_top_100_items() {
+    // default number of items returned in tag facet = 100
+    String[] tags = get101Tags();
+    createRule(setSystemTags(tags));
     index();
 
     RuleQuery query = new RuleQuery()
       .setOrganization(db.getDefaultOrganization());
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
     SearchIdResult result = underTest.search(query, options);
-    assertThat(result.getFacets().get(FACET_TAGS)).containsExactly(entry("tag1", 1L), entry("tag2", 1L), entry("tag3", 1L), entry("tag4",
-      1L), entry("tag5", 1L),
-      entry("tag6", 1L), entry("tag7", 1L), entry("tag8", 1L), entry("tag9", 1L), entry("tagA", 1L));
+    assertThat(result.getFacets().get(FACET_TAGS).size()).isEqualTo(100);
+    assertThat(result.getFacets().get(FACET_TAGS)).contains(entry("tag0", 1L), entry("tag25", 1L), entry("tag99", 1L));
+    assertThat(result.getFacets().get(FACET_TAGS)).doesNotContain(entry("tagA", 1L));
   }
 
   @Test
   public void tags_facet_should_include_matching_selected_items() {
-    // default number of items returned in facets = 10
-    RuleDefinitionDto rule = createRule(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9",
-      "tagA", "tagB"));
+    // default number of items returned in tag facet = 100
+    String[] tags = get101Tags();
+    createRule(setSystemTags(tags));
     index();
 
     RuleQuery query = new RuleQuery()
       .setOrganization(db.getDefaultOrganization())
-      .setTags(singletonList("tagB"));
+      .setTags(singletonList("tagA"));
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
     SearchIdResult result = underTest.search(query, options);
-    assertThat(result.getFacets().get(FACET_TAGS).entrySet()).extracting(e -> entry(e.getKey(), e.getValue())).containsExactly(
+    assertThat(result.getFacets().get(FACET_TAGS).size()).isEqualTo(101);
+    assertThat(result.getFacets().get(FACET_TAGS).entrySet()).extracting(e -> entry(e.getKey(), e.getValue())).contains(
 
-      // check that selected item is added, although there are 10 other items
-      entry("tagB", 1L),
+      // check that selected item is added, although there are 100 other items
+      entry("tagA", 1L),
 
-      entry("tag1", 1L), entry("tag2", 1L), entry("tag3", 1L), entry("tag4", 1L), entry("tag5", 1L), entry("tag6", 1L), entry("tag7", 1L),
-      entry("tag8", 1L), entry("tag9", 1L),
-      entry("tagA", 1L));
+      entry("tag0", 1L), entry("tag25", 1L), entry("tag99", 1L));
   }
 
   @Test
@@ -1100,5 +1110,14 @@ public class RuleIndexTest {
     // active rules on profile
     assertThat(underTest.searchAll(new RuleQuery().setActivation(true).setQProfile(profile2)))
       .containsOnly(rule1.getId());
+  }
+
+  private String[] get101Tags() {
+    String[] tags = new String[101];
+    for (int i = 0; i < 100; i++) {
+      tags[i] = "tag" + i;
+    }
+    tags[100] = "tagA";
+    return tags;
   }
 }

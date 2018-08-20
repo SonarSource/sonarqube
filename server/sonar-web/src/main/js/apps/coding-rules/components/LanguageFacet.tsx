@@ -70,15 +70,12 @@ class LanguageFacet extends React.PureComponent<Props> {
 
   render() {
     return (
-      <ListStyleFacet
+      <ListStyleFacet<InstalledLanguage>
         facetHeader={translate('coding_rules.facet.languages')}
         fetching={false}
         getFacetItemText={this.getLanguageName}
-        getSearchResultKey={(language: InstalledLanguage) => language.key}
-        getSearchResultText={(language: InstalledLanguage) => language.name}
-        // TODO use defaults when rules search WS is updated
-        maxInitialItems={10}
-        maxItems={10}
+        getSearchResultKey={language => language.key}
+        getSearchResultText={language => language.name}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}

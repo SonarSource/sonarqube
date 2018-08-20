@@ -68,7 +68,11 @@ public class StickyFacetBuilder {
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Object... selected) {
-    return buildStickyFacet(fieldName, facetName, t -> t, selected);
+    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE,  t -> t, selected);
+  }
+
+  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Object... selected) {
+    return buildStickyFacet(fieldName, facetName, size, t -> t, selected);
   }
 
   /**
@@ -81,20 +85,12 @@ public class StickyFacetBuilder {
    *
    * @param fieldName the name of the field that contains the terms
    * @param facetName the name of the aggregation (use this for to find the corresponding results in the response)
+   * @param size number of facet items
    * @param additionalAggregationFilter additional features (like filtering using childQuery)
    * @param selected the terms, that the user already has selected
    * @return the (global) aggregation, that can be added on top level of the elasticsearch request
    */
-  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Function<TermsAggregationBuilder, AggregationBuilder> additionalAggregationFilter,
-    Object... selected) {
-    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, additionalAggregationFilter, selected);
-  }
-
-  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Object... selected) {
-    return buildStickyFacet(fieldName, facetName, size, t -> t, selected);
-  }
-
-  private AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Function<TermsAggregationBuilder, AggregationBuilder> additionalAggregationFilter,
+  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Function<TermsAggregationBuilder, AggregationBuilder> additionalAggregationFilter,
     Object... selected) {
     BoolQueryBuilder facetFilter = getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size, additionalAggregationFilter);
