@@ -10,7 +10,9 @@ group = 'com.sonarsource.sonarqube'
 
 yarn_run {
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
-  inputs.files('gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock')
+  ['gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock'].each {
+    inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
   outputs.dir('public')
   outputs.cacheIf { true }
 
