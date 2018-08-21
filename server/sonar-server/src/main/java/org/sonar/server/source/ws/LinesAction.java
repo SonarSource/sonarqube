@@ -23,6 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.io.Resources;
 import java.util.Date;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,6 +34,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.component.ComponentFinder;
@@ -140,6 +142,10 @@ public class LinesAction implements SourcesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = loadComponent(dbSession, request);
+      Supplier<Optional<Long>> periodDateSupplier = () -> dbClient.snapshotDao()
+        .selectLastAnalysisByComponentUuid(dbSession, file.projectUuid())
+        .map(SnapshotDto::getPeriodDate);
+
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
@@ -147,7 +153,7 @@ public class LinesAction implements SourcesWsAction {
       Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getDbKey());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        writeSource(lines, json, isMemberOfOrganization(dbSession, file));
+        writeSource(lines, json, isMemberOfOrganization(dbSession, file), periodDateSupplier);
         json.endObject();
       }
     }
@@ -170,11 +176,13 @@ public class LinesAction implements SourcesWsAction {
       return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, UUID_AND_KEY);
     }
 
-    checkRequest(componentKey!=null, "The '%s' parameter is missing", PARAM_KEY);
+    checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_KEY);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
-  private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json, boolean filterScmAuthors) {
+  private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json, boolean filterScmAuthors, Supplier<Optional<Long>> periodDateSupplier) {
+    Optional<Long> periodDate = null;
+
     json.name("sources").beginArray();
     for (DbFileSources.Line line : lines) {
       json.beginObject()
@@ -203,7 +211,14 @@ public class LinesAction implements SourcesWsAction {
         json.prop("coveredConditions", coveredConditions.get());
       }
       json.prop("duplicated", line.getDuplicationCount() > 0);
-      json.prop("isNew", line.getIsNewLine());
+      if (line.hasIsNewLine()) {
+        json.prop("isNew", line.getIsNewLine());
+      } else {
+        if (periodDate == null) {
+          periodDate = periodDateSupplier.get();
+        }
+        json.prop("isNew", periodDate.isPresent() && line.getScmDate() > periodDate.get());
+      }
       json.endObject();
     }
     json.endArray();

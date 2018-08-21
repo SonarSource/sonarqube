@@ -30,6 +30,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
@@ -61,6 +63,7 @@ public class LinesActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private ComponentDao componentDao = new ComponentDao();
+  private SnapshotDao snapshotDao = new SnapshotDao();
   private ComponentDto privateProject;
   private OrganizationDto organization;
   private WsTester wsTester;
@@ -216,6 +219,25 @@ public class LinesActionTest {
       .setParam("uuid", file.uuid())
       .execute()
       .assertJson(getClass(), "display_deprecated_fields.json");
+  }
+
+  @Test
+  public void use_period_date_if_new_line_not_yet_available_in_db() throws Exception {
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    dataBuilder.addLines(DbFileSources.Line.newBuilder().setLine(1).setScmDate(1000L).build());
+    dataBuilder.addLines(DbFileSources.Line.newBuilder().setLine(2).setScmDate(2000L).build());
+    // only this line should be considered as new
+    dataBuilder.addLines(DbFileSources.Line.newBuilder().setLine(3).setScmDate(3000L).build());
+    ComponentDto project = db.components().insertPrivateProject();
+    insertPeriod(project, 2000L);
+    ComponentDto file = insertFileWithData(dataBuilder.build(), project);
+    setUserWithValidPermission(file);
+
+    wsTester
+      .newGetRequest("api/sources", "lines")
+      .setParam("uuid", file.uuid())
+      .execute()
+      .assertJson(getClass(), "generated_isNew.json");
   }
 
   @Test
@@ -404,5 +426,14 @@ public class LinesActionTest {
       .setScmAuthor("AUTHOR_" + 1)
       .setScmDate(1_500_000_000_00L)
       .setSource("SOURCE_" + 1);
+  }
+
+  private void insertPeriod(ComponentDto componentDto, long date) {
+    SnapshotDto dto = new SnapshotDto();
+    dto.setUuid("uuid");
+    dto.setLast(true);
+    dto.setPeriodDate(date);
+    dto.setComponentUuid(componentDto.uuid());
+    snapshotDao.insert(db.getSession(), dto);
   }
 }

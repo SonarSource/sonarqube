@@ -1,0 +1,28 @@
+{
+  "sources": [
+    {
+      "line": 1,
+      "code": "\u003cp\u003e\u003c/p\u003e",
+      "scmRevision": "",
+      "scmDate": "1970-01-01T01:00:01+0100",
+      "duplicated": false,
+      "isNew": false
+    },
+    {
+      "line": 2,
+      "code": "\u003cp\u003e\u003c/p\u003e",
+      "scmRevision": "",
+      "scmDate": "1970-01-01T01:00:02+0100",
+      "duplicated": false,
+      "isNew": false
+    },
+    {
+      "line": 3,
+      "code": "\u003cp\u003e\u003c/p\u003e",
+      "scmRevision": "",
+      "scmDate": "1970-01-01T01:00:03+0100",
+      "duplicated": false,
+      "isNew": true
+    }
+  ]
+}
