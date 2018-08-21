@@ -32,8 +32,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
@@ -80,7 +78,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       throw new UnsupportedOperationException(
         format(
           "a measure can be set only once for a specific Component (key=%s), Metric (key=%s). Use update method",
-          component.getKey(),
+          component.getDbKey(),
           metric.getKey()));
     }
     add(component, metric, measure, OverridePolicy.OVERRIDE);
@@ -96,7 +94,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       throw new UnsupportedOperationException(
         format(
           "a measure can be updated only if one already exists for a specific Component (key=%s), Metric (key=%s). Use add method",
-          component.getKey(),
+          component.getDbKey(),
           metric.getKey()));
     }
     add(component, metric, measure, OverridePolicy.OVERRIDE);

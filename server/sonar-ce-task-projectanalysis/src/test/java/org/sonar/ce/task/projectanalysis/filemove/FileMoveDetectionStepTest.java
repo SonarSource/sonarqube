@@ -296,7 +296,7 @@ public class FileMoveDetectionStepTest {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
-    insertFiles(file1.getKey(), file2.getKey());
+    insertFiles(file1.getDbKey(), file2.getDbKey());
     setFilesInReport(file2, file1);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -311,8 +311,8 @@ public class FileMoveDetectionStepTest {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
-    ComponentDto[] dtos = insertFiles(file1.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    ComponentDto[] dtos = insertFiles(file1.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT1);
     setFilesInReport(file2);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -331,8 +331,8 @@ public class FileMoveDetectionStepTest {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, LESS_CONTENT1);
-    insertFiles(file1.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    insertFiles(file1.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT1);
     setFilesInReport(file2);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -350,8 +350,8 @@ public class FileMoveDetectionStepTest {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
-    insertFiles(file1.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT_EMPTY);
+    insertFiles(file1.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT_EMPTY);
     setFilesInReport(file2);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -367,8 +367,8 @@ public class FileMoveDetectionStepTest {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
-    insertFiles(key -> newComponentDto(key).setPath(null), file1.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    insertFiles(key -> newComponentDto(key).setPath(null), file1.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT1);
     setFilesInReport(file2);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -384,8 +384,8 @@ public class FileMoveDetectionStepTest {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT_EMPTY);
-    insertFiles(file1.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    insertFiles(file1.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT1);
     setFilesInReport(file2);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -403,8 +403,8 @@ public class FileMoveDetectionStepTest {
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, CONTENT1);
     Component file3 = fileComponent(FILE_3_REF, CONTENT1);
-    insertFiles(file1.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT1);
+    insertFiles(file1.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT1);
     setFilesInReport(file2, file3);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -421,9 +421,9 @@ public class FileMoveDetectionStepTest {
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
     Component file3 = fileComponent(FILE_3_REF, CONTENT1);
-    insertFiles(file1.getKey(), file2.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT1);
-    insertContentOfFileInDb(file2.getKey(), CONTENT1);
+    insertFiles(file1.getDbKey(), file2.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT1);
+    insertContentOfFileInDb(file2.getDbKey(), CONTENT1);
     setFilesInReport(file3);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -439,9 +439,9 @@ public class FileMoveDetectionStepTest {
     analysisMetadataHolder.setBaseAnalysis(ANALYSIS);
     Component file1 = fileComponent(FILE_1_REF, null);
     Component file2 = fileComponent(FILE_2_REF, null);
-    insertFiles(file1.getKey(), file2.getKey());
-    insertContentOfFileInDb(file1.getKey(), null);
-    insertContentOfFileInDb(file2.getKey(), null);
+    insertFiles(file1.getDbKey(), file2.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), null);
+    insertContentOfFileInDb(file2.getDbKey(), null);
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -465,11 +465,11 @@ public class FileMoveDetectionStepTest {
     Component file4 = fileComponent(5, new String[] {"a", "b"});
     Component file5 = fileComponent(6, null);
     Component file6 = fileComponent(7, LESS_CONTENT2);
-    ComponentDto[] dtos = insertFiles(file1.getKey(), file2.getKey(), file4.getKey(), file5.getKey());
-    insertContentOfFileInDb(file1.getKey(), CONTENT1);
-    insertContentOfFileInDb(file2.getKey(), LESS_CONTENT1);
-    insertContentOfFileInDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
-    insertContentOfFileInDb(file5.getKey(), CONTENT2);
+    ComponentDto[] dtos = insertFiles(file1.getDbKey(), file2.getDbKey(), file4.getDbKey(), file5.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), CONTENT1);
+    insertContentOfFileInDb(file2.getDbKey(), LESS_CONTENT1);
+    insertContentOfFileInDb(file4.getDbKey(), new String[] {"e", "f", "g", "h", "i"});
+    insertContentOfFileInDb(file5.getDbKey(), CONTENT2);
     setFilesInReport(file3, file4, file6);
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -495,9 +495,9 @@ public class FileMoveDetectionStepTest {
     Component file2 = fileComponent(FILE_2_REF, null);
     Component file3 = fileComponent(FILE_3_REF, arrayOf(118));
     Component file4 = fileComponent(5, arrayOf(25));
-    insertFiles(file1.getKey(), file2.getKey());
-    insertContentOfFileInDb(file1.getKey(), arrayOf(100));
-    insertContentOfFileInDb(file2.getKey(), arrayOf(30));
+    insertFiles(file1.getDbKey(), file2.getDbKey());
+    insertContentOfFileInDb(file1.getDbKey(), arrayOf(100));
+    insertContentOfFileInDb(file2.getDbKey(), arrayOf(30));
     setFilesInReport(file3, file4);
 
     TestComputationStepContext context = new TestComputationStepContext();

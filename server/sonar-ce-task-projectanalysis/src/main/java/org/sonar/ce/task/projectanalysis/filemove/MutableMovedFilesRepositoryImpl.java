@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -38,11 +37,11 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
     requireNonNull(originalFile, "originalFile can't be null");
     checkArgument(file.getType() == Component.Type.FILE, "file must be of type FILE");
 
-    OriginalFile existingOriginalFile = originalFiles.get(file.getKey());
+    OriginalFile existingOriginalFile = originalFiles.get(file.getDbKey());
     checkState(existingOriginalFile == null || existingOriginalFile.equals(originalFile),
       "Original file %s already registered for file %s. Unable to register %s.", existingOriginalFile, file, originalFile);
     if (existingOriginalFile == null) {
-      originalFiles.put(file.getKey(), originalFile);
+      originalFiles.put(file.getDbKey(), originalFile);
     }
   }
 
@@ -53,6 +52,6 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
       return Optional.absent();
     }
 
-    return Optional.fromNullable(originalFiles.get(file.getKey()));
+    return Optional.fromNullable(originalFiles.get(file.getDbKey()));
   }
 }

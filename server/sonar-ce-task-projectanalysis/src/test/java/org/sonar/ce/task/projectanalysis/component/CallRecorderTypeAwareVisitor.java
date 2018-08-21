@@ -74,7 +74,7 @@ class CallRecorderTypeAwareVisitor extends TypeAwareVisitorAdapter {
   }
 
   private static CallRecord viewsCallRecord(Component component, String method) {
-    return CallRecord.viewsCallRecord(method, component.getKey());
+    return CallRecord.viewsCallRecord(method, component.getDbKey());
   }
 
 }

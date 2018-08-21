@@ -334,7 +334,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   }
 
   private static String getRef(Component component) {
-    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getKey();
+    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getDbKey();
   }
 
   private static class MatchMetric implements Predicate<Map.Entry<InternalKey, Measure>> {

@@ -70,7 +70,7 @@ public class SymbolsLineReader implements LineReader {
       processSymbols(lineBuilder);
     } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
       areSymbolsValid = false;
-      LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getKey()), e);
+      LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getDbKey()), e);
     }
   }
 

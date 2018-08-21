@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -44,12 +43,12 @@ public class SourceHashRepositoryImpl implements SourceHashRepository {
   @Override
   public String getRawSourceHash(Component file) {
     checkComponentArgument(file);
-    if (rawSourceHashesByKey.containsKey(file.getKey())) {
-      return checkSourceHash(file.getKey(), rawSourceHashesByKey.get(file.getKey()));
+    if (rawSourceHashesByKey.containsKey(file.getDbKey())) {
+      return checkSourceHash(file.getDbKey(), rawSourceHashesByKey.get(file.getDbKey()));
     } else {
       String newSourceHash = computeRawSourceHash(file);
-      rawSourceHashesByKey.put(file.getKey(), newSourceHash);
-      return checkSourceHash(file.getKey(), newSourceHash);
+      rawSourceHashesByKey.put(file.getDbKey(), newSourceHash);
+      return checkSourceHash(file.getDbKey(), newSourceHash);
     }
   }
 

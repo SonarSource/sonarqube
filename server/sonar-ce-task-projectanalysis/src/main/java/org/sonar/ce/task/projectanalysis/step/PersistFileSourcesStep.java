@@ -97,7 +97,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         FileSourceDataComputer.Data fileSourceData = fileSourceDataComputer.compute(file);
         persistSource(fileSourceData, file);
       } catch (Exception e) {
-        throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getKey()), e);
+        throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getDbKey()), e);
       }
     }
 

@@ -345,8 +345,8 @@ public class TrackerRawInputFactoryTest {
   }
 
   private void assertInitializedIssue(DefaultIssue issue) {
-    assertThat(issue.projectKey()).isEqualTo(PROJECT.getPublicKey());
-    assertThat(issue.componentKey()).isEqualTo(FILE.getPublicKey());
+    assertThat(issue.projectKey()).isEqualTo(PROJECT.getKey());
+    assertThat(issue.componentKey()).isEqualTo(FILE.getKey());
     assertThat(issue.componentUuid()).isEqualTo(FILE.getUuid());
     assertThat(issue.resolution()).isNull();
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
@@ -357,8 +357,8 @@ public class TrackerRawInputFactoryTest {
   }
 
   private void assertInitializedExternalIssue(DefaultIssue issue) {
-    assertThat(issue.projectKey()).isEqualTo(PROJECT.getPublicKey());
-    assertThat(issue.componentKey()).isEqualTo(FILE.getPublicKey());
+    assertThat(issue.projectKey()).isEqualTo(PROJECT.getKey());
+    assertThat(issue.componentKey()).isEqualTo(FILE.getKey());
     assertThat(issue.componentUuid()).isEqualTo(FILE.getUuid());
     assertThat(issue.resolution()).isNull();
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);

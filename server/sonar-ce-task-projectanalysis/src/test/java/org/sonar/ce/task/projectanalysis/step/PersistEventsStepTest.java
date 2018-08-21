@@ -50,12 +50,16 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.db.event.EventDto.CATEGORY_ALERT;
+import static org.sonar.db.event.EventDto.CATEGORY_PROFILE;
+import static org.sonar.db.event.EventDto.CATEGORY_VERSION;
 
 public class PersistEventsStepTest extends BaseStepTest {
 
   private static final long NOW = 1225630680000L;
   private static final ReportComponent ROOT = builder(PROJECT, 1)
     .setUuid("ABCD")
+    .setProjectVersion("version_1")
     .addChildren(
       builder(MODULE, 2)
         .setUuid("BCDE")
@@ -100,64 +104,11 @@ public class PersistEventsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void nothing_to_do_when_no_events_in_report() {
-    treeRootHolder.setRoot(ROOT);
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isZero();
-  }
-
-  @Test
-  public void persist_alert_events_on_root() {
-    when(system2.now()).thenReturn(NOW);
-    treeRootHolder.setRoot(ROOT);
-    Event alert = Event.createAlert("Red (was Orange)", null, "Open issues > 0");
-    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(alert));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(1);
-    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
-    assertThat(eventDtos).hasSize(1);
-    EventDto eventDto = eventDtos.iterator().next();
-    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
-    assertThat(eventDto.getName()).isEqualTo(alert.getName());
-    assertThat(eventDto.getDescription()).isEqualTo(alert.getDescription());
-    assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_ALERT);
-    assertThat(eventDto.getData()).isNull();
-    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
-    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
-  }
-
-  @Test
-  public void persist_profile_events_on_root() {
-    when(system2.now()).thenReturn(NOW);
-    treeRootHolder.setRoot(ROOT);
-    Event profile = Event.createProfile("foo", null, "bar");
-    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(profile));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(1);
-    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
-    assertThat(eventDtos).hasSize(1);
-    EventDto eventDto = eventDtos.iterator().next();
-    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
-    assertThat(eventDto.getName()).isEqualTo(profile.getName());
-    assertThat(eventDto.getDescription()).isEqualTo(profile.getDescription());
-    assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_PROFILE);
-    assertThat(eventDto.getData()).isNull();
-    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
-    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
-  }
-
-  @Test
   public void create_version_event() {
     when(system2.now()).thenReturn(NOW);
     Component project = builder(PROJECT, 1)
       .setUuid("ABCD")
-      .setVersion("1.0")
+      .setProjectVersion("1.0")
       .addChildren(
         builder(MODULE, 2)
           .setUuid("BCDE")
@@ -182,7 +133,55 @@ public class PersistEventsStepTest extends BaseStepTest {
     assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
     assertThat(eventDto.getName()).isEqualTo("1.0");
     assertThat(eventDto.getDescription()).isNull();
-    assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_VERSION);
+    assertThat(eventDto.getCategory()).isEqualTo(CATEGORY_VERSION);
+    assertThat(eventDto.getData()).isNull();
+    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
+    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void persist_alert_events_on_root() {
+    when(system2.now()).thenReturn(NOW);
+    treeRootHolder.setRoot(ROOT);
+    Event alert = Event.createAlert("Red (was Orange)", null, "Open issues > 0");
+    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(alert));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(2);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
+    assertThat(eventDtos)
+      .extracting(EventDto::getCategory)
+      .containsOnly(CATEGORY_ALERT, CATEGORY_VERSION);
+    EventDto eventDto = eventDtos.stream().filter(t -> CATEGORY_ALERT.equals(t.getCategory())).findAny().get();
+    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
+    assertThat(eventDto.getName()).isEqualTo(alert.getName());
+    assertThat(eventDto.getDescription()).isEqualTo(alert.getDescription());
+    assertThat(eventDto.getCategory()).isEqualTo(CATEGORY_ALERT);
+    assertThat(eventDto.getData()).isNull();
+    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
+    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void persist_profile_events_on_root() {
+    when(system2.now()).thenReturn(NOW);
+    treeRootHolder.setRoot(ROOT);
+    Event profile = Event.createProfile("foo", null, "bar");
+    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(profile));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(2);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
+    assertThat(eventDtos)
+      .extracting(EventDto::getCategory)
+      .containsOnly(CATEGORY_PROFILE, CATEGORY_VERSION);
+    EventDto eventDto = eventDtos.stream().filter(t -> CATEGORY_PROFILE.equals(t.getCategory())).findAny().get();
+    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
+    assertThat(eventDto.getName()).isEqualTo(profile.getName());
+    assertThat(eventDto.getDescription()).isEqualTo(profile.getDescription());
+    assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_PROFILE);
     assertThat(eventDto.getData()).isNull();
     assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
     assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
@@ -199,7 +198,7 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     Component project = builder(PROJECT, 1)
       .setUuid(projectDto.uuid())
-      .setVersion("1.5-SNAPSHOT")
+      .setProjectVersion("1.5-SNAPSHOT")
       .addChildren(
         builder(MODULE, 2)
           .setUuid("BCDE")
@@ -232,7 +231,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   private EventDto newVersionEventDto(ComponentDto project, long date, String name) {
     return new EventDto().setUuid(uuidFactory.create()).setComponentUuid(project.uuid())
       .setAnalysisUuid("analysis_uuid")
-      .setCategory(EventDto.CATEGORY_VERSION)
+      .setCategory(CATEGORY_VERSION)
       .setName(name).setDate(date).setCreatedAt(date);
   }
 

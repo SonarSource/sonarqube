@@ -70,7 +70,7 @@ public class BranchPersisterImplTest {
     treeRootHolder.setRoot(BRANCH);
 
     // add main branch in project table and in metadata
-    ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
+    ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getDbKey());
     analysisMetadataHolder.setProject(Project.from(dto));
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), dto);
 
@@ -91,7 +91,7 @@ public class BranchPersisterImplTest {
     treeRootHolder.setRoot(BRANCH);
 
     // add main branch in project table and in metadata
-    ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
+    ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getDbKey());
     analysisMetadataHolder.setProject(Project.from(dto));
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), dto);
 

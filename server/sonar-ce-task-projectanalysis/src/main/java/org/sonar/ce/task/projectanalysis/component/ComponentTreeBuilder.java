@@ -101,12 +101,11 @@ public class ComponentTreeBuilder {
         String projectPublicKey = publicKeyGenerator.generateKey(component, null);
         ComponentImpl.Builder builder = ComponentImpl.builder(Component.Type.PROJECT)
           .setUuid(uuid)
-          .setKey(projectKey)
-          .setPublicKey(projectPublicKey)
+          .setDbKey(projectKey)
+          .setKey(projectPublicKey)
           .setStatus(convertStatus(component.getStatus()))
-          .setReportAttributes(createAttributesBuilder(component, scmBasePath)
-            .setVersion(createProjectVersion(component))
-            .build())
+          .setProjectAttributes(new ProjectAttributes(createProjectVersion(component)))
+          .setReportAttributes(createAttributesBuilder(component, scmBasePath).build())
           .addChildren(buildChildren(component, component, scmBasePath));
         setNameAndDescription(component, builder);
         return builder.build();
@@ -116,8 +115,8 @@ public class ComponentTreeBuilder {
         String modulePublicKey = publicKeyGenerator.generateKey(component, null);
         return ComponentImpl.builder(Component.Type.MODULE)
           .setUuid(uuidSupplier.apply(moduleKey))
-          .setKey(moduleKey)
-          .setPublicKey(modulePublicKey)
+          .setDbKey(moduleKey)
+          .setKey(modulePublicKey)
           .setName(nameOfOthers(component, modulePublicKey))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
@@ -131,8 +130,8 @@ public class ComponentTreeBuilder {
         String publicKey = publicKeyGenerator.generateKey(closestModule, component);
         return ComponentImpl.builder(convertDirOrFileType(component.getType()))
           .setUuid(uuidSupplier.apply(key))
-          .setKey(key)
-          .setPublicKey(publicKey)
+          .setDbKey(key)
+          .setKey(publicKey)
           .setName(nameOfOthers(component, publicKey))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
@@ -153,8 +152,8 @@ public class ComponentTreeBuilder {
   private static ComponentImpl.Builder changedComponentBuilder(Component component) {
     return ComponentImpl.builder(component.getType())
       .setUuid(component.getUuid())
+      .setDbKey(component.getDbKey())
       .setKey(component.getKey())
-      .setPublicKey(component.getPublicKey())
       .setStatus(component.getStatus())
       .setReportAttributes(component.getReportAttributes())
       .setName(component.getName())
@@ -181,6 +180,7 @@ public class ComponentTreeBuilder {
 
   private static Component buildChangedProject(Component component) {
     return changedComponentBuilder(component)
+      .setProjectAttributes(new ProjectAttributes(component.getProjectAttributes().getVersion()))
       .addChildren(buildChangedComponentChildren(component))
       .build();
   }
@@ -268,7 +268,6 @@ public class ComponentTreeBuilder {
 
   private static ReportAttributes.Builder createAttributesBuilder(ScannerReport.Component component, @Nullable String scmBasePath) {
     return ReportAttributes.newBuilder(component.getRef())
-      .setVersion(trimToNull(component.getVersion()))
       .setPath(trimToNull(component.getPath()))
       .setScmPath(computeScmPath(scmBasePath, component.getProjectRelativePath()));
   }

@@ -59,8 +59,11 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.WARN;
 
 public class QualityGateEventsStepTest {
-  private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid 1").setKey("key 1")
-    .addChildren(ReportComponent.builder(Component.Type.MODULE, 2).setVersion("V1.9").build())
+  private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1)
+    .setUuid("uuid 1")
+    .setKey("key 1")
+    .setProjectVersion("V1.9")
+    .addChildren(ReportComponent.builder(Component.Type.MODULE, 2).build())
     .build();
   private static final String INVALID_ALERT_STATUS = "trololo";
   private static final String ALERT_TEXT = "alert text";
@@ -89,7 +92,7 @@ public class QualityGateEventsStepTest {
   @Before
   public void setUp() {
     when(metricRepository.getByKey(ALERT_STATUS_KEY)).thenReturn(alertStatusMetric);
-    analysisMetadataHolder.setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getKey(), PROJECT_COMPONENT.getName(), PROJECT_COMPONENT.getDescription(), emptyList()));
+    analysisMetadataHolder.setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getDbKey(), PROJECT_COMPONENT.getName(), PROJECT_COMPONENT.getDescription(), emptyList()));
     analysisMetadataHolder.setBranch(mock(Branch.class));
     treeRootHolder.setRoot(PROJECT_COMPONENT);
   }
@@ -194,9 +197,9 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getPublicKey());
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getReportAttributes().getVersion());
+    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getVersion());
     assertThat(notification.getFieldValue("branch")).isNull();
     assertThat(notification.getFieldValue("alertLevel")).isEqualTo(rawAlterStatus.name());
     assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
@@ -249,9 +252,9 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getPublicKey());
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getReportAttributes().getVersion());
+    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getVersion());
     assertThat(notification.getFieldValue("branch")).isNull();
     assertThat(notification.getFieldValue("alertLevel")).isEqualTo(newQualityGateStatus.getStatus().name());
     assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
@@ -279,9 +282,9 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getPublicKey());
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getReportAttributes().getVersion());
+    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getVersion());
     assertThat(notification.getFieldValue("branch")).isEqualTo(branchName);
 
     reset(measureRepository, eventRepository, notificationService);
@@ -301,9 +304,9 @@ public class QualityGateEventsStepTest {
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
-    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getPublicKey());
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getReportAttributes().getVersion());
+    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getVersion());
     assertThat(notification.getFieldValue("branch")).isEqualTo(null);
 
     reset(measureRepository, eventRepository, notificationService);

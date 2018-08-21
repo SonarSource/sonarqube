@@ -98,7 +98,7 @@ public class PersistTestsStep implements ComputationStep {
       this.session = session;
       this.existingFileSourcesByUuid = new HashMap<>();
       this.projectUuid = treeRootHolder.getRoot().getUuid();
-      this.projectKey = treeRootHolder.getRoot().getKey();
+      this.projectKey = treeRootHolder.getRoot().getDbKey();
       session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject",
         ImmutableMap.of("projectUuid", treeRootHolder.getRoot().getUuid(), "dataType", Type.TEST),
         context -> {
@@ -118,7 +118,7 @@ public class PersistTestsStep implements ComputationStep {
       Multimap<String, DbFileSources.Test.Builder> testsByName = buildDbTests(component.getReportAttributes().getRef());
       Table<String, String, DbFileSources.Test.CoveredFile.Builder> coveredFilesByName = loadCoverageDetails(component.getReportAttributes().getRef());
       List<DbFileSources.Test> tests = addCoveredFilesToTests(testsByName, coveredFilesByName);
-      if (checkIfThereAreUnprocessedCoverageDetails(testsByName, coveredFilesByName, component.getKey())) {
+      if (checkIfThereAreUnprocessedCoverageDetails(testsByName, coveredFilesByName, component.getDbKey())) {
         hasUnprocessedCoverageDetails = true;
       }
 

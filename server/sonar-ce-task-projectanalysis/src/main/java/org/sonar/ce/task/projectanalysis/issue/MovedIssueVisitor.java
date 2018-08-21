@@ -25,7 +25,6 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 import org.sonar.server.issue.IssueFieldsSetter;
@@ -60,7 +59,7 @@ public class MovedIssueVisitor extends IssueVisitor {
     // changes the issue's component uuid, add a change and set issue as changed to enforce it is persisted to DB
     issueUpdater.setIssueMoved(issue, component.getUuid(), IssueChangeContext.createUser(new Date(analysisMetadataHolder.getAnalysisDate()), null));
     // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
-    issue.setComponentKey(component.getPublicKey());
+    issue.setComponentKey(component.getKey());
     issue.setModuleUuid(null);
     issue.setModuleUuidPath(null);
   }

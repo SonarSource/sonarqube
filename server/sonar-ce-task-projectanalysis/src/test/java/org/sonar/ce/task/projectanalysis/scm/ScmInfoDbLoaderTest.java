@@ -95,7 +95,7 @@ public class ScmInfoDbLoaderTest {
     String hash = computeSourceHash(1);
     when(branch.getMergeBranchUuid()).thenReturn(Optional.of("mergeBranchUuid"));
 
-    when(mergeBranchComponentUuids.getUuid(FILE.getKey())).thenReturn(mergeFileUuid);
+    when(mergeBranchComponentUuids.getUuid(FILE.getDbKey())).thenReturn(mergeFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, mergeFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();

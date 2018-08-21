@@ -180,7 +180,7 @@ public class FileMoveDetectionStep implements ComputationStep {
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitFile(Component file) {
-          builder.put(file.getKey(), file);
+          builder.put(file.getDbKey(), file);
         }
       }).visit(root);
     return builder.build();

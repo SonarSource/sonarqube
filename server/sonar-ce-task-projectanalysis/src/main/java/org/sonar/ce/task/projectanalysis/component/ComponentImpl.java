@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,14 +40,15 @@ public class ComponentImpl implements Component {
   private final Type type;
   private final Status status;
   private final String name;
+  private final String dbKey;
   private final String key;
-  private final String publicKey;
   private final String uuid;
 
   @CheckForNull
   private final String description;
   private final List<Component> children;
   @CheckForNull
+  private final ProjectAttributes projectAttributes;
   private final ReportAttributes reportAttributes;
   @CheckForNull
   private final FileAttributes fileAttributes;
@@ -54,11 +56,12 @@ public class ComponentImpl implements Component {
   private ComponentImpl(Builder builder) {
     this.type = builder.type;
     this.status = builder.status;
-    this.key = builder.key;
-    this.publicKey = builder.publicKey;
+    this.dbKey = builder.dbKey;
+    this.key = MoreObjects.firstNonNull(builder.key, builder.dbKey);
     this.name = builder.name;
     this.description = builder.description;
     this.uuid = builder.uuid;
+    this.projectAttributes = builder.projectAttributes;
     this.reportAttributes = builder.reportAttributes;
     this.fileAttributes = builder.fileAttributes;
     this.children = ImmutableList.copyOf(builder.children);
@@ -80,13 +83,13 @@ public class ComponentImpl implements Component {
   }
 
   @Override
-  public String getKey() {
-    return key;
+  public String getDbKey() {
+    return dbKey;
   }
 
   @Override
-  public String getPublicKey() {
-    return publicKey;
+  public String getKey() {
+    return key;
   }
 
   @Override
@@ -103,6 +106,12 @@ public class ComponentImpl implements Component {
   @Override
   public List<Component> getChildren() {
     return children;
+  }
+
+  @Override
+  public ProjectAttributes getProjectAttributes() {
+    checkState(this.type == Type.PROJECT, "Only component of type PROJECT have a ProjectAttributes object");
+    return this.projectAttributes;
   }
 
   @Override
@@ -137,7 +146,8 @@ public class ComponentImpl implements Component {
 
   public static final class Builder {
 
-    private static final String KEY_CANNOT_BE_NULL = "key can't be null";
+    private static final String DB_KEY_CANNOT_BE_NULL = "DB key can't be null";
+    private static final String KEY_CANNOT_BE_NULL = "Key can't be null";
     private static final String UUID_CANNOT_BE_NULL = "uuid can't be null";
     private static final String REPORT_ATTRIBUTES_CANNOT_BE_NULL = "reportAttributes can't be null";
     private static final String NAME_CANNOT_BE_NULL = "name can't be null";
@@ -145,10 +155,11 @@ public class ComponentImpl implements Component {
 
     private final Type type;
     private Status status;
+    private ProjectAttributes projectAttributes;
     private ReportAttributes reportAttributes;
     private String uuid;
+    private String dbKey;
     private String key;
-    private String publicKey;
     private String name;
     private String description;
     private FileAttributes fileAttributes;
@@ -156,11 +167,6 @@ public class ComponentImpl implements Component {
 
     private Builder(Type type) {
       this.type = requireNonNull(type, "type can't be null");
-    }
-
-    public Builder setReportAttributes(ReportAttributes reportAttributes) {
-      this.reportAttributes = requireNonNull(reportAttributes, REPORT_ATTRIBUTES_CANNOT_BE_NULL);
-      return this;
     }
 
     public Builder setUuid(String s) {
@@ -178,13 +184,13 @@ public class ComponentImpl implements Component {
       return this;
     }
 
-    public Builder setKey(String s) {
-      this.key = requireNonNull(s, KEY_CANNOT_BE_NULL);
+    public Builder setDbKey(String s) {
+      this.dbKey = requireNonNull(s, DB_KEY_CANNOT_BE_NULL);
       return this;
     }
 
-    public Builder setPublicKey(String publicKey) {
-      this.publicKey = requireNonNull(publicKey);
+    public Builder setKey(String key) {
+      this.key = requireNonNull(key, KEY_CANNOT_BE_NULL);
       return this;
     }
 
@@ -195,6 +201,17 @@ public class ComponentImpl implements Component {
 
     public Builder setDescription(@Nullable String description) {
       this.description = abbreviate(trimToNull(description), MAX_COMPONENT_DESCRIPTION_LENGTH);
+      return this;
+    }
+
+    public Builder setProjectAttributes(ProjectAttributes projectAttributes) {
+      checkProjectAttributes(projectAttributes);
+      this.projectAttributes = projectAttributes;
+      return this;
+    }
+
+    public Builder setReportAttributes(ReportAttributes reportAttributes) {
+      this.reportAttributes = requireNonNull(reportAttributes, REPORT_ATTRIBUTES_CANNOT_BE_NULL);
       return this;
     }
 
@@ -214,23 +231,32 @@ public class ComponentImpl implements Component {
     public ComponentImpl build() {
       requireNonNull(reportAttributes, REPORT_ATTRIBUTES_CANNOT_BE_NULL);
       requireNonNull(uuid, UUID_CANNOT_BE_NULL);
-      requireNonNull(key, KEY_CANNOT_BE_NULL);
+      requireNonNull(dbKey, DB_KEY_CANNOT_BE_NULL);
       requireNonNull(name, NAME_CANNOT_BE_NULL);
       requireNonNull(status, STATUS_CANNOT_BE_NULL);
+      checkProjectAttributes(this.projectAttributes);
       return new ComponentImpl(this);
+    }
+
+    private void checkProjectAttributes(@Nullable ProjectAttributes projectAttributes) {
+      checkArgument(type != Type.PROJECT ^ projectAttributes != null, "ProjectAttributes must and can only be set for type PROJECT");
     }
   }
 
   @Override
   public String toString() {
     return "ComponentImpl{" +
-      "key='" + key + '\'' +
-      ", type=" + type +
-      ", uuid='" + uuid + '\'' +
+      "type=" + type +
+      ", status=" + status +
       ", name='" + name + '\'' +
+      ", dbKey='" + dbKey + '\'' +
+      ", key='" + key + '\'' +
+      ", uuid='" + uuid + '\'' +
       ", description='" + description + '\'' +
-      ", fileAttributes=" + fileAttributes +
+      ", children=" + children +
+      ", projectAttributes=" + projectAttributes +
       ", reportAttributes=" + reportAttributes +
+      ", fileAttributes=" + fileAttributes +
       '}';
   }
 

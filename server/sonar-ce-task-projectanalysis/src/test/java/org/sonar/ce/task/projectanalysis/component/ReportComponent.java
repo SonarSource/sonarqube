@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.component;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -42,7 +43,7 @@ public class ReportComponent implements Component {
     .setPublicKey("PUBLIC_PROJECT_KEY")
     .setUuid("PROJECT_UUID")
     .setName("Project Name")
-    .setVersion("1.0-SNAPSHOT")
+    .setProjectVersion("1.0-SNAPSHOT")
     .build();
 
   private final Type type;
@@ -53,6 +54,7 @@ public class ReportComponent implements Component {
   private final String key;
   private final String publicKey;
   private final String uuid;
+  private final ProjectAttributes projectAttributes;
   private final ReportAttributes reportAttributes;
   private final FileAttributes fileAttributes;
   private final List<Component> children;
@@ -65,8 +67,8 @@ public class ReportComponent implements Component {
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
     this.description = builder.description;
     this.uuid = builder.uuid;
+    this.projectAttributes = Optional.ofNullable(builder.projectVersion).map(ProjectAttributes::new).orElse(null);
     this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
-      .setVersion(builder.version)
       .setPath(builder.path)
       .build();
     this.fileAttributes = builder.fileAttributes == null ? DEFAULT_FILE_ATTRIBUTES : builder.fileAttributes;
@@ -92,7 +94,7 @@ public class ReportComponent implements Component {
   }
 
   @Override
-  public String getKey() {
+  public String getDbKey() {
     if (key == null) {
       throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
     }
@@ -100,7 +102,7 @@ public class ReportComponent implements Component {
   }
 
   @Override
-  public String getPublicKey() {
+  public String getKey() {
     if (publicKey == null) {
       throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
     }
@@ -121,6 +123,12 @@ public class ReportComponent implements Component {
   @Override
   public List<Component> getChildren() {
     return children;
+  }
+
+  @Override
+  public ProjectAttributes getProjectAttributes() {
+    checkState(this.type == Type.PROJECT);
+    return this.projectAttributes;
   }
 
   @Override
@@ -188,7 +196,7 @@ public class ReportComponent implements Component {
     private String key;
     private String publicKey;
     private String name;
-    private String version;
+    private String projectVersion;
     private String description;
     private String path;
     private FileAttributes fileAttributes;
@@ -198,6 +206,9 @@ public class ReportComponent implements Component {
       checkArgument(type.isReportType(), "Component type must be a report type");
       this.type = type;
       this.ref = ref;
+      if (type == Type.PROJECT) {
+        this.projectVersion = "toBeDefined";
+      }
     }
 
     public Builder setStatus(Status s) {
@@ -225,8 +236,9 @@ public class ReportComponent implements Component {
       return this;
     }
 
-    public Builder setVersion(@Nullable String s) {
-      this.version = s;
+    public Builder setProjectVersion(String s) {
+      checkProjectVersion(s);
+      this.projectVersion = s;
       return this;
     }
 
@@ -255,7 +267,12 @@ public class ReportComponent implements Component {
     }
 
     public ReportComponent build() {
+      checkProjectVersion(this.projectVersion);
       return new ReportComponent(this);
+    }
+
+    private void checkProjectVersion(@Nullable String s) {
+      checkArgument(type != Type.PROJECT ^ s != null, "Project version must and can only be set on Project");
     }
   }
 

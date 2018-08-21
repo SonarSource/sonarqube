@@ -423,7 +423,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   private void setupRoot(ComponentDto project, String version) {
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.uuid()).setKey(project.getKey()).setVersion(version).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.uuid()).setKey(project.getKey()).setProjectVersion(version).build());
     when(settingsRepository.getConfiguration()).thenReturn(settings.asConfig());
   }
 

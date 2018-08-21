@@ -154,7 +154,7 @@ public class ViewsVisitorsCrawlerTest {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {
-          return Integer.valueOf(component.getKey());
+          return Integer.valueOf(component.getDbKey());
         }
       });
     }

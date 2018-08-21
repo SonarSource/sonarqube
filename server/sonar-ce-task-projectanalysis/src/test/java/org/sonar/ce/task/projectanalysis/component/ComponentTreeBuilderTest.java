@@ -101,14 +101,14 @@ public class ComponentTreeBuilderTest {
       .build());
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
-    assertThat(root.getKey()).isEqualTo("generated_K1");
-    assertThat(root.getPublicKey()).isEqualTo("public_K1");
+    assertThat(root.getDbKey()).isEqualTo("generated_K1");
+    assertThat(root.getKey()).isEqualTo("public_K1");
     assertThat(root.getType()).isEqualTo(Component.Type.PROJECT);
     assertThat(root.getName()).isEqualTo(nameInReport);
     assertThat(root.getDescription()).isEqualTo(descriptionInReport);
     assertThat(root.getReportAttributes().getRef()).isEqualTo(42);
     assertThat(root.getReportAttributes().getPath()).isNull();
-    assertThat(root.getReportAttributes().getVersion()).isEqualTo("6.5");
+    assertThat(root.getProjectAttributes().getVersion()).isEqualTo("6.5");
     assertThatFileAttributesAreNotSet(root);
   }
 
@@ -154,7 +154,7 @@ public class ComponentTreeBuilderTest {
       .setType(PROJECT)
       .build(), baseAnalysis);
 
-    assertThat(root.getReportAttributes().getVersion()).isEqualTo("6.5");
+    assertThat(root.getProjectAttributes().getVersion()).isEqualTo("6.5");
   }
 
   @Test
@@ -165,7 +165,7 @@ public class ComponentTreeBuilderTest {
       .setVersion("")
       .build(), baseAnalysis);
 
-    assertThat(root.getReportAttributes().getVersion()).isEqualTo("6.5");
+    assertThat(root.getProjectAttributes().getVersion()).isEqualTo("6.5");
   }
 
   @Test
@@ -174,7 +174,7 @@ public class ComponentTreeBuilderTest {
       .setType(PROJECT)
       .build());
 
-    assertThat(root.getReportAttributes().getVersion()).isEqualTo("not provided");
+    assertThat(root.getProjectAttributes().getVersion()).isEqualTo("not provided");
   }
 
   @Test
@@ -345,23 +345,23 @@ public class ComponentTreeBuilderTest {
       .setLines(1));
 
     Component root = call(project);
-    assertThat(root.getKey()).isEqualTo("generated_" + projectInDb.getKey());
-    assertThat(root.getPublicKey()).isEqualTo("public_" + projectInDb.getKey());
+    assertThat(root.getDbKey()).isEqualTo("generated_" + projectInDb.getKey());
+    assertThat(root.getKey()).isEqualTo("public_" + projectInDb.getKey());
     assertThat(root.getChildren()).hasSize(1);
 
     Component module = root.getChildren().iterator().next();
-    assertThat(module.getKey()).isEqualTo("generated_M");
-    assertThat(module.getPublicKey()).isEqualTo("public_M");
+    assertThat(module.getDbKey()).isEqualTo("generated_M");
+    assertThat(module.getKey()).isEqualTo("public_M");
     assertThat(module.getChildren()).hasSize(1);
 
     Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getKey()).isEqualTo("generated_M:src/js");
-    assertThat(directory.getPublicKey()).isEqualTo("public_M:src/js");
+    assertThat(directory.getDbKey()).isEqualTo("generated_M:src/js");
+    assertThat(directory.getKey()).isEqualTo("public_M:src/js");
     assertThat(directory.getChildren()).hasSize(1);
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getKey()).isEqualTo("generated_M:src/js/Foo.js");
-    assertThat(file.getPublicKey()).isEqualTo("public_M:src/js/Foo.js");
+    assertThat(file.getDbKey()).isEqualTo("generated_M:src/js/Foo.js");
+    assertThat(file.getKey()).isEqualTo("public_M:src/js/Foo.js");
     assertThat(file.getChildren()).isEmpty();
   }
 
@@ -474,36 +474,36 @@ public class ComponentTreeBuilderTest {
 
     Component root = call(project);
     Map<Integer, Component> componentsByRef = indexComponentByRef(root);
-    assertThat(componentsByRef.get(11).getKey()).isEqualTo("generated_module 1");
-    assertThat(componentsByRef.get(11).getPublicKey()).isEqualTo("public_module 1");
-    assertThat(componentsByRef.get(12).getKey()).isEqualTo("generated_module 2");
-    assertThat(componentsByRef.get(12).getPublicKey()).isEqualTo("public_module 2");
-    assertThat(componentsByRef.get(13).getKey()).isEqualTo("generated_module 3");
-    assertThat(componentsByRef.get(13).getPublicKey()).isEqualTo("public_module 3");
-    assertThat(componentsByRef.get(21).getKey()).startsWith("generated_project 1:");
-    assertThat(componentsByRef.get(21).getPublicKey()).startsWith("public_project 1:");
-    assertThat(componentsByRef.get(22).getKey()).startsWith("generated_module 1:");
-    assertThat(componentsByRef.get(22).getPublicKey()).startsWith("public_module 1:");
-    assertThat(componentsByRef.get(23).getKey()).startsWith("generated_module 2:");
-    assertThat(componentsByRef.get(23).getPublicKey()).startsWith("public_module 2:");
-    assertThat(componentsByRef.get(24).getKey()).startsWith("generated_module 3:");
-    assertThat(componentsByRef.get(24).getPublicKey()).startsWith("public_module 3:");
-    assertThat(componentsByRef.get(31).getKey()).startsWith("generated_project 1:");
-    assertThat(componentsByRef.get(31).getPublicKey()).startsWith("public_project 1:");
-    assertThat(componentsByRef.get(32).getKey()).startsWith("generated_module 1:");
-    assertThat(componentsByRef.get(32).getPublicKey()).startsWith("public_module 1:");
-    assertThat(componentsByRef.get(33).getKey()).startsWith("generated_module 2:");
-    assertThat(componentsByRef.get(33).getPublicKey()).startsWith("public_module 2:");
-    assertThat(componentsByRef.get(34).getKey()).startsWith("generated_module 3:");
-    assertThat(componentsByRef.get(34).getPublicKey()).startsWith("public_module 3:");
-    assertThat(componentsByRef.get(35).getKey()).startsWith("generated_project 1:");
-    assertThat(componentsByRef.get(35).getPublicKey()).startsWith("public_project 1:");
-    assertThat(componentsByRef.get(36).getKey()).startsWith("generated_module 1:");
-    assertThat(componentsByRef.get(36).getPublicKey()).startsWith("public_module 1:");
-    assertThat(componentsByRef.get(37).getKey()).startsWith("generated_module 2:");
-    assertThat(componentsByRef.get(37).getPublicKey()).startsWith("public_module 2:");
-    assertThat(componentsByRef.get(38).getKey()).startsWith("generated_module 3:");
-    assertThat(componentsByRef.get(38).getPublicKey()).startsWith("public_module 3:");
+    assertThat(componentsByRef.get(11).getDbKey()).isEqualTo("generated_module 1");
+    assertThat(componentsByRef.get(11).getKey()).isEqualTo("public_module 1");
+    assertThat(componentsByRef.get(12).getDbKey()).isEqualTo("generated_module 2");
+    assertThat(componentsByRef.get(12).getKey()).isEqualTo("public_module 2");
+    assertThat(componentsByRef.get(13).getDbKey()).isEqualTo("generated_module 3");
+    assertThat(componentsByRef.get(13).getKey()).isEqualTo("public_module 3");
+    assertThat(componentsByRef.get(21).getDbKey()).startsWith("generated_project 1:");
+    assertThat(componentsByRef.get(21).getKey()).startsWith("public_project 1:");
+    assertThat(componentsByRef.get(22).getDbKey()).startsWith("generated_module 1:");
+    assertThat(componentsByRef.get(22).getKey()).startsWith("public_module 1:");
+    assertThat(componentsByRef.get(23).getDbKey()).startsWith("generated_module 2:");
+    assertThat(componentsByRef.get(23).getKey()).startsWith("public_module 2:");
+    assertThat(componentsByRef.get(24).getDbKey()).startsWith("generated_module 3:");
+    assertThat(componentsByRef.get(24).getKey()).startsWith("public_module 3:");
+    assertThat(componentsByRef.get(31).getDbKey()).startsWith("generated_project 1:");
+    assertThat(componentsByRef.get(31).getKey()).startsWith("public_project 1:");
+    assertThat(componentsByRef.get(32).getDbKey()).startsWith("generated_module 1:");
+    assertThat(componentsByRef.get(32).getKey()).startsWith("public_module 1:");
+    assertThat(componentsByRef.get(33).getDbKey()).startsWith("generated_module 2:");
+    assertThat(componentsByRef.get(33).getKey()).startsWith("public_module 2:");
+    assertThat(componentsByRef.get(34).getDbKey()).startsWith("generated_module 3:");
+    assertThat(componentsByRef.get(34).getKey()).startsWith("public_module 3:");
+    assertThat(componentsByRef.get(35).getDbKey()).startsWith("generated_project 1:");
+    assertThat(componentsByRef.get(35).getKey()).startsWith("public_project 1:");
+    assertThat(componentsByRef.get(36).getDbKey()).startsWith("generated_module 1:");
+    assertThat(componentsByRef.get(36).getKey()).startsWith("public_module 1:");
+    assertThat(componentsByRef.get(37).getDbKey()).startsWith("generated_module 2:");
+    assertThat(componentsByRef.get(37).getKey()).startsWith("public_module 2:");
+    assertThat(componentsByRef.get(38).getDbKey()).startsWith("generated_module 3:");
+    assertThat(componentsByRef.get(38).getKey()).startsWith("public_module 3:");
   }
 
   @Test
@@ -650,114 +650,6 @@ public class ComponentTreeBuilderTest {
 
     Component file = directory.getChildren().iterator().next();
     assertThat(file.getDescription()).isEqualTo("d");
-  }
-
-  @Test
-  public void versions_of_module_directory_and_file_are_set_from_report_if_present() {
-    ScannerReport.Component project = newBuilder()
-      .setType(PROJECT)
-      .setRef(1)
-      .addChildRef(2)
-      .build();
-    scannerComponentProvider.add(newBuilder()
-      .setRef(2)
-      .setType(MODULE)
-      .setVersion("v1")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setVersion("v2")
-      .setPath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
-      .setType(FILE)
-      .setVersion("v3")
-      .setPath("src/js/Foo.js")
-      .setLines(1));
-
-    Component root = call(project);
-
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getReportAttributes().getVersion()).isEqualTo("v1");
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getReportAttributes().getVersion()).isEqualTo("v2");
-
-    Component file = directory.getChildren().iterator().next();
-    assertThat(file.getReportAttributes().getVersion()).isEqualTo("v3");
-  }
-
-  @Test
-  public void versions_of_module_directory_and_file_are_null_if_absent_from_report() {
-    ScannerReport.Component project = newBuilder()
-      .setType(PROJECT)
-      .setRef(1)
-      .addChildRef(2)
-      .build();
-    scannerComponentProvider.add(newBuilder()
-      .setRef(2)
-      .setType(MODULE)
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setPath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
-      .setType(FILE)
-      .setPath("src/js/Foo.js")
-      .setLines(1));
-
-    Component root = call(project);
-
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getReportAttributes().getVersion()).isNull();
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getReportAttributes().getVersion()).isNull();
-
-    Component file = directory.getChildren().iterator().next();
-    assertThat(file.getReportAttributes().getVersion()).isNull();
-  }
-
-  @Test
-  public void versions_of_module_directory_and_file_are_null_if_empty_in_report() {
-    ScannerReport.Component project = newBuilder()
-      .setType(PROJECT)
-      .setRef(1)
-      .addChildRef(2)
-      .build();
-    scannerComponentProvider.add(newBuilder()
-      .setRef(2)
-      .setType(MODULE)
-      .setVersion("")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setVersion("")
-      .setPath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
-      .setType(FILE)
-      .setVersion("")
-      .setPath("src/js/Foo.js")
-      .setLines(1));
-
-    Component root = call(project);
-
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getReportAttributes().getVersion()).isNull();
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getReportAttributes().getVersion()).isNull();
-
-    Component file = directory.getChildren().iterator().next();
-    assertThat(file.getReportAttributes().getVersion()).isNull();
   }
 
   @Test

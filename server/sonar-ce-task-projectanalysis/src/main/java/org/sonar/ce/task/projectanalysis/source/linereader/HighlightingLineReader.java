@@ -78,7 +78,7 @@ public class HighlightingLineReader implements LineReader {
       processHighlightings(lineBuilder);
     } catch (RangeOffsetConverterException e) {
       isHighlightingValid = false;
-      LOG.warn(format("Inconsistency detected in Highlighting data. Highlighting will be ignored for file '%s'", file.getKey()), e);
+      LOG.warn(format("Inconsistency detected in Highlighting data. Highlighting will be ignored for file '%s'", file.getDbKey()), e);
     }
   }
 

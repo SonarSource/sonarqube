@@ -74,7 +74,7 @@ public class VisitorsCrawler implements ComponentCrawler {
       VisitException.rethrowOrWrap(
         e,
         "Visit of Component {key=%s,type=%s} failed",
-        component.getKey(), component.getType());
+        component.getDbKey(), component.getType());
     }
   }
 
@@ -113,7 +113,7 @@ public class VisitorsCrawler implements ComponentCrawler {
 
   private void visitNode(Component component, VisitorWrapper visitor) {
     Profiler profiler = Profiler.create(Loggers.get(visitor.getWrappedVisitor().getClass()))
-      .startTrace("Visiting component {}", component.getKey());
+      .startTrace("Visiting component {}", component.getDbKey());
     visitor.visitAny(component);
     switch (component.getType()) {
       case PROJECT:

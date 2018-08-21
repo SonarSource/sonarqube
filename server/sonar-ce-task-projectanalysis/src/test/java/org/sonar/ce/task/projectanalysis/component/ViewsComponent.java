@@ -148,7 +148,7 @@ public class ViewsComponent implements Component {
   }
 
   @Override
-  public String getKey() {
+  public String getDbKey() {
     return key;
   }
 
@@ -156,8 +156,8 @@ public class ViewsComponent implements Component {
    * Views has no branch feature, the public key is the same as the key
    */
   @Override
-  public String getPublicKey() {
-    return getKey();
+  public String getKey() {
+    return getDbKey();
   }
 
   @Override
@@ -175,6 +175,11 @@ public class ViewsComponent implements Component {
   @Override
   public List<Component> getChildren() {
     return children;
+  }
+
+  @Override
+  public ProjectAttributes getProjectAttributes() {
+    throw new IllegalStateException("A component of type " + type + " does not have project attributes");
   }
 
   @Override

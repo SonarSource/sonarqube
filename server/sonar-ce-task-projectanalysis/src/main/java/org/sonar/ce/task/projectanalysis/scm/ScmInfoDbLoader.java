@@ -29,8 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
 
 public class ScmInfoDbLoader {
   private static final Logger LOGGER = Loggers.get(ScmInfoDbLoader.class);
@@ -69,7 +67,7 @@ public class ScmInfoDbLoader {
     // at this point, it's the first analysis but had copyFromPrevious flag true
     Branch branch = analysisMetadataHolder.getBranch();
     if (branch.getMergeBranchUuid().isPresent()) {
-      return Optional.ofNullable(mergeBranchComponentUuid.getUuid(file.getKey()));
+      return Optional.ofNullable(mergeBranchComponentUuid.getUuid(file.getDbKey()));
     }
 
     return Optional.empty();

@@ -76,7 +76,7 @@ public class ValidateProjectStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Component root = treeRootHolder.getRoot();
-      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getKey());
+      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getDbKey());
       Map<String, ComponentDto> baseModulesByKey = from(baseModules).uniqueIndex(ComponentDto::getDbKey);
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
@@ -111,7 +111,7 @@ public class ValidateProjectStep implements ComputationStep {
     @Override
     public void visitProject(Component rawProject) {
       this.rawProject = rawProject;
-      String rawProjectKey = rawProject.getKey();
+      String rawProjectKey = rawProject.getDbKey();
 
       Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
       validateAnalysisDate(baseProject);
@@ -132,8 +132,8 @@ public class ValidateProjectStep implements ComputationStep {
 
     @Override
     public void visitModule(Component rawModule) {
-      String rawProjectKey = rawProject.getKey();
-      String rawModuleKey = rawModule.getKey();
+      String rawProjectKey = rawProject.getDbKey();
+      String rawModuleKey = rawModule.getDbKey();
       validateBatchKey(rawModule);
 
       Optional<ComponentDto> baseModule = loadBaseComponent(rawModuleKey);

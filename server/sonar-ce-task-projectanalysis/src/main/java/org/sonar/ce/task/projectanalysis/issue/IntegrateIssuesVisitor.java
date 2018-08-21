@@ -69,7 +69,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       copyIssues(component, tracking.issuesToCopy(), cacheAppender);
       issueVisitors.afterComponent(component);
     } catch (Exception e) {
-      throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getKey()), e);
+      throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getDbKey()), e);
     }
   }
 

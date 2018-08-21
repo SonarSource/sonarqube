@@ -99,7 +99,7 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
       List<CpdTextBlock> cpdTextBlocks;
       try (CloseableIterator<CpdTextBlock> blocksIt = reportReader.readCpdTextBlocks(file.getReportAttributes().getRef())) {
         cpdTextBlocks = newArrayList(blocksIt);
-        LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getKey());
+        LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getDbKey());
         if (cpdTextBlocks.isEmpty()) {
           return;
         }
@@ -112,8 +112,8 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
       }
 
       Collection<Block> duplicatedBlocks = from(dtos).transform(DtoToBlock.INSTANCE).toList();
-      Collection<Block> originBlocks = from(cpdTextBlocks).transform(new CpdTextBlockToBlock(file.getKey())).toList();
-      LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), file.getKey());
+      Collection<Block> originBlocks = from(cpdTextBlocks).transform(new CpdTextBlockToBlock(file.getDbKey())).toList();
+      LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), file.getDbKey());
 
       integrateCrossProjectDuplications.computeCpd(file, originBlocks, duplicatedBlocks);
     }

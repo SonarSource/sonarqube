@@ -80,15 +80,14 @@ public interface Component {
    * It may differ from keys listed in scanner report
    * when analyzing a branch.
    */
-  String getKey();
+  String getDbKey();
 
   /**
    * Returns the key as it will be displayed in the ui.
    * If legacy branch feature is used, the key will contain the branch name
    * If new branch feature is used, the key will not contain the branch name
    */
-  // TODO to be renamed getKey() and rename existing getKey to getDbKey
-  String getPublicKey();
+  String getKey();
 
   /**
    * The component name.
@@ -102,6 +101,13 @@ public interface Component {
   String getDescription();
 
   List<Component> getChildren();
+
+  /**
+   * Returns the attributes specific to components of type {@link Type#PROJECT}.
+   *
+   * @throws IllegalStateException when the component's type is not {@link Type#PROJECT}.
+   */
+  ProjectAttributes getProjectAttributes();
 
   /**
    * Returns the attributes specific to components of type {@link Type#PROJECT}, {@link Type#MODULE},

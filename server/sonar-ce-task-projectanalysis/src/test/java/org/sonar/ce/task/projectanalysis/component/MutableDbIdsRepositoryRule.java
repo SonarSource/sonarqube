@@ -52,7 +52,7 @@ public class MutableDbIdsRepositoryRule extends ExternalResource implements Muta
       @Nullable
       @Override
       public String apply(Component input) {
-        return input.getType().isReportType() ? String.valueOf(input.getReportAttributes().getRef()) : input.getKey();
+        return input.getType().isReportType() ? String.valueOf(input.getReportAttributes().getRef()) : input.getDbKey();
       }
     });
   }

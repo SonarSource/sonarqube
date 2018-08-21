@@ -82,7 +82,7 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
     }
 
     private void computeDuplications(Component component, Iterable<Duplication> duplications) {
-      String duplicationXml = createXmlDuplications(component.getKey(), duplications);
+      String duplicationXml = createXmlDuplications(component.getDbKey(), duplications);
       measureRepository.add(
         component,
         duplicationDataMetric,
@@ -110,7 +110,7 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
         appendDuplication(xml, componentKey, duplicate);
       } else if (duplicate instanceof InProjectDuplicate) {
         // Duplication is on a different file
-        appendDuplication(xml, ((InProjectDuplicate) duplicate).getFile().getKey(), duplicate);
+        appendDuplication(xml, ((InProjectDuplicate) duplicate).getFile().getDbKey(), duplicate);
       } else if (duplicate instanceof CrossProjectDuplicate) {
         // componentKey is only set for cross project duplications
         String crossProjectComponentKey = ((CrossProjectDuplicate) duplicate).getFileKey();

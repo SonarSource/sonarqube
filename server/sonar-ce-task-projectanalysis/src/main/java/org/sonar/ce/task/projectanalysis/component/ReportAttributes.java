@@ -31,15 +31,12 @@ import javax.annotation.concurrent.Immutable;
 public class ReportAttributes {
   private final int ref;
   @CheckForNull
-  private final String version;
-  @CheckForNull
   private final String path;
   @CheckForNull
   private final String scmPath;
 
   private ReportAttributes(Builder builder) {
     this.ref = builder.ref;
-    this.version = builder.version;
     this.path = builder.path;
     this.scmPath = builder.scmPath;
   }
@@ -51,19 +48,12 @@ public class ReportAttributes {
   public static class Builder {
     private final int ref;
     @CheckForNull
-    private String version;
-    @CheckForNull
     private String path;
     @CheckForNull
     private String scmPath;
 
     private Builder(int ref) {
       this.ref = ref;
-    }
-
-    public Builder setVersion(@Nullable String version) {
-      this.version = version;
-      return this;
     }
 
     public Builder setPath(@Nullable String path) {
@@ -89,14 +79,6 @@ public class ReportAttributes {
   }
 
   /**
-   * The project or module version as defined in the batch report.
-   */
-  @CheckForNull
-  public String getVersion() {
-    return this.version;
-  }
-
-  /**
    * The path of the report component, must be non null for module, directories and files.
    */
   @CheckForNull
@@ -118,7 +100,6 @@ public class ReportAttributes {
   public String toString() {
     return "ReportAttributes{" +
       "ref=" + ref +
-      ", version='" + version + '\'' +
       ", path='" + path + '\'' +
       ", scmPath='" + scmPath + '\'' +
       '}';

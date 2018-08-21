@@ -154,8 +154,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
     changeNotification.setAssignee(usersDtoByUuids.get(issue.assignee()));
-    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest());
-    getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getPublicKey(), c.getName()));
+    changeNotification.setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest());
+    getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getKey(), c.getName()));
     notificationStatistics.issueChangesDeliveries += service.deliver(changeNotification);
     notificationStatistics.issueChanges++;
   }
@@ -164,8 +164,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotification()
-      .setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest())
-      .setProjectVersion(project.getReportAttributes().getVersion())
+      .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
+      .setProjectVersion(project.getProjectAttributes().getVersion())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
       .setDebt(Duration.create(globalStatistics.effort().getOnLeak()));
@@ -185,8 +185,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .newMyNewIssuesNotification()
           .setAssignee(userDtoByUuid.get(assigneeUuid));
         myNewIssuesNotification
-          .setProject(project.getPublicKey(), project.getName(), getBranchName(), getPullRequest())
-          .setProjectVersion(project.getReportAttributes().getVersion())
+          .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
+          .setProjectVersion(project.getProjectAttributes().getVersion())
           .setAnalysisDate(new Date(analysisDate))
           .setStatistics(project.getName(), assigneeStatistics)
           .setDebt(Duration.create(assigneeStatistics.effort().getOnLeak()));
@@ -212,7 +212,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
         new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, POST_ORDER) {
           @Override
           public void visitAny(Component component) {
-            builder.put(component.getKey(), component);
+            builder.put(component.getDbKey(), component);
           }
         }).visit(this.treeRootHolder.getRoot());
       this.componentsByDbKey = builder.build();

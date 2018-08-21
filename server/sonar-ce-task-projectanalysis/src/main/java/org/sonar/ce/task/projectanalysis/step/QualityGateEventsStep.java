@@ -100,7 +100,7 @@ public class QualityGateEventsStep implements ComputationStep {
     }
 
     if (!baseMeasure.get().hasQualityGateStatus()) {
-      LOGGER.warn(String.format("Previous Quality gate status for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
+      LOGGER.warn(String.format("Previous Quality gate status for project %s is not a supported value. Can not compute Quality Gate event", project.getDbKey()));
       checkNewQualityGate(project, rawStatus);
       return;
     }
@@ -131,8 +131,8 @@ public class QualityGateEventsStep implements ComputationStep {
     Notification notification = new Notification("alerts")
       .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
       .setFieldValue("projectName", project.getName())
-      .setFieldValue("projectKey", project.getPublicKey())
-      .setFieldValue("projectVersion", project.getReportAttributes().getVersion())
+      .setFieldValue("projectKey", project.getKey())
+      .setFieldValue("projectVersion", project.getProjectAttributes().getVersion())
       .setFieldValue("alertName", label)
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())

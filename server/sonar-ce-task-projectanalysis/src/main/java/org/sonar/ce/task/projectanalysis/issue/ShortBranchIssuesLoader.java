@@ -52,7 +52,7 @@ public class ShortBranchIssuesLoader {
   }
 
   public Collection<ShortBranchIssue> loadCandidateIssuesForMergingInTargetBranch(Component component) {
-    String componentKey = ComponentDto.removeBranchAndPullRequestFromKey(component.getKey());
+    String componentKey = ComponentDto.removeBranchAndPullRequestFromKey(component.getDbKey());
     Set<String> uuids = shortBranchComponentsWithIssues.getUuids(componentKey);
     if (uuids.isEmpty()) {
       return Collections.emptyList();

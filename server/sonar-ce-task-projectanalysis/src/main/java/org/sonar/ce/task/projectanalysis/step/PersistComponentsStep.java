@@ -143,7 +143,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByKeys) {
-    String rootKey = root.getKey();
+    String rootKey = root.getDbKey();
     ComponentDto rootDto = existingDtosByKeys.get(rootKey);
     if (rootDto == null) {
       if (Component.Type.VIEW == root.getType()) {
@@ -159,7 +159,7 @@ public class PersistComponentsStep implements ComputationStep {
    * disabled components.
    */
   private Map<String, ComponentDto> indexExistingDtosByKey(DbSession session) {
-    return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey())
+    return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getDbKey())
       .stream()
       .collect(Collectors.toMap(ComponentDto::getDbKey, Function.identity()));
   }
@@ -386,7 +386,7 @@ public class PersistComponentsStep implements ComputationStep {
     }
 
     private ComponentDto createBase(Component component) {
-      String componentKey = component.getKey();
+      String componentKey = component.getDbKey();
       String componentUuid = component.getUuid();
 
       ComponentDto componentDto = new ComponentDto();

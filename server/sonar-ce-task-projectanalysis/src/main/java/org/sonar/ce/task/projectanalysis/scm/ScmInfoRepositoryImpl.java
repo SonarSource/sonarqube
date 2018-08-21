@@ -72,7 +72,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     ScannerReport.Changesets changesets = scannerReportReader.readChangesets(component.getReportAttributes().getRef());
 
     if (changesets == null) {
-      LOGGER.trace("No SCM info for file '{}'", component.getKey());
+      LOGGER.trace("No SCM info for file '{}'", component.getDbKey());
       // SCM not available. It might have been available before - copy information for unchanged lines but don't keep author and revision.
       return generateAndMergeDb(component, false);
     }
@@ -85,7 +85,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   }
 
   private static Optional<ScmInfo> getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
-    LOGGER.trace("Reading SCM info from report for file '{}'", file.getKey());
+    LOGGER.trace("Reading SCM info from report for file '{}'", file.getDbKey());
     return Optional.of(new ReportScmInfo(changesets));
   }
 

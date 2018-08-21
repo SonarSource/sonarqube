@@ -24,7 +24,6 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Collections;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -40,7 +39,7 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
   public Iterable<Duplication> getDuplications(Component file) {
     checkFileComponentArgument(file);
 
-    Collection<Duplication> res = this.duplications.asMap().get(file.getKey());
+    Collection<Duplication> res = this.duplications.asMap().get(file.getDbKey());
     if (res == null) {
       return Collections.emptyList();
     }
@@ -52,7 +51,7 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
     checkFileComponentArgument(file);
     checkNotNull(duplication, "duplication can not be null");
 
-    duplications.put(file.getKey(), duplication);
+    duplications.put(file.getDbKey(), duplication);
   }
 
   private static void checkFileComponentArgument(Component file) {

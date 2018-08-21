@@ -46,7 +46,7 @@ public class TrackerMergeBranchInputFactory {
   }
 
   public Input<DefaultIssue> create(Component component) {
-    String mergeBranchComponentUuid = mergeBranchComponentUuids.getUuid(component.getKey());
+    String mergeBranchComponentUuid = mergeBranchComponentUuids.getUuid(component.getDbKey());
     return new MergeLazyInput(component.getType(), mergeBranchComponentUuid);
   }
 

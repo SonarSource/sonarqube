@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,6 +62,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.shuffle;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -96,7 +96,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private static final Component FILE = builder(Type.FILE, 11).build();
   private static final Component PROJECT = builder(Type.PROJECT, 1)
-    .setVersion(RandomStringUtils.randomAlphanumeric(10))
+    .setProjectVersion(randomAlphanumeric(10))
     .addChildren(FILE).build();
 
   @Rule
@@ -157,7 +157,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
-    verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null, null);
+    verify(newIssuesNotificationMock).setProject(PROJECT.getKey(), PROJECT.getName(), null, null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any());
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -283,7 +283,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
     verify(myNewIssuesNotificationMock).setAssignee(any(UserDto.class));
-    verify(myNewIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null, null);
+    verify(myNewIssuesNotificationMock).setProject(PROJECT.getKey(), PROJECT.getName(), null, null);
     verify(myNewIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any(NewIssuesStatistics.Stats.class));
     verify(myNewIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -417,8 +417,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void dont_send_issues_change_notification_for_hotspot() {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getKey()).setLongName(PROJECT.getName());
-    ComponentDto file = newFileDto(project).setDbKey(FILE.getKey()).setLongName(FILE.getName());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
+    ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
     DefaultIssue issue = prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
 
@@ -436,8 +436,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private void sendIssueChangeNotification(long issueCreatedAt) {
     UserDto user = db.users().insertUser();
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getKey()).setLongName(PROJECT.getName());
-    ComponentDto file = newFileDto(project).setDbKey(FILE.getKey()).setLongName(FILE.getName());
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
+    ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = prepareIssue(issueCreatedAt, user, project, file, ruleDefinitionDto, randomTypeExceptHotspot);

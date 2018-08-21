@@ -112,7 +112,7 @@ public class BranchPersisterImpl implements BranchPersister {
     branchDto.setUuidPath(UUID_PATH_OF_ROOT);
     branchDto.setModuleUuidPath(UUID_PATH_SEPARATOR + branchUuid + UUID_PATH_SEPARATOR);
     branchDto.setMainBranchProjectUuid(mainBranchProjectUuid);
-    branchDto.setDbKey(treeRootHolder.getRoot().getKey());
+    branchDto.setDbKey(treeRootHolder.getRoot().getDbKey());
     branchDto.setCreatedAt(new Date(system2.now()));
     dbClient.componentDao().insert(dbSession, branchDto);
     return branchDto;

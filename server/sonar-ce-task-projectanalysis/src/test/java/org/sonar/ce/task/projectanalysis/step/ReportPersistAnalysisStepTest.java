@@ -107,8 +107,8 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
     Component file = ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
-    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").setVersion("1.1").addChildren(directory).build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.0").addChildren(module).build();
+    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(directory).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setProjectVersion("1.0").addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());

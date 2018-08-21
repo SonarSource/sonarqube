@@ -502,8 +502,8 @@ public class BuildComponentTreeStepTest {
   private void verifyComponent(int ref, String key, String publicKey, @Nullable String uuid) {
     Map<Integer, Component> componentsByRef = indexAllComponentsInTreeByRef(treeRootHolder.getRoot());
     Component component = componentsByRef.get(ref);
-    assertThat(component.getKey()).isEqualTo(key);
-    assertThat(component.getPublicKey()).isEqualTo(publicKey);
+    assertThat(component.getDbKey()).isEqualTo(key);
+    assertThat(component.getKey()).isEqualTo(publicKey);
     if (uuid != null) {
       assertThat(component.getUuid()).isEqualTo(uuid);
     } else {

@@ -84,9 +84,8 @@ public class LoadPeriodsStep implements ComputationStep {
 
   @CheckForNull
   private Period buildPeriod(Component projectOrView, DbSession session) {
-    boolean isReportType = projectOrView.getType().isReportType();
     PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectOrView.getUuid(), analysisMetadataHolder.getAnalysisDate(),
-      isReportType ? projectOrView.getReportAttributes().getVersion() : null);
+      projectOrView.getProjectAttributes().getVersion());
 
     Configuration config = configRepository.getConfiguration();
     Period period = periodResolver.resolve(config);

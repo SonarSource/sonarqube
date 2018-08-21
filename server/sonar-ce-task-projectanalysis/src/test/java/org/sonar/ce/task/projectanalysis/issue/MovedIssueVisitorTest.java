@@ -119,7 +119,7 @@ public class MovedIssueVisitorTest {
     underTest.onIssue(FILE, issue);
 
     verify(issue).setComponentUuid(FILE.getUuid());
-    verify(issue).setComponentKey(FILE.getPublicKey());
+    verify(issue).setComponentKey(FILE.getKey());
     verify(issue).setModuleUuid(null);
     verify(issue).setModuleUuidPath(null);
     verify(issue).setChanged(true);

@@ -259,9 +259,9 @@ public class TrackerRawInputFactory {
       issue.setResolution(null);
       issue.setStatus(Issue.STATUS_OPEN);
       issue.setComponentUuid(component.getUuid());
-      issue.setComponentKey(component.getPublicKey());
+      issue.setComponentKey(component.getKey());
       issue.setProjectUuid(treeRootHolder.getRoot().getUuid());
-      issue.setProjectKey(treeRootHolder.getRoot().getPublicKey());
+      issue.setProjectKey(treeRootHolder.getRoot().getKey());
       return issue;
     }
 

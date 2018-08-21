@@ -30,6 +30,7 @@ import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
+import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentImpl.builder;
 
 public class ComponentImplTest {
@@ -44,7 +45,7 @@ public class ComponentImplTest {
   public void verify_key_uuid_and_name() {
     ComponentImpl component = buildSimpleComponent(FILE, KEY).setUuid(UUID).setName("name").build();
 
-    assertThat(component.getKey()).isEqualTo(KEY);
+    assertThat(component.getDbKey()).isEqualTo(KEY);
     assertThat(component.getUuid()).isEqualTo(UUID);
     assertThat(component.getName()).isEqualTo("name");
   }
@@ -69,7 +70,7 @@ public class ComponentImplTest {
 
     builder(Component.Type.DIRECTORY)
       .setName("DIR")
-      .setKey(KEY)
+      .setDbKey(KEY)
       .setUuid(UUID)
       .setReportAttributes(ReportAttributes.newBuilder(1).build())
       .build();
@@ -86,7 +87,7 @@ public class ComponentImplTest {
   public void set_uuid_throws_NPE_if_component_arg_is_Null() {
     expectedException.expect(NullPointerException.class);
 
-    builder(FILE).setKey(null);
+    builder(FILE).setDbKey(null);
   }
 
   @Test
@@ -100,7 +101,7 @@ public class ComponentImplTest {
   public void build_without_uuid_throws_NPE_if_component_arg_is_Null() {
     expectedException.expect(NullPointerException.class);
 
-    builder(FILE).setKey(KEY).build();
+    builder(FILE).setDbKey(KEY).build();
   }
 
   @Test
@@ -198,14 +199,14 @@ public class ComponentImplTest {
   public void build_with_child() {
     ComponentImpl child = builder(FILE)
       .setName("CHILD_NAME")
-      .setKey("CHILD_KEY")
+      .setDbKey("CHILD_KEY")
       .setUuid("CHILD_UUID")
       .setStatus(Status.UNAVAILABLE)
       .setReportAttributes(ReportAttributes.newBuilder(2).build())
       .build();
     ComponentImpl componentImpl = builder(Component.Type.DIRECTORY)
       .setName("DIR")
-      .setKey(KEY)
+      .setDbKey(KEY)
       .setUuid(UUID)
       .setStatus(Status.UNAVAILABLE)
       .setReportAttributes(ReportAttributes.newBuilder(1).build())
@@ -214,7 +215,7 @@ public class ComponentImplTest {
 
     assertThat(componentImpl.getChildren()).hasSize(1);
     Component childReloaded = componentImpl.getChildren().iterator().next();
-    assertThat(childReloaded.getKey()).isEqualTo("CHILD_KEY");
+    assertThat(childReloaded.getDbKey()).isEqualTo("CHILD_KEY");
     assertThat(childReloaded.getUuid()).isEqualTo("CHILD_UUID");
     assertThat(childReloaded.getType()).isEqualTo(FILE);
   }
@@ -237,13 +238,16 @@ public class ComponentImplTest {
     assertThat(builder.build().hashCode()).isEqualTo(UUID.hashCode());
   }
 
-  private static ComponentImpl.Builder buildSimpleComponent(Component.Type type, String key) {
-    return builder(type)
-      .setName("name_" + key)
-      .setKey(key)
+  private static ComponentImpl.Builder buildSimpleComponent(Component.Type type, String dbKey) {
+    ComponentImpl.Builder builder = builder(type)
+      .setName("name_" + dbKey)
+      .setDbKey(dbKey)
       .setStatus(Status.UNAVAILABLE)
-      .setUuid("uuid_" + key)
-      .setReportAttributes(ReportAttributes.newBuilder(key.hashCode())
-        .build());
+      .setUuid("uuid_" + dbKey)
+      .setReportAttributes(ReportAttributes.newBuilder(dbKey.hashCode()).build());
+    if (type == PROJECT) {
+      builder.setProjectAttributes(new ProjectAttributes("version_1"));
+    }
+    return builder;
   }
 }
