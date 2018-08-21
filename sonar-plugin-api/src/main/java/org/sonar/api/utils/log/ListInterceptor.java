@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils.log;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +85,7 @@ public class ListInterceptor implements LogInterceptor {
     if (res == null) {
       return Collections.emptyList();
     }
-    return ImmutableList.copyOf(res).stream().map(LogAndArguments::getFormattedMsg).collect(Collectors.toList());
+    return res.stream().map(LogAndArguments::getFormattedMsg).collect(Collectors.toList());
   }
 
   public List<LogAndArguments> getLogs() {
