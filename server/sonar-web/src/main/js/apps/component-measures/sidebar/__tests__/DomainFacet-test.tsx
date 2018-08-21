@@ -51,10 +51,11 @@ const DOMAIN = {
 };
 
 const PROPS = {
+  domain: DOMAIN,
+  hasOverview: true,
   onChange: () => {},
   onToggle: () => {},
   open: true,
-  domain: DOMAIN,
   selected: 'foo'
 };
 
@@ -71,6 +72,16 @@ it('should render closed', () => {
   expect(wrapper.find('FacetItemsList')).toHaveLength(0);
 });
 
+it('should render without overview', () => {
+  const wrapper = shallow(<DomainFacet {...PROPS} hasOverview={false} />);
+  expect(
+    wrapper
+      .find('FacetItem')
+      .filterWhere(node => node.getElement().key === 'Reliability')
+      .exists()
+  ).toBe(false);
+});
+
 it('should not display subtitles of new measures if there is none', () => {
   const domain = {
     name: 'Reliability',
@@ -82,17 +93,7 @@ it('should not display subtitles of new measures if there is none', () => {
     ]
   };
 
-  expect(
-    shallow(
-      <DomainFacet
-        domain={domain}
-        onChange={() => {}}
-        onToggle={() => {}}
-        open={true}
-        selected={'foo'}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallow(<DomainFacet {...PROPS} domain={domain} />)).toMatchSnapshot();
 });
 
 it('should not display subtitles of new measures if there is none, even on last line', () => {
@@ -106,15 +107,5 @@ it('should not display subtitles of new measures if there is none, even on last 
     ]
   };
 
-  expect(
-    shallow(
-      <DomainFacet
-        domain={domain}
-        onChange={() => {}}
-        onToggle={() => {}}
-        open={true}
-        selected={'foo'}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallow(<DomainFacet {...PROPS} domain={domain} />)).toMatchSnapshot();
 });

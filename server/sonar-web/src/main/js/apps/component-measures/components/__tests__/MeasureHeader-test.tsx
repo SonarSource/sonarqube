@@ -81,10 +81,24 @@ it('should render correctly for leak', () => {
   ).toMatchSnapshot();
 });
 
-it('should render with branch', () => {
-  const shortBranch = { isMain: false, name: 'feature', mergeBranch: '', type: 'SHORT' };
+it('should render with long living branch', () => {
+  const longBranch = { isMain: false, name: 'branch-6.7', type: 'LONG' };
   expect(
-    shallow(<MeasureHeader branchLike={shortBranch} {...PROPS} />).find('Link')
+    shallow(<MeasureHeader branchLike={longBranch} {...PROPS} />).find('Link')
+  ).toMatchSnapshot();
+});
+
+it('should render with short living branch', () => {
+  const shortBranch = { isMain: false, name: 'feature', mergeBranch: 'master', type: 'SHORT' };
+  expect(
+    shallow(
+      <MeasureHeader
+        {...PROPS}
+        branchLike={shortBranch}
+        measure={LEAK_MEASURE}
+        metric={LEAK_METRIC}
+      />
+    )
   ).toMatchSnapshot();
 });
 

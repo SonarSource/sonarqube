@@ -28,7 +28,8 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
-import { MeasureEnhanced, Metric, ComponentMeasure, BranchLike, Period } from '../../../app/types';
+import { BranchLike, ComponentMeasure, MeasureEnhanced, Metric, Period } from '../../../app/types';
+import { hasFullMeasures } from '../utils';
 
 interface Props {
   branchLike?: BranchLike;
@@ -42,7 +43,9 @@ interface Props {
 export default function MeasureHeader(props: Props) {
   const { branchLike, component, leakPeriod, measure, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
-  const hasHistory = component.qualifier !== 'FIL' && component.qualifier !== 'UTS';
+  const hasHistory =
+    component.qualifier !== 'FIL' && component.qualifier !== 'UTS' && hasFullMeasures(branchLike);
+  const displayLeak = hasFullMeasures(branchLike);
   return (
     <div className="measure-details-header big-spacer-bottom">
       <div className="measure-details-primary">
@@ -79,9 +82,10 @@ export default function MeasureHeader(props: Props) {
             )}
         </div>
         <div className="measure-details-primary-actions">
-          {leakPeriod && (
-            <LeakPeriodLegend className="spacer-left" component={component} period={leakPeriod} />
-          )}
+          {displayLeak &&
+            leakPeriod && (
+              <LeakPeriodLegend className="spacer-left" component={component} period={leakPeriod} />
+            )}
         </div>
       </div>
       {secondaryMeasure &&

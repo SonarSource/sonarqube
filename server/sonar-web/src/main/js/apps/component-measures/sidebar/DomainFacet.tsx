@@ -41,6 +41,7 @@ import { MeasureEnhanced } from '../../../app/types';
 
 interface Props {
   domain: { name: string; measures: MeasureEnhanced[] };
+  hasOverview: boolean;
   onChange: (metric: string) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -48,24 +49,28 @@ interface Props {
 }
 
 export default class DomainFacet extends React.PureComponent<Props> {
+  getValues = () => {
+    const { domain, selected } = this.props;
+    const measureSelected = domain.measures.find(measure => measure.metric.key === selected);
+    const overviewSelected = domain.name === selected && this.hasOverview(domain.name);
+    if (measureSelected) {
+      return [getLocalizedMetricName(measureSelected.metric)];
+    }
+    return overviewSelected ? [translate('component_measures.domain_overview')] : [];
+  };
+
   handleHeaderClick = () => {
     this.props.onToggle(this.props.domain.name);
   };
 
   hasFacetSelected = (domain: { name: string }, measures: MeasureEnhanced[], selected: string) => {
     const measureSelected = measures.find(measure => measure.metric.key === selected);
-    const overviewSelected = domain.name === selected && hasBubbleChart(domain.name);
+    const overviewSelected = domain.name === selected && this.hasOverview(domain.name);
     return measureSelected || overviewSelected;
   };
 
-  getValues = () => {
-    const { domain, selected } = this.props;
-    const measureSelected = domain.measures.find(measure => measure.metric.key === selected);
-    const overviewSelected = domain.name === selected && hasBubbleChart(domain.name);
-    if (measureSelected) {
-      return [getLocalizedMetricName(measureSelected.metric)];
-    }
-    return overviewSelected ? [translate('component_measures.domain_overview')] : [];
+  hasOverview = (domain: string) => {
+    return this.props.hasOverview && hasBubbleChart(domain);
   };
 
   renderItemFacetStat = (item: MeasureEnhanced) => {
@@ -115,7 +120,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
 
   renderOverviewFacet = () => {
     const { domain, selected } = this.props;
-    if (!hasBubbleChart(domain.name)) {
+    if (!this.hasOverview(domain.name)) {
       return null;
     }
     return (

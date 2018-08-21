@@ -61,6 +61,7 @@ const MEASURES = [
 ];
 
 const PROPS = {
+  hasOverview: true,
   measures: MEASURES,
   selectedMetric: 'duplicated_lines_density',
   updateQuery: () => {}

@@ -21,6 +21,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
 
@@ -48,21 +49,24 @@ const PROPS = {
   component: COMPONENT,
   currentUser: { isLoggedIn: false },
   location: { pathname: '/component_measures', query: { metric: 'coverage' } },
-  fetchMeasures: jest.fn().mockResolvedValue({ component: COMPONENT, measures: [] }),
+  fetchMeasures: jest.fn().mockResolvedValue({
+    component: COMPONENT,
+    measures: [{ metric: 'coverage', value: '80.0' }]
+  }),
   fetchMetrics: jest.fn(),
   metrics: METRICS,
   metricsKey: ['lines_to_cover', 'coverage', 'duplicated_lines_density', 'new_bugs'],
   router: { push: jest.fn() } as any
 };
 
-it('should render correctly', () => {
+it('should render correctly', async () => {
   const wrapper = shallow(<App {...PROPS} />);
   expect(wrapper.find('.spinner')).toHaveLength(1);
-  wrapper.setState({ loading: false });
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render a measure overview', () => {
+it('should render a measure overview', async () => {
   const wrapper = shallow(
     <App
       {...PROPS}
@@ -70,6 +74,6 @@ it('should render a measure overview', () => {
     />
   );
   expect(wrapper.find('.spinner')).toHaveLength(1);
-  wrapper.setState({ loading: false });
+  await waitAndUpdate(wrapper);
   expect(wrapper.find('MeasureOverviewContainer')).toHaveLength(1);
 });

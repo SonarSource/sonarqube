@@ -24,9 +24,10 @@ import { getDefaultView, groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query }
 import { MeasureEnhanced } from '../../../app/types';
 
 interface Props {
+  hasOverview: boolean;
   measures: MeasureEnhanced[];
   selectedMetric: string;
-  updateQuery: (query: Query) => void;
+  updateQuery: (query: Partial<Query>) => void;
 }
 
 interface State {
@@ -73,16 +74,20 @@ export default class Sidebar extends React.PureComponent<Props, State> {
     this.props.updateQuery({ metric, ...this.resetSelection(metric) });
 
   render() {
+    const { hasOverview } = this.props;
     return (
       <div>
-        <ProjectOverviewFacet
-          onChange={this.changeMetric}
-          selected={this.props.selectedMetric}
-          value={PROJECT_OVERVEW}
-        />
+        {hasOverview && (
+          <ProjectOverviewFacet
+            onChange={this.changeMetric}
+            selected={this.props.selectedMetric}
+            value={PROJECT_OVERVEW}
+          />
+        )}
         {groupByDomains(this.props.measures).map(domain => (
           <DomainFacet
             domain={domain}
+            hasOverview={hasOverview}
             key={domain.name}
             onChange={this.changeMetric}
             onToggle={this.toggleFacet}

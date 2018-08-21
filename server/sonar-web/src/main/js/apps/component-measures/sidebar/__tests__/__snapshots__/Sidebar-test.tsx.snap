@@ -49,6 +49,7 @@ exports[`should display two facets 1`] = `
         "name": "Coverage",
       }
     }
+    hasOverview={true}
     key="Coverage"
     onChange={[Function]}
     onToggle={[Function]}
@@ -80,6 +81,7 @@ exports[`should display two facets 1`] = `
         "name": "Duplications",
       }
     }
+    hasOverview={true}
     key="Duplications"
     onChange={[Function]}
     onToggle={[Function]}

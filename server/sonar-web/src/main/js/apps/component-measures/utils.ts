@@ -25,10 +25,13 @@ import {
   ComponentMeasure,
   ComponentMeasureEnhanced,
   Metric,
-  MeasureEnhanced
+  MeasureEnhanced,
+  BranchLike
 } from '../../app/types';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
+import { isLongLivingBranch, isMainBranch } from '../../helpers/branches';
+import { getDisplayMetrics } from '../../helpers/measures';
 
 export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW = 'list';
@@ -146,11 +149,31 @@ export function hasTreemap(metric: string, type: string): boolean {
 }
 
 export function hasBubbleChart(domainName: string): boolean {
-  return bubbles[domainName] != null;
+  return bubbles[domainName] !== undefined;
 }
 
 export function hasFacetStat(metric: string): boolean {
   return metric !== 'alert_status';
+}
+
+export function hasFullMeasures(branch?: BranchLike) {
+  return !branch || isLongLivingBranch(branch) || isMainBranch(branch);
+}
+
+export function getMeasuresPageMetricKeys(metrics: { [key: string]: Metric }, branch?: BranchLike) {
+  if (!hasFullMeasures(branch)) {
+    return [
+      'new_coverage',
+      'new_lines_to_cover',
+      'new_uncovered_lines',
+      'new_line_coverage',
+      'new_conditions_to_cover',
+      'new_uncovered_conditions',
+      'new_branch_coverage'
+    ];
+  }
+
+  return getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
 }
 
 export function getBubbleMetrics(domain: string, metrics: { [key: string]: Metric }) {
@@ -182,7 +205,7 @@ const parseView = (metric: string, rawView?: string) => {
 };
 
 export interface Query {
-  metric?: string;
+  metric: string;
   selected?: string;
   view: string;
 }

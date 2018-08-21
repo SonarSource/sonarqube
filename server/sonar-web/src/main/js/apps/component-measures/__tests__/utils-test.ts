@@ -102,7 +102,7 @@ describe('groupByDomains', () => {
 describe('parseQuery', () => {
   it('should correctly parse the url query', () => {
     expect(utils.parseQuery({})).toEqual({
-      metric: 'project_overview',
+      metric: utils.DEFAULT_METRIC,
       selected: '',
       view: utils.DEFAULT_VIEW
     });
