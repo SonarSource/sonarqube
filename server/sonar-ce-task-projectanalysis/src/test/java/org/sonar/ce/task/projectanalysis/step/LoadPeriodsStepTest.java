@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.text.SimpleDateFormat;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,10 +31,13 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.ce.task.projectanalysis.analysis.Analysis;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
@@ -47,6 +51,8 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
@@ -77,7 +83,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   private MapSettings settings = new MapSettings();
   private ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
 
-  private LoadPeriodsStep underTest = new LoadPeriodsStep(dbClient, settingsRepository, treeRootHolder, analysisMetadataHolder, periodsHolder);
+  private LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dbClient, settingsRepository, treeRootHolder, periodsHolder);
 
   @Override
   protected ComputationStep step() {
@@ -87,16 +93,24 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   @Before
   public void setUp() throws Exception {
     analysisMetadataHolder.setAnalysisDate(DATE_FORMAT.parse("2008-11-30").getTime());
+    analysisMetadataHolder.setBaseAnalysis(new Analysis.Builder().setUuid(RandomStringUtils.randomAlphabetic(15)).setId(888).setCreatedAt(5_666_777_888L).build());
   }
 
   @Test
   public void no_period_on_first_analysis() {
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setKey("ROOT_KEY").setVersion("1.1").build());
+    DbClient dbClientMock = mock(DbClient.class);
+    ConfigurationRepository configurationRepositoryMock = mock(ConfigurationRepository.class);
+    TreeRootHolder treeRootHolderMock = mock(TreeRootHolder.class);
+    PeriodHolderImpl periodHolderMock = mock(PeriodHolderImpl.class);
+    AnalysisMetadataHolder analysisMetadataHolderMock = mock(AnalysisMetadataHolder.class);
+    when(analysisMetadataHolderMock.isFirstAnalysis()).thenReturn(true);
 
-    // No project, no snapshot
+    LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolderMock, dbClientMock, configurationRepositoryMock, treeRootHolderMock, periodHolderMock);
+
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.hasPeriod()).isFalse();
+    verify(analysisMetadataHolderMock).isFirstAnalysis();
+    verifyZeroInteractions(dbClientMock, configurationRepositoryMock, treeRootHolderMock, periodHolderMock);
   }
 
   @Test

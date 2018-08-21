@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -36,7 +35,6 @@ import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 
 /**
  * Populates the {@link PeriodHolder}
@@ -48,23 +46,27 @@ import org.sonar.db.component.ComponentDto;
  */
 public class LoadPeriodsStep implements ComputationStep {
 
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
   private final ConfigurationRepository configRepository;
   private final TreeRootHolder treeRootHolder;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodHolderImpl periodsHolder;
 
-  public LoadPeriodsStep(DbClient dbClient, ConfigurationRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    PeriodHolderImpl periodsHolder) {
-    this.dbClient = dbClient;
-    this.configRepository = settingsRepository;
-    this.treeRootHolder = treeRootHolder;
+  public LoadPeriodsStep(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient,
+    ConfigurationRepository configurationRepository, TreeRootHolder treeRootHolder, PeriodHolderImpl periodsHolder) {
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.dbClient = dbClient;
+    this.configRepository = configurationRepository;
+    this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
   }
 
   @Override
   public void execute(ComputationStep.Context context) {
+    if (analysisMetadataHolder.isFirstAnalysis()) {
+      return;
+    }
+
     new DepthTraversalTypeAwareCrawler(
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER) {
         @Override
@@ -82,14 +84,8 @@ public class LoadPeriodsStep implements ComputationStep {
 
   @CheckForNull
   private Period buildPeriod(Component projectOrView, DbSession session) {
-    Optional<ComponentDto> projectDto = dbClient.componentDao().selectByKey(session, projectOrView.getKey());
-    // No project on first analysis, no period
-    if (!projectDto.isPresent()) {
-      return null;
-    }
-
     boolean isReportType = projectOrView.getType().isReportType();
-    PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectDto.get().uuid(), analysisMetadataHolder.getAnalysisDate(),
+    PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectOrView.getUuid(), analysisMetadataHolder.getAnalysisDate(),
       isReportType ? projectOrView.getReportAttributes().getVersion() : null);
 
     Configuration config = configRepository.getConfiguration();
