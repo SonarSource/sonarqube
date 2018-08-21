@@ -60,7 +60,7 @@ public class ProgressReportTest {
     underTest.message("Some message");
     boolean logged = false;
     while (!logged) {
-      logged = logTester.findFirstLog("Some message"::equals).isPresent();
+      logged = logTester.logs().contains("Some message");
     }
     underTest.stop("stop");
   }

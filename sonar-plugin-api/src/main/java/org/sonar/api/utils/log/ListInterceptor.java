@@ -19,19 +19,19 @@
  */
 package org.sonar.api.utils.log;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 public class ListInterceptor implements LogInterceptor {
 
-  private final List<LogAndArguments> logs = new ArrayList<>();
-  private final ListMultimap<LoggerLevel, LogAndArguments> logsByLevel = ArrayListMultimap.create();
+  private final List<LogAndArguments> logs = new CopyOnWriteArrayList<>();
+  private final Map<LoggerLevel, List<LogAndArguments>> logsByLevel = new ConcurrentHashMap<>();
 
   @Override
   public void log(LoggerLevel level, String msg) {
@@ -68,19 +68,25 @@ public class ListInterceptor implements LogInterceptor {
 
   private void add(LoggerLevel level, LogAndArguments l) {
     logs.add(l);
-    logsByLevel.put(level, l);
+    logsByLevel.compute(level, (key, existingList) -> {
+      if (existingList == null) {
+        return new CopyOnWriteArrayList<>(new LogAndArguments[] {l});
+      }
+      existingList.add(l);
+      return existingList;
+    });
   }
 
   public List<String> logs() {
     return logs.stream().map(LogAndArguments::getFormattedMsg).collect(Collectors.toList());
   }
 
-  public Optional<String> findFirst(Predicate<String> logPredicate) {
-    return logs.stream().map(LogAndArguments::getFormattedMsg).filter(logPredicate).findFirst();
-  }
-
   public List<String> logs(LoggerLevel level) {
-    return logsByLevel.get(level).stream().map(LogAndArguments::getFormattedMsg).collect(Collectors.toList());
+    List<LogAndArguments> res = logsByLevel.get(level);
+    if (res == null) {
+      return Collections.emptyList();
+    }
+    return ImmutableList.copyOf(res).stream().map(LogAndArguments::getFormattedMsg).collect(Collectors.toList());
   }
 
   public List<LogAndArguments> getLogs() {
