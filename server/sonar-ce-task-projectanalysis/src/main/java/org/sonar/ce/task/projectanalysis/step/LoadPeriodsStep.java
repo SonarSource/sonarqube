@@ -99,6 +99,6 @@ public class LoadPeriodsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Load differential periods";
+    return "Load new code period";
   }
 }
