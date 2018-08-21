@@ -124,7 +124,7 @@ public class ChangedLinesPublisherTest {
     publisher.publish(writer);
 
     assertPublished(fileWithChangedLines, lines);
-    assertNotPublished(fileWithoutChangedLines);
+    assertPublished(fileWithoutChangedLines, Collections.emptySet());
   }
 
   private DefaultInputFile createInputFile(String path) {

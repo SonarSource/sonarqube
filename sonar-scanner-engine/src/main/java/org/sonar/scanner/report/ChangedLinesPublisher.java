@@ -20,6 +20,7 @@
 package org.sonar.scanner.report;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,17 +79,19 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
     int count = 0;
 
     if (pathSetMap == null) {
+      // no information returned by the SCM, we write nothing in the report and
+      // the compute engine will use SCM dates to estimate which lines are new
       return count;
     }
 
     for (Map.Entry<Path, DefaultInputFile> e : allPublishedFiles.entrySet()) {
-      Set<Integer> changedLines = pathSetMap.get(e.getKey());
-      // if the file got no information returned by the SCM, we write nothing in the report and
-      // the compute engine will use SCM dates to estimate which lines are new
-      if (changedLines != null && !changedLines.isEmpty()) {
-        count++;
-        writeChangedLines(writer, e.getValue().batchId(), changedLines);
+      Set<Integer> changedLines = pathSetMap.getOrDefault(e.getKey(), Collections.emptySet());
+
+      if (changedLines.isEmpty()) {
+        LOG.warn("File '{}' was detected as changed but without having changed lines", e.getKey().toAbsolutePath());
       }
+      count++;
+      writeChangedLines(writer, e.getValue().batchId(), changedLines);
     }
     return count;
   }
