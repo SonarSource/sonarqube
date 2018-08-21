@@ -8,14 +8,6 @@ sonarqube {
 
 group = 'com.sonarsource.sonarqube'
 
-apply plugin: 'com.moowork.node'
-
-node {
-  version = '8.10.0'
-  yarnVersion = '1.5.1'
-  download = true
-}
-
 yarn_run {
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
   inputs.files('gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock')

@@ -286,6 +286,16 @@ subprojects {
     ide.dependsOn(['generateProto', 'generateTestProto'])
   }
 
+  if (file('package.json').exists()) {
+    apply plugin: 'com.moowork.node'
+
+    node {
+      version = '8.11.4'
+      yarnVersion = '1.9.4'
+      download = true
+    }
+  }
+
   if (official) {
     jar {
       // do not break incremental build on non official versions

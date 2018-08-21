@@ -9,8 +9,6 @@ sonarqube {
   }
 }
 
-apply plugin: 'com.moowork.node'
-
 configurations {
   branding
 }
@@ -47,12 +45,6 @@ task copyBranding() {
   dependsOn copyBrandingSrc
   dependsOn copyBrandingWebapp
   dependsOn copyBrandingFile
-}
-
-node {
-  version = '8.10.0'
-  yarnVersion = '1.7.0'
-  download = true
 }
 
 yarn_run {
