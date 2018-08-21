@@ -85,7 +85,7 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
       Set<Integer> changedLines = pathSetMap.get(e.getKey());
       // if the file got no information returned by the SCM, we write nothing in the report and
       // the compute engine will use SCM dates to estimate which lines are new
-      if (changedLines != null) {
+      if (changedLines != null && !changedLines.isEmpty()) {
         count++;
         writeChangedLines(writer, e.getValue().batchId(), changedLines);
       }
