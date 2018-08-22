@@ -21,49 +21,6 @@ import { getProjectLinks, createLink, deleteLink } from '../../../api/projectLin
 import { getTree, changeKey as changeKeyApi } from '../../../api/components';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 
-export const RECEIVE_PROJECT_LINKS = 'projectAdmin/RECEIVE_PROJECT_LINKS';
-export const receiveProjectLinks = (projectKey, links) => ({
-  type: RECEIVE_PROJECT_LINKS,
-  projectKey,
-  links
-});
-
-export const fetchProjectLinks = projectKey => dispatch => {
-  getProjectLinks(projectKey).then(
-    links => {
-      dispatch(receiveProjectLinks(projectKey, links));
-    },
-    () => {}
-  );
-};
-
-export const ADD_PROJECT_LINK = 'projectAdmin/ADD_PROJECT_LINK';
-const addProjectLink = (projectKey, link) => ({
-  type: ADD_PROJECT_LINK,
-  projectKey,
-  link
-});
-
-export const createProjectLink = (projectKey, name, url) => dispatch => {
-  return createLink(projectKey, name, url).then(link => {
-    dispatch(addProjectLink(projectKey, link));
-  });
-};
-
-export const DELETE_PROJECT_LINK = 'projectAdmin/DELETE_PROJECT_LINK';
-export const deleteProjectLinkAction = (projectKey, linkId) => ({
-  type: DELETE_PROJECT_LINK,
-  projectKey,
-  linkId
-});
-
-export function deleteProjectLink(projectKey, linkId) {
-  return dispatch =>
-    deleteLink(linkId).then(() => {
-      dispatch(deleteProjectLinkAction(projectKey, linkId));
-    });
-}
-
 export const RECEIVE_PROJECT_MODULES = 'projectAdmin/RECEIVE_PROJECT_MODULES';
 const receiveProjectModules = (projectKey, modules) => ({
   type: RECEIVE_PROJECT_MODULES,

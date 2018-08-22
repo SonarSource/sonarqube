@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { getLinkName } from '../../projectLinks/utils';
-import { ProjectLink } from '../../../app/types';
-import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
+import * as utils from '../utils';
 
-interface Props {
-  link: ProjectLink;
-}
+it('#isProvided', () => {
+  expect(utils.isProvided({ type: 'homepage' })).toBe(true);
+  expect(utils.isProvided({ type: 'custom' })).toBe(false);
+});
 
-export default function MetaLink({ link }: Props) {
-  return (
-    <li>
-      <a className="link-with-icon" href={link.url} rel="nofollow" target="_blank">
-        <ProjectLinkIcon className="little-spacer-right" type={link.type} />
-        {getLinkName(link)}
-      </a>
-    </li>
-  );
-}
+it('#orderLinks', () => {
+  const homepage = { type: 'homepage' };
+  const issues = { type: 'issue' };
+  const foo = { name: 'foo', type: 'foo' };
+  const bar = { name: 'bar', type: 'bar' };
+  expect(utils.orderLinks([foo, homepage, issues, bar])).toEqual([homepage, issues, bar, foo]);
+  expect(utils.orderLinks([foo, bar])).toEqual([bar, foo]);
+  expect(utils.orderLinks([issues, homepage])).toEqual([homepage, issues]);
+});
+
+it('#getLinkName', () => {
+  expect(utils.getLinkName({ type: 'homepage' })).toBe('project_links.homepage');
+  expect(utils.getLinkName({ name: 'foo', type: 'custom' })).toBe('foo');
+});

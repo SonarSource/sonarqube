@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import links, { getLink } from './links';
-import linksByProject, { getLinks } from './linksByProject';
 import components, { getComponentByKey as nextGetComponentByKey } from './components';
 import modulesByProject, { getProjectModules as nextGetProjectModules } from './modulesByProject';
 import globalMessages, {
@@ -27,19 +25,12 @@ import globalMessages, {
 } from '../../../store/globalMessages/duck';
 
 const rootReducer = combineReducers({
-  links,
-  linksByProject,
   components,
   modulesByProject,
   globalMessages
 });
 
 export default rootReducer;
-
-export const getLinkById = (state, linkId) => getLink(state.links, linkId);
-
-export const getProjectLinks = (state, projectKey) =>
-  getLinks(state.linksByProject, projectKey).map(linkId => getLinkById(state, linkId));
 
 export const getComponentByKey = (state, componentKey) =>
   nextGetComponentByKey(state.components, componentKey);

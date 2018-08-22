@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import LinkRow from './LinkRow';
 import { orderLinks } from './utils';
-import { translate } from '../../../helpers/l10n';
+import { ProjectLink } from '../../app/types';
+import { translate } from '../../helpers/l10n';
 
-export default class Table extends React.PureComponent {
-  static propTypes = {
-    links: PropTypes.array.isRequired,
-    onDelete: PropTypes.func.isRequired
-  };
+interface Props {
+  links: ProjectLink[];
+  onDelete: (linkId: string) => Promise<void>;
+}
 
+export default class Table extends React.PureComponent<Props> {
   renderHeader() {
     // keep empty cell for actions
     return (
@@ -43,6 +43,10 @@ export default class Table extends React.PureComponent {
   }
 
   render() {
+    if (!this.props.links.length) {
+      return <div className="note">{translate('no_results')}</div>;
+    }
+
     const orderedLinks = orderLinks(this.props.links);
 
     const linkRows = orderedLinks.map(link => (

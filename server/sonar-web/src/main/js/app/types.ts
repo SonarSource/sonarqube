@@ -482,7 +482,7 @@ export interface PermissionTemplate {
 
 export interface ProjectLink {
   id: string;
-  name: string;
+  name?: string;
   type: string;
   url: string;
 }

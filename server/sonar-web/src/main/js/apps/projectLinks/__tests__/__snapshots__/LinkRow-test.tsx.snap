@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render custom link 1`] = `
+<tr
+  data-name="foo"
+>
+  <td
+    className="nowrap"
+  >
+    <div>
+      <ProjectLinkIcon
+        className="little-spacer-right"
+        type="foo"
+      />
+      <div
+        className="display-inline-block text-top"
+      >
+        <span
+          className="js-name"
+        >
+          foo
+        </span>
+      </div>
+    </div>
+  </td>
+  <td
+    className="nowrap js-url"
+  >
+    <a
+      href="http://example.com"
+      rel="nofollow"
+      target="_blank"
+    >
+      http://example.com
+    </a>
+  </td>
+  <td
+    className="thin nowrap"
+  >
+    <ConfirmButton
+      confirmButtonText="delete"
+      confirmData="12"
+      isDestructive={true}
+      modalBody="project_links.are_you_sure_to_delete_x_link.foo"
+      modalHeader="project_links.delete_project_link"
+      onConfirm={[MockFunction]}
+    />
+  </td>
+</tr>
+`;
+
+exports[`should render provided link 1`] = `
+<tr>
+  <td
+    className="nowrap"
+  >
+    <div>
+      <ProjectLinkIcon
+        className="little-spacer-right"
+        type="homepage"
+      />
+      <div
+        className="display-inline-block text-top"
+      >
+        <div>
+          <span
+            className="js-name"
+          >
+            project_links.homepage
+          </span>
+        </div>
+        <div
+          className="note little-spacer-top"
+        >
+          <span
+            className="js-type"
+          >
+            sonar.links.homepage
+          </span>
+        </div>
+      </div>
+    </div>
+  </td>
+  <td
+    className="nowrap js-url"
+  >
+    <a
+      href="http://example.com"
+      rel="nofollow"
+      target="_blank"
+    >
+      http://example.com
+    </a>
+  </td>
+  <td
+    className="thin nowrap"
+  />
+</tr>
+`;

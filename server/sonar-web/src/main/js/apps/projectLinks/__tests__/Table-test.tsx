@@ -18,21 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getLinkName } from '../../projectLinks/utils';
-import { ProjectLink } from '../../../app/types';
-import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
+import { shallow } from 'enzyme';
+import Table from '../Table';
 
-interface Props {
-  link: ProjectLink;
-}
+it('should render', () => {
+  const links = [
+    { id: '1', type: 'homepage', url: 'http://example.com/homepage' },
+    { id: '2', type: 'issue', url: 'http://example.com/issue' },
+    { id: '3', name: 'foo', type: 'foo', url: 'http://example.com/foo' },
+    { id: '4', name: 'bar', type: 'bar', url: 'http://example.com/bar' }
+  ];
+  expect(shallow(<Table links={links} onDelete={jest.fn()} />)).toMatchSnapshot();
+});
 
-export default function MetaLink({ link }: Props) {
-  return (
-    <li>
-      <a className="link-with-icon" href={link.url} rel="nofollow" target="_blank">
-        <ProjectLinkIcon className="little-spacer-right" type={link.type} />
-        {getLinkName(link)}
-      </a>
-    </li>
-  );
-}
+it('should render empty', () => {
+  expect(shallow(<Table links={[]} onDelete={jest.fn()} />)).toMatchSnapshot();
+});

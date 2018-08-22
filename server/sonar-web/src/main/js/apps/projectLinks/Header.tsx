@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import CreationModal from './CreationModal';
-import { Button } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import { Button } from '../../components/ui/buttons';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   onCreate: (name: string, url: string) => Promise<void>;

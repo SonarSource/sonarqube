@@ -1,0 +1,88 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+>
+  <table
+    className="data zebra"
+    id="project-links"
+  >
+    <thead>
+      <tr>
+        <th
+          className="nowrap"
+        >
+          project_links.name
+        </th>
+        <th
+          className="nowrap width-100"
+        >
+          project_links.url
+        </th>
+        <th
+          className="thin"
+        >
+           
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <LinkRow
+        key="1"
+        link={
+          Object {
+            "id": "1",
+            "type": "homepage",
+            "url": "http://example.com/homepage",
+          }
+        }
+        onDelete={[MockFunction]}
+      />
+      <LinkRow
+        key="2"
+        link={
+          Object {
+            "id": "2",
+            "type": "issue",
+            "url": "http://example.com/issue",
+          }
+        }
+        onDelete={[MockFunction]}
+      />
+      <LinkRow
+        key="4"
+        link={
+          Object {
+            "id": "4",
+            "name": "bar",
+            "type": "bar",
+            "url": "http://example.com/bar",
+          }
+        }
+        onDelete={[MockFunction]}
+      />
+      <LinkRow
+        key="3"
+        link={
+          Object {
+            "id": "3",
+            "name": "foo",
+            "type": "foo",
+            "url": "http://example.com/foo",
+          }
+        }
+        onDelete={[MockFunction]}
+      />
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`should render empty 1`] = `
+<div
+  className="note"
+>
+  no_results
+</div>
+`;

@@ -134,12 +134,6 @@ export const getSettingsAppEncryptionState = state =>
 export const getSettingsAppGlobalMessages = state =>
   fromSettingsApp.getGlobalMessages(state.settingsApp);
 
-export const getProjectAdminLinkById = (state, linkId) =>
-  fromProjectAdminApp.getLinkById(state.projectAdminApp, linkId);
-
-export const getProjectAdminProjectLinks = (state, projectKey) =>
-  fromProjectAdminApp.getProjectLinks(state.projectAdminApp, projectKey);
-
 export const getProjectAdminComponentByKey = (state, componentKey) =>
   fromProjectAdminApp.getComponentByKey(state.projectAdminApp, componentKey);
 

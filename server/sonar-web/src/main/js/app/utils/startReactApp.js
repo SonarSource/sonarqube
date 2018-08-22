@@ -224,7 +224,7 @@ const startReactApp = (lang, currentUser, appState) => {
                     />
                     <Route
                       path="project/links"
-                      component={lazyLoad(() => import('../../apps/project-admin/links/Links'))}
+                      component={lazyLoad(() => import('../../apps/projectLinks/App'))}
                     />
                     <Route
                       path="project/key"

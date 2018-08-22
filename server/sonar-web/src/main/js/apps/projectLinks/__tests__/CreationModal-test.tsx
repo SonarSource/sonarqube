@@ -18,21 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getLinkName } from '../../projectLinks/utils';
-import { ProjectLink } from '../../../app/types';
-import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
+import { shallow } from 'enzyme';
+import CreationModal from '../CreationModal';
+import { change, submit } from '../../../helpers/testUtils';
 
-interface Props {
-  link: ProjectLink;
-}
+it('should create link', () => {
+  const onClose = jest.fn();
+  const onSubmit = jest.fn().mockResolvedValue(undefined);
+  const wrapper = shallow(<CreationModal onClose={onClose} onSubmit={onSubmit} />);
+  const form = wrapper.dive();
 
-export default function MetaLink({ link }: Props) {
-  return (
-    <li>
-      <a className="link-with-icon" href={link.url} rel="nofollow" target="_blank">
-        <ProjectLinkIcon className="little-spacer-right" type={link.type} />
-        {getLinkName(link)}
-      </a>
-    </li>
-  );
-}
+  change(form.find('#create-link-name'), 'foo');
+  change(form.find('#create-link-url'), 'http://example.com/foo');
+  expect(form).toMatchSnapshot();
+
+  submit(wrapper);
+  expect(onSubmit).toBeCalledWith('foo', 'http://example.com/foo');
+});

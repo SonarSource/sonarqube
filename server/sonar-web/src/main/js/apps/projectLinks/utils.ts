@@ -17,29 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { without } from 'lodash';
-import { RECEIVE_PROJECT_LINKS, DELETE_PROJECT_LINK, ADD_PROJECT_LINK } from './actions';
+import { partition, sortBy } from 'lodash';
+import { ProjectLink } from '../../app/types';
+import { translate } from '../../helpers/l10n';
 
-const linksByProject = (state = {}, action = {}) => {
-  if (action.type === RECEIVE_PROJECT_LINKS) {
-    const linkIds = action.links.map(link => link.id);
-    return { ...state, [action.projectKey]: linkIds };
-  }
+const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
+type NameAndType = Pick<ProjectLink, 'name' | 'type'>;
 
-  if (action.type === ADD_PROJECT_LINK) {
-    const byProject = state[action.projectKey] || [];
-    const ids = [...byProject, action.link.id];
-    return { ...state, [action.projectKey]: ids };
-  }
+export function isProvided(link: Pick<ProjectLink, 'type'>) {
+  return PROVIDED_TYPES.includes(link.type);
+}
 
-  if (action.type === DELETE_PROJECT_LINK) {
-    const ids = without(state[action.projectKey], action.linkId);
-    return { ...state, [action.projectKey]: ids };
-  }
+export function orderLinks<T extends NameAndType>(links: T[]) {
+  const [provided, unknown] = partition<T>(links, isProvided);
+  return [
+    ...sortBy(provided, link => PROVIDED_TYPES.indexOf(link.type)),
+    ...sortBy(unknown, link => link.name!.toLowerCase())
+  ];
+}
 
-  return state;
-};
-
-export default linksByProject;
-
-export const getLinks = (state, projectKey) => state[projectKey] || [];
+export function getLinkName(link: NameAndType) {
+  return isProvided(link) ? translate('project_links', link.type) : link.name;
+}

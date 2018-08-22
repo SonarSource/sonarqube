@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should create link 1`] = `
+<div
+  className="page page-limited"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="project_links.page"
+  />
+  <Header
+    onCreate={[Function]}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <Table
+      links={
+        Array [
+          Object {
+            "id": "1",
+            "type": "homepage",
+            "url": "http://example.com",
+          },
+          Object {
+            "id": "2",
+            "name": "foo",
+            "type": "foo",
+            "url": "http://example.com/foo",
+          },
+          Object {
+            "id": "3",
+            "name": "bar",
+            "type": "bar",
+            "url": "http://example.com/bar",
+          },
+        ]
+      }
+      onDelete={[Function]}
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should delete link 1`] = `
+<div
+  className="page page-limited"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="project_links.page"
+  />
+  <Header
+    onCreate={[Function]}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <Table
+      links={
+        Array [
+          Object {
+            "id": "1",
+            "type": "homepage",
+            "url": "http://example.com",
+          },
+          Object {
+            "id": "2",
+            "name": "foo",
+            "type": "foo",
+            "url": "http://example.com/foo",
+          },
+        ]
+      }
+      onDelete={[Function]}
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should fetch links and render 1`] = `
+<div
+  className="page page-limited"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="project_links.page"
+  />
+  <Header
+    onCreate={[Function]}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <Table
+      links={
+        Array [
+          Object {
+            "id": "1",
+            "type": "homepage",
+            "url": "http://example.com",
+          },
+          Object {
+            "id": "2",
+            "name": "foo",
+            "type": "foo",
+            "url": "http://example.com/foo",
+          },
+        ]
+      }
+      onDelete={[Function]}
+    />
+  </DeferredSpinner>
+</div>
+`;

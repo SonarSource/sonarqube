@@ -17,26 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { keyBy, omit } from 'lodash';
-import { RECEIVE_PROJECT_LINKS, DELETE_PROJECT_LINK, ADD_PROJECT_LINK } from './actions';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Header from '../Header';
+import { click } from '../../../helpers/testUtils';
 
-const links = (state = {}, action = {}) => {
-  if (action.type === RECEIVE_PROJECT_LINKS) {
-    const newLinksById = keyBy(action.links, 'id');
-    return { ...state, ...newLinksById };
-  }
+it('should render', () => {
+  expect(shallow(<Header onCreate={jest.fn()} />)).toMatchSnapshot();
+});
 
-  if (action.type === ADD_PROJECT_LINK) {
-    return { ...state, [action.link.id]: action.link };
-  }
+it('should open creation modal', () => {
+  const onCreate = jest.fn();
+  const wrapper = shallow(<Header onCreate={onCreate} />);
+  click(wrapper.find('Button'));
+  expect(wrapper.find('CreationModal').exists()).toBe(true);
 
-  if (action.type === DELETE_PROJECT_LINK) {
-    return omit(state, action.linkId);
-  }
+  wrapper.find('CreationModal').prop<Function>('onSubmit')('foo', 'http://example.com/foo');
+  expect(onCreate).toBeCalledWith('foo', 'http://example.com/foo');
 
-  return state;
-};
-
-export default links;
-
-export const getLink = (state, id) => state[id];
+  wrapper.find('CreationModal').prop<Function>('onClose')();
+  wrapper.update();
+  expect(wrapper.find('CreationModal').exists()).toBe(false);
+});

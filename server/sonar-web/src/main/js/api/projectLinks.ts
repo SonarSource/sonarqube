@@ -29,9 +29,10 @@ export function deleteLink(linkId: string) {
   return post('/api/project_links/delete', { id: linkId }).catch(throwGlobalError);
 }
 
-export function createLink(projectKey: string, name: string, url: string): Promise<ProjectLink> {
-  return postJSON('/api/project_links/create', { projectKey, name, url }).then(
-    r => r.link,
-    throwGlobalError
-  );
+export function createLink(data: {
+  name: string;
+  projectKey: string;
+  url: string;
+}): Promise<ProjectLink> {
+  return postJSON('/api/project_links/create', data).then(r => r.link, throwGlobalError);
 }

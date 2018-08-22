@@ -17,23 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { partition, sortBy } from 'lodash';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import LinkRow from '../LinkRow';
 
-const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
+it('should render provided link', () => {
+  expect(
+    shallow(
+      <LinkRow
+        link={{ id: '12', type: 'homepage', url: 'http://example.com' }}
+        onDelete={jest.fn()}
+      />
+    )
+  ).toMatchSnapshot();
+});
 
-export function isProvided(link) {
-  return PROVIDED_TYPES.includes(link.type);
-}
-
-export function orderLinks(links) {
-  const [provided, unknown] = partition(links, isProvided);
-  return [
-    ...sortBy(provided, link => PROVIDED_TYPES.indexOf(link.type)),
-    ...sortBy(unknown, link => link.name.toLowerCase())
-  ];
-}
-
-export function getLinkName(link) {
-  return isProvided(link) ? translate('project_links', link.type) : link.name;
-}
+it('should render custom link', () => {
+  expect(
+    shallow(
+      <LinkRow
+        link={{ id: '12', name: 'foo', type: 'foo', url: 'http://example.com' }}
+        onDelete={jest.fn()}
+      />
+    )
+  ).toMatchSnapshot();
+});

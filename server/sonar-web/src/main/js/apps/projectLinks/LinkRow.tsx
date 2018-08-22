@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { isProvided, getLinkName } from './utils';
-import { ProjectLink } from '../../../app/types';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
-import { Button } from '../../../components/ui/buttons';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { ProjectLink } from '../../app/types';
+import ConfirmButton from '../../components/controls/ConfirmButton';
+import ProjectLinkIcon from '../../components/icons-components/ProjectLinkIcon';
+import { Button } from '../../components/ui/buttons';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
   link: ProjectLink;
@@ -71,7 +71,7 @@ export default class LinkRow extends React.PureComponent<Props> {
         isDestructive={true}
         modalBody={translateWithParameters(
           'project_links.are_you_sure_to_delete_x_link',
-          link.name
+          link.name!
         )}
         modalHeader={translate('project_links.delete_project_link')}
         onConfirm={this.props.onDelete}>
