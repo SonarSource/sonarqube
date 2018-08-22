@@ -1,0 +1,98 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="coding-rule"
+  data-rule="foo"
+>
+  <table
+    className="coding-rule-table"
+  >
+    <tbody>
+      <tr>
+        <td>
+          <div
+            className="coding-rule-title"
+          >
+            <Link
+              className="link-no-underline"
+              onClick={[Function]}
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/organizations/org/rules",
+                  "query": Object {
+                    "open": "foo",
+                    "rule_key": "foo",
+                  },
+                }
+              }
+            >
+              Use foo
+            </Link>
+          </div>
+        </td>
+        <td
+          className="coding-rule-table-meta-cell"
+        >
+          <div
+            className="display-flex-center coding-rule-meta"
+          >
+            <span
+              className="spacer-left note"
+            >
+              JavaScript
+            </span>
+            <Tooltip
+              overlay="coding_rules.type.tooltip.CODE_SMELL"
+            >
+              <span
+                className="display-inline-flex-center spacer-left note"
+              >
+                <IssueTypeIcon
+                  className="little-spacer-right"
+                  query="CODE_SMELL"
+                />
+                issue.type.CODE_SMELL
+              </span>
+            </Tooltip>
+            <TagsList
+              allowUpdate={false}
+              className="note spacer-left"
+              tags={
+                Array [
+                  "x",
+                  "a",
+                  "b",
+                ]
+              }
+            />
+            <SimilarRulesFilter
+              onFilterChange={[MockFunction]}
+              rule={
+                Object {
+                  "key": "foo",
+                  "lang": "js",
+                  "langName": "JavaScript",
+                  "name": "Use foo",
+                  "severity": "MAJOR",
+                  "status": "READY",
+                  "sysTags": Array [
+                    "a",
+                    "b",
+                  ],
+                  "tags": Array [
+                    "x",
+                  ],
+                  "type": "CODE_SMELL",
+                }
+              }
+            />
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

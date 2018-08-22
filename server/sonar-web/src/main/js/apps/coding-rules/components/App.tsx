@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
+import { withRouter, WithRouterProps } from 'react-router';
 import * as PropTypes from 'prop-types';
 import * as key from 'keymaster';
 import { keyBy } from 'lodash';
@@ -67,8 +68,7 @@ interface StateToProps {
   userOrganizations: Organization[];
 }
 
-interface OwnProps {
-  location: { pathname: string; query: RawQuery };
+interface OwnProps extends WithRouterProps {
   organization: Organization | undefined;
 }
 
@@ -95,8 +95,7 @@ export class App extends React.PureComponent<Props, State> {
   mounted = false;
 
   static contextTypes = {
-    organizationsEnabled: PropTypes.bool,
-    router: PropTypes.object.isRequired
+    organizationsEnabled: PropTypes.bool
   };
 
   constructor(props: Props) {
@@ -349,9 +348,9 @@ export class App extends React.PureComponent<Props, State> {
   openRule = (rule: string) => {
     const path = this.getRulePath(rule);
     if (this.state.openRule) {
-      this.context.router.replace(path);
+      this.props.router.replace(path);
     } else {
-      this.context.router.push(path);
+      this.props.router.push(path);
     }
   };
 
@@ -363,7 +362,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   closeRule = () => {
-    this.context.router.push({
+    this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery(this.state.query),
@@ -406,6 +405,10 @@ export class App extends React.PureComponent<Props, State> {
       openFacets: { ...state.openFacets, [facet]: false }
     }));
 
+  handleRuleOpen = (ruleKey: string) => {
+    this.props.router.push(this.getRulePath(ruleKey));
+  };
+
   handleBack = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
@@ -413,7 +416,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleFilterChange = (changes: Partial<Query>) =>
-    this.context.router.push({
+    this.props.router.push({
       pathname: this.props.location.pathname,
       query: serializeQuery({ ...this.state.query, ...changes })
     });
@@ -429,7 +432,7 @@ export class App extends React.PureComponent<Props, State> {
 
   handleReload = () => this.fetchFirstRules();
 
-  handleReset = () => this.context.router.push({ pathname: this.props.location.pathname });
+  handleReset = () => this.props.router.push({ pathname: this.props.location.pathname });
 
   /** Tries to take rule by index, or takes the last one  */
   pickRuleAround = (rules: Rule[], selectedIndex: number | undefined) => {
@@ -583,8 +586,8 @@ export class App extends React.PureComponent<Props, State> {
                       onActivate={this.handleRuleActivate}
                       onDeactivate={this.handleRuleDeactivate}
                       onFilterChange={this.handleFilterChange}
+                      onOpen={this.handleRuleOpen}
                       organization={organization}
-                      path={this.getRulePath(rule.key)}
                       rule={rule}
                       selected={rule.key === this.state.selected}
                       selectedProfile={this.getSelectedProfile()}
@@ -636,4 +639,4 @@ const mapStateToProps = (state: any) => ({
   userOrganizations: getMyOrganizations(state)
 });
 
-export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(App);
+export default withRouter(connect<StateToProps, {}, OwnProps>(mapStateToProps)(App));

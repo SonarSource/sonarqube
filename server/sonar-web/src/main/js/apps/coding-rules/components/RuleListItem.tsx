@@ -33,14 +33,15 @@ import SeverityIcon from '../../../components/icons-components/SeverityIcon';
 import TagsList from '../../../components/tags/TagsList';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getRuleUrl } from '../../../helpers/urls';
 
 interface Props {
   activation?: Activation;
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
+  onOpen: (ruleKey: string) => void;
   organization: string | undefined;
-  path: { pathname: string; query: { [x: string]: any } };
   rule: Rule;
   selected: boolean;
   selectedProfile?: Profile;
@@ -66,6 +67,18 @@ export default class RuleListItem extends React.PureComponent<Props> {
       });
     }
     return Promise.resolve();
+  };
+
+  handleNameClick = (event: React.MouseEvent) => {
+    // cmd(ctrl) + click should open a rule permalink in a new tab
+    const isLeftClickEvent = event.button === 0;
+    const isModifiedEvent = !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+    if (isModifiedEvent || !isLeftClickEvent) {
+      return;
+    }
+
+    event.preventDefault();
+    this.props.onOpen(this.props.rule.key);
   };
 
   renderActivation = () => {
@@ -178,7 +191,10 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
               <td>
                 <div className="coding-rule-title">
-                  <Link className="link-no-underline" to={this.props.path}>
+                  <Link
+                    className="link-no-underline"
+                    onClick={this.handleNameClick}
+                    to={getRuleUrl(rule.key, this.props.organization)}>
                     {rule.name}
                   </Link>
                   {rule.isTemplate && (
