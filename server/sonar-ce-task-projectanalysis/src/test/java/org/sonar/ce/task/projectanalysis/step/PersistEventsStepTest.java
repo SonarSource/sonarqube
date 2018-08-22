@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,7 +38,10 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.event.EventDto;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,6 +53,7 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 
 public class PersistEventsStepTest extends BaseStepTest {
 
+  private static final long NOW = 1225630680000L;
   private static final ReportComponent ROOT = builder(PROJECT, 1)
     .setUuid("ABCD")
     .addChildren(
@@ -84,7 +89,6 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    when(system2.now()).thenReturn(1225630680000L);
     analysisMetadataHolder.setAnalysisDate(someDate.getTime()).setUuid(ANALYSIS_UUID);
     underTest = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository, uuidFactory);
     when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.emptyList());
@@ -97,33 +101,60 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   @Test
   public void nothing_to_do_when_no_events_in_report() {
-    dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
-
     treeRootHolder.setRoot(ROOT);
 
     underTest.execute(new TestComputationStepContext());
 
-    dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", new String[] {"uuid"}, "events");
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isZero();
   }
 
   @Test
-  public void persist_report_events_with_component_children() {
-    dbTester.prepareDbUnit(getClass(), "empty.xml");
-
+  public void persist_alert_events_on_root() {
+    when(system2.now()).thenReturn(NOW);
     treeRootHolder.setRoot(ROOT);
+    Event alert = Event.createAlert("Red (was Orange)", null, "Open issues > 0");
+    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(alert));
 
-    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
-
-    treeRootHolder.setRoot(ROOT);
     underTest.execute(new TestComputationStepContext());
 
-    dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", new String[] {"uuid"}, "events");
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(1);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
+    assertThat(eventDtos).hasSize(1);
+    EventDto eventDto = eventDtos.iterator().next();
+    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
+    assertThat(eventDto.getName()).isEqualTo(alert.getName());
+    assertThat(eventDto.getDescription()).isEqualTo(alert.getDescription());
+    assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_ALERT);
+    assertThat(eventDto.getData()).isNull();
+    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
+    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void persist_profile_events_on_root() {
+    when(system2.now()).thenReturn(NOW);
+    treeRootHolder.setRoot(ROOT);
+    Event profile = Event.createProfile("foo", null, "bar");
+    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(profile));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(1);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
+    assertThat(eventDtos).hasSize(1);
+    EventDto eventDto = eventDtos.iterator().next();
+    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
+    assertThat(eventDto.getName()).isEqualTo(profile.getName());
+    assertThat(eventDto.getDescription()).isEqualTo(profile.getDescription());
+    assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_PROFILE);
+    assertThat(eventDto.getData()).isNull();
+    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
+    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
   }
 
   @Test
   public void create_version_event() {
-    dbTester.prepareDbUnit(getClass(), "empty.xml");
-
+    when(system2.now()).thenReturn(NOW);
     Component project = builder(PROJECT, 1)
       .setUuid("ABCD")
       .setVersion("1.0")
@@ -144,15 +175,30 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", new String[] {"uuid"}, "events");
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(1);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
+    assertThat(eventDtos).hasSize(1);
+    EventDto eventDto = eventDtos.iterator().next();
+    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
+    assertThat(eventDto.getName()).isEqualTo("1.0");
+    assertThat(eventDto.getDescription()).isNull();
+    assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_VERSION);
+    assertThat(eventDto.getData()).isNull();
+    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
+    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
   }
 
   @Test
   public void keep_one_event_by_version() {
-    dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
+    ComponentDto projectDto = dbTester.components().insertPublicProject();
+    EventDto[] existingEvents = new EventDto[] {
+      dbTester.events().insertEvent(newVersionEventDto(projectDto, 120_000_000L, "1.3-SNAPSHOT")),
+      dbTester.events().insertEvent(newVersionEventDto(projectDto, 130_000_000L, "1.4")),
+      dbTester.events().insertEvent(newVersionEventDto(projectDto, 140_000_000L, "1.5-SNAPSHOT"))
+    };
 
     Component project = builder(PROJECT, 1)
-      .setUuid("ABCD")
+      .setUuid(projectDto.uuid())
       .setVersion("1.5-SNAPSHOT")
       .addChildren(
         builder(MODULE, 2)
@@ -171,7 +217,23 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    dbTester.assertDbUnit(getClass(), "keep_one_event_by_version-result.xml", new String[] {"uuid"}, "events");
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(3);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), projectDto.uuid());
+    assertThat(eventDtos).hasSize(3);
+    assertThat(eventDtos)
+      .extracting(EventDto::getName)
+      .containsOnly("1.3-SNAPSHOT", "1.4", "1.5-SNAPSHOT");
+    assertThat(eventDtos)
+      .extracting(EventDto::getUuid)
+      .contains(existingEvents[0].getUuid(), existingEvents[1].getUuid())
+      .doesNotContain(existingEvents[2].getUuid());
+  }
+
+  private EventDto newVersionEventDto(ComponentDto project, long date, String name) {
+    return new EventDto().setUuid(uuidFactory.create()).setComponentUuid(project.uuid())
+      .setAnalysisUuid("analysis_uuid")
+      .setCategory(EventDto.CATEGORY_VERSION)
+      .setName(name).setDate(date).setCreatedAt(date);
   }
 
 }
