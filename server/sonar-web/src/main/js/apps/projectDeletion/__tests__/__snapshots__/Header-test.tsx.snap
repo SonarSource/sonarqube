@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    deletion.page
+  </h1>
+  <div
+    className="page-description"
+  >
+    project_deletion.page.description
+  </div>
+</header>
+`;
+
+exports[`should render 2`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    deletion.page
+  </h1>
+  <div
+    className="page-description"
+  >
+    portfolio_deletion.page.description
+  </div>
+</header>
+`;
+
+exports[`should render 3`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    deletion.page
+  </h1>
+  <div
+    className="page-description"
+  >
+    application_deletion.page.description
+  </div>
+</header>
+`;

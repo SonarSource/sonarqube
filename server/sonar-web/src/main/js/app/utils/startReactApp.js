@@ -218,9 +218,7 @@ const startReactApp = (lang, currentUser, appState) => {
                     <Route path="project/webhooks" childRoutes={webhooksRoutes} />
                     <Route
                       path="project/deletion"
-                      component={lazyLoad(() =>
-                        import('../../apps/project-admin/deletion/Deletion')
-                      )}
+                      component={lazyLoad(() => import('../../apps/projectDeletion/App'))}
                     />
                     <Route
                       path="project/links"

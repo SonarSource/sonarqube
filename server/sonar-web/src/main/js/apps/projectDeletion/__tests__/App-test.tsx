@@ -17,22 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import App from '../App';
 
-export default function Header(props /*: { component: { qualifier: string } } */) {
-  const { qualifier } = props.component;
-  const description = ['VW', 'SVW'].includes(qualifier)
-    ? translate('portfolio_deletion.page.description')
-    : qualifier === 'APP'
-      ? translate('application_deletion.page.description')
-      : translate('project_deletion.page.description');
-
-  return (
-    <header className="page-header">
-      <h1 className="page-title">{translate('deletion.page')}</h1>
-      <div className="page-description">{description}</div>
-    </header>
-  );
-}
+it('should render', () => {
+  expect(
+    shallow(<App component={{ key: 'foo', name: 'Foo', qualifier: 'TRK' }} />)
+  ).toMatchSnapshot();
+});

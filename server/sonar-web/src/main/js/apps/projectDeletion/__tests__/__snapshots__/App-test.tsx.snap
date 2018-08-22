@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="page page-limited"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="deletion.page"
+  />
+  <Header
+    component={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "qualifier": "TRK",
+      }
+    }
+  />
+  <withRouter(Form)
+    component={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "qualifier": "TRK",
+      }
+    }
+  />
+</div>
+`;
