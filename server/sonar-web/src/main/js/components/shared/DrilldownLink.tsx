@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
-import { BranchLike } from '../../app/types';
+import { BranchLike, IssueType } from '../../app/types';
 import { getBranchLikeQuery } from '../../helpers/branches';
 
 const ISSUE_MEASURES = [
@@ -104,15 +104,15 @@ export default class DrilldownLink extends React.PureComponent<Props> {
         break;
       case 'code_smells':
       case 'new_code_smells':
-        Object.assign(params, { resolved: 'false', types: 'CODE_SMELL' });
+        Object.assign(params, { resolved: 'false', types: IssueType.CodeSmell });
         break;
       case 'bugs':
       case 'new_bugs':
-        Object.assign(params, { resolved: 'false', types: 'BUG' });
+        Object.assign(params, { resolved: 'false', types: IssueType.Bug });
         break;
       case 'vulnerabilities':
       case 'new_vulnerabilities':
-        Object.assign(params, { resolved: 'false', types: 'VULNERABILITY' });
+        Object.assign(params, { resolved: 'false', types: IssueType.Vulnerability });
         break;
       default:
         Object.assign(params, { resolved: 'false' });

@@ -26,6 +26,7 @@ import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
 import { updateIssue } from '../actions';
+import { IssueType as IssueTypes } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 /*:: import type { Issue } from '../types'; */
 
@@ -81,7 +82,7 @@ export default class IssueActionsBar extends React.PureComponent {
     this.props.onChange(issue);
     if (
       issue.resolution === 'FALSE-POSITIVE' ||
-      (issue.resolution === 'WONTFIX' && issue.type !== 'SECURITY_HOTSPOT')
+      (issue.resolution === 'WONTFIX' && issue.type !== IssueTypes.Hotspot)
     ) {
       this.toggleComment(true, translate('issue.comment.tell_why'));
     }
@@ -95,7 +96,7 @@ export default class IssueActionsBar extends React.PureComponent {
     const canSetType = issue.actions.includes('set_type');
     const canSetTags = issue.actions.includes('set_tags');
     const hasTransitions = issue.transitions && issue.transitions.length > 0;
-    const isSecurityHotspot = issue.type === 'SECURITY_HOTSPOT';
+    const isSecurityHotspot = issue.type === IssueTypes.Hotspot;
 
     return (
       <div className="issue-actions">

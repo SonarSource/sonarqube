@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
+import { IssueType } from '../../../app/types';
 
 export class CodeSmells extends React.PureComponent<ComposedProps> {
   renderHeader() {
@@ -84,7 +85,7 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
           </div>
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
+              {this.props.renderIssues('new_code_smells', IssueType.CodeSmell)}
             </div>
             <div className="overview-domain-measure-label">
               <CodeSmellIcon className="little-spacer-right" />
@@ -114,7 +115,7 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
           </div>
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              {this.props.renderIssues('code_smells', 'CODE_SMELL')}
+              {this.props.renderIssues('code_smells', IssueType.CodeSmell)}
             </div>
             <div className="overview-domain-measure-label offset-left">
               <CodeSmellIcon className="little-spacer-right " />

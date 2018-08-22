@@ -66,7 +66,7 @@ exports[`render code 1`] = `
           "secondaryLocations": Array [],
           "severity": "",
           "status": "",
-          "type": "",
+          "type": "BUG",
         },
         Object {
           "component": "",
@@ -88,7 +88,7 @@ exports[`render code 1`] = `
           "secondaryLocations": Array [],
           "severity": "",
           "status": "",
-          "type": "",
+          "type": "BUG",
         },
       ]
     }

@@ -26,7 +26,13 @@ import { Button } from '../../ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
-import { FacetValue, SourceViewerFile, BranchLike, MeasureEnhanced } from '../../../app/types';
+import {
+  FacetValue,
+  SourceViewerFile,
+  BranchLike,
+  MeasureEnhanced,
+  IssueType
+} from '../../../app/types';
 import Modal from '../../controls/Modal';
 import Measure from '../../measure/Measure';
 import QualifierIcon from '../../icons-components/QualifierIcon';
@@ -34,7 +40,7 @@ import SeverityHelper from '../../shared/SeverityHelper';
 import CoverageRating from '../../ui/CoverageRating';
 import DuplicationsRating from '../../ui/DuplicationsRating';
 import IssueTypeIcon from '../../ui/IssueTypeIcon';
-import { SEVERITIES, TYPES } from '../../../helpers/constants';
+import { SEVERITIES, ISSUE_TYPES } from '../../../helpers/constants';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import {
   formatMeasure,
@@ -61,7 +67,7 @@ interface State {
   severitiesFacet?: FacetValue[];
   showAllMeasures: boolean;
   tagsFacet?: FacetValue[];
-  typesFacet?: FacetValue[];
+  typesFacet?: FacetValue<IssueType>[];
 }
 
 export default class MeasuresOverlay extends React.PureComponent<Props, State> {
@@ -125,7 +131,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       return {
         severitiesFacet: severitiesFacet && severitiesFacet.values,
         tagsFacet: tagsFacet && tagsFacet.values,
-        typesFacet: typesFacet && typesFacet.values
+        typesFacet: typesFacet && (typesFacet.values as FacetValue<IssueType>[])
       };
     });
   };
@@ -197,7 +203,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
                 {typesFacet && (
                   <div className="measures">
                     <div className="measures-list">
-                      {sortBy(typesFacet, f => TYPES.indexOf(f.val)).map(f => (
+                      {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val)).map(f => (
                         <div className="measure measure-one-line" key={f.val}>
                           <span className="measure-name">
                             <IssueTypeIcon className="little-spacer-right" query={f.val} />

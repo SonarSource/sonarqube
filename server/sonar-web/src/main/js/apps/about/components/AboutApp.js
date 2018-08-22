@@ -38,6 +38,7 @@ import { getAppState, getCurrentUser, getGlobalSettingValue } from '../../../sto
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
 import { isSonarCloud } from '../../../helpers/system';
+import { IssueType } from '../../../app/types';
 import '../styles.css';
 
 /*::
@@ -138,9 +139,10 @@ class AboutApp extends React.PureComponent {
     let vulnerabilities;
     let codeSmells;
     if (!loading && issueTypes) {
-      bugs = issueTypes['BUG'] && issueTypes['BUG'].count;
-      vulnerabilities = issueTypes['VULNERABILITY'] && issueTypes['VULNERABILITY'].count;
-      codeSmells = issueTypes['CODE_SMELL'] && issueTypes['CODE_SMELL'].count;
+      bugs = issueTypes[IssueType.Bug] && issueTypes[IssueType.Bug].count;
+      vulnerabilities =
+        issueTypes[IssueType.Vulnerability] && issueTypes[IssueType.Vulnerability].count;
+      codeSmells = issueTypes[IssueType.CodeSmell] && issueTypes[IssueType.CodeSmell].count;
     }
 
     return (

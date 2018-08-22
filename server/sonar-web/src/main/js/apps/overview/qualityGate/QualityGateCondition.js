@@ -28,6 +28,7 @@ import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/me
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { getBranchLikeQuery } from '../../../helpers/branches';
+import { IssueType } from '../../../app/types';
 /*:: import type { Component } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 
@@ -67,7 +68,7 @@ export default class QualityGateCondition extends React.PureComponent {
   };
 
   getUrlForCodeSmells(sinceLeakPeriod /*: boolean */) {
-    return this.getIssuesUrl(sinceLeakPeriod, { types: 'CODE_SMELL' });
+    return this.getIssuesUrl(sinceLeakPeriod, { types: IssueType.CodeSmell });
   }
 
   getUrlForBugsOrVulnerabilities(type /*: string */, sinceLeakPeriod /*: boolean */) {
@@ -88,7 +89,7 @@ export default class QualityGateCondition extends React.PureComponent {
   }
 
   getUrlForType(type /*: string */, sinceLeakPeriod /*: boolean */) {
-    return type === 'CODE_SMELL'
+    return type === IssueType.CodeSmell
       ? this.getUrlForCodeSmells(sinceLeakPeriod)
       : this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
   }
@@ -104,14 +105,16 @@ export default class QualityGateCondition extends React.PureComponent {
 
     const metricKey = condition.measure.metric.key;
 
+    /* eslint-disable camelcase */
     const RATING_METRICS_MAPPING = {
-      reliability_rating: ['BUG', false],
-      new_reliability_rating: ['BUG', true],
-      security_rating: ['VULNERABILITY', false],
-      new_security_rating: ['VULNERABILITY', true],
-      sqale_rating: ['CODE_SMELL', false],
-      new_maintainability_rating: ['CODE_SMELL', true]
+      reliability_rating: [IssueType.Bug, false],
+      new_reliability_rating: [IssueType.Bug, true],
+      security_rating: [IssueType.Vulnerability, false],
+      new_security_rating: [IssueType.Vulnerability, true],
+      sqale_rating: [IssueType.CodeSmell, false],
+      new_maintainability_rating: [IssueType.CodeSmell, true]
     };
+    /* eslint-enable camelcase */
 
     return RATING_METRICS_MAPPING[metricKey] ? (
       <Link className={className} to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])}>

@@ -27,7 +27,7 @@ exports[`should render 1`] = `
         "secondaryLocations": Array [],
         "severity": "",
         "status": "",
-        "type": "",
+        "type": "BUG",
       }
     }
     onClick={[MockFunction]}

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineCode from '../LineCode';
-import { BranchType, Issue, ShortLivingBranch } from '../../../../app/types';
+import { BranchType, Issue, ShortLivingBranch, IssueType } from '../../../../app/types';
 
 const issueBase: Issue = {
   component: '',
@@ -42,7 +42,7 @@ const issueBase: Issue = {
   secondaryLocations: [],
   severity: '',
   status: '',
-  type: ''
+  type: IssueType.Bug
 };
 
 it('render code', () => {

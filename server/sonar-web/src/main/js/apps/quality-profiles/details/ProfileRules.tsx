@@ -29,8 +29,9 @@ import { getQualityProfile } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
+import { RuleType } from '../../../app/types';
 
-const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
+const TYPES = [RuleType.Bug, RuleType.Vulnerability, RuleType.CodeSmell, RuleType.Hotspot]
 
 interface Props {
   organization: string | null;

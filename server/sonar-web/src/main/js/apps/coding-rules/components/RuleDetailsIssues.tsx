@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getFacet } from '../../../api/issues';
-import { RuleDetails } from '../../../app/types';
+import { RuleDetails, RuleType } from '../../../app/types';
 import { getIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
@@ -73,8 +73,8 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
     resolved: 'false',
     rules: this.props.ruleDetails.key,
     types:
-      this.props.ruleDetails.type === 'SECURITY_HOTSPOT'
-        ? 'VULNERABILITY,SECURITY_HOTSPOT'
+      this.props.ruleDetails.type === RuleType.Hotspot
+        ? [RuleType.Vulnerability, RuleType.Hotspot].join()
         : undefined
   });
 

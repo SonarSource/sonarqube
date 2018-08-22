@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssue from '../ConciseIssue';
+import { IssueType } from '../../../../app/types';
 
 const issue = {
   component: '',
@@ -38,7 +39,7 @@ const issue = {
   ruleName: '',
   severity: '',
   status: '',
-  type: '',
+  type: IssueType.Bug,
   secondaryLocations: [],
   flows: [],
   fromHotspot: false

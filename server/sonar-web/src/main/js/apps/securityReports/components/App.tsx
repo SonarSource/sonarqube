@@ -25,7 +25,7 @@ import { FormattedMessage } from 'react-intl';
 import VulnerabilityList from './VulnerabilityList';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { Component, BranchLike, SecurityHotspot } from '../../../app/types';
+import { Component, BranchLike, SecurityHotspot, RuleType } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Checkbox from '../../../components/controls/Checkbox';
 import { RawQuery } from '../../../helpers/query';
@@ -154,7 +154,7 @@ export default class App extends React.PureComponent<Props, State> {
                   link: (
                     <Link
                       to={getRulesUrl(
-                        { types: 'SECURITY_HOTSPOT,VULNERABILITY' },
+                        { types: [RuleType.Vulnerability, RuleType.Hotspot].join() },
                         isSonarCloud() ? component.organization : undefined
                       )}>
                       {translate('security_reports.info.link')}

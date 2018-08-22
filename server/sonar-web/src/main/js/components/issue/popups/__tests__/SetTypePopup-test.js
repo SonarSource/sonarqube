@@ -20,8 +20,9 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 import SetTypePopup from '../SetTypePopup';
+import { IssueType } from '../../../../app/types';
 
 it('should render tags popup correctly', () => {
-  const element = shallow(<SetTypePopup issue={{ type: 'BUG' }} onSelect={jest.fn()} />);
+  const element = shallow(<SetTypePopup issue={{ type: IssueType.Bug }} onSelect={jest.fn()} />);
   expect(element).toMatchSnapshot();
 });

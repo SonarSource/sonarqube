@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import RuleDetailsMeta from '../RuleDetailsMeta';
-import { RuleScope } from '../../../../app/types';
+import { RuleScope, RuleType } from '../../../../app/types';
 import RuleDetailsTagsPopup from '../RuleDetailsTagsPopup';
 
 const RULE = {
@@ -33,7 +33,7 @@ const RULE = {
   lang: 'java',
   langName: 'Java',
   scope: RuleScope.Main,
-  type: 'CODE_SMELL'
+  type: RuleType.CodeSmell
 };
 
 const EXTERNAL_RULE = {
@@ -44,7 +44,7 @@ const EXTERNAL_RULE = {
   status: 'READY',
   scope: RuleScope.All,
   isExternal: true,
-  type: 'UNKNOWN'
+  type: RuleType.Unknown
 };
 
 const EXTERNAL_RULE_WITH_DATA = {
@@ -59,7 +59,7 @@ const EXTERNAL_RULE_WITH_DATA = {
   langName: 'Xoo',
   scope: RuleScope.All,
   isExternal: true,
-  type: 'BUG'
+  type: RuleType.Bug
 };
 
 it('should display right meta info', () => {

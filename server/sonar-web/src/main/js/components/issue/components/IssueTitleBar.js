@@ -30,6 +30,7 @@ import { getBranchLikeQuery } from '../../../helpers/branches';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { IssueType } from '../../../app/types';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -75,7 +76,7 @@ export default function IssueTitleBar(props /*: Props */) {
     <div className="issue-row">
       <IssueMessage
         engine={issue.externalRuleEngine}
-        manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
+        manualVulnerability={issue.fromHotspot && issue.type === IssueType.Vulnerability}
         message={issue.message}
         organization={issue.organization}
         rule={issue.rule}

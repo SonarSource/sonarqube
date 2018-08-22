@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import RuleDetailsDescription from '../RuleDetailsDescription';
 import { click, change, waitAndUpdate } from '../../../../helpers/testUtils';
+import { RuleType } from '../../../../app/types';
 
 jest.mock('../../../../api/rules', () => ({
   updateRule: jest.fn().mockResolvedValue('updatedrule')
@@ -37,7 +38,7 @@ const RULE = {
   status: 'READY',
   lang: 'java',
   langName: 'Java',
-  type: 'CODE_SMELL'
+  type: RuleType.CodeSmell
 };
 
 const EXTERNAL_RULE = {
@@ -46,7 +47,7 @@ const EXTERNAL_RULE = {
   name: 'xoo:OneExternalIssuePerLine',
   status: 'READY',
   isExternal: true,
-  type: 'UNKNOWN'
+  type: RuleType.Unknown
 };
 
 const EXTERNAL_RULE_WITH_DATA = {
@@ -57,7 +58,7 @@ const EXTERNAL_RULE_WITH_DATA = {
   htmlDesc: '<p>Html Description</p>',
   status: 'READY',
   isExternal: true,
-  type: 'BUG'
+  type: RuleType.Bug
 };
 
 it('should display correctly', () => {

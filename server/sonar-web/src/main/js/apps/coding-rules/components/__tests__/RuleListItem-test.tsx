@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import RuleListItem from '../RuleListItem';
-import { Rule } from '../../../../app/types';
+import { Rule, RuleType } from '../../../../app/types';
 import { mockEvent } from '../../../../helpers/testUtils';
 
 const rule: Rule = {
@@ -32,7 +32,7 @@ const rule: Rule = {
   status: 'READY',
   sysTags: ['a', 'b'],
   tags: ['x'],
-  type: 'CODE_SMELL'
+  type: RuleType.CodeSmell
 };
 
 it('should render', () => {

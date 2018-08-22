@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import BulkChangeModal from '../BulkChangeModal';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { Issue } from '../../../../app/types';
+import { Issue, IssueType } from '../../../../app/types';
 
 jest.mock('../../../../api/issues', () => ({
   searchIssueTags: () => Promise.resolve([undefined, []])
@@ -55,7 +55,7 @@ it('should display form when issues are present', async () => {
       secondaryLocations: [],
       severity: 'foo',
       status: 'foo',
-      type: 'foo'
+      type: IssueType.Bug
     }
   ]);
   await waitAndUpdate(wrapper);

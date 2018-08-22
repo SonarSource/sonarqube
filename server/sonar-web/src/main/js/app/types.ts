@@ -188,9 +188,9 @@ export interface Extension {
   name: string;
 }
 
-export interface FacetValue {
+export interface FacetValue<T = string> {
   count: number;
-  val: string;
+  val: T;
 }
 
 export interface FlowLocation {
@@ -310,7 +310,7 @@ export interface Issue {
   tags?: string[];
   textRange?: TextRange;
   transitions?: string[];
-  type: string;
+  type: IssueType;
 }
 
 export interface IssueComment {
@@ -324,6 +324,13 @@ export interface IssueComment {
   key: string;
   markdown: string;
   updatable: boolean;
+}
+
+export enum IssueType {
+  Bug = 'BUG',
+  Vulnerability = 'VULNERABILITY',
+  CodeSmell = 'CODE_SMELL',
+  Hotspot = 'SECURITY_HOTSPOT'
 }
 
 export interface LightComponent {
@@ -530,7 +537,7 @@ export interface Rule {
   status: string;
   sysTags?: string[];
   tags?: string[];
-  type: string;
+  type: RuleType;
 }
 
 export interface RuleActivation {
@@ -585,6 +592,14 @@ export enum RuleScope {
   Main = 'MAIN',
   Test = 'TEST',
   All = 'ALL'
+}
+
+export enum RuleType {
+  Bug = 'BUG',
+  Vulnerability = 'VULNERABILITY',
+  CodeSmell = 'CODE_SMELL',
+  Hotspot = 'SECURITY_HOTSPOT',
+  Unknown = 'UNKNOWN'
 }
 
 export interface ShortLivingBranch extends Branch {

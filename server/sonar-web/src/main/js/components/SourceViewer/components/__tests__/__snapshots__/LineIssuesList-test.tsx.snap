@@ -28,7 +28,7 @@ exports[`render issues list 1`] = `
         "secondaryLocations": Array [],
         "severity": "",
         "status": "",
-        "type": "",
+        "type": "BUG",
       }
     }
     key="foo"
@@ -61,7 +61,7 @@ exports[`render issues list 1`] = `
         "secondaryLocations": Array [],
         "severity": "",
         "status": "",
-        "type": "",
+        "type": "BUG",
       }
     }
     key="bar"

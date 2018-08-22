@@ -24,6 +24,7 @@ import IssueTypeIcon from '../../ui/IssueTypeIcon';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import { DropdownOverlay } from '../../controls/Dropdown';
+import { IssueType } from '../../../app/types';
 /*:: import type { Issue } from '../types'; */
 
 /*::
@@ -33,7 +34,7 @@ type Props = {
 };
 */
 
-const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+const TYPES = [IssueType.Bug, IssueType.Vulnerability, IssueType.CodeSmell];
 
 export default class SetTypePopup extends React.PureComponent {
   /*:: props: Props; */

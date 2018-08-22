@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineIssuesList from '../LineIssuesList';
-import { Issue } from '../../../../app/types';
+import { Issue, IssueType } from '../../../../app/types';
 
 const issueBase: Issue = {
   component: '',
@@ -42,7 +42,7 @@ const issueBase: Issue = {
   secondaryLocations: [],
   severity: '',
   status: '',
-  type: ''
+  type: IssueType.Bug
 };
 
 it('render issues list', () => {

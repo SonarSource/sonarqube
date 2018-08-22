@@ -18,10 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as theme from '../app/theme';
+import { RuleType, IssueType } from '../app/types';
 
 export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
-export const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
+export const ISSUE_TYPES = [
+  IssueType.Bug,
+  IssueType.Vulnerability,
+  IssueType.CodeSmell,
+  IssueType.Hotspot
+];
+export const RULE_TYPES = [
+  RuleType.Bug,
+  RuleType.Vulnerability,
+  RuleType.CodeSmell,
+  RuleType.Hotspot
+];
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
 export const CHART_COLORS_RANGE_PERCENT = [

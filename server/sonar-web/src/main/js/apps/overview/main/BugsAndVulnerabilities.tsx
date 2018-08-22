@@ -29,6 +29,7 @@ import { getMetricName } from '../helpers/metrics';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { isLongLivingBranch } from '../../../helpers/branches';
+import { IssueType } from '../../../app/types';
 
 export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
   renderHeader() {
@@ -81,7 +82,9 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              <span style={{ marginLeft: 30 }}>{this.props.renderIssues('new_bugs', 'BUG')}</span>
+              <span style={{ marginLeft: 30 }}>
+                {this.props.renderIssues('new_bugs', IssueType.Bug)}
+              </span>
               {this.props.renderRating('new_reliability_rating')}
             </div>
             <div className="overview-domain-measure-label">
@@ -92,7 +95,7 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
               <span style={{ marginLeft: 30 }}>
-                {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
+                {this.props.renderIssues('new_vulnerabilities', IssueType.Vulnerability)}
               </span>
               {this.props.renderRating('new_security_rating')}
             </div>
@@ -112,7 +115,7 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              {this.props.renderIssues('bugs', 'BUG')}
+              {this.props.renderIssues('bugs', IssueType.Bug)}
               {this.props.renderRating('reliability_rating')}
             </div>
             <div className="overview-domain-measure-label">
@@ -123,7 +126,7 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
           </div>
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              {this.props.renderIssues('vulnerabilities', 'VULNERABILITY')}
+              {this.props.renderIssues('vulnerabilities', IssueType.Vulnerability)}
               {this.props.renderRating('security_rating')}
             </div>
             <div className="overview-domain-measure-label">

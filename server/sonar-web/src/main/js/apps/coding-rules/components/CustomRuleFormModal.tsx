@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { RuleDetails, RuleParameter } from '../../../app/types';
+import { RuleDetails, RuleParameter, RuleType } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import MarkdownTips from '../../../components/common/MarkdownTips';
-import { SEVERITIES, TYPES, RULE_STATUSES } from '../../../helpers/constants';
+import { SEVERITIES, RULE_TYPES, RULE_STATUSES } from '../../../helpers/constants';
 import latinize from '../../../helpers/latinize';
 import Select from '../../../components/controls/Select';
 import TypeHelper from '../../../components/shared/TypeHelper';
@@ -227,7 +227,9 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </tr>
   );
 
-  renderTypeOption = ({ value }: { value: string }) => <TypeHelper type={value} />;
+  renderTypeOption = ({ value }: { value: RuleType }) => {
+    return <TypeHelper type={value} />;
+  };
 
   renderTypeField = () => (
     <tr className="property">
@@ -241,7 +243,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           disabled={this.state.submitting}
           onChange={this.handleTypeChange}
           optionRenderer={this.renderTypeOption}
-          options={TYPES.map(type => ({
+          options={RULE_TYPES.map(type => ({
             label: translate('issue.type', type),
             value: type
           }))}

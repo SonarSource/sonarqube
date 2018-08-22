@@ -54,7 +54,7 @@ exports[`handle checkbox for cwe display 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
-                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                      "types": "VULNERABILITY,SECURITY_HOTSPOT",
                     },
                   }
                 }
@@ -164,7 +164,7 @@ exports[`handle checkbox for cwe display 2`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
-                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                      "types": "VULNERABILITY,SECURITY_HOTSPOT",
                     },
                   }
                 }
@@ -317,7 +317,7 @@ exports[`renders owaspTop10 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
-                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                      "types": "VULNERABILITY,SECURITY_HOTSPOT",
                     },
                   }
                 }
@@ -427,7 +427,7 @@ exports[`renders sansTop25 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
-                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                      "types": "VULNERABILITY,SECURITY_HOTSPOT",
                     },
                   }
                 }
@@ -537,7 +537,7 @@ exports[`renders with cwe 1`] = `
                   Object {
                     "pathname": "/coding_rules",
                     "query": Object {
-                      "types": "SECURITY_HOTSPOT,VULNERABILITY",
+                      "types": "VULNERABILITY,SECURITY_HOTSPOT",
                     },
                   }
                 }

@@ -26,6 +26,7 @@ import { getIssuesUrl } from '../../../helpers/urls';
 import BugIcon from '../../../components/icons-components/BugIcon';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
+import { IssueType } from '../../../app/types';
 
 /*::
 type Props = {
@@ -49,7 +50,11 @@ export default function EntryIssueTypes(
               <td className="about-page-issue-type-number">
                 <Link
                   className="about-page-issue-type-link"
-                  to={getIssuesUrl({ resolved: 'false', types: 'BUG', s: 'CREATION_DATE' })}>
+                  to={getIssuesUrl({
+                    resolved: 'false',
+                    types: IssueType.Bug,
+                    s: 'CREATION_DATE'
+                  })}>
                   {formatMeasure(bugs, 'SHORT_INT')}
                 </Link>
               </td>
@@ -66,7 +71,7 @@ export default function EntryIssueTypes(
                   className="about-page-issue-type-link"
                   to={getIssuesUrl({
                     resolved: 'false',
-                    types: 'VULNERABILITY',
+                    types: IssueType.Vulnerability,
                     s: 'CREATION_DATE'
                   })}>
                   {formatMeasure(vulnerabilities, 'SHORT_INT')}
@@ -83,7 +88,11 @@ export default function EntryIssueTypes(
               <td className="about-page-issue-type-number">
                 <Link
                   className="about-page-issue-type-link"
-                  to={getIssuesUrl({ resolved: 'false', types: 'CODE_SMELL', s: 'CREATION_DATE' })}>
+                  to={getIssuesUrl({
+                    resolved: 'false',
+                    types: IssueType.CodeSmell,
+                    s: 'CREATION_DATE'
+                  })}>
                   {formatMeasure(codeSmells, 'SHORT_INT')}
                 </Link>
               </td>

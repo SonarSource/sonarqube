@@ -21,7 +21,7 @@ import * as React from 'react';
 import { pickBy, sortBy } from 'lodash';
 import { searchAssignees } from '../utils';
 import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
-import { Component, CurrentUser, Issue, Paging, isLoggedIn } from '../../../app/types';
+import { Component, CurrentUser, Issue, Paging, isLoggedIn, IssueType } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import SearchSelect from '../../../components/controls/SearchSelect';
@@ -332,7 +332,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const types = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+    const types = [IssueType.Bug, IssueType.Vulnerability, IssueType.CodeSmell];
     const options = types.map(type => ({ label: translate('issue.type', type), value: type }));
 
     const optionRenderer = (option: { label: string; value: string }) => (
