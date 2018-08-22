@@ -18,9 +18,9 @@ During the **first analysis only**, issues (type, severity, status, assignee, ch
 
 Then, at each subsequent analysis of the long-lived branch, any new issue that comes from a short-lived branch automatically inherits the attributes (type, severity, ...) the issue had in the short-lived branch. A comment is added to the change log of the issue on the long-lived branch: "The issue had been copied from branch 'the short-live branch' to branch yyy".
 
-## Leak Period
+## New Code Period
 
-Because long-lived branches will persist for a long time, you are likely to develop and release multiple versions from it, and so you can change the Leak Period of a long-lived branch in **Administration > Branches**.
+Because long-lived branches will persist for a long time, you are likely to develop and release multiple versions from it, and so you can change the New Code period of a long-lived branch in **Administration > Branches**.
 
 ## Settings and Quality Profiles on Branches
 

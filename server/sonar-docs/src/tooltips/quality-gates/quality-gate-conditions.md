@@ -1,4 +1,4 @@
-For each Quality Gate condition you must choose the metric to be tested, the threshold at which to raise a warning or error, and whether or not to apply the condition to all code or only to Leak Period code (irrelevant for conditions "on New Code").
+For each Quality Gate condition you must choose the metric to be tested, the threshold at which to raise a warning or error, and whether or not to apply the condition to all code or only to New Code period (irrelevant for conditions "on New Code").
 
 ---
 

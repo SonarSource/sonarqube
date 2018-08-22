@@ -27,9 +27,9 @@ The issues visible on the short-lived branch are the new issues corresponding to
 
 Modified files are determined based on the checksum of each file on the sonar.branch.target and the short-lived branch.
 
-## Leak Period
+## New Code Period
 
-The ephemeral nature of short-lived branches means no explicit Leak Period is necessary; it's all new code. Thus, no "new code" data is available for a short-lived branch.
+The ephemeral nature of short-lived branches means no explicit New Code Period is necessary; it's all new code. 
 
 ## Settings and Quality Profiles on Branches
 

@@ -25,8 +25,8 @@ This corresponds to Pull/Merge Requests or Feature Branches. This kind of branch
 * will disappear quickly
 * will be merged rapidly to prevent integration issues
 * is developed for a given version, so the version does not change,
-  and there is no Leak Period concept as such; it's all leak period
-  tracks all the new issues related to the code that changed on it.
+  and there is no New Code period concept as such; it's all new code
+* tracks all the new issues related to the code that changed on it.
 
 ![conceptual illustration of short-lived branches.](/images/short-lived-branch-concept.png)
 

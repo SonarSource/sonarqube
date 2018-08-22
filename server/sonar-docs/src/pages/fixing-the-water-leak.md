@@ -31,6 +31,6 @@ As a bonus, the code that gets changed the most has the highest maintainability,
 
 <!-- sonarqube -->SonarQube<!-- /sonarqube --><!-- sonarcloud -->SonarCloud<!-- /sonarcloud --> offers two main tools to help you find your leaks:
 
-* Leak Period metrics show the variance in your measures between the current code and a specific point you choose in its history, typically the `previous_version`
-* New Code is primarily detected based on SCM "blame" data (starting from the first analysis within your Leak Period), with fallback mechanisms when needed. See SCM integration for more details.
+* New Code metrics show the variance in your measures between the current code and a specific point you choose in its history, typically the `previous_version`
+* New Code is primarily detected based on SCM "blame" data starting from the first analysis within your New Code Period (formerly the "Leak Period"), with fallback mechanisms when needed. See [SCM integration](/analysis/scm-integration) for more details.
 * [Quality Gates](/quality-gates) allow you to set boolean thresholds against which your code is measured. Use them with differential metrics to ensure that your code quality moves in the right direction over time.
