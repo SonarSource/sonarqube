@@ -103,3 +103,11 @@ exports[`should show a deprecated rules warning message 1`] = `
   profile="foo"
 />
 `;
+
+exports[`should show a disabled button to activate more rules for built-in profiles 1`] = `
+<Button
+  className="disabled js-activate-rules"
+>
+  quality_profiles.activate_more
+</Button>
+`;

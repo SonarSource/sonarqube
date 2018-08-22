@@ -100,6 +100,16 @@ it('should show a button to activate more rules for admins', () => {
   expect(wrapper.find('.js-activate-rules')).toMatchSnapshot();
 });
 
+it('should show a disabled button to activate more rules for built-in profiles', () => {
+  const wrapper = shallow(
+    <ProfileRules
+      organization={null}
+      profile={{ ...EDITABLE_PROFILE, actions: { copy: true }, isBuiltIn: true }}
+    />
+  );
+  expect(wrapper.find('.js-activate-rules')).toMatchSnapshot();
+});
+
 it('should show a deprecated rules warning message', () => {
   const wrapper = shallow(
     <ProfileRules
@@ -114,7 +124,7 @@ it('should not show a button to activate more rules on built in profiles', () =>
   const wrapper = shallow(
     <ProfileRules organization={null} profile={{ ...EDITABLE_PROFILE, isBuiltIn: true }} />
   );
-  expect(wrapper.find('.js-activate-rules')).toHaveLength(0);
+  expect(wrapper.find('.js-activate-rules').exists()).toBe(false);
 });
 
 it('should not show sonarway comparison for built in profiles', async () => {

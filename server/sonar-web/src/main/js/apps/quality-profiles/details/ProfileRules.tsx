@@ -30,8 +30,10 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 import { RuleType } from '../../../app/types';
+import { Button } from '../../../components/ui/buttons';
+import DocTooltip from '../../../components/docs/DocTooltip';
 
-const TYPES = [RuleType.Bug, RuleType.Vulnerability, RuleType.CodeSmell, RuleType.Hotspot]
+const TYPES = [RuleType.Bug, RuleType.Vulnerability, RuleType.CodeSmell, RuleType.Hotspot];
 
 interface Props {
   organization: string | null;
@@ -151,6 +153,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
       { qprofile: profile.key, activation: 'false' },
       organization
     );
+    const { actions = {} } = profile;
 
     return (
       <div className="boxed-group quality-profile-rules">
@@ -185,13 +188,27 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             </tbody>
           </table>
 
-          {profile.actions &&
-            profile.actions.edit &&
+          {actions.edit &&
             !profile.isBuiltIn && (
               <div className="text-right big-spacer-top">
                 <Link className="button js-activate-rules" to={activateMoreUrl}>
                   {translate('quality_profiles.activate_more')}
                 </Link>
+              </div>
+            )}
+
+          {/* if a user is allowed to `copy` a profile if they are a global or organization admin */}
+          {/* this user could potentially active more rules if the profile was not built-in */}
+          {/* in such cases it's better to show the button but disable it with a tooltip */}
+          {actions.copy &&
+            profile.isBuiltIn && (
+              <div className="text-right big-spacer-top">
+                <DocTooltip
+                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/activate-rules-in-built-in-profile.md')}>
+                  <Button className="disabled js-activate-rules">
+                    {translate('quality_profiles.activate_more')}
+                  </Button>
+                </DocTooltip>
               </div>
             )}
         </div>
