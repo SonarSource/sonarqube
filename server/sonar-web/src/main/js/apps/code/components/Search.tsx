@@ -21,26 +21,23 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import Components from './Components';
-import { Component } from '../types';
 import { getTree } from '../../../api/components';
-import { BranchLike } from '../../../app/types';
+import { BranchLike, ComponentMeasure } from '../../../app/types';
 import SearchBox from '../../../components/controls/SearchBox';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import { parseError } from '../../../helpers/request';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   branchLike?: BranchLike;
-  component: Component;
+  component: ComponentMeasure;
   location: {};
-  onError: (error: string) => void;
 }
 
 interface State {
   query: string;
   loading: boolean;
-  results?: Component[];
+  results?: ComponentMeasure[];
   selectedIndex?: number;
 }
 
@@ -78,14 +75,14 @@ export default class Search extends React.PureComponent<Props, State> {
 
   handleSelectNext() {
     const { selectedIndex, results } = this.state;
-    if (results != null && selectedIndex != null && selectedIndex < results.length - 1) {
+    if (results && selectedIndex !== undefined && selectedIndex < results.length - 1) {
       this.setState({ selectedIndex: selectedIndex + 1 });
     }
   }
 
   handleSelectPrevious() {
     const { selectedIndex, results } = this.state;
-    if (results != null && selectedIndex != null && selectedIndex > 0) {
+    if (results && selectedIndex !== undefined && selectedIndex > 0) {
       this.setState({ selectedIndex: selectedIndex - 1 });
     }
   }
@@ -93,7 +90,7 @@ export default class Search extends React.PureComponent<Props, State> {
   handleSelectCurrent() {
     const { branchLike, component } = this.props;
     const { results, selectedIndex } = this.state;
-    if (results != null && selectedIndex != null) {
+    if (results && selectedIndex !== undefined) {
       const selected = results[selectedIndex];
 
       if (selected.refKey) {
@@ -127,7 +124,7 @@ export default class Search extends React.PureComponent<Props, State> {
 
   handleSearch = (query: string) => {
     if (this.mounted) {
-      const { branchLike, component, onError } = this.props;
+      const { branchLike, component } = this.props;
       this.setState({ loading: true });
 
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
@@ -149,10 +146,9 @@ export default class Search extends React.PureComponent<Props, State> {
             });
           }
         })
-        .catch(e => {
+        .catch(() => {
           if (this.mounted) {
             this.setState({ loading: false });
-            parseError(e).then(onError);
           }
         });
     }
@@ -170,9 +166,9 @@ export default class Search extends React.PureComponent<Props, State> {
   render() {
     const { component } = this.props;
     const { loading, selectedIndex, results } = this.state;
-    const selected = selectedIndex != null && results != null ? results[selectedIndex] : undefined;
+    const selected = selectedIndex !== undefined && results ? results[selectedIndex] : undefined;
     const containerClassName = classNames('code-search', {
-      'code-search-with-results': results != null
+      'code-search-with-results': Boolean(results)
     });
     const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
 
@@ -189,11 +185,12 @@ export default class Search extends React.PureComponent<Props, State> {
         />
         {loading && <i className="spinner spacer-left" />}
 
-        {results != null && (
+        {results && (
           <div className="boxed-group boxed-group-inner spacer-top">
             <Components
               branchLike={this.props.branchLike}
               components={results}
+              metrics={{}}
               rootComponent={component}
               selected={selected}
             />

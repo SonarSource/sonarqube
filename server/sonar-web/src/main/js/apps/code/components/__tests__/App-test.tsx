@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable camelcase */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import App from '../App';
+import { App } from '../App';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { retrieveComponent } from '../../utils';
 
@@ -33,6 +34,11 @@ jest.mock('../../utils', () => ({
   }),
   retrieveComponentChildren: () => Promise.resolve()
 }));
+
+const METRICS = {
+  coverage: { id: '2', key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
+  new_bugs: { id: '4', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
+};
 
 beforeEach(() => {
   (retrieveComponent as jest.Mock<any>).mockClear();
@@ -80,7 +86,9 @@ const getWrapper = () => {
         organization: 'foo',
         qualifier: 'FOO'
       }}
+      fetchMetrics={jest.fn()}
       location={{ query: { branch: 'b', id: 'foo', line: '7' } }}
+      metrics={METRICS}
     />
   );
 };

@@ -17,29 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Breadcrumb, Component } from './types';
+import { ComponentMeasure, Breadcrumb } from '../../app/types';
 
-let bucket: { [key: string]: Component } = {};
+let bucket: { [key: string]: ComponentMeasure } = {};
 let childrenBucket: {
   [key: string]: {
-    children: Component[];
+    children: ComponentMeasure[];
     page: number;
     total: number;
   };
 } = {};
 let breadcrumbsBucket: { [key: string]: Breadcrumb[] } = {};
 
-export function addComponent(component: Component): void {
+export function addComponent(component: ComponentMeasure): void {
   bucket[component.key] = component;
 }
 
-export function getComponent(componentKey: string): Component {
+export function getComponent(componentKey: string): ComponentMeasure {
   return bucket[componentKey];
 }
 
 export function addComponentChildren(
   componentKey: string,
-  children: Component[],
+  children: ComponentMeasure[],
   total: number,
   page: number
 ): void {
@@ -53,7 +53,7 @@ export function addComponentChildren(
 export function getComponentChildren(
   componentKey: string
 ): {
-  children: Component[];
+  children: ComponentMeasure[];
   page: number;
   total: number;
 } {

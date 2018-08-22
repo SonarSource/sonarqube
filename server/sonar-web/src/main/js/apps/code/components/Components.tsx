@@ -21,24 +21,27 @@ import * as React from 'react';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
-import { Component as IComponent } from '../types';
-import { BranchLike } from '../../../app/types';
+import { BranchLike, ComponentMeasure, Metric } from '../../../app/types';
+import { getCodeMetrics } from '../utils';
 
 interface Props {
-  baseComponent?: IComponent;
+  baseComponent?: ComponentMeasure;
   branchLike?: BranchLike;
-  components: IComponent[];
-  rootComponent: IComponent;
-  selected?: IComponent;
+  components: ComponentMeasure[];
+  metrics: { [metric: string]: Metric };
+  rootComponent: ComponentMeasure;
+  selected?: ComponentMeasure;
 }
 
 export default function Components(props: Props) {
   const { baseComponent, branchLike, components, rootComponent, selected } = props;
+  const metricKeys = getCodeMetrics(rootComponent.qualifier, branchLike);
+  const metrics = metricKeys.map(metric => props.metrics[metric]).filter(Boolean);
   return (
     <table className="data zebra">
       <ComponentsHeader
         baseComponent={baseComponent}
-        branchLike={branchLike}
+        metrics={metricKeys}
         rootComponent={rootComponent}
       />
       {baseComponent && (
@@ -47,6 +50,7 @@ export default function Components(props: Props) {
             branchLike={branchLike}
             component={baseComponent}
             key={baseComponent.key}
+            metrics={metrics}
             rootComponent={rootComponent}
           />
           <tr className="blank">
@@ -62,6 +66,7 @@ export default function Components(props: Props) {
               canBrowse={true}
               component={component}
               key={component.key}
+              metrics={metrics}
               previous={index > 0 ? list[index - 1] : undefined}
               rootComponent={rootComponent}
               selected={component === selected}

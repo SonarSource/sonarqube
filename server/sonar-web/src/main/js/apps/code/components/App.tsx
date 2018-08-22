@@ -17,43 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
+import * as classNames from 'classnames';
+import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import Search from './Search';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
-import { Component as CodeComponent } from '../types';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
-import { Component, BranchLike } from '../../../app/types';
+import { Breadcrumb, Component, ComponentMeasure, BranchLike, Metric } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { fetchMetrics } from '../../../store/rootActions';
+import { getMetrics } from '../../../store/rootReducer';
 import { isSameBranchLike } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import { parseError } from '../../../helpers/request';
 import '../code.css';
 
-interface Props {
+interface StateToProps {
+  metrics: { [metric: string]: Metric };
+}
+
+interface DispatchToProps {
+  fetchMetrics: () => void;
+}
+
+interface OwnProps {
   branchLike?: BranchLike;
   component: Component;
   location: { query: { [x: string]: string } };
 }
 
+type Props = StateToProps & DispatchToProps & OwnProps;
+
 interface State {
-  baseComponent?: CodeComponent;
-  breadcrumbs: Array<CodeComponent>;
-  components?: Array<CodeComponent>;
-  error?: string;
+  baseComponent?: ComponentMeasure;
+  breadcrumbs: Breadcrumb[];
+  components?: ComponentMeasure[];
   loading: boolean;
   page: number;
-  searchResults?: Array<CodeComponent>;
-  sourceViewer?: CodeComponent;
+  searchResults?: ComponentMeasure[];
+  sourceViewer?: ComponentMeasure;
   total: number;
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     loading: true,
@@ -64,6 +74,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    this.props.fetchMetrics();
     this.handleComponentChange();
   }
 
@@ -90,28 +101,19 @@ export default class App extends React.PureComponent<Props, State> {
     addComponentBreadcrumbs(component.key, component.breadcrumbs);
 
     this.setState({ loading: true });
-    const isPortfolio = ['VW', 'SVW'].includes(component.qualifier);
-    retrieveComponentChildren(component.key, isPortfolio, branchLike)
-      .then(() => {
-        addComponent(component);
-        if (this.mounted) {
-          this.handleUpdate();
-        }
-      })
-      .catch(e => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-          parseError(e).then(this.handleError);
-        }
-      });
+    retrieveComponentChildren(component.key, component.qualifier, branchLike).then(() => {
+      addComponent(component);
+      if (this.mounted) {
+        this.handleUpdate();
+      }
+    }, this.stopLoading);
   }
 
   loadComponent(componentKey: string) {
     this.setState({ loading: true });
 
-    const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    retrieveComponent(componentKey, isPortfolio, this.props.branchLike)
-      .then(r => {
+    retrieveComponent(componentKey, this.props.component.qualifier, this.props.branchLike).then(
+      r => {
         if (this.mounted) {
           if (['FIL', 'UTS'].includes(r.component.qualifier)) {
             this.setState({
@@ -133,13 +135,9 @@ export default class App extends React.PureComponent<Props, State> {
             });
           }
         }
-      })
-      .catch(e => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-          parseError(e).then(this.handleError);
-        }
-      });
+      },
+      this.stopLoading
+    );
   }
 
   handleUpdate() {
@@ -155,42 +153,31 @@ export default class App extends React.PureComponent<Props, State> {
     if (!baseComponent || !components) {
       return;
     }
-    const isPortfolio = ['VW', 'SVW'].includes(this.props.component.qualifier);
-    loadMoreChildren(baseComponent.key, page + 1, isPortfolio, this.props.branchLike)
-      .then(r => {
-        if (this.mounted) {
-          this.setState({
-            components: [...components, ...r.components],
-            page: r.page,
-            total: r.total
-          });
-        }
-      })
-      .catch(e => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-          parseError(e).then(this.handleError);
-        }
-      });
+    loadMoreChildren(
+      baseComponent.key,
+      page + 1,
+      this.props.component.qualifier,
+      this.props.branchLike
+    ).then(r => {
+      if (this.mounted) {
+        this.setState({
+          components: [...components, ...r.components],
+          page: r.page,
+          total: r.total
+        });
+      }
+    }, this.stopLoading);
   };
 
-  handleError = (error: string) => {
+  stopLoading = () => {
     if (this.mounted) {
-      this.setState({ error });
+      this.setState({ loading: false });
     }
   };
 
   render() {
     const { branchLike, component, location } = this.props;
-    const {
-      loading,
-      error,
-      baseComponent,
-      components,
-      breadcrumbs,
-      total,
-      sourceViewer
-    } = this.state;
+    const { loading, baseComponent, components, breadcrumbs, total, sourceViewer } = this.state;
     const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
     const componentsClassName = classNames('boxed-group', 'boxed-group-inner', 'spacer-top', {
@@ -207,14 +194,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Suggestions suggestions="code" />
         <Helmet title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
 
-        {error && <div className="alert alert-danger">{error}</div>}
-
-        <Search
-          branchLike={branchLike}
-          component={component}
-          location={location}
-          onError={this.handleError}
-        />
+        <Search branchLike={branchLike} component={component} location={location} />
 
         <div className="code-components">
           {shouldShowBreadcrumbs && (
@@ -232,6 +212,7 @@ export default class App extends React.PureComponent<Props, State> {
                   baseComponent={baseComponent}
                   branchLike={branchLike}
                   components={components}
+                  metrics={this.props.metrics}
                   rootComponent={component}
                 />
               </div>
@@ -252,3 +233,14 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: any): StateToProps => ({
+  metrics: getMetrics(state)
+});
+
+const mapDispatchToProps: DispatchToProps = { fetchMetrics };
+
+export default connect<StateToProps, DispatchToProps, Props>(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

@@ -1,0 +1,160 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<table
+  className="data zebra"
+>
+  <ComponentsHeader
+    baseComponent={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "qualifier": "TRK",
+      }
+    }
+    metrics={
+      Array [
+        "ncloc",
+        "bugs",
+        "vulnerabilities",
+        "code_smells",
+        "coverage",
+        "duplicated_lines_density",
+      ]
+    }
+    rootComponent={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "qualifier": "TRK",
+      }
+    }
+  />
+  <tbody>
+    <Component
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      key="foo"
+      metrics={
+        Array [
+          Object {
+            "id": "1",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      rootComponent={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+    />
+    <tr
+      className="blank"
+    >
+      <td
+        colSpan={8}
+      >
+         
+      </td>
+    </tr>
+  </tbody>
+  <tbody>
+    <Component
+      canBrowse={true}
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      key="foo"
+      metrics={
+        Array [
+          Object {
+            "id": "1",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      rootComponent={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      selected={false}
+    />
+  </tbody>
+</table>
+`;
+
+exports[`renders correctly for a search 1`] = `
+<table
+  className="data zebra"
+>
+  <ComponentsHeader
+    metrics={
+      Array [
+        "ncloc",
+        "bugs",
+        "vulnerabilities",
+        "code_smells",
+        "coverage",
+        "duplicated_lines_density",
+      ]
+    }
+    rootComponent={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "qualifier": "TRK",
+      }
+    }
+  />
+  <tbody>
+    <Component
+      canBrowse={true}
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      key="foo"
+      metrics={
+        Array [
+          Object {
+            "id": "1",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      rootComponent={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      selected={false}
+    />
+  </tbody>
+</table>
+`;

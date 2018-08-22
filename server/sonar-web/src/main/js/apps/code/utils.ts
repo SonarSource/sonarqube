@@ -26,28 +26,35 @@ import {
   addComponentBreadcrumbs,
   getComponentBreadcrumbs
 } from './bucket';
-import { Breadcrumb, Component } from './types';
 import { getChildren, getComponent, getBreadcrumbs } from '../../api/components';
-import { BranchLike } from '../../app/types';
-import { getBranchLikeQuery } from '../../helpers/branches';
+import { BranchLike, ComponentMeasure, Breadcrumb } from '../../app/types';
+import { getBranchLikeQuery, isShortLivingBranch, isPullRequest } from '../../helpers/branches';
 
 const METRICS = [
   'ncloc',
-  'code_smells',
   'bugs',
   'vulnerabilities',
+  'code_smells',
   'coverage',
-  'duplicated_lines_density',
-  'alert_status'
+  'duplicated_lines_density'
 ];
+
+const APPLICATION_METRICS = ['alert_status', ...METRICS];
 
 const PORTFOLIO_METRICS = [
   'releasability_rating',
-  'alert_status',
   'reliability_rating',
   'security_rating',
   'sqale_rating',
   'ncloc'
+];
+
+const LEAK_METRICS = [
+  'new_lines',
+  'new_bugs',
+  'new_vulnerabilities',
+  'new_code_smells',
+  'new_coverage'
 ];
 
 const PAGE_SIZE = 100;
@@ -57,7 +64,7 @@ function requestChildren(
   metrics: string[],
   page: number,
   branchLike?: BranchLike
-): Promise<Component[]> {
+): Promise<ComponentMeasure[]> {
   return getChildren(componentKey, metrics, {
     p: page,
     ps: PAGE_SIZE,
@@ -76,12 +83,12 @@ function requestAllChildren(
   componentKey: string,
   metrics: string[],
   branchLike?: BranchLike
-): Promise<Component[]> {
+): Promise<ComponentMeasure[]> {
   return requestChildren(componentKey, metrics, 1, branchLike);
 }
 
 interface Children {
-  components: Component[];
+  components: ComponentMeasure[];
   page: number;
   total: number;
 }
@@ -93,7 +100,7 @@ interface ExpandRootDirFunc {
 function expandRootDir(metrics: string[], branchLike?: BranchLike): ExpandRootDirFunc {
   return function({ components, total, ...other }) {
     const rootDir = components.find(
-      (component: Component) => component.qualifier === 'DIR' && component.name === '/'
+      (component: ComponentMeasure) => component.qualifier === 'DIR' && component.name === '/'
     );
     if (rootDir) {
       return requestAllChildren(rootDir.key, metrics, branchLike).then(rootDirComponents => {
@@ -107,6 +114,10 @@ function expandRootDir(metrics: string[], branchLike?: BranchLike): ExpandRootDi
   };
 }
 
+function showLeakMeasure(branchLike?: BranchLike) {
+  return isShortLivingBranch(branchLike) || isPullRequest(branchLike);
+}
+
 function prepareChildren(r: any): Children {
   return {
     components: r.components,
@@ -115,13 +126,13 @@ function prepareChildren(r: any): Children {
   };
 }
 
-function skipRootDir(breadcrumbs: Component[]) {
+function skipRootDir(breadcrumbs: ComponentMeasure[]) {
   return breadcrumbs.filter(component => {
     return !(component.qualifier === 'DIR' && component.name === '/');
   });
 }
 
-function storeChildrenBase(children: Component[]) {
+function storeChildrenBase(children: ComponentMeasure[]) {
   children.forEach(addComponent);
 }
 
@@ -135,21 +146,26 @@ function storeChildrenBreadcrumbs(parentComponentKey: string, children: Breadcru
   }
 }
 
-function getMetrics(isPortfolio: boolean) {
-  return isPortfolio ? PORTFOLIO_METRICS : METRICS;
+export function getCodeMetrics(qualifier: string, branchLike?: BranchLike) {
+  if (['VW', 'SVW'].includes(qualifier)) {
+    return PORTFOLIO_METRICS;
+  }
+  if (qualifier === 'APP') {
+    return APPLICATION_METRICS;
+  }
+  if (showLeakMeasure(branchLike)) {
+    return LEAK_METRICS;
+  }
+  return METRICS;
 }
 
-function retrieveComponentBase(
-  componentKey: string,
-  isPortfolio: boolean,
-  branchLike?: BranchLike
-) {
+function retrieveComponentBase(componentKey: string, qualifier: string, branchLike?: BranchLike) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
   }
 
-  const metrics = getMetrics(isPortfolio);
+  const metrics = getCodeMetrics(qualifier, branchLike);
 
   return getComponent({
     componentKey,
@@ -163,9 +179,9 @@ function retrieveComponentBase(
 
 export function retrieveComponentChildren(
   componentKey: string,
-  isPortfolio: boolean,
+  qualifier: string,
   branchLike?: BranchLike
-): Promise<{ components: Component[]; page: number; total: number }> {
+): Promise<{ components: ComponentMeasure[]; page: number; total: number }> {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
@@ -175,7 +191,7 @@ export function retrieveComponentChildren(
     });
   }
 
-  const metrics = getMetrics(isPortfolio);
+  const metrics = getCodeMetrics(qualifier, branchLike);
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
@@ -211,26 +227,26 @@ function retrieveComponentBreadcrumbs(
 
 export function retrieveComponent(
   componentKey: string,
-  isPortfolio: boolean,
+  qualifier: string,
   branchLike?: BranchLike
 ): Promise<{
-  breadcrumbs: Component[];
-  component: Component;
-  components: Component[];
+  breadcrumbs: Breadcrumb[];
+  component: ComponentMeasure;
+  components: ComponentMeasure[];
   page: number;
   total: number;
 }> {
   return Promise.all([
-    retrieveComponentBase(componentKey, isPortfolio, branchLike),
-    retrieveComponentChildren(componentKey, isPortfolio, branchLike),
+    retrieveComponentBase(componentKey, qualifier, branchLike),
+    retrieveComponentChildren(componentKey, qualifier, branchLike),
     retrieveComponentBreadcrumbs(componentKey, branchLike)
   ]).then(r => {
     return {
+      breadcrumbs: r[2],
       component: r[0],
       components: r[1].components,
-      total: r[1].total,
       page: r[1].page,
-      breadcrumbs: r[2]
+      total: r[1].total
     };
   });
 }
@@ -238,10 +254,10 @@ export function retrieveComponent(
 export function loadMoreChildren(
   componentKey: string,
   page: number,
-  isPortfolio: boolean,
+  qualifier: string,
   branchLike?: BranchLike
 ): Promise<Children> {
-  const metrics = getMetrics(isPortfolio);
+  const metrics = getCodeMetrics(qualifier, branchLike);
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,

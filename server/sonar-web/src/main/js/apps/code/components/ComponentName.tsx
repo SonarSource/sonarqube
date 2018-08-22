@@ -20,15 +20,14 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import Truncated from './Truncated';
-import { Component } from '../types';
 import * as theme from '../../../app/theme';
-import { BranchLike } from '../../../app/types';
+import { BranchLike, ComponentMeasure } from '../../../app/types';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import { translate } from '../../../helpers/l10n';
 
-function getTooltip(component: Component) {
+function getTooltip(component: ComponentMeasure) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
   if (isFile && component.path) {
     return component.path + '\n\n' + component.key;
@@ -55,9 +54,9 @@ function mostCommitPrefix(strings: string[]) {
 interface Props {
   branchLike?: BranchLike;
   canBrowse?: boolean;
-  component: Component;
-  previous?: Component;
-  rootComponent: Component;
+  component: ComponentMeasure;
+  previous?: ComponentMeasure;
+  rootComponent: ComponentMeasure;
 }
 
 export default function ComponentName(props: Props) {

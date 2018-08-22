@@ -19,20 +19,21 @@
  */
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
-import { Component } from '../types';
+import { Metric, ComponentMeasure as IComponentMeasure } from '../../../app/types';
+import { isDiffMetric } from '../../../helpers/measures';
+import { getLeakValue } from '../../../components/measure/utils';
 
 interface Props {
-  component: Component;
-  metricKey: string;
-  metricType: string;
+  component: IComponentMeasure;
+  metric: Metric;
 }
 
-export default function ComponentMeasure({ component, metricKey, metricType }: Props) {
+export default function ComponentMeasure({ component, metric }: Props) {
   const isProject = component.qualifier === 'TRK';
-  const isReleasability = metricKey === 'releasability_rating';
+  const isReleasability = metric.key === 'releasability_rating';
 
-  const finalMetricKey = isProject && isReleasability ? 'alert_status' : metricKey;
-  const finalMetricType = isProject && isReleasability ? 'LEVEL' : metricType;
+  const finalMetricKey = isProject && isReleasability ? 'alert_status' : metric.key;
+  const finalMetricType = isProject && isReleasability ? 'LEVEL' : metric.type;
 
   const measure =
     Array.isArray(component.measures) &&
@@ -42,5 +43,6 @@ export default function ComponentMeasure({ component, metricKey, metricType }: P
     return <span />;
   }
 
-  return <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={measure.value} />;
+  const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure.value;
+  return <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />;
 }

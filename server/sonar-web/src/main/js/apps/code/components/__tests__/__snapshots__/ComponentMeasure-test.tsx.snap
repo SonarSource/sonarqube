@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<Measure
+  metricKey="coverage"
+  metricType="PERCENT"
+  value="3.0"
+/>
+`;
+
+exports[`renders correctly for leak values 1`] = `
+<Measure
+  metricKey="new_coverage"
+  metricType="PERCENT"
+  value="10.0"
+/>
+`;
+
+exports[`renders correctly when no measure found 1`] = `<span />`;

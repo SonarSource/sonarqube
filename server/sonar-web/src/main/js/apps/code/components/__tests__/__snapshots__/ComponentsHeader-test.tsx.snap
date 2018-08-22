@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly for a search 1`] = `
+<thead>
+  <tr
+    className="code-components-header"
+  >
+    <th
+      className="thin nowrap"
+    >
+       
+    </th>
+    <th>
+       
+    </th>
+  </tr>
+</thead>
+`;
+
+exports[`renders correctly for portfolios 1`] = `
+<thead>
+  <tr
+    className="code-components-header"
+  >
+    <th
+      className="thin nowrap"
+    >
+       
+    </th>
+    <th>
+       
+    </th>
+    <th
+      className="thin nowrap text-right"
+      key="metric_domain.Releasability"
+    >
+      metric_domain.Releasability
+    </th>
+    <th
+      className="thin nowrap text-right code-components-cell"
+      key="metric_domain.Reliability"
+    >
+      metric_domain.Reliability
+    </th>
+    <th
+      className="thin nowrap text-right code-components-cell"
+      key="metric_domain.Security"
+    >
+      metric_domain.Security
+    </th>
+    <th
+      className="thin nowrap text-right code-components-cell"
+      key="metric_domain.Maintainability"
+    >
+      metric_domain.Maintainability
+    </th>
+    <th
+      className="thin nowrap text-right code-components-cell"
+      key="metric.ncloc.name"
+    >
+      metric.ncloc.name
+    </th>
+  </tr>
+</thead>
+`;
+
+exports[`renders correctly for projects 1`] = `
+<thead>
+  <tr
+    className="code-components-header"
+  >
+    <th
+      className="thin nowrap"
+    >
+       
+    </th>
+    <th>
+       
+    </th>
+    <th
+      className="thin nowrap text-right"
+      key="metric.foo.name"
+    >
+      metric.foo.name
+    </th>
+    <th
+      className="thin nowrap text-right code-components-cell"
+      key="metric.bar.name"
+    >
+      metric.bar.name
+    </th>
+  </tr>
+</thead>
+`;

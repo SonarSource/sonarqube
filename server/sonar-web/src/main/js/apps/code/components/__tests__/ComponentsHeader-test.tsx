@@ -17,17 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Measure } from '../../app/types';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ComponentsHeader from '../ComponentsHeader';
 
-export interface Component extends Breadcrumb {
-  branch?: string;
-  measures?: Measure[];
-  path?: string;
-  refKey?: string;
-}
+const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
+const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: 'VW' };
+const METRICS = ['foo', 'bar'];
 
-export interface Breadcrumb {
-  key: string;
-  name: string;
-  qualifier: string;
-}
+it('renders correctly for projects', () => {
+  expect(
+    shallow(
+      <ComponentsHeader baseComponent={COMPONENT} metrics={METRICS} rootComponent={COMPONENT} />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders correctly for portfolios', () => {
+  expect(
+    shallow(
+      <ComponentsHeader baseComponent={PORTFOLIO} metrics={METRICS} rootComponent={PORTFOLIO} />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders correctly for a search', () => {
+  expect(
+    shallow(<ComponentsHeader metrics={METRICS} rootComponent={COMPONENT} />)
+  ).toMatchSnapshot();
+});

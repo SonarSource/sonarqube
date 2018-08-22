@@ -23,9 +23,7 @@ import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentLink from './ComponentLink';
 import ComponentPin from './ComponentPin';
-import { Component as IComponent } from '../types';
-import { BranchLike } from '../../../app/types';
-import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
+import { BranchLike, Metric, ComponentMeasure as IComponentMeasure } from '../../../app/types';
 
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
@@ -33,9 +31,10 @@ const BOTTOM_OFFSET = 10;
 interface Props {
   branchLike?: BranchLike;
   canBrowse?: boolean;
-  component: IComponent;
-  previous?: IComponent;
-  rootComponent: IComponent;
+  component: IComponentMeasure;
+  metrics: Metric[];
+  previous?: IComponentMeasure;
+  rootComponent: IComponentMeasure;
   selected?: boolean;
 }
 
@@ -76,15 +75,13 @@ export default class Component extends React.PureComponent<Props> {
   render() {
     const {
       branchLike,
+      canBrowse = false,
       component,
-      rootComponent,
-      selected = false,
+      metrics,
       previous,
-      canBrowse = false
+      rootComponent,
+      selected = false
     } = this.props;
-    const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
-    const isApplication = rootComponent.qualifier === 'APP';
-    const hideCoverageAndDuplicates = isShortLivingBranch(branchLike) || isPullRequest(branchLike);
 
     let componentAction = null;
 
@@ -98,24 +95,6 @@ export default class Component extends React.PureComponent<Props> {
           componentAction = <ComponentLink branchLike={branchLike} component={component} />;
       }
     }
-
-    const columns = isPortfolio
-      ? [
-          { metric: 'releasability_rating', type: 'RATING' },
-          { metric: 'reliability_rating', type: 'RATING' },
-          { metric: 'security_rating', type: 'RATING' },
-          { metric: 'sqale_rating', type: 'RATING' },
-          { metric: 'ncloc', type: 'SHORT_INT' }
-        ]
-      : ([
-          isApplication && { metric: 'alert_status', type: 'LEVEL' },
-          { metric: 'ncloc', type: 'SHORT_INT' },
-          { metric: 'bugs', type: 'SHORT_INT' },
-          { metric: 'vulnerabilities', type: 'SHORT_INT' },
-          { metric: 'code_smells', type: 'SHORT_INT' },
-          !hideCoverageAndDuplicates && { metric: 'coverage', type: 'PERCENT' },
-          !hideCoverageAndDuplicates && { metric: 'duplicated_lines_density', type: 'PERCENT' }
-        ].filter(Boolean) as Array<{ metric: string; type: string }>);
 
     return (
       <tr className={classNames({ selected })} ref={node => (this.node = node)}>
@@ -132,14 +111,10 @@ export default class Component extends React.PureComponent<Props> {
           />
         </td>
 
-        {columns.map(column => (
-          <td className="thin nowrap text-right" key={column.metric}>
+        {metrics.map(metric => (
+          <td className="thin nowrap text-right" key={metric.key}>
             <div className="code-components-cell">
-              <ComponentMeasure
-                component={component}
-                metricKey={column.metric}
-                metricType={column.type}
-              />
+              <ComponentMeasure component={component} metric={metric} />
             </div>
           </td>
         ))}

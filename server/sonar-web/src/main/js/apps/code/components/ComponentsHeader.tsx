@@ -20,53 +20,48 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { translate } from '../../../helpers/l10n';
-import { Component } from '../types';
-import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
-import { BranchLike } from '../../../app/types';
+import { ComponentMeasure } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  baseComponent?: Component;
-  rootComponent: Component;
+  baseComponent?: ComponentMeasure;
+  metrics: string[];
+  rootComponent: ComponentMeasure;
 }
 
-export default function ComponentsHeader({ baseComponent, branchLike, rootComponent }: Props) {
-  const isPortfolio = rootComponent.qualifier === 'VW' || rootComponent.qualifier === 'SVW';
-  const isApplication = rootComponent.qualifier === 'APP';
-  const hideCoverageAndDuplicates = isShortLivingBranch(branchLike) || isPullRequest(branchLike);
+const SHORT_NAME_METRICS = ['duplicated_lines_density'];
 
-  const columns = isPortfolio
-    ? [
-        translate('metric_domain.Releasability'),
-        translate('metric_domain.Reliability'),
-        translate('metric_domain.Security'),
-        translate('metric_domain.Maintainability'),
-        translate('metric', 'ncloc', 'name')
-      ]
-    : ([
-        isApplication && translate('metric.alert_status.name'),
-        translate('metric', 'ncloc', 'name'),
-        translate('metric', 'bugs', 'name'),
-        translate('metric', 'vulnerabilities', 'name'),
-        translate('metric', 'code_smells', 'name'),
-        !hideCoverageAndDuplicates && translate('metric', 'coverage', 'name'),
-        !hideCoverageAndDuplicates && translate('metric', 'duplicated_lines_density', 'short_name')
-      ].filter(Boolean) as string[]);
+export default function ComponentsHeader({ baseComponent, metrics, rootComponent }: Props) {
+  const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
+  let columns: string[] = [];
+  if (isPortfolio) {
+    columns = [
+      translate('metric_domain.Releasability'),
+      translate('metric_domain.Reliability'),
+      translate('metric_domain.Security'),
+      translate('metric_domain.Maintainability'),
+      translate('metric', 'ncloc', 'name')
+    ];
+  } else {
+    columns = metrics.map(metric =>
+      translate('metric', metric, SHORT_NAME_METRICS.includes(metric) ? 'short_name' : 'name')
+    );
+  }
 
   return (
     <thead>
       <tr className="code-components-header">
         <th className="thin nowrap">&nbsp;</th>
         <th>&nbsp;</th>
-        {columns.map((column, index) => (
-          <th
-            className={classNames('thin', 'nowrap', 'text-right', {
-              'code-components-cell': index > 0
-            })}
-            key={column}>
-            {baseComponent && column}
-          </th>
-        ))}
+        {baseComponent &&
+          columns.map((column, index) => (
+            <th
+              className={classNames('thin', 'nowrap', 'text-right', {
+                'code-components-cell': index > 0
+              })}
+              key={column}>
+              {column}
+            </th>
+          ))}
       </tr>
     </thead>
   );
