@@ -67,19 +67,25 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
   };
 
   addFavorite() {
-    this.props.addFavorite().then(() => {
-      if (this.mounted) {
-        this.setState({ favorite: true });
-      }
-    });
+    this.props.addFavorite().then(
+      () => {
+        if (this.mounted) {
+          this.setState({ favorite: true });
+        }
+      },
+      () => {}
+    );
   }
 
   removeFavorite() {
-    this.props.removeFavorite().then(() => {
-      if (this.mounted) {
-        this.setState({ favorite: false });
-      }
-    });
+    this.props.removeFavorite().then(
+      () => {
+        if (this.mounted) {
+          this.setState({ favorite: false });
+        }
+      },
+      () => {}
+    );
   }
 
   render() {

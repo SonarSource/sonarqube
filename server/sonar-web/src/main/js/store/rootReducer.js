@@ -20,7 +20,6 @@
 import { combineReducers } from 'redux';
 import appState from './appState/duck';
 import users, * as fromUsers from './users/reducer';
-import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import metrics, * as fromMetrics from './metrics/reducer';
 import organizations, * as fromOrganizations from './organizations/duck';
@@ -33,7 +32,6 @@ import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReduce
 export default combineReducers({
   appState,
   globalMessages,
-  favorites,
   languages,
   metrics,
   organizations,
@@ -65,9 +63,6 @@ export const getUserByLogin = (state, login) => fromUsers.getUserByLogin(state.u
 export const getUsersByLogins = (state, logins) => fromUsers.getUsersByLogins(state.users, logins);
 
 export const getUsers = state => fromUsers.getUsers(state.users);
-
-export const isFavorite = (state, componentKey) =>
-  fromFavorites.isFavorite(state.favorites, componentKey);
 
 export const getMarketplaceState = state => state.marketplace;
 

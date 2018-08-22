@@ -27,7 +27,7 @@ import * as request from '../../../helpers/request';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import FavoriteContainer from '../../../components/controls/FavoriteContainer';
+import Favorite from '../../../components/controls/Favorite';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
@@ -86,7 +86,7 @@ const exposeLibraries = () => {
     DropdownIcon,
     DuplicationsRating,
     EditButton,
-    FavoriteContainer,
+    Favorite,
     HelpIcon,
     HelpTooltip,
     HomePageSelect,

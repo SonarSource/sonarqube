@@ -25,7 +25,7 @@ import MeasuresOverlay from './components/MeasuresOverlay';
 import { SourceViewerFile, BranchLike } from '../../app/types';
 import QualifierIcon from '../icons-components/QualifierIcon';
 import Dropdown from '../controls/Dropdown';
-import FavoriteContainer from '../controls/FavoriteContainer';
+import Favorite from '../controls/Favorite';
 import ListIcon from '../icons-components/ListIcon';
 import { ButtonIcon } from '../ui/buttons';
 import { PopupPlacement } from '../ui/popups';
@@ -122,7 +122,12 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               <span className="component-name-file">{fileFromPath(path)}</span>
               {this.props.sourceViewerFile.canMarkAsFavorite &&
                 (!this.props.branchLike || isMainBranch(this.props.branchLike)) && (
-                  <FavoriteContainer className="component-name-favorite" componentKey={key} />
+                  <Favorite
+                    className="component-name-favorite"
+                    component={key}
+                    favorite={this.props.sourceViewerFile.fav || false}
+                    qualifier={this.props.sourceViewerFile.q}
+                  />
                 )}
             </div>
           </div>

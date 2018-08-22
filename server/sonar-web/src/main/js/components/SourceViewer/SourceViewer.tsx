@@ -17,37 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dispatch } from 'redux';
-import { connect, Omit } from 'react-redux';
-import { Props } from './SourceViewerBase';
 import { lazyLoad } from '../lazyLoad';
-import { SourceViewerFile } from '../../app/types';
-import { receiveFavorites } from '../../store/favorites/duck';
 
-const mapStateToProps = null;
-
-interface DispatchProps {
-  onReceiveComponent: (component: SourceViewerFile) => void;
-}
-
-const onReceiveComponent = (component: SourceViewerFile) => (dispatch: Dispatch<any>) => {
-  if (component.canMarkAsFavorite) {
-    const favorites = [];
-    const notFavorites = [];
-    if (component.fav) {
-      favorites.push({ key: component.key });
-    } else {
-      notFavorites.push({ key: component.key });
-    }
-    dispatch(receiveFavorites(favorites, notFavorites));
-  }
-};
-
-const mapDispatchToProps: DispatchProps = { onReceiveComponent };
-
-type OwnProps = Omit<Props, keyof DispatchProps>;
-
-export default connect<null, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(lazyLoad(() => import(/* webpackPrefetch: true */ './SourceViewerBase')));
+const SourceViewer = lazyLoad(() => import(/* webpackPrefetch: true */ './SourceViewerBase'));
+export default SourceViewer;

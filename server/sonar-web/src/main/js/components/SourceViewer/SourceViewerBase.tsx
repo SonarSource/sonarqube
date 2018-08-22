@@ -67,17 +67,17 @@ export interface Props {
   // but kept to maintaint the location indexes
   highlightedLocations?: (FlowLocation | undefined)[];
   highlightedLocationMessage?: { index: number; text: string | undefined };
-  loadComponent?: (
+  loadComponent: (
     component: string,
     branchLike: BranchLike | undefined
   ) => Promise<SourceViewerFile>;
-  loadIssues?: (
+  loadIssues: (
     component: string,
     from: number,
     to: number,
     branchLike: BranchLike | undefined
   ) => Promise<Issue[]>;
-  loadSources?: (
+  loadSources: (
     component: string,
     from: number,
     to: number,
@@ -88,7 +88,6 @@ export interface Props {
   onIssueChange?: (issue: Issue) => void;
   onIssueSelect?: (issueKey: string) => void;
   onIssueUnselect?: () => void;
-  onReceiveComponent: (component: SourceViewerFile) => void;
   scroll?: (element: HTMLElement) => void;
   selectedIssue?: string;
 }
@@ -128,7 +127,10 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     displayAllIssues: false,
     displayIssueLocationsCount: true,
     displayIssueLocationsLink: true,
-    displayLocationMarkers: true
+    displayLocationMarkers: true,
+    loadComponent: defaultLoadComponent,
+    loadIssues: defaultLoadIssues,
+    loadSources: defaultLoadSources
   };
 
   constructor(props: Props) {
@@ -204,21 +206,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     this.mounted = false;
   }
 
-  // react typings do not take `defaultProps` into account,
-  // so use these getters to get type-safe methods
-
-  get safeLoadComponent() {
-    return this.props.loadComponent || defaultLoadComponent;
-  }
-
-  get safeLoadIssues() {
-    return this.props.loadIssues || defaultLoadIssues;
-  }
-
-  get safeLoadSources() {
-    return this.props.loadSources || defaultLoadSources;
-  }
-
   computeCoverageStatus(lines: SourceLine[]) {
     return lines.map(line => ({ ...line, coverageStatus: getCoverageStatus(line) }));
   }
@@ -237,7 +224,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
   fetchComponent() {
     this.setState({ loading: true });
     const loadIssues = (component: SourceViewerFile, sources: SourceLine[]) => {
-      this.safeLoadIssues(this.props.component, 1, LINES, this.props.branchLike).then(
+      this.props.loadIssues(this.props.component, 1, LINES, this.props.branchLike).then(
         issues => {
           if (this.mounted) {
             const finalSources = sources.slice(0, LINES);
@@ -301,7 +288,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     };
 
     const onResolve = (component: SourceViewerFile) => {
-      this.props.onReceiveComponent(component);
       const sourcesRequest =
         component.q === 'FIL' || component.q === 'UTS' ? this.loadSources() : Promise.resolve([]);
       sourcesRequest.then(
@@ -310,10 +296,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       );
     };
 
-    this.safeLoadComponent(this.props.component, this.props.branchLike).then(
-      onResolve,
-      onFailLoadComponent
-    );
+    this.props
+      .loadComponent(this.props.component, this.props.branchLike)
+      .then(onResolve, onFailLoadComponent);
   }
 
   fetchSources() {
@@ -346,25 +331,27 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     }
     const firstSourceLine = this.state.sources[0];
     const lastSourceLine = this.state.sources[this.state.sources.length - 1];
-    this.safeLoadIssues(
-      this.props.component,
-      firstSourceLine && firstSourceLine.line,
-      lastSourceLine && lastSourceLine.line,
-      this.props.branchLike
-    ).then(
-      issues => {
-        if (this.mounted) {
-          this.setState({
-            issues,
-            issuesByLine: issuesByLine(issues),
-            issueLocationsByLine: locationsByLine(issues)
-          });
+    this.props
+      .loadIssues(
+        this.props.component,
+        firstSourceLine && firstSourceLine.line,
+        lastSourceLine && lastSourceLine.line,
+        this.props.branchLike
+      )
+      .then(
+        issues => {
+          if (this.mounted) {
+            this.setState({
+              issues,
+              issuesByLine: issuesByLine(issues),
+              issueLocationsByLine: locationsByLine(issues)
+            });
+          }
+        },
+        () => {
+          // TODO
         }
-      },
-      () => {
-        // TODO
-      }
-    );
+      );
   }
 
   loadSources = (): Promise<SourceLine[]> => {
@@ -390,10 +377,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       // request one additional line to define `hasSourcesAfter`
       to++;
 
-      return this.safeLoadSources(this.props.component, from, to, this.props.branchLike).then(
-        sources => resolve(sources),
-        onFailLoadSources
-      );
+      return this.props
+        .loadSources(this.props.component, from, to, this.props.branchLike)
+        .then(sources => resolve(sources), onFailLoadSources);
     });
   };
 
@@ -404,46 +390,43 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     const firstSourceLine = this.state.sources[0];
     this.setState({ loadingSourcesBefore: true });
     const from = Math.max(1, firstSourceLine.line - LINES);
-    this.safeLoadSources(
-      this.props.component,
-      from,
-      firstSourceLine.line - 1,
-      this.props.branchLike
-    ).then(
-      sources => {
-        this.safeLoadIssues(
-          this.props.component,
-          from,
-          firstSourceLine.line - 1,
-          this.props.branchLike
-        ).then(
-          issues => {
-            if (this.mounted) {
-              this.setState(prevState => {
-                const nextIssues = uniqBy(
-                  [...issues, ...(prevState.issues || [])],
-                  issue => issue.key
-                );
-                return {
-                  issues: nextIssues,
-                  issuesByLine: issuesByLine(nextIssues),
-                  issueLocationsByLine: locationsByLine(nextIssues),
-                  loadingSourcesBefore: false,
-                  sources: [...this.computeCoverageStatus(sources), ...(prevState.sources || [])],
-                  symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources) }
-                };
-              });
-            }
-          },
-          () => {
-            // TODO
-          }
-        );
-      },
-      () => {
-        // TODO
-      }
-    );
+    this.props
+      .loadSources(this.props.component, from, firstSourceLine.line - 1, this.props.branchLike)
+      .then(
+        sources => {
+          this.props
+            .loadIssues(this.props.component, from, firstSourceLine.line - 1, this.props.branchLike)
+            .then(
+              issues => {
+                if (this.mounted) {
+                  this.setState(prevState => {
+                    const nextIssues = uniqBy(
+                      [...issues, ...(prevState.issues || [])],
+                      issue => issue.key
+                    );
+                    return {
+                      issues: nextIssues,
+                      issuesByLine: issuesByLine(nextIssues),
+                      issueLocationsByLine: locationsByLine(nextIssues),
+                      loadingSourcesBefore: false,
+                      sources: [
+                        ...this.computeCoverageStatus(sources),
+                        ...(prevState.sources || [])
+                      ],
+                      symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources) }
+                    };
+                  });
+                }
+              },
+              () => {
+                // TODO
+              }
+            );
+        },
+        () => {
+          // TODO
+        }
+      );
   };
 
   loadSourcesAfter = () => {
@@ -455,9 +438,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     const fromLine = lastSourceLine.line + 1;
     // request one additional line to define `hasSourcesAfter`
     const toLine = lastSourceLine.line + LINES + 1;
-    this.safeLoadSources(this.props.component, fromLine, toLine, this.props.branchLike).then(
+    this.props.loadSources(this.props.component, fromLine, toLine, this.props.branchLike).then(
       sources => {
-        this.safeLoadIssues(this.props.component, fromLine, toLine, this.props.branchLike).then(
+        this.props.loadIssues(this.props.component, fromLine, toLine, this.props.branchLike).then(
           issues => {
             if (this.mounted) {
               this.setState(prevState => {
@@ -749,13 +732,13 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
   }
 }
 
-function defaultLoadComponent(key: string, branchLike: BranchLike | undefined) {
+function defaultLoadComponent(component: string, branchLike: BranchLike | undefined) {
   return Promise.all([
-    getComponentForSourceViewer({ component: key, ...getBranchLikeQuery(branchLike) }),
-    getComponentData({ component: key, ...getBranchLikeQuery(branchLike) })
+    getComponentForSourceViewer({ component, ...getBranchLikeQuery(branchLike) }),
+    getComponentData({ component, ...getBranchLikeQuery(branchLike) })
   ]).then(([component, data]) => ({
     ...component,
-    leakPeriodDate: data.leakPeriodDate && parseDate(data.leakPeriodDate)
+    leakPeriodDate: data.leakPeriodDate
   }));
 }
 

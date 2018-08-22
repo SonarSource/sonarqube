@@ -26,7 +26,8 @@ import {
   MyProject,
   Metric,
   ComponentMeasure,
-  LightComponent
+  LightComponent,
+  SourceViewerFile
 } from '../app/types';
 
 export interface BaseSearchProjectsParameters {
@@ -287,7 +288,7 @@ export function getSuggestions(
 
 export function getComponentForSourceViewer(
   data: { component: string } & BranchParameters
-): Promise<any> {
+): Promise<SourceViewerFile> {
   return getJSON('/api/components/app', data);
 }
 

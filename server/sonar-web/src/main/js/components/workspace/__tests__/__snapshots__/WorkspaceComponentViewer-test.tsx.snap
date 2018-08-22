@@ -28,7 +28,7 @@ exports[`should render 1`] = `
       }
     }
   >
-    <Connect(LazyLoader)
+    <LazyLoader
       component="foo"
       onLoaded={[Function]}
     />
