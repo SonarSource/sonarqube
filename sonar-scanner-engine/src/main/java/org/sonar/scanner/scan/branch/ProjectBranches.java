@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.scan.branch;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -34,8 +34,20 @@ public class ProjectBranches {
 
   private final Map<String, BranchInfo> branches;
 
+  @Nullable
+  private final String defaultBranchName;
+
   public ProjectBranches(List<BranchInfo> branchInfos) {
-    branches = branchInfos.stream().collect(Collectors.toMap(BranchInfo::name, Function.identity()));
+    this.branches = new HashMap<>();
+    String mainBranchName = null;
+    for (BranchInfo branch : branchInfos) {
+      String branchName = branch.name();
+      this.branches.put(branchName, branch);
+      if (branch.isMain()) {
+        mainBranchName = branchName;
+      }
+    }
+    this.defaultBranchName = mainBranchName;
   }
 
   @CheckForNull
@@ -45,5 +57,10 @@ public class ProjectBranches {
 
   public boolean isEmpty() {
     return branches.isEmpty();
+  }
+
+  @CheckForNull
+  public String defaultBranchName() {
+    return defaultBranchName;
   }
 }
