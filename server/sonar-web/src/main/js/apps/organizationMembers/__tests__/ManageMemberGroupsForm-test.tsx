@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { mockEvent } from '../../../../../helpers/testUtils';
+import { mockEvent } from '../../../helpers/testUtils';
 import ManageMemberGroupsForm from '../ManageMemberGroupsForm';
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };

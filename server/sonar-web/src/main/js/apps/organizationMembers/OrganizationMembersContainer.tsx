@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getStore from '../../app/utils/getStore';
-import {
-  getOrganizationByKey,
-  areThereCustomOrganizations as customOrganizations
-} from '../rootReducer';
+import { connect } from 'react-redux';
+import OrganizationMembers from './OrganizationMembers';
+import { Organization } from '../../app/types';
+import { getOrganizationByKey } from '../../store/rootReducer';
 
-export function getOrganization(key: string) {
-  const store = getStore();
-  const state = store.getState();
-  return getOrganizationByKey(state, key);
+interface OwnProps {
+  params: { organizationKey: string };
 }
 
-export function areThereCustomOrganizations() {
-  const store = getStore();
-  const state = store.getState();
-  return customOrganizations(state);
+interface StateProps {
+  organization: Organization;
 }
+
+const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => {
+  const { organizationKey } = ownProps.params;
+  return {
+    organization: getOrganizationByKey(state, organizationKey)!
+  };
+};
+
+export default connect<StateProps, {}, OwnProps>(mapStateToProps)(OrganizationMembers);

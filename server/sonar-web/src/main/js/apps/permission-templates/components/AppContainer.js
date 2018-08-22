@@ -21,11 +21,10 @@ import { connect } from 'react-redux';
 import App from './App';
 import forSingleOrganization from '../../organizations/forSingleOrganization';
 import { getAppState } from '../../../store/rootReducer';
-import { getRootQualifiers } from '../../../store/appState/duck';
 
 const mapStateToProps = state => ({
   // treat applications as portfolios
-  topQualifiers: getRootQualifiers(getAppState(state)).filter(q => q !== 'APP')
+  topQualifiers: getAppState(state).qualifiers.filter(q => q !== 'APP')
 });
 
 export default forSingleOrganization(connect(mapStateToProps)(App));

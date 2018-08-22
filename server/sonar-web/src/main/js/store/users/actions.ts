@@ -22,17 +22,11 @@ import * as api from '../../api/users';
 import { CurrentUser, HomePage } from '../../app/types';
 
 export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
-export const RECEIVE_USER = 'RECEIVE_USER';
 export const SKIP_ONBOARDING = 'SKIP_ONBOARDING';
 export const SET_HOMEPAGE = 'SET_HOMEPAGE';
 
 export const receiveCurrentUser = (user: CurrentUser) => ({
   type: RECEIVE_CURRENT_USER,
-  user
-});
-
-export const receiveUser = (user: any) => ({
-  type: RECEIVE_USER,
   user
 });
 

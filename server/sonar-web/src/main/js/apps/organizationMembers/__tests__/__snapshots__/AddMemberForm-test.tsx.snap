@@ -1,23 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render and open the modal 1`] = `
-<Button
-  key="add-member-button"
-  onClick={[Function]}
->
-  organization.members.add
-</Button>
-`;
-
-exports[`should render and open the modal 2`] = `
-Array [
+<React.Fragment>
   <Button
+    key="add-member-button"
     onClick={[Function]}
   >
     organization.members.add
-  </Button>,
+  </Button>
+</React.Fragment>
+`;
+
+exports[`should render and open the modal 2`] = `
+<React.Fragment>
+  <Button
+    key="add-member-button"
+    onClick={[Function]}
+  >
+    organization.members.add
+  </Button>
   <Modal
     contentLabel="users.add"
+    key="add-member-modal"
     onRequestClose={[Function]}
   >
     <header
@@ -68,6 +72,6 @@ Array [
         </div>
       </footer>
     </form>
-  </Modal>,
-]
+  </Modal>
+</React.Fragment>
 `;

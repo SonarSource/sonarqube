@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SearchBox from '../../../components/controls/SearchBox';
-import { formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
+import SearchBox from '../../components/controls/SearchBox';
+import { formatMeasure } from '../../helpers/measures';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   handleSearch: (query?: string) => void;
@@ -35,7 +35,7 @@ export default function MembersListHeader({ handleSearch, total }: Props) {
         onChange={handleSearch}
         placeholder={translate('search.search_for_users')}
       />
-      {total != null && (
+      {total !== undefined && (
         <span className="pull-right little-spacer-top">
           <strong>{formatMeasure(total, 'INT')}</strong> {translate('organization.members.members')}
         </span>

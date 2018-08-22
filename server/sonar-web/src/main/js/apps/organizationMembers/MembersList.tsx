@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { sortBy } from 'lodash';
 import MembersListItem from './MembersListItem';
-import { Group, Organization, OrganizationMember } from '../../../app/types';
+import { Group, Organization, OrganizationMember } from '../../app/types';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   members: OrganizationMember[];
@@ -35,11 +37,18 @@ interface Props {
 
 export default class MembersList extends React.PureComponent<Props> {
   render() {
+    const { members } = this.props;
+
+    if (!members.length) {
+      return <div className="note">{translate('no_results')}</div>;
+    }
+
+    const sortedMembers = sortBy(members, member => member.name, member => member.login);
     return (
       <div className="boxed-group boxed-group-inner">
         <table className="data zebra">
           <tbody>
-            {this.props.members.map(member => (
+            {sortedMembers.map(member => (
               <MembersListItem
                 key={member.login}
                 member={member}

@@ -40,8 +40,8 @@ export type State = Array<Message>;
 type Action = Object;
 */
 
-export const ERROR = 'ERROR';
-export const SUCCESS = 'SUCCESS';
+const ERROR = 'ERROR';
+const SUCCESS = 'SUCCESS';
 
 /* Actions */
 const ADD_GLOBAL_MESSAGE = 'ADD_GLOBAL_MESSAGE';

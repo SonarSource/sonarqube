@@ -72,7 +72,3 @@ export default function(state: AppState = defaultValue, action: Action): AppStat
 
   return state;
 }
-
-export function getRootQualifiers(state: AppState): string[] | undefined {
-  return state.qualifiers;
-}

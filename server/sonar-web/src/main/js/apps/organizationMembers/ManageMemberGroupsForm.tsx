@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { keyBy, pickBy } from 'lodash';
-import { getUserGroups, UserGroup } from '../../../../api/users';
-import Modal from '../../../../components/controls/Modal';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
-import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
-import { Organization, OrganizationMember, Group } from '../../../../app/types';
+import { getUserGroups, UserGroup } from '../../api/users';
+import Modal from '../../components/controls/Modal';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import OrganizationGroupCheckbox from '../organizations/components/OrganizationGroupCheckbox';
+import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
+import { Organization, OrganizationMember, Group } from '../../app/types';
 
 interface Props {
   onClose: () => void;

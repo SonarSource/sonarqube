@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import UsersSelectSearch from '../../../users/components/UsersSelectSearch';
-import { searchMembers } from '../../../../api/organizations';
-import Modal from '../../../../components/controls/Modal';
-import { translate } from '../../../../helpers/l10n';
-import { SubmitButton, ResetButtonLink, Button } from '../../../../components/ui/buttons';
-import { Organization, OrganizationMember } from '../../../../app/types';
+import UsersSelectSearch from '../users/components/UsersSelectSearch';
+import { searchMembers } from '../../api/organizations';
+import Modal from '../../components/controls/Modal';
+import { translate } from '../../helpers/l10n';
+import { SubmitButton, ResetButtonLink, Button } from '../../components/ui/buttons';
+import { Organization, OrganizationMember } from '../../app/types';
 
 interface Props {
   addMember: (member: OrganizationMember) => void;
@@ -103,14 +103,13 @@ export default class AddMemberForm extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const buttonComponent = (
-      <Button key="add-member-button" onClick={this.openForm}>
-        {translate('organization.members.add')}
-      </Button>
+    return (
+      <>
+        <Button key="add-member-button" onClick={this.openForm}>
+          {translate('organization.members.add')}
+        </Button>
+        {this.state.open && this.renderModal()}
+      </>
     );
-    if (this.state.open) {
-      return [buttonComponent, this.renderModal()];
-    }
-    return buttonComponent;
   }
 }

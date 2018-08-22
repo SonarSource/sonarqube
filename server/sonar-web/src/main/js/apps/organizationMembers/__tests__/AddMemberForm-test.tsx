@@ -19,8 +19,13 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../../helpers/testUtils';
+import { click, submit } from '../../../helpers/testUtils';
 import AddMemberForm from '../AddMemberForm';
+import { searchMembers } from '../../../api/organizations';
+
+jest.mock('../../../api/organizations', () => ({
+  searchMembers: jest.fn().mockResolvedValue({ paging: {}, users: [] })
+}));
 
 const memberLogins = ['admin'];
 
@@ -34,9 +39,7 @@ it('should render and open the modal', () => {
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ open: true });
-
-  // FIXME Can probably be removed when https://github.com/airbnb/enzyme/issues/1149 is resolved
-  expect(wrapper.first().getElements()).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should correctly handle user interactions', () => {
@@ -51,4 +54,47 @@ it('should correctly handle user interactions', () => {
   expect(wrapper.state('open')).toBeTruthy();
   (wrapper.instance() as AddMemberForm).closeForm();
   expect(wrapper.state('open')).toBeFalsy();
+});
+
+it('should search users', () => {
+  const wrapper = shallow(
+    <AddMemberForm
+      addMember={jest.fn()}
+      memberLogins={memberLogins}
+      organization={{ key: 'foo', name: 'Foo' }}
+    />
+  );
+  click(wrapper.find('Button'));
+
+  wrapper.find('UsersSelectSearch').prop<Function>('searchUsers')('foo', 100);
+  expect(searchMembers).lastCalledWith({
+    organization: 'foo',
+    ps: 100,
+    q: 'foo',
+    selected: 'deselected'
+  });
+
+  wrapper.find('UsersSelectSearch').prop<Function>('searchUsers')('', 100);
+  expect(searchMembers).lastCalledWith({
+    organization: 'foo',
+    ps: 100,
+    selected: 'deselected'
+  });
+});
+
+it('should select user', () => {
+  const addMember = jest.fn();
+  const user = { login: 'luke', name: 'Luke' };
+  const wrapper = shallow(
+    <AddMemberForm
+      addMember={addMember}
+      memberLogins={memberLogins}
+      organization={{ key: 'foo', name: 'Foo' }}
+    />
+  );
+  click(wrapper.find('Button'));
+
+  wrapper.find('UsersSelectSearch').prop<Function>('handleValueChange')(user);
+  submit(wrapper.find('form'));
+  expect(addMember).toBeCalledWith(user);
 });

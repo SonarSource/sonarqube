@@ -23,7 +23,6 @@ import users, * as fromUsers from './users/reducer';
 import languages, * as fromLanguages from './languages/reducer';
 import metrics, * as fromMetrics from './metrics/reducer';
 import organizations, * as fromOrganizations from './organizations/duck';
-import organizationsMembers, * as fromOrganizationsMembers from './organizationsMembers/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
 import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
@@ -35,7 +34,6 @@ export default combineReducers({
   languages,
   metrics,
   organizations,
-  organizationsMembers,
   users,
 
   // apps
@@ -51,24 +49,11 @@ export const getGlobalMessages = state =>
 
 export const getLanguages = state => fromLanguages.getLanguages(state.languages);
 
-export const getLanguageByKey = (state, key) =>
-  fromLanguages.getLanguageByKey(state.languages, key);
-
 export const getCurrentUser = state => fromUsers.getCurrentUser(state.users);
-
-export const getUserLogins = state => fromUsers.getUserLogins(state.users);
-
-export const getUserByLogin = (state, login) => fromUsers.getUserByLogin(state.users, login);
 
 export const getUsersByLogins = (state, logins) => fromUsers.getUsersByLogins(state.users, logins);
 
-export const getUsers = state => fromUsers.getUsers(state.users);
-
-export const getMarketplaceState = state => state.marketplace;
-
 export const getMetrics = state => fromMetrics.getMetrics(state.metrics);
-
-export const getMetricByKey = (state, key) => fromMetrics.getMetricByKey(state.metrics, key);
 
 export const getMetricsKey = state => fromMetrics.getMetricsKey(state.metrics);
 
@@ -82,12 +67,6 @@ export const getMyOrganizations = state =>
   fromOrganizations.getMyOrganizations(state.organizations);
 
 export const areThereCustomOrganizations = state => getAppState(state).organizationsEnabled;
-
-export const getOrganizationMembersLogins = (state, organization) =>
-  fromOrganizationsMembers.getOrganizationMembersLogins(state.organizationsMembers, organization);
-
-export const getOrganizationMembersState = (state, organization) =>
-  fromOrganizationsMembers.getOrganizationMembersState(state.organizationsMembers, organization);
 
 export const getPermissionsAppUsers = state => fromPermissionsApp.getUsers(state.permissionsApp);
 
@@ -131,14 +110,5 @@ export const getSettingsAppValidationMessage = (state, key) =>
 export const getSettingsAppEncryptionState = state =>
   fromSettingsApp.getEncryptionState(state.settingsApp);
 
-export const getSettingsAppGlobalMessages = state =>
-  fromSettingsApp.getGlobalMessages(state.settingsApp);
-
-export const getProjectAdminComponentByKey = (state, componentKey) =>
-  fromProjectAdminApp.getComponentByKey(state.projectAdminApp, componentKey);
-
 export const getProjectAdminProjectModules = (state, projectKey) =>
   fromProjectAdminApp.getProjectModules(state.projectAdminApp, projectKey);
-
-export const getProjectAdminGlobalMessages = state =>
-  fromProjectAdminApp.getGlobalMessages(state.projectAdminApp);

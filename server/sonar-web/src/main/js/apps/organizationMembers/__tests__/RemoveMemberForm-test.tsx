@@ -19,23 +19,39 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import MembersList from '../MembersList';
+import { mockEvent } from '../../../helpers/testUtils';
+import RemoveMemberForm from '../RemoveMemberForm';
 
-const organization = { key: 'foo', name: 'Foo' };
-const members = [
-  { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 },
-  { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af', groupCount: 1 }
-];
+const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
+const organization = { key: 'myorg', name: 'MyOrg' };
 
-it('should render a list of members of an organization', () => {
+it('should render ', () => {
   const wrapper = shallow(
-    <MembersList
-      members={members}
+    <RemoveMemberForm
+      member={member}
+      onClose={jest.fn()}
       organization={organization}
-      organizationGroups={[]}
       removeMember={jest.fn()}
-      updateMemberGroups={jest.fn()}
     />
   );
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should correctly handle user interactions', () => {
+  const removeMember = jest.fn();
+  const wrapper = shallow(
+    <RemoveMemberForm
+      member={member}
+      onClose={jest.fn()}
+      organization={organization}
+      removeMember={removeMember}
+    />
+  );
+  (wrapper.instance() as RemoveMemberForm).handleSubmit(mockEvent as any);
+  expect(removeMember).toBeCalledWith({
+    avatar: '',
+    groupCount: 3,
+    login: 'admin',
+    name: 'Admin Istrator'
+  });
 });

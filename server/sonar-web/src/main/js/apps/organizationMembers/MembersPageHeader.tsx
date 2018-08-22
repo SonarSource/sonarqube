@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
+import DeferredSpinner from '../../components/common/DeferredSpinner';
 
 interface Props {
   children?: React.ReactNode;

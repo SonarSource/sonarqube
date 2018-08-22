@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RemoveMemberForm from './forms/RemoveMemberForm';
-import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
-import Avatar from '../../../components/ui/Avatar';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import RemoveMemberForm from './RemoveMemberForm';
+import ManageMemberGroupsForm from './ManageMemberGroupsForm';
+import Avatar from '../../components/ui/Avatar';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
-} from '../../../components/controls/ActionsDropdown';
-import { Group, Organization, OrganizationMember } from '../../../app/types';
+} from '../../components/controls/ActionsDropdown';
+import { Group, Organization, OrganizationMember } from '../../app/types';
 
 interface Props {
   member: OrganizationMember;

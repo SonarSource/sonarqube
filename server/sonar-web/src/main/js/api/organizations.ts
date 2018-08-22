@@ -19,7 +19,7 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Organization, OrganizationBase, Paging } from '../app/types';
+import { Organization, OrganizationBase, Paging, OrganizationMember } from '../app/types';
 
 export function getOrganizations(data: {
   organizations?: string;
@@ -69,16 +69,19 @@ export function searchMembers(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<{ paging: Paging; users: Array<{ avatar?: string; login: string; name: string }> }> {
-  return getJSON('/api/organizations/search_members', data);
+}): Promise<{ paging: Paging; users: OrganizationMember[] }> {
+  return getJSON('/api/organizations/search_members', data).catch(throwGlobalError);
 }
 
-export function addMember(data: { login: string; organization: string }): Promise<any> {
-  return postJSON('/api/organizations/add_member', data).then(r => r.user);
+export function addMember(data: {
+  login: string;
+  organization: string;
+}): Promise<OrganizationMember> {
+  return postJSON('/api/organizations/add_member', data).then(r => r.user, throwGlobalError);
 }
 
-export function removeMember(data: { login: string; organization: string }): Promise<void> {
-  return post('/api/organizations/remove_member', data);
+export function removeMember(data: { login: string; organization: string }) {
+  return post('/api/organizations/remove_member', data).catch(throwGlobalError);
 }
 
 export interface OrganizationBilling {

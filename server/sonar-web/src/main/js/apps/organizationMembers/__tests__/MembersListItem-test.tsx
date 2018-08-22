@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MembersListItem from '../MembersListItem';
+import { click } from '../../../helpers/testUtils';
 
 const organization = { key: 'foo', name: 'Foo' };
 const admin = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
@@ -62,4 +63,42 @@ it('should groups at 0 if the groupCount field is not defined (just added user)'
     />
   );
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should open groups form', () => {
+  const wrapper = shallow(
+    <MembersListItem
+      member={admin}
+      organization={{ ...organization, canAdmin: true }}
+      organizationGroups={[]}
+      removeMember={jest.fn()}
+      updateMemberGroups={jest.fn()}
+    />
+  );
+
+  click(wrapper.find('ActionsDropdownItem').first());
+  expect(wrapper.find('ManageMemberGroupsForm').exists()).toBe(true);
+
+  wrapper.find('ManageMemberGroupsForm').prop<Function>('onClose')();
+  wrapper.update();
+  expect(wrapper.find('ManageMemberGroupsForm').exists()).toBe(false);
+});
+
+it('should open remove member form', () => {
+  const wrapper = shallow(
+    <MembersListItem
+      member={admin}
+      organization={{ ...organization, canAdmin: true }}
+      organizationGroups={[]}
+      removeMember={jest.fn()}
+      updateMemberGroups={jest.fn()}
+    />
+  );
+
+  click(wrapper.find('ActionsDropdownItem').last());
+  expect(wrapper.find('RemoveMemberForm').exists()).toBe(true);
+
+  wrapper.find('RemoveMemberForm').prop<Function>('onClose')();
+  wrapper.update();
+  expect(wrapper.find('RemoveMemberForm').exists()).toBe(false);
 });

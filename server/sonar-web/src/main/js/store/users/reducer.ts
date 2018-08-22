@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import { uniq, keyBy } from 'lodash';
-import { RECEIVE_CURRENT_USER, RECEIVE_USER, SKIP_ONBOARDING, SET_HOMEPAGE } from './actions';
-import { actions as membersActions } from '../organizationsMembers/actions';
+import { uniq } from 'lodash';
+import { RECEIVE_CURRENT_USER, SKIP_ONBOARDING, SET_HOMEPAGE } from './actions';
 import { CurrentUser } from '../../app/types';
 
 interface UsersByLogin {
@@ -28,35 +27,20 @@ interface UsersByLogin {
 }
 
 const usersByLogin = (state: UsersByLogin = {}, action: any = {}) => {
-  switch (action.type) {
-    case RECEIVE_CURRENT_USER:
-    case RECEIVE_USER:
-      return { ...state, [action.user.login]: action.user };
-    case membersActions.RECEIVE_MEMBERS:
-    case membersActions.RECEIVE_MORE_MEMBERS:
-      return { ...state, ...keyBy(action.members, 'login') };
-    case membersActions.ADD_MEMBER:
-      return { ...state, [action.member.login]: action.member };
-    default:
-      return state;
+  if (action.type === RECEIVE_CURRENT_USER) {
+    return { ...state, [action.user.login]: action.user };
+  } else {
+    return state;
   }
 };
 
 type UserLogins = string[];
 
 const userLogins = (state: UserLogins = [], action: any = {}) => {
-  switch (action.type) {
-    case RECEIVE_CURRENT_USER:
-    case RECEIVE_USER:
-      return uniq([...state, action.user.login]);
-    case membersActions.RECEIVE_MEMBERS:
-    case membersActions.RECEIVE_MORE_MEMBERS:
-      return uniq([...state, action.members.map((member: any) => member.login)]);
-    case membersActions.ADD_MEMBER: {
-      return uniq([...state, action.member.login]).sort();
-    }
-    default:
-      return state;
+  if (action.type === RECEIVE_CURRENT_USER) {
+    return uniq([...state, action.user.login]);
+  } else {
+    return state;
   }
 };
 
@@ -82,8 +66,6 @@ interface State {
 export default combineReducers({ usersByLogin, userLogins, currentUser });
 
 export const getCurrentUser = (state: State) => state.currentUser!;
-export const getUserLogins = (state: State) => state.userLogins;
 export const getUserByLogin = (state: State, login: string) => state.usersByLogin[login];
 export const getUsersByLogins = (state: State, logins: string[]) =>
   logins.map(login => getUserByLogin(state, login));
-export const getUsers = (state: State) => getUsersByLogins(state, getUserLogins(state));

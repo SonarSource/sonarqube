@@ -1,5 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render "no results" 1`] = `
+<div
+  className="note"
+>
+  no_results
+</div>
+`;
+
 exports[`should render a list of members of an organization 1`] = `
 <div
   className="boxed-group boxed-group-inner"

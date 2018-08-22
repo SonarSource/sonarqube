@@ -60,7 +60,7 @@ const routes = [
       },
       {
         path: 'members',
-        component: lazyLoad(() => import('./components/OrganizationMembersContainer'))
+        component: lazyLoad(() => import('../organizationMembers/OrganizationMembersContainer'))
       },
       {
         path: 'quality_profiles',

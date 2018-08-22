@@ -20,14 +20,10 @@
 import { combineReducers } from 'redux';
 import components, { getComponentByKey as nextGetComponentByKey } from './components';
 import modulesByProject, { getProjectModules as nextGetProjectModules } from './modulesByProject';
-import globalMessages, {
-  getGlobalMessages as nextGetGlobalMessages
-} from '../../../store/globalMessages/duck';
 
 const rootReducer = combineReducers({
   components,
-  modulesByProject,
-  globalMessages
+  modulesByProject
 });
 
 export default rootReducer;
@@ -42,5 +38,3 @@ export const getProjectModules = (state, projectKey) => {
   }
   return moduleKeys.map(moduleKey => getComponentByKey(state, moduleKey));
 };
-
-export const getGlobalMessages = state => nextGetGlobalMessages(state.globalMessages);
