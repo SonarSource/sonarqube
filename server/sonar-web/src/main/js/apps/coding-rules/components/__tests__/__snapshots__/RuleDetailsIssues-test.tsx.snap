@@ -1,0 +1,233 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should fetch issues and render 1`] = `
+<div
+  className="js-rule-issues coding-rule-section"
+>
+  <div
+    className="coding-rule-section-separator"
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <h3
+      className="coding-rules-detail-title"
+    >
+      coding_rules.issues
+      <span
+        className="little-spacer-left"
+      >
+        (
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/organizations/org/issues",
+              "query": Object {
+                "resolved": "false",
+                "rules": "foo",
+                "types": undefined,
+              },
+            }
+          }
+        >
+          18
+        </Link>
+        )
+      </span>
+    </h3>
+    <table
+      className="coding-rules-detail-list coding-rules-most-violated-projects"
+    >
+      <tbody>
+        <tr>
+          <td
+            className="coding-rules-detail-list-name"
+            colSpan={2}
+          >
+            coding_rules.most_violating_projects
+          </td>
+        </tr>
+        <tr
+          key="sample-key"
+        >
+          <td
+            className="coding-rules-detail-list-name"
+          >
+            Sample
+          </td>
+          <td
+            className="coding-rules-detail-list-parameters"
+          >
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/organizations/org/issues",
+                  "query": Object {
+                    "projects": "sample-key",
+                    "resolved": "false",
+                    "rules": "foo",
+                    "types": undefined,
+                  },
+                }
+              }
+            >
+              13
+            </Link>
+          </td>
+        </tr>
+        <tr
+          key="example-key"
+        >
+          <td
+            className="coding-rules-detail-list-name"
+          >
+            Example
+          </td>
+          <td
+            className="coding-rules-detail-list-parameters"
+          >
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/organizations/org/issues",
+                  "query": Object {
+                    "projects": "example-key",
+                    "resolved": "false",
+                    "rules": "foo",
+                    "types": undefined,
+                  },
+                }
+              }
+            >
+              5
+            </Link>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should handle hotspot rules 1`] = `
+<div
+  className="js-rule-issues coding-rule-section"
+>
+  <div
+    className="coding-rule-section-separator"
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <h3
+      className="coding-rules-detail-title"
+    >
+      coding_rules.issues
+      <span
+        className="little-spacer-left"
+      >
+        (
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/organizations/org/issues",
+              "query": Object {
+                "resolved": "false",
+                "rules": "foo",
+                "types": "VULNERABILITY,SECURITY_HOTSPOT",
+              },
+            }
+          }
+        >
+          18
+        </Link>
+        )
+      </span>
+    </h3>
+    <table
+      className="coding-rules-detail-list coding-rules-most-violated-projects"
+    >
+      <tbody>
+        <tr>
+          <td
+            className="coding-rules-detail-list-name"
+            colSpan={2}
+          >
+            coding_rules.most_violating_projects
+          </td>
+        </tr>
+        <tr
+          key="sample-key"
+        >
+          <td
+            className="coding-rules-detail-list-name"
+          >
+            Sample
+          </td>
+          <td
+            className="coding-rules-detail-list-parameters"
+          >
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/organizations/org/issues",
+                  "query": Object {
+                    "projects": "sample-key",
+                    "resolved": "false",
+                    "rules": "foo",
+                    "types": "VULNERABILITY,SECURITY_HOTSPOT",
+                  },
+                }
+              }
+            >
+              13
+            </Link>
+          </td>
+        </tr>
+        <tr
+          key="example-key"
+        >
+          <td
+            className="coding-rules-detail-list-name"
+          >
+            Example
+          </td>
+          <td
+            className="coding-rules-detail-list-parameters"
+          >
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/organizations/org/issues",
+                  "query": Object {
+                    "projects": "example-key",
+                    "resolved": "false",
+                    "rules": "foo",
+                    "types": "VULNERABILITY,SECURITY_HOTSPOT",
+                  },
+                }
+              }
+            >
+              5
+            </Link>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </DeferredSpinner>
+</div>
+`;

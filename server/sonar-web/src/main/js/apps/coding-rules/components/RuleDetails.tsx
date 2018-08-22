@@ -254,7 +254,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             )}
 
           {!ruleDetails.isTemplate && (
-            <RuleDetailsIssues organization={organization} ruleKey={ruleDetails.key} />
+            <RuleDetailsIssues organization={organization} ruleDetails={ruleDetails} />
           )}
         </DeferredSpinner>
       </div>

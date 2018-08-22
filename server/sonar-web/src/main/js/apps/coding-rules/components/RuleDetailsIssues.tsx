@@ -23,13 +23,14 @@ import { Link } from 'react-router';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getFacet } from '../../../api/issues';
+import { RuleDetails } from '../../../app/types';
 import { getIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   organization: string | undefined;
-  ruleKey: string;
+  ruleDetails: Pick<RuleDetails, 'key' | 'type'>;
 }
 
 interface Project {
@@ -59,7 +60,7 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.ruleKey !== this.props.ruleKey) {
+    if (prevProps.ruleDetails !== this.props.ruleDetails) {
       this.fetchIssues();
     }
   }
@@ -68,10 +69,19 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
     this.mounted = false;
   }
 
+  getBaseIssuesQuery = () => ({
+    resolved: 'false',
+    rules: this.props.ruleDetails.key,
+    types:
+      this.props.ruleDetails.type === 'SECURITY_HOTSPOT'
+        ? 'VULNERABILITY,SECURITY_HOTSPOT'
+        : undefined
+  });
+
   fetchIssues = () => {
     this.setState({ loading: true });
     getFacet(
-      { organization: this.props.organization, rules: this.props.ruleKey, resolved: false },
+      { ...this.getBaseIssuesQuery(), organization: this.props.organization },
       'projects'
     ).then(
       ({ facet, response }) => {
@@ -100,10 +110,7 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
     if (total === undefined) {
       return null;
     }
-    const path = getIssuesUrl(
-      { resolved: 'false', rules: this.props.ruleKey },
-      this.props.organization
-    );
+    const path = getIssuesUrl(this.getBaseIssuesQuery(), this.props.organization);
 
     const totalItem = (
       <span className="little-spacer-left">
@@ -124,7 +131,7 @@ export default class RuleDetailsIssues extends React.PureComponent<Props, State>
 
   renderProject = (project: Project) => {
     const path = getIssuesUrl(
-      { projects: project.key, resolved: 'false', rules: this.props.ruleKey },
+      { ...this.getBaseIssuesQuery(), projects: project.key },
       this.props.organization
     );
     return (
