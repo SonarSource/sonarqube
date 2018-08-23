@@ -25,14 +25,14 @@ import SearchIcon from '../icons-components/SearchIcon';
 import DeferredSpinner from '../common/DeferredSpinner';
 import { ButtonIcon } from '../ui/buttons';
 import * as theme from '../../app/theme';
-import { translateWithParameters } from '../../helpers/l10n';
+import { translateWithParameters, translate } from '../../helpers/l10n';
 import './SearchBox.css';
 
 interface Props {
   autoFocus?: boolean;
   className?: string;
-  innerRef?: (node: HTMLInputElement | null) => void;
   id?: string;
+  innerRef?: (node: HTMLInputElement | null) => void;
   loading?: boolean;
   minLength?: number;
   onChange: (value: string) => void;
@@ -133,6 +133,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
     return (
       <div className={classNames('search-box', this.props.className)} id={this.props.id}>
         <input
+          aria-label={translate('search_verb')}
           autoComplete="off"
           autoFocus={this.props.autoFocus}
           className={inputClassName}
