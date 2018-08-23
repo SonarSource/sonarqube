@@ -22,6 +22,12 @@ import { shallow } from 'enzyme';
 import ProjectCardLeak from '../ProjectCardLeak';
 import { Visibility } from '../../../../app/types';
 
+jest.mock(
+  'date-fns/difference_in_milliseconds',
+  () => () => 1000 * 60 * 60 * 24 * 30 * 8 // ~ 8 months
+);
+
+/* eslint-disable camelcase */
 const MEASURES = {
   alert_status: 'OK',
   reliability_rating: '1.0',

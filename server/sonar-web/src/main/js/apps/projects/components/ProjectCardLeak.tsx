@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import * as difference from 'date-fns/difference_in_milliseconds';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
 import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
@@ -41,9 +42,8 @@ interface Props {
 export default function ProjectCardLeak({ height, organization, project }: Props) {
   const { measures } = project;
   const hasTags = project.tags.length > 0;
-  const period = project.leakPeriodDate
-    ? new Date().getTime() - new Date(project.leakPeriodDate).getTime()
-    : 0;
+  const periodMs = project.leakPeriodDate ? difference(Date.now(), project.leakPeriodDate) : 0;
+
   return (
     <div className="boxed-group project-card" data-key={project.key} style={{ height }}>
       <div className="boxed-group-header clearfix">
@@ -79,7 +79,7 @@ export default function ProjectCardLeak({ height, organization, project }: Props
           project.leakPeriodDate && (
             <div className="project-card-dates note text-right pull-right">
               <span className="project-card-leak-date pull-right">
-                {translateWithParameters('projects.new_code_period_x', formatDuration(period))}
+                {translateWithParameters('projects.new_code_period_x', formatDuration(periodMs))}
               </span>
               <DateTimeFormatter date={project.analysisDate}>
                 {formattedDate => (

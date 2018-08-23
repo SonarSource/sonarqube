@@ -369,19 +369,19 @@ function format(periods: Array<{ value: number; label: string }>) {
   return result;
 }
 
-export function formatDuration(value: number) {
-  if (value < ONE_MINUTE) {
+export function formatDuration(ms: number) {
+  if (ms < ONE_MINUTE) {
     return translate('duration.seconds');
   }
-  const years = Math.floor(value / ONE_YEAR);
-  value -= years * ONE_YEAR;
-  const months = Math.floor(value / ONE_MONTH);
-  value -= months * ONE_MONTH;
-  const days = Math.floor(value / ONE_DAY);
-  value -= days * ONE_DAY;
-  const hours = Math.floor(value / ONE_HOUR);
-  value -= hours * ONE_HOUR;
-  const minutes = Math.floor(value / ONE_MINUTE);
+  const years = Math.floor(ms / ONE_YEAR);
+  ms -= years * ONE_YEAR;
+  const months = Math.floor(ms / ONE_MONTH);
+  ms -= months * ONE_MONTH;
+  const days = Math.floor(ms / ONE_DAY);
+  ms -= days * ONE_DAY;
+  const hours = Math.floor(ms / ONE_HOUR);
+  ms -= hours * ONE_HOUR;
+  const minutes = Math.floor(ms / ONE_MINUTE);
   return format([
     { value: years, label: 'duration.years' },
     { value: months, label: 'duration.months' },
