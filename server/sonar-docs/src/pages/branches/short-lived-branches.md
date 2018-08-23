@@ -37,6 +37,6 @@ Branch settings and quality profiles default to those set for the master branch,
 
 ## Known Limitations
 
-* Only the number of bugs, code smells, vulnerabilities and files are computed. As a consequence, you have no way to get a Quality Gate status as such on short-lived branch.
+* Only the issue-focused, hard-coded quality gate is available on a short-lived branch.
 * You cannot connect SonarLint to a short-lived branch.
 * Analysis of a short-lived branch based on another short-lived branch is not supported.

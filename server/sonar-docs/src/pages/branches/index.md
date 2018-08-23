@@ -25,7 +25,7 @@ This corresponds to Pull/Merge Requests or Feature Branches. This kind of branch
 * will disappear quickly
 * will be merged rapidly to prevent integration issues
 * is developed for a given version, so the version does not change,
-  and there is no New Code period concept as such; it's all new code
+  and there is no way to set the New Code period; everything that has been changed in the branch is new code
 * tracks all the new issues related to the code that changed on it.
 
 ![conceptual illustration of short-lived branches.](/images/short-lived-branch-concept.png)
