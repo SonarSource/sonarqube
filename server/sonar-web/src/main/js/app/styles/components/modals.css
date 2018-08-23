@@ -208,6 +208,13 @@
   width: 250px;
 }
 
+.modal-field textarea {
+  max-width: 250px;
+  min-width: 250px;
+  max-height: 50vh;
+  min-height: var(--controlHeight);
+}
+
 .modal-large-field input[type='text'],
 .modal-large-field input[type='email'],
 .modal-large-field input[type='password'],
@@ -217,12 +224,26 @@
   width: 100%;
 }
 
+.modal-large-field textarea {
+  max-width: 100%;
+  min-width: 100%;
+  max-height: 50vh;
+  min-height: var(--controlHeight);
+}
+
 .modal-validation-field input,
 .modal-validation-field textarea,
 .modal-validation-field .Select {
   margin-right: 5px;
   margin-bottom: 2px;
   width: 250px;
+}
+
+.modal-validation-field textarea {
+  max-width: 250px;
+  min-width: 250px;
+  max-height: 50vh;
+  min-height: var(--controlHeight);
 }
 
 .modal-validation-field input:not(.has-error),
