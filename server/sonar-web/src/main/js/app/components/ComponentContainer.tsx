@@ -23,11 +23,12 @@ import { connect } from 'react-redux';
 import { differenceBy } from 'lodash';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
-import { Component, BranchLike } from '../types';
+import { Component, BranchLike, Measure } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { Task, getTasksForComponent, PendingTask } from '../../api/ce';
 import { getComponentData } from '../../api/components';
+import { getMeasures } from '../../api/measures';
 import { getComponentNavigation } from '../../api/nav';
 import { fetchOrganizations } from '../../store/rootActions';
 import { STATUSES } from '../../apps/background-tasks/constants';
@@ -36,7 +37,8 @@ import {
   isBranch,
   isMainBranch,
   isLongLivingBranch,
-  isShortLivingBranch
+  isShortLivingBranch,
+  getBranchLikeQuery
 } from '../../helpers/branches';
 
 interface Props {
@@ -50,6 +52,7 @@ interface Props {
 interface State {
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
+  branchMeasures?: Measure[];
   component?: Component;
   currentTask?: Task;
   isPending: boolean;
@@ -114,46 +117,88 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     Promise.all([
       getComponentNavigation({ componentKey: key, branch, pullRequest }),
       getComponentData({ component: key, branch, pullRequest })
-    ]).then(([nav, data]) => {
-      const component = this.addQualifier({ ...nav, ...data });
+    ])
+      .then(([nav, data]) => {
+        const component = this.addQualifier({ ...nav, ...data });
 
-      if (this.context.organizationsEnabled) {
-        this.props.fetchOrganizations([component.organization]);
-      }
-
-      this.fetchBranches(component).then(({ branchLike, branchLikes }) => {
+        if (this.context.organizationsEnabled) {
+          this.props.fetchOrganizations([component.organization]);
+        }
+        return component;
+      })
+      .then(this.fetchBranches)
+      .then(this.fetchBranchMeasures)
+      .then(({ branchLike, branchLikes, component, branchMeasures }) => {
         if (this.mounted) {
-          this.setState({ branchLike, branchLikes, component, loading: false });
+          this.setState({
+            branchLike,
+            branchLikes,
+            branchMeasures,
+            component,
+            loading: false
+          });
           this.fetchStatus(component);
         }
-      }, onError);
-    }, onError);
+      })
+      .catch(onError);
   }
 
   fetchBranches = (
     component: Component
-  ): Promise<{ branchLike?: BranchLike; branchLikes: BranchLike[] }> => {
+  ): Promise<{
+    branchLike?: BranchLike;
+    branchLikes: BranchLike[];
+    component: Component;
+  }> => {
     const application = component.breadcrumbs.find(({ qualifier }) => qualifier === 'APP');
     if (application) {
       return getBranches(application.key).then(branchLikes => {
         return {
           branchLike: this.getCurrentBranchLike(branchLikes),
-          branchLikes
+          branchLikes,
+          component
         };
       });
     }
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
-    return project
-      ? Promise.all([getBranches(project.key), getPullRequests(project.key)]).then(
-          ([branches, pullRequests]) => {
-            const branchLikes = [...branches, ...pullRequests];
-            return {
-              branchLike: this.getCurrentBranchLike(branchLikes),
-              branchLikes
-            };
-          }
-        )
-      : Promise.resolve({ branchLikes: [] });
+    if (project) {
+      return Promise.all([getBranches(project.key), getPullRequests(project.key)]).then(
+        ([branches, pullRequests]) => {
+          const branchLikes = [...branches, ...pullRequests];
+          const branchLike = this.getCurrentBranchLike(branchLikes);
+          return { branchLike, branchLikes, component };
+        }
+      );
+    }
+
+    return Promise.resolve({ branchLikes: [], component });
+  };
+
+  fetchBranchMeasures = ({
+    branchLike,
+    branchLikes,
+    component
+  }: {
+    branchLike: BranchLike;
+    branchLikes: BranchLike[];
+    component: Component;
+  }): Promise<{
+    branchLike?: BranchLike;
+    branchLikes: BranchLike[];
+    branchMeasures?: Measure[];
+    component: Component;
+  }> => {
+    const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
+    if (project && (isShortLivingBranch(branchLike) || isPullRequest(branchLike))) {
+      return getMeasures({
+        componentKey: project.key,
+        metricKeys: 'coverage,new_coverage',
+        ...getBranchLikeQuery(branchLike)
+      }).then(measures => {
+        return { branchLike, branchLikes, branchMeasures: measures, component };
+      });
+    }
+    return Promise.resolve({ branchLike, branchLikes, component });
   };
 
   fetchStatus = (component: Component) => {
@@ -259,14 +304,16 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   handleBranchesChange = () => {
     if (this.mounted && this.state.component) {
-      this.fetchBranches(this.state.component).then(
-        ({ branchLike, branchLikes }) => {
-          if (this.mounted) {
-            this.setState({ branchLike, branchLikes });
-          }
-        },
-        () => {}
-      );
+      this.fetchBranches(this.state.component)
+        .then(this.fetchBranchMeasures)
+        .then(
+          ({ branchLike, branchLikes, branchMeasures }) => {
+            if (this.mounted) {
+              this.setState({ branchLike, branchLikes, branchMeasures });
+            }
+          },
+          () => {}
+        );
     }
   };
 
@@ -286,6 +333,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           !['FIL', 'UTS'].includes(component.qualifier) && (
             <ComponentNav
               branchLikes={branchLikes}
+              branchMeasures={this.state.branchMeasures}
               component={component}
               currentBranchLike={branchLike}
               currentTask={currentTask}

@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BranchCoverage should render correctly 1`] = `
+<div
+  className="display-inline-flex-center"
+>
+  <CoverageRating
+    size="xs"
+    value="99.3"
+  />
+  <span
+    className="little-spacer-left"
+  >
+    99.3%
+  </span>
+  <HelpTooltip
+    className="little-spacer-left"
+    overlay="branches.measures.coverage.help"
+  />
+</div>
+`;
+
+exports[`BranchCoverage should render leak measure correctly 1`] = `
+<div
+  className="display-inline-flex-center rounded leak-box"
+>
+  <CoverageRating
+    size="xs"
+    value="95.9943"
+  />
+  <span
+    className="little-spacer-left"
+  >
+    96.0%
+  </span>
+  <HelpTooltip
+    className="little-spacer-left"
+    overlay="branches.measures.new_coverage.help"
+  />
+</div>
+`;
+
+exports[`BranchMeasures should render correctly when a coverage measure is missing 1`] = `
+<div
+  className="display-inline-flex-center"
+>
+  <BranchCoverage
+    className=""
+    measure={
+      Object {
+        "metric": "new_coverage",
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "95.9943",
+          },
+        ],
+        "value": "0",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`BranchMeasures should render coverage measures 1`] = `
+<div
+  className="display-inline-flex-center"
+>
+  <BranchCoverage
+    measure={
+      Object {
+        "metric": "coverage",
+        "value": "99.3",
+      }
+    }
+  />
+  <BranchCoverage
+    className="big-spacer-left"
+    measure={
+      Object {
+        "metric": "new_coverage",
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "95.9943",
+          },
+        ],
+        "value": "0",
+      }
+    }
+  />
+</div>
+`;

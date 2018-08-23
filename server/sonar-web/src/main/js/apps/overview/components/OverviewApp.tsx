@@ -107,12 +107,12 @@ export class OverviewApp extends React.PureComponent<Props, State> {
       additionalFields: 'metrics,periods',
       ...getBranchLikeQuery(branchLike)
     }).then(
-      r => {
-        if (this.mounted && r.metrics) {
+      ({ component, metrics, periods }) => {
+        if (this.mounted && metrics && component.measures) {
           this.setState({
             loading: false,
-            measures: enhanceMeasuresWithMetrics(r.component.measures, r.metrics),
-            periods: r.periods
+            measures: enhanceMeasuresWithMetrics(component.measures, metrics),
+            periods
           });
         }
       },

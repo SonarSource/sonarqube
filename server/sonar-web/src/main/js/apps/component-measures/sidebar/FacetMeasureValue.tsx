@@ -29,9 +29,7 @@ interface Props {
 export default function FacetMeasureValue({ measure }: Props) {
   if (isDiffMetric(measure.metric.key)) {
     return (
-      <div
-        className="domain-measures-value domain-measures-leak"
-        id={`measure-${measure.metric.key}-leak`}>
+      <div className="domain-measures-value leak-box" id={`measure-${measure.metric.key}-leak`}>
         <Measure
           metricKey={measure.metric.key}
           metricType={measure.metric.type}

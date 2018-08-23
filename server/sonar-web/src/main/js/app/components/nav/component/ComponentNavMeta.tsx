@@ -25,8 +25,10 @@ import {
   CurrentUser,
   isLoggedIn,
   HomePageType,
-  HomePage
+  HomePage,
+  Measure
 } from '../../../types';
+import BranchMeasures from '../../../../components/common/BranchMeasures';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../../components/controls/Favorite';
@@ -48,10 +50,11 @@ interface StateProps {
 
 interface Props extends StateProps {
   branchLike?: BranchLike;
+  branchMeasures?: Measure[];
   component: Component;
 }
 
-export function ComponentNavMeta({ branchLike, component, currentUser }: Props) {
+export function ComponentNavMeta({ branchLike, branchMeasures, component, currentUser }: Props) {
   const mainBranch = !branchLike || isMainBranch(branchLike);
   const longBranch = isLongLivingBranch(branchLike);
   const currentPage = getCurrentPage(component, branchLike);
@@ -87,7 +90,7 @@ export function ComponentNavMeta({ branchLike, component, currentUser }: Props) 
         </div>
       )}
       {(isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && (
-        <div className="navbar-context-meta-secondary">
+        <div className="navbar-context-meta-secondary display-inline-flex-center">
           {isPullRequest(branchLike) &&
             branchLike.url !== undefined && (
               <a
@@ -100,6 +103,13 @@ export function ComponentNavMeta({ branchLike, component, currentUser }: Props) 
               </a>
             )}
           <BranchStatus branchLike={branchLike} />
+          {branchMeasures &&
+            branchMeasures.length > 0 && (
+              <>
+                <span className="vertical-separator" />
+                <BranchMeasures measures={branchMeasures} />
+              </>
+            )}
         </div>
       )}
     </div>

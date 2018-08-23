@@ -2,7 +2,7 @@
 
 exports[`should display leak measure value 1`] = `
 <div
-  className="domain-measures-value domain-measures-leak"
+  className="domain-measures-value leak-box"
   id="measure-new_bugs-leak"
 >
   <Measure

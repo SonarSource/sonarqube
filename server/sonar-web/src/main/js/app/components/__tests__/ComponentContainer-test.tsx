@@ -34,6 +34,7 @@ import {
 } from '../../types';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
+import { getMeasures } from '../../../api/measures';
 
 jest.mock('../../../api/branches', () => ({
   getBranches: jest.fn().mockResolvedValue([]),
@@ -46,6 +47,15 @@ jest.mock('../../../api/ce', () => ({
 
 jest.mock('../../../api/components', () => ({
   getComponentData: jest.fn().mockResolvedValue({ analysisDate: '2018-07-30' })
+}));
+
+jest.mock('../../../api/measures', () => ({
+  getMeasures: jest
+    .fn()
+    .mockResolvedValue([
+      { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
+      { metric: 'coverage', value: '99.3' }
+    ])
 }));
 
 jest.mock('../../../api/nav', () => ({
@@ -68,6 +78,7 @@ beforeEach(() => {
   (getComponentData as jest.Mock).mockClear();
   (getComponentNavigation as jest.Mock).mockClear();
   (getTasksForComponent as jest.Mock).mockClear();
+  (getMeasures as jest.Mock).mockClear();
 });
 
 it('changes component', () => {
@@ -142,6 +153,40 @@ it('updates branches on change', () => {
   (wrapper.find(Inner).prop('onBranchesChange') as Function)();
   expect(getBranches).toBeCalledWith('projectKey');
   expect(getPullRequests).toBeCalledWith('projectKey');
+});
+
+it('updates the branch measures', async () => {
+  (getComponentNavigation as jest.Mock<any>).mockResolvedValueOnce({
+    breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: 'TRK' }],
+    key: 'foo'
+  });
+  (getBranches as jest.Mock<any>).mockResolvedValueOnce([
+    { isMain: false, mergeBranch: 'master', name: 'feature', type: BranchType.SHORT }
+  ]);
+  (getPullRequests as jest.Mock<any>).mockResolvedValueOnce([]);
+  const wrapper = shallow(
+    <ComponentContainer
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'foo', branch: 'feature' } }}>
+      <Inner />
+    </ComponentContainer>
+  );
+  (wrapper.instance() as ComponentContainer).mounted = true;
+  wrapper.setState({
+    branches: [{ isMain: true }],
+    component: { breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: 'TRK' }] },
+    loading: false
+  });
+
+  await new Promise(setImmediate);
+  expect(getBranches).toBeCalledWith('foo');
+
+  await new Promise(setImmediate);
+  expect(getMeasures).toBeCalledWith({
+    componentKey: 'foo',
+    metricKeys: 'coverage,new_coverage',
+    branch: 'feature'
+  });
 });
 
 it('loads organization', async () => {

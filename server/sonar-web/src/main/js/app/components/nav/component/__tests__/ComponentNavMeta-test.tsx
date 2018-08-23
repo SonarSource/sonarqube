@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import { ComponentNavMeta } from '../ComponentNavMeta';
 import { BranchType, ShortLivingBranch, LongLivingBranch, PullRequest } from '../../../../types';
 
-const component = {
+const COMPONENT = {
   analysisDate: '2017-01-02T00:00:00.000Z',
   breadcrumbs: [],
   key: 'foo',
@@ -31,6 +31,11 @@ const component = {
   qualifier: 'TRK',
   version: '0.0.1'
 };
+
+const MEASURES = [
+  { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
+  { metric: 'coverage', value: '99.3' }
+];
 
 it('renders status of short-living branch', () => {
   const branch: ShortLivingBranch = {
@@ -44,7 +49,8 @@ it('renders status of short-living branch', () => {
     shallow(
       <ComponentNavMeta
         branchLike={branch}
-        component={component}
+        branchMeasures={MEASURES}
+        component={COMPONENT}
         currentUser={{ isLoggedIn: false }}
       />
     )
@@ -62,7 +68,7 @@ it('renders meta for long-living branch', () => {
     shallow(
       <ComponentNavMeta
         branchLike={branch}
-        component={component}
+        component={COMPONENT}
         currentUser={{ isLoggedIn: false }}
       />
     )
@@ -82,7 +88,7 @@ it('renders meta for pull request', () => {
     shallow(
       <ComponentNavMeta
         branchLike={pullRequest}
-        component={component}
+        component={COMPONENT}
         currentUser={{ isLoggedIn: false }}
       />
     )

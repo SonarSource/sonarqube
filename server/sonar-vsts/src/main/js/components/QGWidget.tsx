@@ -21,14 +21,14 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import SonarCloudIcon from './SonarCloudIcon';
 import Tooltip from '../../../../../sonar-web/src/main/js/components/controls/Tooltip';
-import { MeasureComponent } from '../../../../../sonar-web/src/main/js/api/measures';
 import {
   getPathUrlAsString,
   getProjectUrl
 } from '../../../../../sonar-web/src/main/js/helpers/urls';
+import { ComponentMeasure } from '../../../../../sonar-web/src/main/js/app/types';
 
 interface Props {
-  component: MeasureComponent;
+  component: ComponentMeasure;
 }
 
 const QG_LEVELS: { [level: string]: string } = {
@@ -39,7 +39,8 @@ const QG_LEVELS: { [level: string]: string } = {
 };
 
 export default function QGWidget({ component }: Props) {
-  const qgMeasure = component && component.measures.find(m => m.metric === 'alert_status');
+  const qgMeasure =
+    component && component.measures && component.measures.find(m => m.metric === 'alert_status');
 
   if (!qgMeasure || !qgMeasure.value) {
     return <p>Project Quality Gate not computed.</p>;

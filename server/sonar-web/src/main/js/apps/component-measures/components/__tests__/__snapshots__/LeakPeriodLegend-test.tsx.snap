@@ -15,7 +15,7 @@ exports[`should render a more precise date 1`] = `
   }
 >
   <div
-    className="domain-measures-leak-header"
+    className="domain-measures-header leak-box"
   >
     overview.new_code_period_x.overview.period.previous_version.6,4
   </div>
@@ -38,7 +38,7 @@ exports[`should render correctly 1`] = `
   }
 >
   <div
-    className="domain-measures-leak-header"
+    className="domain-measures-header leak-box"
   >
     overview.new_code_period_x.overview.period.previous_version.6,4
   </div>
@@ -47,7 +47,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly 2`] = `
 <div
-  className="domain-measures-leak-header"
+  className="domain-measures-header leak-box"
 >
   overview.new_code_period_x.overview.period.days.18
 </div>
@@ -55,7 +55,7 @@ exports[`should render correctly 2`] = `
 
 exports[`should render correctly for APP 1`] = `
 <div
-  className="domain-measures-leak-header"
+  className="domain-measures-header leak-box"
 >
   issues.new_code_period
 </div>

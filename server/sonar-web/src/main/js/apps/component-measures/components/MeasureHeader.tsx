@@ -56,7 +56,7 @@ export default function MeasureHeader(props: Props) {
             <strong>
               {isDiff ? (
                 <Measure
-                  className="domain-measures-leak"
+                  className="leak-box"
                   metricKey={metric.key}
                   metricType={metric.type}
                   value={measure && measure.leak}

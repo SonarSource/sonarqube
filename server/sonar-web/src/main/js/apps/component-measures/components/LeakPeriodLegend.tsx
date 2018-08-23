@@ -46,7 +46,7 @@ export default class LeakPeriodLegend extends React.PureComponent<Props> {
 
   render() {
     const { className, component, period } = this.props;
-    const leakClass = classNames('domain-measures-leak-header', className);
+    const leakClass = classNames('domain-measures-header leak-box', className);
     if (component.qualifier === 'APP') {
       return <div className={leakClass}>{translate('issues.new_code_period')}</div>;
     }

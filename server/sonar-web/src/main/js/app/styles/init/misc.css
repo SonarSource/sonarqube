@@ -348,6 +348,16 @@ td.big-spacer-top {
   color: rgba(68, 68, 68, 0.3);
 }
 
+.vertical-separator {
+  margin-left: calc(2 * var(--gridSize));
+  margin-right: calc(2 * var(--gridSize));
+}
+
+.vertical-separator:after {
+  content: '|';
+  color: var(--barBorderColor);
+}
+
 .capitalize {
   text-transform: capitalize !important;
 }
@@ -388,4 +398,10 @@ td.big-spacer-top {
 .bg-muted {
   background-color: var(--barBackgroundColor);
   color: inherit;
+}
+
+.leak-box {
+  background-color: var(--leakColor);
+  border: 1px solid var(--leakBorderColor);
+  padding: 4px 6px;
 }

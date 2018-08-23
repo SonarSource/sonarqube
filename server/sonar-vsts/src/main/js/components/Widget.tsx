@@ -20,11 +20,8 @@
 import * as React from 'react';
 import QGWidget from './QGWidget';
 import LoginForm from './LoginForm';
-import {
-  getMeasuresAndMeta,
-  MeasureComponent
-} from '../../../../../sonar-web/src/main/js/api/measures';
-import { Metric } from '../../../../../sonar-web/src/main/js/app/types';
+import { getMeasuresAndMeta } from '../../../../../sonar-web/src/main/js/api/measures';
+import { Metric, ComponentMeasure } from '../../../../../sonar-web/src/main/js/app/types';
 import { Settings } from '../utils';
 
 interface Props {
@@ -32,7 +29,7 @@ interface Props {
 }
 
 interface State {
-  component?: MeasureComponent;
+  component?: ComponentMeasure;
   loading: boolean;
   metrics?: Metric[];
   unauthorized: boolean;

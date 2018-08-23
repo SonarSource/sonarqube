@@ -108,6 +108,7 @@ export interface ComponentQualityProfile {
 
 interface ComponentMeasureIntern {
   branch?: string;
+  description?: string;
   isFavorite?: boolean;
   isRecentlyBrowsed?: boolean;
   key: string;

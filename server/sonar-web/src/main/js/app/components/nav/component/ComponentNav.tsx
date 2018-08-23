@@ -24,7 +24,7 @@ import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import RecentHistory from '../../RecentHistory';
 import * as theme from '../../../theme';
-import { BranchLike, Component } from '../../../types';
+import { BranchLike, Component, Measure } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import { Task } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
@@ -32,6 +32,7 @@ import './ComponentNav.css';
 
 interface Props {
   branchLikes: BranchLike[];
+  branchMeasures?: Measure[];
   currentBranchLike: BranchLike | undefined;
   component: Component;
   currentTask?: Task;
@@ -92,7 +93,11 @@ export default class ComponentNav extends React.PureComponent<Props> {
             // to close dropdown on any location change
             location={this.props.location}
           />
-          <ComponentNavMeta branchLike={currentBranchLike} component={component} />
+          <ComponentNavMeta
+            branchLike={currentBranchLike}
+            branchMeasures={this.props.branchMeasures}
+            component={component}
+          />
         </div>
         <ComponentNavMenu
           branchLike={currentBranchLike}
