@@ -186,7 +186,8 @@ export default class Search extends React.PureComponent<Props, State> {
         {loading && <i className="spinner spacer-left" />}
 
         {results && (
-          <div className="boxed-group boxed-group-inner spacer-top">
+          <div className="boxed-group spacer-top">
+            <div className="big-spacer-top" />
             <Components
               branchLike={this.props.branchLike}
               components={results}

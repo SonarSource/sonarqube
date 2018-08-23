@@ -51,6 +51,7 @@ module.exports = {
   secondFontColor: '#777',
 
   leakColor: '#fbf3d5',
+  leakColorHover: '#f0e7c4',
   leakBorderColor: '#eae3c7',
 
   snippetFontColor: '#f0f0f0',

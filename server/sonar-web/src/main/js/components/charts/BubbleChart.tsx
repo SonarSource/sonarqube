@@ -317,10 +317,10 @@ export default class BubbleChart<T> extends React.Component<Props<T>, State> {
       return (
         <Bubble
           color={item.color}
+          data={item.data}
           key={item.key || index}
           link={item.link}
           onClick={this.props.onBubbleClick}
-          data={item.data}
           r={sizeScale(item.size)}
           scale={1 / transform.k}
           tooltip={item.tooltip}

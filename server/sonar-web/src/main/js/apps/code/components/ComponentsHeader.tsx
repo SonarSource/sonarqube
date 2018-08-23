@@ -24,13 +24,14 @@ import { ComponentMeasure } from '../../../app/types';
 
 interface Props {
   baseComponent?: ComponentMeasure;
+  isLeak: boolean;
   metrics: string[];
   rootComponent: ComponentMeasure;
 }
 
-const SHORT_NAME_METRICS = ['duplicated_lines_density'];
+const SHORT_NAME_METRICS = ['duplicated_lines_density', 'new_lines', 'new_coverage'];
 
-export default function ComponentsHeader({ baseComponent, metrics, rootComponent }: Props) {
+export default function ComponentsHeader({ baseComponent, isLeak, metrics, rootComponent }: Props) {
   const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
   let columns: string[] = [];
   if (isPortfolio) {
@@ -50,18 +51,20 @@ export default function ComponentsHeader({ baseComponent, metrics, rootComponent
   return (
     <thead>
       <tr className="code-components-header">
-        <th className="thin nowrap">&nbsp;</th>
-        <th>&nbsp;</th>
+        <th className="thin nowrap" colSpan={2} />
+        <th />
         {baseComponent &&
           columns.map((column, index) => (
             <th
               className={classNames('thin', 'nowrap', 'text-right', {
-                'code-components-cell': index > 0
+                'code-components-cell': index > 0,
+                leak: isLeak
               })}
               key={column}>
               {column}
             </th>
           ))}
+        <th className={classNames({ leak: isLeak })} />
       </tr>
     </thead>
   );

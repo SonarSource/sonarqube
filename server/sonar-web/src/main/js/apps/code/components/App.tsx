@@ -180,7 +180,7 @@ export class App extends React.PureComponent<Props, State> {
     const { loading, baseComponent, components, breadcrumbs, total, sourceViewer } = this.state;
     const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
-    const componentsClassName = classNames('boxed-group', 'boxed-group-inner', 'spacer-top', {
+    const componentsClassName = classNames('boxed-group', 'spacer-top', {
       'new-loading': loading
     });
 

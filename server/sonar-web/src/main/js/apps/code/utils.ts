@@ -49,13 +49,7 @@ const PORTFOLIO_METRICS = [
   'ncloc'
 ];
 
-const LEAK_METRICS = [
-  'new_lines',
-  'new_bugs',
-  'new_vulnerabilities',
-  'new_code_smells',
-  'new_coverage'
-];
+const LEAK_METRICS = ['new_lines', 'bugs', 'vulnerabilities', 'code_smells', 'new_coverage'];
 
 const PAGE_SIZE = 100;
 
@@ -114,16 +108,16 @@ function expandRootDir(metrics: string[], branchLike?: BranchLike): ExpandRootDi
   };
 }
 
-function showLeakMeasure(branchLike?: BranchLike) {
-  return isShortLivingBranch(branchLike) || isPullRequest(branchLike);
-}
-
 function prepareChildren(r: any): Children {
   return {
     components: r.components,
     total: r.paging.total,
     page: r.paging.pageIndex
   };
+}
+
+export function showLeakMeasure(branchLike?: BranchLike) {
+  return isShortLivingBranch(branchLike) || isPullRequest(branchLike);
 }
 
 function skipRootDir(breadcrumbs: ComponentMeasure[]) {

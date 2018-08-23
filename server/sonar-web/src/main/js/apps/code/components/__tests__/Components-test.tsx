@@ -20,10 +20,17 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Components from '../Components';
+import { BranchType } from '../../../../app/types';
 
 const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
 const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: 'VW' };
 const METRICS = { coverage: { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' } };
+const BRANCH = {
+  isMain: false,
+  name: 'feature',
+  mergeBranch: 'master',
+  type: BranchType.SHORT
+};
 
 it('renders correctly', () => {
   expect(
@@ -41,6 +48,20 @@ it('renders correctly', () => {
 it('renders correctly for a search', () => {
   expect(
     shallow(<Components components={[COMPONENT]} metrics={METRICS} rootComponent={COMPONENT} />)
+  ).toMatchSnapshot();
+});
+
+it('renders correctly for leak', () => {
+  expect(
+    shallow(
+      <Components
+        baseComponent={COMPONENT}
+        branchLike={BRANCH}
+        components={[COMPONENT]}
+        metrics={METRICS}
+        rootComponent={COMPONENT}
+      />
+    )
   ).toMatchSnapshot();
 });
 

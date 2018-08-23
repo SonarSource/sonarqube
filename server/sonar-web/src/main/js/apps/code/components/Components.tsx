@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 import { BranchLike, ComponentMeasure, Metric } from '../../../app/types';
-import { getCodeMetrics } from '../utils';
+import { getCodeMetrics, showLeakMeasure } from '../utils';
 
 interface Props {
   baseComponent?: ComponentMeasure;
@@ -37,24 +38,33 @@ export default function Components(props: Props) {
   const { baseComponent, branchLike, components, rootComponent, selected } = props;
   const metricKeys = getCodeMetrics(rootComponent.qualifier, branchLike);
   const metrics = metricKeys.map(metric => props.metrics[metric]).filter(Boolean);
+  const isLeak = Boolean(baseComponent && showLeakMeasure(branchLike));
   return (
-    <table className="data zebra">
-      <ComponentsHeader
-        baseComponent={baseComponent}
-        metrics={metricKeys}
-        rootComponent={rootComponent}
-      />
+    <table className="data boxed-padding zebra">
+      {baseComponent && (
+        <ComponentsHeader
+          baseComponent={baseComponent}
+          isLeak={isLeak}
+          metrics={metricKeys}
+          rootComponent={rootComponent}
+        />
+      )}
       {baseComponent && (
         <tbody>
           <Component
             branchLike={branchLike}
             component={baseComponent}
+            isLeak={isLeak}
             key={baseComponent.key}
             metrics={metrics}
             rootComponent={rootComponent}
           />
           <tr className="blank">
-            <td colSpan={8}>&nbsp;</td>
+            <td colSpan={3}>&nbsp;</td>
+            <td className={classNames({ leak: isLeak })} colSpan={10}>
+              {' '}
+              &nbsp;{' '}
+            </td>
           </tr>
         </tbody>
       )}
@@ -65,6 +75,7 @@ export default function Components(props: Props) {
               branchLike={branchLike}
               canBrowse={true}
               component={component}
+              isLeak={isLeak}
               key={component.key}
               metrics={metrics}
               previous={index > 0 ? list[index - 1] : undefined}
@@ -73,8 +84,13 @@ export default function Components(props: Props) {
             />
           ))
         ) : (
-          <ComponentsEmpty />
+          <ComponentsEmpty isLeak={isLeak} />
         )}
+
+        <tr className="blank">
+          <td colSpan={3} />
+          <td className={classNames({ leak: isLeak })} colSpan={10} />
+        </tr>
       </tbody>
     </table>
   );

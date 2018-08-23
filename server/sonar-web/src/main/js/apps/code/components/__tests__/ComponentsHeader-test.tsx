@@ -28,7 +28,25 @@ const METRICS = ['foo', 'bar'];
 it('renders correctly for projects', () => {
   expect(
     shallow(
-      <ComponentsHeader baseComponent={COMPONENT} metrics={METRICS} rootComponent={COMPONENT} />
+      <ComponentsHeader
+        baseComponent={COMPONENT}
+        isLeak={false}
+        metrics={METRICS}
+        rootComponent={COMPONENT}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders correctly for leak', () => {
+  expect(
+    shallow(
+      <ComponentsHeader
+        baseComponent={COMPONENT}
+        isLeak={true}
+        metrics={METRICS}
+        rootComponent={COMPONENT}
+      />
     )
   ).toMatchSnapshot();
 });
@@ -36,13 +54,18 @@ it('renders correctly for projects', () => {
 it('renders correctly for portfolios', () => {
   expect(
     shallow(
-      <ComponentsHeader baseComponent={PORTFOLIO} metrics={METRICS} rootComponent={PORTFOLIO} />
+      <ComponentsHeader
+        baseComponent={PORTFOLIO}
+        isLeak={false}
+        metrics={METRICS}
+        rootComponent={PORTFOLIO}
+      />
     )
   ).toMatchSnapshot();
 });
 
 it('renders correctly for a search', () => {
   expect(
-    shallow(<ComponentsHeader metrics={METRICS} rootComponent={COMPONENT} />)
+    shallow(<ComponentsHeader isLeak={false} metrics={METRICS} rootComponent={COMPONENT} />)
   ).toMatchSnapshot();
 });

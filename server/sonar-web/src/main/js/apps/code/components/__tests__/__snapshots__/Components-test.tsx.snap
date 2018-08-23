@@ -2,7 +2,7 @@
 
 exports[`renders correctly 1`] = `
 <table
-  className="data zebra"
+  className="data boxed-padding zebra"
 >
   <ComponentsHeader
     baseComponent={
@@ -12,6 +12,7 @@ exports[`renders correctly 1`] = `
         "qualifier": "TRK",
       }
     }
+    isLeak={false}
     metrics={
       Array [
         "ncloc",
@@ -39,6 +40,7 @@ exports[`renders correctly 1`] = `
           "qualifier": "TRK",
         }
       }
+      isLeak={false}
       key="foo"
       metrics={
         Array [
@@ -62,9 +64,17 @@ exports[`renders correctly 1`] = `
       className="blank"
     >
       <td
-        colSpan={8}
+        colSpan={3}
       >
          
+      </td>
+      <td
+        className=""
+        colSpan={10}
+      >
+         
+         
+         
       </td>
     </tr>
   </tbody>
@@ -78,6 +88,7 @@ exports[`renders correctly 1`] = `
           "qualifier": "TRK",
         }
       }
+      isLeak={false}
       key="foo"
       metrics={
         Array [
@@ -98,23 +109,91 @@ exports[`renders correctly 1`] = `
       }
       selected={false}
     />
+    <tr
+      className="blank"
+    >
+      <td
+        colSpan={3}
+      />
+      <td
+        className=""
+        colSpan={10}
+      />
+    </tr>
   </tbody>
 </table>
 `;
 
 exports[`renders correctly for a search 1`] = `
 <table
-  className="data zebra"
+  className="data boxed-padding zebra"
+>
+  <tbody>
+    <Component
+      canBrowse={true}
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      isLeak={false}
+      key="foo"
+      metrics={
+        Array [
+          Object {
+            "id": "1",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        ]
+      }
+      rootComponent={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      selected={false}
+    />
+    <tr
+      className="blank"
+    >
+      <td
+        colSpan={3}
+      />
+      <td
+        className=""
+        colSpan={10}
+      />
+    </tr>
+  </tbody>
+</table>
+`;
+
+exports[`renders correctly for leak 1`] = `
+<table
+  className="data boxed-padding zebra"
 >
   <ComponentsHeader
+    baseComponent={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "qualifier": "TRK",
+      }
+    }
+    isLeak={true}
     metrics={
       Array [
-        "ncloc",
+        "new_lines",
         "bugs",
         "vulnerabilities",
         "code_smells",
-        "coverage",
-        "duplicated_lines_density",
+        "new_coverage",
       ]
     }
     rootComponent={
@@ -127,6 +206,60 @@ exports[`renders correctly for a search 1`] = `
   />
   <tbody>
     <Component
+      branchLike={
+        Object {
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "feature",
+          "type": "SHORT",
+        }
+      }
+      component={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      isLeak={true}
+      key="foo"
+      metrics={Array []}
+      rootComponent={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+    />
+    <tr
+      className="blank"
+    >
+      <td
+        colSpan={3}
+      >
+         
+      </td>
+      <td
+        className="leak"
+        colSpan={10}
+      >
+         
+         
+         
+      </td>
+    </tr>
+  </tbody>
+  <tbody>
+    <Component
+      branchLike={
+        Object {
+          "isMain": false,
+          "mergeBranch": "master",
+          "name": "feature",
+          "type": "SHORT",
+        }
+      }
       canBrowse={true}
       component={
         Object {
@@ -135,17 +268,9 @@ exports[`renders correctly for a search 1`] = `
           "qualifier": "TRK",
         }
       }
+      isLeak={true}
       key="foo"
-      metrics={
-        Array [
-          Object {
-            "id": "1",
-            "key": "coverage",
-            "name": "Coverage",
-            "type": "PERCENT",
-          },
-        ]
-      }
+      metrics={Array []}
       rootComponent={
         Object {
           "key": "foo",
@@ -155,6 +280,17 @@ exports[`renders correctly for a search 1`] = `
       }
       selected={false}
     />
+    <tr
+      className="blank"
+    >
+      <td
+        colSpan={3}
+      />
+      <td
+        className="leak"
+        colSpan={10}
+      />
+    </tr>
   </tbody>
 </table>
 `;

@@ -7,12 +7,41 @@ exports[`renders correctly for a search 1`] = `
   >
     <th
       className="thin nowrap"
+      colSpan={2}
+    />
+    <th />
+    <th
+      className=""
+    />
+  </tr>
+</thead>
+`;
+
+exports[`renders correctly for leak 1`] = `
+<thead>
+  <tr
+    className="code-components-header"
+  >
+    <th
+      className="thin nowrap"
+      colSpan={2}
+    />
+    <th />
+    <th
+      className="thin nowrap text-right leak"
+      key="metric.foo.name"
     >
-       
+      metric.foo.name
     </th>
-    <th>
-       
+    <th
+      className="thin nowrap text-right code-components-cell leak"
+      key="metric.bar.name"
+    >
+      metric.bar.name
     </th>
+    <th
+      className="leak"
+    />
   </tr>
 </thead>
 `;
@@ -24,12 +53,9 @@ exports[`renders correctly for portfolios 1`] = `
   >
     <th
       className="thin nowrap"
-    >
-       
-    </th>
-    <th>
-       
-    </th>
+      colSpan={2}
+    />
+    <th />
     <th
       className="thin nowrap text-right"
       key="metric_domain.Releasability"
@@ -60,6 +86,9 @@ exports[`renders correctly for portfolios 1`] = `
     >
       metric.ncloc.name
     </th>
+    <th
+      className=""
+    />
   </tr>
 </thead>
 `;
@@ -71,12 +100,9 @@ exports[`renders correctly for projects 1`] = `
   >
     <th
       className="thin nowrap"
-    >
-       
-    </th>
-    <th>
-       
-    </th>
+      colSpan={2}
+    />
+    <th />
     <th
       className="thin nowrap text-right"
       key="metric.foo.name"
@@ -89,6 +115,9 @@ exports[`renders correctly for projects 1`] = `
     >
       metric.bar.name
     </th>
+    <th
+      className=""
+    />
   </tr>
 </thead>
 `;
