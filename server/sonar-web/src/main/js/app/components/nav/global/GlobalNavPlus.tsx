@@ -88,7 +88,8 @@ export default class GlobalNavPlus extends React.PureComponent<Props, State> {
               aria-haspopup="true"
               className="navbar-plus"
               href="#"
-              onClick={onToggleClick}>
+              onClick={onToggleClick}
+              title={translate('my_account.create_new_project_or_organization')}>
               <PlusIcon />
             </a>
 

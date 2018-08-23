@@ -23,6 +23,7 @@ import { CurrentUser } from '../../types';
 import Toggler from '../../../components/controls/Toggler';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import { lazyLoad } from '../../../components/lazyLoad';
+import { translate } from '../../../helpers/l10n';
 
 const EmbedDocsPopup = lazyLoad(() => import('./EmbedDocsPopup'));
 
@@ -90,7 +91,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<Props, Sta
               suggestions={this.props.suggestions}
             />
           }>
-          <a className="navbar-help" href="#" onClick={this.handleClick}>
+          <a className="navbar-help" href="#" onClick={this.handleClick} title={translate('help')}>
             <HelpIcon />
           </a>
         </Toggler>

@@ -101,7 +101,7 @@ export default class GlobalNavUser extends React.PureComponent<Props> {
           </ul>
         }
         tagName="li">
-        <a className="dropdown-toggle navbar-avatar" href="#">
+        <a className="dropdown-toggle navbar-avatar" href="#" title={currentUser.name}>
           <Avatar
             hash={currentUser.avatar}
             name={currentUser.name}

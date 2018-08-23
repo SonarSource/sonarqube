@@ -52,6 +52,7 @@ exports[`should not render user organizations when they are not activated 1`] = 
   <a
     className="dropdown-toggle navbar-avatar"
     href="#"
+    title="foo"
   >
     <Connect(Avatar)
       hash="abcd1234"
@@ -126,6 +127,7 @@ exports[`should render the right interface for logged in user 1`] = `
   <a
     className="dropdown-toggle navbar-avatar"
     href="#"
+    title="foo"
   >
     <Connect(Avatar)
       hash="abcd1234"
@@ -232,6 +234,7 @@ exports[`should render user organizations 1`] = `
   <a
     className="dropdown-toggle navbar-avatar"
     href="#"
+    title="foo"
   >
     <Connect(Avatar)
       hash="abcd1234"
