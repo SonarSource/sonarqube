@@ -26,13 +26,15 @@ import { fetchLanguages } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 import { getInstance, isSonarCloud } from '../../helpers/system';
 import { lazyLoad } from '../../components/lazyLoad';
-import { getCurrentUser, getAppState } from '../../store/rootReducer';
+import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../store/rootReducer';
 
 const PageTracker = lazyLoad(() => import('./PageTracker'));
 
 interface StateProps {
   appState: AppState | undefined;
   currentUser: CurrentUser | undefined;
+  enableGravatar: boolean;
+  gravatarServerUrl: string;
 }
 
 interface DispatchProps {
@@ -79,10 +81,22 @@ class App extends React.PureComponent<Props> {
     this.mounted = false;
   }
 
+  renderPreconnectLink = () => {
+    const parser = document.createElement('a');
+    parser.href = this.props.gravatarServerUrl;
+    if (parser.hostname !== window.location.hostname) {
+      return <link href={parser.origin} rel="preconnect" />;
+    } else {
+      return null;
+    }
+  };
+
   render() {
     return (
       <>
-        <Helmet defaultTitle={getInstance()} />
+        <Helmet defaultTitle={getInstance()}>
+          {this.props.enableGravatar && this.renderPreconnectLink()}
+        </Helmet>
         {isSonarCloud() && <PageTracker />}
         {this.props.children}
       </>
@@ -92,7 +106,9 @@ class App extends React.PureComponent<Props> {
 
 const mapStateToProps = (state: any): StateProps => ({
   appState: getAppState(state),
-  currentUser: getCurrentUser(state)
+  currentUser: getCurrentUser(state),
+  enableGravatar: (getGlobalSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
+  gravatarServerUrl: (getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value || ''
 });
 
 const mapDispatchToProps = ({
