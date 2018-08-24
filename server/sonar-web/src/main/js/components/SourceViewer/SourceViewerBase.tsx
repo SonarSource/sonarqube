@@ -223,8 +223,10 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
 
   fetchComponent() {
     this.setState({ loading: true });
+
+    const to = (this.props.aroundLine || 0) + LINES;
     const loadIssues = (component: SourceViewerFile, sources: SourceLine[]) => {
-      this.props.loadIssues(this.props.component, 1, LINES, this.props.branchLike).then(
+      this.props.loadIssues(this.props.component, 1, to, this.props.branchLike).then(
         issues => {
           if (this.mounted) {
             const finalSources = sources.slice(0, LINES);
