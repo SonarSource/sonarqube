@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Params from '../Params';
+import { Param } from '../../../../api/web-api';
 
 const DEFAULT_PARAM = {
   key: 'foo',
@@ -52,5 +53,22 @@ it('should render deprecated key', () => {
   ];
   expect(
     shallow(<Params params={params} showDeprecated={true} showInternal={false} />)
+  ).toMatchSnapshot();
+});
+
+it('should render different value constraints', () => {
+  const param: Param = {
+    ...DEFAULT_PARAM,
+    defaultValue: 'def',
+    exampleValue: 'foo',
+    minimumLength: 2,
+    maximumLength: 200,
+    minimumValue: 1,
+    maximumValue: 500,
+    maxValuesAllowed: 1000,
+    possibleValues: ['foo', 'bar']
+  };
+  expect(
+    shallow(<Params params={[param]} showDeprecated={true} showInternal={true} />)
   ).toMatchSnapshot();
 });

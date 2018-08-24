@@ -178,3 +178,148 @@ exports[`should render deprecated key 1`] = `
   </table>
 </div>
 `;
+
+exports[`should render different value constraints 1`] = `
+<div
+  className="web-api-params"
+>
+  <table>
+    <tbody>
+      <tr
+        key="foo"
+      >
+        <td
+          className="markdown"
+          style={
+            Object {
+              "width": 180,
+            }
+          }
+        >
+          <code>
+            foo
+          </code>
+          <div
+            className="note little-spacer-top"
+          >
+            optional
+          </div>
+        </td>
+        <td>
+          <div
+            className="markdown"
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Foo desc",
+              }
+            }
+          />
+        </td>
+        <td
+          style={
+            Object {
+              "width": 250,
+            }
+          }
+        >
+          <div>
+            <h4>
+              api_documentation.possible_values
+            </h4>
+            <ul
+              className="list-styled"
+            >
+              <li
+                className="little-spacer-top"
+                key="foo"
+              >
+                <code>
+                  foo
+                </code>
+              </li>
+              <li
+                className="little-spacer-top"
+                key="bar"
+              >
+                <code>
+                  bar
+                </code>
+              </li>
+            </ul>
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <h4>
+              api_documentation.default_values
+            </h4>
+            <code>
+              def
+            </code>
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <h4>
+              api_documentation.example_values
+            </h4>
+            <code>
+              foo
+            </code>
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <h4>
+              api_documentation.max_values
+            </h4>
+            <code>
+              1000
+            </code>
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <h4>
+              api_documentation.min_value
+            </h4>
+            <code>
+              1
+            </code>
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <h4>
+              api_documentation.max_value
+            </h4>
+            <code>
+              500
+            </code>
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <h4>
+              api_documentation.min_length
+            </h4>
+            <code>
+              2
+            </code>
+          </div>
+          <div
+            className="little-spacer-top"
+          >
+            <h4>
+              api_documentation.max_length
+            </h4>
+            <code>
+              200
+            </code>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

@@ -29,100 +29,111 @@ interface Props {
   showInternal: boolean;
 }
 
-export default function Params({ params, showDeprecated, showInternal }: Props) {
-  const displayedParameters = params
-    .filter(p => showDeprecated || !p.deprecatedSince)
-    .filter(p => showInternal || !p.internal);
-  return (
-    <div className="web-api-params">
-      <table>
-        <tbody>
-          {displayedParameters.map(param => (
-            <tr key={param.key}>
-              <td className="markdown" style={{ width: 180 }}>
-                <code>{param.key}</code>
+export default class Params extends React.PureComponent<Props> {
+  renderKey(param: Param) {
+    return (
+      <td className="markdown" style={{ width: 180 }}>
+        <code>{param.key}</code>
 
-                {param.internal && (
-                  <div className="little-spacer-top">
-                    <InternalBadge />
-                  </div>
-                )}
+        {param.internal && (
+          <div className="little-spacer-top">
+            <InternalBadge />
+          </div>
+        )}
 
-                {param.deprecatedSince && (
-                  <div className="little-spacer-top">
-                    <DeprecatedBadge since={param.deprecatedSince} />
-                  </div>
-                )}
+        {param.deprecatedSince && (
+          <div className="little-spacer-top">
+            <DeprecatedBadge since={param.deprecatedSince} />
+          </div>
+        )}
 
-                {showDeprecated &&
-                  param.deprecatedKey && (
-                    <div className="little-spacer-top">
-                      <code>{param.deprecatedKey}</code>
+        {this.props.showDeprecated &&
+          param.deprecatedKey && (
+            <div className="little-spacer-top">
+              <code>{param.deprecatedKey}</code>
+            </div>
+          )}
+
+        {this.props.showDeprecated &&
+          param.deprecatedKey &&
+          param.deprecatedKeySince && (
+            <div className="little-spacer-top">
+              <DeprecatedBadge since={param.deprecatedKeySince} />
+            </div>
+          )}
+
+        <div className="note little-spacer-top">{param.required ? 'required' : 'optional'}</div>
+
+        {param.since && (
+          <div className="note little-spacer-top">
+            {translateWithParameters('since_x', param.since)}
+          </div>
+        )}
+      </td>
+    );
+  }
+
+  renderConstraint(param: Param, field: keyof Param, label: string) {
+    const value = param[field];
+    if (value !== undefined) {
+      return (
+        <div className="little-spacer-top">
+          <h4>{translate('api_documentation', label)}</h4>
+          <code>{value}</code>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  render() {
+    const { params, showDeprecated, showInternal } = this.props;
+    const displayedParameters = params
+      .filter(p => showDeprecated || !p.deprecatedSince)
+      .filter(p => showInternal || !p.internal);
+    return (
+      <div className="web-api-params">
+        <table>
+          <tbody>
+            {displayedParameters.map(param => (
+              <tr key={param.key}>
+                {this.renderKey(param)}
+
+                <td>
+                  <div
+                    className="markdown"
+                    dangerouslySetInnerHTML={{ __html: param.description }}
+                  />
+                </td>
+
+                <td style={{ width: 250 }}>
+                  {param.possibleValues && (
+                    <div>
+                      <h4>{translate('api_documentation.possible_values')}</h4>
+                      <ul className="list-styled">
+                        {param.possibleValues.map(value => (
+                          <li className="little-spacer-top" key={value}>
+                            <code>{value}</code>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
 
-                {showDeprecated &&
-                  param.deprecatedKey &&
-                  param.deprecatedKeySince && (
-                    <div className="little-spacer-top">
-                      <DeprecatedBadge since={param.deprecatedKeySince} />
-                    </div>
-                  )}
-
-                <div className="note little-spacer-top">
-                  {param.required ? 'required' : 'optional'}
-                </div>
-
-                {param.since && (
-                  <div className="note little-spacer-top">
-                    {translateWithParameters('since_x', param.since)}
-                  </div>
-                )}
-              </td>
-
-              <td>
-                <div className="markdown" dangerouslySetInnerHTML={{ __html: param.description }} />
-              </td>
-
-              <td style={{ width: 250 }}>
-                {param.possibleValues && (
-                  <div>
-                    <h4>{translate('api_documentation.possible_values')}</h4>
-                    <ul className="list-styled">
-                      {param.possibleValues.map(value => (
-                        <li className="little-spacer-top" key={value}>
-                          <code>{value}</code>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {param.defaultValue && (
-                  <div className="little-spacer-top">
-                    <h4>{translate('api_documentation.default_values')}</h4>
-                    <code>{param.defaultValue}</code>
-                  </div>
-                )}
-
-                {param.exampleValue && (
-                  <div className="little-spacer-top">
-                    <h4>{translate('api_documentation.example_values')}</h4>
-                    <code>{param.exampleValue}</code>
-                  </div>
-                )}
-
-                {param.maxValuesAllowed != null && (
-                  <div className="little-spacer-top">
-                    <h4>{translate('api_documentation.max_values')}</h4>
-                    <code>{param.maxValuesAllowed}</code>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+                  {this.renderConstraint(param, 'defaultValue', 'default_values')}
+                  {this.renderConstraint(param, 'exampleValue', 'example_values')}
+                  {this.renderConstraint(param, 'maxValuesAllowed', 'max_values')}
+                  {this.renderConstraint(param, 'minimumValue', 'min_value')}
+                  {this.renderConstraint(param, 'maximumValue', 'max_value')}
+                  {this.renderConstraint(param, 'minimumLength', 'min_length')}
+                  {this.renderConstraint(param, 'maximumLength', 'max_length')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 }

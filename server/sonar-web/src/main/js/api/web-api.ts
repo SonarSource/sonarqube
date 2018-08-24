@@ -26,15 +26,19 @@ export interface Changelog {
 }
 
 export interface Param {
-  key: string;
   defaultValue?: string;
-  description: string;
   deprecatedKey?: string;
   deprecatedKeySince?: string;
   deprecatedSince?: string;
+  description: string;
   exampleValue?: string;
   internal: boolean;
+  key: string;
+  maximumLength?: number;
+  maximumValue?: number;
   maxValuesAllowed?: number;
+  minimumLength?: number;
+  minimumValue?: number;
   possibleValues?: string[];
   required: boolean;
   since?: string;
