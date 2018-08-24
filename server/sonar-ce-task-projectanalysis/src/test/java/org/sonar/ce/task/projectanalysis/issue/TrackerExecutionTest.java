@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.core.issue.DefaultIssue;
@@ -49,8 +50,9 @@ public class TrackerExecutionTest {
   private final ClosedIssuesInputFactory closedIssuesInputFactory = mock(ClosedIssuesInputFactory.class);
   private final Tracker<DefaultIssue, DefaultIssue> tracker = mock(Tracker.class);
   private final ComponentIssuesLoader componentIssuesLoader = mock(ComponentIssuesLoader.class);
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
 
-  private TrackerExecution underTest = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, tracker, componentIssuesLoader);
+  private TrackerExecution underTest = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, tracker, componentIssuesLoader, analysisMetadataHolder);
 
   private Input<DefaultIssue> rawInput = mock(Input.class);
   private Input<DefaultIssue> openIssuesInput = mock(Input.class);
@@ -65,6 +67,25 @@ public class TrackerExecutionTest {
     when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
     when(closedIssuesInputFactory.create(any())).thenThrow(new IllegalStateException("closedIssuesInputFactory should not be called"));
     when(nonClosedTracking.isComplete()).thenReturn(true);
+    when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
+    when(tracker.trackNonClosed(rawInput, openIssuesInput)).thenReturn(nonClosedTracking);
+    when(tracker.trackClosed(any(), any())).thenThrow(new IllegalStateException("trackClosed should not be called"));
+
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(component);
+
+    assertThat(tracking).isSameAs(nonClosedTracking);
+    verify(tracker).trackNonClosed(rawInput, openIssuesInput);
+    verifyNoMoreInteractions(tracker);
+  }
+
+  @Test
+  public void track_does_not_track_nonClosed_issues_if_tracking_returns_incomplete_but_this_is_first_analysis() {
+    ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).build();
+    when(rawInputFactory.create(component)).thenReturn(rawInput);
+    when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
+    when(closedIssuesInputFactory.create(any())).thenThrow(new IllegalStateException("closedIssuesInputFactory should not be called"));
+    when(nonClosedTracking.isComplete()).thenReturn(false);
+    when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
     when(tracker.trackNonClosed(rawInput, openIssuesInput)).thenReturn(nonClosedTracking);
     when(tracker.trackClosed(any(), any())).thenThrow(new IllegalStateException("trackClosed should not be called"));
 
@@ -82,6 +103,7 @@ public class TrackerExecutionTest {
     when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
     when(closedIssuesInputFactory.create(component)).thenReturn(closedIssuesInput);
     when(nonClosedTracking.isComplete()).thenReturn(false);
+    when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
     when(tracker.trackNonClosed(rawInput, openIssuesInput)).thenReturn(nonClosedTracking);
     when(tracker.trackClosed(nonClosedTracking, closedIssuesInput)).thenReturn(closedTracking);
 
@@ -100,6 +122,7 @@ public class TrackerExecutionTest {
     when(baseInputFactory.create(component)).thenReturn(openIssuesInput);
     when(closedIssuesInputFactory.create(component)).thenReturn(closedIssuesInput);
     when(nonClosedTracking.isComplete()).thenReturn(false);
+    when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
     when(tracker.trackNonClosed(rawInput, openIssuesInput)).thenReturn(nonClosedTracking);
     when(tracker.trackClosed(nonClosedTracking, closedIssuesInput)).thenReturn(closedTracking);
     Set<DefaultIssue> mappedClosedIssues = IntStream.range(1, 2 + new Random().nextInt(2))

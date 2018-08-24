@@ -143,7 +143,7 @@ public class IntegrateIssuesVisitorTest {
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository);
     TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
-    tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader);
+    tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
     shortBranchTracker = new ShortBranchTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>());
     mergeBranchTracker = new MergeBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
 
