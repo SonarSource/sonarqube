@@ -33,7 +33,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -83,7 +82,9 @@ import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
@@ -122,10 +123,6 @@ public class SearchActionTest {
     new MapSettings().asConfig(), System2.INSTANCE, dbClient));
   private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
-  private OrganizationDto defaultOrganization;
-  private OrganizationDto otherOrganization1;
-  private OrganizationDto otherOrganization2;
-
   @Before
   public void setUp() {
     issueWorkflow.start();
@@ -153,8 +150,8 @@ public class SearchActionTest {
       .setAuthorLogin("John")
       .setAssigneeUuid(simon.getUuid())
       .setTags(asList("bug", "owasp"))
-      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100")));
+      .setIssueCreationDate(parseDate("2014-09-03"))
+      .setIssueUpdateDate(parseDate("2017-12-04")));
     indexIssues();
 
     SearchWsResponse response = ws.newRequest()
@@ -166,7 +163,7 @@ public class SearchActionTest {
         Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getCreationDate, Issue::getUpdateDate)
       .containsExactlyInAnyOrder(
         tuple(organization.getKey(), issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message", "10min",
-          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), "2014-09-04T01:00:00+0200", "2017-12-04T00:00:00+0100"));
+          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()), formatDateTime(issue.getIssueUpdateDate())));
   }
 
   @Test
@@ -273,14 +270,14 @@ public class SearchActionTest {
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(john.getUuid())
-        .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
+        .setIssueChangeCreationDate(parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(fabrice.getUuid())
-        .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-10T12:00:00+0000").getTime()));
+        .setIssueChangeCreationDate(parseDateTime("2014-09-10T12:00:00+0000").getTime()));
     session.commit();
     indexIssues();
     userSession.logIn(john);
@@ -306,14 +303,14 @@ public class SearchActionTest {
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(john.getUuid())
-        .setCreatedAt(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
+        .setCreatedAt(parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(fabrice.getUuid())
-        .setCreatedAt(DateUtils.parseDateTime("2014-09-10T19:10:03+0000").getTime()));
+        .setCreatedAt(parseDateTime("2014-09-10T19:10:03+0000").getTime()));
     session.commit();
     indexIssues();
     userSession.logIn(john);
@@ -406,8 +403,8 @@ public class SearchActionTest {
       .setComponent(removedFile)
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
+      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(parseDateTime("2017-12-04T00:00:00+0100"));
     dbClient.issueDao().insert(session, issue);
     session.commit();
     indexIssues();
@@ -589,13 +586,13 @@ public class SearchActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     dbClient.issueDao().insert(session, newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1")
-      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-02T00:00:00+0100")));
+      .setIssueUpdateDate(parseDateTime("2014-11-02T00:00:00+0100")));
     dbClient.issueDao().insert(session, newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
-      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-01T00:00:00+0100")));
+      .setIssueUpdateDate(parseDateTime("2014-11-01T00:00:00+0100")));
     dbClient.issueDao().insert(session, newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
-      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-03T00:00:00+0100")));
+      .setIssueUpdateDate(parseDateTime("2014-11-03T00:00:00+0100")));
     session.commit();
     indexIssues();
 
