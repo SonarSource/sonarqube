@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import lunr, { LunrIndex } from 'lunr';
+import { sortBy } from 'lodash';
 import SearchResultEntry, { SearchResult } from './SearchResultEntry';
 import { DocumentationEntry } from '../utils';
 
@@ -51,21 +52,34 @@ export default class SearchResults extends React.PureComponent<Props> {
       .map(match => {
         const page = this.props.pages.find(page => page.relativeName === match.ref);
         const highlights: { [field: string]: [number, number][] } = {};
+        let longestTerm = '';
 
+        // remember the longest term that matches the query *exactly*
         Object.keys(match.matchData.metadata).forEach(term => {
+          if (
+            query.toLowerCase().includes(term.toLowerCase()) &&
+            longestTerm.length < term.length
+          ) {
+            longestTerm = term;
+          }
+
           Object.keys(match.matchData.metadata[term]).forEach(fieldName => {
             const { position: positions } = match.matchData.metadata[term][fieldName];
             highlights[fieldName] = [...(highlights[fieldName] || []), ...positions];
           });
         });
 
-        return { page, highlights };
+        return { page, highlights, longestTerm };
       })
       .filter(result => result.page) as SearchResult[];
 
+    // re-order results by the length of the longest matched term
+    // the longer term is the more chances the result is more relevant
+    const sortedResults = sortBy(results, result => -result.longestTerm.length);
+
     return (
       <>
-        {results.map(result => (
+        {sortedResults.map(result => (
           <SearchResultEntry
             active={result.page.relativeName === this.props.splat}
             key={result.page.relativeName}

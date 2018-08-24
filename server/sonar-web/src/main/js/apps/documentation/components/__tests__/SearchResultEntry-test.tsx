@@ -36,7 +36,9 @@ const page = {
 describe('SearchResultEntry', () => {
   it('should render', () => {
     expect(
-      shallow(<SearchResultEntry active={true} result={{ page, highlights: {} }} />)
+      shallow(
+        <SearchResultEntry active={true} result={{ page, highlights: {}, longestTerm: '' }} />
+      )
     ).toMatchSnapshot();
   });
 });
@@ -44,24 +46,32 @@ describe('SearchResultEntry', () => {
 describe('SearchResultText', () => {
   it('should render with highlights', () => {
     expect(
-      shallow(<SearchResultText result={{ page, highlights: { text: [[12, 9]] } }} />)
+      shallow(
+        <SearchResultText result={{ page, highlights: { text: [[12, 9]] }, longestTerm: '' }} />
+      )
     ).toMatchSnapshot();
   });
 
   it('should render without highlights', () => {
-    expect(shallow(<SearchResultText result={{ page, highlights: {} }} />)).toMatchSnapshot();
+    expect(
+      shallow(<SearchResultText result={{ page, highlights: {}, longestTerm: '' }} />)
+    ).toMatchSnapshot();
   });
 });
 
 describe('SearchResultTitle', () => {
   it('should render with highlights', () => {
     expect(
-      shallow(<SearchResultTitle result={{ page, highlights: { title: [[0, 6]] } }} />)
+      shallow(
+        <SearchResultTitle result={{ page, highlights: { title: [[0, 6]] }, longestTerm: '' }} />
+      )
     ).toMatchSnapshot();
   });
 
   it('should render not without highlights', () => {
-    expect(shallow(<SearchResultTitle result={{ page, highlights: {} }} />)).toMatchSnapshot();
+    expect(
+      shallow(<SearchResultTitle result={{ page, highlights: {}, longestTerm: '' }} />)
+    ).toMatchSnapshot();
   });
 });
 

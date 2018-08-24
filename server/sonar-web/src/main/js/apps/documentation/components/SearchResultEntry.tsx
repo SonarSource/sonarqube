@@ -23,8 +23,9 @@ import { Link } from 'react-router';
 import { highlightMarks, cutWords, DocumentationEntry } from '../utils';
 
 export interface SearchResult {
-  page: DocumentationEntry;
   highlights: { [field: string]: [number, number][] };
+  longestTerm: string;
+  page: DocumentationEntry;
 }
 
 interface Props {

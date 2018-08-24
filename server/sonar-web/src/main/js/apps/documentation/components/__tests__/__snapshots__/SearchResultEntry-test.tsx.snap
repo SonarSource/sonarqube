@@ -11,6 +11,7 @@ exports[`SearchResultEntry should render 1`] = `
     result={
       Object {
         "highlights": Object {},
+        "longestTerm": "",
         "page": Object {
           "content": "",
           "order": -1,
@@ -25,6 +26,7 @@ exports[`SearchResultEntry should render 1`] = `
     result={
       Object {
         "highlights": Object {},
+        "longestTerm": "",
         "page": Object {
           "content": "",
           "order": -1,
