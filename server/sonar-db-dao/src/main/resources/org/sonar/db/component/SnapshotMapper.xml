@@ -114,17 +114,6 @@
       s.created_at
   </select>
 
-  <select id="selectPreviousVersionSnapshots" parameterType="map" resultType="Snapshot">
-    SELECT
-    <include refid="snapshotColumns" />
-    FROM snapshots s
-    INNER JOIN events e ON s.uuid = e.analysis_uuid AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
-    <where>
-      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
-    </where>
-    ORDER BY e.event_date DESC
-  </select>
-
   <select id="selectOldestSnapshots" parameterType="map" resultType="Snapshot">
     SELECT
     <include refid="snapshotColumns" />

@@ -51,6 +51,20 @@
     </where>
   </select>
 
+  <select id="selectVersions" resultType="Event" parameterType="map">
+    select
+      <include refid="eventColumns"/>
+    from events e
+    inner join snapshots s on
+      s.uuid = e.analysis_uuid
+      and s.status = 'P'
+      and s.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    where
+      e.category = 'Version'
+    order by
+      e.event_date desc
+  </select>
+
   <insert id="insert" parameterType="Event" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO events (uuid, analysis_uuid, component_uuid, name, category, description, event_data, event_date, created_at)
     VALUES (

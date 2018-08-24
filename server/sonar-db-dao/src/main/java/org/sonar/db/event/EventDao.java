@@ -45,8 +45,12 @@ public class EventDao implements Dao {
     return executeLargeInputs(analyses, mapper(dbSession)::selectByAnalysisUuids);
   }
 
+  public List<EventDto> selectVersionsByMostRecentFirst(DbSession session, String componentUuid) {
+    return mapper(session).selectVersions(componentUuid);
+  }
+
   public EventDto insert(DbSession session, EventDto dto) {
-    session.getMapper(EventMapper.class).insert(dto);
+    mapper(session).insert(dto);
 
     return dto;
   }

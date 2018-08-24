@@ -177,20 +177,6 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void select_previous_version_snapshots() {
-    db.prepareDbUnit(getClass(), "select_previous_version_snapshots.xml");
-
-    List<SnapshotDto> snapshots = underTest.selectPreviousVersionSnapshots(db.getSession(), "ABCD", "1.2-SNAPSHOT");
-    assertThat(snapshots).hasSize(2);
-
-    SnapshotDto firstSnapshot = snapshots.get(0);
-    assertThat(firstSnapshot.getVersion()).isEqualTo("1.1");
-
-    // All snapshots are returned on an unknown version
-    assertThat(underTest.selectPreviousVersionSnapshots(db.getSession(), "ABCD", "UNKNOWN")).hasSize(3);
-  }
-
-  @Test
   public void select_first_snapshots() {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization());
     db.getDbClient().componentDao().insert(dbSession, project);
@@ -201,11 +187,11 @@ public class SnapshotDaoTest {
       newAnalysis(project).setCreatedAt(1L));
     dbSession.commit();
 
-    SnapshotDto dto = underTest.selectOldestSnapshot(dbSession, project.uuid());
-    assertThat(dto).isNotNull();
-    assertThat(dto.getCreatedAt()).isEqualTo(1L);
+    Optional<SnapshotDto> dto = underTest.selectOldestSnapshot(dbSession, project.uuid());
+    assertThat(dto).isNotEmpty();
+    assertThat(dto.get().getCreatedAt()).isEqualTo(1L);
 
-    assertThat(underTest.selectOldestSnapshot(dbSession, "blabla")).isNull();
+    assertThat(underTest.selectOldestSnapshot(dbSession, "blabla")).isEmpty();
   }
 
   @Test
