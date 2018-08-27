@@ -19,11 +19,22 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { BranchLike } from '../../../app/types';
+import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
 
-export default function MeasuresEmpty() {
+interface Props {
+  branchLike?: BranchLike;
+}
+
+export default function MeasuresEmpty({ branchLike }: Props) {
+  const message =
+    isShortLivingBranch(branchLike) || isPullRequest(branchLike)
+      ? translate('component_measures.no_coverage')
+      : translate('component_measures.empty');
+
   return (
-    <div className="layout-page-main">
-      <div className="note text-center">{translate('component_measures.empty')}</div>
+    <div className="page page-limited">
+      <div className="note">{message}</div>
     </div>
   );
 }

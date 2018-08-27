@@ -89,13 +89,6 @@ export default class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    document.body.classList.add('white-page');
-    document.documentElement.classList.add('white-page');
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.add('page-footer-with-sidebar');
-    }
-
     key.setScope('measures-files');
     this.props.fetchMetrics();
     this.fetchMeasures(this.props);
@@ -108,6 +101,17 @@ export default class App extends React.PureComponent<Props, State> {
       nextProps.metrics !== this.props.metrics
     ) {
       this.fetchMeasures(nextProps);
+    }
+  }
+
+  componentDidUpdate(_prevProps: Props, prevState: State) {
+    if (prevState.measures.length === 0 && this.state.measures.length > 0) {
+      document.body.classList.add('white-page');
+      document.documentElement.classList.add('white-page');
+      const footer = document.getElementById('footer');
+      if (footer) {
+        footer.classList.add('page-footer-with-sidebar');
+      }
     }
   }
 
@@ -194,12 +198,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   renderContent = (displayOverview: boolean, query: Query, metric?: Metric) => {
     const { branchLike, component, fetchMeasures, metrics } = this.props;
-    const { leakPeriod, measures } = this.state;
-
-    if (measures.length === 0) {
-      return <MeasuresEmpty />;
-    }
-
+    const { leakPeriod } = this.state;
     if (displayOverview) {
       return (
         <MeasureOverviewContainer
@@ -251,28 +250,33 @@ export default class App extends React.PureComponent<Props, State> {
     const displayOverview = hasOverview && hasBubbleChart(query.metric);
     const metric = this.getSelectedMetric(query, displayOverview);
     return (
-      <div className="layout-page" id="component-measures">
+      <div id="component-measures">
         <Suggestions suggestions="component_measures" />
         <Helmet title={this.getHelmetTitle(query, displayOverview, metric)} />
 
-        <ScreenPositionHelper className="layout-page-side-outer">
-          {({ top }) => (
-            <div className="layout-page-side" style={{ top }}>
-              <div className="layout-page-side-inner">
-                <div className="layout-page-filters">
-                  <Sidebar
-                    hasOverview={hasOverview}
-                    measures={measures}
-                    selectedMetric={metric ? metric.key : query.metric}
-                    updateQuery={this.updateQuery}
-                  />
+        {measures.length > 0 ? (
+          <div className="layout-page">
+            <ScreenPositionHelper className="layout-page-side-outer">
+              {({ top }) => (
+                <div className="layout-page-side" style={{ top }}>
+                  <div className="layout-page-side-inner">
+                    <div className="layout-page-filters">
+                      <Sidebar
+                        hasOverview={hasOverview}
+                        measures={measures}
+                        selectedMetric={metric ? metric.key : query.metric}
+                        updateQuery={this.updateQuery}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
-        </ScreenPositionHelper>
-
-        {this.renderContent(displayOverview, query, metric)}
+              )}
+            </ScreenPositionHelper>
+            {this.renderContent(displayOverview, query, metric)}
+          </div>
+        ) : (
+          <MeasuresEmpty branchLike={branchLike} />
+        )}
       </div>
     );
   }

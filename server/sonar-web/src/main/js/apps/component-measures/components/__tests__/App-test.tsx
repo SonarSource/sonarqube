@@ -77,3 +77,10 @@ it('should render a measure overview', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.find('MeasureOverviewContainer')).toHaveLength(1);
 });
+
+it('should render a message when there are no measures', async () => {
+  const fetchMeasures = jest.fn().mockResolvedValue({ component: COMPONENT, measures: [] });
+  const wrapper = shallow(<App {...PROPS} fetchMeasures={fetchMeasures} />);
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
