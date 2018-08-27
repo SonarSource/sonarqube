@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
@@ -33,6 +34,7 @@ import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.new
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
+@SupportsBlueGreen
 public class CreateProjectAlmBindingsTable extends DdlChange {
 
   private static final String TABLE_NAME = "project_alm_bindings";
