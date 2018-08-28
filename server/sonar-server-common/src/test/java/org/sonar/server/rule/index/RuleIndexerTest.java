@@ -20,7 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -35,10 +34,13 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
+import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
@@ -72,7 +74,7 @@ public class RuleIndexerTest {
 
   @Test
   public void index_nothing() {
-    underTest.index(dbSession, Collections.emptyList());
+    underTest.index(dbSession, emptyList());
     assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0L);
   }
 
@@ -104,7 +106,8 @@ public class RuleIndexerTest {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKeyOfMaximumLength()));
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
     OrganizationDto organization = dbTester.organizations().insert();
-    dbTester.rules().insertOrUpdateMetadata(rule, organization, m -> m.setTags(ImmutableSet.of("bla")));
+    RuleMetadataDto metadata = RuleTesting.newRuleMetadata(rule, organization).setTags(ImmutableSet.of("bla"));
+    dbTester.getDbClient().ruleDao().insertOrUpdate(dbTester.getSession(), metadata);
     underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
 
     RuleExtensionDoc doc = new RuleExtensionDoc()
@@ -118,6 +121,28 @@ public class RuleIndexerTest {
         .getHits()
         .getHits()[0]
         .getId()).isEqualTo(doc.getId());
+  }
+
+  @Test
+  public void delete_rule_extension_from_index_when_setting_rule_tags_to_empty() {
+    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKeyOfMaximumLength()));
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
+    OrganizationDto organization = dbTester.organizations().insert();
+    RuleMetadataDto metadata = RuleTesting.newRuleMetadata(rule, organization).setTags(ImmutableSet.of("bla"));
+    dbTester.getDbClient().ruleDao().insertOrUpdate(dbTester.getSession(), metadata);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+
+    // index tags
+    RuleExtensionDoc doc = new RuleExtensionDoc()
+      .setRuleId(rule.getId())
+      .setScope(RuleExtensionScope.organization(organization.getUuid()));
+    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION)).contains(doc.getId());
+
+    // update db table "rules_metadata" with empty tags and delete tags from index
+    metadata = RuleTesting.newRuleMetadata(rule, organization).setTags(emptySet());
+    dbTester.getDbClient().ruleDao().insertOrUpdate(dbTester.getSession(), metadata);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION)).doesNotContain(doc.getId());
   }
 
   @Test

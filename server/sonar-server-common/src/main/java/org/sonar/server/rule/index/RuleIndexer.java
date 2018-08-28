@@ -176,7 +176,7 @@ public class RuleIndexer implements ResilientIndexer {
 
     // the remaining items reference rows that don't exist in db. They must
     // be deleted from index.
-    docIds.forEach(docId -> bulkIndexer.addDeletion(INDEX_TYPE_RULE_EXTENSION, docId.getId(), docId.getId()));
+    docIds.forEach(docId -> bulkIndexer.addDeletion(INDEX_TYPE_RULE_EXTENSION, docId.getId(), String.valueOf(docId.getRuleId())));
 
     return bulkIndexer.stop();
   }
