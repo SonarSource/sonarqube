@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.step;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -42,8 +41,8 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.LiveMeasureComparator;
 import org.sonar.db.measure.LiveMeasureDao;
-import org.sonar.db.measure.LiveMeasureDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
@@ -110,7 +109,6 @@ public class PersistLiveMeasuresStep implements ComputationStep {
 
     @Override
     public void visitAny(Component component) {
-      int count = 0;
       LiveMeasureDao dao = dbClient.liveMeasureDao();
       Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
       for (Map.Entry<String, Collection<Measure>> measuresByMetricKey : measures.asMap().entrySet()) {
@@ -120,21 +118,16 @@ public class PersistLiveMeasuresStep implements ComputationStep {
         }
         Metric metric = metricRepository.getByKey(metricKey);
         Predicate<Measure> notBestValueOptimized = BestValueOptimization.from(metric, component).negate();
-        Iterator<LiveMeasureDto> liveMeasures = measuresByMetricKey.getValue().stream()
+        measuresByMetricKey.getValue().stream()
           .filter(NonEmptyMeasure.INSTANCE)
           .filter(notBestValueOptimized)
           .map(measure -> measureToMeasureDto.toLiveMeasureDto(measure, metric, component))
-          .iterator();
-        while (liveMeasures.hasNext()) {
-          dao.insertOrUpdate(dbSession, liveMeasures.next(), marker);
-          count++;
-          total++;
-          if (count % 100 == 0) {
-            // use short transactions to avoid potential deadlocks on MySQL
-            // https://jira.sonarsource.com/browse/SONAR-10117?focusedCommentId=153555&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-153555
-            dbSession.commit();
-          }
-        }
+          // To prevent deadlock, live measures are ordered the same way as in LiveMeasureComputerImpl#refreshComponentsOnSameProject
+          .sorted(LiveMeasureComparator.INSTANCE)
+          .forEach(lm -> {
+            dao.insertOrUpdate(dbSession, lm, marker);
+            total++;
+          });
       }
     }
   }
@@ -147,5 +140,6 @@ public class PersistLiveMeasuresStep implements ComputationStep {
       return input.getValueType() != Measure.ValueType.NO_VALUE || input.hasVariation() || input.getData() != null;
     }
   }
+
 
 }
