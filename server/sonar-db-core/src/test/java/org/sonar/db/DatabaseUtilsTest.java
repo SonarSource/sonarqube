@@ -21,6 +21,7 @@ package org.sonar.db;
 
 import com.google.common.base.Function;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,9 +45,15 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 
 public class DatabaseUtilsTest {
@@ -330,6 +337,38 @@ public class DatabaseUtilsTest {
       assertThat(DatabaseUtils.tableExists("schema_migrations", connection)).isTrue();
       assertThat(DatabaseUtils.tableExists("schema_MIGRATIONS", connection)).isTrue();
       assertThat(DatabaseUtils.tableExists("foo", connection)).isFalse();
+    }
+  }
+
+  @Test
+  public void tableExists_is_resilient_on_getSchema() throws Exception {
+    try (Connection connection = spy(dbTester.openConnection())) {
+      doThrow(AbstractMethodError.class).when(connection).getSchema();
+      assertThat(DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
+      assertThat(DatabaseUtils.tableExists("schema_migrations", connection)).isTrue();
+      assertThat(DatabaseUtils.tableExists("schema_MIGRATIONS", connection)).isTrue();
+      assertThat(DatabaseUtils.tableExists("foo", connection)).isFalse();
+    }
+  }
+
+  @Test
+  public void tableExists_is_using_getSchema_when_not_using_h2() throws Exception {
+    try (Connection connection = spy(dbTester.openConnection())) {
+      // DatabaseMetaData mock
+      DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+      doReturn("xxx").when(metaData).getDriverName();
+
+      // ResultSet mock
+      ResultSet resultSet = mock(ResultSet.class);
+      doReturn(true, false).when(resultSet).next();
+      doReturn("SCHEMA_MIGRATIONS").when(resultSet).getString(eq("TABLE_NAME"));
+      doReturn(resultSet).when(metaData).getTables(any(), eq("yyyy"), any(), any());
+
+      // Connection mock
+      doReturn("yyyy").when(connection).getSchema();
+      doReturn(metaData).when(connection).getMetaData();
+
+      assertThat(DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
     }
   }
 

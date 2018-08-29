@@ -317,21 +317,21 @@ public class DatabaseUtils {
   }
 
   private static boolean doTableExists(String table, Connection connection) {
+    String schema = null;
+
+    try {
+      // Using H2 with a JDBC TCP connection is throwing an exception
+      // See org.h2.engine.SessionRemote#getCurrentSchemaName()
+      if (!"H2 JDBC Driver".equals(connection.getMetaData().getDriverName())) {
+        schema = connection.getSchema();
+      }
+    } catch (SQLException e) {
+      Loggers.get(DatabaseUtils.class).warn("Fail to determine schema. Keeping it null for searching tables", e);
+    }
+
     // table type is used to speed-up Oracle by removing introspection of system tables and aliases.
-    try (ResultSet rs = connection.getMetaData().getTables(connection.getCatalog(), connection.getSchema(), table, TABLE_TYPE)) {
-      System.out.println("****>> " + rs.getMetaData().getSchemaName(1));
-      System.out.println("****>>> " + connection.getSchema());
+    try (ResultSet rs = connection.getMetaData().getTables(connection.getCatalog(), schema, table, TABLE_TYPE)) {
       while (rs.next()) {
-        System.out.println("TABLE_CAT = " + rs.getString("TABLE_CAT"));
-        System.out.println("TABLE_SCHEM = " + rs.getString("TABLE_SCHEM"));
-        System.out.println("TABLE_NAME = " + rs.getString("TABLE_NAME"));
-        System.out.println("TABLE_TYPE = " + rs.getString("TABLE_TYPE"));
-        System.out.println("REMARKS = " + rs.getString("REMARKS"));
-        //System.out.println("TYPE_CAT = " + rs.getString("TYPE_CAT"));
-        //System.out.println("TYPE_SCHEM = " + rs.getString("TYPE_SCHEM"));
-        //System.out.println("TYPE_NAME = " + rs.getString("TYPE_NAME"));
-        System.out.println("SELF_REFERENCING_COL_NAME = " + rs.getString("SELF_REFERENCING_COL_NAME"));
-        System.out.println("REF_GENERATION = " + rs.getString("REF_GENERATION"));
         String name = rs.getString("TABLE_NAME");
         if (table.equalsIgnoreCase(name)) {
           return true;

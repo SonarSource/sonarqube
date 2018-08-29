@@ -93,7 +93,7 @@ public class DefaultDatabase implements Database {
   private void initDataSource() throws Exception {
     // but it's correctly caught by start()
     LOG.info("Create JDBC data source for {}", properties.getProperty(JDBC_URL.getKey()), DEFAULT_URL);
-    BasicDataSource basicDataSource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
+    BasicDataSource basicDataSource = BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
     datasource = new ProfiledDataSource(basicDataSource, NullConnectionInterceptor.INSTANCE);
     datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
     datasource.setValidationQuery(dialect.getValidationQuery());
@@ -163,6 +163,7 @@ public class DefaultDatabase implements Database {
   @VisibleForTesting
   static Properties extractCommonsDbcpProperties(Properties properties) {
     Properties result = new Properties();
+    result.setProperty("accessToUnderlyingConnectionAllowed", "true");
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String key = (String) entry.getKey();
       if (StringUtils.startsWith(key, SONAR_JDBC)) {
