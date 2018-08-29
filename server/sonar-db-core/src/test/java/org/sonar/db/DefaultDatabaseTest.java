@@ -20,7 +20,7 @@
 package org.sonar.db;
 
 import java.util.Properties;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
@@ -89,7 +89,7 @@ public class DefaultDatabaseTest {
     db.stop();
 
     assertThat(db.getDialect().getId()).isEqualTo("h2");
-    assertThat(((BasicDataSource) db.getDataSource()).getMaxActive()).isEqualTo(1);
+    assertThat(((BasicDataSource) db.getDataSource()).getMaxTotal()).isEqualTo(8);
   }
 
   @Test

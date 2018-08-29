@@ -22,7 +22,7 @@ package org.sonar.db.profiling;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 public enum ProfiledConnectionInterceptor implements ConnectionInterceptor {
   INSTANCE;

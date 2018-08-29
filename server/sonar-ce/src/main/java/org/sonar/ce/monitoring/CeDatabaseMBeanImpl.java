@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.monitoring;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.process.Jmx;
@@ -53,7 +53,7 @@ public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable, SystemIn
 
   @Override
   public int getPoolMaxActiveConnections() {
-    return commonsDbcp().getMaxActive();
+    return commonsDbcp().getMaxTotal();
   }
 
   @Override
@@ -78,12 +78,12 @@ public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable, SystemIn
 
   @Override
   public long getPoolMaxWaitMillis() {
-    return commonsDbcp().getMaxWait();
+    return commonsDbcp().getMaxWaitMillis();
   }
 
   @Override
   public boolean getPoolRemoveAbandoned() {
-    return commonsDbcp().getRemoveAbandoned();
+    return commonsDbcp().getRemoveAbandonedOnBorrow();
   }
 
   @Override

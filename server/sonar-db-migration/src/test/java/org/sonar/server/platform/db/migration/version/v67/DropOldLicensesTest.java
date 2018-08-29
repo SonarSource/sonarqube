@@ -66,7 +66,7 @@ public class DropOldLicensesTest {
       .stream()
       .map(map -> (String)map.get("PROP_KEY"))
       .collect(Collectors.toList()))
-        .containsExactly(expectedSettingKeys);
+        .containsExactlyInAnyOrder(expectedSettingKeys);
   }
 
   public void insertProperty(String propertyKey) {

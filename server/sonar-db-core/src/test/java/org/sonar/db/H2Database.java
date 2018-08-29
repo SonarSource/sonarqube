@@ -22,7 +22,7 @@ package org.sonar.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;

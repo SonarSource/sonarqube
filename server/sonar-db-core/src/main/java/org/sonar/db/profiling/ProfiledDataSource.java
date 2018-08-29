@@ -21,9 +21,14 @@ package org.sonar.db.profiling;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Collection;
-import org.apache.commons.dbcp.BasicDataSource;
+import java.util.List;
+import java.util.Set;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -48,23 +53,13 @@ public class ProfiledDataSource extends BasicDataSource {
   }
 
   @Override
-  public boolean getDefaultAutoCommit() {
+  public Boolean getDefaultAutoCommit() {
     return delegate.getDefaultAutoCommit();
   }
 
   @Override
-  public void setDefaultAutoCommit(boolean defaultAutoCommit) {
-    delegate.setDefaultAutoCommit(defaultAutoCommit);
-  }
-
-  @Override
-  public boolean getDefaultReadOnly() {
+  public Boolean getDefaultReadOnly() {
     return delegate.getDefaultReadOnly();
-  }
-
-  @Override
-  public void setDefaultReadOnly(boolean defaultReadOnly) {
-    delegate.setDefaultReadOnly(defaultReadOnly);
   }
 
   @Override
@@ -108,13 +103,13 @@ public class ProfiledDataSource extends BasicDataSource {
   }
 
   @Override
-  public synchronized int getMaxActive() {
-    return delegate.getMaxActive();
+  public synchronized int getMaxTotal() {
+    return delegate.getMaxTotal();
   }
 
   @Override
-  public synchronized void setMaxActive(int maxActive) {
-    delegate.setMaxActive(maxActive);
+  public synchronized void setMaxTotal(int maxActive) {
+    delegate.setMaxTotal(maxActive);
   }
 
   @Override
@@ -148,13 +143,13 @@ public class ProfiledDataSource extends BasicDataSource {
   }
 
   @Override
-  public synchronized long getMaxWait() {
-    return delegate.getMaxWait();
+  public synchronized long getMaxWaitMillis() {
+    return delegate.getMaxWaitMillis();
   }
 
   @Override
-  public synchronized void setMaxWait(long maxWait) {
-    delegate.setMaxWait(maxWait);
+  public synchronized void setMaxWaitMillis(long maxWait) {
+    delegate.setMaxWaitMillis(maxWait);
   }
 
   @Override
@@ -298,12 +293,12 @@ public class ProfiledDataSource extends BasicDataSource {
   }
 
   @Override
-  public Collection getConnectionInitSqls() {
+  public List<String> getConnectionInitSqls() {
     return delegate.getConnectionInitSqls();
   }
 
   @Override
-  public void setConnectionInitSqls(Collection connectionInitSqls) {
+  public void setConnectionInitSqls(Collection<String> connectionInitSqls) {
     delegate.setConnectionInitSqls(connectionInitSqls);
   }
 
@@ -353,13 +348,24 @@ public class ProfiledDataSource extends BasicDataSource {
   }
 
   @Override
-  public boolean getRemoveAbandoned() {
-    return delegate.getRemoveAbandoned();
+  public boolean getRemoveAbandonedOnBorrow() {
+    return delegate.getRemoveAbandonedOnBorrow();
   }
 
   @Override
-  public void setRemoveAbandoned(boolean removeAbandoned) {
-    delegate.setRemoveAbandoned(removeAbandoned);
+  public void setRemoveAbandonedOnBorrow(boolean removeAbandoned) {
+    delegate.setRemoveAbandonedOnBorrow(removeAbandoned);
+  }
+
+
+  @Override
+  public boolean getRemoveAbandonedOnMaintenance() {
+    return delegate.getRemoveAbandonedOnMaintenance();
+  }
+
+  @Override
+  public void setRemoveAbandonedOnMaintenance(boolean removeAbandoned) {
+    delegate.setRemoveAbandonedOnMaintenance(removeAbandoned);
   }
 
   @Override
@@ -415,5 +421,220 @@ public class ProfiledDataSource extends BasicDataSource {
   @Override
   public <T> T unwrap(Class<T> iface) throws SQLException {
     return delegate.unwrap(iface);
+  }
+
+  @Override
+  public void setDefaultAutoCommit(Boolean defaultAutoCommit) {
+    delegate.setDefaultAutoCommit(defaultAutoCommit);
+  }
+
+  @Override
+  public void setDefaultReadOnly(Boolean defaultReadOnly) {
+    delegate.setDefaultReadOnly(defaultReadOnly);
+  }
+
+  @Override
+  public Integer getDefaultQueryTimeout() {
+    return delegate.getDefaultQueryTimeout();
+  }
+
+  @Override
+  public void setDefaultQueryTimeout(Integer defaultQueryTimeoutSeconds) {
+    delegate.setDefaultQueryTimeout(defaultQueryTimeoutSeconds);
+  }
+
+  @Override
+  public String getDefaultSchema() {
+    return delegate.getDefaultSchema();
+  }
+
+  @Override
+  public void setDefaultSchema(String defaultSchema) {
+    delegate.setDefaultSchema(defaultSchema);
+  }
+
+  @Override
+  public boolean getCacheState() {
+    return delegate.getCacheState();
+  }
+
+  @Override
+  public void setCacheState(boolean cacheState) {
+    delegate.setCacheState(cacheState);
+  }
+
+  @Override
+  public synchronized Driver getDriver() {
+    return delegate.getDriver();
+  }
+
+  @Override
+  public synchronized void setDriver(Driver driver) {
+    delegate.setDriver(driver);
+  }
+
+  @Override
+  public synchronized boolean getLifo() {
+    return delegate.getLifo();
+  }
+
+  @Override
+  public synchronized void setLifo(boolean lifo) {
+    delegate.setLifo(lifo);
+  }
+
+  @Override
+  public synchronized boolean getTestOnCreate() {
+    return delegate.getTestOnCreate();
+  }
+
+  @Override
+  public synchronized void setTestOnCreate(boolean testOnCreate) {
+    delegate.setTestOnCreate(testOnCreate);
+  }
+
+  @Override
+  public synchronized void setSoftMinEvictableIdleTimeMillis(long softMinEvictableIdleTimeMillis) {
+    delegate.setSoftMinEvictableIdleTimeMillis(softMinEvictableIdleTimeMillis);
+  }
+
+  @Override
+  public synchronized long getSoftMinEvictableIdleTimeMillis() {
+    return delegate.getSoftMinEvictableIdleTimeMillis();
+  }
+
+  @Override
+  public synchronized String getEvictionPolicyClassName() {
+    return delegate.getEvictionPolicyClassName();
+  }
+
+  @Override
+  public synchronized void setEvictionPolicyClassName(String evictionPolicyClassName) {
+    delegate.setEvictionPolicyClassName(evictionPolicyClassName);
+  }
+
+  @Override
+  public String[] getConnectionInitSqlsAsArray() {
+    return delegate.getConnectionInitSqlsAsArray();
+  }
+
+  @Override
+  public long getMaxConnLifetimeMillis() {
+    return delegate.getMaxConnLifetimeMillis();
+  }
+
+  @Override
+  public boolean getLogExpiredConnections() {
+    return delegate.getLogExpiredConnections();
+  }
+
+  @Override
+  public void setMaxConnLifetimeMillis(long maxConnLifetimeMillis) {
+    delegate.setMaxConnLifetimeMillis(maxConnLifetimeMillis);
+  }
+
+  @Override
+  public void setLogExpiredConnections(boolean logExpiredConnections) {
+    delegate.setLogExpiredConnections(logExpiredConnections);
+  }
+
+  @Override
+  public String getJmxName() {
+    return delegate.getJmxName();
+  }
+
+  @Override
+  public void setJmxName(String jmxName) {
+    delegate.setJmxName(jmxName);
+  }
+
+  @Override
+  public boolean getEnableAutoCommitOnReturn() {
+    return delegate.getEnableAutoCommitOnReturn();
+  }
+
+  @Override
+  public void setEnableAutoCommitOnReturn(boolean enableAutoCommitOnReturn) {
+    delegate.setEnableAutoCommitOnReturn(enableAutoCommitOnReturn);
+  }
+
+  @Override
+  public boolean getRollbackOnReturn() {
+    return delegate.getRollbackOnReturn();
+  }
+
+  @Override
+  public void setRollbackOnReturn(boolean rollbackOnReturn) {
+    delegate.setRollbackOnReturn(rollbackOnReturn);
+  }
+
+  @Override
+  public Set<String> getDisconnectionSqlCodes() {
+    return delegate.getDisconnectionSqlCodes();
+  }
+
+  @Override
+  public String[] getDisconnectionSqlCodesAsArray() {
+    return delegate.getDisconnectionSqlCodesAsArray();
+  }
+
+  @Override
+  public void setDisconnectionSqlCodes(Collection<String> disconnectionSqlCodes) {
+    delegate.setDisconnectionSqlCodes(disconnectionSqlCodes);
+  }
+
+  @Override
+  public boolean getFastFailValidation() {
+    return delegate.getFastFailValidation();
+  }
+
+  @Override
+  public void setFastFailValidation(boolean fastFailValidation) {
+    delegate.setFastFailValidation(fastFailValidation);
+  }
+
+  @Override
+  public PrintWriter getAbandonedLogWriter() {
+    return delegate.getAbandonedLogWriter();
+  }
+
+  @Override
+  public void setAbandonedLogWriter(PrintWriter logWriter) {
+    delegate.setAbandonedLogWriter(logWriter);
+  }
+
+  @Override
+  public boolean getAbandonedUsageTracking() {
+    return delegate.getAbandonedUsageTracking();
+  }
+
+  @Override
+  public void setAbandonedUsageTracking(boolean usageTracking) {
+    delegate.setAbandonedUsageTracking(usageTracking);
+  }
+
+  @Override
+  public void invalidateConnection(Connection connection) {
+    delegate.invalidateConnection(connection);
+  }
+
+  @Override
+  public ObjectName preRegister(MBeanServer server, ObjectName objectName) {
+    return delegate.preRegister(server, objectName);
+  }
+
+  @Override
+  public void postRegister(Boolean registrationDone) {
+    delegate.postRegister(registrationDone);
+  }
+
+  @Override
+  public void preDeregister() throws Exception {
+    delegate.preDeregister();
+  }
+
+  @Override
+  public void postDeregister() {
+    delegate.postDeregister();
   }
 }

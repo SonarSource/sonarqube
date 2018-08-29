@@ -306,7 +306,7 @@ public class DataChangeTest {
             .setString(2, "login" + i)
             .setInt(3, 10 + i)
             .setBoolean(4, true)
-            .setDouble(4, i + 0.5)
+            .setDouble(5, i + 0.5)
             .addBatch();
         }
         upsert.execute().commit().close();

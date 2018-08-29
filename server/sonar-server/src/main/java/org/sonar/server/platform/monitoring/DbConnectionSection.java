@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.db.DbClient;
@@ -60,7 +60,7 @@ public class DbConnectionSection extends BaseSectionMBean implements DbConnectio
 
   @Override
   public int getPoolMaxActiveConnections() {
-    return commonsDbcp().getMaxActive();
+    return commonsDbcp().getMaxTotal();
   }
 
   @Override
@@ -85,12 +85,12 @@ public class DbConnectionSection extends BaseSectionMBean implements DbConnectio
 
   @Override
   public long getPoolMaxWaitMillis() {
-    return commonsDbcp().getMaxWait();
+    return commonsDbcp().getMaxWaitMillis();
   }
 
   @Override
   public boolean getPoolRemoveAbandoned() {
-    return commonsDbcp().getRemoveAbandoned();
+    return commonsDbcp().getRemoveAbandonedOnBorrow();
   }
 
   @Override
