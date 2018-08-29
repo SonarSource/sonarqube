@@ -18,11 +18,10 @@ yarn_run {
   }
   outputs.dir('build/webapp')
   outputs.cacheIf { true }
-
+  dependsOn(yarn, ':server:sonar-web:yarn')
   args = ['build']
 }
-
-yarn_run.dependsOn ':server:sonar-web:yarn_run'
+build.dependsOn(yarn_run)
 
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")
 

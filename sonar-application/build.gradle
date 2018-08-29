@@ -6,9 +6,9 @@ sonarqube {
 
 configurations {
   zip
-
   jsw
   scanner
+  web
   jdbc_mssql {
     transitive = false
   }
@@ -39,6 +39,8 @@ dependencies {
 
   jsw 'tanukisoft:wrapper:3.2.3'
   scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
+  web project(':server:sonar-vsts')
+  web project(':server:sonar-web')
 
   jdbc_h2 'com.h2database:h2'
   jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
@@ -68,7 +70,7 @@ dependencies {
 jar {
   manifest {
     attributes(
-      'Class-Path': configurations.compile.collect { "common/${it.getName()}" }.join(' '),
+      'Class-Path': configurations.compile.resolvedConfiguration.files.collect { "common/${it.getName()}" }.join(' '),
       'Main-Class': 'org.sonar.application.App'
     )
   }
@@ -106,6 +108,7 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
     from configurations.compile
   }
   into("${archiveDir}/web/") {
+    // FIXME use configurations.web with correct artifacts
     from tasks.getByPath(':server:sonar-web:yarn_run').outputs
     from tasks.getByPath(':server:sonar-vsts:yarn_run').outputs
   }

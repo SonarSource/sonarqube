@@ -37,3 +37,16 @@ File extraSettings = new File(rootDir, 'private/settings.gradle')
 if (extraSettings.exists()) {
   apply from: extraSettings
 }
+
+ext.isCiServer = System.getenv().containsKey("CI")
+ext.buildCacheHost = System.getenv().getOrDefault("CIRRUS_HTTP_CACHE_HOST", "localhost:12321")
+buildCache {
+  local {
+    enabled = !isCiServer
+  }
+  remote(HttpBuildCache) {
+    url = "http://" + buildCacheHost + "/"
+    enabled = isCiServer
+    push = true
+  }
+}

@@ -10,13 +10,19 @@ group = 'com.sonarsource.sonarqube'
 
 yarn_run {
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
-  ['gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock'].each {
+  ['gatsby-config.js', 'gatsby-node.js', 'package.json'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   outputs.dir('public')
   outputs.cacheIf { true }
-
   args = ['build']
+}
+
+task yarn_validate() {
+
+}
+task "yarn_lint-report"() {
+
 }
 
 task zip(type: Zip) {

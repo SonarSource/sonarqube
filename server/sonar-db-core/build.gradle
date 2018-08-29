@@ -46,7 +46,7 @@ task createDB(type:JavaExec) {
   main = 'org.sonar.db.CreateDb'
   classpath = sourceSets.test.runtimeClasspath
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
-  systemProperty 'sonar.runtimeVersion', System.getProperty('sonar.runtimeVersion')
+  systemProperty 'sonar.runtimeVersion', project.version
 }
 
 test {

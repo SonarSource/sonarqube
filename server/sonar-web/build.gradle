@@ -52,14 +52,14 @@ yarn_run {
   ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
-  ['.babelrc', 'build.gradle', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
+  ['.babelrc', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   outputs.dir(webappDir)
   outputs.cacheIf { true }
-
   args = ['build']
 }
+build.dependsOn(yarn_run)
 
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")
 

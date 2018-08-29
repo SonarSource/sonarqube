@@ -1,0 +1,144 @@
+# content of service-account-credentials.json, used to access to Google Cloud Platform
+gcp_credentials: ENCRYPTED[534d4b89444f3e4e3ba299769a98010609e71992355c132fd6e448f1d8fcb039184224c8b4cdf7933b0aec16d6a8896d]
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8"
+  # to be replaced by other credentials
+  ARTIFACTORY_PRIVATE_USERNAME: ENCRYPTED[ab2de699acd280b1e6ed9b4fa6b34cdbed0fae3a2d18499a727e93616a42393a9168405e5d0f39f0abe1e017559ee82b]
+  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[81952f43bfff165a91fb7e2f3207f5c6d428f4de4b041a8a08e8b214ee52ec4586aa8f6dffacbbc2c897058e80ef90f1]
+  ARTIFACTORY_DEPLOY_USERNAME: public-qa-deployer
+  ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[9362d735843b21b375b6e19d91e0de5216e053e229e39e2ce33a0c866306e6e3f9b08db8a0e126ca5e986fea97e975fd]
+  ARTIFACTORY_DEPLOY_USERNAME_PRIVATE: private-qa-deployer
+  ARTIFACTORY_DEPLOY_PASSWORD_PRIVATE: ENCRYPTED[61769719e9b775afe103dbee22141eeaa0116b3332eafb993be2a5919ff7bf017cdc519afed07dc6cac8ebbc0846f191]
+  ARTIFACTORY_API_KEY: ENCRYPTED[9da84e89286d570d8edb72a117a66754fda80de2a911ca9d4e71acd5377ebcaf62cec3fd2a40b7dca2f982c252a0bb74]
+  # download licenses for testing commercial editions
+  GITHUB_TOKEN: ENCRYPTED[bd3d5f7fe5901d9d9f2564caebb52af285262177294eae67ba5f1a3a1df1316449ce6e09c5e1b68eeff37e024e2d167a]
+  # notifications to burgr
+  BURGR_URL: ENCRYPTED[24fba83587c1e9ed372b6cfdf12e4739ebe3b6e5b5082f1a2a742e840dd2e4b61fd5e281bf2632b22b3ad346c650c05c]
+  BURGR_USERNAME: ENCRYPTED[cf7bfb936025fb763013bbfef0ab5723c0d9b53f135d79af36f9defa933f4b5fc72842bd83a97ce9b614503c1b77e6da]
+  BURGR_PASSWORD: ENCRYPTED[bc554fc6a06c9f14cc9924cefad0a69e962a905b6d1609fc9357d458b45fc52ac74c960ad9c7382a0691433fa9dcd483]
+  # ops-jenkins credentials required to trigger docs deppoyment
+  OPS_JENKINS_URL: ENCRYPTED[00ea2b88c762e374c02a3d29a306cc1cf3ceb4b3d807bda2a601486e0d483fd67a556ef295830231390f45e7d512b54d]
+  OPS_JENKINS_USERNAME: ENCRYPTED[c778b1483a7ca000dc760ef731c2fbe1dc05a9af38f2a85206cfbcdf649e50715ca447ac291485d513aa9120b0c9abad]
+  OPS_JENKINS_PASSWORD: ENCRYPTED[a035a2826c3bc971288284a59bd00dda193d8a81e7809e08bf4ec59b68894c16f30095a567e65755240bb7f919c2e0bf]
+  # DOCS_JOB_TOKEN: token required to launch the deployment of documentation job on ops-jenkins (see private/cirrus/cirrus-trigger-deploy-docs.sh)
+  DOCS_JOB_TOKEN: ENCRYPTED[7771f76a0fc0038f9929c32d98588963c8dcda6148ba054f57358bc17faa109ac638134c89067f3bacc8933d2fa2c541]
+  # PERF_JOB_TOKEN: token required to launch the performance job on cix (see private/cirrus/cirrus-trigger-perf.sh)
+  # token required to launch the performance job on cix (see private/cirrus/cirrus-trigger-perf.sh)
+  PERF_JOB_TOKEN: ENCRYPTED[897955ea5d84f35a47fe71528d1c86b2e9d6deb189f62a43ce2b0d8879dd85cbc406f17ec4d0a4c97b7424ce40794eb5]
+  # analysis on next.sonarqube.com
+  SONARQUBE_NEXT_TOKEN: ENCRYPTED[e3d98fa0ecceb015e9803d47f78c3040f5a710d678a631107635d69f650d4e53ecaf2e2334cc1fe0c47037ec915dcda0]
+  # could be used in Artifactory statistics
+  CI_ENV: cirrus
+
+build_task:
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  gke_container:
+    image: gradle:4.10.1-jdk8
+    cluster_name: cirrus-cluster
+    zone: us-central1-a
+    namespace: default
+    cpu: 3
+    memory: 10Gb
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-build.sh
+  cleanup_before_cache_script:
+    - rm -rf ~/.gradle/caches/$GRADLE_VERSION/
+    - find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
+deploy_docs_task:
+  depends_on: build
+  only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
+  gke_container:
+    image: gradle:4.9.0-jdk8
+    cluster_name: cirrus-cluster
+    zone: us-central1-a
+    namespace: default
+    cpu: 1
+    memory: 1Gb
+  script:
+    - ./private/cirrus/cirrus-trigger-deploy-docs.sh
+
+validate_task:
+  depends_on: build
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  gke_container:
+    image: gcr.io/ci-cd-215716/sonar-enterprise-build:0.0.2
+    cluster_name: cirrus-cluster
+    zone: us-central1-a
+    namespace: default
+    cpu: 3
+    memory: 10Gb
+    additional_containers:
+      - name: postgres
+        image: postgres:9.3.23
+        port: 5432
+        cpu: 0.8
+        memory: 1Gb
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-validate.sh postgres
+  cleanup_before_cache_script:
+    - rm -rf ~/.gradle/caches/$GRADLE_VERSION/
+    - find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
+qa_task:
+  depends_on: build
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  gke_container:
+    image: gcr.io/ci-cd-215716/sonar-enterprise-qa:0.0.1
+    cluster_name: cirrus-cluster
+    zone: us-central1-a
+    namespace: default
+    cpu: 3
+    memory: 10Gb
+    additional_containers:
+    - name: postgres
+      image: postgres:9.3.23
+      port: 5432
+      cpu: 0.7
+      memory: 1Gb
+      env:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+  env:
+    matrix:
+      QA_CATEGORY: Category1
+      QA_CATEGORY: Category2
+      QA_CATEGORY: Category3
+      QA_CATEGORY: Category4
+      QA_CATEGORY: Category5
+      QA_CATEGORY: Category6
+      QA_CATEGORY: Developer
+      QA_CATEGORY: Plugins
+      QA_CATEGORY: Upgrade
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-qa.sh postgres
+  cleanup_before_cache_script:
+    - rm -rf ~/.gradle/caches/$GRADLE_VERSION/
+    - find ~/.gradle/caches/ -name "*.lock" -type f -delete
+
+promote_task:
+  depends_on:
+    - build
+    - validate
+    - qa
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  gke_container:
+    image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
+    cluster_name: cirrus-cluster
+    zone: us-central1-a
+    namespace: default
+    cpu: 1
+    memory: 1Gb
+  script:
+    - if [ "$CIRRUS_BRANCH" == 'master' ] || [[ "$CIRRUS_BRANCH" == "branch-"* ]]; then ./private/cirrus/cirrus-trigger-perf.sh; fi
+    - ./private/cirrus/cirrus-promote.sh
