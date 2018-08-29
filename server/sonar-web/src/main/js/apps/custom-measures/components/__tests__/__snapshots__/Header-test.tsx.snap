@@ -22,10 +22,17 @@ exports[`should create new custom measure 1`] = `
       skipMetrics={Array []}
     />
   </div>
-  <p
+  <div
     className="page-description"
   >
-    custom_measures.page.description
-  </p>
+    <div
+      className="alert alert-danger"
+    >
+      custom_measures.deprecated
+    </div>
+    <p>
+      custom_measures.page.description
+    </p>
+  </div>
 </header>
 `;

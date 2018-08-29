@@ -38,7 +38,10 @@ export default function Header({ domains, loading, onCreate, types }: Props) {
       <div className="page-actions">
         {domains && types && <CreateButton domains={domains} onCreate={onCreate} types={types} />}
       </div>
-      <p className="page-description">{translate('custom_metrics.page.description')}</p>
+      <div className="page-description">
+        <div className="alert alert-danger">{translate('custom_metrics.deprecated')}</div>
+        <p>{translate('custom_metrics.page.description')}</p>
+      </div>
     </header>
   );
 }

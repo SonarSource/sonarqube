@@ -36,7 +36,10 @@ export default function Header({ loading, onCreate, skipMetrics }: Props) {
       <div className="page-actions">
         <CreateButton onCreate={onCreate} skipMetrics={skipMetrics} />
       </div>
-      <p className="page-description">{translate('custom_measures.page.description')}</p>
+      <div className="page-description">
+        <div className="alert alert-danger">{translate('custom_measures.deprecated')}</div>
+        <p>{translate('custom_measures.page.description')}</p>
+      </div>
     </header>
   );
 }
