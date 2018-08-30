@@ -21,11 +21,13 @@ import { getJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { Task } from '../app/types';
 
-export function getActivity(data: RequestData): Promise<any> {
+export function getActivity(data: RequestData): Promise<{ tasks: Task[] }> {
   return getJSON('/api/ce/activity', data);
 }
 
-export function getStatus(componentId?: string): Promise<any> {
+export function getStatus(
+  componentId?: string
+): Promise<{ failing: number; inProgress: number; pending: number }> {
   const data = {};
   if (componentId) {
     Object.assign(data, { componentId });
@@ -51,7 +53,7 @@ export function getTasksForComponent(
   return getJSON('/api/ce/component', { componentKey }).catch(throwGlobalError);
 }
 
-export function getTypes(): Promise<any> {
+export function getTypes(): Promise<string[]> {
   return getJSON('/api/ce/task_types').then(r => r.taskTypes);
 }
 

@@ -29,7 +29,7 @@ import TaskSubmitter from './TaskSubmitter';
 import { Task as TaskType } from '../../../app/types';
 
 interface Props {
-  component?: {};
+  component?: unknown;
   onCancelTask: (task: TaskType) => void;
   onFilterTask: (task: TaskType) => void;
   task: TaskType;

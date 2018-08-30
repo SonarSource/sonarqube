@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import Stats from '../components/Stats';
 import Search from '../components/Search';
 import { STATUSES, CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
-import { change, click } from '../../../helpers/testUtils';
+import { click } from '../../../helpers/testUtils';
 
 const stub = jest.fn();
 
@@ -38,12 +38,14 @@ describe('Constants', () => {
 });
 
 describe('Search', () => {
-  const defaultProps = {
+  const defaultProps: Search['props'] = {
     ...DEFAULT_FILTERS,
     loading: false,
     types: [],
     onFilterUpdate: () => true,
-    onReload: () => true
+    onReload: () => true,
+    maxExecutedAt: undefined,
+    minSubmittedAt: undefined
   };
 
   it('should render search form', () => {
@@ -60,7 +62,7 @@ describe('Search', () => {
     const searchSpy = jest.fn();
     const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy} />);
     const searchInput = component.find('SearchBox');
-    searchInput.prop('onChange')('some search query');
+    searchInput.prop<Function>('onChange')('some search query');
     setTimeout(() => {
       expect(searchSpy).toBeCalledWith({ query: 'some search query' });
       done();

@@ -25,4 +25,4 @@ const mapStateToProps = (state: Store) => ({
   isSystemAdmin: !!getAppState(state).canAdmin
 });
 
-export default connect(mapStateToProps)(Stats as any);
+export default connect(mapStateToProps)(Stats);

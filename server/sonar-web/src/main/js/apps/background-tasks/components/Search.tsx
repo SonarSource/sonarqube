@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import StatusFilter from './StatusFilter';
 import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';
@@ -28,35 +26,40 @@ import { DEFAULT_FILTERS } from '../constants';
 import SearchBox from '../../../components/controls/SearchBox';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { Query } from '../utils';
 
-export default class Search extends React.PureComponent {
-  static propTypes = {
-    loading: PropTypes.bool.isRequired,
-    status: PropTypes.any.isRequired,
-    taskType: PropTypes.any.isRequired,
-    currents: PropTypes.any.isRequired,
-    query: PropTypes.string.isRequired,
-    onFilterUpdate: PropTypes.func.isRequired,
-    onReload: PropTypes.func.isRequired
-  };
+interface Props {
+  component?: unknown;
+  currents: string;
+  loading: boolean;
+  onFilterUpdate: (changes: Partial<Query>) => void;
+  onReload: () => void;
+  query: string;
+  status: string;
+  taskType: string;
+  maxExecutedAt: Date | undefined;
+  minSubmittedAt: Date | undefined;
+  types: string[];
+}
 
-  handleStatusChange = (status /*: string */) => {
+export default class Search extends React.PureComponent<Props> {
+  handleStatusChange = (status: string) => {
     this.props.onFilterUpdate({ status });
   };
 
-  handleTypeChange = (taskType /*: string */) => {
+  handleTypeChange = (taskType: string) => {
     this.props.onFilterUpdate({ taskType });
   };
 
-  handleCurrentsChange = (currents /*: string */) => {
+  handleCurrentsChange = (currents: string) => {
     this.props.onFilterUpdate({ currents });
   };
 
-  handleDateChange = (date /*: { maxExecutedAt?: Date; minSubmittedAt?: Date } */) => {
+  handleDateChange = (date: { maxExecutedAt?: Date; minSubmittedAt?: Date }) => {
     this.props.onFilterUpdate(date);
   };
 
-  handleQueryChange = (query /*: string */) => {
+  handleQueryChange = (query: string) => {
     this.props.onFilterUpdate({ query });
   };
 

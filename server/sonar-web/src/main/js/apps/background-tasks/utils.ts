@@ -17,15 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
+import { STATUSES, CURRENTS, ALL_TYPES } from './constants';
 import { toShortNotSoISOString } from '../../helpers/dates';
+import { Task } from '../../app/types';
 
-export function updateTask(tasks, newTask) {
+export interface Query {
+  currents: string;
+  maxExecutedAt?: Date;
+  minSubmittedAt?: Date;
+  query: string;
+  status: string;
+  taskType: string;
+}
+
+export function updateTask(tasks: Task[], newTask: Task) {
   return tasks.map(task => (task.id === newTask.id ? newTask : task));
 }
 
-export function mapFiltersToParameters(filters /*: Object */ = {}) {
-  const parameters = {};
+export function mapFiltersToParameters(filters: Partial<Query> = {}) {
+  const parameters: any = {};
 
   if (filters.status === STATUSES.ALL) {
     parameters.status = [
@@ -66,10 +76,6 @@ export function mapFiltersToParameters(filters /*: Object */ = {}) {
     parameters.componentQuery = filters.query;
   }
 
-  if (filters.lastPage !== 1) {
-    parameters.p = filters.lastPage;
-  }
-
   return parameters;
 }
 
@@ -77,11 +83,11 @@ const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
 const ONE_HOUR = 60 * ONE_MINUTE;
 
-function format(int, suffix) {
+function format(int: number, suffix: string) {
   return `${int}${suffix}`;
 }
 
-export function formatDuration(value /*: ?number */) {
+export function formatDuration(value: number | undefined) {
   if (!value) {
     return '';
   }

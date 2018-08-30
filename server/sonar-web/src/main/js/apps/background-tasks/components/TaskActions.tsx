@@ -32,7 +32,7 @@ const AnalysisWarningsModal = lazyLoad(
 );
 
 interface Props {
-  component?: {};
+  component?: unknown;
   onCancelTask: (task: Task) => void;
   onFilterTask: (task: Task) => void;
   task: Task;

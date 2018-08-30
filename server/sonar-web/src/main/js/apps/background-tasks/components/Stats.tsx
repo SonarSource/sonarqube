@@ -17,38 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
+import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DeleteButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
-/*::
-type Props = {
-  failingCount: number,
-  isSystemAdmin?: boolean,
-  pendingCount: number,
-  onShowFailing: () => void,
-  onCancelAllPending: () => void
-};
-*/
+interface Props {
+  component?: unknown;
+  failingCount?: number;
+  isSystemAdmin?: boolean;
+  pendingCount?: number;
+  onShowFailing: () => void;
+  onCancelAllPending: () => void;
+}
 
-/*::
-type State = Object;
-*/
-
-export default class Stats extends React.PureComponent {
-  /*:: props: Props; */
-  /*:: state: State; */
-
-  handleShowFailing = (event /*: Object */) => {
+export default class Stats extends React.PureComponent<Props> {
+  handleShowFailing = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onShowFailing();
   };
 
   renderPending() {
-    if (this.props.pendingCount == null) {
+    if (this.props.pendingCount === undefined) {
       return null;
     }
     if (this.props.pendingCount > 0) {
@@ -79,7 +70,7 @@ export default class Stats extends React.PureComponent {
   }
 
   renderFailures() {
-    if (this.props.failingCount == null) {
+    if (this.props.failingCount === undefined) {
       return null;
     }
 

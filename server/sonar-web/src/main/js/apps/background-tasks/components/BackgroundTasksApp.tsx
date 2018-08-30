@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
+import { InjectedRouter } from 'react-router';
+import { Location } from 'history';
 import Header from './Header';
 import Footer from './Footer';
 import StatsContainer from './StatsContainer';
@@ -37,67 +37,59 @@ import {
   cancelAllTasks,
   cancelTask as cancelTaskAPI
 } from '../../../api/ce';
-import { updateTask, mapFiltersToParameters } from '../utils';
+import { updateTask, mapFiltersToParameters, Query } from '../utils';
 import { fetchOrganizations } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import '../background-tasks.css';
+import { Task } from '../../../app/types';
 
-/*::
-type Props = {
-  component: Object,
-  location: Object,
-  fetchOrganizations: (Array<string>) => string
-};
-*/
+interface Props {
+  component?: { id: string };
+  fetchOrganizations: (keys: string[]) => void;
+  location: Location;
+  router: Pick<InjectedRouter, 'push'>;
+}
 
-/*::
-type State = {
-  loading: boolean,
-  tasks: Array<*>,
-  types?: Array<*>,
-  query: string,
-  pendingCount: number,
-  failingCount: number
-};
-*/
+interface State {
+  loading: boolean;
+  tasks: Task[];
+  types?: string[];
+  query: string;
+  pendingCount: number;
+  failingCount: number;
+}
 
-class BackgroundTasksApp extends React.PureComponent {
-  /*:: loadTasksDebounced: Function; */
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
+class BackgroundTasksApp extends React.PureComponent<Props, State> {
+  loadTasksDebounced: () => void;
+  mounted = false;
 
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
-  state /*: State */ = {
-    loading: true,
-    tasks: [],
-
-    // filters
-    query: '',
-
-    // stats
-    pendingCount: 0,
-    failingCount: 0
-  };
-
-  componentWillMount() {
-    this.loadTasksDebounced = debounce(this.loadTasks.bind(this), DEBOUNCE_DELAY);
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      failingCount: 0,
+      loading: true,
+      pendingCount: 0,
+      query: '',
+      tasks: []
+    };
+    this.loadTasksDebounced = debounce(this.loadTasks, DEBOUNCE_DELAY);
   }
 
   componentDidMount() {
     this.mounted = true;
 
-    getTypes().then(types => {
-      this.setState({ types });
-      this.loadTasks();
-    });
+    getTypes().then(
+      types => {
+        this.setState({ types });
+        this.loadTasks();
+      },
+      () => {}
+    );
   }
 
-  componentDidUpdate(prevProps /*: Props */) {
+  componentDidUpdate(prevProps: Props) {
     if (
       prevProps.component !== this.props.component ||
       prevProps.location !== this.props.location
@@ -110,7 +102,13 @@ class BackgroundTasksApp extends React.PureComponent {
     this.mounted = false;
   }
 
-  loadTasks() {
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
+  loadTasks = () => {
     this.setState({ loading: true });
 
     const status = this.props.location.query.status || DEFAULT_FILTERS.status;
@@ -131,7 +129,7 @@ class BackgroundTasksApp extends React.PureComponent {
     Promise.all([getActivity(parameters), getStatus(parameters.componentId)]).then(responses => {
       if (this.mounted) {
         const [activity, status] = responses;
-        const tasks = activity.tasks;
+        const { tasks } = activity;
 
         const pendingCount = status.pending;
         const failingCount = status.failing;
@@ -146,14 +144,14 @@ class BackgroundTasksApp extends React.PureComponent {
           loading: false
         });
       }
-    });
-  }
+    }, this.stopLoading);
+  };
 
-  handleFilterUpdate(nextState /*: Object */) {
+  handleFilterUpdate = (nextState: Partial<Query>) => {
     const nextQuery = { ...this.props.location.query, ...nextState };
 
     // remove defaults
-    Object.keys(DEFAULT_FILTERS).forEach(key => {
+    Object.keys(DEFAULT_FILTERS).forEach((key: keyof typeof DEFAULT_FILTERS) => {
       if (nextQuery[key] === DEFAULT_FILTERS[key]) {
         delete nextQuery[key];
       }
@@ -167,26 +165,28 @@ class BackgroundTasksApp extends React.PureComponent {
       nextQuery.maxExecutedAt = toShortNotSoISOString(nextQuery.maxExecutedAt);
     }
 
-    this.context.router.push({
+    this.props.router.push({
       pathname: this.props.location.pathname,
       query: nextQuery
     });
-  }
+  };
 
-  handleCancelTask(task) {
+  handleCancelTask = (task: Task) => {
     this.setState({ loading: true });
 
     cancelTaskAPI(task.id).then(nextTask => {
       if (this.mounted) {
-        const tasks = updateTask(this.state.tasks, nextTask);
-        this.setState({ tasks, loading: false });
+        this.setState(state => ({
+          tasks: updateTask(state.tasks, nextTask),
+          loading: false
+        }));
       }
-    });
-  }
+    }, this.stopLoading);
+  };
 
-  handleFilterTask(task) {
+  handleFilterTask = (task: Task) => {
     this.handleFilterUpdate({ query: task.componentKey });
-  }
+  };
 
   handleShowFailing() {
     this.handleFilterUpdate({
@@ -203,7 +203,7 @@ class BackgroundTasksApp extends React.PureComponent {
       if (this.mounted) {
         this.loadTasks();
       }
-    });
+    }, this.stopLoading);
   }
 
   render() {
@@ -234,8 +234,8 @@ class BackgroundTasksApp extends React.PureComponent {
         <StatsContainer
           component={component}
           failingCount={failingCount}
-          onCancelAllPending={this.handleCancelAllPending.bind(this)}
-          onShowFailing={this.handleShowFailing.bind(this)}
+          onCancelAllPending={this.handleCancelAllPending}
+          onShowFailing={this.handleShowFailing}
           pendingCount={pendingCount}
         />
 
@@ -245,7 +245,7 @@ class BackgroundTasksApp extends React.PureComponent {
           loading={loading}
           maxExecutedAt={maxExecutedAt}
           minSubmittedAt={minSubmittedAt}
-          onFilterUpdate={this.handleFilterUpdate.bind(this)}
+          onFilterUpdate={this.handleFilterUpdate}
           onReload={this.loadTasksDebounced}
           query={query}
           status={status}
@@ -256,8 +256,8 @@ class BackgroundTasksApp extends React.PureComponent {
         <Tasks
           component={component}
           loading={loading}
-          onCancelTask={this.handleCancelTask.bind(this)}
-          onFilterTask={this.handleFilterTask.bind(this)}
+          onCancelTask={this.handleCancelTask}
+          onFilterTask={this.handleFilterTask}
           tasks={tasks}
         />
 
