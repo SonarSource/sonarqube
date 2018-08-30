@@ -19,12 +19,16 @@
  */
 package org.sonar.api.server.rule;
 
+import java.util.Collections;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class RuleTagFormatTest {
+
   @Test
   public void isValid() {
     assertThat(RuleTagFormat.isValid(null)).isFalse();
@@ -55,6 +59,25 @@ public class RuleTagFormatTest {
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Tag '  ' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
+    }
+  }
+
+  @Test
+  public void validate_and_sanitize_collection_of_tags() {
+    assertThat(RuleTagFormat.validate(asList("style", "coding-style", ""))).containsExactly("coding-style", "style");
+    assertThat(RuleTagFormat.validate(asList("style", "coding-style", null))).containsExactly("coding-style", "style");
+    assertThat(RuleTagFormat.validate(asList("style", "style", null))).containsExactly("style");
+    assertThat(RuleTagFormat.validate(singletonList("Uppercase"))).containsExactly("uppercase");
+    assertThat(RuleTagFormat.validate(Collections.emptyList())).isEmpty();
+  }
+
+  @Test
+  public void fail_to_validate_collection_of_tags() {
+    try {
+      RuleTagFormat.validate(asList("coding style", "Stylé", "valid"));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Tags 'coding style, stylé' are invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
     }
   }
 }

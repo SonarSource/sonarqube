@@ -21,13 +21,14 @@ package org.sonar.server.project;
 
 import org.junit.Test;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectTest {
   @Test
   public void test_bean_without_description() {
-    Project project1 = new Project("U1", "K1", "N1");
-    Project project2 = new Project("U1", "K1", "N1", null);
+    Project project1 = new Project("U1", "K1", "N1", null, emptyList());
+    Project project2 = new Project("U1", "K1", "N1", null, emptyList());
 
     assertThat(project1.getUuid()).isEqualTo(project2.getUuid()).isEqualTo("U1");
     assertThat(project1.getKey()).isEqualTo(project2.getKey()).isEqualTo("K1");
@@ -41,7 +42,7 @@ public class ProjectTest {
 
   @Test
   public void test_bean_with_description() {
-    Project project1 = new Project("U1", "K1", "N1", "D1");
+    Project project1 = new Project("U1", "K1", "N1", "D1", emptyList());
 
     assertThat(project1.getUuid()).isEqualTo("U1");
     assertThat(project1.getKey()).isEqualTo("K1");
@@ -55,23 +56,23 @@ public class ProjectTest {
 
   @Test
   public void test_equals_and_hashCode() {
-    Project project1 = new Project("U1", "K1", "N1");
-    Project project2 = new Project("U1", "K1", "N1", "D1");
+    Project project1 = new Project("U1", "K1", "N1", null, emptyList());
+    Project project2 = new Project("U1", "K1", "N1", "D1", emptyList());
 
     assertThat(project1).isEqualTo(project1);
     assertThat(project1).isNotEqualTo(null);
     assertThat(project1).isNotEqualTo(new Object());
-    assertThat(project1).isEqualTo(new Project("U1", "K1", "N1", null));
-    assertThat(project1).isNotEqualTo(new Project("U1", "K2", "N1", null));
-    assertThat(project1).isNotEqualTo(new Project("U1", "K1", "N2", null));
+    assertThat(project1).isEqualTo(new Project("U1", "K1", "N1", null, emptyList()));
+    assertThat(project1).isNotEqualTo(new Project("U1", "K2", "N1", null, emptyList()));
+    assertThat(project1).isNotEqualTo(new Project("U1", "K1", "N2", null, emptyList()));
     assertThat(project1).isEqualTo(project2);
 
     assertThat(project1.hashCode()).isEqualTo(project1.hashCode());
     assertThat(project1.hashCode()).isNotEqualTo(null);
     assertThat(project1.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K1", "N1", null).hashCode());
-    assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K2", "N1", null).hashCode());
-    assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K1", "N2", null).hashCode());
+    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K1", "N1", null, emptyList()).hashCode());
+    assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K2", "N1", null, emptyList()).hashCode());
+    assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K1", "N2", null, emptyList()).hashCode());
     assertThat(project1.hashCode()).isEqualTo(project2.hashCode());
   }
 

@@ -40,6 +40,7 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -196,7 +197,7 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(inactiveModule.getDbKey(), "your_project:root:inactive_module");
     assertComponentKeyUpdated(inactiveFile.getDbKey(), "your_project:root:module:src/InactiveFile.xoo");
     verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
-      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid()), "my_project")
+      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")
     ));
   }
 
@@ -213,7 +214,7 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
     assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
     verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
-      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid()), "my_project")
+      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")
     ));
   }
 

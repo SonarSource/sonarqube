@@ -31,10 +31,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 import org.mockito.Mockito;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.server.project.Project;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -42,13 +42,15 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.DIRECTORY;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.MODULE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
-import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
-import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class ComponentTreeBuilderTest {
 
@@ -66,7 +68,7 @@ public class ComponentTreeBuilderTest {
   @Rule
   public ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
 
-  private Project projectInDb = new Project(UUID_SUPPLIER.apply("K1"), "K1", "theProjectName");
+  private Project projectInDb = Project.from(newPrivateProjectDto(newOrganizationDto(), UUID_SUPPLIER.apply("K1")).setDbKey("K1").setDescription(null));
 
   @Test
   public void build_throws_IAE_for_all_types_but_PROJECT_MODULE_DIRECTORY_FILE() {

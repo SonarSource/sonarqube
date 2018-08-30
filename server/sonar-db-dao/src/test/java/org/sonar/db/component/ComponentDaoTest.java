@@ -699,7 +699,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] oneOrMoreProjects() {
-    return new Object[][]{
+    return new Object[][] {
       {1},
       {1 + new Random().nextInt(10)}
     };
@@ -928,7 +928,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] portfolioOrApplicationRootViewQualifier() {
-    return new Object[][]{
+    return new Object[][] {
       {Qualifiers.VIEW},
       {Qualifiers.APP},
     };
@@ -1008,7 +1008,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_all_roots_by_organization() {
+  public void select_projects_by_organization() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto module = db.components().insertComponent(newModuleDto(project1));
@@ -1020,18 +1020,19 @@ public class ComponentDaoTest {
     OrganizationDto otherOrganization = db.organizations().insert();
     ComponentDto projectOnOtherOrganization = db.components().insertPrivateProject(otherOrganization);
 
-    assertThat(underTest.selectAllRootsByOrganization(dbSession, organization.getUuid()))
+    assertThat(underTest.selectProjectsByOrganization(dbSession, organization.getUuid()))
       .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(project1.uuid(), project2.uuid(), view.uuid(), application.uuid());
+      .containsExactlyInAnyOrder(project1.uuid(), project2.uuid())
+      .doesNotContain(view.uuid(), application.uuid());
   }
 
   @Test
-  public void select_all_roots_by_organization_does_not_return_branches() {
+  public void select_projects_by_organization_does_not_return_branches() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    assertThat(underTest.selectAllRootsByOrganization(dbSession, organization.getUuid()))
+    assertThat(underTest.selectProjectsByOrganization(dbSession, organization.getUuid()))
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(project.uuid())
       .doesNotContain(branch.uuid());
@@ -1164,7 +1165,6 @@ public class ComponentDaoTest {
     underTest.countByQuery(dbSession, query.build());
   }
 
-
   @Test
   public void countByNclocRanges_on_zero_projects() {
     db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
@@ -1183,7 +1183,8 @@ public class ComponentDaoTest {
         tuple("1M", 0L),
         tuple("+1M", 0L));
   }
-    @Test
+
+  @Test
   public void countByNclocRanges() {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
 

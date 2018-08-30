@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project;
+package org.sonar.server.webhook;
 
-import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.component.ComponentDto;
 
 @Immutable
 public class Project {
@@ -31,45 +28,23 @@ public class Project {
   private final String uuid;
   private final String key;
   private final String name;
-  private final String description;
-  private final List<String> tags;
 
-  public Project(String uuid, String key, String name, @Nullable String description, List<String> tags) {
+  public Project(String uuid, String key, String name) {
     this.uuid = uuid;
     this.key = key;
     this.name = name;
-    this.description = description;
-    this.tags = tags;
   }
 
-  public static Project from(ComponentDto project) {
-    return new Project(project.uuid(), project.getKey(), project.name(), project.description(), project.getTags());
-  }
-
-  /**
-   * Always links to a row that exists in database.
-   */
   public String getUuid() {
     return uuid;
   }
 
-  /**
-   * Always links to a row that exists in database.
-   */
   public String getKey() {
     return key;
   }
 
   public String getName() {
     return name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public List<String> getTags() {
-    return tags;
   }
 
   @Override
@@ -81,9 +56,9 @@ public class Project {
       return false;
     }
     Project project = (Project) o;
-    return uuid.equals(project.uuid)
-      && key.equals(project.key)
-      && name.equals(project.name);
+    return Objects.equals(uuid, project.uuid) &&
+      Objects.equals(key, project.key) &&
+      Objects.equals(name, project.name);
   }
 
   @Override
@@ -97,16 +72,8 @@ public class Project {
     sb.append("uuid='").append(uuid).append('\'');
     sb.append(", key='").append(key).append('\'');
     sb.append(", name='").append(name).append('\'');
-    sb.append(", description=").append(toString(this.description));
     sb.append('}');
     return sb.toString();
-  }
-
-  private static String toString(@Nullable String s) {
-    if (s == null) {
-      return null;
-    }
-    return '\'' + s + '\'';
   }
 
 }

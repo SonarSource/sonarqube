@@ -42,6 +42,7 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.project.Project;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -248,7 +249,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
           .build())
       .build();
     treeRootHolder.setRoot(project);
-    analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName()));
+    analysisMetadataHolder.setProject(new Project(project.getUuid(), project.getKey(), project.getName(), project.getDescription(), emptyList()));
 
     // components as persisted in db
     ComponentDto projectDto = insertComponent("project-key", "project-uuid");
@@ -273,7 +274,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     ComponentDto portfolioDto = insertComponent("view-key", "view-uuid");
     ComponentDto subViewDto = insertComponent("subview-key", "subview-uuid");
     ComponentDto projectDto = insertComponent("project-key", "project-uuid");
-    analysisMetadataHolder.setProject(new Project(portfolioDto.uuid(), portfolioDto.getDbKey(), portfolioDto.name()));
+    analysisMetadataHolder.setProject(Project.from(portfolioDto));
   }
 
   private void assertThatMeasureIsNotPersisted(String componentUuid, Metric metric) {

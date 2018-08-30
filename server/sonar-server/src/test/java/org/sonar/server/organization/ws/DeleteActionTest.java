@@ -354,12 +354,6 @@ public class DeleteActionTest {
       ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
       ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(module, "a/b" + i));
       ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module, directory));
-      ComponentDto view = db.components().insertView(organization);
-      ComponentDto subview1 = db.components().insertComponent(ComponentTesting.newSubView(view, "v1" + i, "ksv1" + i));
-      ComponentDto subview2 = db.components().insertComponent(ComponentTesting.newSubView(subview1, "v2" + i, "ksv2" + i));
-      ComponentDto application = db.components().insertApplication(organization);
-      ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("pc1" + i, project, subview1));
-      ComponentDto projectCopyForApplication = db.components().insertComponent(ComponentTesting.newProjectCopy("pc2" + i, project, application));
       ComponentDto branch = db.components().insertProjectBranch(project);
       return project;
     }).collect(toSet());

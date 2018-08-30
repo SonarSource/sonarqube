@@ -24,7 +24,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -36,7 +35,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -318,11 +316,7 @@ public class IssueFieldsSetter {
   }
 
   public boolean setTags(DefaultIssue issue, Collection<String> tags, IssueChangeContext context) {
-    Set<String> newTags = tags.stream()
-      .filter(Objects::nonNull)
-      .filter(tag -> !tag.isEmpty())
-      .map(tag -> RuleTagFormat.validate(tag.toLowerCase(Locale.ENGLISH)))
-      .collect(MoreCollectors.toSet());
+    Set<String> newTags = RuleTagFormat.validate(tags);
 
     Set<String> oldTags = new HashSet<>(issue.tags());
     if (!oldTags.equals(newTags)) {

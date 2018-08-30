@@ -128,7 +128,7 @@ public class DeleteAction implements OrganizationsWsAction {
   }
 
   private void deleteProjects(DbSession dbSession, OrganizationDto organization) {
-    List<ComponentDto> roots = dbClient.componentDao().selectAllRootsByOrganization(dbSession, organization.getUuid());
+    List<ComponentDto> roots = dbClient.componentDao().selectProjectsByOrganization(dbSession, organization.getUuid());
     try {
       componentCleanerService.delete(dbSession, roots);
     } finally {

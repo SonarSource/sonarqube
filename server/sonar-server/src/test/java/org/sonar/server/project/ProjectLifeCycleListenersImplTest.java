@@ -40,6 +40,8 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 @RunWith(DataProviderRunner.class)
 public class ProjectLifeCycleListenersImplTest {
@@ -203,7 +205,6 @@ public class ProjectLifeCycleListenersImplTest {
     inOrder.verifyNoMoreInteractions();
   }
 
-
   @DataProvider
   public static Object[][] oneOrManyProjects() {
     return new Object[][] {
@@ -296,16 +297,15 @@ public class ProjectLifeCycleListenersImplTest {
     };
   }
 
-  private static int counter = 3_989;
-
   private static Project newUniqueProject() {
-    int base = counter++;
-    return new Project(base + "_uuid", base + "_key", base + "_name");
+    return Project.from(newPrivateProjectDto(newOrganizationDto()));
   }
+
+  private static int counter = 3_989;
 
   private static RekeyedProject newUniqueRekeyedProject() {
     int base = counter++;
-    Project project = new Project(base + "_uuid", base + "_key", base + "_name");
+    Project project = Project.from(newPrivateProjectDto(newOrganizationDto()));
     return new RekeyedProject(project, base + "_old_key");
   }
 }

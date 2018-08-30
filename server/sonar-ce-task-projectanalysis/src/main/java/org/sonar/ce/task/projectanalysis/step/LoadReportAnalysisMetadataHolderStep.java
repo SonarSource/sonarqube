@@ -111,7 +111,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
         ceTask.getComponentUuid()));
     }
     ComponentDto dto = toProject(reportProjectKey);
-    analysisMetadata.setProject(new Project(dto.uuid(), dto.getDbKey(), dto.name(), dto.description()));
+    analysisMetadata.setProject(Project.from(dto));
     return () -> {
       if (!componentKey.equals(reportProjectKey)) {
         throw MessageException.of(format(

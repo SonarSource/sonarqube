@@ -49,7 +49,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
@@ -216,7 +215,7 @@ public class WebhookQGChangeEventListenerTest {
   @DataProvider
   public static Object[][] newQGorNot() {
     EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
-    return new Object[][]{
+    return new Object[][] {
       {null},
       {newQualityGate}
     };

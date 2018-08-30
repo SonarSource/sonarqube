@@ -30,6 +30,8 @@ import org.sonar.server.project.Project;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class AnalysisMetadataHolderImplTest {
 
@@ -274,7 +276,7 @@ public class AnalysisMetadataHolderImplTest {
   public void set_and_get_project() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    Project project = new Project("U", "K", "N");
+    Project project = Project.from(newPrivateProjectDto(newOrganizationDto()));
     underTest.setProject(project);
 
     assertThat(underTest.getProject()).isSameAs(project);
@@ -291,11 +293,12 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setProject_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-    underTest.setProject(new Project("U", "K", "N"));
+    underTest.setProject(Project.from(newPrivateProjectDto(newOrganizationDto())));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Project has already been set");
-    underTest.setProject(new Project("U", "K", "N"));
+
+    underTest.setProject(Project.from(newPrivateProjectDto(newOrganizationDto())));
   }
 
   @Test

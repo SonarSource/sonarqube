@@ -19,7 +19,15 @@
  */
 package org.sonar.api.server.rule;
 
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+
+import static java.lang.String.format;
+import static java.lang.String.join;
+import static java.util.Locale.ENGLISH;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * The characters allowed in rule tags are the same as those on StackOverflow, basically lower-case
@@ -28,6 +36,8 @@ import org.apache.commons.lang.StringUtils;
  * @since 4.2
  */
 public class RuleTagFormat {
+
+  private static final String ERROR_MESSAGE_SUFFIX = "Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'";
 
   private static final String VALID_CHARACTERS_REGEX = "^[a-z0-9\\+#\\-\\.]+$";
 
@@ -41,8 +51,24 @@ public class RuleTagFormat {
 
   public static String validate(String tag) {
     if (!isValid(tag)) {
-      throw new IllegalArgumentException(String.format("Tag '%s' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'", tag));
+      throw new IllegalArgumentException(format("Tag '%s' is invalid. %s", tag, ERROR_MESSAGE_SUFFIX));
     }
     return tag;
   }
+
+  public static Set<String> validate(Collection<String> tags) {
+    Set<String> sanitizedTags = tags.stream()
+      .filter(Objects::nonNull)
+      .filter(tag -> !tag.isEmpty())
+      .map(tag -> tag.toLowerCase(ENGLISH))
+      .collect(toSet());
+    Set<String> invalidTags = sanitizedTags.stream()
+      .filter(tag -> !isValid(tag))
+      .collect(toSet());
+    if (invalidTags.isEmpty()) {
+      return sanitizedTags;
+    }
+    throw new IllegalArgumentException(format("Tags '%s' are invalid. %s", join(", ", invalidTags), ERROR_MESSAGE_SUFFIX));
+  }
+
 }

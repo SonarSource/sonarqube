@@ -44,9 +44,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.notification.NotificationManager;
@@ -178,12 +178,12 @@ public class SetTagsActionTest {
   }
 
   @Test
-  public void fail_when_bad_tag_format() {
+  public void fail_when_tag_use_bad_format() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Tag 'pol op' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
+    expectedException.expectMessage("Tags 'pol op' are invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
 
     call(issueDto.getKey(), "pol op");
   }

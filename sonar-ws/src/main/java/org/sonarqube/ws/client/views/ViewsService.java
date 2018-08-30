@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.views;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -356,6 +357,22 @@ public class ViewsService extends BaseService {
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
         .setParam("qualifiers", request.getQualifiers())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/set_tags_mode">Further information about this action online (including a response example)</a>
+   * @since 7.4
+   */
+  public void setTagsMode(SetTagsModeRequest request) {
+    call(
+      new PostRequest(path("set_tags_mode"))
+        .setParam("portfolio", request.getPortfolio())
+        .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)
       ).content();
   }

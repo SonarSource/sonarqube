@@ -37,6 +37,7 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
@@ -64,7 +65,7 @@ public class ComponentService {
     dbClient.componentKeyUpdaterDao().updateKey(dbSession, projectOrModule.uuid(), newKey);
     projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     if (isMainProject(projectOrModule)) {
-      Project newProject = new Project(projectOrModule.uuid(), newKey, projectOrModule.name(), projectOrModule.description());
+      Project newProject = new Project(projectOrModule.uuid(), newKey, projectOrModule.name(), projectOrModule.description(), projectOrModule.getTags());
       projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, projectOrModule.getDbKey())));
     }
   }
@@ -96,7 +97,7 @@ public class ComponentService {
 
   private static RekeyedProject toRekeyedProject(ComponentKeyUpdaterDao.RekeyedResource rekeyedResource) {
     ResourceDto resource = rekeyedResource.getResource();
-    Project project = new Project(resource.getUuid(), resource.getKey(), resource.getName(), resource.getDescription());
+    Project project = new Project(resource.getUuid(), resource.getKey(), resource.getName(), resource.getDescription(), emptyList());
     return new RekeyedProject(project, rekeyedResource.getOldKey());
   }
 

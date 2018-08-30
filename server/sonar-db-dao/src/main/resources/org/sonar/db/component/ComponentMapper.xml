@@ -246,13 +246,14 @@
       AND p.main_branch_project_uuid IS NULL
   </select>
 
-  <select id="selectAllRootsByOrganization" resultType="Component">
+  <select id="selectProjectsByOrganization" resultType="Component">
     select
       <include refid="componentColumns"/>
     from projects p
     where
-      p.scope='PRJ'
-    and (p.qualifier='TRK' or p.qualifier='VW' or p.qualifier='APP')
+      p.enabled=${_true}
+      and p.scope='PRJ'
+      and p.qualifier='TRK'
       and p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
       and p.main_branch_project_uuid IS NULL
   </select>

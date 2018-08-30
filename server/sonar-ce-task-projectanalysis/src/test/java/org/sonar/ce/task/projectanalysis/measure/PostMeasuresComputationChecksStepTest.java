@@ -42,6 +42,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class PostMeasuresComputationChecksStepTest {
 
@@ -70,14 +72,15 @@ public class PostMeasuresComputationChecksStepTest {
 
   @Test
   public void context_contains_project_uuid_from_analysis_metada_holder() {
-    analysisMetadataHolder.setProject(new Project("project_uuid", "project_key", "project_name"));
+    Project project = Project.from(newPrivateProjectDto(newOrganizationDto()));
+    analysisMetadataHolder.setProject(project);
     PostMeasuresComputationCheck check = mock(PostMeasuresComputationCheck.class);
 
     newStep(check).execute(new TestComputationStepContext());
 
     ArgumentCaptor<Context> contextArgumentCaptor = ArgumentCaptor.forClass(Context.class);
     verify(check).onCheck(contextArgumentCaptor.capture());
-    assertThat(contextArgumentCaptor.getValue().getProjectUuid()).isEqualTo("project_uuid");
+    assertThat(contextArgumentCaptor.getValue().getProjectUuid()).isEqualTo(project.getUuid());
   }
 
   @Test
