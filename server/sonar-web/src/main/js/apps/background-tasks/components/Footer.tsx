@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { Task } from '../types';
+import { Task } from '../../../app/types';
 
 const LIMIT = 1000;
 

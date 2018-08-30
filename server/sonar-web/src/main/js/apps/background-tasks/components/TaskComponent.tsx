@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import TaskType from './TaskType';
-import { Task } from '../types';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
 import {
@@ -32,6 +31,7 @@ import {
 import ShortLivingBranchIcon from '../../../components/icons-components/ShortLivingBranchIcon';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import PullRequestIcon from '../../../components/icons-components/PullRequestIcon';
+import { Task } from '../../../app/types';
 
 interface Props {
   task: Task;

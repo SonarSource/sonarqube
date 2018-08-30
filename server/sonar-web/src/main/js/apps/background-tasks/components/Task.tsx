@@ -26,14 +26,14 @@ import TaskDate from './TaskDate';
 import TaskId from './TaskId';
 import TaskStatus from './TaskStatus';
 import TaskSubmitter from './TaskSubmitter';
-import { Task as ITask } from '../types';
+import { Task as TaskType } from '../../../app/types';
 
 interface Props {
   component?: {};
-  onCancelTask: (task: ITask) => void;
-  onFilterTask: (task: ITask) => void;
-  task: ITask;
-  previousTask?: ITask;
+  onCancelTask: (task: TaskType) => void;
+  onFilterTask: (task: TaskType) => void;
+  task: TaskType;
+  previousTask?: TaskType;
 }
 
 export default function Task(props: Props) {

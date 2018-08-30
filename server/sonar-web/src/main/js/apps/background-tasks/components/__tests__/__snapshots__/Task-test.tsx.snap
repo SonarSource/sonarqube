@@ -10,6 +10,7 @@ exports[`renders 1`] = `
       Object {
         "componentName": "foo",
         "id": "123",
+        "organization": "org",
         "status": "PENDING",
         "submittedAt": "2017-01-01",
         "submitterLogin": "yoda",
@@ -43,6 +44,7 @@ exports[`renders 1`] = `
       Object {
         "componentName": "foo",
         "id": "123",
+        "organization": "org",
         "status": "PENDING",
         "submittedAt": "2017-01-01",
         "submitterLogin": "yoda",

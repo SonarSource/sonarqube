@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavLicenseNotif from '../ComponentNavLicenseNotif';
-import { Task } from '../../../../../api/ce';
 import { isValidLicense } from '../../../../../api/marketplace';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
+import { Task } from '../../../../types';
 
 jest.mock('../../../../../helpers/l10n', () => {
   const l10n = require.requireActual('../../../../../helpers/l10n');

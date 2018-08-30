@@ -23,10 +23,10 @@ import { connect } from 'react-redux';
 import { differenceBy } from 'lodash';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
-import { Component, BranchLike, Measure } from '../types';
+import { Component, BranchLike, Measure, Task } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches, getPullRequests } from '../../api/branches';
-import { Task, getTasksForComponent, PendingTask } from '../../api/ce';
+import { getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getMeasures } from '../../api/measures';
 import { getComponentNavigation } from '../../api/nav';
@@ -57,7 +57,7 @@ interface State {
   currentTask?: Task;
   isPending: boolean;
   loading: boolean;
-  tasksInProgress?: PendingTask[];
+  tasksInProgress?: Task[];
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -271,12 +271,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       : undefined;
   };
 
-  getPendingTasks = (pendingTasks: PendingTask[], branchLike?: BranchLike) => {
+  getPendingTasks = (pendingTasks: Task[], branchLike?: BranchLike) => {
     return pendingTasks.filter(task => this.isSameBranch(task, branchLike));
   };
 
   isSameBranch = (
-    task: Pick<PendingTask, 'branch' | 'branchType' | 'pullRequest'>,
+    task: Pick<Task, 'branch' | 'branchType' | 'pullRequest'>,
     branchLike?: BranchLike
   ) => {
     if (branchLike && !isMainBranch(branchLike)) {

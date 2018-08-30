@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
 import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
 import { toShortNotSoISOString } from '../../helpers/dates';
-/*:: import type { Task } from './types'; */
 
-export function updateTask(tasks /*: Task[] */, newTask /*: Task */) {
+export function updateTask(tasks, newTask) {
   return tasks.map(task => (task.id === newTask.id ? newTask : task));
 }
 

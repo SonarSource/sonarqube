@@ -27,7 +27,7 @@ jest.mock('../../../../../helpers/l10n', () => {
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
-import { Task } from '../../../../../api/ce';
+import { Task } from '../../../../types';
 
 const component = {
   analysisDate: '2017-01-02T00:00:00.000Z',

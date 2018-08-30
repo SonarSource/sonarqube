@@ -22,8 +22,8 @@ import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
 import { STATUSES } from '../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Task } from '../types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
+import { Task } from '../../../app/types';
 
 interface Props {
   component?: {};

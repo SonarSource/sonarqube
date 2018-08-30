@@ -31,10 +31,7 @@ const getTask = require('../../../../api/ce').getTask as jest.Mock<any>;
 
 const task = {
   componentName: 'foo',
-  status: 'PENDING',
   id: '123',
-  submittedAt: '2017-01-01',
-  submitterLogin: 'yoda',
   type: 'REPORT'
 };
 

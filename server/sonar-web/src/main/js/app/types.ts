@@ -720,6 +720,31 @@ export interface SubscriptionPlan {
   price: number;
 }
 
+export interface Task {
+  analysisId?: string;
+  branch?: string;
+  branchType?: string;
+  componentKey?: string;
+  componentName?: string;
+  componentQualifier?: string;
+  errorMessage?: string;
+  errorType?: string;
+  executedAt?: string;
+  executionTimeMs?: number;
+  hasErrorStacktrace?: boolean;
+  hasScannerContext?: boolean;
+  id: string;
+  logs?: boolean;
+  organization: string;
+  pullRequest?: string;
+  pullRequestTitle?: string;
+  startedAt?: string;
+  status: string;
+  submittedAt: string;
+  submitterLogin?: string;
+  type: string;
+}
+
 export interface TestCase {
   coveredLines: number;
   durationInMs: number;

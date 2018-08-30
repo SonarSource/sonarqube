@@ -42,7 +42,6 @@ import { fetchOrganizations } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { toShortNotSoISOString } from '../../../helpers/dates';
-/*:: import type { Task } from '../types'; */
 import '../background-tasks.css';
 
 /*::
@@ -174,7 +173,7 @@ class BackgroundTasksApp extends React.PureComponent {
     });
   }
 
-  handleCancelTask(task /*: Task */) {
+  handleCancelTask(task) {
     this.setState({ loading: true });
 
     cancelTaskAPI(task.id).then(nextTask => {
@@ -185,7 +184,7 @@ class BackgroundTasksApp extends React.PureComponent {
     });
   }
 
-  handleFilterTask(task /*: Task */) {
+  handleFilterTask(task) {
     this.handleFilterUpdate({ query: task.componentKey });
   }
 

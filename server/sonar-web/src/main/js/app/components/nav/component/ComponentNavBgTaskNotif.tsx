@@ -23,11 +23,10 @@ import { FormattedMessage } from 'react-intl';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import PendingIcon from '../../../../components/icons-components/PendingIcon';
-import { Component } from '../../../types';
+import { Component, Task } from '../../../types';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
 import { hasMessage, translate } from '../../../../helpers/l10n';
-import { Task } from '../../../../api/ce';
 
 interface Props {
   component: Component;

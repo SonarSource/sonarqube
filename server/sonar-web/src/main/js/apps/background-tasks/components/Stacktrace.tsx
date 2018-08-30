@@ -21,11 +21,11 @@ import * as React from 'react';
 import { getTask } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 import Modal from '../../../components/controls/Modal';
-import { Task } from '../types';
+import { Task } from '../../../app/types';
 
 interface Props {
   onClose: () => void;
-  task: Task;
+  task: Pick<Task, 'componentName' | 'errorMessage' | 'id' | 'type'>;
 }
 
 interface State {

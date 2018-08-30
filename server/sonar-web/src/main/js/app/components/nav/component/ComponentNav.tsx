@@ -24,9 +24,8 @@ import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import RecentHistory from '../../RecentHistory';
 import * as theme from '../../../theme';
-import { BranchLike, Component, Measure } from '../../../types';
+import { BranchLike, Component, Measure, Task } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import { Task } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 

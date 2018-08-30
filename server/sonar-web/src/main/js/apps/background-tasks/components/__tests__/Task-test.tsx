@@ -29,8 +29,9 @@ it('renders', () => {
         onFilterTask={jest.fn()}
         task={{
           componentName: 'foo',
-          status: 'PENDING',
           id: '123',
+          organization: 'org',
+          status: 'PENDING',
           submittedAt: '2017-01-01',
           submitterLogin: 'yoda',
           type: 'REPORT'

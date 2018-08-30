@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import { ComponentContainer } from '../ComponentContainer';
 import { getBranches, getPullRequests } from '../../../api/branches';
-import { getTasksForComponent, Task } from '../../../api/ce';
+import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 import {
@@ -30,7 +30,8 @@ import {
   LongLivingBranch,
   PullRequest,
   BranchType,
-  Visibility
+  Visibility,
+  Task
 } from '../../types';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';

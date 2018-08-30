@@ -22,8 +22,8 @@ import { Link } from 'react-router';
 import * as PropTypes from 'prop-types';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import { translate } from '../../../../helpers/l10n';
-import { Task } from '../../../../api/ce';
 import { isValidLicense } from '../../../../api/marketplace';
+import { Task } from '../../../types';
 
 interface Props {
   currentTask?: Task;

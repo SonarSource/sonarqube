@@ -19,34 +19,7 @@
  */
 import { getJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-
-export interface PendingTask {
-  branch?: string;
-  branchType?: string;
-  componentKey: string;
-  componentName: string;
-  componentQualifier: string;
-  id: string;
-  logs: boolean;
-  organization: string;
-  pullRequest?: string;
-  pullRequestTitle?: string;
-  status: string;
-  submittedAt: Date;
-  submitterLogin?: string;
-  type: string;
-}
-
-export interface Task extends PendingTask {
-  analysisId?: string;
-  errorMessage?: string;
-  errorType?: string;
-  executionTimeMs: number;
-  executedAt: Date;
-  hasErrorStacktrace: boolean;
-  hasScannerContext: boolean;
-  startedAt: Date;
-}
+import { Task } from '../app/types';
 
 export function getActivity(data: RequestData): Promise<any> {
   return getJSON('/api/ce/activity', data);
@@ -74,7 +47,7 @@ export function cancelAllTasks(): Promise<any> {
 
 export function getTasksForComponent(
   componentKey: string
-): Promise<{ queue: PendingTask[]; current: Task }> {
+): Promise<{ queue: Task[]; current: Task }> {
   return getJSON('/api/ce/component', { componentKey }).catch(throwGlobalError);
 }
 
