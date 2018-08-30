@@ -43,6 +43,7 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.organization.BillingValidations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -437,6 +438,22 @@ public class CeWorkerImplTest {
     when(queue.peek(anyString())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
     makeTaskProcessorFail(ceTask, MessageException.of("simulate MessageException thrown by TaskProcessor#process"));
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(2);
+    assertThat(logs.get(1)).contains(" | submitter=FooBar");
+    assertThat(logs.get(1)).contains(" | submitter=FooBar | status=FAILED | time=");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+  }
+
+  @Test
+  public void do_no_log_error_when_task_fails_with_BillingValidationsException() throws Exception {
+    CeTask ceTask = createCeTask("FooBar");
+    when(queue.peek(anyString())).thenReturn(Optional.of(ceTask));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    makeTaskProcessorFail(ceTask, new BillingValidations.BillingValidationsException("simulate MessageException thrown by TaskProcessor#process"));
 
     underTest.call();
 

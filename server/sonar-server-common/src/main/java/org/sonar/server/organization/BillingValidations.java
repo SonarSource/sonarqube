@@ -21,7 +21,7 @@ package org.sonar.server.organization;
 
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.process.MessageException;
+import org.sonar.api.utils.MessageException;
 
 import static java.util.Objects.requireNonNull;
 
