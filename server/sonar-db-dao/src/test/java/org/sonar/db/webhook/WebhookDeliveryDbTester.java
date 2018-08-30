@@ -19,8 +19,12 @@
  */
 package org.sonar.db.webhook;
 
-import org.sonar.db.DbSession;
+import java.util.Objects;
+import java.util.function.Consumer;
 import org.sonar.db.DbTester;
+
+import static java.util.Arrays.stream;
+import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 
 public class WebhookDeliveryDbTester {
 
@@ -31,9 +35,29 @@ public class WebhookDeliveryDbTester {
   }
 
   public WebhookDeliveryLiteDto insert(WebhookDeliveryDto dto) {
-    DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().webhookDeliveryDao().insert(dbSession, dto);
-    dbSession.commit();
+    dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
+    dbTester.getSession().commit();
+    return dto;
+  }
+
+  @SafeVarargs
+  public final WebhookDeliveryLiteDto insert(Consumer<WebhookDeliveryDto>... dtoPopulators) {
+    WebhookDeliveryDto dto = newDto();
+    stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));
+    dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
+    dbTester.getSession().commit();
+    return dto;
+  }
+
+  @SafeVarargs
+  public final WebhookDeliveryLiteDto insert(WebhookDto webhook, Consumer<WebhookDeliveryDto>... dtoPopulators) {
+    WebhookDeliveryDto dto = newDto();
+    stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));
+    String projectUuid = webhook.getProjectUuid();
+    dto.setComponentUuid(Objects.requireNonNull(projectUuid, "Project uuid of webhook cannot be null"));
+    dto.setWebhookUuid(webhook.getUuid());
+    dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
+    dbTester.getSession().commit();
     return dto;
   }
 

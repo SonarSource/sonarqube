@@ -24,7 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -93,7 +92,6 @@ import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.db.webhook.WebhookDbTesting.newDto;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 
 @RunWith(DataProviderRunner.class)
@@ -148,24 +146,18 @@ public class DeleteActionTest {
   @Test
   public void organization_deletion_also_ensure_that_webhooks_of_this_organization_if_they_exist_are_cleared() {
     OrganizationDto organization = db.organizations().insert();
-    webhookDbTester.insertWebhook(organization);
-    webhookDbTester.insertWebhook(organization);
-    WebhookDto dto = webhookDbTester.insertWebhook(organization);
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-    webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-
+    db.webhooks().insertWebhook(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    WebhookDto projectWebhook = db.webhooks().insertWebhook(project);
+    db.webhookDelivery().insert(projectWebhook);
     userSession.logIn().addPermission(ADMINISTER, organization);
 
     wsTester.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    List<WebhookDto> webhookDtos = dbClient.webhookDao().selectByOrganization(dbSession, organization);
-    assertThat(webhookDtos).isEmpty();
-
-    int deliveriesCount = deliveryDao.countDeliveriesByWebhookUuid(dbSession, dto.getUuid());
-    assertThat(deliveriesCount).isEqualTo(0);
-
+    assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isZero();
+    assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isZero();
   }
 
   @Test
@@ -383,7 +375,7 @@ public class DeleteActionTest {
 
   @DataProvider
   public static Object[][] OneOrMoreIterations() {
-    return new Object[][]{
+    return new Object[][] {
       {1},
       {1 + new Random().nextInt(10)},
     };
@@ -527,7 +519,7 @@ public class DeleteActionTest {
   @UseDataProvider("indexOfFailingProjectDeletion")
   public void projectLifeCycleListener_are_notified_even_if_deletion_of_a_project_throws_an_Exception(int failingProjectIndex) {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto[] projects = new ComponentDto[]{
+    ComponentDto[] projects = new ComponentDto[] {
       db.components().insertPrivateProject(organization),
       db.components().insertPrivateProject(organization),
       db.components().insertPrivateProject(organization)
@@ -558,7 +550,7 @@ public class DeleteActionTest {
 
   @DataProvider
   public static Object[][] indexOfFailingProjectDeletion() {
-    return new Object[][]{
+    return new Object[][] {
       {0},
       {1},
       {2}

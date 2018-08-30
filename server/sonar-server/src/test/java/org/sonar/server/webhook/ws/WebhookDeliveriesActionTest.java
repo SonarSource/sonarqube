@@ -41,7 +41,7 @@ import org.sonarqube.ws.Webhooks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.webhook.WebhookDbTesting.newDto;
+import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebhookDeliveriesActionTest {

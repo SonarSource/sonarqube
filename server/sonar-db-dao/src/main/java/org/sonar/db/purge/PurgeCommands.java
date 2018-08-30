@@ -284,6 +284,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteWebhooks(String rootUuid) {
+    profiler.start("deleteWebhooks (webhooks)");
+    purgeMapper.deleteWebhooksByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteWebhookDeliveries(String rootUuid) {
     profiler.start("deleteWebhookDeliveries (webhook_deliveries)");
     purgeMapper.deleteWebhookDeliveriesByProjectUuid(rootUuid);

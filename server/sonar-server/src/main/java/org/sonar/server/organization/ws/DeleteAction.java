@@ -129,9 +129,6 @@ public class DeleteAction implements OrganizationsWsAction {
 
   private void deleteProjects(DbSession dbSession, OrganizationDto organization) {
     List<ComponentDto> roots = dbClient.componentDao().selectAllRootsByOrganization(dbSession, organization.getUuid());
-    roots.forEach(project -> dbClient.webhookDao().selectByProject(dbSession, project)
-      .forEach(wh -> dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, wh)));
-    roots.forEach(project -> dbClient.webhookDao().deleteByProject(dbSession, project));
     try {
       componentCleanerService.delete(dbSession, roots);
     } finally {

@@ -27,11 +27,11 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
+import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 
 @ServerSide
 public class ComponentCleanerService {
@@ -55,17 +55,14 @@ public class ComponentCleanerService {
   public void deleteBranch(DbSession dbSession, ComponentDto branch) {
     // TODO: detect if other branches depend on it?
     dbClient.purgeDao().deleteBranch(dbSession, branch.uuid());
-    projectIndexers.commitAndIndex(dbSession, singletonList(branch), ProjectIndexer.Cause.PROJECT_DELETION);
+    projectIndexers.commitAndIndex(dbSession, singletonList(branch), PROJECT_DELETION);
   }
 
   public void delete(DbSession dbSession, ComponentDto project) {
     checkArgument(!hasNotProjectScope(project) && !isNotDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
     dbClient.purgeDao().deleteProject(dbSession, project.uuid());
     dbClient.userDao().cleanHomepage(dbSession, project);
-    dbClient.webhookDao().selectByProject(dbSession, project)
-      .forEach(wh -> dbClient.webhookDeliveryDao().deleteByWebhook(dbSession, wh));
-    dbClient.webhookDao().deleteByProject(dbSession, project);
-    projectIndexers.commitAndIndex(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_DELETION);
+    projectIndexers.commitAndIndex(dbSession, singletonList(project), PROJECT_DELETION);
   }
 
   private static boolean hasNotProjectScope(ComponentDto project) {

@@ -21,6 +21,7 @@ package org.sonar.db.webhook;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
@@ -29,9 +30,9 @@ import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
-public class WebhookDbTesting {
+public class WebhookDeliveryTesting {
 
-  private WebhookDbTesting() {
+  private WebhookDeliveryTesting() {
     // only statics
   }
 
@@ -41,15 +42,15 @@ public class WebhookDbTesting {
    */
   public static WebhookDeliveryDto newDto(String uuid, String webhookUuid, String componentUuid, String ceTaskUuid) {
     return newDto()
-            .setUuid(uuid)
-            .setWebhookUuid(webhookUuid)
-            .setComponentUuid(componentUuid)
-            .setCeTaskUuid(ceTaskUuid);
+      .setUuid(uuid)
+      .setWebhookUuid(webhookUuid)
+      .setComponentUuid(componentUuid)
+      .setCeTaskUuid(ceTaskUuid);
   }
 
   public static WebhookDeliveryDto newDto() {
     return new WebhookDeliveryDto()
-      .setUuid(randomAlphanumeric(40))
+      .setUuid(Uuids.createFast())
       .setWebhookUuid(randomAlphanumeric(40))
       .setComponentUuid(randomAlphanumeric(40))
       .setCeTaskUuid(randomAlphanumeric(40))
@@ -66,7 +67,7 @@ public class WebhookDbTesting {
   public static List<String> selectAllDeliveryUuids(DbTester dbTester, DbSession dbSession) {
     return dbTester.select(dbSession, "select uuid as \"uuid\" from webhook_deliveries")
       .stream()
-      .map(columns -> (String)columns.get("uuid"))
+      .map(columns -> (String) columns.get("uuid"))
       .collect(Collectors.toList());
   }
 }

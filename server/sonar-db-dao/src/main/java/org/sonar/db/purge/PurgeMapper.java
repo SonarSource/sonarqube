@@ -106,6 +106,8 @@ public interface PurgeMapper {
 
   void deleteCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
 
+  void deleteWebhooksByProjectUuid(@Param("projectUuid") String projectUuid);
+
   void deleteWebhookDeliveriesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteProjectMappingsByProjectUuid(@Param("projectUuid") String projectUuid);

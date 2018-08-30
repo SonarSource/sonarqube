@@ -19,13 +19,11 @@
  */
 package org.sonar.server.component;
 
-import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,11 +31,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.es.TestProjectIndexers;
 
 import static java.util.Arrays.asList;
@@ -46,7 +43,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 
 public class ComponentCleanerServiceTest {
@@ -67,8 +63,8 @@ public class ComponentCleanerServiceTest {
 
   @Test
   public void delete_project_from_db_and_index() {
-    DbData data1 = insertData(1);
-    DbData data2 = insertData(2);
+    DbData data1 = insertData();
+    DbData data2 = insertData();
 
     underTest.delete(dbSession, data1.project);
 
@@ -78,9 +74,9 @@ public class ComponentCleanerServiceTest {
 
   @Test
   public void delete_list_of_projects_from_db_and_index() {
-    DbData data1 = insertData(1);
-    DbData data2 = insertData(2);
-    DbData data3 = insertData(3);
+    DbData data1 = insertData();
+    DbData data2 = insertData();
+    DbData data3 = insertData();
 
     underTest.delete(dbSession, asList(data1.project, data2.project));
     dbSession.commit();
@@ -92,9 +88,9 @@ public class ComponentCleanerServiceTest {
 
   @Test
   public void delete_branch() {
-    DbData data1 = insertData(1);
-    DbData data2 = insertData(2);
-    DbData data3 = insertData(3);
+    DbData data1 = insertData();
+    DbData data2 = insertData();
+    DbData data3 = insertData();
 
     underTest.deleteBranch(dbSession, data1.project);
     dbSession.commit();
@@ -102,6 +98,26 @@ public class ComponentCleanerServiceTest {
     assertNotExists(data1);
     assertExists(data2);
     assertExists(data3);
+  }
+
+  @Test
+  public void delete_webhooks_from_projects() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    WebhookDto webhook1 = db.webhooks().insertWebhook(project1);
+    db.webhookDelivery().insert(webhook1);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    WebhookDto webhook2 = db.webhooks().insertWebhook(project2);
+    db.webhookDelivery().insert(webhook2);
+    ComponentDto projectNotToBeDeleted = db.components().insertPrivateProject(organization);
+    WebhookDto webhook3 = db.webhooks().insertWebhook(projectNotToBeDeleted);
+    db.webhookDelivery().insert(webhook3);
+    mockResourceTypeAsValidProject();
+
+    underTest.delete(dbSession, asList(project1, project2));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isEqualTo(1);
   }
 
   @Test
@@ -151,19 +167,14 @@ public class ComponentCleanerServiceTest {
     underTest.delete(dbSession, branch);
   }
 
-  private DbData insertData(int id) {
-    String suffix = String.valueOf(id);
-    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
-      .setDbKey("project-key-" + suffix);
-    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("sonarqube", "rule-" + suffix));
-    dbClient.ruleDao().insert(dbSession, rule);
-    IssueDto issue = IssueTesting.newIssue(rule, project, project).setKee("issue-key-" + suffix).setUpdatedAt(new Date().getTime());
-    dbClient.componentDao().insert(dbSession, project);
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(project));
-    dbClient.issueDao().insert(dbSession, issue);
-    dbSession.commit();
+  private DbData insertData() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, project);
+    SnapshotDto analysis = db.components().insertSnapshot(project);
     mockResourceTypeAsValidProject();
-    return new DbData(project, snapshot, issue);
+    return new DbData(project, analysis, issue);
   }
 
   private void mockResourceTypeAsValidProject() {

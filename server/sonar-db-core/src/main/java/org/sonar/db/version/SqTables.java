@@ -107,6 +107,7 @@ public final class SqTables {
     "users",
     "user_roles",
     "user_tokens",
+    "webhooks",
     "webhook_deliveries")));
 
   private SqTables() {
