@@ -127,6 +127,7 @@ exports[`shows scanner context 1`] = `
       "componentName": "foo",
       "hasScannerContext": true,
       "id": "123",
+      "organization": "org",
       "status": "PENDING",
       "submittedAt": "2017-01-01",
       "type": "REPORT",
@@ -143,10 +144,18 @@ exports[`shows stack trace 1`] = `
       "componentName": "foo",
       "errorMessage": "error!",
       "id": "123",
+      "organization": "org",
       "status": "PENDING",
       "submittedAt": "2017-01-01",
       "type": "REPORT",
     }
   }
+/>
+`;
+
+exports[`shows warnings 1`] = `
+<AnalysisWarningsModal
+  onClose={[Function]}
+  taskId="123"
 />
 `;

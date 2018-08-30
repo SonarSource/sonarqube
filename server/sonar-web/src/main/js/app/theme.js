@@ -56,6 +56,9 @@ module.exports = {
 
   snippetFontColor: '#f0f0f0',
 
+  // alerts
+  warningIconColor: '#e2bf41',
+
   // sizes
   grid,
   gridSize: `${grid}px`,

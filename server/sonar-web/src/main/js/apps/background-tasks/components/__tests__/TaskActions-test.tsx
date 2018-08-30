@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import TaskActions from '../TaskActions';
 import { click } from '../../../../helpers/testUtils';
+import { Task } from '../../../../app/types';
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -48,7 +49,16 @@ it('shows scanner context', () => {
   expect(wrapper.find('ScannerContext').exists()).toBeFalsy();
 });
 
-function shallowRender(fields?: any, props?: any) {
+it('shows warnings', () => {
+  const wrapper = shallowRender({ warningCount: 2 });
+  click(wrapper.find('.js-task-show-warnings'));
+  expect(wrapper.find('AnalysisWarningsModal')).toMatchSnapshot();
+  wrapper.find('AnalysisWarningsModal').prop<Function>('onClose')();
+  wrapper.update();
+  expect(wrapper.find('AnalysisWarningsModal').exists()).toBeFalsy();
+});
+
+function shallowRender(fields?: Partial<Task>, props?: Partial<TaskActions['props']>) {
   return shallow(
     <TaskActions
       onCancelTask={jest.fn()}
@@ -57,6 +67,7 @@ function shallowRender(fields?: any, props?: any) {
         componentName: 'foo',
         status: 'PENDING',
         id: '123',
+        organization: 'org',
         submittedAt: '2017-01-01',
         type: 'REPORT',
         ...fields

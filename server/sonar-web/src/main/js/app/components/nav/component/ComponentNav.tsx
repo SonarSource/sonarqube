@@ -96,6 +96,7 @@ export default class ComponentNav extends React.PureComponent<Props> {
             branchLike={currentBranchLike}
             branchMeasures={this.props.branchMeasures}
             component={component}
+            currentTask={currentTask}
           />
         </div>
         <ComponentNavMenu

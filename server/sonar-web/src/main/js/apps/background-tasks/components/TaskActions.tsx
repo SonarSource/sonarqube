@@ -24,6 +24,12 @@ import { STATUSES } from '../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { Task } from '../../../app/types';
+import { lazyLoad } from '../../../components/lazyLoad';
+
+const AnalysisWarningsModal = lazyLoad(
+  () => import('../../../components/common/AnalysisWarningsModal'),
+  'AnalysisWarningsModal'
+);
 
 interface Props {
   component?: {};
@@ -35,12 +41,14 @@ interface Props {
 interface State {
   scannerContextOpen: boolean;
   stacktraceOpen: boolean;
+  warningsOpen: boolean;
 }
 
 export default class TaskActions extends React.PureComponent<Props, State> {
   state: State = {
     scannerContextOpen: false,
-    stacktraceOpen: false
+    stacktraceOpen: false,
+    warningsOpen: false
   };
 
   handleFilterClick = () => {
@@ -55,13 +63,25 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     this.setState({ scannerContextOpen: true });
   };
 
-  closeScannerContext = () => this.setState({ scannerContextOpen: false });
+  closeScannerContext = () => {
+    this.setState({ scannerContextOpen: false });
+  };
 
   handleShowStacktraceClick = () => {
     this.setState({ stacktraceOpen: true });
   };
 
-  closeStacktrace = () => this.setState({ stacktraceOpen: false });
+  closeStacktrace = () => {
+    this.setState({ stacktraceOpen: false });
+  };
+
+  handleShowWarningsClick = () => {
+    this.setState({ warningsOpen: true });
+  };
+
+  closeWarnings = () => {
+    this.setState({ warningsOpen: false });
+  };
 
   render() {
     const { component, task } = this.props;
@@ -69,7 +89,9 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     const canFilter = component === undefined;
     const canCancel = task.status === STATUSES.PENDING;
     const canShowStacktrace = task.errorMessage !== undefined;
-    const hasActions = canFilter || canCancel || task.hasScannerContext || canShowStacktrace;
+    const canShowWarnings = task.warningCount !== undefined && task.warningCount > 0;
+    const hasActions =
+      canFilter || canCancel || task.hasScannerContext || canShowStacktrace || canShowWarnings;
 
     if (!hasActions) {
       return <td>&nbsp;</td>;
@@ -109,6 +131,13 @@ export default class TaskActions extends React.PureComponent<Props, State> {
               {translate('background_tasks.show_stacktrace')}
             </ActionsDropdownItem>
           )}
+          {canShowWarnings && (
+            <ActionsDropdownItem
+              className="js-task-show-warnings"
+              onClick={this.handleShowWarningsClick}>
+              {translate('background_tasks.show_warnings')}
+            </ActionsDropdownItem>
+          )}
         </ActionsDropdown>
 
         {this.state.scannerContextOpen && (
@@ -116,6 +145,10 @@ export default class TaskActions extends React.PureComponent<Props, State> {
         )}
 
         {this.state.stacktraceOpen && <Stacktrace onClose={this.closeStacktrace} task={task} />}
+
+        {this.state.warningsOpen && (
+          <AnalysisWarningsModal onClose={this.closeWarnings} taskId={task.id} />
+        )}
       </td>
     );
   }

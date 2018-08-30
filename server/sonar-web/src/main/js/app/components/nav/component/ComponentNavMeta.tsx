@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import ComponentNavWarnings from './ComponentNavWarnings';
 import {
   BranchLike,
   Component,
@@ -26,7 +27,8 @@ import {
   isLoggedIn,
   HomePageType,
   HomePage,
-  Measure
+  Measure,
+  Task
 } from '../../../types';
 import BranchMeasures from '../../../../components/common/BranchMeasures';
 import BranchStatus from '../../../../components/common/BranchStatus';
@@ -52,9 +54,10 @@ interface Props extends StateProps {
   branchLike?: BranchLike;
   branchMeasures?: Measure[];
   component: Component;
+  currentTask?: Task;
 }
 
-export function ComponentNavMeta({ branchLike, branchMeasures, component, currentUser }: Props) {
+export function ComponentNavMeta({ branchLike, branchMeasures, component, currentTask, currentUser }: Props) {
   const mainBranch = !branchLike || isMainBranch(branchLike);
   const longBranch = isLongLivingBranch(branchLike);
   const currentPage = getCurrentPage(component, branchLike);
@@ -62,6 +65,8 @@ export function ComponentNavMeta({ branchLike, branchMeasures, component, curren
 
   return (
     <div className="navbar-context-meta">
+      {currentTask &&
+        Boolean(currentTask.warningCount) && <ComponentNavWarnings task={currentTask} />}
       {component.analysisDate && (
         <div className="spacer-left text-ellipsis">
           <DateTimeFormatter date={component.analysisDate} />

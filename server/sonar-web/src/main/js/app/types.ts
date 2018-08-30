@@ -728,6 +728,7 @@ export interface Task {
   componentName?: string;
   componentQualifier?: string;
   errorMessage?: string;
+  errorStacktrace?: string;
   errorType?: string;
   executedAt?: string;
   executionTimeMs?: number;
@@ -738,11 +739,14 @@ export interface Task {
   organization: string;
   pullRequest?: string;
   pullRequestTitle?: string;
+  scannerContext?: string;
   startedAt?: string;
   status: string;
   submittedAt: string;
   submitterLogin?: string;
   type: string;
+  warningCount?: number;
+  warnings?: string[];
 }
 
 export interface TestCase {

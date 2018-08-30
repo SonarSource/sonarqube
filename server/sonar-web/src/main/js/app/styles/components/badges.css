@@ -53,6 +53,12 @@ a.badge {
   border-radius: 50px;
 }
 
+.badge-medium {
+  height: var(--controlHeight);
+  line-height: calc(var(--controlHeight));
+  letter-spacing: 0.01em;
+}
+
 .list-group-item > .badge,
 .list-group-item-heading > .badge {
   float: right;

@@ -33,7 +33,7 @@ export function getStatus(componentId?: string): Promise<any> {
   return getJSON('/api/ce/activity_status', data);
 }
 
-export function getTask(id: string, additionalFields?: string[]): Promise<any> {
+export function getTask(id: string, additionalFields?: string[]): Promise<Task> {
   return getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);
 }
 

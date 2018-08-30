@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<React.Fragment>
+  <div
+    className="badge badge-focus badge-medium display-inline-flex-center js-component-analysis-warnings"
+  >
+    <WarningIcon
+      className="spacer-right"
+    />
+    <FormattedMessage
+      defaultMessage="component_navigation.last_analsys_had_warnings"
+      id="component_navigation.last_analsys_had_warnings"
+      values={
+        Object {
+          "warnings": <a
+            href="#"
+            onClick={[Function]}
+          >
+            component_navigation.x_warnings.undefined
+          </a>,
+        }
+      }
+    />
+  </div>
+  <LazyLoader
+    onClose={[Function]}
+    taskId="abcd1234"
+  />
+</React.Fragment>
+`;
