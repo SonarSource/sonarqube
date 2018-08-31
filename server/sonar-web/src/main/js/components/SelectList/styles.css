@@ -37,6 +37,11 @@
   overflow: auto;
 }
 
+.select-list-list-checkbox {
+  display: flex !important;
+  align-items: center;
+}
+
 .select-list-list-checkbox i {
   display: inline-block;
   vertical-align: middle;

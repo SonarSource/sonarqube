@@ -19,6 +19,7 @@
  */
 import * as ReactRedux from 'react-redux';
 import * as ReactRouter from 'react-router';
+import { FormattedMessage } from 'react-intl';
 import throwGlobalError from '../../utils/throwGlobalError';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
 import Suggestions from '../embed-docs-modal/Suggestions';
@@ -60,6 +61,7 @@ import PullRequestIcon from '../../../components/icons-components/PullRequestIco
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import SearchSelect from '../../../components/controls/SearchSelect';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -90,6 +92,7 @@ const exposeLibraries = () => {
     DuplicationsRating,
     EditButton,
     Favorite,
+    FormattedMessage,
     HelpIcon,
     HelpTooltip,
     HomePageSelect,
@@ -104,6 +107,7 @@ const exposeLibraries = () => {
     ReloadButton,
     ResetButtonLink,
     SearchBox,
+    SearchSelect,
     Select,
     SelectList,
     SimpleModal,
