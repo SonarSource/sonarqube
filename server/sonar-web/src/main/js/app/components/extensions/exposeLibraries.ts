@@ -58,6 +58,8 @@ import BranchIcon from '../../../components/icons-components/BranchIcon';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import PullRequestIcon from '../../../components/icons-components/PullRequestIcon';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import SimpleModal from '../../../components/controls/SimpleModal';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -77,6 +79,7 @@ const exposeLibraries = () => {
     Checkbox,
     CheckIcon,
     ClearIcon,
+    ConfirmButton,
     CoverageRating,
     DateFormatter,
     DateFromNow,
@@ -103,6 +106,7 @@ const exposeLibraries = () => {
     SearchBox,
     Select,
     SelectList,
+    SimpleModal,
     SubmitButton,
     Suggestions,
     Tooltip
