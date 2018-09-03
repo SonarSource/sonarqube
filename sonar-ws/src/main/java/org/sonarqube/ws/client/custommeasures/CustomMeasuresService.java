@@ -43,6 +43,7 @@ public class CustomMeasuresService extends BaseService {
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/create">Further information about this action online (including a response example)</a>
    * @since 5.2
+   * @deprecated since 7.4
    */
   public void create(CreateRequest request) {
     call(
@@ -63,6 +64,7 @@ public class CustomMeasuresService extends BaseService {
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/delete">Further information about this action online (including a response example)</a>
    * @since 5.2
+   * @deprecated since 7.4
    */
   public void delete(DeleteRequest request) {
     call(
@@ -78,6 +80,7 @@ public class CustomMeasuresService extends BaseService {
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/metrics">Further information about this action online (including a response example)</a>
    * @since 5.2
+   * @deprecated since 7.4
    */
   public String metrics(MetricsRequest request) {
     return call(
@@ -94,6 +97,7 @@ public class CustomMeasuresService extends BaseService {
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/search">Further information about this action online (including a response example)</a>
    * @since 5.2
+   * @deprecated since 7.4
    */
   public String search(SearchRequest request) {
     return call(
@@ -113,6 +117,7 @@ public class CustomMeasuresService extends BaseService {
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/update">Further information about this action online (including a response example)</a>
    * @since 5.2
+   * @deprecated since 7.4
    */
   public void update(UpdateRequest request) {
     call(

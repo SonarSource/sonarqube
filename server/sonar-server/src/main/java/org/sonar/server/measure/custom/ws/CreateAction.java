@@ -76,6 +76,7 @@ public class CreateAction implements CustomMeasuresWsAction {
         "The project id or the project key must be provided (only project and module custom measures can be created). The metric id or the metric key must be provided.<br/>" +
         "Requires 'Administer' permission on the project.")
       .setSince("5.2")
+      .setDeprecatedSince("7.4")
       .setPost(true)
       .setHandler(this);
 

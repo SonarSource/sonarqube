@@ -50,6 +50,7 @@ public class DeleteAction implements CustomMeasuresWsAction {
       .setPost(true)
       .setHandler(this)
       .setSince("5.2")
+      .setDeprecatedSince("7.4")
       .setDescription("Delete a custom measure.<br /> Requires 'Administer System' permission or 'Administer' permission on the project.");
 
     action.createParam(PARAM_ID)

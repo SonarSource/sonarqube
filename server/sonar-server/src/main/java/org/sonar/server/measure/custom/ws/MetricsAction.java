@@ -56,6 +56,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setSince("5.2")
+      .setDeprecatedSince("7.4")
       .setInternal(true)
       .setHandler(this)
       .setResponseExample(Resources.getResource(getClass(), "example-metrics.json"))
