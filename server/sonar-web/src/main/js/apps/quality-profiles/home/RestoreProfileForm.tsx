@@ -25,7 +25,6 @@ import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   onClose: () => void;
-  onRequestFail: (reason: any) => void;
   onRestore: () => void;
   organization: string | null;
 }
@@ -71,11 +70,10 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
         }
         this.props.onRestore();
       },
-      (error: any) => {
+      () => {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-        this.props.onRequestFail(error);
       }
     );
   };

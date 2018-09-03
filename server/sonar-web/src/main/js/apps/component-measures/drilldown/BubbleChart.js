@@ -33,7 +33,7 @@ import {
 import { getBubbleMetrics, getBubbleYDomain, isProjectOverview } from '../utils';
 import { RATING_COLORS } from '../../../helpers/constants';
 /*:: import type { Component, ComponentEnhanced } from '../types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { Metric } from '../../../app/flow-types'; */
 
 const HEIGHT = 500;
 

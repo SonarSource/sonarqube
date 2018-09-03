@@ -23,7 +23,6 @@ import { parseIssueFromResponse } from '../../helpers/issues';
 
 export const updateIssue = (
   onChange /*: Issue => void */,
-  onFail /*: Error => void */,
   resultPromise /*: Promise<*> */,
   oldIssue /*: ?Issue */,
   newIssue /*: ?Issue */
@@ -47,7 +46,6 @@ export const updateIssue = (
       }
     },
     error => {
-      onFail(error);
       if (optimisticUpdate) {
         // $FlowFixMe `oldIssue` is not null, because `optimisticUpdate` is true
         onChange(oldIssue);

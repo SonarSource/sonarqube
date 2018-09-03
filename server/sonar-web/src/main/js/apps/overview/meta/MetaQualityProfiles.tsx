@@ -25,7 +25,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
-import { getLanguages } from '../../../store/rootReducer';
+import { getLanguages, Store } from '../../../store/rootReducer';
 import { ComponentQualityProfile } from '../../../app/types';
 
 interface StateProps {
@@ -147,8 +147,8 @@ class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, Sta
   }
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   languages: getLanguages(state)
 });
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(MetaQualityProfiles);
+export default connect(mapStateToProps)(MetaQualityProfiles);

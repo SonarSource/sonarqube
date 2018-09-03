@@ -34,7 +34,7 @@ import { translate } from '../../helpers/l10n';
 interface Props {
   currentUser: { isLoggedIn: boolean; login?: string };
   location: Location;
-  organizationsEnabled: boolean;
+  organizationsEnabled?: boolean;
 }
 
 interface State {

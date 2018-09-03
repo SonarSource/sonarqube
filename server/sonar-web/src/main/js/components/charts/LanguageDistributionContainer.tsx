@@ -19,10 +19,10 @@
  */
 import { connect } from 'react-redux';
 import LanguageDistribution from './LanguageDistribution';
-import { getLanguages } from '../../store/rootReducer';
+import { getLanguages, Store } from '../../store/rootReducer';
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   languages: getLanguages(state)
 });
 
-export default connect<any, any, any>(mapStateToProps)(LanguageDistribution);
+export default connect(mapStateToProps)(LanguageDistribution);

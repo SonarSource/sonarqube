@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import ProjectOnboardingModal from './ProjectOnboardingModal';
-import { skipOnboarding } from '../../../store/users/actions';
+import { skipOnboarding } from '../../../store/users';
 
 interface DispatchProps {
   skipOnboarding: () => void;
@@ -44,7 +44,7 @@ export class ProjectOnboardingPage extends React.PureComponent<DispatchProps> {
 
 const mapDispatchToProps: DispatchProps = { skipOnboarding };
 
-export default connect<{}, DispatchProps>(
+export default connect(
   null,
   mapDispatchToProps
 )(ProjectOnboardingPage);

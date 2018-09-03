@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import * as classNames from 'classnames';
 import GenericAvatar from './GenericAvatar';
-import { getGlobalSettingValue } from '../../store/rootReducer';
+import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 
 interface Props {
   className?: string;
@@ -55,7 +55,7 @@ function Avatar(props: Props) {
   );
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   enableGravatar: (getGlobalSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
   gravatarServerUrl: (getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value
 });

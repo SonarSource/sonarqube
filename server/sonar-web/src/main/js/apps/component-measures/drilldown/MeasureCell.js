@@ -23,7 +23,7 @@ import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
 /*:: import type { ComponentEnhanced } from '../types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { Metric } from '../../../app/flow-types'; */
 
 /*:: type Props = {
   component: ComponentEnhanced,

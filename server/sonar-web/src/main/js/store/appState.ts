@@ -17,44 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Extension, AppState } from '../../app/types';
+import { ActionType } from './utils/actions';
+import { Extension, AppState } from '../app/types';
+import { EditionKey } from '../apps/marketplace/utils';
 
-interface SetAppStateAction {
-  type: 'SET_APP_STATE';
-  appState: AppState;
+type Action =
+  | ActionType<typeof setAppState, 'SET_APP_STATE'>
+  | ActionType<typeof setAdminPages, 'SET_ADMIN_PAGES'>
+  | ActionType<typeof requireAuthorization, 'REQUIRE_AUTHORIZATION'>;
+
+export function setAppState(appState: AppState) {
+  return { type: 'SET_APP_STATE', appState };
 }
 
-interface SetAdminPagesAction {
-  type: 'SET_ADMIN_PAGES';
-  adminPages: Extension[];
-}
-
-interface RequireAuthorizationAction {
-  type: 'REQUIRE_AUTHORIZATION';
-}
-
-export type Action = SetAppStateAction | SetAdminPagesAction | RequireAuthorizationAction;
-
-export function setAppState(appState: AppState): SetAppStateAction {
-  return {
-    type: 'SET_APP_STATE',
-    appState
-  };
-}
-
-export function setAdminPages(adminPages: Extension[]): SetAdminPagesAction {
+export function setAdminPages(adminPages: Extension[]) {
   return { type: 'SET_ADMIN_PAGES', adminPages };
 }
 
-export function requireAuthorization(): RequireAuthorizationAction {
+export function requireAuthorization() {
   return { type: 'REQUIRE_AUTHORIZATION' };
 }
 
 const defaultValue: AppState = {
   authenticationError: false,
   authorizationError: false,
+  defaultOrganization: '',
+  edition: EditionKey.community,
   organizationsEnabled: false,
-  qualifiers: []
+  productionDatabase: true,
+  qualifiers: [],
+  version: ''
 };
 
 export default function(state: AppState = defaultValue, action: Action): AppState {

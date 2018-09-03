@@ -40,7 +40,7 @@ import {
   isPullRequest
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
-import { getCurrentUser } from '../../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../../store/rootReducer';
 
 interface StateProps {
   currentUser: CurrentUser;
@@ -121,7 +121,7 @@ function getCurrentPage(component: Component, branchLike: BranchLike | undefined
   return currentPage;
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   currentUser: getCurrentUser(state)
 });
 

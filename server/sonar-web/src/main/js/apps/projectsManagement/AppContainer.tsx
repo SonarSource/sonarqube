@@ -22,8 +22,8 @@ import { connect } from 'react-redux';
 import App from './App';
 import forSingleOrganization from '../organizations/forSingleOrganization';
 import { Organization, LoggedInUser, Visibility } from '../../app/types';
-import { getAppState, getOrganizationByKey, getCurrentUser } from '../../store/rootReducer';
-import { receiveOrganizations } from '../../store/organizations/duck';
+import { getAppState, getOrganizationByKey, getCurrentUser, Store } from '../../store/rootReducer';
+import { receiveOrganizations } from '../../store/organizations';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
 import { fetchOrganization } from '../organizations/actions';
 
@@ -40,6 +40,7 @@ interface DispatchProps {
 
 interface OwnProps {
   onRequestFail: (error: any) => void;
+  organization: Organization;
 }
 
 class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchProps> {
@@ -78,7 +79,7 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
   }
 }
 
-const mapStateToProps = (state: any, ownProps: any) => ({
+const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
   appState: getAppState(state),
   currentUser: getCurrentUser(state) as LoggedInUser,
   organization:
@@ -102,7 +103,7 @@ const mapDispatchToProps = (dispatch: Function) => ({
 });
 
 export default forSingleOrganization(
-  connect<StateProps, DispatchProps, OwnProps>(
+  connect(
     mapStateToProps,
     mapDispatchToProps
   )(AppContainer)

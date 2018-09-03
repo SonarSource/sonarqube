@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { fetchPrismicRefs, fetchPrismicNews, PrismicNews } from '../../../api/news';
-import { getGlobalSettingValue } from '../../../store/rootReducer';
+import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
 import PlaceholderBar from '../../../components/ui/PlaceholderBar';
@@ -124,8 +124,8 @@ export class ProductNewsMenuItem extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   accessToken: (getGlobalSettingValue(state, 'sonar.prismic.accessToken') || {}).value
 });
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(ProductNewsMenuItem);
+export default connect(mapStateToProps)(ProductNewsMenuItem);

@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import ExtensionContainer from './ExtensionContainer';
 import NotFound from '../NotFound';
-import { getOrganizationByKey } from '../../../store/rootReducer';
+import { getOrganizationByKey, Store } from '../../../store/rootReducer';
 import { fetchOrganization } from '../../../apps/organizations/actions';
 import { Organization } from '../../types';
 
@@ -74,13 +74,13 @@ class OrganizationPageExtension extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any, ownProps: OwnProps) => ({
+const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
 const mapDispatchToProps = { fetchOrganization };
 
-export default connect<StateToProps, DispatchProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(OrganizationPageExtension);

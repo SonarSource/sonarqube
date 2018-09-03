@@ -19,18 +19,10 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { onFail } from '../../../../store/rootActions';
 import { getCurrentUser } from '../../../../store/rootReducer';
 
 const mapStateToProps = state => ({
   currentUser: getCurrentUser(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-  onRequestFail: onFail(dispatch)
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App);
+export default connect(mapStateToProps)(App);

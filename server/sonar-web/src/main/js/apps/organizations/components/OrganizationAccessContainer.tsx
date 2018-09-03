@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from 'react-router';
-import { getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
+import { getCurrentUser, getOrganizationByKey, Store } from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { Organization, CurrentUser, isLoggedIn } from '../../../app/types';
 
@@ -63,14 +63,12 @@ export class OrganizationAccess extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any, ownProps: OwnProps) => ({
+const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
   currentUser: getCurrentUser(state),
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
-const OrganizationAccessContainer = connect<StateToProps, {}, OwnProps>(mapStateToProps)(
-  OrganizationAccess
-);
+const OrganizationAccessContainer = connect(mapStateToProps)(OrganizationAccess);
 
 export function hasAdminAccess({
   currentUser,

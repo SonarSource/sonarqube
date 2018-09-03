@@ -22,7 +22,7 @@ import { uniqBy, omit } from 'lodash';
 import { connect } from 'react-redux';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedLanguage, Facet } from '../utils';
-import { getLanguages } from '../../../store/rootReducer';
+import { getLanguages, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 
@@ -107,7 +107,7 @@ class LanguageFacet extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   installedLanguages: Object.values(getLanguages(state))
 });
 

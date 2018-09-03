@@ -44,7 +44,8 @@ import { hasPrivateAccess } from '../../../helpers/organizations';
 import {
   getCurrentUser,
   getMyOrganizations,
-  getOrganizationByKey
+  getOrganizationByKey,
+  Store
 } from '../../../store/rootReducer';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
@@ -170,10 +171,10 @@ export class Meta extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any, { component }: OwnProps) => ({
+const mapStateToProps = (state: Store, { component }: OwnProps) => ({
   currentUser: getCurrentUser(state),
   organization: getOrganizationByKey(state, component.organization),
   userOrganizations: getMyOrganizations(state)
 });
 
-export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(Meta);
+export default connect(mapStateToProps)(Meta);

@@ -29,7 +29,7 @@ import { Project } from '../types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
-  displayOrganizations: boolean;
+  displayOrganizations?: boolean;
   projects: Project[];
   sort?: string;
   total?: number;

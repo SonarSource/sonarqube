@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as GoogleAnalytics from 'react-ga';
 import { withRouter, WithRouterProps } from 'react-router';
 import { connect } from 'react-redux';
-import { getGlobalSettingValue } from '../../store/rootReducer';
+import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 
 interface StateProps {
   trackingId?: string;
@@ -59,8 +59,8 @@ export class PageTracker extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   trackingId: (getGlobalSettingValue(state, 'sonar.analytics.trackingId') || {}).value
 });
 
-export default withRouter<{}>(connect<StateProps>(mapStateToProps)(PageTracker));
+export default withRouter(connect(mapStateToProps)(PageTracker));

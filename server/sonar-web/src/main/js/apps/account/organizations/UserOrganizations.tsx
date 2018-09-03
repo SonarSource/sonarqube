@@ -24,14 +24,19 @@ import OrganizationsList from './OrganizationsList';
 import CreateOrganizationForm from './CreateOrganizationForm';
 import { fetchIfAnyoneCanCreateOrganizations } from './actions';
 import { translate } from '../../../helpers/l10n';
-import { getAppState, getMyOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
+import {
+  getAppState,
+  getMyOrganizations,
+  getGlobalSettingValue,
+  Store
+} from '../../../store/rootReducer';
 import { Organization } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 
 interface StateProps {
   anyoneCanCreate?: { value: string };
-  canAdmin: boolean;
-  organizations: Array<Organization>;
+  canAdmin?: boolean;
+  organizations: Organization[];
 }
 
 interface DispatchProps {
@@ -110,7 +115,7 @@ class UserOrganizations extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   anyoneCanCreate: getGlobalSettingValue(state, 'sonar.organizations.anyoneCanCreate'),
   canAdmin: getAppState(state).canAdmin,
   organizations: getMyOrganizations(state)

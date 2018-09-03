@@ -197,7 +197,7 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { updateOrganization: updateOrganization as any };
 
-export default connect<{}, DispatchProps, OwnProps>(
+export default connect(
   null,
   mapDispatchToProps
 )(OrganizationEdit);

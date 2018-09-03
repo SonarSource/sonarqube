@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import { areThereCustomOrganizations } from '../../store/rootReducer';
+import { areThereCustomOrganizations, Store } from '../../store/rootReducer';
 
 type ReactComponent<P> = React.ComponentClass<P> | React.StatelessComponent<P>;
 
@@ -44,7 +44,7 @@ export default function forSingleOrganization<P>(ComposedComponent: ReactCompone
     }
   }
 
-  const mapStateToProps = (state: any) => ({
+  const mapStateToProps = (state: Store) => ({
     customOrganizations: areThereCustomOrganizations(state)
   });
 

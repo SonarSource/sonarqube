@@ -128,7 +128,7 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps: DispatchToProps = { deleteOrganization: deleteOrganization as any };
 
-export default connect<null, DispatchToProps, OwnProps>(
+export default connect(
   null,
   mapDispatchToProps
 )(OrganizationDelete);

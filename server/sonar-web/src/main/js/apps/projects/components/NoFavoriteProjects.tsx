@@ -26,7 +26,7 @@ import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import Dropdown from '../../../components/controls/Dropdown';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
 import { Button } from '../../../components/ui/buttons';
-import { getMyOrganizations } from '../../../store/rootReducer';
+import { getMyOrganizations, Store } from '../../../store/rootReducer';
 import { isSonarCloud } from '../../../helpers/system';
 import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
@@ -95,7 +95,7 @@ export class NoFavoriteProjects extends React.PureComponent<StateProps> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   organizations: getMyOrganizations(state)
 });
 

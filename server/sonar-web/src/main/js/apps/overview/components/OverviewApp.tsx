@@ -47,7 +47,7 @@ import {
   isLongLivingBranch
 } from '../../../helpers/branches';
 import { fetchMetrics } from '../../../store/rootActions';
-import { getMetrics } from '../../../store/rootReducer';
+import { getMetrics, Store } from '../../../store/rootReducer';
 import { BranchLike, Component, Metric, MeasureEnhanced } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
@@ -262,11 +262,11 @@ export class OverviewApp extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps: DispatchToProps = { fetchMetrics };
 
-const mapStateToProps = (state: any): StateToProps => ({
+const mapStateToProps = (state: Store): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-export default connect<StateToProps, DispatchToProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(OverviewApp);

@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import Footer from './Footer';
-import { getCurrentUser, getMyOrganizations } from '../../../store/rootReducer';
+import { getCurrentUser, getMyOrganizations, Store } from '../../../store/rootReducer';
 import { CurrentUser, Organization } from '../../../app/types';
 import GlobalContainer from '../../../app/components/GlobalContainer';
 
@@ -57,11 +57,9 @@ class SonarCloudPage extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
   userOrganizations: getMyOrganizations(state)
 });
 
-export default withRouter<OwnProps>(
-  connect<StateProps, {}, OwnProps>(mapStateToProps)(SonarCloudPage)
-);
+export default withRouter<OwnProps>(connect(mapStateToProps)(SonarCloudPage));

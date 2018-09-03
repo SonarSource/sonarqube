@@ -30,7 +30,7 @@ import {
   addGlobalErrorMessage,
   addGlobalSuccessMessage,
   closeAllGlobalMessages
-} from '../../../store/globalMessages/duck';
+} from '../../../store/globalMessages';
 import RecentHistory from '../../../app/components/RecentHistory';
 
 class BulkUpdate extends React.PureComponent {

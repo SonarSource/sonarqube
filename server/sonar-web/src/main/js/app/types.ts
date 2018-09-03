@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { EditionKey } from '../apps/marketplace/utils';
+
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 // Type ordered alphabetically to prevent merge conflicts
@@ -34,9 +36,14 @@ export interface AppState {
   authorizationError?: boolean;
   branchesEnabled?: boolean;
   canAdmin?: boolean;
+  defaultOrganization: string;
+  edition: EditionKey;
   globalPages?: Extension[];
   organizationsEnabled?: boolean;
+  productionDatabase: boolean;
   qualifiers: string[];
+  standalone?: boolean;
+  version: string;
 }
 
 export interface Branch {

@@ -27,24 +27,25 @@ import throwGlobalError from '../../../app/utils/throwGlobalError';
 import {
   getCurrentUser,
   areThereCustomOrganizations,
-  getMyOrganizations
+  getMyOrganizations,
+  Store
 } from '../../../store/rootReducer';
 import { lazyLoad } from '../../../components/lazyLoad';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { RawQuery } from '../../../helpers/query';
-import { receiveOrganizations } from '../../../store/organizations/duck';
+import { receiveOrganizations } from '../../../store/organizations';
 
 interface StateProps {
   currentUser: CurrentUser;
   userOrganizations: Organization[];
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   currentUser: getCurrentUser(state),
   userOrganizations: getMyOrganizations(state)
 });
 
-const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispatch<any>) => {
+const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispatch<Store>) => {
   if (!organizationKeys.length) {
     return Promise.resolve();
   }
@@ -58,7 +59,7 @@ const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispa
 const fetchIssues = (query: RawQuery, requestOrganizations = true) => (
   // use `Function` to be able to do `dispatch(...).then(...)`
   dispatch: Function,
-  getState: () => any
+  getState: () => Store
 ) => {
   const organizationsEnabled = areThereCustomOrganizations(getState());
   return searchIssues({ ...query, additionalFields: '_all' })
@@ -87,13 +88,7 @@ interface DispatchProps {
 // have to type cast this, because of async action
 const mapDispatchToProps = { fetchIssues: fetchIssues as any } as DispatchProps;
 
-interface OwnProps {
-  location: { pathname: string; query: RawQuery };
-  hideAuthorFacet?: boolean;
-  myIssues?: boolean;
-}
-
-export default connect<StateProps, DispatchProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(lazyLoad(() => import('./App')));

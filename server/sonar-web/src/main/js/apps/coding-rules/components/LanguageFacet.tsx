@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { uniqBy } from 'lodash';
 import { BasicProps } from './Facet';
-import { getLanguages } from '../../../store/rootReducer';
+import { getLanguages, Store } from '../../../store/rootReducer';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
@@ -92,7 +92,7 @@ class LanguageFacet extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   installedLanguages: Object.values(getLanguages(state))
 });
 

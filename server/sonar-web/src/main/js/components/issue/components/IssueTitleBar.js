@@ -40,7 +40,6 @@ type Props = {|
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
   issue: Issue,
-  onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
   togglePopup: (string, boolean | void) => void
 |};
@@ -89,7 +88,6 @@ export default function IssueTitleBar(props /*: Props */) {
               creationDate={issue.creationDate}
               isOpen={props.currentPopup === 'changelog'}
               issue={issue}
-              onFail={props.onFail}
               togglePopup={props.togglePopup}
             />
           </li>
@@ -125,7 +123,6 @@ export default function IssueTitleBar(props /*: Props */) {
               <SimilarIssuesFilter
                 isOpen={props.currentPopup === 'similarIssues'}
                 issue={issue}
-                onFail={props.onFail}
                 onFilter={props.onFilter}
                 togglePopup={props.togglePopup}
               />

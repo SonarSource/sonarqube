@@ -34,7 +34,6 @@ type Props = {
   isOpen: boolean,
   issue: Issue,
   onChange: Issue => void,
-  onFail: Error => void,
   togglePopup: (string, boolean | void) => void
 };
 */
@@ -45,7 +44,6 @@ export default class IssueTransition extends React.PureComponent {
   setTransition = (transition /*: string */) => {
     updateIssue(
       this.props.onChange,
-      this.props.onFail,
       setIssueTransition({ issue: this.props.issue.key, transition })
     );
     this.toggleSetTransition();

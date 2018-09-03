@@ -27,7 +27,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 interface Props {
   onClose: () => void;
   onRename: (name: string) => void;
-  onRequestFail: (reason: any) => void;
   profile: Profile;
 }
 
@@ -61,11 +60,10 @@ export default class RenameProfileForm extends React.PureComponent<Props, State>
       this.setState({ loading: true });
       renameProfile(this.props.profile.key, name).then(
         () => this.props.onRename(name),
-        (error: any) => {
+        () => {
           if (this.mounted) {
             this.setState({ loading: false });
           }
-          this.props.onRequestFail(error);
         }
       );
     }

@@ -51,7 +51,7 @@ import FiltersHeader from '../../../components/common/FiltersHeader';
 import SearchBox from '../../../components/controls/SearchBox';
 import { searchRules, getRulesApp } from '../../../api/rules';
 import { searchQualityProfiles, Profile } from '../../../api/quality-profiles';
-import { getCurrentUser, getMyOrganizations } from '../../../store/rootReducer';
+import { getCurrentUser, getMyOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -634,9 +634,9 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
   return facets;
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
   userOrganizations: getMyOrganizations(state)
 });
 
-export default withRouter(connect<StateToProps, {}, OwnProps>(mapStateToProps)(App));
+export default withRouter(connect(mapStateToProps)(App));

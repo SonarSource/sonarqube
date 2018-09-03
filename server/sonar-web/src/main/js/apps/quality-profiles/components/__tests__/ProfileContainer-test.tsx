@@ -35,7 +35,6 @@ it('should render ProfileHeader', () => {
   const output = shallow(
     <ProfileContainer
       location={{ pathname: '', query: { language: 'js', name: 'fake' } }}
-      onRequestFail={jest.fn()}
       organization={null}
       profiles={profiles}
       updateProfiles={updateProfiles}
@@ -57,7 +56,6 @@ it('should render ProfileNotFound', () => {
   const output = shallow(
     <ProfileContainer
       location={{ pathname: '', query: { language: 'js', name: 'random' } }}
-      onRequestFail={jest.fn()}
       organization={null}
       profiles={profiles}
       updateProfiles={jest.fn()}
@@ -74,7 +72,6 @@ it('should render Helmet', () => {
   const output = shallow(
     <ProfileContainer
       location={{ pathname: '', query: { language: 'js', name: 'First Profile' } }}
-      onRequestFail={jest.fn()}
       organization={null}
       profiles={profiles}
       updateProfiles={updateProfiles}

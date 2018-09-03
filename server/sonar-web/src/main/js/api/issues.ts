@@ -110,7 +110,7 @@ export function searchIssueTags(data: {
 }
 
 export function getIssueChangelog(issue: string): Promise<any> {
-  return getJSON('/api/issues/changelog', { issue }).then(r => r.changelog);
+  return getJSON('/api/issues/changelog', { issue }).then(r => r.changelog, throwGlobalError);
 }
 
 export function getIssueFilters() {

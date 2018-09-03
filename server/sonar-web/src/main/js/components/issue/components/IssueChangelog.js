@@ -33,8 +33,7 @@ type Props = {
   isOpen: boolean,
   issue: Issue,
   creationDate: string,
-  togglePopup: (string, boolean | void) => void,
-  onFail: Error => void
+  togglePopup: (string, boolean | void) => void
 };
 */
 
@@ -59,7 +58,7 @@ export default class IssueChangelog extends React.PureComponent {
         <Toggler
           onRequestClose={this.handleClose}
           open={this.props.isOpen}
-          overlay={<ChangelogPopup issue={this.props.issue} onFail={this.props.onFail} />}>
+          overlay={<ChangelogPopup issue={this.props.issue} />}>
           <Tooltip
             mouseEnterDelay={0.5}
             overlay={<DateTimeFormatter date={this.props.creationDate} />}>

@@ -46,7 +46,6 @@ type User = {
 type Props = {
   currentUser: User,
   issue: Issue,
-  onFail: Error => void,
   onSelect: string => void,
   popupPosition?: {}
 };
@@ -91,11 +90,12 @@ class SetAssigneePopup extends React.PureComponent {
       organization: this.props.issue.projectOrganization,
       q: query,
       ps: LIST_SIZE
-    }).then(this.handleSearchResult, this.props.onFail);
+    }).then(this.handleSearchResult, () => {});
   };
 
-  searchUsers = (query /*: string */) =>
-    searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, this.props.onFail);
+  searchUsers = (query /*: string */) => {
+    searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, () => {});
+  };
 
   handleSearchResult = (data /*: Object */) => {
     this.setState({

@@ -29,7 +29,7 @@ export function grantPermissionToUser(
   login: string,
   permission: string,
   organization?: string
-): Promise<void> {
+) {
   const data: RequestData = { login, permission };
   if (projectKey) {
     data.projectKey = projectKey;
@@ -37,7 +37,7 @@ export function grantPermissionToUser(
   if (organization && !projectKey) {
     data.organization = organization;
   }
-  return post('/api/permissions/add_user', data);
+  return post('/api/permissions/add_user', data).catch(throwGlobalError);
 }
 
 export function revokePermissionFromUser(
@@ -45,7 +45,7 @@ export function revokePermissionFromUser(
   login: string,
   permission: string,
   organization?: string
-): Promise<void> {
+) {
   const data: RequestData = { login, permission };
   if (projectKey) {
     data.projectKey = projectKey;
@@ -53,7 +53,7 @@ export function revokePermissionFromUser(
   if (organization && !projectKey) {
     data.organization = organization;
   }
-  return post('/api/permissions/remove_user', data);
+  return post('/api/permissions/remove_user', data).catch(throwGlobalError);
 }
 
 export function grantPermissionToGroup(
@@ -61,7 +61,7 @@ export function grantPermissionToGroup(
   groupName: string,
   permission: string,
   organization?: string
-): Promise<void> {
+) {
   const data: RequestData = { groupName, permission };
   if (projectKey) {
     data.projectKey = projectKey;
@@ -69,7 +69,7 @@ export function grantPermissionToGroup(
   if (organization) {
     data.organization = organization;
   }
-  return post('/api/permissions/add_group', data);
+  return post('/api/permissions/add_group', data).catch(throwGlobalError);
 }
 
 export function revokePermissionFromGroup(
@@ -77,7 +77,7 @@ export function revokePermissionFromGroup(
   groupName: string,
   permission: string,
   organization?: string
-): Promise<void> {
+) {
   const data: RequestData = { groupName, permission };
   if (projectKey) {
     data.projectKey = projectKey;
@@ -85,7 +85,7 @@ export function revokePermissionFromGroup(
   if (organization) {
     data.organization = organization;
   }
-  return post('/api/permissions/remove_group', data);
+  return post('/api/permissions/remove_group', data).catch(throwGlobalError);
 }
 
 interface GetPermissionTemplatesResponse {

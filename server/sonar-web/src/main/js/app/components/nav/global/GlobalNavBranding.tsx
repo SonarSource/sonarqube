@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import { getGlobalSettingValue } from '../../../../store/rootReducer';
+import { getGlobalSettingValue, Store } from '../../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/urls';
 
@@ -50,9 +50,9 @@ export function SonarCloudNavBranding() {
   );
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   customLogoUrl: (getGlobalSettingValue(state, 'sonar.lf.logoUrl') || {}).value,
   customLogoWidth: (getGlobalSettingValue(state, 'sonar.lf.logoWidthPx') || {}).value
 });
 
-export default connect<StateProps>(mapStateToProps)(GlobalNavBranding);
+export default connect(mapStateToProps)(GlobalNavBranding);

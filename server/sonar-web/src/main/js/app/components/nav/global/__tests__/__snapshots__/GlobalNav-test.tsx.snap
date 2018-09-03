@@ -10,6 +10,9 @@ exports[`should render for SonarCloud 1`] = `
   <GlobalNavMenu
     appState={
       Object {
+        "canAdmin": false,
+        "globalPages": Array [],
+        "organizationsEnabled": false,
         "qualifiers": Array [],
       }
     }
@@ -47,6 +50,9 @@ exports[`should render for SonarCloud 1`] = `
     <Search
       appState={
         Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
           "qualifiers": Array [],
         }
       }
@@ -59,6 +65,9 @@ exports[`should render for SonarCloud 1`] = `
     <Connect(GlobalNavUser)
       appState={
         Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
           "qualifiers": Array [],
         }
       }
@@ -88,6 +97,9 @@ exports[`should render for SonarQube 1`] = `
   <GlobalNavMenu
     appState={
       Object {
+        "canAdmin": false,
+        "globalPages": Array [],
+        "organizationsEnabled": false,
         "qualifiers": Array [],
       }
     }
@@ -118,6 +130,9 @@ exports[`should render for SonarQube 1`] = `
     <Search
       appState={
         Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
           "qualifiers": Array [],
         }
       }
@@ -130,6 +145,9 @@ exports[`should render for SonarQube 1`] = `
     <Connect(GlobalNavUser)
       appState={
         Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
           "qualifiers": Array [],
         }
       }

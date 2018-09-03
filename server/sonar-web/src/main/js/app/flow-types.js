@@ -17,9 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_LANGUAGES = 'RECEIVE_LANGUAGES';
-
-export const receiveLanguages = languages => ({
-  type: RECEIVE_LANGUAGES,
-  languages
-});
+// @flow
+/*:: export type Metric = {
+  bestValue?: string,
+  custom?: boolean,
+  decimalScale?: number,
+  description?: string,
+  direction?: number,
+  domain?: string,
+  hidden?: boolean,
+  key: string,
+  name: string,
+  qualitative?: boolean,
+  type: string
+}; */

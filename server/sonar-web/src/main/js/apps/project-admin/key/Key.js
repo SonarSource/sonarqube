@@ -32,7 +32,7 @@ import {
   addGlobalErrorMessage,
   addGlobalSuccessMessage,
   closeAllGlobalMessages
-} from '../../../store/globalMessages/duck';
+} from '../../../store/globalMessages';
 import RecentHistory from '../../../app/components/RecentHistory';
 import { getProjectAdminProjectModules } from '../../../store/rootReducer';
 

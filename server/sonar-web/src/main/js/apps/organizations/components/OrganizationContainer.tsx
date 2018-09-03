@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from 'react-router';
-import { getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
+import { getCurrentUser, getOrganizationByKey, Store } from '../../../store/rootReducer';
 import { Organization, CurrentUser } from '../../../app/types';
 
 interface StateToProps {
@@ -44,9 +44,9 @@ class OrganizationContainer extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any, ownProps: OwnProps) => ({
+const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
   organization: getOrganizationByKey(state, ownProps.params.organizationKey),
   currentUser: getCurrentUser(state)
 });
 
-export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(OrganizationContainer);
+export default connect(mapStateToProps)(OrganizationContainer);

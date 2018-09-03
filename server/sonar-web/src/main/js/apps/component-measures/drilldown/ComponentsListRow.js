@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
 /*:: import type { Component, ComponentEnhanced } from '../types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { Metric } from '../../../app/flow-types'; */
 
 /*:: type Props = {|
   branchLike?: { id?: string; name: string },

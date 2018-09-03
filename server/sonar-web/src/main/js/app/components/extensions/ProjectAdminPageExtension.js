@@ -22,7 +22,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import ExtensionContainer from './ExtensionContainer';
 import NotFound from '../NotFound';
-import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
+import { addGlobalErrorMessage } from '../../../store/globalMessages';
 
 /*::
 type Props = {

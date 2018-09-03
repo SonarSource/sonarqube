@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import App from './App';
 import { EditionKey } from './utils';
-import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
+import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 import { RawQuery } from '../../helpers/query';
 import MarketplaceContext from '../../app/components/MarketplaceContext';
 
@@ -31,11 +31,11 @@ interface OwnProps {
 
 interface StateToProps {
   currentEdition?: EditionKey;
-  standaloneMode: boolean;
+  standaloneMode?: boolean;
   updateCenterActive: boolean;
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: Store) => {
   return {
     currentEdition: getAppState(state).edition,
     standaloneMode: getAppState(state).standalone,
@@ -52,4 +52,4 @@ const WithMarketplaceContext = (props: StateToProps & OwnProps) => (
   </MarketplaceContext.Consumer>
 );
 
-export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(WithMarketplaceContext);
+export default connect(mapStateToProps)(WithMarketplaceContext);

@@ -52,7 +52,6 @@ it('should render the titlebar correctly', () => {
       branchLike={{ isMain: false, name: 'feature-1.0', type: 'SHORT' }}
       currentPopup={null}
       issue={issue}
-      onFail={jest.fn()}
       togglePopup={jest.fn()}
     />
   );
@@ -61,13 +60,7 @@ it('should render the titlebar correctly', () => {
 
 it('should render the titlebar with the filter', () => {
   const element = shallow(
-    <IssueTitleBar
-      currentPopup={null}
-      issue={issue}
-      onFail={jest.fn()}
-      onFilter={jest.fn()}
-      togglePopup={jest.fn()}
-    />
+    <IssueTitleBar currentPopup={null} issue={issue} onFilter={jest.fn()} togglePopup={jest.fn()} />
   );
   expect(element).toMatchSnapshot();
 });

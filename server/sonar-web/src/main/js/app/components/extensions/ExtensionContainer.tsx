@@ -19,16 +19,16 @@
  */
 import { connect } from 'react-redux';
 import Extension from './Extension';
-import { getCurrentUser } from '../../../store/rootReducer';
-import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { addGlobalErrorMessage } from '../../../store/globalMessages';
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 
 const mapDispatchToProps = { onFail: addGlobalErrorMessage };
 
-export default connect<any, any, any>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(Extension);

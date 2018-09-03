@@ -27,7 +27,7 @@ import NavBarTabs from '../../../components/nav/NavBarTabs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
 import { hasPrivateAccess, isCurrentUserMemberOf } from '../../../helpers/organizations';
-import { getCurrentUser, getMyOrganizations } from '../../../store/rootReducer';
+import { getCurrentUser, getMyOrganizations, Store } from '../../../store/rootReducer';
 
 interface StateToProps {
   currentUser: CurrentUser;
@@ -99,9 +99,9 @@ export function OrganizationNavigationMenu({
   );
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
   userOrganizations: getMyOrganizations(state)
 });
 
-export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(OrganizationNavigationMenu);
+export default connect(mapStateToProps)(OrganizationNavigationMenu);

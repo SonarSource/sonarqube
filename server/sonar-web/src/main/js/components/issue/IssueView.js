@@ -39,7 +39,6 @@ type Props = {|
   onChange: Issue => void,
   onCheck?: (issue: string, event: Event) => void,
   onClick: string => void,
-  onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
   selected: boolean,
   togglePopup: (string, boolean | void) => void
@@ -64,11 +63,11 @@ export default class IssueView extends React.PureComponent {
   };
 
   editComment = (comment /*: string */, text /*: string */) => {
-    updateIssue(this.props.onChange, this.props.onFail, editIssueComment({ comment, text }));
+    updateIssue(this.props.onChange, editIssueComment({ comment, text }));
   };
 
   deleteComment = (comment /*: string */) => {
-    updateIssue(this.props.onChange, this.props.onFail, deleteIssueComment({ comment }));
+    updateIssue(this.props.onChange, deleteIssueComment({ comment }));
   };
 
   render() {
@@ -94,7 +93,6 @@ export default class IssueView extends React.PureComponent {
           displayLocationsCount={this.props.displayLocationsCount}
           displayLocationsLink={this.props.displayLocationsLink}
           issue={issue}
-          onFail={this.props.onFail}
           onFilter={this.props.onFilter}
           togglePopup={this.props.togglePopup}
         />
@@ -103,7 +101,6 @@ export default class IssueView extends React.PureComponent {
           issue={issue}
           onAssign={this.props.onAssign}
           onChange={this.props.onChange}
-          onFail={this.props.onFail}
           togglePopup={this.props.togglePopup}
         />
         {issue.comments &&

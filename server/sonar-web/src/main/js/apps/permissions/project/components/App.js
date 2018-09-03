@@ -45,8 +45,7 @@ export type Props = {|
     qualifier: string,
     visibility: string
   },
-  onComponentChange: (changes: {}) => void,
-  onRequestFail: Object => void
+  onComponentChange: (changes: {}) => void
 |};
 */
 
@@ -208,7 +207,6 @@ export default class App extends React.PureComponent {
               loading: false,
               groups: this.removePermissionFromGroup(group, permission)
             });
-            this.props.onRequestFail(error);
           }
         });
     }
@@ -231,7 +229,6 @@ export default class App extends React.PureComponent {
               loading: false,
               users: this.removePermissionFromUser(user, permission)
             });
-            this.props.onRequestFail(error);
           }
         });
     }
@@ -254,7 +251,6 @@ export default class App extends React.PureComponent {
               loading: false,
               groups: this.addPermissionToGroup(group, permission)
             });
-            this.props.onRequestFail(error);
           }
         });
     }
@@ -277,7 +273,6 @@ export default class App extends React.PureComponent {
               loading: false,
               users: this.addPermissionToUser(user, permission)
             });
-            this.props.onRequestFail(error);
           }
         });
     }

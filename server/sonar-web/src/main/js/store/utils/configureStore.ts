@@ -17,33 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dispatch } from 'redux';
-import * as api from '../../api/users';
-import { CurrentUser, HomePage } from '../../app/types';
+import { createStore, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
 
-export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
-export const SKIP_ONBOARDING = 'SKIP_ONBOARDING';
-export const SET_HOMEPAGE = 'SET_HOMEPAGE';
+type RootReducer = typeof import('../rootReducer').default;
+type State = import('../rootReducer').Store;
 
-export const receiveCurrentUser = (user: CurrentUser) => ({
-  type: RECEIVE_CURRENT_USER,
-  user
-});
+const middlewares = [thunk];
+const composed = [];
 
-export const skipOnboarding = () => ({ type: SKIP_ONBOARDING });
+if (process.env.NODE_ENV === 'development') {
+  const { createLogger } = require('redux-logger');
+  middlewares.push(createLogger());
 
-export const fetchCurrentUser = () => (dispatch: Dispatch<any>) => {
-  return api.getCurrentUser().then(user => {
-    dispatch(receiveCurrentUser(user));
-    return user;
-  });
-};
+  const { devToolsExtension } = window as any;
+  composed.push(devToolsExtension ? devToolsExtension() : (f: Function) => f);
+}
 
-export const setHomePage = (homepage: HomePage) => (dispatch: Dispatch<any>) => {
-  api.setHomePage(homepage).then(
-    () => {
-      dispatch({ type: SET_HOMEPAGE, homepage });
-    },
-    () => {}
-  );
-};
+const finalCreateStore = compose(
+  applyMiddleware(...middlewares),
+  ...composed
+)(createStore);
+
+export default function configureStore(rootReducer: RootReducer, initialState?: State) {
+  return finalCreateStore(rootReducer, initialState);
+}

@@ -25,7 +25,7 @@ import MetaContainer from '../meta/MetaContainer';
 import { BranchLike, Component, CurrentUser, isLoggedIn } from '../../../app/types';
 import { isLongLivingBranch, isBranch, isMainBranch } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 import '../../../app/styles/sonarcloud.css';
 
 interface OwnProps {
@@ -119,8 +119,8 @@ export function WarningMessage({
   );
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(SonarCloudEmptyOverview);
+export default connect(mapStateToProps)(SonarCloudEmptyOverview);

@@ -18,22 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { keyBy } from 'lodash';
-import { RECEIVE_LANGUAGES } from './actions';
+import { ActionType } from './utils/actions';
+
+export function receiveLanguages(languages: Array<{ key: string; name: string }>) {
+  return { type: 'RECEIVE_LANGUAGES', languages };
+}
+
+type Action = ActionType<typeof receiveLanguages, 'RECEIVE_LANGUAGES'>;
 
 export interface Languages {
   [key: string]: { key: string; name: string };
 }
 
-const reducer = (state: Languages = {}, action: any = {}) => {
-  if (action.type === RECEIVE_LANGUAGES) {
+export default function(state: Languages = {}, action: Action): Languages {
+  if (action.type === 'RECEIVE_LANGUAGES') {
     return keyBy(action.languages, 'key');
   }
 
   return state;
-};
+}
 
-export default reducer;
+export function getLanguages(state: Languages) {
+  return state;
+}
 
-export const getLanguages = (state: Languages) => state;
-
-export const getLanguageByKey = (state: Languages, key: string) => state[key];
+export function getLanguageByKey(state: Languages, key: string) {
+  return state[key];
+}

@@ -19,14 +19,10 @@
  */
 import { connect } from 'react-redux';
 import ProjectCardOrganization from './ProjectCardOrganization';
-import { areThereCustomOrganizations } from '../../../store/rootReducer';
+import { areThereCustomOrganizations, Store } from '../../../store/rootReducer';
 
-interface StateProps {
-  organizationsEnabled: boolean;
-}
-
-const stateToProps = (state: any) => ({
+const stateToProps = (state: Store) => ({
   organizationsEnabled: areThereCustomOrganizations(state)
 });
 
-export default connect<StateProps>(stateToProps)(ProjectCardOrganization);
+export default connect(stateToProps)(ProjectCardOrganization);

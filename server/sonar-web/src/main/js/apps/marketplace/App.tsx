@@ -45,7 +45,7 @@ export interface Props {
   fetchPendingPlugins: () => void;
   location: { pathname: string; query: RawQuery };
   pendingPlugins: PluginPendingResult;
-  standaloneMode: boolean;
+  standaloneMode?: boolean;
   updateCenterActive: boolean;
 }
 

@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { find, sortBy } from 'lodash';
+import { sortBy } from 'lodash';
 import Histogram from './Histogram';
 import { formatMeasure } from '../../helpers/measures';
-import { Language } from '../../api/languages';
 import { translate } from '../../helpers/l10n';
+import { Languages } from '../../store/languages';
 
 interface Props {
   alignTicks?: boolean;
   distribution: string;
-  languages?: Language[];
+  languages: Languages;
   width: number;
 }
 
@@ -61,7 +61,7 @@ export default function LanguageDistribution(props: Props) {
     if (langKey === '<null>') {
       return translate('unknown');
     }
-    const lang = find(props.languages, { key: langKey });
+    const lang = props.languages[langKey];
     return lang ? lang.name : langKey;
   }
 }

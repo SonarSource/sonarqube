@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { combineReducers } from 'redux';
 import { keyBy } from 'lodash';
-import { RECEIVE_METRICS } from './actions';
-/*:: import type { Metric } from './actions'; */
+import { combineReducers } from 'redux';
+import { ActionType } from './utils/actions';
+import { Metric } from '../app/types';
 
-/*::
-type StateByKey = { [string]: Metric };
-type StateKeys = Array<string>;
-type State = { byKey: StateByKey, keys: StateKeys };
-*/
+export function receiveMetrics(metrics: Metric[]) {
+  return { type: 'RECEIVE_METRICS', metrics };
+}
 
-const byKey = (state /*: StateByKey */ = {}, action = {}) => {
-  if (action.type === RECEIVE_METRICS) {
+type Action = ActionType<typeof receiveMetrics, 'RECEIVE_METRICS'>;
+
+export type State = { byKey: { [key: string]: Metric }; keys: string[] };
+
+const byKey = (state: State['byKey'] = {}, action: Action) => {
+  if (action.type === 'RECEIVE_METRICS') {
     return keyBy(action.metrics, 'key');
   }
   return state;
 };
 
-const keys = (state /*: StateKeys */ = [], action = {}) => {
-  if (action.type === RECEIVE_METRICS) {
+const keys = (state: State['keys'] = [], action: Action) => {
+  if (action.type === 'RECEIVE_METRICS') {
     return action.metrics.map(f => f.key);
   }
 
@@ -46,5 +47,10 @@ const keys = (state /*: StateKeys */ = [], action = {}) => {
 
 export default combineReducers({ byKey, keys });
 
-export const getMetrics = (state /*: State */) => state.byKey;
-export const getMetricsKey = (state /*: State */) => state.keys;
+export function getMetrics(state: State) {
+  return state.byKey;
+}
+
+export function getMetricsKey(state: State) {
+  return state.keys;
+}

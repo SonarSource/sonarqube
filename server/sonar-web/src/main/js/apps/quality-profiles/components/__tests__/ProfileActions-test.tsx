@@ -40,14 +40,7 @@ const PROFILE = {
 
 it('renders with no permissions', () => {
   expect(
-    shallow(
-      <ProfileActions
-        onRequestFail={jest.fn()}
-        organization="org"
-        profile={PROFILE}
-        updateProfiles={jest.fn()}
-      />
-    )
+    shallow(<ProfileActions organization="org" profile={PROFILE} updateProfiles={jest.fn()} />)
   ).toMatchSnapshot();
 });
 
@@ -55,7 +48,6 @@ it('renders with permission to edit only', () => {
   expect(
     shallow(
       <ProfileActions
-        onRequestFail={jest.fn()}
         organization="org"
         profile={{ ...PROFILE, actions: { edit: true } }}
         updateProfiles={jest.fn()}
@@ -68,7 +60,6 @@ it('renders with all permissions', () => {
   expect(
     shallow(
       <ProfileActions
-        onRequestFail={jest.fn()}
         organization="org"
         profile={{
           ...PROFILE,
@@ -91,7 +82,6 @@ it('should copy profile', async () => {
   const push = jest.fn();
   const wrapper = shallow(
     <ProfileActions
-      onRequestFail={jest.fn()}
       organization="org"
       profile={{ ...PROFILE, actions: { copy: true } }}
       updateProfiles={updateProfiles}

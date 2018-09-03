@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Reducer should create organization 1`] = `
+Object {
+  "byKey": Object {
+    "foo": Object {
+      "isAdmin": true,
+      "key": "foo",
+      "name": "foo",
+    },
+  },
+  "my": Array [
+    "foo",
+  ],
+}
+`;
+
+exports[`Reducer should delete organization 1`] = `
+Object {
+  "byKey": Object {},
+  "my": Array [],
+}
+`;
+
+exports[`Reducer should have initial state 1`] = `
+Object {
+  "byKey": Object {},
+  "my": Array [],
+}
+`;
+
+exports[`Reducer should receive my organizations 1`] = `
+Object {
+  "byKey": Object {
+    "bar": Object {
+      "key": "bar",
+      "name": "Bar",
+    },
+    "foo": Object {
+      "key": "foo",
+      "name": "Foo",
+    },
+  },
+  "my": Array [
+    "foo",
+    "bar",
+  ],
+}
+`;
+
+exports[`Reducer should receive organizations 1`] = `
+Object {
+  "byKey": Object {
+    "bar": Object {
+      "key": "bar",
+      "name": "Bar",
+    },
+    "foo": Object {
+      "key": "foo",
+      "name": "Foo",
+    },
+  },
+  "my": Array [],
+}
+`;
+
+exports[`Reducer should receive organizations 2`] = `
+Object {
+  "byKey": Object {
+    "bar": Object {
+      "key": "bar",
+      "name": "Bar",
+    },
+    "foo": Object {
+      "key": "foo",
+      "name": "Qwe",
+    },
+  },
+  "my": Array [],
+}
+`;
+
+exports[`Reducer should update organization 1`] = `
+Object {
+  "byKey": Object {
+    "foo": Object {
+      "description": "description",
+      "isAdmin": true,
+      "key": "foo",
+      "name": "bar",
+    },
+  },
+  "my": Array [
+    "foo",
+  ],
+}
+`;

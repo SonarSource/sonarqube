@@ -20,13 +20,13 @@
 import { connect } from 'react-redux';
 import OrganizationNavigationHeader from './OrganizationNavigationHeader';
 import { Organization } from '../../../app/types';
-import { getMyOrganizations } from '../../../store/rootReducer';
+import { getMyOrganizations, Store } from '../../../store/rootReducer';
 
 interface StateProps {
   organizations: Organization[];
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   organizations: getMyOrganizations(state)
 });
 

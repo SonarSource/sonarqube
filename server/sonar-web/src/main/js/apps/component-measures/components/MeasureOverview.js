@@ -30,7 +30,7 @@ import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 /*:: import type { Component, ComponentEnhanced, Paging, Period } from '../types'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { Metric } from '../../../app/flow-types'; */
 
 /*:: type Props = {|
   branchLike?: { id?: string; name: string },

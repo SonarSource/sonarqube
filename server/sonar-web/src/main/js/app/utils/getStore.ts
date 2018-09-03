@@ -19,9 +19,9 @@
  */
 import { Store } from 'redux';
 import { AppState, CurrentUser } from '../types';
-import { setAppState } from '../../store/appState/duck';
+import { setAppState } from '../../store/appState';
 import rootReducer from '../../store/rootReducer';
-import { receiveCurrentUser } from '../../store/users/actions';
+import { receiveCurrentUser } from '../../store/users';
 import configureStore from '../../store/utils/configureStore';
 
 let store: Store<any>;

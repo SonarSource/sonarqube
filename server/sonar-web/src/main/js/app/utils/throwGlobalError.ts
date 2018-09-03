@@ -18,10 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getStore from './getStore';
-import { onFail } from '../../store/rootActions';
+import { parseError } from '../../helpers/request';
+import { addGlobalErrorMessage } from '../../store/globalMessages';
 
-export default function throwGlobalError({ response }: { response: Response }): Promise<Response> {
+export default function throwGlobalError(error: { response: Response }): Promise<Response> {
   const store = getStore();
-  onFail(store.dispatch)({ response });
-  return Promise.reject(response);
+
+  // eslint-disable-next-line promise/no-promise-in-callback
+  parseError(error)
+    .then(message => {
+      store.dispatch(addGlobalErrorMessage(message));
+    })
+    .catch(() => {});
+
+  return Promise.reject(error.response);
 }

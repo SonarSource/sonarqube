@@ -10,7 +10,6 @@ exports[`renders with edit permission 1`] = `
     >
       <ProfileRules
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={
           Object {
@@ -24,7 +23,6 @@ exports[`renders with edit permission 1`] = `
       />
       <ProfileExporters
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={
           Object {
@@ -52,7 +50,6 @@ exports[`renders with edit permission 1`] = `
     >
       <ProfileInheritance
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={
           Object {
@@ -66,7 +63,6 @@ exports[`renders with edit permission 1`] = `
       />
       <ProfileProjects
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={
           Object {
@@ -93,7 +89,6 @@ exports[`renders without permissions 1`] = `
     >
       <ProfileRules
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={Object {}}
         profiles={Array []}
@@ -101,7 +96,6 @@ exports[`renders without permissions 1`] = `
       />
       <ProfileExporters
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={Object {}}
         profiles={Array []}
@@ -113,7 +107,6 @@ exports[`renders without permissions 1`] = `
     >
       <ProfileInheritance
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={Object {}}
         profiles={Array []}
@@ -121,7 +114,6 @@ exports[`renders without permissions 1`] = `
       />
       <ProfileProjects
         exporters={Array []}
-        onRequestFail={[MockFunction]}
         organization="org"
         profile={Object {}}
         profiles={Array []}

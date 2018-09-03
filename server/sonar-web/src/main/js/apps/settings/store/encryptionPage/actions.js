@@ -22,7 +22,7 @@ import { parseError } from '../../../../helpers/request';
 import {
   addGlobalErrorMessage,
   closeAllGlobalMessages
-} from '../../../../store/globalMessages/duck';
+} from '../../../../store/globalMessages';
 
 export const UPDATE_ENCRYPTION = 'UPDATE_ENCRYPTION';
 

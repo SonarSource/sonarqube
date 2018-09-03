@@ -19,10 +19,10 @@
  */
 import { connect } from 'react-redux';
 import Subscription from './Subscription';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect<any, any, any>(mapStateToProps)(Subscription);
+export default connect(mapStateToProps)(Subscription);

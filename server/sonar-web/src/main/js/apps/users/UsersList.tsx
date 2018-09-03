@@ -26,7 +26,7 @@ interface Props {
   currentUser: { isLoggedIn: boolean; login?: string };
   identityProviders: IdentityProvider[];
   onUpdateUsers: () => void;
-  organizationsEnabled: boolean;
+  organizationsEnabled?: boolean;
   updateTokensCount: (login: string, tokensCount: number) => void;
   users: User[];
 }

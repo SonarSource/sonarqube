@@ -24,8 +24,8 @@ import Tooltip from './Tooltip';
 import HomeIcon from '../icons-components/HomeIcon';
 import { CurrentUser, isLoggedIn, HomePage, isSameHomePage } from '../../app/types';
 import { translate } from '../../helpers/l10n';
-import { getCurrentUser } from '../../store/rootReducer';
-import { setHomePage } from '../../store/users/actions';
+import { getCurrentUser, Store } from '../../store/rootReducer';
+import { setHomePage } from '../../store/users';
 
 interface StateProps {
   currentUser: CurrentUser;
@@ -81,7 +81,7 @@ class HomePageSelect extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   currentUser: getCurrentUser(state)
 });
 

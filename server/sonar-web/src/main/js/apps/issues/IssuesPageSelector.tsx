@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import AppContainer from './components/AppContainer';
 import { CurrentUser, isLoggedIn } from '../../app/types';
 import { RawQuery } from '../../helpers/query';
-import { getCurrentUser } from '../../store/rootReducer';
+import { getCurrentUser, Store } from '../../store/rootReducer';
 import { isSonarCloud } from '../../helpers/system';
 
 interface StateProps {
@@ -38,8 +38,8 @@ function IssuesPage({ currentUser, location }: Props) {
   return <AppContainer location={location} myIssues={myIssues} />;
 }
 
-const stateToProps = (state: any) => ({
+const stateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect<StateProps>(stateToProps)(IssuesPage);
+export default connect(stateToProps)(IssuesPage);

@@ -41,7 +41,7 @@ const status = {
   subscribed: true
 };
 
-const currentUser = { email: 'foo@example.com' };
+const currentUser = { isLoggedIn: true, email: 'foo@example.com' };
 
 beforeEach(() => {
   subscribe.mockClear();
@@ -68,7 +68,7 @@ it('renders when not subscribed', () => {
 
 it('renders when no email', () => {
   expect(
-    shallow(<Subscription component="foo" currentUser={{}} status={status} />)
+    shallow(<Subscription component="foo" currentUser={{ isLoggedIn: false }} status={status} />)
   ).toMatchSnapshot();
 });
 

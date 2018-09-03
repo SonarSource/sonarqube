@@ -28,7 +28,6 @@ interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
   location: { query: { [p: string]: string } };
-  onRequestFail: (reason: any) => void;
   organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;

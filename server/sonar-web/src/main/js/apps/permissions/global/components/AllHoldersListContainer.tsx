@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import AllHoldersList from './AllHoldersList';
 import {
@@ -34,35 +35,16 @@ import {
   getPermissionsAppGroups,
   getPermissionsAppQuery,
   getPermissionsAppFilter,
-  getPermissionsAppSelectedPermission
+  getPermissionsAppSelectedPermission,
+  Store
 } from '../../../../store/rootReducer';
 import { Organization } from '../../../../app/types';
-import { PermissionUser, PermissionGroup } from '../../../../api/permissions';
 
 interface OwnProps {
   organization?: Organization;
 }
 
-interface StateToProps {
-  filter: string;
-  groups: PermissionGroup[];
-  query: string;
-  selectedPermission?: string;
-  users: PermissionUser[];
-}
-
-interface DispatchToProps {
-  grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
-  grantPermissionToUser: (login: string, permission: string) => Promise<void>;
-  loadHolders: () => void;
-  onFilter: (filter: string) => void;
-  onSearch: (query: string) => void;
-  onSelectPermission: (permission: string) => void;
-  revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
-  revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
-}
-
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   filter: getPermissionsAppFilter(state),
   groups: getPermissionsAppGroups(state),
   query: getPermissionsAppQuery(state),
@@ -70,7 +52,7 @@ const mapStateToProps = (state: any) => ({
   users: getPermissionsAppUsers(state)
 });
 
-const mapDispatchToProps = (dispatch: Function, ownProps: OwnProps) => {
+const mapDispatchToProps = (dispatch: Dispatch<Store>, ownProps: OwnProps) => {
   const organizationKey = ownProps.organization ? ownProps.organization.key : undefined;
   return {
     grantPermissionToGroup: (groupName: string, permission: string) =>
@@ -89,7 +71,7 @@ const mapDispatchToProps = (dispatch: Function, ownProps: OwnProps) => {
   };
 };
 
-export default connect<StateToProps, DispatchToProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AllHoldersList);

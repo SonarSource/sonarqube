@@ -31,7 +31,6 @@ import Tooltip from '../../../components/controls/Tooltip';
 import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
-  onRequestFail: (reason: any) => void;
   organization: string | null;
   profile: Profile;
   updateProfiles: () => Promise<void>;
@@ -149,7 +148,6 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
         <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
           <ProfileActions
             fromList={true}
-            onRequestFail={this.props.onRequestFail}
             organization={this.props.organization}
             profile={this.props.profile}
             updateProfiles={this.props.updateProfiles}

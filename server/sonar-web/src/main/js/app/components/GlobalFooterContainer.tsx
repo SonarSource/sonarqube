@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import GlobalFooter from './GlobalFooter';
-import { getAppState } from '../../store/rootReducer';
+import { getAppState, Store } from '../../store/rootReducer';
 import { EditionKey } from '../../apps/marketplace/utils';
 
 interface StateProps {
@@ -28,14 +28,10 @@ interface StateProps {
   sonarqubeVersion?: string;
 }
 
-interface OwnProps {
-  hideLoggedInInfo?: boolean;
-}
-
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   productionDatabase: getAppState(state).productionDatabase,
   sonarqubeEdition: getAppState(state).edition,
   sonarqubeVersion: getAppState(state).version
 });
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(GlobalFooter);
+export default connect(mapStateToProps)(GlobalFooter);

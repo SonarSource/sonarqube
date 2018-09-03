@@ -26,7 +26,7 @@ import { isViewType } from '../utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 /*:: import type { Component, Period, Query } from '../types'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { Metric } from '../../../app/flow-types'; */
 
 /*:: type Props = {|
   branchLike?: { id?: string; name: string },

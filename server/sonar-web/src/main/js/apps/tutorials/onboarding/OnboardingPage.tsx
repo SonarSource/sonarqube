@@ -22,7 +22,7 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import OnboardingModal from './OnboardingModal';
 import { skipOnboarding } from '../../../api/users';
-import { skipOnboarding as skipOnboardingAction } from '../../../store/users/actions';
+import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
 import CreateOrganizationForm from '../../account/organizations/CreateOrganizationForm';
 import TeamOnboardingModal from '../teamOnboarding/TeamOnboardingModal';
 import { Organization } from '../../../app/types';
@@ -96,7 +96,7 @@ export class OnboardingPage extends React.PureComponent<DispatchProps, State> {
 
 const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
 
-export default connect<{}, DispatchProps>(
+export default connect(
   null,
   mapDispatchToProps
 )(OnboardingPage);

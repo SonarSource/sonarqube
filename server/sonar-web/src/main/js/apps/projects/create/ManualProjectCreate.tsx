@@ -25,7 +25,7 @@ import Select from '../../../components/controls/Select';
 import { Button, SubmitButton } from '../../../components/ui/buttons';
 import { LoggedInUser, Organization } from '../../../app/types';
 import { fetchMyOrganizations } from '../../account/organizations/actions';
-import { getMyOrganizations } from '../../../store/rootReducer';
+import { getMyOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { createProject } from '../../../api/components';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
@@ -217,12 +217,12 @@ const mapDispatchToProps = ({
   fetchMyOrganizations
 } as any) as DispatchProps;
 
-const mapStateToProps = (state: any): StateProps => {
+const mapStateToProps = (state: Store): StateProps => {
   return {
     userOrganizations: getMyOrganizations(state)
   };
 };
-export default connect<StateProps, DispatchProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ManualProjectCreate);

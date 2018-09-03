@@ -19,9 +19,9 @@
  */
 import { connect } from 'react-redux';
 import Stats from './Stats';
-import { getAppState } from '../../../store/rootReducer';
+import { getAppState, Store } from '../../../store/rootReducer';
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   isSystemAdmin: !!getAppState(state).canAdmin
 });
 

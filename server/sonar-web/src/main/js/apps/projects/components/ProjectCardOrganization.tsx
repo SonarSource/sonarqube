@@ -22,7 +22,7 @@ import OrganizationLink from '../../../components/ui/OrganizationLink';
 
 interface Props {
   organization?: { key: string; name: string };
-  organizationsEnabled: boolean;
+  organizationsEnabled?: boolean;
 }
 
 export default function ProjectCardOrganization({ organization, organizationsEnabled }: Props) {

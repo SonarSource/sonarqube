@@ -36,7 +36,6 @@ type Props = {
   currentPopup: ?string,
   onAssign: string => void,
   onChange: Issue => void,
-  onFail: Error => void,
   togglePopup: (string, boolean | void) => void
 };
 */
@@ -64,7 +63,6 @@ export default class IssueActionsBar extends React.PureComponent {
       const newIssue = { ...issue, [property]: value };
       updateIssue(
         this.props.onChange,
-        this.props.onFail,
         apiCall({ issue: issue.key, [property]: value }),
         issue,
         newIssue
@@ -127,7 +125,6 @@ export default class IssueActionsBar extends React.PureComponent {
               isOpen={this.props.currentPopup === 'transition' && hasTransitions}
               issue={issue}
               onChange={this.handleTransition}
-              onFail={this.props.onFail}
               togglePopup={this.props.togglePopup}
             />
           </li>
@@ -138,7 +135,6 @@ export default class IssueActionsBar extends React.PureComponent {
                 isOpen={this.props.currentPopup === 'assign' && canAssign}
                 issue={issue}
                 onAssign={this.props.onAssign}
-                onFail={this.props.onFail}
                 togglePopup={this.props.togglePopup}
               />
             </li>
@@ -157,7 +153,6 @@ export default class IssueActionsBar extends React.PureComponent {
               currentPopup={this.props.currentPopup}
               issueKey={issue.key}
               onChange={this.props.onChange}
-              onFail={this.props.onFail}
               toggleComment={this.toggleComment}
             />
           )}
@@ -169,7 +164,6 @@ export default class IssueActionsBar extends React.PureComponent {
               isOpen={this.props.currentPopup === 'edit-tags' && canSetTags}
               issue={issue}
               onChange={this.props.onChange}
-              onFail={this.props.onFail}
               togglePopup={this.props.togglePopup}
             />
           </li>

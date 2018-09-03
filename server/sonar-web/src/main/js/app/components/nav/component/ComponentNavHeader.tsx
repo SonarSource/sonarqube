@@ -23,7 +23,11 @@ import { Link } from 'react-router';
 import ComponentNavBranch from './ComponentNavBranch';
 import { Component, Organization, BranchLike, Breadcrumb } from '../../../types';
 import QualifierIcon from '../../../../components/icons-components/QualifierIcon';
-import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
+import {
+  getOrganizationByKey,
+  areThereCustomOrganizations,
+  Store
+} from '../../../../store/rootReducer';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
@@ -34,7 +38,7 @@ import { isSonarCloud } from '../../../../helpers/system';
 
 interface StateProps {
   organization?: Organization;
-  shouldOrganizationBeDisplayed: boolean;
+  shouldOrganizationBeDisplayed?: boolean;
 }
 
 interface OwnProps {
@@ -118,7 +122,7 @@ function renderBreadcrumbs(breadcrumbs: Breadcrumb[]) {
   });
 }
 
-const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => ({
+const mapStateToProps = (state: Store, ownProps: OwnProps): StateProps => ({
   organization: getOrganizationByKey(state, ownProps.component.organization),
   shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
 });

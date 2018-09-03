@@ -33,7 +33,7 @@ interface Props {
   identityProvider?: IdentityProvider;
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
-  organizationsEnabled: boolean;
+  organizationsEnabled?: boolean;
   updateTokensCount: (login: string, tokensCount: number) => void;
   user: User;
 }

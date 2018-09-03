@@ -33,7 +33,6 @@ type Props = {
   issue: Issue,
   canAssign: boolean,
   onAssign: string => void,
-  onFail: Error => void,
   togglePopup: (string, boolean | void) => void
 };
 */
@@ -78,13 +77,7 @@ export default class IssueAssign extends React.PureComponent {
             closeOnEscape={true}
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.canAssign}
-            overlay={
-              <SetAssigneePopup
-                issue={this.props.issue}
-                onFail={this.props.onFail}
-                onSelect={this.props.onAssign}
-              />
-            }>
+            overlay={<SetAssigneePopup issue={this.props.issue} onSelect={this.props.onAssign} />}>
             <Button
               className="button-link issue-action issue-action-with-options js-issue-assign"
               onClick={this.toggleAssign}>

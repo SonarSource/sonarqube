@@ -29,7 +29,6 @@ interface Props {
   languages: Array<{ key: string; name: string }>;
   onClose: () => void;
   onCreate: Function;
-  onRequestFail: (reasong: any) => void;
   organization: string | null;
 }
 
@@ -89,11 +88,10 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
 
     createQualityProfile(data).then(
       (response: any) => this.props.onCreate(response.profile),
-      (error: any) => {
+      () => {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-        this.props.onRequestFail(error);
       }
     );
   };

@@ -20,7 +20,7 @@
 import { connect } from 'react-redux';
 import OrganizationMembers from './OrganizationMembers';
 import { Organization } from '../../app/types';
-import { getOrganizationByKey } from '../../store/rootReducer';
+import { getOrganizationByKey, Store } from '../../store/rootReducer';
 
 interface OwnProps {
   params: { organizationKey: string };
@@ -30,11 +30,8 @@ interface StateProps {
   organization: Organization;
 }
 
-const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => {
-  const { organizationKey } = ownProps.params;
-  return {
-    organization: getOrganizationByKey(state, organizationKey)!
-  };
+const mapStateToProps = (state: Store, ownProps: OwnProps): StateProps => {
+  return { organization: getOrganizationByKey(state, ownProps.params.organizationKey) };
 };
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(OrganizationMembers);
+export default connect(mapStateToProps)(OrganizationMembers);

@@ -95,7 +95,8 @@ export function createQualityProfile(data: RequestData): Promise<any> {
     .setData(data)
     .submit()
     .then(checkStatus)
-    .then(parseJSON);
+    .then(parseJSON)
+    .catch(throwGlobalError);
 }
 
 export function restoreQualityProfile(data: RequestData): Promise<any> {
@@ -104,7 +105,8 @@ export function restoreQualityProfile(data: RequestData): Promise<any> {
     .setData(data)
     .submit()
     .then(checkStatus)
-    .then(parseJSON);
+    .then(parseJSON)
+    .catch(throwGlobalError);
 }
 
 export interface ProfileProject {
@@ -128,20 +130,22 @@ export function setDefaultProfile(profileKey: string): Promise<void> {
   return post('/api/qualityprofiles/set_default', { profileKey });
 }
 
-export function renameProfile(key: string, name: string): Promise<void> {
-  return post('/api/qualityprofiles/rename', { key, name });
+export function renameProfile(key: string, name: string) {
+  return post('/api/qualityprofiles/rename', { key, name }).catch(throwGlobalError);
 }
 
 export function copyProfile(fromKey: string, toName: string): Promise<any> {
-  return postJSON('/api/qualityprofiles/copy', { fromKey, toName });
+  return postJSON('/api/qualityprofiles/copy', { fromKey, toName }).catch(throwGlobalError);
 }
 
-export function deleteProfile(profileKey: string): Promise<void> {
-  return post('/api/qualityprofiles/delete', { profileKey });
+export function deleteProfile(profileKey: string) {
+  return post('/api/qualityprofiles/delete', { profileKey }).catch(throwGlobalError);
 }
 
-export function changeProfileParent(profileKey: string, parentKey: string): Promise<void> {
-  return post('/api/qualityprofiles/change_parent', { profileKey, parentKey });
+export function changeProfileParent(profileKey: string, parentKey: string) {
+  return post('/api/qualityprofiles/change_parent', { profileKey, parentKey }).catch(
+    throwGlobalError
+  );
 }
 
 export function getImporters(): Promise<

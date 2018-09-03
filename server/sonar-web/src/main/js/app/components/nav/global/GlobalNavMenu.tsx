@@ -29,7 +29,7 @@ import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
 
 interface Props {
-  appState: AppState;
+  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
   currentUser: CurrentUser;
   location: { pathname: string };
 }

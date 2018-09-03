@@ -23,7 +23,7 @@ import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
-import { getLanguageByKey, Languages } from '../../../store/languages/reducer';
+import { getLanguageByKey, Languages } from '../../../store/languages';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
 import { RawQuery } from '../../../helpers/query';

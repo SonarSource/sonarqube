@@ -31,7 +31,6 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
-  onRequestFail: (reason: any) => void;
   organization: string | null;
   updateProfiles: () => Promise<void>;
 }
@@ -112,7 +111,6 @@ export default class PageHeader extends React.PureComponent<Props, State> {
         {this.state.restoreFormOpen && (
           <RestoreProfileForm
             onClose={this.closeRestoreForm}
-            onRequestFail={this.props.onRequestFail}
             onRestore={this.props.updateProfiles}
             organization={this.props.organization}
           />
@@ -123,7 +121,6 @@ export default class PageHeader extends React.PureComponent<Props, State> {
             languages={this.props.languages}
             onClose={this.closeCreateForm}
             onCreate={this.handleCreate}
-            onRequestFail={this.props.onRequestFail}
             organization={this.props.organization}
           />
         )}

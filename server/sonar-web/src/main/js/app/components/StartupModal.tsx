@@ -23,8 +23,8 @@ import { connect } from 'react-redux';
 import { CurrentUser, isLoggedIn, Organization } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
-import { getCurrentUser, getAppState } from '../../store/rootReducer';
-import { skipOnboarding as skipOnboardingAction } from '../../store/users/actions';
+import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
+import { skipOnboarding as skipOnboardingAction } from '../../store/users';
 import { showLicense } from '../../api/marketplace';
 import { hasMessage } from '../../helpers/l10n';
 import { save, get } from '../../helpers/storage';
@@ -49,7 +49,7 @@ const TeamOnboardingModal = lazyLoad(() =>
 );
 
 interface StateProps {
-  canAdmin: boolean;
+  canAdmin?: boolean;
   currentEdition?: EditionKey;
   currentUser: CurrentUser;
 }
@@ -215,7 +215,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   canAdmin: getAppState(state).canAdmin,
   currentEdition: getAppState(state).edition,
   currentUser: getCurrentUser(state)
@@ -223,7 +223,7 @@ const mapStateToProps = (state: any): StateProps => ({
 
 const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
 
-export default connect<StateProps, DispatchProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(StartupModal);

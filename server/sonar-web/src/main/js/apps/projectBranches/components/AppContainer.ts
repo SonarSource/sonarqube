@@ -19,10 +19,10 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getAppState } from '../../../store/rootReducer';
+import { getAppState, Store } from '../../../store/rootReducer';
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   canAdmin: getAppState(state).canAdmin
 });
 
-export default connect<any, any, any>(mapStateToProps)(App);
+export default connect(mapStateToProps)(App);

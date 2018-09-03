@@ -24,7 +24,12 @@ import { isSonarCloud } from '../../../../../helpers/system';
 
 jest.mock('../../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
-const appState = { qualifiers: [] };
+const appState: GlobalNav['props']['appState'] = {
+  globalPages: [],
+  canAdmin: false,
+  organizationsEnabled: false,
+  qualifiers: []
+};
 const currentUser = { isLoggedIn: false };
 const location = { pathname: '' };
 

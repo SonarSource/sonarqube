@@ -33,7 +33,6 @@ import {
 import { Profile } from '../types';
 
 interface Props {
-  onRequestFail: (reasong: any) => void;
   profile: Profile;
   organization: string | null;
   updateProfiles: () => Promise<void>;
@@ -111,7 +110,6 @@ export default class ProfileHeader extends React.PureComponent<Props> {
             <li>
               <ProfileActions
                 className="pull-left"
-                onRequestFail={this.props.onRequestFail}
                 organization={organization}
                 profile={profile}
                 updateProfiles={this.props.updateProfiles}

@@ -46,7 +46,7 @@ export interface Props {
   isFavorite: boolean;
   location: { pathname: string; query: RawQuery };
   organization: Organization | undefined;
-  organizationsEnabled: boolean;
+  organizationsEnabled?: boolean;
   storageOptionsSuffix?: string;
 }
 

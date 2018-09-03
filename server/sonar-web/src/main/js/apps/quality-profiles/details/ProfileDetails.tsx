@@ -27,7 +27,6 @@ import { Exporter, Profile } from '../types';
 
 interface Props {
   exporters: Exporter[];
-  onRequestFail: (reasong: any) => void;
   organization: string | null;
   profile: Profile;
   profiles: Profile[];

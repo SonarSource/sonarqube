@@ -23,7 +23,6 @@ import key from 'keymaster';
 import PropTypes from 'prop-types';
 import IssueView from './IssueView';
 import { updateIssue } from './actions';
-import { onFail } from '../../store/rootActions';
 import { setIssueAssignee } from '../../api/issues';
 /*:: import type { Issue as IssueType } from './types'; */
 import './Issue.css';
@@ -135,17 +134,9 @@ export default class Issue extends React.PureComponent {
   handleAssignement = (login /*: string */) => {
     const { issue } = this.props;
     if (issue.assignee !== login) {
-      updateIssue(
-        this.props.onChange,
-        this.handleFail,
-        setIssueAssignee({ issue: issue.key, assignee: login })
-      );
+      updateIssue(this.props.onChange, setIssueAssignee({ issue: issue.key, assignee: login }));
     }
     this.togglePopup('assign', false);
-  };
-
-  handleFail = (error /*: Error */) => {
-    onFail(this.context.store.dispatch)(error);
   };
 
   render() {
@@ -161,7 +152,6 @@ export default class Issue extends React.PureComponent {
         onChange={this.props.onChange}
         onCheck={this.props.onCheck}
         onClick={this.props.onClick}
-        onFail={this.handleFail}
         onFilter={this.props.onFilter}
         selected={this.props.selected}
         togglePopup={this.togglePopup}

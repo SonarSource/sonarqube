@@ -29,7 +29,7 @@ import {
   resetSettingValue
 } from '../../../api/settings';
 import { parseError } from '../../../helpers/request';
-import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages/duck';
+import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages';
 import { isEmptyValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../store/rootReducer';

@@ -315,7 +315,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { fetchOrganizations };
 
-export default connect<any, any, any>(
+export default connect(
   null,
   mapDispatchToProps
 )(ComponentContainer);

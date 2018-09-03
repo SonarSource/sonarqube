@@ -27,7 +27,6 @@ import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  onRequestFail: (reason: any) => void;
   organization: string | null;
   profile: Profile;
   profiles: Profile[];
@@ -192,7 +191,6 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
           <ChangeParentForm
             onChange={this.handleParentChange}
             onClose={this.closeForm}
-            onRequestFail={this.props.onRequestFail}
             profile={profile}
             profiles={profiles.filter(p => p !== profile && p.language === profile.language)}
           />

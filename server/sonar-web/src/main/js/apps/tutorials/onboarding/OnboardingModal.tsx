@@ -27,7 +27,7 @@ import OnboardingTeamIcon from '../../../components/icons-components/OnboardingT
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 import '../styles.css';
 
 interface OwnProps {
@@ -94,6 +94,6 @@ export class OnboardingModal extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({ currentUser: getCurrentUser(state) });
+const mapStateToProps = (state: Store): StateProps => ({ currentUser: getCurrentUser(state) });
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(OnboardingModal);
+export default connect(mapStateToProps)(OnboardingModal);

@@ -26,7 +26,6 @@ exports[`should open the popup when the button is clicked 2`] = `
             "assigneeName": "John Doe",
           }
         }
-        onFail={[MockFunction]}
         onSelect={[MockFunction]}
       />
     }
@@ -77,7 +76,6 @@ exports[`should render with the action 1`] = `
             "assigneeName": "John Doe",
           }
         }
-        onFail={[MockFunction]}
         onSelect={[MockFunction]}
       />
     }

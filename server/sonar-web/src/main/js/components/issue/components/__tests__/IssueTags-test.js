@@ -37,7 +37,6 @@ it('should render without the action when the correct rights are missing', () =>
         transitions: [],
         status: 'CLOSED'
       }}
-      onFail={jest.fn()}
       onIssueChange={jest.fn()}
       togglePopup={jest.fn()}
     />
@@ -51,7 +50,6 @@ it('should render with the action', () => {
       canSetTags={true}
       isOpen={false}
       issue={issue}
-      onFail={jest.fn()}
       onIssueChange={jest.fn()}
       togglePopup={jest.fn()}
     />
@@ -66,7 +64,6 @@ it('should open the popup when the button is clicked', () => {
       canSetTags={true}
       isOpen={false}
       issue={issue}
-      onFail={jest.fn()}
       onIssueChange={jest.fn()}
       togglePopup={toggle}
     />

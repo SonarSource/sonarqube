@@ -27,7 +27,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 interface Props {
   onClose: () => void;
   onCopy: (name: string) => void;
-  onRequestFail: (reasong: any) => void;
   profile: Profile;
 }
 
@@ -61,11 +60,10 @@ export default class CopyProfileForm extends React.PureComponent<Props, State> {
       this.setState({ loading: true });
       copyProfile(this.props.profile.key, name).then(
         (profile: any) => this.props.onCopy(profile.name),
-        (error: any) => {
+        () => {
           if (this.mounted) {
             this.setState({ loading: false });
           }
-          this.props.onRequestFail(error);
         }
       );
     }

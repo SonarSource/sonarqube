@@ -28,7 +28,7 @@ export function getOrganizations(data: {
   organizations: Organization[];
   paging: Paging;
 }> {
-  return getJSON('/api/organizations/search', data);
+  return getJSON('/api/organizations/search', data).catch(throwGlobalError);
 }
 
 export function getOrganization(key: string): Promise<Organization | undefined> {
@@ -48,18 +48,21 @@ interface GetOrganizationNavigation {
 }
 
 export function getOrganizationNavigation(key: string): Promise<GetOrganizationNavigation> {
-  return getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
+  return getJSON('/api/navigation/organization', { organization: key }).then(
+    r => r.organization,
+    throwGlobalError
+  );
 }
 
 export function createOrganization(data: OrganizationBase): Promise<Organization> {
   return postJSON('/api/organizations/create', data).then(r => r.organization, throwGlobalError);
 }
 
-export function updateOrganization(key: string, changes: OrganizationBase): Promise<void> {
-  return post('/api/organizations/update', { key, ...changes });
+export function updateOrganization(key: string, changes: OrganizationBase) {
+  return post('/api/organizations/update', { key, ...changes }).catch(throwGlobalError);
 }
 
-export function deleteOrganization(key: string): Promise<void | Response> {
+export function deleteOrganization(key: string) {
   return post('/api/organizations/delete', { key }).catch(throwGlobalError);
 }
 

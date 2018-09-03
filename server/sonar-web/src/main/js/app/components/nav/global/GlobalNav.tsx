@@ -30,7 +30,7 @@ import * as theme from '../../../theme';
 import { isLoggedIn, CurrentUser, AppState } from '../../../types';
 import NavBar from '../../../../components/nav/NavBar';
 import { lazyLoad } from '../../../../components/lazyLoad';
-import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
+import { getCurrentUser, getAppState, Store } from '../../../../store/rootReducer';
 import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
 import { isSonarCloud } from '../../../../helpers/system';
 import './GlobalNav.css';
@@ -38,7 +38,7 @@ import './GlobalNav.css';
 const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'));
 
 interface StateProps {
-  appState: AppState;
+  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
   currentUser: CurrentUser;
 }
 
@@ -78,9 +78,9 @@ export class GlobalNav extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   currentUser: getCurrentUser(state),
   appState: getAppState(state)
 });
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(GlobalNav);
+export default connect(mapStateToProps)(GlobalNav);

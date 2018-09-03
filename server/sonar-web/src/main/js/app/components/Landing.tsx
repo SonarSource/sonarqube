@@ -22,7 +22,7 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Location } from 'history';
 import { CurrentUser, isLoggedIn } from '../types';
-import { getCurrentUser } from '../../store/rootReducer';
+import { getCurrentUser, Store } from '../../store/rootReducer';
 import { getHomePageUrl } from '../../helpers/urls';
 
 interface StateProps {
@@ -57,8 +57,8 @@ class Landing extends React.PureComponent<StateProps & OwnProps> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect<StateProps, {}, OwnProps>(mapStateToProps)(Landing);
+export default connect(mapStateToProps)(Landing);

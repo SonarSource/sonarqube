@@ -29,7 +29,6 @@ it('should render the changelog popup correctly', () => {
         author: 'john.david.dalton@gmail.com',
         creationDate: '2017-03-01T09:36:01+0100'
       }}
-      onFail={jest.fn()}
     />
   );
   element.setState({

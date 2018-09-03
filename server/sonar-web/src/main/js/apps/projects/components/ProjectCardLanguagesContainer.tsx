@@ -19,15 +19,10 @@
  */
 import { connect } from 'react-redux';
 import ProjectCardLanguages from './ProjectCardLanguages';
-import { Languages } from '../../../store/languages/reducer';
-import { getLanguages } from '../../../store/rootReducer';
+import { getLanguages, Store } from '../../../store/rootReducer';
 
-interface StateProps {
-  languages: Languages;
-}
-
-const stateToProps = (state: any) => ({
+const stateToProps = (state: Store) => ({
   languages: getLanguages(state)
 });
 
-export default connect<StateProps>(stateToProps)(ProjectCardLanguages);
+export default connect(stateToProps)(ProjectCardLanguages);

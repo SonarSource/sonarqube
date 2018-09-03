@@ -26,7 +26,12 @@ import { translate } from '../../helpers/l10n';
 import { Visibility, Organization, CurrentUser } from '../../app/types';
 import { isSonarCloud } from '../../helpers/system';
 import { isCurrentUserMemberOf, isPaidOrganization } from '../../helpers/organizations';
-import { getCurrentUser, getOrganizationByKey, getMyOrganizations } from '../../store/rootReducer';
+import {
+  getCurrentUser,
+  getOrganizationByKey,
+  getMyOrganizations,
+  Store
+} from '../../store/rootReducer';
 import VisibleIcon from '../icons-components/VisibleIcon';
 import DocTooltip from '../docs/DocTooltip';
 
@@ -99,7 +104,7 @@ export function PrivacyBadge({
   );
 }
 
-const mapStateToProps = (state: any, { organization }: OwnProps) => {
+const mapStateToProps = (state: Store, { organization }: OwnProps) => {
   if (typeof organization === 'string') {
     organization = getOrganizationByKey(state, organization);
   }
@@ -110,7 +115,7 @@ const mapStateToProps = (state: any, { organization }: OwnProps) => {
   };
 };
 
-export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(PrivacyBadge);
+export default connect(mapStateToProps)(PrivacyBadge);
 
 function getDoc(visibility: Visibility, icon: JSX.Element | null, organization: Organization) {
   let doc;

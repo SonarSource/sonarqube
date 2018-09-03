@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getStore from './getStore';
-import * as globalMessages from '../../store/globalMessages/duck';
+import * as globalMessages from '../../store/globalMessages';
 
 export default function addGlobalSuccessMessage(message: string): void {
   const store = getStore();

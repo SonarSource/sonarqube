@@ -36,7 +36,7 @@ import {
 import { getDisplayMetrics } from '../../../helpers/measures';
 /*:: import type { Component, Query, Period } from '../types'; */
 /*:: import type { RawQuery } from '../../../helpers/query'; */
-/*:: import type { Metric } from '../../../store/metrics/actions'; */
+/*:: import type { Metric } from '../../../app/flow-types'; */
 /*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
 import '../../../components/search-navigator.css';
 import '../style.css';

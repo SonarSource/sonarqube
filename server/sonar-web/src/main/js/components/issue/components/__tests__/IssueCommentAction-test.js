@@ -27,7 +27,6 @@ it('should render correctly', () => {
     <IssueCommentAction
       currentPopup={null}
       issueKey="issue-key"
-      onFail={jest.fn()}
       onIssueChange={jest.fn()}
       toggleComment={jest.fn()}
     />
@@ -41,7 +40,6 @@ it('should open the popup when the button is clicked', () => {
     <IssueCommentAction
       currentPopup={null}
       issueKey="issue-key"
-      onFail={jest.fn()}
       onIssueChange={jest.fn()}
       toggleComment={toggle}
     />

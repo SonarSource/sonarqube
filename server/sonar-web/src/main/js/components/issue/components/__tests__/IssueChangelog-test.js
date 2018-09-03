@@ -34,7 +34,6 @@ it('should render correctly', () => {
       creationDate="2017-03-01T09:36:01+0100"
       isOpen={false}
       issue={issue}
-      onFail={jest.fn()}
       togglePopup={jest.fn()}
     />
   );
@@ -48,7 +47,6 @@ it('should open the popup when the button is clicked', () => {
       creationDate="2017-03-01T09:36:01+0100"
       isOpen={false}
       issue={issue}
-      onFail={jest.fn()}
       togglePopup={toggle}
     />
   );

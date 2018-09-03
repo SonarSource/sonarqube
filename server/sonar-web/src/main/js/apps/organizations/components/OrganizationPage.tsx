@@ -28,7 +28,8 @@ import { Organization, CurrentUser } from '../../../app/types';
 import {
   getOrganizationByKey,
   getCurrentUser,
-  getMyOrganizations
+  getMyOrganizations,
+  Store
 } from '../../../store/rootReducer';
 
 interface OwnProps {
@@ -110,7 +111,7 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any, ownProps: OwnProps) => ({
+const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
   currentUser: getCurrentUser(state),
   organization: getOrganizationByKey(state, ownProps.params.organizationKey),
   userOrganizations: getMyOrganizations(state)
@@ -118,7 +119,7 @@ const mapStateToProps = (state: any, ownProps: OwnProps) => ({
 
 const mapDispatchToProps = { fetchOrganization: fetchOrganization as any };
 
-export default connect<StateProps, DispatchToProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(OrganizationPage);

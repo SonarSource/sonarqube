@@ -29,7 +29,6 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   onChange: () => void;
   onClose: () => void;
-  onRequestFail: (reasong: any) => void;
   profile: Profile;
   profiles: Profile[];
 }
@@ -67,11 +66,10 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
       this.setState({ loading: true });
       changeProfileParent(this.props.profile.key, parent)
         .then(this.props.onChange)
-        .catch((error: any) => {
+        .catch(() => {
           if (this.mounted) {
             this.setState({ loading: false });
           }
-          this.props.onRequestFail(error);
         });
     }
   };

@@ -23,7 +23,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
-import { getMetrics } from '../../../store/rootReducer';
+import { getMetrics, Store } from '../../../store/rootReducer';
 import { fetchMetrics } from '../../../store/rootActions';
 import { fetchQualityGate } from '../../../api/quality-gates';
 import { Metric, QualityGate, Condition } from '../../../app/types';
@@ -170,11 +170,11 @@ export class DetailsApp extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps: DispatchToProps = { fetchMetrics };
 
-const mapStateToProps = (state: any): StateToProps => ({
+const mapStateToProps = (state: Store): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-export default connect<StateToProps, DispatchToProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(DetailsApp);

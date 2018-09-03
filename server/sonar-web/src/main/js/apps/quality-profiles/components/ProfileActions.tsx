@@ -35,7 +35,6 @@ import ActionsDropdown, {
 interface Props {
   className?: string;
   fromList?: boolean;
-  onRequestFail: (reasong: any) => void;
   organization: string | null;
   profile: Profile;
   updateProfiles: () => Promise<void>;
@@ -198,7 +197,6 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
           <CopyProfileForm
             onClose={this.closeCopyForm}
             onCopy={this.handleProfileCopy}
-            onRequestFail={this.props.onRequestFail}
             profile={profile}
           />
         )}
@@ -207,7 +205,6 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
           <DeleteProfileForm
             onClose={this.closeDeleteForm}
             onDelete={this.handleProfileDelete}
-            onRequestFail={this.props.onRequestFail}
             profile={profile}
           />
         )}
@@ -216,7 +213,6 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
           <RenameProfileForm
             onClose={this.closeRenameForm}
             onRename={this.handleProfileRename}
-            onRequestFail={this.props.onRequestFail}
             profile={profile}
           />
         )}

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { getOrganizationByKey, areThereCustomOrganizations } from '../../store/rootReducer';
+import { getOrganizationByKey, areThereCustomOrganizations, Store } from '../../store/rootReducer';
 import OrganizationLink from '../ui/OrganizationLink';
 
 interface OwnProps {
@@ -30,7 +30,7 @@ interface Props {
   link?: boolean;
   linkClassName?: string;
   organization: { key: string; name: string } | null;
-  shouldBeDisplayed: boolean;
+  shouldBeDisplayed?: boolean;
 }
 
 function Organization(props: Props) {
@@ -54,11 +54,11 @@ function Organization(props: Props) {
   );
 }
 
-const mapStateToProps = (state: any, ownProps: OwnProps) => ({
+const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
   organization: getOrganizationByKey(state, ownProps.organizationKey),
   shouldBeDisplayed: areThereCustomOrganizations(state)
 });
 
-export default connect<any, any, any>(mapStateToProps)(Organization);
+export default connect(mapStateToProps)(Organization);
 
 export const UnconnectedOrganization = Organization;

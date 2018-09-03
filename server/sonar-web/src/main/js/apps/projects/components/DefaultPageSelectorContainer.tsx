@@ -19,15 +19,10 @@
  */
 import { connect } from 'react-redux';
 import DefaultPageSelector from './DefaultPageSelector';
-import { CurrentUser } from '../../../app/types';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 
-interface StateProps {
-  currentUser: CurrentUser;
-}
-
-const stateToProps = (state: any) => ({
+const stateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect<StateProps>(stateToProps)(DefaultPageSelector);
+export default connect(stateToProps)(DefaultPageSelector);

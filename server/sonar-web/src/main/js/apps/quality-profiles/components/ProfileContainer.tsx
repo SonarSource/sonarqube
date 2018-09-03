@@ -30,7 +30,6 @@ interface Props {
     pathname: string;
     query: { key?: string; language: string; name: string };
   };
-  onRequestFail: (reasong: any) => void;
   organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
@@ -75,7 +74,6 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
     }
 
     const child = React.cloneElement(this.props.children, {
-      onRequestFail: this.props.onRequestFail,
       organization,
       profile,
       profiles,
@@ -86,7 +84,6 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
       <div id="quality-profile">
         <Helmet title={profile.name} />
         <ProfileHeader
-          onRequestFail={this.props.onRequestFail}
           organization={organization}
           profile={profile}
           updateProfiles={this.props.updateProfiles}

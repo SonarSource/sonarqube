@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { getPermissionsAppError } from '../../../../store/rootReducer';
+import { getPermissionsAppError, Store } from '../../../../store/rootReducer';
 
 interface Props {
   message: string;
@@ -33,7 +33,7 @@ function PageError({ message }: Props) {
   return <div className="alert alert-danger">{message}</div>;
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: Store) => ({
   message: getPermissionsAppError(state)
 });
 

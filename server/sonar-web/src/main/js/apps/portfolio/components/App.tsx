@@ -33,7 +33,7 @@ import { getMeasures } from '../../../api/measures';
 import { getChildren } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { fetchMetrics } from '../../../store/rootActions';
-import { getMetrics } from '../../../store/rootReducer';
+import { getMetrics, Store } from '../../../store/rootReducer';
 import { Metric, Component } from '../../../app/types';
 import '../styles.css';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
@@ -220,11 +220,11 @@ export class App extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps: DispatchToProps = { fetchMetrics };
 
-const mapStateToProps = (state: any): StateToProps => ({
+const mapStateToProps = (state: Store): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-export default connect<StateToProps, DispatchToProps, Props>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(App);

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import Facet, { BasicProps } from './Facet';
-import { getLanguages } from '../../../store/rootReducer';
+import { getLanguages, Store } from '../../../store/rootReducer';
 
 interface StateProps {
   referencedLanguages: { [language: string]: { key: string; name: string } };
@@ -69,7 +69,7 @@ class RepositoryFacet extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   referencedLanguages: getLanguages(state)
 });
 

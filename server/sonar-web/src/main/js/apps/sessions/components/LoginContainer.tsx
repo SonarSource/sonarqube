@@ -116,7 +116,7 @@ class LoginContainer extends React.PureComponent<Props, State> {
 const mapStateToProps = null;
 const mapDispatchToProps = { doLogin: doLogin as any };
 
-export default connect<{}, DispatchToProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(LoginContainer);

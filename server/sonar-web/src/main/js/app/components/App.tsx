@@ -26,7 +26,7 @@ import { fetchLanguages } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 import { getInstance, isSonarCloud } from '../../helpers/system';
 import { lazyLoad } from '../../components/lazyLoad';
-import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../store/rootReducer';
+import { getCurrentUser, getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 
 const PageTracker = lazyLoad(() => import('./PageTracker'));
 
@@ -104,7 +104,7 @@ class App extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   appState: getAppState(state),
   currentUser: getCurrentUser(state),
   enableGravatar: (getGlobalSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',

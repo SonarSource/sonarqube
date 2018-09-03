@@ -19,51 +19,47 @@
  */
 import { Dispatch } from 'redux';
 import * as api from '../../api/organizations';
-import * as actions from '../../store/organizations/duck';
-import { onFail } from '../../store/rootActions';
-import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
+import * as actions from '../../store/organizations';
+import { addGlobalSuccessMessage } from '../../store/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Organization, OrganizationBase } from '../../app/types';
+import { Store } from '../../store/rootReducer';
 
-const onRejected = (dispatch: Dispatch<any>) => (error: any) => {
-  onFail(dispatch)(error);
-  return Promise.reject(error);
-};
-
-export const fetchOrganization = (key: string) => (dispatch: Dispatch<any>) => {
+export const fetchOrganization = (key: string) => (dispatch: Dispatch<Store>) => {
   return Promise.all([api.getOrganization(key), api.getOrganizationNavigation(key)]).then(
     ([organization, navigation]) => {
       if (organization) {
         const organizationWithPermissions = { ...organization, ...navigation };
         dispatch(actions.receiveOrganizations([organizationWithPermissions]));
       }
-    },
-    onFail(dispatch)
+    }
   );
 };
 
-export const createOrganization = (organization: OrganizationBase) => (dispatch: Dispatch<any>) => {
+export const createOrganization = (organization: OrganizationBase) => (
+  dispatch: Dispatch<Store>
+) => {
   return api.createOrganization(organization).then((organization: Organization) => {
     dispatch(actions.createOrganization(organization));
     dispatch(
       addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name))
     );
     return organization;
-  }, onRejected(dispatch));
+  });
 };
 
 export const updateOrganization = (key: string, changes: OrganizationBase) => (
-  dispatch: Dispatch<any>
+  dispatch: Dispatch<Store>
 ) => {
   return api.updateOrganization(key, changes).then(() => {
     dispatch(actions.updateOrganization(key, changes));
     dispatch(addGlobalSuccessMessage(translate('organization.updated')));
-  }, onFail(dispatch));
+  });
 };
 
-export const deleteOrganization = (key: string) => (dispatch: Dispatch<any>) => {
+export const deleteOrganization = (key: string) => (dispatch: Dispatch<Store>) => {
   return api.deleteOrganization(key).then(() => {
     dispatch(actions.deleteOrganization(key));
     dispatch(addGlobalSuccessMessage(translate('organization.deleted')));
-  }, onFail(dispatch));
+  });
 };

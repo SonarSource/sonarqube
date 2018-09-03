@@ -26,7 +26,7 @@ it('renders', () => {
     shallow(
       <LanguageDistribution
         distribution="java=1734;js=845;cpp=73;<null>=15"
-        languages={[{ key: 'java', name: 'Java' }, { key: 'js', name: 'JavaScript' }]}
+        languages={{ java: { key: 'java', name: 'Java' }, js: { key: 'js', name: 'JavaScript' } }}
         width={100}
       />
     )

@@ -28,7 +28,6 @@ import { Profile } from '../types';
 interface Props {
   languages: Array<{ key: string; name: string }>;
   location: { query: { [p: string]: string } };
-  onRequestFail: (reason: any) => void;
   organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
@@ -39,7 +38,6 @@ export default class ProfilesList extends React.PureComponent<Props> {
     return profiles.map(profile => (
       <ProfilesListRow
         key={profile.key}
-        onRequestFail={this.props.onRequestFail}
         organization={this.props.organization}
         profile={profile}
         updateProfiles={this.props.updateProfiles}

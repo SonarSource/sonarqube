@@ -21,7 +21,7 @@ import * as React from 'react';
 import { CurrentUser, AppState } from '../../types';
 
 export interface Props {
-  appState: AppState;
+  appState: Pick<AppState, 'organizationsEnabled'>;
   currentUser: CurrentUser;
 }
 

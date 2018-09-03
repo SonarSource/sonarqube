@@ -23,9 +23,9 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import MarketplaceContext, { defaultPendingPlugins } from './MarketplaceContext';
 import SettingsNav from './nav/settings/SettingsNav';
-import { getAppState } from '../../store/rootReducer';
+import { getAppState, Store } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
-import { setAdminPages } from '../../store/appState/duck';
+import { setAdminPages } from '../../store/appState';
 import { translate } from '../../helpers/l10n';
 import { Extension, AppState } from '../types';
 import { PluginPendingResult, getPendingPlugins } from '../../api/plugins';
@@ -121,7 +121,7 @@ class AdminContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any): StateProps => ({
+const mapStateToProps = (state: Store): StateProps => ({
   appState: getAppState(state)
 });
 
@@ -129,7 +129,7 @@ const mapDispatchToProps: DispatchToProps = {
   setAdminPages
 };
 
-export default connect<StateProps, DispatchToProps, OwnProps>(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(AdminContainer);

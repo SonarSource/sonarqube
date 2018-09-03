@@ -27,7 +27,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 interface Props {
   onClose: () => void;
   onDelete: () => void;
-  onRequestFail: (reason: any) => void;
   profile: Profile;
 }
 
@@ -51,11 +50,10 @@ export default class DeleteProfileForm extends React.PureComponent<Props, State>
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ loading: true });
-    deleteProfile(this.props.profile.key).then(this.props.onDelete, (error: any) => {
+    deleteProfile(this.props.profile.key).then(this.props.onDelete, () => {
       if (this.mounted) {
         this.setState({ loading: false });
       }
-      this.props.onRequestFail(error);
     });
   };
 

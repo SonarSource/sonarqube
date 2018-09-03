@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-/*:: import type { Metric } from '../../store/metrics/actions'; */
+/*:: import type { Metric } from '../../app/flow-types'; */
 
 /*:: type MeasureIntern = {
   value?: string,
