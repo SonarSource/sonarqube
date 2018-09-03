@@ -213,7 +213,7 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void unset_line() {
-    int line = new Random().nextInt(500);
+    int line = 1 + new Random().nextInt(500);
     issue.setLine(line);
 
     boolean updated = underTest.unsetLine(issue, context);
