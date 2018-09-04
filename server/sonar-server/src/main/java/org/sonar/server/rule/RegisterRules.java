@@ -398,6 +398,7 @@ public class RegisterRules implements Startable {
       .setType(RuleType.valueOf(ruleDef.type().name()))
       .setScope(toDtoScope(ruleDef.scope()))
       .setIsExternal(ruleDef.repository().isExternal())
+      .setIsAdHoc(false)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     if (ruleDef.htmlDescription() != null) {
@@ -474,6 +475,10 @@ public class RegisterRules implements Startable {
     RuleType type = RuleType.valueOf(def.type().name());
     if (!ObjectUtils.equals(dto.getType(), type.getDbConstant())) {
       dto.setType(type);
+      changed = true;
+    }
+    if (dto.isAdHoc()) {
+      dto.setIsAdHoc(false);
       changed = true;
     }
     return changed;
@@ -654,7 +659,7 @@ public class RegisterRules implements Startable {
     recorder.getRemaining().forEach(rule -> {
       if (rule.isCustomRule()) {
         customRules.add(rule);
-      } else if (!rule.isExternal() && rule.getStatus() != RuleStatus.REMOVED) {
+      } else if (!rule.isAdHoc() && rule.getStatus() != RuleStatus.REMOVED) {
         removeRule(dbSession, recorder, rule);
       }
     });

@@ -17,29 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version.v74;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+@SupportsBlueGreen
+public class AddIsAdHocToRules extends DdlChange {
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public AddIsAdHocToRules(Database db) {
+    super(db);
+  }
 
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 15
-        // Others
-        + 3);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "rules")
+      .addColumn(newBooleanColumnDefBuilder()
+        .setColumnName("is_ad_hoc")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
 
 }

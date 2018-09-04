@@ -42,6 +42,8 @@
          def_remediation_base_effort="10h"
          gap_description="squid.S115.effortToFix"
          description_format="MARKDOWN"
+         is_external="[false]"
+         is_ad_hoc="[false]"
          created_at="150000"
          updated_at="150000"
          scope="MAIN"

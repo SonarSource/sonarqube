@@ -182,7 +182,7 @@ public class IssuesActionTest {
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
     
     RuleDefinitionDto migrated = db.rules().insert();
-    db.executeUpdateSql("update rules set is_external = NULL where rules.id = ?", migrated.getId());
+    db.executeUpdateSql("update rules set is_external=? where rules.id = ?", false, migrated.getId());
     IssueDto issueFromMigratedRule = db.issues().insert(migrated, project, file, i -> i.setKee("MIGRATED").setType(randomRuleTypeExceptHotspot()));
 
     addPermissionTo(project);

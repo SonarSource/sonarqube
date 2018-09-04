@@ -171,6 +171,8 @@ public class RuleCreator {
       .setScope(templateRuleDto.getScope())
       .setSystemTags(templateRuleDto.getSystemTags())
       .setSecurityStandards(templateRuleDto.getSecurityStandards())
+      .setIsExternal(false)
+      .setIsAdHoc(false)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDefinition);

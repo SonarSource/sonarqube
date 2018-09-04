@@ -54,6 +54,7 @@ public class ExternalRuleCreatorTest {
 
     assertThat(rule1).isNotNull();
     assertThat(rule1.isExternal()).isTrue();
+    assertThat(rule1.isAdHoc()).isTrue();
     assertThat(rule1.getId()).isGreaterThan(0);
     assertThat(rule1.getKey()).isEqualTo(ruleKey);
     assertThat(rule1.getPluginKey()).isEqualTo("eslint");

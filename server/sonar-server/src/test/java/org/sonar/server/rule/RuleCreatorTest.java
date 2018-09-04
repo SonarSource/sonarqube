@@ -104,6 +104,8 @@ public class RuleCreatorTest {
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
     assertThat(rule.getSecurityStandards()).containsOnly("owaspTop10:a1", "cwe:123");
+    assertThat(rule.isExternal()).isFalse();
+    assertThat(rule.isAdHoc()).isFalse();
 
     List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);

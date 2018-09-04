@@ -59,9 +59,6 @@ public class RuleDto {
   }
 
   public RuleKey getKey() {
-    if (definition.getKey() == null) {
-      definition.setKey(RuleKey.of(getRepositoryKey(), getRuleKey()));
-    }
     return definition.getKey();
   }
 
@@ -183,6 +180,15 @@ public class RuleDto {
 
   public RuleDto setIsExternal(boolean isExternal) {
     definition.setIsExternal(isExternal);
+    return this;
+  }
+
+  public boolean isAdHoc() {
+    return definition.isAdHoc();
+  }
+
+  public RuleDto setIsAdhoc(boolean isAdHoc) {
+    definition.setIsAdHoc(isAdHoc);
     return this;
   }
 

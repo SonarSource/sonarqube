@@ -17,29 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version.v74;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public class DbVersion74 implements DbVersion {
 
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
-
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 15
-        // Others
-        + 3);
+  @Override
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(2300, "Populate null values of IS_EXTERNAL in RULES", PopulateNullValuesOfIsExternalOnRules.class)
+      .add(2301, "Add IS_ADHOC column to RULES table", AddIsAdHocToRules.class)
+      .add(2302, "Populate IS_AD_HOC in RULES", PopulateIsAdHocOnRules.class)
+      .add(2303, "Set IS_EXTERNAL and IS_AD_HOC not nullable in RULES", SetIsExternalAndIsAdHocNotNullableInRules.class)
+    ;
   }
-
 }

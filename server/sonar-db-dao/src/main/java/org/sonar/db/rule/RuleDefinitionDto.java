@@ -47,7 +47,19 @@ public class RuleDefinitionDto {
   private String configKey;
   private Integer severity;
   private boolean isTemplate;
+
+  /**
+   * This flag specify that this is an external rule, meaning that generated issues from this rule will be provided by the analyzer without being activated on a quality profile.
+   */
   private boolean isExternal;
+
+  /**
+   * When an external rule is defined as ad hoc, it means that it's not defined using {@link org.sonar.api.server.rule.RulesDefinition.Context#createExternalRepository(String, String)}.
+   * As the opposite, an external rule not being defined as ad hoc is declared by using {@link org.sonar.api.server.rule.RulesDefinition.Context#createExternalRepository(String, String)}.
+   * This flag is only used for external rules (it can only be set to true for when {@link #isExternal()} is true)
+   */
+  private boolean isAdHoc;
+
   private String language;
   private Integer templateId;
   private String defRemediationFunction;
@@ -73,8 +85,11 @@ public class RuleDefinitionDto {
     return key;
   }
 
-  void setKey(RuleKey key) {
+  RuleDefinitionDto setKey(RuleKey key) {
     this.key = key;
+    setRepositoryKey(key.repository());
+    setRuleKey(key.rule());
+    return this;
   }
 
   public Integer getId() {
@@ -187,13 +202,21 @@ public class RuleDefinitionDto {
     return this;
   }
 
-
   public boolean isExternal() {
     return isExternal;
   }
 
   public RuleDefinitionDto setIsExternal(boolean isExternal) {
     this.isExternal = isExternal;
+    return this;
+  }
+
+  public boolean isAdHoc() {
+    return isAdHoc;
+  }
+
+  public RuleDefinitionDto setIsAdHoc(boolean isAdHoc) {
+    this.isAdHoc = isAdHoc;
     return this;
   }
 

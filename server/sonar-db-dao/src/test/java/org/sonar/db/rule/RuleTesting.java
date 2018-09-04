@@ -78,6 +78,8 @@ public class RuleTesting {
       .setConfigKey("configKey_" + randomAlphanumeric(5))
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
       .setIsTemplate(false)
+      .setIsExternal(false)
+      .setIsAdHoc(false)
       .setSystemTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
       .setLanguage("lang_" + randomAlphanumeric(3))
       .setGapDescription("gapDescription_" + randomAlphanumeric(5))

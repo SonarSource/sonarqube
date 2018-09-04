@@ -5,7 +5,10 @@
          plugin_rule_key="AvoidCycles"
          plugin_config_key="[null]"
          plugin_name="squid"
-         scope="MAIN"/>
+         scope="MAIN"
+         is_external="[false]"
+         is_ad_hoc="[false]"
+  />
 
   <projects organization_uuid="org1"
             uuid="PROJECT1"
