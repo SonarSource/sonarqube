@@ -17,34 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
-
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
-import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-
-public class PersistExternalRulesStep implements ComputationStep {
-
-  private final DbClient dbClient;
-  private final RuleRepository ruleRepository;
-
-  public PersistExternalRulesStep(DbClient dbClient, RuleRepository ruleRepository) {
-    this.dbClient = dbClient;
-    this.ruleRepository = ruleRepository;
-  }
-
-  @Override
-  public void execute(ComputationStep.Context context) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      ruleRepository.persistNewAddHocRules(dbSession);
-    }
-
-  }
-
-  @Override
-  public String getDescription() {
-    return "Persist new externally defined Rules";
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.rule;

@@ -30,7 +30,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExternalRuleCreatorTest {
+public class AddHocRuleCreatorTest {
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -38,13 +38,13 @@ public class ExternalRuleCreatorTest {
   public EsTester es = EsTester.create();
 
   private RuleIndexer indexer = new RuleIndexer(es.client(), dbTester.getDbClient());
-  private ExternalRuleCreator underTest = new ExternalRuleCreator(dbTester.getDbClient(), System2.INSTANCE, indexer);
+  private AddHocRuleCreator underTest = new AddHocRuleCreator(dbTester.getDbClient(), System2.INSTANCE, indexer);
   private DbSession dbSession = dbTester.getSession();
 
   @Test
   public void create_external_rule() {
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
-    NewExternalRule externalRule = new NewExternalRule.Builder()
+    NewAddHocRule externalRule = new NewAddHocRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
       .setName("name")

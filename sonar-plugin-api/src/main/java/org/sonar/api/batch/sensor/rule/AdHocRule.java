@@ -17,34 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.api.batch.sensor.rule;
 
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
-import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.rules.RuleType;
 
-public class PersistExternalRulesStep implements ComputationStep {
+/**
+ * Represents a rule imported from an external rule engine by a {@link Sensor}.
+ * @since 7.4
+ */
+public interface AdHocRule {
 
-  private final DbClient dbClient;
-  private final RuleRepository ruleRepository;
+  /**
+   * Unique identifier of the external analyzer (e.g. eslint, pmd, ...)
+   */
+  String engineId();
 
-  public PersistExternalRulesStep(DbClient dbClient, RuleRepository ruleRepository) {
-    this.dbClient = dbClient;
-    this.ruleRepository = ruleRepository;
-  }
+  /**
+   * Unique rule identifier for a given {@link #engineId()}
+   */
+  String ruleId();
 
-  @Override
-  public void execute(ComputationStep.Context context) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      ruleRepository.persistNewAddHocRules(dbSession);
-    }
+  /**
+   * Name of the rule.
+   */
+  String name();
 
-  }
+  /**
+   * Description of the rule.
+   */
+  String description();
 
-  @Override
-  public String getDescription() {
-    return "Persist new externally defined Rules";
-  }
+  /**
+   * Default severity of the rule.
+   */
+  Severity severity();
+
+  /**
+   * Type of the rule.
+   */
+  RuleType type();
 
 }

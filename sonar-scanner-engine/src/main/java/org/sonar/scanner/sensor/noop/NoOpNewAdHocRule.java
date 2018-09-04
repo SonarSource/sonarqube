@@ -17,34 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.scanner.sensor.noop;
 
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
-import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.batch.sensor.rule.NewAdHocRule;
+import org.sonar.api.rules.RuleType;
 
-public class PersistExternalRulesStep implements ComputationStep {
+public class NoOpNewAdHocRule implements NewAdHocRule {
 
-  private final DbClient dbClient;
-  private final RuleRepository ruleRepository;
-
-  public PersistExternalRulesStep(DbClient dbClient, RuleRepository ruleRepository) {
-    this.dbClient = dbClient;
-    this.ruleRepository = ruleRepository;
+  @Override
+  public NoOpNewAdHocRule engineId(String engineId) {
+    // no op
+    return this;
   }
 
   @Override
-  public void execute(ComputationStep.Context context) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      ruleRepository.persistNewAddHocRules(dbSession);
-    }
-
+  public NoOpNewAdHocRule ruleId(String ruleId) {
+    // no op
+    return this;
   }
 
   @Override
-  public String getDescription() {
-    return "Persist new externally defined Rules";
+  public NewAdHocRule name(String name) {
+    // no op
+    return this;
+  }
+
+  @Override
+  public NewAdHocRule description(String description) {
+    // no op
+    return this;
+  }
+
+  @Override
+  public NoOpNewAdHocRule type(RuleType type) {
+    // no op
+    return this;
+  }
+
+  @Override
+  public NoOpNewAdHocRule severity(Severity severity) {
+    // no op
+    return this;
+  }
+
+  @Override
+  public void save() {
+    // no op
   }
 
 }

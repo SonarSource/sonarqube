@@ -305,4 +305,16 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
     }
     return null;
   }
+
+  public List<ScannerReport.AdHocRule> adHocRules() {
+    List<ScannerReport.AdHocRule> result = new ArrayList<>();
+    try (CloseableIterator<ScannerReport.AdHocRule> it = getReportReader().readAdHocRules()) {
+      while (it.hasNext()) {
+        result.add(it.next());
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+    return result;
+  }
 }

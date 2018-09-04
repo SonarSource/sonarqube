@@ -90,10 +90,4 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
     return this.message;
   }
 
-  public static void main (String[] args) {
-
-    new DefaultIssueLocation().message("pipo");
-
-  }
-
 }

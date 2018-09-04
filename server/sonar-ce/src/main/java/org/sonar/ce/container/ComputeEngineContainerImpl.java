@@ -141,7 +141,7 @@ import org.sonar.server.qualitygate.QualityGateEvaluatorImpl;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
-import org.sonar.server.rule.ExternalRuleCreator;
+import org.sonar.server.rule.AddHocRuleCreator;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
@@ -370,7 +370,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       XMLRuleParser.class,
       DefaultRuleFinder.class,
       RulesDefinitionXmlLoader.class,
-      ExternalRuleCreator.class,
+      AddHocRuleCreator.class,
       RuleIndexer.class,
 
       // languages

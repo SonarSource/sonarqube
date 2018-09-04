@@ -26,17 +26,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.batch.sensor.issue.Issue.Flow;
-import org.sonar.api.rule.RuleKey;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue>  extends DefaultStorable {
-  protected RuleKey ruleKey;
   protected IssueLocation primaryLocation;
   protected List<List<IssueLocation>> flows = new ArrayList<>();
   
@@ -46,15 +44,6 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue>  exte
   
   public AbstractDefaultIssue(@Nullable SensorStorage storage) {
     super(storage);
-  }
-  
-  public T forRule(RuleKey ruleKey) {
-    this.ruleKey = ruleKey;
-    return (T) this;
-  }
-  
-  public RuleKey ruleKey() {
-    return this.ruleKey;
   }
   
   public IssueLocation primaryLocation() {

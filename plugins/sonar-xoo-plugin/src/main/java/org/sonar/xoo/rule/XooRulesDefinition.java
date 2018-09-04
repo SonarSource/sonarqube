@@ -38,7 +38,6 @@ public class XooRulesDefinition implements RulesDefinition {
 
   public static final String XOO_REPOSITORY = "xoo";
   public static final String XOO2_REPOSITORY = "xoo2";
-  public static final String XOO_EXTERNAL_REPOSITORY = "xoo";
 
   private static final String TEN_MIN = "10min";
 
@@ -183,11 +182,11 @@ public class XooRulesDefinition implements RulesDefinition {
   }
 
   private static void defineRulesXooExternal(Context context) {
-    NewRepository repo = context.createExternalRepository(XOO_EXTERNAL_REPOSITORY, Xoo.KEY).setName("XooExternal");
+    NewRepository repo = context.createExternalRepository(OneExternalIssuePerLineSensor.ENGINE_ID, Xoo.KEY).setName(OneExternalIssuePerLineSensor.ENGINE_ID);
 
-    repo.createRule(OneExternalIssueWithDetailsPerLineSensor.RULE_KEY)
-      .setSeverity(OneExternalIssueWithDetailsPerLineSensor.SEVERITY)
-      .setType(OneExternalIssueWithDetailsPerLineSensor.TYPE)
+    repo.createRule(OnePredefinedRuleExternalIssuePerLineSensor.RULE_ID)
+      .setSeverity(OnePredefinedRuleExternalIssuePerLineSensor.SEVERITY)
+      .setType(OnePredefinedRuleExternalIssuePerLineSensor.TYPE)
       .setScope(RuleScope.ALL)
       .setHtmlDescription("Generates one external issue in each line")
       .setName("One external issue per line");

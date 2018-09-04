@@ -21,7 +21,6 @@ package org.sonar.xoo.rule;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -73,9 +72,9 @@ public class XooRulesDefinitionTest {
 
   @Test
   public void define_xooExternal_rules() {
-    RulesDefinition.Repository repo = context.repository("external_xoo");
+    RulesDefinition.Repository repo = context.repository("external_XooEngine");
     assertThat(repo).isNotNull();
-    assertThat(repo.name()).isEqualTo("XooExternal");
+    assertThat(repo.name()).isEqualTo("XooEngine");
     assertThat(repo.language()).isEqualTo("xoo");
     assertThat(repo.rules()).hasSize(1);
   }

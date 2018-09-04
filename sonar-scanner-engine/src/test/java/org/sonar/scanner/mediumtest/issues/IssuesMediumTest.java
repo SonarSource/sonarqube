@@ -78,7 +78,7 @@ public class IssuesMediumTest {
 
     TaskResult result = tester
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .property(OneExternalIssuePerLineSensor.ACTIVATE_EXTERNAL_ISSUES, "true")
+      .property(OneExternalIssuePerLineSensor.ACTIVATE, "true")
       .execute();
 
     List<ExternalIssue> externalIssues = result.externalIssuesFor(result.inputFile("xources/hello/HelloJava.xoo"));

@@ -29,7 +29,6 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -70,7 +69,8 @@ public class ExternalIssueImporter {
 
   private boolean importIssue(Issue issue) {
     NewExternalIssue externalIssue = context.newExternalIssue()
-      .forRule(RuleKey.of(issue.engineId, issue.ruleId))
+      .engineId(issue.engineId)
+      .ruleId(issue.ruleId)
       .severity(Severity.valueOf(issue.severity))
       .type(RuleType.valueOf(issue.type));
 

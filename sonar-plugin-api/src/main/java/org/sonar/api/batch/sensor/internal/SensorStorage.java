@@ -25,9 +25,10 @@ import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 
 /**
@@ -41,7 +42,9 @@ public interface SensorStorage {
 
   void store(Issue issue);
 
-  void store(ExternalIssue issue);
+  void store(DefaultExternalIssue issue);
+
+  void store(DefaultAdHocRule adHocRule);
 
   void store(DefaultHighlighting highlighting);
 

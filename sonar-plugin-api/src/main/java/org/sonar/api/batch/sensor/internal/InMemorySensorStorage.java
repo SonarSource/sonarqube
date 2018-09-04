@@ -34,7 +34,10 @@ import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.rule.AdHocRule;
+import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -45,6 +48,7 @@ class InMemorySensorStorage implements SensorStorage {
 
   Collection<Issue> allIssues = new ArrayList<>();
   Collection<ExternalIssue> allExternalIssues = new ArrayList<>();
+  Collection<AdHocRule> allAdHocRules = new ArrayList<>();
   Collection<AnalysisError> allAnalysisErrors = new ArrayList<>();
 
   Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
@@ -68,6 +72,11 @@ class InMemorySensorStorage implements SensorStorage {
   @Override
   public void store(Issue issue) {
     allIssues.add(issue);
+  }
+
+  @Override
+  public void store(DefaultAdHocRule adHocRule) {
+    allAdHocRules.add(adHocRule);
   }
 
   @Override
@@ -119,7 +128,7 @@ class InMemorySensorStorage implements SensorStorage {
   }
 
   @Override
-  public void store(ExternalIssue issue) {
+  public void store(DefaultExternalIssue issue) {
     allExternalIssues.add(issue);
   }
   

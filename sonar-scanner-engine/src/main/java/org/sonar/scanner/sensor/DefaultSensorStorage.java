@@ -42,10 +42,11 @@ import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.KeyValueFormat;
@@ -56,6 +57,7 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -390,12 +392,25 @@ public class DefaultSensorStorage implements SensorStorage {
    * Thread safe assuming that each issues for each file are only written once.
    */
   @Override
-  public void store(ExternalIssue externalIssue) {
+  public void store(DefaultExternalIssue externalIssue) {
     if (externalIssue.primaryLocation().inputComponent() instanceof DefaultInputFile) {
       DefaultInputFile defaultInputFile = (DefaultInputFile) externalIssue.primaryLocation().inputComponent();
       defaultInputFile.setPublished(true);
     }
     moduleIssues.initAndAddExternalIssue(externalIssue);
+  }
+
+  @Override
+  public void store(DefaultAdHocRule adHocRule) {
+    ScannerReportWriter writer = reportPublisher.getWriter();
+    final ScannerReport.AdHocRule.Builder builder = ScannerReport.AdHocRule.newBuilder();
+    builder.setEngineId(adHocRule.engineId());
+    builder.setRuleId(adHocRule.ruleId());
+    builder.setName(adHocRule.name());
+    builder.setDescription(adHocRule.description());
+    builder.setSeverity(Constants.Severity.valueOf(adHocRule.severity().name()));
+    builder.setType(ScannerReport.IssueType.valueOf(adHocRule.type().name()));
+    writer.appendAdHocRule(builder.build());
   }
 
   @Override

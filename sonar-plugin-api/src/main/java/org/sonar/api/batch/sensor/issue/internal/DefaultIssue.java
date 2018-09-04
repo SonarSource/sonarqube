@@ -26,12 +26,14 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.rule.RuleKey;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements Issue, NewIssue {
+  private RuleKey ruleKey;
   private Double gap;
   private Severity overriddenSeverity;
 
@@ -42,6 +44,16 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   public DefaultIssue(@Nullable SensorStorage storage) {
     super(storage);
   }
+
+  public DefaultIssue forRule(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
+    return this;
+  }
+
+  public RuleKey ruleKey() {
+    return this.ruleKey;
+  }
+
 
   @Override
   public DefaultIssue gap(@Nullable Double gap) {

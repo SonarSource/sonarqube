@@ -40,14 +40,13 @@ import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.rule.CommonRuleKeys;
-import org.sonar.server.rule.NewExternalRule;
+import org.sonar.server.rule.NewAddHocRule;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
@@ -182,30 +181,30 @@ public class TrackerRawInputFactory {
       return issue;
     }
 
-    private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportIssue) {
+    private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue) {
       DefaultIssue issue = new DefaultIssue();
       init(issue);
 
-      issue.setRuleKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
-      if (reportIssue.hasTextRange()) {
-        int startLine = reportIssue.getTextRange().getStartLine();
+      issue.setRuleKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportExternalIssue.getEngineId(), reportExternalIssue.getRuleId()));
+      if (reportExternalIssue.hasTextRange()) {
+        int startLine = reportExternalIssue.getTextRange().getStartLine();
         issue.setLine(startLine);
         issue.setChecksum(lineHashSeq.getHashForLine(startLine));
       } else {
         issue.setChecksum("");
       }
-      if (isNotEmpty(reportIssue.getMsg())) {
-        issue.setMessage(reportIssue.getMsg());
+      if (isNotEmpty(reportExternalIssue.getMsg())) {
+        issue.setMessage(reportExternalIssue.getMsg());
       }
-      if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
-        issue.setSeverity(reportIssue.getSeverity().name());
+      if (reportExternalIssue.getSeverity() != Severity.UNSET_SEVERITY) {
+        issue.setSeverity(reportExternalIssue.getSeverity().name());
       }
-      issue.setEffort(Duration.create(reportIssue.getEffort() != 0 ? reportIssue.getEffort() : DEFAULT_EXTERNAL_ISSUE_EFFORT));
+      issue.setEffort(Duration.create(reportExternalIssue.getEffort() != 0 ? reportExternalIssue.getEffort() : DEFAULT_EXTERNAL_ISSUE_EFFORT));
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
-      if (reportIssue.hasTextRange()) {
-        dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
+      if (reportExternalIssue.hasTextRange()) {
+        dbLocationsBuilder.setTextRange(convertTextRange(reportExternalIssue.getTextRange()));
       }
-      for (ScannerReport.Flow flow : reportIssue.getFlowList()) {
+      for (ScannerReport.Flow flow : reportExternalIssue.getFlowList()) {
         if (flow.getLocationCount() > 0) {
           DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
           for (ScannerReport.IssueLocation location : flow.getLocationList()) {
@@ -216,16 +215,16 @@ public class TrackerRawInputFactory {
       }
       issue.setIsFromExternalRuleEngine(true);
       issue.setLocations(dbLocationsBuilder.build());
-      issue.setType(toRuleType(reportIssue.getType()));
+      issue.setType(toRuleType(reportExternalIssue.getType()));
 
-      ruleRepository.insertNewExternalRuleIfAbsent(issue.getRuleKey(), () -> toExternalRule(reportIssue));
+      ruleRepository.addNewAddHocRuleIfAbsent(issue.getRuleKey(), () -> toAdHocRule(reportExternalIssue));
       return issue;
     }
 
-    private NewExternalRule toExternalRule(ScannerReport.ExternalIssue reportIssue) {
-      NewExternalRule.Builder builder = new NewExternalRule.Builder()
-        .setName(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()).toString())
-        .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
+    private NewAddHocRule toAdHocRule(ScannerReport.ExternalIssue reportIssue) {
+      NewAddHocRule.Builder builder = new NewAddHocRule.Builder()
+        .setName(reportIssue.getEngineId() + " " + reportIssue.getRuleId())
+        .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getEngineId(), reportIssue.getRuleId()));
 
       return builder.build();
     }

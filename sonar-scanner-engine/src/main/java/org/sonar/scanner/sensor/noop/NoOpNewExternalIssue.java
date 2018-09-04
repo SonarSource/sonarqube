@@ -35,6 +35,18 @@ public class NoOpNewExternalIssue implements NewExternalIssue {
   }
 
   @Override
+  public NewExternalIssue engineId(String engineId) {
+    // no op
+    return this;
+  }
+
+  @Override
+  public NewExternalIssue ruleId(String ruleId) {
+    // no op
+    return this;
+  }
+
+  @Override
   public NewExternalIssue type(RuleType type) {
     // no op
     return this;

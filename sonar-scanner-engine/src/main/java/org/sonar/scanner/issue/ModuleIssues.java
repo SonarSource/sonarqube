@@ -123,8 +123,8 @@ public class ModuleIssues {
     // non-null fields
     builder.setSeverity(severity);
     builder.setType(issueType);
-    builder.setRuleRepository(issue.ruleKey().repository());
-    builder.setRuleKey(issue.ruleKey().rule());
+    builder.setEngineId(issue.engineId());
+    builder.setRuleId(issue.ruleId());
     builder.setMsg(primaryMessage);
     locationBuilder.setMsg(primaryMessage);
 

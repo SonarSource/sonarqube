@@ -45,12 +45,15 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.rule.NewAdHocRule;
+import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.sensor.noop.NoOpNewAdHocRule;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.scanner.sensor.noop.NoOpNewExternalIssue;
@@ -66,6 +69,7 @@ public class DefaultSensorContext implements SensorContext {
   static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
   static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
   static final NoOpNewExternalIssue NO_OP_NEW_EXTERNAL_ISSUE = new NoOpNewExternalIssue();
+  static final NoOpNewAdHocRule NO_OP_NEW_AD_HOC_RULE = new NoOpNewAdHocRule();
   static final NoOpNewSignificantCode NO_OP_NEW_SIGNIFICANT_CODE = new NoOpNewSignificantCode();
 
   private final Settings mutableSettings;
@@ -142,7 +146,14 @@ public class DefaultSensorContext implements SensorContext {
       return NO_OP_NEW_EXTERNAL_ISSUE;
     }
     return new DefaultExternalIssue(sensorStorage);
+  }
 
+  @Override
+  public NewAdHocRule newAdHocRule() {
+    if (analysisMode.isIssues()) {
+      return NO_OP_NEW_AD_HOC_RULE;
+    }
+    return new DefaultAdHocRule(sensorStorage);
   }
 
   @Override

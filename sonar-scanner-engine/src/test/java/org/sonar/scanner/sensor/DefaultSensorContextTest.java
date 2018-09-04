@@ -85,6 +85,7 @@ public class DefaultSensorContextTest {
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newExternalIssue()).isNotNull();
+    assertThat(adaptor.newAdHocRule()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();
     assertThat(adaptor.newAnalysisError()).isEqualTo(DefaultSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
     assertThat(adaptor.isCancelled()).isFalse();
@@ -105,6 +106,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.newCpdTokens()).isEqualTo(DefaultSensorContext.NO_OP_NEW_CPD_TOKENS);
     assertThat(adaptor.newSymbolTable()).isEqualTo(DefaultSensorContext.NO_OP_NEW_SYMBOL_TABLE);
     assertThat(adaptor.newExternalIssue()).isEqualTo(DefaultSensorContext.NO_OP_NEW_EXTERNAL_ISSUE);
+    assertThat(adaptor.newAdHocRule()).isEqualTo(DefaultSensorContext.NO_OP_NEW_AD_HOC_RULE);
     assertThat(adaptor.newHighlighting()).isEqualTo(DefaultSensorContext.NO_OP_NEW_HIGHLIGHTING);
   }
 

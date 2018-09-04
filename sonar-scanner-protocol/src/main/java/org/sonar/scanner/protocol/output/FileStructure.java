@@ -77,6 +77,10 @@ public class FileStructure {
     return new File(dir, "activerules.pb");
   }
 
+  public File adHocRules() {
+    return new File(dir, "adhocrules.pb");
+  }
+
   public File fileFor(Domain domain, int componentRef) {
     return new File(dir, domain.filePrefix + componentRef + domain.fileSuffix);
   }

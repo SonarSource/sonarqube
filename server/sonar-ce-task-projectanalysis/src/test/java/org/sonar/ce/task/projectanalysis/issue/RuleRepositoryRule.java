@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbSession;
-import org.sonar.server.rule.NewExternalRule;
+import org.sonar.server.rule.NewAddHocRule;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -35,7 +35,7 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
 
   private final Map<RuleKey, Rule> rulesByKey = new HashMap<>();
   private final Map<Integer, Rule> rulesById = new HashMap<>();
-  private final Map<RuleKey, NewExternalRule> newExternalRulesById = new HashMap<>();
+  private final Map<RuleKey, NewAddHocRule> newExternalRulesById = new HashMap<>();
 
   @Override
   protected void after() {
@@ -68,7 +68,7 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
   }
 
   @Override
-  public void persistNewExternalRules(DbSession dbSession) {
+  public void persistNewAddHocRules(DbSession dbSession) {
     throw new UnsupportedOperationException();
   }
 
@@ -87,7 +87,7 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
   }
 
   @Override
-  public void insertNewExternalRuleIfAbsent(RuleKey ruleKey, Supplier<NewExternalRule> ruleSupplier) {
+  public void addNewAddHocRuleIfAbsent(RuleKey ruleKey, Supplier<NewAddHocRule> ruleSupplier) {
     newExternalRulesById.computeIfAbsent(ruleKey, k -> ruleSupplier.get());
   }
 

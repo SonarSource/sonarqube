@@ -24,12 +24,12 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 
 @Immutable
-public class NewExternalRule {
+public class NewAddHocRule {
   private final RuleKey key;
   private final String name;
   private final String pluginKey;
 
-  private NewExternalRule(Builder builder) {
+  private NewAddHocRule(Builder builder) {
     Objects.requireNonNull(builder.key, "'key' not expected to be null for an external rule");
     this.key = builder.key;
     this.pluginKey = builder.pluginKey;
@@ -67,8 +67,8 @@ public class NewExternalRule {
       return name;
     }
 
-    public NewExternalRule build() {
-      return new NewExternalRule(this);
+    public NewAddHocRule build() {
+      return new NewAddHocRule(this);
     }
 
     public Builder setPluginKey(String pluginKey) {

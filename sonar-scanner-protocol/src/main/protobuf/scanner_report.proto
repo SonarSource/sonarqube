@@ -187,17 +187,23 @@ message Issue {
 }
 
 message ExternalIssue {
-  string rule_repository = 1;
-  string rule_key = 2;
-  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
+  string engine_id = 1;
+  string rule_id = 2;
   string msg = 3;
   Severity severity = 4;
   int64 effort = 5;
-  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
-  // Will be identical to the first location of the first flow
   TextRange text_range = 6;
   repeated Flow flow = 7;
   IssueType type = 8;
+}
+
+message AdHocRule {
+    string engine_id = 1;
+    string rule_id = 2;
+    string name = 3;
+    string description = 4;
+    Severity severity = 5;
+    IssueType type = 6;
 }
 
 enum IssueType {

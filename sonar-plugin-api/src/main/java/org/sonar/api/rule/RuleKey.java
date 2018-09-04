@@ -34,11 +34,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 @Immutable
 public class RuleKey implements Serializable, Comparable<RuleKey> {
 
-  /**
-   * @deprecated since 5.5, manual rule feature has been dropped
-   */
-  @Deprecated
-  public static final String MANUAL_REPOSITORY_KEY = "manual";
   public static final String EXTERNAL_RULE_REPO_PREFIX = "external_";
 
   private final String repository;
@@ -86,13 +81,6 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
     return rule;
   }
 
-  /**
-   * @deprecated since 5.5, manual rule feature has been dropped
-   */
-  @Deprecated
-  public boolean isManual() {
-    return false;
-  }
 
   @Override
   public boolean equals(@Nullable Object o) {

@@ -31,12 +31,15 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.Constants.Severity;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class ExternalIssuesMediumTest {
   @Rule
@@ -56,7 +59,7 @@ public class ExternalIssuesMediumTest {
 
     TaskResult result = tester
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .property("sonar.oneExternalIssuePerLine.activate", "true")
+      .property(OneExternalIssuePerLineSensor.ACTIVATE, "true")
       .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
@@ -67,6 +70,37 @@ public class ExternalIssuesMediumTest {
 
     ExternalIssue issue = externalIssues.get(0);
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(issue.getTextRange().getStartLine());
+
+    assertThat(result.adHocRules()).isEmpty();
+  }
+
+  @Test
+  public void testOneIssuePerLine_register_ad_hoc_rule() throws Exception {
+    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+
+    TaskResult result = tester
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .property(OneExternalIssuePerLineSensor.ACTIVATE, "true")
+      .property(OneExternalIssuePerLineSensor.REGISTER_AD_HOC_RULE, "true")
+      .execute();
+
+    assertThat(result.adHocRules()).extracting(
+      ScannerReport.AdHocRule::getEngineId,
+      ScannerReport.AdHocRule::getRuleId,
+      ScannerReport.AdHocRule::getName,
+      ScannerReport.AdHocRule::getDescription,
+      ScannerReport.AdHocRule::getSeverity,
+      ScannerReport.AdHocRule::getType)
+      .containsExactlyInAnyOrder(
+        tuple(
+          OneExternalIssuePerLineSensor.ENGINE_ID,
+          OneExternalIssuePerLineSensor.RULE_ID,
+          "An ad hoc rule",
+          "blah blah",
+          Severity.BLOCKER,
+          IssueType.BUG));
   }
 
   @Test
@@ -90,7 +124,8 @@ public class ExternalIssuesMediumTest {
     ExternalIssue issue = externalIssues.get(0);
     assertThat(issue.getFlowCount()).isZero();
     assertThat(issue.getMsg()).isEqualTo("fix the issue here");
-    assertThat(issue.getRuleKey()).isEqualTo("rule1");
+    assertThat(issue.getEngineId()).isEqualTo("externalXoo");
+    assertThat(issue.getRuleId()).isEqualTo("rule1");
     assertThat(issue.getSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(issue.getEffort()).isEqualTo(50l);
     assertThat(issue.getType()).isEqualTo(IssueType.CODE_SMELL);
@@ -103,7 +138,8 @@ public class ExternalIssuesMediumTest {
     issue = externalIssues.get(1);
     assertThat(issue.getFlowCount()).isZero();
     assertThat(issue.getMsg()).isEqualTo("fix the bug here");
-    assertThat(issue.getRuleKey()).isEqualTo("rule2");
+    assertThat(issue.getEngineId()).isEqualTo("externalXoo");
+    assertThat(issue.getRuleId()).isEqualTo("rule2");
     assertThat(issue.getSeverity()).isEqualTo(Severity.CRITICAL);
     assertThat(issue.getType()).isEqualTo(IssueType.BUG);
     assertThat(issue.getEffort()).isZero();
@@ -119,7 +155,8 @@ public class ExternalIssuesMediumTest {
     issue = externalIssues2.iterator().next();
     assertThat(issue.getFlowCount()).isEqualTo(2);
     assertThat(issue.getMsg()).isEqualTo("fix the bug here");
-    assertThat(issue.getRuleKey()).isEqualTo("rule3");
+    assertThat(issue.getEngineId()).isEqualTo("externalXoo");
+    assertThat(issue.getRuleId()).isEqualTo("rule3");
     assertThat(issue.getSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(issue.getType()).isEqualTo(IssueType.BUG);
     assertThat(issue.hasTextRange()).isFalse();
@@ -127,7 +164,6 @@ public class ExternalIssuesMediumTest {
     assertThat(issue.getFlow(0).getLocation(0).getTextRange().getStartLine()).isOne();
     assertThat(issue.getFlow(1).getLocationCount()).isOne();
     assertThat(issue.getFlow(1).getLocation(0).getTextRange().getStartLine()).isEqualTo(3);
-
 
     // one issue is located in a non-existing file
     assertThat(logs.logs()).contains("External issues ignored for 1 unknown files, including: invalidFile");

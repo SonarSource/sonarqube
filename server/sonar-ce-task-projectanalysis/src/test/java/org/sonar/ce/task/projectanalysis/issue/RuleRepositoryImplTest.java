@@ -37,8 +37,8 @@ import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.rule.ExternalRuleCreator;
-import org.sonar.server.rule.NewExternalRule;
+import org.sonar.server.rule.AddHocRuleCreator;
+import org.sonar.server.rule.NewAddHocRule;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,8 +78,8 @@ public class RuleRepositoryImplTest {
   private RuleDao ruleDao = mock(RuleDao.class);
 
   private RuleIndexer ruleIndexer = mock(RuleIndexer.class);
-  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(db.getDbClient(), System2.INSTANCE, ruleIndexer);
-  private RuleRepositoryImpl underTest = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
+  private AddHocRuleCreator addHocRuleCreator = new AddHocRuleCreator(db.getDbClient(), System2.INSTANCE, ruleIndexer);
+  private RuleRepositoryImpl underTest = new RuleRepositoryImpl(addHocRuleCreator, dbClient, analysisMetadataHolder);
 
   @Before
   public void setUp() throws Exception {
@@ -270,7 +270,7 @@ public class RuleRepositoryImplTest {
   public void accept_new_externally_defined_Rules() {
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
 
-    underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
+    underTest.addNewAddHocRuleIfAbsent(ruleKey, () -> new NewAddHocRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
       .build());
@@ -286,15 +286,15 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void persist_new_externally_defined_Rules() {
-    underTest = new RuleRepositoryImpl(externalRuleCreator, db.getDbClient(), analysisMetadataHolder);
+    underTest = new RuleRepositoryImpl(addHocRuleCreator, db.getDbClient(), analysisMetadataHolder);
 
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
-    underTest.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
+    underTest.addNewAddHocRuleIfAbsent(ruleKey, () -> new NewAddHocRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
       .build());
 
-    underTest.persistNewExternalRules(db.getSession());
+    underTest.persistNewAddHocRules(db.getSession());
     db.commit();
 
     Optional<RuleDefinitionDto> ruleDefinitionDto = db.getDbClient().ruleDao().selectDefinitionByKey(db.getSession(), ruleKey);

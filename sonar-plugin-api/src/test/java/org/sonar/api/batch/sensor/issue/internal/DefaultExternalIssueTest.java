@@ -56,7 +56,9 @@ public class DefaultExternalIssueTest {
       .severity(Severity.BLOCKER);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_repo", "rule"));
+    assertThat(issue.engineId()).isEqualTo("repo");
+    assertThat(issue.ruleId()).isEqualTo("rule");
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
     assertThat(issue.remediationEffort()).isEqualTo(10l);
     assertThat(issue.type()).isEqualTo(RuleType.BUG);

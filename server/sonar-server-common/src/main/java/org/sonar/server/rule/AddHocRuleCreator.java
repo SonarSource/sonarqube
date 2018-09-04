@@ -30,35 +30,36 @@ import org.sonar.server.rule.index.RuleIndexer;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.db.rule.RuleDto.Scope.ALL;
 
-public class ExternalRuleCreator {
+public class AddHocRuleCreator {
 
   private final DbClient dbClient;
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
 
-  public ExternalRuleCreator(DbClient dbClient, System2 system2, RuleIndexer ruleIndexer) {
+  public AddHocRuleCreator(DbClient dbClient, System2 system2, RuleIndexer ruleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
   }
 
   /**
-   * Persists a rule in the DB and indexes it.
+   * Persists a new add hoc rule in the DB and indexes it.
    * @return the rule that was inserted in the DB, which <b>includes the generated ID</b>. 
    */
-  public RuleDto persistAndIndex(DbSession dbSession, NewExternalRule external) {
+  public RuleDto persistAndIndex(DbSession dbSession, NewAddHocRule adHoc) {
     RuleDao dao = dbClient.ruleDao();
     dao.insert(dbSession, new RuleDefinitionDto()
-      .setRuleKey(external.getKey())
-      .setPluginKey(external.getPluginKey())
+      .setRuleKey(adHoc.getKey())
+      .setPluginKey(adHoc.getPluginKey())
       .setIsExternal(true)
-      .setName(external.getName())
+      .setName(adHoc.getName())
+      .setIsAdHoc(true)
       .setScope(ALL)
       .setStatus(READY)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now()));
 
-    RuleDto ruleDto = dao.selectOrFailByKey(dbSession, external.getKey());
+    RuleDto ruleDto = dao.selectOrFailByKey(dbSession, adHoc.getKey());
     ruleIndexer.commitAndIndex(dbSession, ruleDto.getId());
     return ruleDto;
   }

@@ -34,8 +34,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.rule.ExternalRuleCreator;
-import org.sonar.server.rule.NewExternalRule;
+import org.sonar.server.rule.AddHocRuleCreator;
+import org.sonar.server.rule.NewAddHocRule;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 
@@ -59,7 +59,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   public EsTester es = EsTester.create();
 
   private RuleIndexer indexer = new RuleIndexer(es.client(), dbClient);
-  private ExternalRuleCreator externalRuleCreator = new ExternalRuleCreator(dbClient, System2.INSTANCE, indexer);
+  private AddHocRuleCreator addHocRuleCreator = new AddHocRuleCreator(dbClient, System2.INSTANCE, indexer);
 
   @Override
   protected ComputationStep step() {
@@ -68,7 +68,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    ruleRepository = new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder);
+    ruleRepository = new RuleRepositoryImpl(addHocRuleCreator, dbClient, analysisMetadataHolder);
     underTest = new PersistExternalRulesStep(dbClient, ruleRepository);
   }
 
@@ -76,7 +76,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   public void persist_and_index_new_external_rules() {
 
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
-    ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
+    ruleRepository.addNewAddHocRuleIfAbsent(ruleKey, () -> new NewAddHocRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
       .setName("eslint:no-cond-assign")
@@ -105,7 +105,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   public void do_not_persist_existing_external_rules() {
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
     db.rules().insert(ruleKey, r -> r.setIsExternal(true));
-    ruleRepository.insertNewExternalRuleIfAbsent(ruleKey, () -> new NewExternalRule.Builder()
+    ruleRepository.addNewAddHocRuleIfAbsent(ruleKey, () -> new NewAddHocRule.Builder()
       .setKey(ruleKey)
       .setPluginKey("eslint")
       .build());

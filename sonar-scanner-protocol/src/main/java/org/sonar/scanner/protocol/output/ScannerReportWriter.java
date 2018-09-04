@@ -109,6 +109,15 @@ public class ScannerReportWriter {
     }
   }
 
+  public void appendAdHocRule(ScannerReport.AdHocRule adHocRule) {
+    File file = fileStructure.adHocRules();
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+      adHocRule.writeDelimitedTo(out);
+    } catch (Exception e) {
+      throw ContextException.of("Unable to write ad hoc rule", e).addContext("file", file);
+    }
+  }
+
   public File writeComponentMeasures(int componentRef, Iterable<ScannerReport.Measure> measures) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     Protobuf.writeStream(measures, file, false);

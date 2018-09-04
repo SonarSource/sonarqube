@@ -403,12 +403,12 @@ public interface RulesDefinition {
 
     /**
      * Creates a repository of rules from external rule engines.
-     * The key will always be prefixed with "external_".
+     * The repository key will be "external_[engineId]".
      * 
      * @since 7.2
      */
-    public NewRepository createExternalRepository(String key, String language) {
-      return new NewRepositoryImpl(this, key, language, true);
+    public NewRepository createExternalRepository(String engineId, String language) {
+      return new NewRepositoryImpl(this, RuleKey.EXTERNAL_RULE_REPO_PREFIX + engineId, language, true);
     }
 
     /**
@@ -504,7 +504,7 @@ public interface RulesDefinition {
 
     private NewRepositoryImpl(Context context, String key, String language, boolean isExternal) {
       this.context = context;
-      this.key = isExternal ? (RuleKey.EXTERNAL_RULE_REPO_PREFIX + key) : key;
+      this.key = key;
       this.name = key;
       this.language = language;
       this.isExternal = isExternal;

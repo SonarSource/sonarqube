@@ -70,6 +70,9 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.rule.AdHocRule;
+import org.sonar.api.batch.sensor.rule.NewAdHocRule;
+import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
@@ -229,8 +232,17 @@ public class SensorContextTester implements SensorContext {
     return new DefaultExternalIssue(sensorStorage);
   }
 
+  @Override
+  public NewAdHocRule newAdHocRule() {
+    return new DefaultAdHocRule(sensorStorage);
+  }
+
   public Collection<ExternalIssue> allExternalIssues() {
     return sensorStorage.allExternalIssues;
+  }
+
+  public Collection<AdHocRule> allAdHocRules() {
+    return sensorStorage.allAdHocRules;
   }
 
   public Collection<AnalysisError> allAnalysisErrors() {

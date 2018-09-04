@@ -20,7 +20,6 @@
 package org.sonar.api.batch.sensor;
 
 import java.io.Serializable;
-
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,6 +37,8 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
+import org.sonar.api.batch.sensor.rule.AdHocRule;
+import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
@@ -121,6 +122,12 @@ public interface SensorContext {
    * @since 7.2
    */
   NewExternalIssue newExternalIssue();
+
+  /**
+   * Fluent builder to create a new {@link AdHocRule}. Don't forget to call {@link NewAdHocRule#save()} once all parameters are provided.
+   * @since 7.4
+   */
+  NewAdHocRule newAdHocRule();
 
   // ------------ HIGHLIGHTING ------------
 

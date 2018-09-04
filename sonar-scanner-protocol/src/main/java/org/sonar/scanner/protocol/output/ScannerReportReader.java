@@ -50,6 +50,14 @@ public class ScannerReportReader {
     return Protobuf.readStream(file, ScannerReport.ActiveRule.parser());
   }
 
+  public CloseableIterator<ScannerReport.AdHocRule> readAdHocRules() {
+    File file = fileStructure.adHocRules();
+    if (!fileExists(file)) {
+      return emptyCloseableIterator();
+    }
+    return Protobuf.readStream(file, ScannerReport.AdHocRule.parser());
+  }
+
   public CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     if (fileExists(file)) {

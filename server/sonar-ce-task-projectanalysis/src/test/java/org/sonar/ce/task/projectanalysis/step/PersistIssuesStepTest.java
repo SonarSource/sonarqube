@@ -53,7 +53,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.issue.IssueStorage;
-import org.sonar.server.rule.ExternalRuleCreator;
+import org.sonar.server.rule.AddHocRuleCreator;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,7 +85,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   private IssueCache issueCache;
   private ComputationStep underTest;
 
-  private ExternalRuleCreator externalRuleCreator = mock(ExternalRuleCreator.class);
+  private AddHocRuleCreator addHocRuleCreator = mock(AddHocRuleCreator.class);
 
   @Override
   protected ComputationStep step() {
@@ -99,7 +99,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    underTest = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(externalRuleCreator, dbClient, analysisMetadataHolder), issueCache,
+    underTest = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(addHocRuleCreator, dbClient, analysisMetadataHolder), issueCache,
       new IssueStorage());
   }
 

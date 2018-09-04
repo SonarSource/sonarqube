@@ -17,40 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.issue;
+package org.sonar.api.batch.sensor.rule;
 
-import javax.annotation.CheckForNull;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.rules.RuleType;
 
 /**
- * Represents an issue imported from an external rule engine by a {@link Sensor}.
- * @since 7.2
+ * Builder for a rule imported from an external rule engine by a {@link Sensor}. This allows to provide more metadata
+ * for rules associated to {@link org.sonar.api.batch.sensor.issue.ExternalIssue}.
+ * Don't forget to {@link #save()} after setting the fields.
+ * 
+ * @since 7.4
  */
-public interface ExternalIssue extends IIssue {
+public interface NewAdHocRule {
 
   /**
-   * @since 7.4
+   * Unique identifier of the external analyzer (e.g. eslint, pmd, ...)
    */
-  String engineId();
+  NewAdHocRule engineId(String engineId);
 
   /**
-   * @since 7.4
+   * Unique rule identifier for a given {@link #engineId(String)}
    */
-  String ruleId();
-
-  Severity severity();
+  NewAdHocRule ruleId(String ruleId);
 
   /**
-   * Effort to fix the issue, in minutes.
+   * The name of the rule.
    */
-  @CheckForNull
-  Long remediationEffort();
+  NewAdHocRule name(String name);
 
   /**
-   * Type of the issue.
+   * The description of the rule.
    */
-  RuleType type();
+  NewAdHocRule description(String description);
+
+  /**
+   * Type of the rule.
+   */
+  NewAdHocRule type(RuleType type);
+
+  /**
+   * Set the severity of the rule.
+   */
+  NewAdHocRule severity(Severity severity);
+
+  /**
+   * Save the rule. There is almost no validation, except that no duplicated ad hoc rule keys are permitted.
+   */
+  void save();
 
 }

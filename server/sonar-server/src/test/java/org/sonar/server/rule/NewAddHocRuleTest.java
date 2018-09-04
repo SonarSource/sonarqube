@@ -25,20 +25,20 @@ import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NewExternalRuleTest {
+public class NewAddHocRuleTest {
   @org.junit.Rule
   public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void should_build_new_external_rule() {
-    NewExternalRule.Builder builder = new NewExternalRule.Builder()
+    NewAddHocRule.Builder builder = new NewAddHocRule.Builder()
       .setKey(RuleKey.of("repo", "rule"))
       .setPluginKey("repo")
       .setName("name");
 
     assertThat(builder.name()).isEqualTo("name");
 
-    NewExternalRule rule = builder.build();
+    NewAddHocRule rule = builder.build();
 
     assertThat(rule.getName()).isEqualTo("name");
     assertThat(rule.getPluginKey()).isEqualTo("repo");
@@ -49,7 +49,7 @@ public class NewExternalRuleTest {
     exception.expect(NullPointerException.class);
     exception.expectMessage("'key' not expected to be null for an external rule");
 
-    new NewExternalRule.Builder()
+    new NewAddHocRule.Builder()
       .build();
   }
 }
