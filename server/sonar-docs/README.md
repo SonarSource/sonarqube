@@ -140,6 +140,8 @@ Basic syntax: `## Table of Contents`
 Lists all h2 & h3  
 The resulting table of contents will also list all h1 items, but h1 is used for the page title, and by convention should not also be used further down the page.
 
+This conditional (i.e. only if you use the tag) ToC will _only_ appear in embedded docs. The static docs site will automatically list _all_ h2s in a page-level ToC added to the navigation rail (left-hand side of the page)
+
 ### Formatting
 
 #### Links
