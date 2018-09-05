@@ -17,32 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { sortBy } from 'lodash';
 
 const ORDER = ['DEV', 'VW', 'SVW', 'APP', 'TRK', 'BRC', 'FIL', 'UTS'];
 
-export function sortQualifiers(qualifiers /*: Array<string> */) {
+export function sortQualifiers(qualifiers: string[]) {
   return sortBy(qualifiers, qualifier => ORDER.indexOf(qualifier));
 }
 
-/*::
-export type Component = {
-  isFavorite?: boolean,
-  isRecentlyBrowsed?: boolean,
-  key: string,
-  match?: string,
-  name: string,
-  organization?: string,
-  project?: string,
-  qualifier: string
-};
-*/
+export interface ComponentResult {
+  isFavorite?: boolean;
+  isRecentlyBrowsed?: boolean;
+  key: string;
+  match?: string;
+  name: string;
+  organization?: string;
+  project?: string;
+  qualifier: string;
+}
 
-/*::
-export type Results = { [qualifier: string]: Array<Component> };
-*/
+export interface Results {
+  [qualifier: string]: ComponentResult[];
+}
 
-/*::
-export type More = { [string]: number };
-*/
+export interface More {
+  [qualifier: string]: number;
+}

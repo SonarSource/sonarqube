@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<li
+  className="menu-footer"
+  key="more-TRK"
+>
+  <DeferredSpinner
+    className="navbar-search-icon"
+    loading={false}
+    timeout={100}
+  >
+    <a
+      className=""
+      data-qualifier="TRK"
+      href="#"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+    >
+      <div
+        className="pull-right text-muted-2 menu-footer-note"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "search.show_more.hint.<span class=\\"shortcut-button shortcut-button-small\\">Enter</span>",
+          }
+        }
+      />
+      <span>
+        show_more
+      </span>
+    </a>
+  </DeferredSpinner>
+</li>
+`;

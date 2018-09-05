@@ -17,32 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import SearchResult from '../SearchResult';
-
-function render(props /*: ?Object */) {
-  return shallow(
-    // $FlowFixMe
-    <SearchResult
-      appState={{ organizationsEnabled: false }}
-      component={{ key: 'foo', name: 'foo', qualifier: 'TRK', organization: 'bar' }}
-      innerRef={jest.fn()}
-      onClose={jest.fn()}
-      onSelect={jest.fn()}
-      organizations={{ bar: { name: 'bar' } }}
-      projects={{ foo: { name: 'foo' } }}
-      selected={false}
-      {...props}
-    />
-  );
-}
 
 jest.useFakeTimers();
 
 it('renders selected', () => {
-  const wrapper = render();
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ selected: true });
   expect(wrapper).toMatchSnapshot();
@@ -56,7 +38,7 @@ it('renders match', () => {
     qualifier: 'TRK',
     organization: 'bar'
   };
-  const wrapper = render({ component });
+  const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -68,7 +50,7 @@ it('renders favorite', () => {
     qualifier: 'TRK',
     organization: 'bar'
   };
-  const wrapper = render({ component });
+  const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -80,7 +62,7 @@ it('renders recently browsed', () => {
     qualifier: 'TRK',
     organization: 'bar'
   };
-  const wrapper = render({ component });
+  const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -92,7 +74,7 @@ it('renders projects', () => {
     qualifier: 'BRC',
     project: 'foo'
   };
-  const wrapper = render({ component });
+  const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -104,14 +86,14 @@ it('renders organizations', () => {
     qualifier: 'TRK',
     organization: 'bar'
   };
-  const wrapper = render({ appState: { organizationsEnabled: true }, component });
+  const wrapper = shallowRender({ appState: { organizationsEnabled: true }, component });
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ appState: { organizationsEnabled: false } });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('shows tooltip after delay', () => {
-  const wrapper = render();
+  const wrapper = shallowRender();
   expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
 
   wrapper.setProps({ selected: true });
@@ -124,3 +106,19 @@ it('shows tooltip after delay', () => {
   wrapper.setProps({ selected: false });
   expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
 });
+
+function shallowRender(props: Partial<SearchResult['props']> = {}) {
+  return shallow(
+    <SearchResult
+      appState={{ organizationsEnabled: false }}
+      component={{ key: 'foo', name: 'foo', qualifier: 'TRK', organization: 'bar' }}
+      innerRef={jest.fn()}
+      onClose={jest.fn()}
+      onSelect={jest.fn()}
+      organizations={{ bar: { name: 'bar' } }}
+      projects={{ foo: { name: 'foo' } }}
+      selected={false}
+      {...props}
+    />
+  );
+}

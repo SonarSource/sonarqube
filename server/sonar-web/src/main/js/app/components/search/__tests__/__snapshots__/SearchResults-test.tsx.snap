@@ -23,7 +23,6 @@ exports[`renders "Show More" link 1`] = `
   <SearchShowMore
     allowMore={true}
     key="more-TRK"
-    loadingMore={null}
     onMoreClick={[MockFunction]}
     onSelect={[MockFunction]}
     qualifier="TRK"
@@ -108,4 +107,10 @@ exports[`renders different components and dividers between them 1`] = `
     zux
   </span>
 </ul>
+`;
+
+exports[`should render no results 1`] = `
+<div
+  id="no-results"
+/>
 `;

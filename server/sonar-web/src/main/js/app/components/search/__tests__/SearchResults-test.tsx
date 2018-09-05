@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import SearchResults from '../SearchResults';
+import SearchResults, { Props } from '../SearchResults';
 
 it('renders different components and dividers between them', () => {
   expect(
     shallow(
       <SearchResults
         allowMore={true}
-        loadingMore={null}
         more={{}}
         onMoreClick={jest.fn()}
         onSelect={jest.fn()}
@@ -38,7 +36,6 @@ it('renders different components and dividers between them', () => {
           BRC: [component('qwe', 'BRC'), component('qux', 'BRC')],
           FIL: [component('zux', 'FIL')]
         }}
-        selected={null}
       />
     )
   ).toMatchSnapshot();
@@ -49,7 +46,6 @@ it('renders "Show More" link', () => {
     shallow(
       <SearchResults
         allowMore={true}
-        loadingMore={null}
         more={{ TRK: 175, BRC: 0 }}
         onMoreClick={jest.fn()}
         onSelect={jest.fn()}
@@ -59,12 +55,31 @@ it('renders "Show More" link', () => {
           TRK: [component('foo'), component('bar')],
           BRC: [component('qwe', 'BRC'), component('qux', 'BRC')]
         }}
-        selected={null}
       />
     )
   ).toMatchSnapshot();
 });
 
-function component(key /*: string */, qualifier /*: string */ = 'TRK') {
+it('should render no results', () => {
+  // eslint-disable-next-line react/display-name
+  expect(shallowRender({ renderNoResults: () => <div id="no-results" /> })).toMatchSnapshot();
+});
+
+function component(key: string, qualifier = 'TRK') {
   return { key, name: key, qualifier };
+}
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(
+    <SearchResults
+      allowMore={true}
+      more={{}}
+      onMoreClick={jest.fn()}
+      onSelect={jest.fn()}
+      renderNoResults={() => <div />}
+      renderResult={() => <div />}
+      results={{}}
+      {...props}
+    />
+  );
 }

@@ -17,43 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow, mount } from 'enzyme';
-/*:: import type { ShallowWrapper } from 'enzyme'; */
-import Search from '../Search';
-import { elementKeydown, clickOutside } from '../../../../helpers/testUtils';
-
-function render(props /*: ?Object */) {
-  return shallow(
-    <Search
-      appState={{ organizationsEnabled: false }}
-      currentUser={{ isLoggedIn: false }}
-      {...props}
-    />
-  );
-}
-
-function component(key /*: string */, qualifier /*: string */ = 'TRK') {
-  return { key, name: key, qualifier };
-}
-
-function next(form /*: ShallowWrapper */, expected /*: string */) {
-  elementKeydown(form.find('SearchBox'), 40);
-  expect(form.state().selected).toBe(expected);
-}
-
-function prev(form /*: ShallowWrapper */, expected /*: string */) {
-  elementKeydown(form.find('SearchBox'), 38);
-  expect(form.state().selected).toBe(expected);
-}
-
-function select(form /*: ShallowWrapper */, expected /*: string */) {
-  form.instance().handleSelect(expected);
-  expect(form.state().selected).toBe(expected);
-}
+import * as React from 'react';
+import { shallow, ShallowWrapper } from 'enzyme';
+import { Search } from '../Search';
+import { elementKeydown } from '../../../../helpers/testUtils';
 
 it('selects results', () => {
-  const form = render();
+  const form = shallowRender();
   form.setState({
     more: { TRK: 15, BRC: 0 },
     open: true,
@@ -75,22 +45,52 @@ it('selects results', () => {
 });
 
 it('opens selected on enter', () => {
-  const form = render();
+  const form = shallowRender();
   form.setState({
     open: true,
     results: { TRK: [component('foo')] },
     selected: 'foo'
   });
   const openSelected = jest.fn();
-  form.instance().openSelected = openSelected;
+  (form.instance() as Search).openSelected = openSelected;
   elementKeydown(form.find('SearchBox'), 13);
   expect(openSelected).toBeCalled();
 });
 
 it('shows warning about short input', () => {
-  const form = render();
+  const form = shallowRender();
   form.setState({ shortQuery: true });
   expect(form.find('.navbar-search-input-hint')).toMatchSnapshot();
   form.setState({ query: 'foobar x' });
   expect(form.find('.navbar-search-input-hint')).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<Search['props']> = {}) {
+  return shallow(
+    // @ts-ignore
+    <Search
+      appState={{ organizationsEnabled: false }}
+      currentUser={{ isLoggedIn: false }}
+      {...props}
+    />
+  );
+}
+
+function component(key: string, qualifier = 'TRK') {
+  return { key, name: key, qualifier };
+}
+
+function next(form: ShallowWrapper<Search['props'], Search['state']>, expected: string) {
+  elementKeydown(form.find('SearchBox'), 40);
+  expect(form.state().selected).toBe(expected);
+}
+
+function prev(form: ShallowWrapper<Search['props'], Search['state']>, expected: string) {
+  elementKeydown(form.find('SearchBox'), 38);
+  expect(form.state().selected).toBe(expected);
+}
+
+function select(form: ShallowWrapper<Search['props'], Search['state']>, expected: string) {
+  (form.instance() as Search).handleSelect(expected);
+  expect(form.state().selected).toBe(expected);
+}

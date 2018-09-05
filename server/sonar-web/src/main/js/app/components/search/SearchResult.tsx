@@ -17,41 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
-/*:: import type { Component } from './utils'; */
+import { ComponentResult } from './utils';
 import FavoriteIcon from '../../../components/icons-components/FavoriteIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import ClockIcon from '../../../components/icons-components/ClockIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getProjectUrl } from '../../../helpers/urls';
+import { AppState } from '../../types';
 
-/*::
-type Props = {|
-  appState: { organizationsEnabled: boolean },
-  component: Component,
-  innerRef: (string, HTMLElement) => void,
-  onClose: () => void,
-  onSelect: string => void,
-  organizations: { [string]: { name: string } },
-  projects: { [string]: { name: string } },
-  selected: boolean
-|};
-*/
+interface Props {
+  appState: Pick<AppState, 'organizationsEnabled'>;
+  component: ComponentResult;
+  innerRef: (componentKey: string, node: HTMLElement | null) => void;
+  onClose: () => void;
+  onSelect: (componentKey: string) => void;
+  organizations: { [key: string]: { name: string } };
+  projects: { [key: string]: { name: string } };
+  selected: boolean;
+}
 
-/*::
-type State = {
-  tooltipVisible: boolean
-};
-*/
+interface State {
+  tooltipVisible: boolean;
+}
 
 const TOOLTIP_DELAY = 1000;
 
-export default class SearchResult extends React.PureComponent {
-  /*:: interval: ?number; */
-  /*:: props: Props; */
-  state /*: State */ = { tooltipVisible: false };
+export default class SearchResult extends React.PureComponent<Props, State> {
+  interval?: number;
+  state: State = { tooltipVisible: false };
 
   componentDidMount() {
     if (this.props.selected) {
@@ -59,7 +54,7 @@ export default class SearchResult extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (!this.props.selected && nextProps.selected) {
       this.scheduleTooltip();
     } else if (this.props.selected && !nextProps.selected) {
@@ -73,12 +68,14 @@ export default class SearchResult extends React.PureComponent {
   }
 
   scheduleTooltip = () => {
-    this.interval = setTimeout(() => this.setState({ tooltipVisible: true }), TOOLTIP_DELAY);
+    this.interval = window.setTimeout(() => {
+      this.setState({ tooltipVisible: true });
+    }, TOOLTIP_DELAY);
   };
 
   unscheduleTooltip = () => {
     if (this.interval) {
-      clearInterval(this.interval);
+      window.clearInterval(this.interval);
     }
   };
 
@@ -86,15 +83,12 @@ export default class SearchResult extends React.PureComponent {
     this.props.onSelect(this.props.component.key);
   };
 
-  renderOrganization = (component /*: Component */) => {
+  renderOrganization = (component: ComponentResult) => {
     if (!this.props.appState.organizationsEnabled) {
       return null;
     }
 
-    if (
-      !['VW', 'SVW', 'APP', 'TRK'].includes(component.qualifier) ||
-      component.organization == null
-    ) {
+    if (!['VW', 'SVW', 'APP', 'TRK'].includes(component.qualifier) || !component.organization) {
       return null;
     }
 
@@ -104,7 +98,7 @@ export default class SearchResult extends React.PureComponent {
     ) : null;
   };
 
-  renderProject = (component /*: Component */) => {
+  renderProject = (component: ComponentResult) => {
     if (!['BRC', 'FIL', 'UTS'].includes(component.qualifier) || component.project == null) {
       return null;
     }

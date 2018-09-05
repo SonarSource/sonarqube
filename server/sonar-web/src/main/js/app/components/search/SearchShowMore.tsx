@@ -17,37 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-/*::
-type Props = {|
-  allowMore: boolean,
-  loadingMore: ?string,
-  onMoreClick: string => void,
-  onSelect: string => void,
-  qualifier: string,
-  selected: boolean
-|};
-*/
+interface Props {
+  allowMore: boolean;
+  loadingMore?: string;
+  onMoreClick: (qualifier: string) => void;
+  onSelect: (qualifier: string) => void;
+  qualifier: string;
+  selected: boolean;
+}
 
-export default class SearchShowMore extends React.PureComponent {
-  /*:: props: Props; */
-
-  handleMoreClick = (event /*: MouseEvent & { currentTarget: HTMLElement } */) => {
+export default class SearchShowMore extends React.PureComponent<Props> {
+  handleMoreClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.blur();
     const { qualifier } = event.currentTarget.dataset;
-    this.props.onMoreClick(qualifier);
+    if (qualifier) {
+      this.props.onMoreClick(qualifier);
+    }
   };
 
-  handleMoreMouseEnter = (event /*: { currentTarget: HTMLElement } */) => {
+  handleMoreMouseEnter = (event: React.MouseEvent<HTMLAnchorElement>) => {
     const { qualifier } = event.currentTarget.dataset;
-    this.props.onSelect(`qualifier###${qualifier}`);
+    if (qualifier) {
+      this.props.onSelect(`qualifier###${qualifier}`);
+    }
   };
 
   render() {

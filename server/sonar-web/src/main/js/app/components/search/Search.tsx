@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
-import key from 'keymaster';
+import * as React from 'react';
+import * as key from 'keymaster';
 import { debounce, keyBy, uniqBy } from 'lodash';
 import { FormattedMessage } from 'react-intl';
-import { sortQualifiers } from './utils';
-/*:: import type { Component, More, Results } from './utils'; */
+import { withRouter, WithRouterProps } from 'react-router';
+import { sortQualifiers, More, Results, ComponentResult } from './utils';
 import RecentHistory from '../RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
@@ -36,60 +34,50 @@ import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
+import { AppState, CurrentUser } from '../../types';
 import './Search.css';
 
 const SearchResults = lazyLoad(() => import('./SearchResults'));
 const SearchResult = lazyLoad(() => import('./SearchResult'));
 
-/*::
-type Props = {|
-  appState: { organizationsEnabled: boolean },
-  currentUser: { isLoggedIn: boolean }
-|};
-*/
+interface OwnProps {
+  appState: Pick<AppState, 'organizationsEnabled'>;
+  currentUser: CurrentUser;
+}
 
-/*::
-type State = {
-  loading: boolean,
-  loadingMore: ?string,
-  more: More,
-  open: boolean,
-  organizations: { [string]: { name: string } },
-  projects: { [string]: { name: string } },
-  query: string,
-  results: Results,
-  selected: ?string,
-  shortQuery: boolean
-};
-*/
+type Props = OwnProps & WithRouterProps;
 
-export default class Search extends React.PureComponent {
-  /*:: input: HTMLInputElement | null; */
-  /*:: mounted: boolean; */
-  /*:: node: HTMLElement; */
-  /*:: nodes: { [string]: HTMLElement };
-*/
-  /*:: props: Props; */
-  /*:: state: State; */
+interface State {
+  loading: boolean;
+  loadingMore?: string;
+  more: More;
+  open: boolean;
+  organizations: { [key: string]: { name: string } };
+  projects: { [key: string]: { name: string } };
+  query: string;
+  results: Results;
+  selected?: string;
+  shortQuery: boolean;
+}
 
-  static contextTypes = {
-    router: PropTypes.object
-  };
+export class Search extends React.PureComponent<Props, State> {
+  input?: HTMLInputElement | null;
+  node?: HTMLElement | null;
+  nodes: { [x: string]: HTMLElement };
+  mounted = false;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.nodes = {};
     this.search = debounce(this.search, 250);
     this.state = {
       loading: false,
-      loadingMore: null,
       more: {},
       open: false,
       organizations: {},
       projects: {},
       query: '',
       results: {},
-      selected: null,
       shortQuery: false
     };
   }
@@ -97,9 +85,7 @@ export default class Search extends React.PureComponent {
   componentDidMount() {
     this.mounted = true;
     key('s', () => {
-      if (this.input) {
-        this.input.focus();
-      }
+      this.focusInput();
       this.openSearch();
       return false;
     });
@@ -109,7 +95,7 @@ export default class Search extends React.PureComponent {
     this.nodes = {};
   }
 
-  componentDidUpdate(prevProps /*: Props */, prevState /*: State */) {
+  componentDidUpdate(_prevProps: Props, prevState: State) {
     if (prevState.selected !== this.state.selected) {
       this.scrollToSelected();
     }
@@ -119,6 +105,12 @@ export default class Search extends React.PureComponent {
     this.mounted = false;
     key.unbind('s');
   }
+
+  focusInput = () => {
+    if (this.input) {
+      this.input.focus();
+    }
+  };
 
   handleClickOutside = () => {
     this.closeSearch(false);
@@ -142,29 +134,27 @@ export default class Search extends React.PureComponent {
     this.setState({ open: true });
   };
 
-  closeSearch = (clear /*: boolean */ = true) => {
+  closeSearch = (clear = true) => {
     if (this.input) {
       this.input.blur();
     }
-    this.setState(
-      clear
-        ? {
-            more: {},
-            open: false,
-            organizations: {},
-            projects: {},
-            query: '',
-            results: {},
-            selected: null,
-            shortQuery: false
-          }
-        : {
-            open: false
-          }
-    );
+    if (clear) {
+      this.setState({
+        more: {},
+        open: false,
+        organizations: {},
+        projects: {},
+        query: '',
+        results: {},
+        selected: undefined,
+        shortQuery: false
+      });
+    } else {
+      this.setState({ open: false });
+    }
   };
 
-  getPlainComponentsList = (results /*: Results */, more /*: More */) =>
+  getPlainComponentsList = (results: Results, more: More) =>
     sortQualifiers(Object.keys(results)).reduce((components, qualifier) => {
       const next = [...components, ...results[qualifier].map(component => component.key)];
       if (more[qualifier]) {
@@ -173,7 +163,7 @@ export default class Search extends React.PureComponent {
       return next;
     }, []);
 
-  mergeWithRecentlyBrowsed = (components /*: Array<Component> */) => {
+  mergeWithRecentlyBrowsed = (components: ComponentResult[]) => {
     const recentlyBrowsed = RecentHistory.get().map(component => ({
       ...component,
       isRecentlyBrowsed: true,
@@ -188,7 +178,7 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  search = (query /*: string */) => {
+  search = (query: string) => {
     if (query.length === 0 || query.length >= 2) {
       this.setState({ loading: true });
       const recentlyBrowsed = RecentHistory.get().map(component => component.key);
@@ -196,8 +186,8 @@ export default class Search extends React.PureComponent {
         // compare `this.state.query` and `query` to handle two request done almost at the same time
         // in this case only the request that matches the current query should be taken
         if (this.mounted && this.state.query === query) {
-          const results = {};
-          const more = {};
+          const results: Results = {};
+          const more: More = {};
           response.results.forEach(group => {
             results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
             more[group.q] = group.more;
@@ -209,7 +199,7 @@ export default class Search extends React.PureComponent {
             organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
             projects: { ...state.projects, ...keyBy(response.projects, 'key') },
             results,
-            selected: list.length > 0 ? list[0] : null,
+            selected: list.length > 0 ? list[0] : undefined,
             shortQuery: query.length > 2 && response.warning === 'short_input'
           }));
         }
@@ -219,55 +209,60 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  searchMore = (qualifier /*: string */) => {
-    if (this.state.query.length !== 1) {
-      this.setState({ loading: true, loadingMore: qualifier });
-      const recentlyBrowsed = RecentHistory.get().map(component => component.key);
-      getSuggestions(this.state.query, recentlyBrowsed, qualifier).then(response => {
-        if (this.mounted) {
-          const group = response.results.find(group => group.q === qualifier);
-          const moreResults = (group ? group.items : []).map(item => ({ ...item, qualifier }));
-          this.setState(state => ({
-            loading: false,
-            loadingMore: null,
-            more: { ...state.more, [qualifier]: 0 },
-            organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
-            projects: { ...state.projects, ...keyBy(response.projects, 'key') },
-            results: {
-              ...state.results,
-              [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
-            },
-            selected: moreResults.length > 0 ? moreResults[0].key : state.selected
-          }));
-          if (this.input) {
-            this.input.focus();
-          }
-        }
-      }, this.stopLoading);
+  searchMore = (qualifier: string) => {
+    const { query } = this.state;
+    if (query.length === 1) {
+      return;
     }
+
+    this.setState({ loading: true, loadingMore: qualifier });
+    const recentlyBrowsed = RecentHistory.get().map(component => component.key);
+    getSuggestions(query, recentlyBrowsed, qualifier).then(response => {
+      if (this.mounted) {
+        const group = response.results.find(group => group.q === qualifier);
+        const moreResults = (group ? group.items : []).map(item => ({ ...item, qualifier }));
+        this.setState(state => ({
+          loading: false,
+          loadingMore: undefined,
+          more: { ...state.more, [qualifier]: 0 },
+          organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
+          projects: { ...state.projects, ...keyBy(response.projects, 'key') },
+          results: {
+            ...state.results,
+            [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
+          },
+          selected: moreResults.length > 0 ? moreResults[0].key : state.selected
+        }));
+        this.focusInput();
+      }
+    }, this.stopLoading);
   };
 
-  handleQueryChange = (query /*: string */) => {
+  handleQueryChange = (query: string) => {
     this.setState({ query, shortQuery: query.length === 1 });
     this.search(query);
   };
 
   selectPrevious = () => {
-    this.setState(({ more, results, selected } /*: State */) => {
+    this.setState(({ more, results, selected }) => {
       if (selected) {
         const list = this.getPlainComponentsList(results, more);
         const index = list.indexOf(selected);
-        return index > 0 ? { selected: list[index - 1] } : undefined;
+        return index > 0 ? { selected: list[index - 1] } : null;
+      } else {
+        return null;
       }
     });
   };
 
   selectNext = () => {
-    this.setState(({ more, results, selected } /*: State */) => {
+    this.setState(({ more, results, selected }) => {
       if (selected) {
         const list = this.getPlainComponentsList(results, more);
         const index = list.indexOf(selected);
-        return index >= 0 && index < list.length - 1 ? { selected: list[index + 1] } : undefined;
+        return index >= 0 && index < list.length - 1 ? { selected: list[index + 1] } : null;
+      } else {
+        return null;
       }
     });
   };
@@ -278,7 +273,7 @@ export default class Search extends React.PureComponent {
       if (selected.startsWith('qualifier###')) {
         this.searchMore(selected.substr(12));
       } else {
-        this.context.router.push(getProjectUrl(selected));
+        this.props.router.push(getProjectUrl(selected));
         this.closeSearch();
       }
     }
@@ -287,13 +282,13 @@ export default class Search extends React.PureComponent {
   scrollToSelected = () => {
     if (this.state.selected) {
       const node = this.nodes[this.state.selected];
-      if (node) {
+      if (node && this.node) {
         scrollToElement(node, { topOffset: 30, bottomOffset: 30, parent: this.node });
       }
     }
   };
 
-  handleKeyDown = (event /*: KeyboardEvent */) => {
+  handleKeyDown = (event: React.KeyboardEvent) => {
     switch (event.keyCode) {
       case 13:
         event.preventDefault();
@@ -312,19 +307,21 @@ export default class Search extends React.PureComponent {
     }
   };
 
-  handleSelect = (selected /*: string */) => {
+  handleSelect = (selected: string) => {
     this.setState({ selected });
   };
 
-  innerRef = (component /*: string */, node /*: HTMLElement */) => {
-    this.nodes[component] = node;
+  innerRef = (component: string, node: HTMLElement | null) => {
+    if (node) {
+      this.nodes[component] = node;
+    }
   };
 
-  searchInputRef = (node /*: HTMLInputElement | null */) => {
+  searchInputRef = (node: HTMLInputElement | null) => {
     this.input = node;
   };
 
-  renderResult = (component /*: Component */) => (
+  renderResult = (component: ComponentResult) => (
     <SearchResult
       appState={this.props.appState}
       component={component}
@@ -407,3 +404,5 @@ export default class Search extends React.PureComponent {
     );
   }
 }
+
+export default withRouter<OwnProps>(Search);

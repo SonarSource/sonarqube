@@ -17,50 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { get, remove, save } from '../../helpers/storage';
 
 const RECENT_HISTORY = 'sonar_recent_history';
 const HISTORY_LIMIT = 10;
 
-/*::
-type History = Array<{
-  key: string,
-  name: string,
-  icon: string,
-  organization?: string
+export type History = Array<{
+  key: string;
+  name: string;
+  icon: string;
+  organization?: string;
 }>;
-*/
 
 export default class RecentHistory {
-  static get() /*: History */ {
+  static get(): History {
     const history = get(RECENT_HISTORY);
     if (history == null) {
       return [];
     } else {
       try {
         return JSON.parse(history);
-      } catch (e) {
+      } catch {
         remove(RECENT_HISTORY);
         return [];
       }
     }
   }
 
-  static set(newHistory /*: History */) /*: void */ {
+  static set(newHistory: History) {
     save(RECENT_HISTORY, JSON.stringify(newHistory));
   }
 
-  static clear() /*: void */ {
+  static clear() {
     remove(RECENT_HISTORY);
   }
 
   static add(
-    componentKey /*: string */,
-    componentName /*: string */,
-    icon /*: string */,
-    organization /*: string | void */
-  ) /*: void */ {
+    componentKey: string,
+    componentName: string,
+    icon: string,
+    organization: string | undefined
+  ) {
     const sonarHistory = RecentHistory.get();
     const newEntry = { key: componentKey, name: componentName, icon, organization };
     let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
@@ -69,7 +66,7 @@ export default class RecentHistory {
     RecentHistory.set(newHistory);
   }
 
-  static remove(componentKey /*: string */) /*: void */ {
+  static remove(componentKey: string) {
     const history = RecentHistory.get();
     const newHistory = history.filter(entry => entry.key !== componentKey);
     RecentHistory.set(newHistory);

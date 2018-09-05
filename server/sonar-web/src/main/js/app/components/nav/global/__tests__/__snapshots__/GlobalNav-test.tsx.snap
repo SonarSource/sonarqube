@@ -47,7 +47,7 @@ exports[`should render for SonarCloud 1`] = `
       suggestions={Array []}
       tooltip={false}
     />
-    <Search
+    <withRouter(Search)
       appState={
         Object {
           "canAdmin": false,
@@ -127,7 +127,7 @@ exports[`should render for SonarQube 1`] = `
       suggestions={Array []}
       tooltip={true}
     />
-    <Search
+    <withRouter(Search)
       appState={
         Object {
           "canAdmin": false,
