@@ -192,6 +192,51 @@ public class RuleDto {
     return this;
   }
 
+  @CheckForNull
+  public String getAdHocName() {
+    return metadata.getAdHocName();
+  }
+
+  public RuleDto setAdHocName(@Nullable String adHocName) {
+    metadata.setAdHocName(adHocName);
+    return this;
+  }
+
+  @CheckForNull
+  public String getAdHocDescription() {
+    return metadata.getAdHocDescription();
+  }
+
+  public RuleDto setAdHocDescription(@Nullable String adHocDescription) {
+    metadata.setAdHocDescription(adHocDescription);
+    return this;
+  }
+
+  @CheckForNull
+  public String getAdHocSeverity() {
+    return metadata.getAdHocSeverity();
+  }
+
+  public RuleDto setAdHocSeverity(@Nullable String adHocSeverity) {
+    metadata.setAdHocSeverity(adHocSeverity);
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getAdHocType() {
+    return metadata.getAdHocType();
+  }
+
+  public RuleDto setAdHocType(@Nullable Integer type) {
+    metadata.setAdHocType(type);
+    return this;
+  }
+
+  public RuleDto setAdHocType(@Nullable RuleType adHocType) {
+    metadata.setAdHocType(adHocType);
+    return this;
+  }
+
   public boolean isTemplate() {
     return definition.isTemplate();
   }

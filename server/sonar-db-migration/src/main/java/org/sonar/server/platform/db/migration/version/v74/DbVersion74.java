@@ -31,6 +31,7 @@ public class DbVersion74 implements DbVersion {
       .add(2301, "Add IS_ADHOC column to RULES table", AddIsAdHocToRules.class)
       .add(2302, "Populate IS_AD_HOC in RULES", PopulateIsAdHocOnRules.class)
       .add(2303, "Set IS_EXTERNAL and IS_AD_HOC not nullable in RULES", SetIsExternalAndIsAdHocNotNullableInRules.class)
+      .add(2304, "Add ad hoc related columns in RULES_METADATA", AddAdHocColumnsInInRulesMetadata.class)
     ;
   }
 }

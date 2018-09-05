@@ -103,6 +103,10 @@ public class RuleTesting {
       .setNoteUserUuid("noteUserUuid_" + randomAlphanumeric(5))
       .setNoteCreatedAt(System.currentTimeMillis() - 200)
       .setNoteUpdatedAt(System.currentTimeMillis() - 150)
+      .setAdHocName("adHocName_" + randomAlphanumeric(5))
+      .setAdHocDescription("adHocDescription_" + randomAlphanumeric(5))
+      .setAdHocSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
+      .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)])
       .setCreatedAt(System.currentTimeMillis() - 100)
       .setUpdatedAt(System.currentTimeMillis() - 50);
   }

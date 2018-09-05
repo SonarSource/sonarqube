@@ -47,6 +47,10 @@
     rm.remediation_gap_mult as "remediationGapMultiplier",
     rm.remediation_base_effort as "remediationBaseEffort",
     rm.tags as "tagsField",
+    rm.ad_hoc_name as "adHocName",
+    rm.ad_hoc_description as "adHocDescription",
+    rm.ad_hoc_severity as "adHocSeverity",
+    rm.ad_hoc_type as "adHocType",
     rm.created_at as "createdAtFromMetadata",
     rm.updated_at as "updatedAtFromMetadata"
   </sql>
@@ -196,7 +200,11 @@
       rm.remediation_gap_mult as "remediationGapMultiplier",
       rm.remediation_base_effort as "remediationBaseEffort",
       rm.tags as "tagsField",
-      rm.created_at as "createdAt",
+      rm.ad_hoc_name as "adHocName",
+      rm.ad_hoc_description as "adHocDescription",
+      rm.ad_hoc_severity as "adHocSeverity",
+      rm.ad_hoc_type as "adHocType",
+    rm.created_at as "createdAt",
       rm.updated_at as "updatedAt"
     from
       rules_metadata rm
@@ -394,6 +402,10 @@
       remediation_gap_mult,
       remediation_base_effort,
       tags,
+      ad_hoc_name,
+      ad_hoc_description,
+      ad_hoc_severity,
+      ad_hoc_type,
       created_at,
       updated_at
     )
@@ -408,6 +420,10 @@
       #{remediationGapMultiplier,jdbcType=VARCHAR},
       #{remediationBaseEffort,jdbcType=VARCHAR},
       #{tagsField,jdbcType=VARCHAR},
+      #{adHocName,jdbcType=VARCHAR},
+      #{adHocDescription,jdbcType=CLOB},
+      #{adHocSeverity,jdbcType=VARCHAR},
+      #{adHocType,jdbcType=TINYINT},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -423,6 +439,10 @@
       remediation_gap_mult=#{remediationGapMultiplier,jdbcType=VARCHAR},
       remediation_base_effort=#{remediationBaseEffort,jdbcType=VARCHAR},
       tags=#{tagsField,jdbcType=VARCHAR},
+      ad_hoc_name=#{adHocName,jdbcType=VARCHAR},
+      ad_hoc_description=#{adHocDescription,jdbcType=CLOB},
+      ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
+      ad_hoc_type=#{adHocType,jdbcType=TINYINT},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       rule_id=#{ruleId,jdbcType=INTEGER}

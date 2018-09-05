@@ -26,6 +26,7 @@ import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -40,6 +41,30 @@ public class RuleMetadataDto {
   private String remediationGapMultiplier;
   private String remediationBaseEffort;
   private String tags;
+
+  /**
+   * Name of on ad hoc rule.
+   * When {@link RuleDefinitionDto#isAdHoc} is true, this field should always be set
+   */
+  private String adHocName;
+
+  /**
+   * Optional description of on ad hoc rule.
+   */
+  private String adHocDescription;
+
+  /**
+   * Severity of on ad hoc rule.
+   * When {@link RuleDefinitionDto#isAdHoc} is true, this field should always be set
+   */
+  private String adHocSeverity;
+
+  /**
+   * Type of on ad hoc rule.
+   * When {@link RuleDefinitionDto#isAdHoc} is true, this field should always be set
+   */
+  private Integer adHocType;
+
   private long createdAt;
   private long updatedAt;
 
@@ -152,6 +177,51 @@ public class RuleMetadataDto {
 
   void setTagsField(String s) {
     tags = s;
+  }
+
+  @CheckForNull
+  public String getAdHocName() {
+    return adHocName;
+  }
+
+  public RuleMetadataDto setAdHocName(@Nullable String adHocName) {
+    this.adHocName = adHocName;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAdHocDescription() {
+    return adHocDescription;
+  }
+
+  public RuleMetadataDto setAdHocDescription(@Nullable String adHocDescription) {
+    this.adHocDescription = adHocDescription;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAdHocSeverity() {
+    return adHocSeverity;
+  }
+
+  public RuleMetadataDto setAdHocSeverity(@Nullable String adHocSeverity) {
+    this.adHocSeverity = adHocSeverity;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getAdHocType() {
+    return adHocType;
+  }
+
+  public RuleMetadataDto setAdHocType(@Nullable Integer adHocType) {
+    this.adHocType = adHocType;
+    return this;
+  }
+
+  public RuleMetadataDto setAdHocType(@Nullable RuleType adHocType) {
+    setAdHocType(adHocType != null ? adHocType.getDbConstant() : null);
+    return this;
   }
 
   public long getCreatedAt() {
