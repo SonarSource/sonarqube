@@ -47,12 +47,19 @@ public class DatabaseCheckerTest {
   public LogTester logTester = new LogTester();
 
   @Test
-  public void requires_oracle_driver_11_2() throws Exception {
-    Database db = mockDb(new Oracle(), 11, 2, "11.2.0.0.1");
+  public void requires_oracle_driver_12_2() throws Exception {
+    Database db = mockDb(new Oracle(), 11, 2, "18.3.0.0.0");
+    new DatabaseChecker(db).start();
+
+    db = mockDb(new Oracle(), 11, 2, "12.2.0.1.0");
     new DatabaseChecker(db).start();
     // no error
 
-    db = mockDb(new Oracle(), 11, 2, "11.3.1");
+    db = mockDb(new Oracle(), 11, 2, "12.1.0.2.0");
+    new DatabaseChecker(db).start();
+    // no error
+
+    db = mockDb(new Oracle(), 11, 2, "12.1.0.1.0");
     new DatabaseChecker(db).start();
     // no error
 
@@ -65,30 +72,34 @@ public class DatabaseCheckerTest {
       new DatabaseChecker(db).start();
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Unsupported Oracle driver version: 11.1.0.2. Minimal supported version is 11.2.");
+      assertThat(e).hasMessage("Unsupported Oracle driver version: 11.1.0.2. Minimal supported version is 12.1.");
     }
   }
 
   @Test
   public void requires_oracle_11g_or_greater() throws Exception {
     // oracle 11.0 is ok
-    Database db = mockDb(new Oracle(), 11, 0, "11.2.0.0.1");
+    Database db = mockDb(new Oracle(), 11, 0, "12.1.0.1.0");
     new DatabaseChecker(db).start();
 
-    // oracle 11.1 is ok
-    db = mockDb(new Oracle(), 11, 1, "11.2.0.0.1");
+    // oracle 11.1 is noit
+    db = mockDb(new Oracle(), 11, 1, "12.1.0.1.0");
     new DatabaseChecker(db).start();
 
     // oracle 11.2 is ok
-    db = mockDb(new Oracle(), 11, 2, "11.2.0.0.1");
+    db = mockDb(new Oracle(), 11, 2, "12.1.0.1.0");
     new DatabaseChecker(db).start();
 
     // oracle 12 is ok
-    db = mockDb(new Oracle(), 12, 0, "11.2.0.0.1");
+    db = mockDb(new Oracle(), 12, 0, "12.1.0.1.0");
+    new DatabaseChecker(db).start();
+
+    // oracle 18 is ok
+    db = mockDb(new Oracle(), 18, 0, "18.3.0.0.0");
     new DatabaseChecker(db).start();
 
     // oracle 10 is not supported
-    db = mockDb(new Oracle(), 10, 2, "11.2.0.0.1");
+    db = mockDb(new Oracle(), 10, 2, "12.1.0.1.0");
     try {
       new DatabaseChecker(db).start();
       fail();

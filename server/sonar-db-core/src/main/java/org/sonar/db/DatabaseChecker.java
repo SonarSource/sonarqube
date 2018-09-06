@@ -97,9 +97,9 @@ public class DatabaseChecker implements Startable {
       String driverVersion = connection.getMetaData().getDriverVersion();
       String[] parts = StringUtils.split(driverVersion, ".");
       int intVersion = Integer.parseInt(parts[0]) * 100 + Integer.parseInt(parts[1]);
-      if (intVersion < 1102) {
+      if (intVersion < 1200) {
         throw MessageException.of(String.format(
-          "Unsupported Oracle driver version: %s. Minimal supported version is 11.2.", driverVersion));
+          "Unsupported Oracle driver version: %s. Minimal supported version is 12.1.", driverVersion));
       }
     }
   }
