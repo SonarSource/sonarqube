@@ -51,6 +51,21 @@ public class DefaultAdHocRuleTest {
     verify(storage).store(any(DefaultAdHocRule.class));
   }
 
+
+  @Test
+  public void description_is_optional() {
+    SensorStorage storage = mock(SensorStorage.class);
+    new DefaultAdHocRule(storage)
+      .engineId("engine")
+      .ruleId("ruleId")
+      .name("name")
+      .severity(Severity.BLOCKER)
+      .type(RuleType.CODE_SMELL)
+      .save();
+
+    verify(storage).store(any(DefaultAdHocRule.class));
+  }
+
   @Test
   public void fail_to_store_if_no_engine_id() {
     SensorStorage storage = mock(SensorStorage.class);
@@ -99,21 +114,6 @@ public class DefaultAdHocRuleTest {
     rule.save();
   }
 
-  @Test
-  public void fail_to_store_if_no_description() {
-    SensorStorage storage = mock(SensorStorage.class);
-    NewAdHocRule rule = new DefaultAdHocRule(storage)
-      .engineId("engine")
-      .ruleId("ruleId")
-      .name("name")
-      .description("  ")
-      .severity(Severity.BLOCKER)
-      .type(RuleType.CODE_SMELL);
-
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Description is mandatory");
-    rule.save();
-  }
 
   @Test
   public void fail_to_store_if_no_severity() {

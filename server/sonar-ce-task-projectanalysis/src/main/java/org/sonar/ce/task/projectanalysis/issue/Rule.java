@@ -44,6 +44,8 @@ public interface Rule {
 
   boolean isExternal();
 
+  boolean isAdHoc();
+
   /**
    * Get all tags, whatever system or user tags.
    */

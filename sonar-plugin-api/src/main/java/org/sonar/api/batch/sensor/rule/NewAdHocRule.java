@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.rule;
 
+import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.rules.RuleType;
@@ -50,7 +51,7 @@ public interface NewAdHocRule {
   /**
    * The description of the rule.
    */
-  NewAdHocRule description(String description);
+  NewAdHocRule description(@Nullable String description);
 
   /**
    * Type of the rule.

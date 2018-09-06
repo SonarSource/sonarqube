@@ -46,6 +46,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, ScannerReport.Component> components = new HashMap<>();
   private Map<Integer, List<ScannerReport.Issue>> issues = new HashMap<>();
   private Map<Integer, List<ScannerReport.ExternalIssue>> externalIssues = new HashMap<>();
+  private List<ScannerReport.AdHocRule> adHocRules = new ArrayList<>();
   private Map<Integer, List<ScannerReport.Duplication>> duplications = new HashMap<>();
   private Map<Integer, List<ScannerReport.CpdTextBlock>> duplicationBlocks = new HashMap<>();
   private Map<Integer, List<ScannerReport.Symbol>> symbols = new HashMap<>();
@@ -177,6 +178,16 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   @Override
   public CloseableIterator<ScannerReport.ExternalIssue> readComponentExternalIssues(int componentRef) {
     return closeableIterator(externalIssues.get(componentRef));
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.AdHocRule> readAdHocRules() {
+    return closeableIterator(adHocRules);
+  }
+
+  public BatchReportReaderRule putAdHocRules(List<ScannerReport.AdHocRule> adHocRules) {
+    this.adHocRules = adHocRules;
+    return this;
   }
 
   public BatchReportReaderRule putIssues(int componentRef, List<ScannerReport.Issue> issues) {

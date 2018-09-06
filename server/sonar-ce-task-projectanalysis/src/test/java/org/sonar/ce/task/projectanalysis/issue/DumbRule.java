@@ -39,6 +39,7 @@ public class DumbRule implements Rule {
   private DebtRemediationFunction function;
   private String pluginKey;
   private boolean isExternal;
+  private boolean isAdHoc;
 
   public DumbRule(RuleKey key) {
     this.key = key;
@@ -90,6 +91,11 @@ public class DumbRule implements Rule {
     return isExternal;
   }
 
+  @Override
+  public boolean isAdHoc() {
+    return isAdHoc;
+  }
+
   public DumbRule setId(Integer id) {
     this.id = id;
     return this;
@@ -127,6 +133,11 @@ public class DumbRule implements Rule {
 
   public DumbRule setIsExternal(boolean isExternal) {
     this.isExternal = isExternal;
+    return this;
+  }
+
+  public DumbRule setIsAdHoc(boolean isAdHoc) {
+    this.isAdHoc = isAdHoc;
     return this;
   }
 

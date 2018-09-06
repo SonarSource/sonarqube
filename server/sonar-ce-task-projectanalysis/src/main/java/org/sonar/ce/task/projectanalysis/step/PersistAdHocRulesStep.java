@@ -24,12 +24,12 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
-public class PersistExternalRulesStep implements ComputationStep {
+public class PersistAdHocRulesStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final RuleRepository ruleRepository;
 
-  public PersistExternalRulesStep(DbClient dbClient, RuleRepository ruleRepository) {
+  public PersistAdHocRulesStep(DbClient dbClient, RuleRepository ruleRepository) {
     this.dbClient = dbClient;
     this.ruleRepository = ruleRepository;
   }
@@ -37,14 +37,14 @@ public class PersistExternalRulesStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ruleRepository.persistNewAddHocRules(dbSession);
+      ruleRepository.saveOrUpdateAddHocRules(dbSession);
     }
 
   }
 
   @Override
   public String getDescription() {
-    return "Persist new externally defined Rules";
+    return "Persist new ad hoc Rules";
   }
 
 }

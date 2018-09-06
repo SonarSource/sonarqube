@@ -59,6 +59,7 @@ import org.sonar.ce.queue.CeQueueCleaner;
 import org.sonar.ce.queue.PurgeCeActivities;
 import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
+import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
@@ -141,7 +142,6 @@ import org.sonar.server.qualitygate.QualityGateEvaluatorImpl;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
-import org.sonar.server.rule.AddHocRuleCreator;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
@@ -370,7 +370,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       XMLRuleParser.class,
       DefaultRuleFinder.class,
       RulesDefinitionXmlLoader.class,
-      AddHocRuleCreator.class,
+      AdHocRuleCreator.class,
       RuleIndexer.class,
 
       // languages

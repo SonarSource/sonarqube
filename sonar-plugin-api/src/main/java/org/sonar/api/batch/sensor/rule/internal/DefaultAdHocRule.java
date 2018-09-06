@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.rule.internal;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
@@ -67,6 +68,7 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
     return name;
   }
 
+  @CheckForNull
   @Override
   public String description() {
     return description;
@@ -82,7 +84,6 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
     checkState(isNotBlank(engineId), "Engine id is mandatory on ad hoc rule");
     checkState(isNotBlank(ruleId), "Rule id is mandatory on ad hoc rule");
     checkState(isNotBlank(name), "Name is mandatory on every ad hoc rule");
-    checkState(isNotBlank(description), "Description is mandatory on every ad hoc rule");
     checkState(severity != null, "Severity is mandatory on every ad hoc rule");
     checkState(type != null, "Type is mandatory on every ad hoc rule");
     storage.store(this);
@@ -112,7 +113,7 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
   }
 
   @Override
-  public DefaultAdHocRule description(String description) {
+  public DefaultAdHocRule description(@Nullable String description) {
     this.description = description;
     return this;
   }

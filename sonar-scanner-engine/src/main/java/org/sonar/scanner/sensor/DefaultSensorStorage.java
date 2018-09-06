@@ -407,7 +407,10 @@ public class DefaultSensorStorage implements SensorStorage {
     builder.setEngineId(adHocRule.engineId());
     builder.setRuleId(adHocRule.ruleId());
     builder.setName(adHocRule.name());
-    builder.setDescription(adHocRule.description());
+    String description = adHocRule.description();
+    if (description != null) {
+      builder.setDescription(description);
+    }
     builder.setSeverity(Constants.Severity.valueOf(adHocRule.severity().name()));
     builder.setType(ScannerReport.IssueType.valueOf(adHocRule.type().name()));
     writer.appendAdHocRule(builder.build());

@@ -87,6 +87,13 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
+  public CloseableIterator<ScannerReport.AdHocRule> readAdHocRules() {
+    ensureInitialized();
+    return delegate.readAdHocRules();
+  }
+
+
+  @Override
   public CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef) {
     ensureInitialized();
     return delegate.readComponentMeasures(componentRef);

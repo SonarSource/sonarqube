@@ -44,7 +44,8 @@ public class RuleImpl implements Rule {
   private final DebtRemediationFunction remediationFunction;
   private final RuleType type;
   private final String pluginKey;
-  private final boolean external;
+  private final boolean isExternal;
+  private final boolean isAdHoc;
 
   public RuleImpl(RuleDto dto) {
     this.id = dto.getId();
@@ -55,7 +56,8 @@ public class RuleImpl implements Rule {
     this.remediationFunction = effectiveRemediationFunction(dto);
     this.type = RuleType.valueOfNullable(dto.getType());
     this.pluginKey = dto.getPluginKey();
-    this.external = dto.isExternal();
+    this.isExternal = dto.isExternal();
+    this.isAdHoc = dto.isAdHoc();
   }
 
   @Override
@@ -142,7 +144,12 @@ public class RuleImpl implements Rule {
   }
 
   @Override
+  public boolean isAdHoc() {
+    return isAdHoc;
+  }
+
+  @Override
   public boolean isExternal() {
-    return external;
+    return isExternal;
   }
 }

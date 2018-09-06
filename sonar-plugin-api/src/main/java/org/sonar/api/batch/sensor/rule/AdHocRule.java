@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.rule;
 
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.rules.RuleType;
@@ -47,6 +48,7 @@ public interface AdHocRule {
   /**
    * Description of the rule.
    */
+  @CheckForNull
   String description();
 
   /**

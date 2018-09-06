@@ -21,14 +21,23 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngine;
+import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
+import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -39,14 +48,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngine;
-import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.server.rule.CommonRuleKeys;
-import org.sonar.server.rule.NewAddHocRule;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
@@ -120,12 +122,20 @@ public class TrackerRawInputFactory {
         }
       }
 
-      try (CloseableIterator<ScannerReport.ExternalIssue> reportIssues = reportReader.readComponentExternalIssues(component.getReportAttributes().getRef())) {
+      Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap = new HashMap<>();
+      try (CloseableIterator<ScannerReport.AdHocRule> reportAdHocRule = reportReader.readAdHocRules()) {
+        while (reportAdHocRule.hasNext()) {
+          ScannerReport.AdHocRule adHocRule = reportAdHocRule.next();
+          adHocRuleMap.put(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + adHocRule.getEngineId(), adHocRule.getRuleId()), adHocRule);
+        }
+      }
+
+      try (CloseableIterator<ScannerReport.ExternalIssue> reportExternalIssues = reportReader.readComponentExternalIssues(component.getReportAttributes().getRef())) {
         // optimization - do not load line hashes if there are no issues -> getLineHashSequence() is executed
         // as late as possible
-        while (reportIssues.hasNext()) {
-          ScannerReport.ExternalIssue reportExternalIssue = reportIssues.next();
-          result.add(toExternalIssue(getLineHashSequence(), reportExternalIssue));
+        while (reportExternalIssues.hasNext()) {
+          ScannerReport.ExternalIssue reportExternalIssue = reportExternalIssues.next();
+          result.add(toExternalIssue(getLineHashSequence(), reportExternalIssue, adHocRuleMap));
         }
       }
 
@@ -181,11 +191,12 @@ public class TrackerRawInputFactory {
       return issue;
     }
 
-    private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue) {
+    private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue, Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap) {
       DefaultIssue issue = new DefaultIssue();
       init(issue);
 
-      issue.setRuleKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportExternalIssue.getEngineId(), reportExternalIssue.getRuleId()));
+      RuleKey ruleKey = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportExternalIssue.getEngineId(), reportExternalIssue.getRuleId());
+      issue.setRuleKey(ruleKey);
       if (reportExternalIssue.hasTextRange()) {
         int startLine = reportExternalIssue.getTextRange().getStartLine();
         issue.setLine(startLine);
@@ -217,16 +228,15 @@ public class TrackerRawInputFactory {
       issue.setLocations(dbLocationsBuilder.build());
       issue.setType(toRuleType(reportExternalIssue.getType()));
 
-      ruleRepository.addNewAddHocRuleIfAbsent(issue.getRuleKey(), () -> toAdHocRule(reportExternalIssue));
+      ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> toAdHocRule(reportExternalIssue, adHocRuleMap.get(issue.ruleKey())));
       return issue;
     }
 
-    private NewAddHocRule toAdHocRule(ScannerReport.ExternalIssue reportIssue) {
-      NewAddHocRule.Builder builder = new NewAddHocRule.Builder()
-        .setName(reportIssue.getEngineId() + " " + reportIssue.getRuleId())
-        .setKey(RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportIssue.getEngineId(), reportIssue.getRuleId()));
-
-      return builder.build();
+    private NewAdHocRule toAdHocRule(ScannerReport.ExternalIssue reportIssue, @Nullable ScannerReport.AdHocRule adHocRule) {
+      if (adHocRule != null) {
+        return new NewAdHocRule(adHocRule);
+      }
+      return new NewAdHocRule(reportIssue);
     }
 
     private RuleType toRuleType(IssueType type) {

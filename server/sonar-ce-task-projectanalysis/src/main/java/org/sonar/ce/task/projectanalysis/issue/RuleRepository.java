@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbSession;
-import org.sonar.server.rule.NewAddHocRule;
 
 /**
  * Repository of every rule in DB (including manual rules) whichever their status.
@@ -48,8 +47,8 @@ public interface RuleRepository {
 
   Optional<Rule> findById(int id);
 
-  void addNewAddHocRuleIfAbsent(RuleKey ruleKey, Supplier<NewAddHocRule> ruleSupplier);
+  void addOrUpdateAddHocRuleIfNeeded(RuleKey ruleKey, Supplier<NewAdHocRule> ruleSupplier);
 
-  void persistNewAddHocRules(DbSession dbSession);
+  void saveOrUpdateAddHocRules(DbSession dbSession);
 
 }

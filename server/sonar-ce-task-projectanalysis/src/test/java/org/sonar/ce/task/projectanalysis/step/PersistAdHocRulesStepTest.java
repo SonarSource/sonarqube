@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
+import org.sonar.ce.task.projectanalysis.issue.NewAdHocRule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -33,15 +35,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.rule.AddHocRuleCreator;
-import org.sonar.server.rule.NewAddHocRule;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PersistExternalRulesStepTest extends BaseStepTest {
+public class PersistAdHocRulesStepTest extends BaseStepTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -59,7 +60,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   public EsTester es = EsTester.create();
 
   private RuleIndexer indexer = new RuleIndexer(es.client(), dbClient);
-  private AddHocRuleCreator addHocRuleCreator = new AddHocRuleCreator(dbClient, System2.INSTANCE, indexer);
+  private AdHocRuleCreator adHocRuleCreator = new AdHocRuleCreator(dbClient, System2.INSTANCE, indexer);
 
   @Override
   protected ComputationStep step() {
@@ -68,19 +69,15 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    ruleRepository = new RuleRepositoryImpl(addHocRuleCreator, dbClient, analysisMetadataHolder);
-    underTest = new PersistExternalRulesStep(dbClient, ruleRepository);
+    ruleRepository = new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder);
+    underTest = new PersistAdHocRulesStep(dbClient, ruleRepository);
   }
 
   @Test
-  public void persist_and_index_new_external_rules() {
+  public void persist_and_index_new_ad_hoc_rules() {
 
-    RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
-    ruleRepository.addNewAddHocRuleIfAbsent(ruleKey, () -> new NewAddHocRule.Builder()
-      .setKey(ruleKey)
-      .setPluginKey("eslint")
-      .setName("eslint:no-cond-assign")
-      .build());
+    RuleKey ruleKey = RuleKey.of("external_eslint", "no-cond-assign");
+    ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -90,12 +87,12 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
 
     RuleDefinitionDto reloaded = ruleDefinitionDtoOptional.get();
     assertThat(reloaded.getRuleKey()).isEqualTo("no-cond-assign");
-    assertThat(reloaded.getRepositoryKey()).isEqualTo("eslint");
+    assertThat(reloaded.getRepositoryKey()).isEqualTo("external_eslint");
     assertThat(reloaded.isExternal()).isTrue();
+    assertThat(reloaded.isAdHoc()).isTrue();
     assertThat(reloaded.getType()).isEqualTo(0);
     assertThat(reloaded.getSeverity()).isNull();
-    assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
-    assertThat(reloaded.getPluginKey()).isEqualTo("eslint");
+    assertThat(reloaded.getName()).isEqualTo("eslint: no-cond-assign");
 
     assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1l);
     assertThat(es.getDocuments(RuleIndexDefinition.INDEX_TYPE_RULE).iterator().next().getId()).isEqualTo(Integer.toString(reloaded.getId()));
@@ -105,10 +102,7 @@ public class PersistExternalRulesStepTest extends BaseStepTest {
   public void do_not_persist_existing_external_rules() {
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
     db.rules().insert(ruleKey, r -> r.setIsExternal(true));
-    ruleRepository.addNewAddHocRuleIfAbsent(ruleKey, () -> new NewAddHocRule.Builder()
-      .setKey(ruleKey)
-      .setPluginKey("eslint")
-      .build());
+    ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));
 
     underTest.execute(new TestComputationStepContext());
 

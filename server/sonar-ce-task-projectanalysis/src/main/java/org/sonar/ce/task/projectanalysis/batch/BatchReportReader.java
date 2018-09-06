@@ -31,6 +31,8 @@ public interface BatchReportReader {
 
   CloseableIterator<ScannerReport.ActiveRule> readActiveRules();
 
+  CloseableIterator<ScannerReport.AdHocRule> readAdHocRules();
+
   CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef);
 
   @CheckForNull
