@@ -330,6 +330,12 @@
       task_uuid in (select uuid from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
   </delete>
 
+  <delete id="deleteCeTaskMessageOfCeActivityByProjectUuid">
+    delete from ce_task_message
+    where
+      task_uuid in (select uuid from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+  </delete>
+
   <delete id="deleteCeActivityByProjectUuid">
       delete from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
@@ -348,6 +354,12 @@
 
   <delete id="deleteCeTaskInputOfCeQueueByProjectUuid">
     delete from ce_task_input
+    where
+      task_uuid in (select uuid from ce_queue where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+  </delete>
+
+  <delete id="deleteCeTaskMessageOfCeQueueByProjectUuid">
+    delete from ce_task_message
     where
       task_uuid in (select uuid from ce_queue where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
   </delete>

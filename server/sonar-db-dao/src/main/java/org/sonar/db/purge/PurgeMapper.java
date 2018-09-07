@@ -94,6 +94,8 @@ public interface PurgeMapper {
 
   void deleteCeTaskInputOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
 
+  void deleteCeTaskMessageOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+
   void deleteCeScannerContextOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
@@ -103,6 +105,8 @@ public interface PurgeMapper {
   void deleteCeTaskCharacteristicsOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteCeTaskInputOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteCeTaskMessageOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
 

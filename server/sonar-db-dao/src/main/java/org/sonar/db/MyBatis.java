@@ -39,6 +39,7 @@ import org.sonar.db.ce.CeScannerContextMapper;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskCharacteristicMapper;
 import org.sonar.db.ce.CeTaskInputMapper;
+import org.sonar.db.ce.CeTaskMessageMapper;
 import org.sonar.db.component.AnalysisPropertiesMapper;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
@@ -211,6 +212,7 @@ public class MyBatis implements Startable {
       CeScannerContextMapper.class,
       CeTaskInputMapper.class,
       CeTaskCharacteristicMapper.class,
+      CeTaskMessageMapper.class,
       ComponentKeyUpdaterMapper.class,
       ComponentMapper.class,
       LiveMeasureMapper.class,

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.ce.CeTaskMessageMapper">
+
+  <insert id="insert" parameterType="org.sonar.db.ce.CeTaskMessageDto" useGeneratedKeys="false">
+    insert into ce_task_message
+    (
+      uuid,
+      task_uuid,
+      message,
+      created_at
+    )
+    values (
+      #{dto.uuid,jdbcType=VARCHAR},
+      #{dto.taskUuid,jdbcType=VARCHAR},
+      #{dto.message,jdbcType=VARCHAR},
+      #{dto.createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+</mapper>

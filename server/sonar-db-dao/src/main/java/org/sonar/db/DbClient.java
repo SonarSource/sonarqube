@@ -27,6 +27,7 @@ import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
+import org.sonar.db.ce.CeTaskMessageDao;
 import org.sonar.db.component.AnalysisPropertiesDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
@@ -112,6 +113,7 @@ public class DbClient {
   private final CeTaskInputDao ceTaskInputDao;
   private final CeTaskCharacteristicDao ceTaskCharacteristicsDao;
   private final CeScannerContextDao ceScannerContextDao;
+  private final CeTaskMessageDao ceTaskMessageDao;
   private final FileSourceDao fileSourceDao;
   private final ProjectLinkDao projectLinkDao;
   private final EventDao eventDao;
@@ -178,6 +180,7 @@ public class DbClient {
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
     ceTaskCharacteristicsDao = getDao(map, CeTaskCharacteristicDao.class);
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
+    ceTaskMessageDao = getDao(map, CeTaskMessageDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
     projectLinkDao = getDao(map, ProjectLinkDao.class);
     eventDao = getDao(map, EventDao.class);
@@ -330,6 +333,10 @@ public class DbClient {
 
   public CeScannerContextDao ceScannerContextDao() {
     return ceScannerContextDao;
+  }
+
+  public CeTaskMessageDao ceTaskMessageDao() {
+    return ceTaskMessageDao;
   }
 
   public FileSourceDao fileSourceDao() {

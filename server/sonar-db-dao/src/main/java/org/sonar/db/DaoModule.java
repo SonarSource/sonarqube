@@ -29,6 +29,7 @@ import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
+import org.sonar.db.ce.CeTaskMessageDao;
 import org.sonar.db.component.AnalysisPropertiesDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
@@ -94,6 +95,7 @@ public class DaoModule extends Module {
     CeScannerContextDao.class,
     CeTaskCharacteristicDao.class,
     CeTaskInputDao.class,
+    CeTaskMessageDao.class,
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
     CustomMeasureDao.class,
