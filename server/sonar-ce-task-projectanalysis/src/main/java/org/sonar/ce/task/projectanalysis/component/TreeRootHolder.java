@@ -29,9 +29,24 @@ public interface TreeRootHolder {
    * The root of the tree, for example the project or the portfolio.
    * With branches, it will refer to the root component of the branch.
    *
+   * On a short living branch or pull request, it contains ONLY:
+   * 1. The PROJECT component (tree root)
+   * 2. The FILE components whose status is not SAME
+   * 3. Intermediary MODULE and DIRECTORY components that lead to FILE leafs that are not SAME
+   *
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
    */
   Component getRoot();
+
+  /**
+   * The root of the components that were in the scanner report.
+   * This tree may include components that are not persisted,
+   * just kept in memory for computation purposes, such as overall coverage
+   * in short living branches or pull requests.
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   */
+  Component getReportTreeRoot();
 
   /**
    * Return a component by its batch reference

@@ -38,6 +38,7 @@ import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -77,6 +78,9 @@ public class BuildComponentTreeStepTest {
   private static final int FILE_2_REF = 5;
   private static final int DIR_REF_2 = 6;
   private static final int FILE_3_REF = 7;
+  private static final int LEAFLESS_MODULE_REF = 8;
+  private static final int LEAFLESS_DIR_REF = 9;
+  private static final int UNCHANGED_FILE_REF = 10;
 
   private static final String REPORT_PROJECT_KEY = "REPORT_PROJECT_KEY";
   private static final String REPORT_MODULE_KEY = "MODULE_KEY";
@@ -84,6 +88,9 @@ public class BuildComponentTreeStepTest {
   private static final String REPORT_FILE_KEY_1 = "src/main/java/dir1/File1.java";
   private static final String REPORT_DIR_KEY_2 = "src/main/java/dir2";
   private static final String REPORT_FILE_KEY_2 = "src/main/java/dir2/File2.java";
+  private static final String REPORT_LEAFLESS_MODULE_KEY = "LEAFLESS_MODULE_KEY";
+  private static final String REPORT_LEAFLESS_DIR_KEY = "src/main/java/leafless";
+  private static final String REPORT_UNCHANGED_FILE_KEY = "src/main/java/leafless/File3.java";
 
   private static final long ANALYSIS_DATE = 123456789L;
 
@@ -229,6 +236,94 @@ public class BuildComponentTreeStepTest {
     verifyComponent(MODULE_REF, "generated", REPORT_MODULE_KEY, null);
     verifyComponent(DIR_REF_1, "generated", REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, null);
     verifyComponent(FILE_1_REF, "generated", REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, null);
+  }
+
+  @Test
+  @UseDataProvider("shortLivingBranchAndPullRequest")
+  public void prune_modules_and_directories_without_leaf_descendants_on_non_long_branch(BranchType branchType) {
+    Branch branch = mock(Branch.class);
+    when(branch.getName()).thenReturn("origin/feature");
+    when(branch.isMain()).thenReturn(false);
+    when(branch.getType()).thenReturn(branchType);
+    when(branch.isLegacyFeature()).thenReturn(false);
+    when(branch.generateKey(any(), any())).thenReturn("generated");
+    analysisMetadataHolder.setRootComponentRef(ROOT_REF)
+      .setAnalysisDate(ANALYSIS_DATE)
+      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
+      .setBranch(branch);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF, LEAFLESS_MODULE_REF));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+
+    reportReader.putComponent(componentWithKey(LEAFLESS_MODULE_REF, MODULE, REPORT_LEAFLESS_MODULE_KEY, LEAFLESS_DIR_REF));
+    reportReader.putComponent(componentWithPath(LEAFLESS_DIR_REF, DIRECTORY, REPORT_LEAFLESS_DIR_KEY, UNCHANGED_FILE_REF));
+    ScannerReport.Component unchangedFile = ScannerReport.Component.newBuilder()
+      .setType(FILE)
+      .setRef(UNCHANGED_FILE_REF)
+      .setPath(REPORT_UNCHANGED_FILE_KEY)
+      .setStatus(FileStatus.SAME)
+      .setLines(1)
+      .build();
+    reportReader.putComponent(unchangedFile);
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyComponent(ROOT_REF, "generated", REPORT_PROJECT_KEY, null);
+    verifyComponent(MODULE_REF, "generated", REPORT_MODULE_KEY, null);
+    verifyComponent(DIR_REF_1, "generated", REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, null);
+    verifyComponent(FILE_1_REF, "generated", REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, null);
+
+    verifyComponentMissing(LEAFLESS_MODULE_REF);
+    verifyComponentMissing(LEAFLESS_DIR_REF);
+    verifyComponentMissing(UNCHANGED_FILE_REF);
+  }
+
+  @Test
+  public void do_not_prune_modules_and_directories_without_leaf_descendants_on_long_branch() {
+    Branch branch = mock(Branch.class);
+    when(branch.getName()).thenReturn("origin/feature");
+    when(branch.isMain()).thenReturn(false);
+    when(branch.getType()).thenReturn(BranchType.LONG);
+    when(branch.isLegacyFeature()).thenReturn(false);
+    when(branch.generateKey(any(), any())).thenReturn("generated");
+    analysisMetadataHolder.setRootComponentRef(ROOT_REF)
+      .setAnalysisDate(ANALYSIS_DATE)
+      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
+      .setBranch(branch);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF, LEAFLESS_MODULE_REF));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+
+    reportReader.putComponent(componentWithKey(LEAFLESS_MODULE_REF, MODULE, REPORT_LEAFLESS_MODULE_KEY, LEAFLESS_DIR_REF));
+    reportReader.putComponent(componentWithPath(LEAFLESS_DIR_REF, DIRECTORY, REPORT_LEAFLESS_DIR_KEY, UNCHANGED_FILE_REF));
+    ScannerReport.Component unchangedFile = ScannerReport.Component.newBuilder()
+      .setType(FILE)
+      .setRef(UNCHANGED_FILE_REF)
+      .setPath(REPORT_UNCHANGED_FILE_KEY)
+      .setStatus(FileStatus.SAME)
+      .setLines(1)
+      .build();
+    reportReader.putComponent(unchangedFile);
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyComponent(ROOT_REF, "generated", REPORT_PROJECT_KEY, null);
+    verifyComponent(MODULE_REF, "generated", REPORT_MODULE_KEY, null);
+    verifyComponent(DIR_REF_1, "generated", REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, null);
+    verifyComponent(FILE_1_REF, "generated", REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, null);
+
+    verifyComponent(LEAFLESS_MODULE_REF, "generated", REPORT_LEAFLESS_MODULE_KEY, null);
+    verifyComponent(LEAFLESS_DIR_REF, "generated", REPORT_LEAFLESS_MODULE_KEY + ":" + REPORT_LEAFLESS_DIR_KEY, null);
+    verifyComponent(UNCHANGED_FILE_REF, "generated", REPORT_LEAFLESS_MODULE_KEY + ":" + REPORT_UNCHANGED_FILE_KEY, null);
+  }
+
+  @DataProvider
+  public static Object[][] shortLivingBranchAndPullRequest() {
+    return new Object[][] {{BranchType.SHORT}, {BranchType.PULL_REQUEST}};
   }
 
   @Test
@@ -414,6 +509,11 @@ public class BuildComponentTreeStepTest {
     } else {
       assertThat(component.getUuid()).isNotNull();
     }
+  }
+
+  private void verifyComponentMissing(int ref) {
+    Map<Integer, Component> componentsByRef = indexAllComponentsInTreeByRef(treeRootHolder.getRoot());
+    assertThat(componentsByRef.get(ref)).isNull();
   }
 
   private static ScannerReport.Component component(int componentRef, ComponentType componentType, int... children) {

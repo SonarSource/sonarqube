@@ -33,12 +33,18 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   public TreeRootHolderRule setRoot(Component newRoot) {
     delegate = new TreeRootHolderImpl();
     delegate.setRoot(newRoot);
+    delegate.setReportTreeRoot(newRoot);
     return this;
   }
 
   @Override
   public Component getRoot() {
     return delegate.getRoot();
+  }
+
+  @Override
+  public Component getReportTreeRoot() {
+    return delegate.getReportTreeRoot();
   }
 
   @Override

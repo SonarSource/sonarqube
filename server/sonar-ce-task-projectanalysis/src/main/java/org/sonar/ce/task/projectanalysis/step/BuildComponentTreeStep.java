@@ -84,9 +84,17 @@ public class BuildComponentTreeStep implements ComputationStep {
         analysisMetadataHolder.getBranch(),
         baseAnalysis);
       String relativePathFromScmRoot = reportReader.readMetadata().getRelativePathFromScmRoot();
-      Component project = builder.buildProject(reportProject, relativePathFromScmRoot);
 
-      treeRootHolder.setRoot(project);
+      Component reportTreeRoot = builder.buildProject(reportProject, relativePathFromScmRoot);
+      treeRootHolder.setReportTreeRoot(reportTreeRoot);
+
+      if (analysisMetadataHolder.isShortLivingBranch() || analysisMetadataHolder.isPullRequest()) {
+        Component changedComponentTreeRoot = builder.buildChangedComponentTreeRoot(reportTreeRoot);
+        treeRootHolder.setRoot(changedComponentTreeRoot);
+      } else {
+        treeRootHolder.setRoot(reportTreeRoot);
+      }
+
       analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysis));
 
       context.getStatistics().add("components", treeRootHolder.getSize());

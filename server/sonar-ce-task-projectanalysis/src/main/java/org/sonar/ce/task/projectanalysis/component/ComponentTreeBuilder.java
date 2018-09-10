@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -143,6 +144,74 @@ public class ComponentTreeBuilder {
       default:
         throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
     }
+  }
+
+  public Component buildChangedComponentTreeRoot(Component project) {
+    return buildChangedComponentTree(project);
+  }
+
+  private static ComponentImpl.Builder changedComponentBuilder(Component component) {
+    return ComponentImpl.builder(component.getType())
+      .setUuid(component.getUuid())
+      .setKey(component.getKey())
+      .setPublicKey(component.getPublicKey())
+      .setStatus(component.getStatus())
+      .setReportAttributes(component.getReportAttributes())
+      .setName(component.getName())
+      .setDescription(component.getDescription());
+  }
+
+  @Nullable
+  private static Component buildChangedComponentTree(Component component) {
+    switch (component.getType()) {
+      case PROJECT:
+        return buildChangedProject(component);
+
+      case MODULE:
+      case DIRECTORY:
+        return buildChangedIntermediate(component);
+
+      case FILE:
+        return buildChangedFile(component);
+
+      default:
+        throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
+    }
+  }
+
+  private static Component buildChangedProject(Component component) {
+    return changedComponentBuilder(component)
+      .addChildren(buildChangedComponentChildren(component))
+      .build();
+  }
+
+  @Nullable
+  private static Component buildChangedIntermediate(Component component) {
+    List<Component> children = buildChangedComponentChildren(component);
+    if (children.isEmpty()) {
+      return null;
+    }
+    return changedComponentBuilder(component)
+      .addChildren(children)
+      .build();
+  }
+
+  @Nullable
+  private static Component buildChangedFile(Component component) {
+    if (component.getStatus() == Component.Status.SAME) {
+      return null;
+    }
+    return changedComponentBuilder(component)
+      .setFileAttributes(component.getFileAttributes())
+      .build();
+  }
+
+  private static List<Component> buildChangedComponentChildren(Component component) {
+    return component.getChildren()
+      .stream()
+      .map(ComponentTreeBuilder::buildChangedComponentTree)
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toList());
   }
 
   private void setNameAndDescription(ScannerReport.Component component, ComponentImpl.Builder builder) {

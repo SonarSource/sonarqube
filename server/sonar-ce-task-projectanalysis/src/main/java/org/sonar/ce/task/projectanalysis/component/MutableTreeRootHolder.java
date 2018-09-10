@@ -22,13 +22,18 @@ package org.sonar.ce.task.projectanalysis.component;
 public interface MutableTreeRootHolder extends TreeRootHolder {
 
   /**
-   * Sets the root of the component tree in the TreeRootHolder. Settings a root more than once is allowed but it can
-   * never be set to {@code null}.
+   * Sets the root of the component tree in the TreeRootHolder.
    *
-   * @param newRoot a {@link Component}, can not be {@code null}
-   *                
    * @throws NullPointerException if {@code newRoot} is {@code null}
    * @throws IllegalStateException if root {@link Component} has already been set
    */
   MutableTreeRootHolder setRoot(Component newRoot);
+
+  /**
+   * Sets the root of the components that were in the scanner report in the TreeRootHolder.
+   *
+   * @throws NullPointerException if {@code newRoot} is {@code null}
+   * @throws IllegalStateException if extended tree root {@link Component} has already been set
+   */
+  MutableTreeRootHolder setReportTreeRoot(Component newRoot);
 }

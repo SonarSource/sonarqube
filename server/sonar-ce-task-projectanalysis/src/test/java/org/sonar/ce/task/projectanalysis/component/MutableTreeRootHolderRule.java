@@ -25,4 +25,10 @@ public class MutableTreeRootHolderRule extends TreeRootHolderRule implements Mut
     delegate.setRoot(newRoot);
     return this;
   }
+
+  @Override
+  public MutableTreeRootHolder setReportTreeRoot(Component newRoot) {
+    delegate.setReportTreeRoot(newRoot);
+    return this;
+  }
 }

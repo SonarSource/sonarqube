@@ -68,7 +68,7 @@ public class CoverageMeasuresStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(COVERAGE_FORMULAS))
-        .visit(treeRootHolder.getRoot());
+        .visit(treeRootHolder.getReportTreeRoot());
   }
 
   private static class CodeCoverageFormula extends LinesAndConditionsWithUncoveredFormula {

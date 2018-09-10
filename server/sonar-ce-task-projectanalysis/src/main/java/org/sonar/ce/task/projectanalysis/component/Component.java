@@ -58,6 +58,10 @@ public interface Component {
     }
   }
 
+  /**
+   * On a long-living branch, CHANGED and ADDED are relative to the previous analysis.
+   * On a short-living branch and pull request, these are relative to the base branch.
+   */
   enum Status {
     UNAVAILABLE, SAME, CHANGED, ADDED
   }
