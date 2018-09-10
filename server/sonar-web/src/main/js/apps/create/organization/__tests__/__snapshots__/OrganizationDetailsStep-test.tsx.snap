@@ -1,0 +1,155 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<Step
+  finished={false}
+  onOpen={[Function]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={1}
+  stepTitle="onboarding.create_organization.enter_org_details"
+/>
+`;
+
+exports[`should render 2`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    1
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.enter_org_details
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <ValidationForm
+      initialValues={
+        Object {
+          "avatar": "",
+          "description": "",
+          "key": "",
+          "name": "",
+          "url": "",
+        }
+      }
+      onSubmit={[MockFunction]}
+      validate={[Function]}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render 3`] = `
+<form
+  onSubmit={[Function]}
+>
+  <React.Fragment>
+    <OrganizationDetailsInput
+      description="onboarding.create_organization.organization_name.description"
+      dirty={false}
+      id="organization-key"
+      isSubmitting={false}
+      label="onboarding.create_organization.organization_name"
+      name="key"
+      onBlur={[Function]}
+      onChange={[Function]}
+      required={true}
+      value=""
+    />
+    <div
+      className="big-spacer-top"
+    >
+      <ResetButtonLink
+        onClick={[Function]}
+      >
+        onboarding.create_organization.add_additional_info
+        <DropdownIcon
+          className="little-spacer-left"
+          turned={false}
+        />
+      </ResetButtonLink>
+    </div>
+    <div
+      className="js-additional-info"
+      hidden={true}
+    >
+      <div
+        className="big-spacer-top"
+      >
+        <OrganizationDetailsInput
+          description="onboarding.create_organization.display_name.description"
+          dirty={false}
+          id="organization-display-name"
+          isSubmitting={false}
+          label="onboarding.create_organization.display_name"
+          name="name"
+          onBlur={[Function]}
+          onChange={[Function]}
+          value=""
+        />
+      </div>
+      <div
+        className="big-spacer-top"
+      >
+        <OrganizationDetailsInput
+          description="onboarding.create_organization.avatar.description"
+          dirty={false}
+          id="organization-avatar"
+          isSubmitting={false}
+          label="onboarding.create_organization.avatar"
+          name="avatar"
+          onBlur={[Function]}
+          onChange={[Function]}
+          value=""
+        />
+      </div>
+      <div
+        className="big-spacer-top"
+      >
+        <OrganizationDetailsInput
+          dirty={false}
+          id="organization-description"
+          isSubmitting={false}
+          label="description"
+          name="description"
+          onBlur={[Function]}
+          onChange={[Function]}
+          value=""
+        />
+      </div>
+      <div
+        className="big-spacer-top"
+      >
+        <OrganizationDetailsInput
+          dirty={false}
+          id="organization-url"
+          isSubmitting={false}
+          label="onboarding.create_organization.url"
+          name="url"
+          onBlur={[Function]}
+          onChange={[Function]}
+          value=""
+        />
+      </div>
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <SubmitButton
+        disabled={true}
+      >
+        onboarding.create_organization.page.header
+      </SubmitButton>
+    </div>
+  </React.Fragment>
+</form>
+`;

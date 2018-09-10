@@ -34,7 +34,7 @@ interface Props {
   onBlur: (event: React.FocusEvent<any>) => void;
   onChange: (event: React.ChangeEvent<any>) => void;
   placeholder?: string;
-  touched: boolean;
+  touched: boolean | undefined;
   type?: string;
   value: string;
 }

@@ -19,28 +19,29 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ValidationModal from '../ValidationModal';
+import ValidationForm from '../ValidationForm';
 
-it('should render correctly', () => {
+it('should render and submit', async () => {
+  const render = jest.fn();
+  const onSubmit = jest.fn();
+  const setSubmitting = jest.fn();
   const wrapper = shallow(
-    <ValidationModal<{ field: string }>
-      confirmButtonText="confirm"
-      header="title"
-      initialValues={{ field: 'foo' }}
-      isInitialValid={true}
-      onClose={jest.fn()}
-      onSubmit={jest.fn()}
-      validate={jest.fn()}>
-      {props => (
-        <input
-          name="field"
-          onBlur={props.handleBlur}
-          onChange={props.handleChange}
-          type="text"
-          value={props.values.field}
-        />
-      )}
-    </ValidationModal>
+    <ValidationForm initialValues={{ foo: 'bar' }} onSubmit={onSubmit} validate={jest.fn()}>
+      {render}
+    </ValidationForm>
   );
   expect(wrapper).toMatchSnapshot();
+  wrapper.dive();
+  expect(render).toBeCalledWith(
+    expect.objectContaining({ dirty: false, errors: {}, values: { foo: 'bar' } })
+  );
+
+  wrapper.prop<Function>('onSubmit')({ foo: 'bar' }, { setSubmitting });
+  expect(setSubmitting).toBeCalledWith(false);
+
+  onSubmit.mockResolvedValue(undefined).mockClear();
+  setSubmitting.mockClear();
+  wrapper.prop<Function>('onSubmit')({ foo: 'bar' }, { setSubmitting });
+  await new Promise(setImmediate);
+  expect(setSubmitting).toBeCalledWith(false);
 });

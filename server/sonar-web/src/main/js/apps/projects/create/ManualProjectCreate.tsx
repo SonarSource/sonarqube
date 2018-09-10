@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import { connect } from 'react-redux';
-import CreateOrganizationForm from '../../account/organizations/CreateOrganizationForm';
+import { Link } from 'react-router';
 import Select from '../../../components/controls/Select';
-import { Button, SubmitButton } from '../../../components/ui/buttons';
+import { SubmitButton } from '../../../components/ui/buttons';
 import { LoggedInUser, Organization } from '../../../app/types';
 import { fetchMyOrganizations } from '../../account/organizations/actions';
 import { getMyOrganizations, Store } from '../../../store/rootReducer';
@@ -46,7 +46,6 @@ interface OwnProps {
 type Props = OwnProps & StateProps & DispatchProps;
 
 interface State {
-  createOrganizationModal: boolean;
   projectName: string;
   projectKey: string;
   selectedOrganization: string;
@@ -59,7 +58,6 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      createOrganizationModal: false,
       projectName: '',
       projectKey: '',
       selectedOrganization:
@@ -75,10 +73,6 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  closeCreateOrganization = () => {
-    this.setState({ createOrganizationModal: false });
-  };
 
   handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -118,22 +112,6 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
     return Boolean(projectKey && projectName && selectedOrganization);
   };
 
-  onCreateOrganization = (organization: { key: string }) => {
-    this.props.fetchMyOrganizations().then(
-      () => {
-        this.handleOrganizationSelect({ value: organization.key });
-        this.closeCreateOrganization();
-      },
-      () => {
-        this.closeCreateOrganization();
-      }
-    );
-  };
-
-  showCreateOrganization = () => {
-    this.setState({ createOrganizationModal: true });
-  };
-
   render() {
     const { submitting } = this.state;
     return (
@@ -159,11 +137,9 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
               required={true}
               value={this.state.selectedOrganization}
             />
-            <Button
-              className="button-link big-spacer-left js-new-org"
-              onClick={this.showCreateOrganization}>
+            <Link className="big-spacer-left js-new-org" to="/create-organization">
               {translate('onboarding.create_project.create_new_org')}
-            </Button>
+            </Link>
           </div>
           <div className="form-field">
             <label htmlFor="project-name">
@@ -202,12 +178,6 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
           </SubmitButton>
           <DeferredSpinner className="spacer-left" loading={submitting} />
         </form>
-        {this.state.createOrganizationModal && (
-          <CreateOrganizationForm
-            onClose={this.closeCreateOrganization}
-            onCreate={this.onCreateOrganization}
-          />
-        )}
       </>
     );
   }

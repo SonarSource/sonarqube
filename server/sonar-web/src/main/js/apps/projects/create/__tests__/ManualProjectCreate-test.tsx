@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ManualProjectCreate } from '../ManualProjectCreate';
-import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
+import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { createProject } from '../../../../api/components';
 
 jest.mock('../../../../api/components', () => ({
@@ -33,20 +33,6 @@ beforeEach(() => {
 
 it('should render correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
-});
-
-it('should allow to create a new org', async () => {
-  const fetchMyOrganizations = jest.fn().mockResolvedValueOnce([]);
-  const wrapper = getWrapper({ fetchMyOrganizations });
-
-  click(wrapper.find('.js-new-org'));
-  const createForm = wrapper.find('Connect(CreateOrganizationForm)');
-  expect(createForm.exists()).toBeTruthy();
-
-  createForm.prop<Function>('onCreate')({ key: 'baz' });
-  expect(fetchMyOrganizations).toHaveBeenCalled();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state('selectedOrganization')).toBe('baz');
 });
 
 it('should correctly create a project', async () => {

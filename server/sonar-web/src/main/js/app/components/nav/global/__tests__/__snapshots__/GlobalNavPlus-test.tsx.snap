@@ -19,16 +19,25 @@ exports[`render 1`] = `
         className="divider"
       />
       <li>
-        <a
+        <Link
           className="js-new-organization"
-          href="#"
-          onClick={[Function]}
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/create-organization"
         >
           my_account.create_new_organization
-        </a>
+        </Link>
       </li>
     </ul>
   }
   tagName="li"
-/>
+>
+  <a
+    className="navbar-plus"
+    href="#"
+    title="my_account.create_new_project_or_organization"
+  >
+    <PlusIcon />
+  </a>
+</Dropdown>
 `;

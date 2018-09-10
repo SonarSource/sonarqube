@@ -19,28 +19,36 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ValidationModal from '../ValidationModal';
+import OrganizationDetailsInput from '../OrganizationDetailsInput';
 
-it('should render correctly', () => {
-  const wrapper = shallow(
-    <ValidationModal<{ field: string }>
-      confirmButtonText="confirm"
-      header="title"
-      initialValues={{ field: 'foo' }}
-      isInitialValid={true}
-      onClose={jest.fn()}
-      onSubmit={jest.fn()}
-      validate={jest.fn()}>
-      {props => (
-        <input
-          name="field"
-          onBlur={props.handleBlur}
-          onChange={props.handleChange}
-          type="text"
-          value={props.values.field}
-        />
-      )}
-    </ValidationModal>
+it('should render', () => {
+  const render = jest.fn().mockReturnValue(<div />);
+  expect(
+    shallow(
+      <OrganizationDetailsInput
+        dirty={true}
+        error="This field is bad!"
+        id="field"
+        isSubmitting={true}
+        label="Label"
+        name="field"
+        onBlur={jest.fn()}
+        onChange={jest.fn()}
+        required={true}
+        touched={true}
+        value="foo">
+        {render}
+      </OrganizationDetailsInput>
+    )
+  ).toMatchSnapshot();
+  expect(render).toBeCalledWith(
+    expect.objectContaining({
+      className: 'input-super-large text-middle is-invalid',
+      disabled: true,
+      id: 'field',
+      name: 'field',
+      type: 'text',
+      value: 'foo'
+    })
   );
-  expect(wrapper).toMatchSnapshot();
 });

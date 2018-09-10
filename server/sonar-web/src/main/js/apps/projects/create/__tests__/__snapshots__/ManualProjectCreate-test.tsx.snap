@@ -55,12 +55,14 @@ exports[`should render correctly 1`] = `
         required={true}
         value=""
       />
-      <Button
-        className="button-link big-spacer-left js-new-org"
-        onClick={[Function]}
+      <Link
+        className="big-spacer-left js-new-org"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/create-organization"
       >
         onboarding.create_project.create_new_org
-      </Button>
+      </Link>
     </div>
     <div
       className="form-field"

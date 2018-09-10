@@ -246,19 +246,9 @@
   min-height: var(--controlHeight);
 }
 
-.modal-validation-field input:not(.has-error),
-.modal-validation-field .Select:not(.has-error) {
+.modal-validation-field input:not(.is-invalid),
+.modal-validation-field .Select:not(.is-invalid) {
   margin-bottom: 18px;
-}
-
-.modal-validation-field .has-error,
-.modal-validation-field .has-error > .Select-control {
-  border-color: var(--red);
-}
-
-.modal-validation-field .is-valid,
-.modal-validation-field .is-valid > .Select-control {
-  border-color: var(--green);
 }
 
 .modal-field-description {

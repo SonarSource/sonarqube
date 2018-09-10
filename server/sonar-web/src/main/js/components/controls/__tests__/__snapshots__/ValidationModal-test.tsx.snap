@@ -5,61 +5,15 @@ exports[`should render correctly 1`] = `
   contentLabel="title"
   onRequestClose={[MockFunction]}
 >
-  <C
-    confirmButtonText="confirm"
-    header="title"
+  <ValidationForm
     initialValues={
       Object {
         "field": "foo",
       }
     }
+    isInitialValid={true}
+    onSubmit={[Function]}
+    validate={[MockFunction]}
   />
 </Modal>
-`;
-
-exports[`should render correctly 2`] = `
-<Form>
-  <div
-    className="modal-head"
-  >
-    <h2>
-      title
-    </h2>
-  </div>
-  <div
-    className="modal-body"
-  >
-    <form
-      onSubmit={[Function]}
-    >
-      <input
-        name="field"
-        onBlur={[Function]}
-        onChange={[Function]}
-        type="text"
-        value="foo"
-      />
-    </form>
-  </div>
-  <footer
-    className="modal-foot"
-  >
-    <DeferredSpinner
-      className="spacer-right"
-      loading={false}
-      timeout={100}
-    />
-    <SubmitButton
-      disabled={true}
-    >
-      confirm
-    </SubmitButton>
-    <ResetButtonLink
-      disabled={false}
-      onClick={[MockFunction]}
-    >
-      cancel
-    </ResetButtonLink>
-  </footer>
-</Form>
 `;

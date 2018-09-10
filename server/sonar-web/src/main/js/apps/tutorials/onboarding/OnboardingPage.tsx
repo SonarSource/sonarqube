@@ -23,7 +23,6 @@ import { connect } from 'react-redux';
 import OnboardingModal from './OnboardingModal';
 import { skipOnboarding } from '../../../api/users';
 import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
-import CreateOrganizationForm from '../../account/organizations/CreateOrganizationForm';
 import TeamOnboardingModal from '../teamOnboarding/TeamOnboardingModal';
 import { Organization } from '../../../app/types';
 
@@ -33,7 +32,6 @@ interface DispatchProps {
 
 enum ModalKey {
   onboarding,
-  organizationOnboarding,
   teamOnboarding
 }
 
@@ -61,7 +59,7 @@ export class OnboardingPage extends React.PureComponent<DispatchProps, State> {
   };
 
   openOrganizationOnboarding = () => {
-    this.setState({ modal: ModalKey.organizationOnboarding });
+    this.context.router.push('/create-organizations');
   };
 
   openTeamOnboarding = () => {
@@ -78,12 +76,6 @@ export class OnboardingPage extends React.PureComponent<DispatchProps, State> {
             onOpenOrganizationOnboarding={this.openOrganizationOnboarding}
             onOpenProjectOnboarding={this.context.openProjectOnboarding}
             onOpenTeamOnboarding={this.openTeamOnboarding}
-          />
-        )}
-        {modal === ModalKey.organizationOnboarding && (
-          <CreateOrganizationForm
-            onClose={this.closeOnboarding}
-            onCreate={this.closeOrganizationOnboarding}
           />
         )}
         {modal === ModalKey.teamOnboarding && (

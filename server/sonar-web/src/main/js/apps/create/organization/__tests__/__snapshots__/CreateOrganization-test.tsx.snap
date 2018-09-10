@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render and create organization 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.create_organization.page.header"
+    titleTemplate="%s"
+  />
+  <div
+    className="sonarcloud page page-limited"
+  >
+    <header
+      className="page-header"
+    >
+      <h1
+        className="page-title big-spacer-bottom"
+      >
+        onboarding.create_organization.page.header
+      </h1>
+      <div
+        className="page-actions"
+      >
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/"
+        >
+          cancel
+        </Link>
+      </div>
+      <p
+        className="page-description"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.create_organization.page.description"
+          id="onboarding.create_organization.page.description"
+          values={
+            Object {
+              "break": <br />,
+              "more": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/documentation/sonarcloud-pricing"
+              >
+                learn_more
+              </Link>,
+              "price": "€10",
+            }
+          }
+        />
+      </p>
+    </header>
+    <OrganizationDetailsStep
+      onContinue={[Function]}
+    />
+  </div>
+</React.Fragment>
+`;

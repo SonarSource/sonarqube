@@ -25,7 +25,7 @@ exports[`should display the field with an error 1`] = `
     Foo
   </label>
   <input
-    className="has-error"
+    className="is-invalid"
     type="text"
   />
   <AlertErrorIcon

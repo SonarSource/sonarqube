@@ -67,6 +67,7 @@ import webhooksRoutes from '../../apps/webhooks/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
 import { lazyLoad } from '../../components/lazyLoad';
+import { isSonarCloud } from '../../helpers/system';
 
 function handleUpdate() {
   const { action } = this.state.location;
@@ -171,6 +172,14 @@ const startReactApp = (lang, currentUser, appState) => {
                 />
                 <Route path="issues" component={IssuesPageSelector} />
                 <Route path="onboarding" childRoutes={onboardingRoutes} />
+                {isSonarCloud() && (
+                  <Route
+                    path="create-organization"
+                    component={lazyLoad(() =>
+                      import('../../apps/create/organization/CreateOrganization')
+                    )}
+                  />
+                )}
                 <Route path="organizations" childRoutes={organizationsRoutes} />
                 <Route path="projects" childRoutes={projectsRoutes} />
                 <Route path="quality_gates" childRoutes={qualityGatesRoutes} />

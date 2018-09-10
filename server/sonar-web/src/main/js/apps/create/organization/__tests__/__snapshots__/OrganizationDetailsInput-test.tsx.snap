@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div>
+  <label
+    htmlFor="field"
+  >
+    Label
+    <em
+      className="mandatory"
+    >
+      *
+    </em>
+  </label>
+  <div
+    className="little-spacer-top spacer-bottom"
+  >
+    <div />
+    <React.Fragment>
+      <AlertErrorIcon
+        className="spacer-left text-middle"
+      />
+      <span
+        className="little-spacer-left text-danger text-middle"
+      >
+        This field is bad!
+      </span>
+    </React.Fragment>
+  </div>
+</div>
+`;

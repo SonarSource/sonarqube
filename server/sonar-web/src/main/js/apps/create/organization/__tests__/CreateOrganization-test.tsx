@@ -19,28 +19,27 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ValidationModal from '../ValidationModal';
+import { CreateOrganization } from '../CreateOrganization';
+import { mockRouter } from '../../../../helpers/testUtils';
 
-it('should render correctly', () => {
+it('should render and create organization', async () => {
+  const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
+  const router = mockRouter();
   const wrapper = shallow(
-    <ValidationModal<{ field: string }>
-      confirmButtonText="confirm"
-      header="title"
-      initialValues={{ field: 'foo' }}
-      isInitialValid={true}
-      onClose={jest.fn()}
-      onSubmit={jest.fn()}
-      validate={jest.fn()}>
-      {props => (
-        <input
-          name="field"
-          onBlur={props.handleBlur}
-          onChange={props.handleChange}
-          type="text"
-          value={props.values.field}
-        />
-      )}
-    </ValidationModal>
+    // @ts-ignore avoid passing everything from WithRouterProps
+    <CreateOrganization createOrganization={createOrganization} router={router} />
   );
   expect(wrapper).toMatchSnapshot();
+
+  const organization = {
+    avatar: 'http://example.com/avatar',
+    description: 'description-foo',
+    key: 'key-foo',
+    name: 'name-foo',
+    url: 'http://example.com/foo'
+  };
+  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
+  await new Promise(setImmediate);
+  expect(createOrganization).toBeCalledWith(organization);
+  expect(router.push).toBeCalledWith('/organizations/foo');
 });

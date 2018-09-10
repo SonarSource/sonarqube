@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { CurrentUser, isLoggedIn, Organization } from '../types';
+import { CurrentUser, isLoggedIn } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
 import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
@@ -32,9 +32,6 @@ import { isSonarCloud } from '../../helpers/system';
 import { skipOnboarding } from '../../api/users';
 import { lazyLoad } from '../../components/lazyLoad';
 
-const CreateOrganizationForm = lazyLoad(() =>
-  import('../../apps/account/organizations/CreateOrganizationForm')
-);
 const OnboardingModal = lazyLoad(() => import('../../apps/tutorials/onboarding/OnboardingModal'));
 const LicensePromptModal = lazyLoad(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
@@ -68,7 +65,6 @@ type Props = StateProps & DispatchProps & OwnProps;
 enum ModalKey {
   license,
   onboarding,
-  organizationOnboarding,
   projectOnboarding,
   teamOnboarding
 }
@@ -119,17 +115,13 @@ export class StartupModal extends React.PureComponent<Props, State> {
     });
   };
 
-  closeOrganizationOnboarding = ({ key }: Pick<Organization, 'key'>) => {
-    this.closeOnboarding();
-    this.context.router.push(`/organizations/${key}`);
-  };
-
   openOnboarding = () => {
     this.setState({ modal: ModalKey.onboarding });
   };
 
   openOrganizationOnboarding = () => {
-    this.setState({ modal: ModalKey.organizationOnboarding });
+    this.closeOnboarding();
+    this.context.router.push('/create-organization');
   };
 
   openProjectOnboarding = () => {
@@ -160,11 +152,11 @@ export class StartupModal extends React.PureComponent<Props, State> {
             this.setState({ automatic: true, modal: ModalKey.license });
             return Promise.resolve();
           }
-          return Promise.reject('License exists');
+          return Promise.reject();
         });
       }
     }
-    return Promise.reject('No license prompt');
+    return Promise.reject();
   };
 
   tryAutoOpenOnboarding = () => {
@@ -200,12 +192,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
         )}
         {modal === ModalKey.projectOnboarding && (
           <ProjectOnboardingModal automatic={automatic} onFinish={this.closeOnboarding} />
-        )}
-        {modal === ModalKey.organizationOnboarding && (
-          <CreateOrganizationForm
-            onClose={this.closeOnboarding}
-            onCreate={this.closeOrganizationOnboarding}
-          />
         )}
         {modal === ModalKey.teamOnboarding && (
           <TeamOnboardingModal onFinish={this.closeOnboarding} />

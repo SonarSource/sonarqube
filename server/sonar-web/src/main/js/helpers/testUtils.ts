@@ -114,3 +114,18 @@ export async function waitAndUpdate(wrapper: ShallowWrapper<any, any> | ReactWra
   await new Promise(setImmediate);
   wrapper.update();
 }
+
+export function mockRouter(overrides: { push?: Function; replace?: Function } = {}) {
+  return {
+    createHref: jest.fn(),
+    createPath: jest.fn(),
+    go: jest.fn(),
+    goBack: jest.fn(),
+    goForward: jest.fn(),
+    isActive: jest.fn(),
+    push: jest.fn(),
+    replace: jest.fn(),
+    setRouteLeaveHook: jest.fn(),
+    ...overrides
+  };
+}

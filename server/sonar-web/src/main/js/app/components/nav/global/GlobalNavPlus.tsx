@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import CreateOrganizationForm from '../../../../apps/account/organizations/CreateOrganizationForm';
+import { Link } from 'react-router';
 import PlusIcon from '../../../../components/icons-components/PlusIcon';
 import Dropdown from '../../../../components/controls/Dropdown';
 import { translate } from '../../../../helpers/l10n';
@@ -28,38 +27,10 @@ interface Props {
   openProjectOnboarding: () => void;
 }
 
-interface State {
-  createOrganization: boolean;
-}
-
-export default class GlobalNavPlus extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { createOrganization: false };
-  }
-
+export default class GlobalNavPlus extends React.PureComponent<Props> {
   handleNewProjectClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.openProjectOnboarding();
-  };
-
-  openCreateOrganizationForm = () => this.setState({ createOrganization: true });
-
-  closeCreateOrganizationForm = () => this.setState({ createOrganization: false });
-
-  handleNewOrganizationClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.openCreateOrganizationForm();
-  };
-
-  handleCreateOrganization = ({ key }: { key: string }) => {
-    this.closeCreateOrganizationForm();
-    this.context.router.push(`/organizations/${key}`);
   };
 
   render() {
@@ -74,33 +45,19 @@ export default class GlobalNavPlus extends React.PureComponent<Props, State> {
             </li>
             <li className="divider" />
             <li>
-              <a className="js-new-organization" href="#" onClick={this.handleNewOrganizationClick}>
+              <Link className="js-new-organization" to="/create-organization">
                 {translate('my_account.create_new_organization')}
-              </a>
+              </Link>
             </li>
           </ul>
         }
         tagName="li">
-        {({ onToggleClick, open }) => (
-          <>
-            <a
-              aria-expanded={open}
-              aria-haspopup="true"
-              className="navbar-plus"
-              href="#"
-              onClick={onToggleClick}
-              title={translate('my_account.create_new_project_or_organization')}>
-              <PlusIcon />
-            </a>
-
-            {this.state.createOrganization && (
-              <CreateOrganizationForm
-                onClose={this.closeCreateOrganizationForm}
-                onCreate={this.handleCreateOrganization}
-              />
-            )}
-          </>
-        )}
+        <a
+          className="navbar-plus"
+          href="#"
+          title={translate('my_account.create_new_project_or_organization')}>
+          <PlusIcon />
+        </a>
       </Dropdown>
     );
   }

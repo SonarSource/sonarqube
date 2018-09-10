@@ -18,81 +18,58 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withFormik, Form, FormikActions, FormikProps } from 'formik';
 import Modal from './Modal';
-import { ResetButtonLink, SubmitButton } from '../ui/buttons';
+import ValidationForm, { ChildrenProps } from './ValidationForm';
 import DeferredSpinner from '../common/DeferredSpinner';
+import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 import { translate } from '../../helpers/l10n';
 
-interface InnerFormProps<Values> {
-  children: (props: FormikProps<Values>) => React.ReactNode;
+interface Props<V> {
+  children: (props: ChildrenProps<V>) => React.ReactNode;
   confirmButtonText: string;
   header: string;
-  initialValues: Values;
-}
-
-interface Props<Values> extends InnerFormProps<Values> {
+  initialValues: V;
   isInitialValid?: boolean;
   onClose: () => void;
-  validate: (data: Values) => void | object | Promise<object>;
-  onSubmit: (data: Values) => void | Promise<void>;
+  onSubmit: (data: V) => Promise<void>;
+  validate: (data: V) => { [P in keyof V]?: string };
 }
 
-export default class ValidationModal<Values> extends React.PureComponent<Props<Values>> {
-  handleSubmit = (data: Values, { setSubmitting }: FormikActions<Values>) => {
-    const result = this.props.onSubmit(data);
-    if (result) {
-      result.then(
-        () => {
-          setSubmitting(false);
-          this.props.onClose();
-        },
-        () => {
-          setSubmitting(false);
-        }
-      );
-    } else {
-      setSubmitting(false);
+export default class ValidationModal<V> extends React.PureComponent<Props<V>> {
+  handleSubmit = (data: V) => {
+    return this.props.onSubmit(data).then(() => {
       this.props.onClose();
-    }
+    });
   };
 
   render() {
-    const { header } = this.props;
-
-    const InnerForm = withFormik<InnerFormProps<Values>, Values>({
-      handleSubmit: this.handleSubmit,
-      isInitialValid: this.props.isInitialValid,
-      mapPropsToValues: props => props.initialValues,
-      validate: this.props.validate
-    })(props => (
-      <Form>
-        <div className="modal-head">
-          <h2>{props.header}</h2>
-        </div>
-
-        <div className="modal-body">{props.children(props)}</div>
-
-        <footer className="modal-foot">
-          <DeferredSpinner className="spacer-right" loading={props.isSubmitting} />
-          <SubmitButton disabled={props.isSubmitting || !props.isValid || !props.dirty}>
-            {props.confirmButtonText}
-          </SubmitButton>
-          <ResetButtonLink disabled={props.isSubmitting} onClick={this.props.onClose}>
-            {translate('cancel')}
-          </ResetButtonLink>
-        </footer>
-      </Form>
-    ));
-
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <InnerForm
-          confirmButtonText={this.props.confirmButtonText}
-          header={header}
-          initialValues={this.props.initialValues}>
-          {this.props.children}
-        </InnerForm>
+      <Modal contentLabel={this.props.header} onRequestClose={this.props.onClose}>
+        <ValidationForm
+          initialValues={this.props.initialValues}
+          isInitialValid={this.props.isInitialValid}
+          onSubmit={this.handleSubmit}
+          validate={this.props.validate}>
+          {props => (
+            <>
+              <header className="modal-head">
+                <h2>{this.props.header}</h2>
+              </header>
+
+              <div className="modal-body">{this.props.children(props)}</div>
+
+              <footer className="modal-foot">
+                <DeferredSpinner className="spacer-right" loading={props.isSubmitting} />
+                <SubmitButton disabled={props.isSubmitting || !props.isValid || !props.dirty}>
+                  {this.props.confirmButtonText}
+                </SubmitButton>
+                <ResetButtonLink disabled={props.isSubmitting} onClick={this.props.onClose}>
+                  {translate('cancel')}
+                </ResetButtonLink>
+              </footer>
+            </>
+          )}
+        </ValidationForm>
       </Modal>
     );
   }
