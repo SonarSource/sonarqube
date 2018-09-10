@@ -17,22 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography from 'typography';
+import * as React from 'react';
 
-const fontFamily = 'Roboto';
-
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
-
-export default typography;
+export default function Icon({
+  children,
+  className,
+  size = 16,
+  style,
+  height = size,
+  width = size,
+  viewBox = '0 0 16 16',
+  ...other
+}) {
+  return (
+    <svg
+      className={className}
+      height={height}
+      style={{
+        fillRule: 'evenodd',
+        clipRule: 'evenodd',
+        strokeLinejoin: 'round',
+        strokeMiterlimit: 1.41421,
+        ...style
+      }}
+      version="1.1"
+      viewBox={viewBox}
+      width={width}
+      xmlSpace="preserve"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      {...other}>
+      {children}
+    </svg>
+  );
+}

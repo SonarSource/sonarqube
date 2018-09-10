@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography from 'typography';
+import * as React from 'react';
+import Link from 'gatsby-link';
+import HeadingsLink from './HeadingsLink';
 
-const fontFamily = 'Roboto';
-
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
-
-export default typography;
+export default function SubpageLink({ node, headers, displayHeading }) {
+  return (
+    <div>
+      <h3>
+        <Link className={displayHeading ? 'active' : ''} to={node.fields.slug}>
+          {node.frontmatter.title}
+        </Link>
+      </h3>
+      {displayHeading && <HeadingsLink headers={headers} />}
+    </div>
+  );
+}

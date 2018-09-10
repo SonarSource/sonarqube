@@ -4,6 +4,7 @@
   "license": "LGPL-3.0",
   "private": true,
   "dependencies": {
+    "@andrew-codes/gatsby-plugin-elasticlunr-search": "1.0.4",
     "fs-extra": "^5.0.0",
     "gatsby": "^1.9.247",
     "gatsby-link": "^1.6.40",
@@ -13,13 +14,15 @@
     "gatsby-remark-custom-blocks": "^1.0.5",
     "gatsby-source-filesystem": "^1.5.34",
     "gatsby-transformer-remark": "^1.7.40",
+    "lodash": "4.17.10",
+    "lunr": "2.3.2",
     "react-helmet": "^5.2.0",
     "remark-include": "^2.0.0",
     "serve": "^6.5.6",
     "typography": "^0.16.16"
   },
   "scripts": {
-    "build": "gatsby build",
+    "build": "gatsby build --prefix-paths",
     "develop": "gatsby develop",
     "start": "serve public/",
     "format": "prettier --write 'src/**/*.{md,js}'"

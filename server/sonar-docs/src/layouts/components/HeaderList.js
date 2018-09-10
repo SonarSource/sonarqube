@@ -17,22 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography from 'typography';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 
-const fontFamily = 'Roboto';
+export default class HeaderList extends React.PureComponent {
+  static contextTypes = {
+    headers: PropTypes.object.isRequired
+  };
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
+  componentDidMount() {
+    this.context.headers.setHeaders(this.props.headers);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.headers.length !== this.props.headers.length) {
+      this.context.headers.setHeaders(prevProps.headers);
     }
-  })
-});
+  }
 
-export default typography;
+  render() {
+    return null;
+  }
+}

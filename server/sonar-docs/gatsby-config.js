@@ -17,7 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+const DOCS_VERSION = process.env.GATSBY_DOCS_VERSION || '1.0';
+
+const prefix =
+  process.env.GATSBY_USE_PREFIX === '1'
+    ? { pathPrefix: '/' + process.env.GATSBY_DOCS_VERSION }
+    : {};
+
 module.exports = {
+  ...prefix,
   siteMetadata: {
     title: 'SonarQube Documentation'
   },

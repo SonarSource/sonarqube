@@ -28,8 +28,8 @@ SonarQube can perform analysis on 20+ different languages. The outcome of this a
 * A static analysis of compiled code can be performed for certain languages (.class files in Java, .dll files in C#, etc.)
 * A dynamic analysis of code can be performed on certain languages.
 
-## Will _all_ files be analyzed?
-By default, only files that are recognized by a language analyzer are loaded into the project during analysis. For example if your SonarQube instance had only SonarJava SonarJS on board, all .java and .js files would be loaded, but .xml files would be ignored. 
+## Will all files be analyzed?
+By default, only files that are recognized by a language analyzer are loaded into the project during analysis. For example if your SonarQube instance had only SonarJava SonarJS on board, all .java and .js files would be loaded, but .xml files would be ignored.
 
 ## What happens during analysis?
 During analysis, data is requested from the server, the files provided to the analysis are analyzed, and the resulting data is sent back to the server at the end in the form of a report, which is then analyzed asynchronously server-side.

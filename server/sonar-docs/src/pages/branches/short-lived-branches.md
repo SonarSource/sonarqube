@@ -29,7 +29,7 @@ Modified files are determined based on the checksum of each file on the sonar.br
 
 ## New Code Period
 
-The ephemeral nature of short-lived branches means no explicit New Code Period is necessary; it's all new code. 
+The ephemeral nature of short-lived branches means the New Code Period is implicit; everything changed in the branch is new code.
 
 ## Settings and Quality Profiles on Branches
 

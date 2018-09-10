@@ -1,0 +1,6 @@
+[
+  { "value": "7.3", "current": true },
+  { "value": "7.2", "current": false },
+  { "value": "7.1", "current": false },
+  { "value": "7.0", "current": false }
+]

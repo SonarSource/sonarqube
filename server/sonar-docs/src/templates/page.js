@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import Helmet from 'react-helmet';
+import HeaderList from '../layouts/components/HeaderList';
 import './page.css';
 
 export default class Page extends React.PureComponent {
@@ -46,19 +47,17 @@ export default class Page extends React.PureComponent {
       }
     );
 
-    if (
-      page.headings &&
-      page.headings.length > 0 &&
-      page.html.match(/<h[1-9]>Table Of Contents<\/h[1-9]>/i)
-    ) {
-      htmlWithInclusions = generateTableOfContents(htmlWithInclusions, page.headings);
-    }
-
+    const realHeadingsList = removeExtraHeadings(page.html, page.headings);
+    htmlWithInclusions = removeTableOfContents(htmlWithInclusions);
+    htmlWithInclusions = createAnchorForHeadings(htmlWithInclusions, realHeadingsList);
     htmlWithInclusions = replaceDynamicLinks(htmlWithInclusions);
 
     return (
       <div css={{ paddingTop: 24, paddingBottom: 24 }}>
-        <Helmet title={page.frontmatter.title} />
+        <Helmet title={page.frontmatter.title}>
+          <html lang="en" />
+        </Helmet>
+        <HeaderList headers={realHeadingsList} />
         <h1>{page.frontmatter.title}</h1>
         <div
           css={{
@@ -101,39 +100,72 @@ export const query = graphql`
 `;
 
 function replaceDynamicLinks(content) {
+  const version = process.env.GATSBY_DOCS_VERSION || '';
+  const usePrefix = process.env.GATSBY_USE_PREFIX === '1';
+  if (usePrefix && version !== '') {
+    content = content.replace(
+      /\<a href="(?!#)(?!http)(.*)"\>(.*)\<\/a\>/gim,
+      `<a href="/${version}$1">$2</a>`
+    );
+  }
+
+  // Make outside link open in a new tab
+  content = content.replace(
+    /\<a href="http(.*)"\>(.*)\<\/a\>/gim,
+    '<a href="http$1" target="_blank">$2</a>'
+  );
+
+  // Add trailing slash to local link
+  content = content.replace(
+    /\<a href="(?!http)(.*)(?!\/)"\>(.*)\<\/a\>/gim,
+    '<a href="$1/">$2</a>'
+  );
+
   return content.replace(
-    /\<a href="\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*"\>(.*)\<\/a\>/gim,
-    '$1'
+    /\<a href="(.*)\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*"\>(.*)\<\/a\>/gim,
+    '$2'
   );
 }
 
-function generateTableOfContents(content, headings) {
-  let html = '<h2>Table Of Contents</h2>';
-  let depth = headings[0].depth - 1;
-  for (let i = 1; i < headings.length; i++) {
-    // Do not include title from collapsible content
-    if (
-      content.match(new RegExp(`\<div class="collapse"\>\<h2\>${headings[i].value}\<\/h2\>`, 'gi'))
-    ) {
-      continue;
-    }
+/**
+ * For the sidebar table of content, we do not want headers for sonarcloud,
+ * collapsable container title, of table of contents headers.
+ */
+function removeExtraHeadings(content, headings) {
+  return headings
+    .filter(heading => content.indexOf(`<div class="collapse"><h2>${heading.value}</h2>`) < 0)
+    .filter(heading => !heading.value.match(/Table of content/i))
+    .filter(heading => {
+      const regex = new RegExp(
+        '<!-- sonarcloud -->[\\s\\S]*<h2>' + heading.value + '<\\/h2>[\\s\\S]*<!-- /sonarcloud -->',
+        'gim'
+      );
+      return !content.match(regex);
+    });
+}
 
-    while (headings[i].depth > depth) {
-      html += '<ul>';
-      depth++;
+function removeSonarCloudHeadings(content, headings) {
+  return headings.filter(
+    heading => content.indexOf(`<div class="collapse"><h2>${heading.value}</h2>`) < 0
+  );
+}
+
+function createAnchorForHeadings(content, headings) {
+  let counter = 1;
+  headings.map(h => {
+    if (h.depth == 2) {
+      content = content.replace(
+        `<h${h.depth}>${h.value}</h${h.depth}>`,
+        `<h${h.depth} id="header-${counter}">${h.value}</h${h.depth}>`
+      );
+      counter++;
     }
-    while (headings[i].depth < depth) {
-      html += '</ul>';
-      depth--;
-    }
-    html += `<li><a href="#header-${i}">${headings[i].value}</a></li>`;
-    content = content.replace(
-      new RegExp(`<h${headings[i].depth}>${headings[i].value}</h${headings[i].depth}>`, 'gi'),
-      `<h${headings[i].depth} id="header-${i}">${headings[i].value}</h${headings[i].depth}>`
-    );
-  }
-  html += '</ul>';
-  return content.replace(/<h[1-9]>Table Of Contents<\/h[1-9]>/i, html);
+  });
+  return content;
+}
+
+function removeTableOfContents(content) {
+  return content.replace(/<h[1-9]>Table Of Contents<\/h[1-9]>/i, '');
 }
 
 function cutSonarCloudContent(content) {

@@ -17,22 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography from 'typography';
+import * as React from 'react';
+import { findDOMNode } from 'react-dom';
 
-const fontFamily = 'Roboto';
+export default class OutsideClickHandler extends React.Component {
+  element = null;
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
+  componentDidMount() {
+    setTimeout(() => {
+      this.addClickHandler();
+    }, 0);
+  }
+
+  componentWillUnmount() {
+    this.removeClickHandler();
+  }
+
+  addClickHandler = () => {
+    window.addEventListener('click', this.handleWindowClick);
+  };
+
+  removeClickHandler = () => {
+    window.removeEventListener('click', this.handleWindowClick);
+  };
+
+  handleWindowClick = event => {
+    const node = findDOMNode(this);
+    if (!node || !node.contains(event.target)) {
+      this.props.onClickOutside();
     }
-  })
-});
+  };
 
-export default typography;
+  render() {
+    return this.props.children;
+  }
+}
