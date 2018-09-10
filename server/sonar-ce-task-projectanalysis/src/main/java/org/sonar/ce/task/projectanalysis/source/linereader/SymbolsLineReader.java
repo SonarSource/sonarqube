@@ -23,12 +23,12 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -48,30 +48,35 @@ public class SymbolsLineReader implements LineReader {
   private final Map<ScannerReport.Symbol, Integer> idsBySymbol;
   private final SetMultimap<Integer, ScannerReport.Symbol> symbolsPerLine;
 
-  private boolean areSymbolsValid = true;
+  private ReadError readError = null;
 
   public SymbolsLineReader(Component file, Iterator<ScannerReport.Symbol> symbolIterator, RangeOffsetConverter rangeOffsetConverter) {
     this.file = file;
     this.rangeOffsetConverter = rangeOffsetConverter;
     List<ScannerReport.Symbol> symbols = Lists.newArrayList(symbolIterator);
     // Sort symbols to have deterministic id generation
-    Collections.sort(symbols, SymbolsComparator.INSTANCE);
+    symbols.sort(SymbolsComparator.INSTANCE);
 
     this.idsBySymbol = createIdsBySymbolMap(symbols);
     this.symbolsPerLine = buildSymbolsPerLine(symbols);
   }
 
+  /**
+   * Stops reading at first encountered error, which implies the same
+   * {@link org.sonar.ce.task.projectanalysis.source.linereader.LineReader.ReadError} will be returned once an error
+   * has been encountered and for any then provided {@link DbFileSources.Line.Builder lineBuilder}.
+   */
   @Override
-  public void read(DbFileSources.Line.Builder lineBuilder) {
-    if (!areSymbolsValid) {
-      return;
+  public Optional<ReadError> read(DbFileSources.Line.Builder lineBuilder) {
+    if (readError == null) {
+      try {
+        processSymbols(lineBuilder);
+      } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
+        readError = new ReadError(Data.SYMBOLS, lineBuilder.getLine());
+        LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getDbKey()), e);
+      }
     }
-    try {
-      processSymbols(lineBuilder);
-    } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
-      areSymbolsValid = false;
-      LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getDbKey()), e);
-    }
+    return Optional.ofNullable(readError);
   }
 
   private void processSymbols(DbFileSources.Line.Builder lineBuilder) {
@@ -80,7 +85,7 @@ public class SymbolsLineReader implements LineReader {
     List<ScannerReport.Symbol> lineSymbols = new ArrayList<>(this.symbolsPerLine.get(line));
     // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
     // data
-    Collections.sort(lineSymbols, SymbolsComparator.INSTANCE);
+    lineSymbols.sort(SymbolsComparator.INSTANCE);
 
     StringBuilder symbolString = new StringBuilder();
     for (ScannerReport.Symbol lineSymbol : lineSymbols) {

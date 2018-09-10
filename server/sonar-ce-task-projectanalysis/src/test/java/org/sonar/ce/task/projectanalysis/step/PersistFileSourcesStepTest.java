@@ -36,8 +36,10 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
+import org.sonar.ce.task.projectanalysis.source.FileSourceDataWarnings;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
@@ -47,10 +49,16 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.db.source.LineHashVersion;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.HIGHLIGHTING;
+import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.SYMBOLS;
 
 public class PersistFileSourcesStepTest extends BaseStepTest {
 
@@ -72,8 +80,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   private SourceLinesHashRepository sourceLinesHashRepository = mock(SourceLinesHashRepository.class);
   private SourceLinesHashRepositoryImpl.LineHashesComputer lineHashesComputer = mock(SourceLinesHashRepositoryImpl.LineHashesComputer.class);
-
   private FileSourceDataComputer fileSourceDataComputer = mock(FileSourceDataComputer.class);
+  private FileSourceDataWarnings fileSourceDataWarnings = mock(FileSourceDataWarnings.class);
+
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession session = dbTester.getSession();
 
@@ -83,7 +92,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void setup() {
     when(system2.now()).thenReturn(NOW);
     when(sourceLinesHashRepository.getLineHashesComputerToPersist(Mockito.any(Component.class))).thenReturn(lineHashesComputer);
-    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, sourceLinesHashRepository, fileSourceDataComputer);
+    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, sourceLinesHashRepository, fileSourceDataComputer, fileSourceDataWarnings);
     initBasicReport(1);
   }
 
@@ -102,7 +111,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         DbFileSources.Line.newBuilder().setSource("line2").setLine(2).build()
       ))
       .build();
-    when(fileSourceDataComputer.compute(fileComponent())).thenReturn(new FileSourceDataComputer.Data(fileSourceData, lineHashes, sourceHash, null));
+    when(fileSourceDataComputer.compute(fileComponent(), fileSourceDataWarnings)).thenReturn(new FileSourceDataComputer.Data(fileSourceData, lineHashes, sourceHash, null));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -123,6 +132,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLines(0).getSource()).isEqualTo("line1");
     assertThat(data.getLines(1).getLine()).isEqualTo(2);
     assertThat(data.getLines(1).getSource()).isEqualTo("line2");
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -137,6 +147,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getLineHashes()).containsExactly("137f72c3708c6bd0de00a0e5a69c699b", "e6251bcf1a7dc3ba5e7933e325bbe605");
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -156,6 +167,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   private Component fileComponent() {
@@ -179,6 +191,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
     assertThat(fileSourceDto.getRevision()).isNull();
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -217,6 +230,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLines(2).getScmAuthor()).isEmpty();
     assertThat(data.getLines(2).getScmDate()).isEqualTo(0);
     assertThat(data.getLines(2).getScmRevision()).isEmpty();
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -236,6 +250,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data).isEqualTo(dbData);
     assertThat(data.getLinesList()).hasSize(1);
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("2,4,a");
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -256,6 +271,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -272,6 +288,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -283,6 +300,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -293,6 +311,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getRevision()).isNull();
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -311,6 +330,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(Collections.singletonList("lineHash"));
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(PAST);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(PAST);
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -355,6 +375,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
     assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -372,6 +393,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(PAST);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("newSourceHash");
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   @Test
@@ -396,6 +418,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(PAST);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
     assertThat(fileSourceDto.getRevision()).isEqualTo("revision");
+    verify(fileSourceDataWarnings).commitWarnings();
   }
 
   private FileSourceDto createDto() {
@@ -426,12 +449,12 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   private void setComputedData(DbFileSources.Data data, List<String> lineHashes, String sourceHash, Changeset latestChangeWithRevision) {
     FileSourceDataComputer.Data computedData = new FileSourceDataComputer.Data(data, lineHashes, sourceHash, latestChangeWithRevision);
-    when(fileSourceDataComputer.compute(fileComponent())).thenReturn(computedData);
+    when(fileSourceDataComputer.compute(fileComponent(), fileSourceDataWarnings)).thenReturn(computedData);
   }
 
   private void setComputedData(DbFileSources.Data data) {
     FileSourceDataComputer.Data computedData = new FileSourceDataComputer.Data(data, Collections.emptyList(), "", null);
-    when(fileSourceDataComputer.compute(fileComponent())).thenReturn(computedData);
+    when(fileSourceDataComputer.compute(fileComponent(), fileSourceDataWarnings)).thenReturn(computedData);
   }
 
   private void initBasicReport(int numberOfLines) {

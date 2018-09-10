@@ -19,22 +19,34 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
+import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl.LineHashesComputer;
 import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
-import org.sonar.ce.task.projectanalysis.source.linereader.ScmLineReader;
+import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.protobuf.DbFileSources;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class FileSourceDataComputerTest {
@@ -44,60 +56,109 @@ public class FileSourceDataComputerTest {
   private LineHashesComputer lineHashesComputer = mock(LineHashesComputer.class);
   private SourceLineReadersFactory sourceLineReadersFactory = mock(SourceLineReadersFactory.class);
   private SourceLinesHashRepository sourceLinesHashRepository = mock(SourceLinesHashRepository.class);
-  private ScmLineReader scmLineReader = mock(ScmLineReader.class);
-  private CloseableIterator closeableIterator = mock(CloseableIterator.class);
 
-  private FileSourceDataComputer fileSourceDataComputer;
+  private FileSourceDataComputer underTest = new FileSourceDataComputer(sourceLinesRepository, sourceLineReadersFactory, sourceLinesHashRepository);
+
+  private FileSourceDataWarnings fileSourceDataWarnings = mock(FileSourceDataWarnings.class);
+  private SourceLineReadersFactory.LineReaders lineReaders = mock(SourceLineReadersFactory.LineReaders.class);
 
   @Before
   public void before() {
     when(sourceLinesHashRepository.getLineHashesComputerToPersist(FILE)).thenReturn(lineHashesComputer);
-    LineReader reader = line -> line.setHighlighting("h-" + line.getLine());
-    SourceLineReadersFactory.LineReaders lineReaders = new SourceLineReadersFactory.LineReaders(Collections.singletonList(reader), scmLineReader,
-      Collections.singletonList(closeableIterator));
+    when(sourceLineReadersFactory.getLineReaders(FILE)).thenReturn(mock(SourceLineReadersFactory.LineReaders.class));
+  }
+
+  @Test
+  public void compute_calls_read_for_each_line_and_passe_read_error_to_fileSourceDataWarnings() {
+    int lineCount = 1 + new Random().nextInt(10);
+    List<String> lines = IntStream.range(0, lineCount).mapToObj(i -> "line" + i).collect(toList());
+    when(sourceLinesRepository.readLines(FILE)).thenReturn(CloseableIterator.from(lines.iterator()));
     when(sourceLineReadersFactory.getLineReaders(FILE)).thenReturn(lineReaders);
+    when(sourceLinesHashRepository.getLineHashesComputerToPersist(FILE)).thenReturn(lineHashesComputer);
+    // mock an implementation that will call the ReadErrorConsumer in order to verify that the provided consumer is
+    // doing what we expect: pass readError to fileSourceDataWarnings
+    int randomStartPoint = new Random().nextInt(500);
+    doAnswer(new Answer() {
+      int i = randomStartPoint;
 
-    fileSourceDataComputer = new FileSourceDataComputer(sourceLinesRepository, sourceLineReadersFactory, sourceLinesHashRepository);
+      @Override
+      public Object answer(InvocationOnMock invocation) {
+        Consumer<LineReader.ReadError> readErrorConsumer = invocation.getArgument(1);
+        readErrorConsumer.accept(new LineReader.ReadError(LineReader.Data.SYMBOLS, i++));
+        return null;
+      }
+    }).when(lineReaders).read(any(), any());
+
+    underTest.compute(FILE, fileSourceDataWarnings);
+
+    ArgumentCaptor<DbFileSources.Line.Builder> lineBuilderCaptor = ArgumentCaptor.forClass(DbFileSources.Line.Builder.class);
+    verify(lineReaders, times(lineCount)).read(lineBuilderCaptor.capture(), any());
+    assertThat(lineBuilderCaptor.getAllValues())
+      .extracting(DbFileSources.Line.Builder::getSource)
+      .containsOnlyElementsOf(lines);
+    assertThat(lineBuilderCaptor.getAllValues())
+      .extracting(DbFileSources.Line.Builder::getLine)
+      .containsExactly(IntStream.range(1, lineCount + 1).boxed().toArray(Integer[]::new));
+    ArgumentCaptor<LineReader.ReadError> readErrorCaptor = ArgumentCaptor.forClass(LineReader.ReadError.class);
+    verify(fileSourceDataWarnings, times(lineCount)).addWarning(same(FILE), readErrorCaptor.capture());
+    assertThat(readErrorCaptor.getAllValues())
+      .extracting(LineReader.ReadError::getLine)
+      .containsExactly(IntStream.range(randomStartPoint, randomStartPoint + lineCount).boxed().toArray(Integer[]::new));
   }
 
   @Test
-  public void compute_one_line() {
-    List<String> lineHashes = Collections.singletonList("lineHash");
-    when(sourceLinesRepository.readLines(FILE)).thenReturn(CloseableIterator.from(Collections.singletonList("line1").iterator()));
-    when(lineHashesComputer.getResult()).thenReturn(lineHashes);
+  public void compute_builds_data_object_from_lines() {
+    int lineCount = 1 + new Random().nextInt(10);
+    int randomStartPoint = new Random().nextInt(500);
+    List<String> lines = IntStream.range(0, lineCount).mapToObj(i -> "line" + i).collect(toList());
+    List<String> expectedLineHashes = IntStream.range(0, 1 + new Random().nextInt(12)).mapToObj(i -> "str_" + i).collect(toList());
+    Changeset expectedChangeset = Changeset.newChangesetBuilder().setDate((long) new Random().nextInt(9_999)).build();
+    String expectedSrcHash = computeSrcHash(lines);
+    CloseableIterator<String> lineIterator = spy(CloseableIterator.from(lines.iterator()));
+    DbFileSources.Data.Builder expectedLineDataBuilder = DbFileSources.Data.newBuilder();
+    for (int i = 0; i < lines.size(); i++) {
+      expectedLineDataBuilder.addLinesBuilder()
+        .setSource(lines.get(i))
+        .setLine(i + 1)
+        // scmAuthor will be set with specific value by our mock implementation of LinesReaders.read()
+        .setScmAuthor("reader_called_" + (randomStartPoint + i));
+    }
+    when(sourceLinesRepository.readLines(FILE)).thenReturn(lineIterator);
+    when(sourceLineReadersFactory.getLineReaders(FILE)).thenReturn(lineReaders);
+    when(sourceLinesHashRepository.getLineHashesComputerToPersist(FILE)).thenReturn(lineHashesComputer);
+    when(lineHashesComputer.getResult()).thenReturn(expectedLineHashes);
+    when(lineReaders.getLatestChangeWithRevision()).thenReturn(expectedChangeset);
+    // mocked implementation of LineReader.read to ensure changes done by it to the lineBuilder argument actually end
+    // up in the FileSourceDataComputer.Data object returned
+    doAnswer(new Answer() {
+      int i = 0;
 
-    FileSourceDataComputer.Data data = fileSourceDataComputer.compute(FILE);
+      @Override
+      public Object answer(InvocationOnMock invocation) {
+        DbFileSources.Line.Builder lineBuilder = invocation.getArgument(0);
+        lineBuilder.setScmAuthor("reader_called_" + (randomStartPoint + i++));
+        return null;
+      }
+    }).when(lineReaders).read(any(), any());
 
-    assertThat(data.getLineHashes()).isEqualTo(lineHashes);
-    assertThat(data.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
-    assertThat(data.getLineData().getLinesList()).hasSize(1);
-    assertThat(data.getLineData().getLines(0).getHighlighting()).isEqualTo("h-1");
+    FileSourceDataComputer.Data data = underTest.compute(FILE, fileSourceDataWarnings);
 
-    verify(lineHashesComputer).addLine("line1");
-    verify(lineHashesComputer).getResult();
-    verify(closeableIterator).close();
-    verifyNoMoreInteractions(lineHashesComputer);
+    assertThat(data.getLineHashes()).isEqualTo(expectedLineHashes);
+    assertThat(data.getSrcHash()).isEqualTo(expectedSrcHash);
+    assertThat(data.getLatestChangeWithRevision()).isSameAs(expectedChangeset);
+    assertThat(data.getLineData()).isEqualTo(expectedLineDataBuilder.build());
+
+    verify(lineIterator).close();
+    verify(lineReaders).close();
   }
 
-  @Test
-  public void compute_two_lines() {
-    List<String> lineHashes = Arrays.asList("137f72c3708c6bd0de00a0e5a69c699b", "e6251bcf1a7dc3ba5e7933e325bbe605");
-    when(sourceLinesRepository.readLines(FILE)).thenReturn(CloseableIterator.from(Arrays.asList("line1", "line2").iterator()));
-    when(lineHashesComputer.getResult()).thenReturn(lineHashes);
-
-    FileSourceDataComputer.Data data = fileSourceDataComputer.compute(FILE);
-
-    assertThat(data.getLineHashes()).isEqualTo(lineHashes);
-    assertThat(data.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
-    assertThat(data.getLineData().getLinesList()).hasSize(2);
-    assertThat(data.getLineData().getLines(0).getHighlighting()).isEqualTo("h-1");
-    assertThat(data.getLineData().getLines(1).getHighlighting()).isEqualTo("h-2");
-
-    verify(lineHashesComputer).addLine("line1");
-    verify(lineHashesComputer).addLine("line2");
-    verify(lineHashesComputer).getResult();
-    verify(closeableIterator).close();
-    verifyNoMoreInteractions(lineHashesComputer);
+  private static String computeSrcHash(List<String> lines) {
+    SourceHashComputer computer = new SourceHashComputer();
+    Iterator<String> iterator = lines.iterator();
+    while (iterator.hasNext()) {
+      computer.addLine(iterator.next(), iterator.hasNext());
+    }
+    return computer.getHash();
   }
 
 }

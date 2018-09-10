@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.source.linereader;
 
 import java.util.Iterator;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -36,12 +37,13 @@ public class CoverageLineReader implements LineReader {
   }
 
   @Override
-  public void read(DbFileSources.Line.Builder lineBuilder) {
+  public Optional<ReadError> read(DbFileSources.Line.Builder lineBuilder) {
     ScannerReport.LineCoverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
     if (reportCoverage != null) {
       processCoverage(lineBuilder, reportCoverage);
       coverage = null;
     }
+    return Optional.empty();
   }
 
   private static void processCoverage(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {

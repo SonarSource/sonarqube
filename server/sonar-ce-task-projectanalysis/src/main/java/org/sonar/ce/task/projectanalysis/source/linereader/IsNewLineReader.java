@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.source.linereader;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
@@ -32,7 +33,9 @@ public class IsNewLineReader implements LineReader {
     this.newLines = newLinesRepository.getNewLines(file).orElse(Collections.emptySet());
   }
 
-  @Override public void read(DbFileSources.Line.Builder lineBuilder) {
+  @Override
+  public Optional<ReadError> read(DbFileSources.Line.Builder lineBuilder) {
     lineBuilder.setIsNewLine(newLines.contains(lineBuilder.getLine()));
+    return Optional.empty();
   }
 }

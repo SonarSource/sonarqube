@@ -47,7 +47,7 @@ public class DuplicationLineReaderTest {
   public void read_nothing() {
     DuplicationLineReader reader = new DuplicationLineReader(Collections.emptySet());
 
-    reader.read(line1);
+    assertThat(reader.read(line1)).isEmpty();
 
     assertThat(line1.getDuplicationList()).isEmpty();
   }
@@ -56,10 +56,10 @@ public class DuplicationLineReaderTest {
   public void read_duplication_with_duplicates_on_same_file() {
     DuplicationLineReader reader = duplicationLineReader(duplication(1, 2, innerDuplicate(3, 4)));
 
-    reader.read(line1);
-    reader.read(line2);
-    reader.read(line3);
-    reader.read(line4);
+    assertThat(reader.read(line1)).isEmpty();
+    assertThat(reader.read(line2)).isEmpty();
+    assertThat(reader.read(line3)).isEmpty();
+    assertThat(reader.read(line4)).isEmpty();
 
     assertThat(line1.getDuplicationList()).containsExactly(1);
     assertThat(line2.getDuplicationList()).containsExactly(1);
@@ -74,10 +74,10 @@ public class DuplicationLineReaderTest {
         1, 2,
         new InProjectDuplicate(fileComponent(1).build(), new TextBlock(3, 4))));
 
-    reader.read(line1);
-    reader.read(line2);
-    reader.read(line3);
-    reader.read(line4);
+    assertThat(reader.read(line1)).isEmpty();
+    assertThat(reader.read(line2)).isEmpty();
+    assertThat(reader.read(line3)).isEmpty();
+    assertThat(reader.read(line4)).isEmpty();
 
     assertThat(line1.getDuplicationList()).containsExactly(1);
     assertThat(line2.getDuplicationList()).containsExactly(1);
@@ -92,10 +92,10 @@ public class DuplicationLineReaderTest {
         1, 2,
         new CrossProjectDuplicate("other-component-key-from-another-project", new TextBlock(3, 4))));
 
-    reader.read(line1);
-    reader.read(line2);
-    reader.read(line3);
-    reader.read(line4);
+    assertThat(reader.read(line1)).isEmpty();
+    assertThat(reader.read(line2)).isEmpty();
+    assertThat(reader.read(line3)).isEmpty();
+    assertThat(reader.read(line4)).isEmpty();
 
     assertThat(line1.getDuplicationList()).containsExactly(1);
     assertThat(line2.getDuplicationList()).containsExactly(1);
@@ -113,10 +113,10 @@ public class DuplicationLineReaderTest {
         1, 2,
         innerDuplicate(3, 4)));
 
-    reader.read(line1);
-    reader.read(line2);
-    reader.read(line3);
-    reader.read(line4);
+    assertThat(reader.read(line1)).isEmpty();
+    assertThat(reader.read(line2)).isEmpty();
+    assertThat(reader.read(line3)).isEmpty();
+    assertThat(reader.read(line4)).isEmpty();
 
     assertThat(line1.getDuplicationList()).containsExactly(1, 2);
     assertThat(line2.getDuplicationList()).containsExactly(2, 3);
@@ -134,10 +134,10 @@ public class DuplicationLineReaderTest {
         1, 1,
         innerDuplicate(3, 3)));
 
-    reader.read(line1);
-    reader.read(line2);
-    reader.read(line3);
-    reader.read(line4);
+    assertThat(reader.read(line1)).isEmpty();
+    assertThat(reader.read(line2)).isEmpty();
+    assertThat(reader.read(line3)).isEmpty();
+    assertThat(reader.read(line4)).isEmpty();
 
     assertThat(line1.getDuplicationList()).containsExactly(1);
     assertThat(line2.getDuplicationList()).containsExactly(2);
@@ -155,10 +155,10 @@ public class DuplicationLineReaderTest {
         1, 1,
         innerDuplicate(4, 4)));
 
-    reader.read(line1);
-    reader.read(line2);
-    reader.read(line3);
-    reader.read(line4);
+    assertThat(reader.read(line1)).isEmpty();
+    assertThat(reader.read(line2)).isEmpty();
+    assertThat(reader.read(line3)).isEmpty();
+    assertThat(reader.read(line4)).isEmpty();
 
     assertThat(line1.getDuplicationList()).containsExactly(1, 2);
     assertThat(line2.getDuplicationList()).containsExactly(2);

@@ -19,9 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
@@ -83,33 +85,47 @@ public class SourceLineReadersFactory {
     readers.add(new DuplicationLineReader(duplicationRepository.getDuplications(component)));
     readers.add(new IsNewLineReader(newLinesRepository, component));
 
-    return new LineReaders(readers, scmLineReader, closeables);
+    return new LineReadersImpl(readers, scmLineReader, closeables);
   }
 
-  static class LineReaders implements AutoCloseable, LineReader {
+  interface LineReaders extends AutoCloseable {
+    void read(DbFileSources.Line.Builder lineBuilder, Consumer<LineReader.ReadError> readErrorConsumer);
+
+    @CheckForNull
+    Changeset getLatestChangeWithRevision();
+
+    @Override
+    void close();
+  }
+
+  @VisibleForTesting
+  static final class LineReadersImpl implements LineReaders {
     final List<LineReader> readers;
     @Nullable
     final ScmLineReader scmLineReader;
     final List<CloseableIterator<?>> closeables;
 
-    LineReaders(List<LineReader> readers, @Nullable ScmLineReader scmLineReader, List<CloseableIterator<?>> closeables) {
+    LineReadersImpl(List<LineReader> readers, @Nullable ScmLineReader scmLineReader, List<CloseableIterator<?>> closeables) {
       this.readers = readers;
       this.scmLineReader = scmLineReader;
       this.closeables = closeables;
     }
 
-    @Override public void close() {
+    @Override
+    public void close() {
       for (CloseableIterator<?> reportIterator : closeables) {
         reportIterator.close();
       }
     }
 
-    @Override public void read(DbFileSources.Line.Builder lineBuilder) {
+    public void read(DbFileSources.Line.Builder lineBuilder, Consumer<LineReader.ReadError> readErrorConsumer) {
       for (LineReader r : readers) {
-        r.read(lineBuilder);
+        r.read(lineBuilder)
+          .ifPresent(readErrorConsumer);
       }
     }
 
+    @Override
     @CheckForNull
     public Changeset getLatestChangeWithRevision() {
       return scmLineReader == null ? null : scmLineReader.getLatestChangeWithRevision();

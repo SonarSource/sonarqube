@@ -44,7 +44,7 @@ public class ScmLineReaderTest {
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
-    lineScm.read(lineBuilder);
+    assertThat(lineScm.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.getScmAuthor()).isEqualTo("john");
     assertThat(lineBuilder.getScmDate()).isEqualTo(123_456_789L);
@@ -61,7 +61,7 @@ public class ScmLineReaderTest {
     ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
-    lineScm.read(lineBuilder);
+    assertThat(lineScm.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.hasScmAuthor()).isFalse();
     assertThat(lineBuilder.getScmDate()).isEqualTo(123456789L);
@@ -116,7 +116,7 @@ public class ScmLineReaderTest {
 
   private void readLineAndAssertLatestChanges(ScmLineReader lineScm, int line, Changeset expectedChangeset, Changeset expectedChangesetWithRevision) {
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(line);
-    lineScm.read(lineBuilder);
+    assertThat(lineScm.read(lineBuilder)).isEmpty();
     assertThat(lineScm.getLatestChange()).isSameAs(expectedChangeset);
     assertThat(lineScm.getLatestChangeWithRevision()).isSameAs(expectedChangesetWithRevision);
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.duplication.Duplicate;
@@ -46,7 +47,7 @@ public class DuplicationLineReader implements LineReader {
   }
 
   @Override
-  public void read(DbFileSources.Line.Builder lineBuilder) {
+  public Optional<ReadError> read(DbFileSources.Line.Builder lineBuilder) {
     Predicate<Map.Entry<TextBlock, Integer>> containsLine = new TextBlockContainsLine(lineBuilder.getLine());
     for (Integer textBlockIndex : from(duplicatedTextBlockIndexByTextBlock.entrySet())
       .filter(containsLine)
@@ -56,6 +57,7 @@ public class DuplicationLineReader implements LineReader {
       .toSortedList(Ordering.natural())) {
       lineBuilder.addDuplication(textBlockIndex);
     }
+    return Optional.empty();
   }
 
   /**

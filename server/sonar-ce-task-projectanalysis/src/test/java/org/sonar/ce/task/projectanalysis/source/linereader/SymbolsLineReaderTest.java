@@ -34,6 +34,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.SYMBOLS;
 
 public class SymbolsLineReaderTest {
 
@@ -72,7 +73,7 @@ public class SymbolsLineReaderTest {
   public void read_nothing() {
     SymbolsLineReader symbolsLineReader = newReader();
 
-    symbolsLineReader.read(line1);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
 
     assertThat(line1.getSymbols()).isEmpty();
   }
@@ -83,9 +84,9 @@ public class SymbolsLineReaderTest {
       newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_2, OFFSET_4, RANGE_LABEL_1),
       newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_1, OFFSET_3, RANGE_LABEL_2)));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
-    symbolsLineReader.read(line3);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
+    assertThat(symbolsLineReader.read(line3)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
     assertThat(line2.getSymbols()).isEmpty();
@@ -98,7 +99,7 @@ public class SymbolsLineReaderTest {
       newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_0, OFFSET_1, RANGE_LABEL_1),
       newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_2, OFFSET_3, RANGE_LABEL_2)));
 
-    symbolsLineReader.read(line1);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1;" + RANGE_LABEL_2 + ",1");
   }
@@ -110,9 +111,9 @@ public class SymbolsLineReaderTest {
       newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_1, OFFSET_3, RANGE_LABEL_2),
       newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_0, OFFSET_2, RANGE_LABEL_3)));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
-    symbolsLineReader.read(line3);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
+    assertThat(symbolsLineReader.read(line3)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
     assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_3 + ",1");
@@ -126,8 +127,8 @@ public class SymbolsLineReaderTest {
       newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_0, OFFSET_1, RANGE_LABEL_2),
       newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_2, OFFSET_3, RANGE_LABEL_3)));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
     assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1;" + RANGE_LABEL_3 + ",1");
@@ -139,8 +140,8 @@ public class SymbolsLineReaderTest {
       newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_3, OFFSET_4, RANGE_LABEL_1),
       newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_1, OFFSET_2, RANGE_LABEL_2)));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
     assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
@@ -156,9 +157,9 @@ public class SymbolsLineReaderTest {
         newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_3, OFFSET_4, RANGE_LABEL_3),
         newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_0, OFFSET_1, RANGE_LABEL_4)));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
-    symbolsLineReader.read(line3);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
+    assertThat(symbolsLineReader.read(line3)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1;" + RANGE_LABEL_3 + ",2");
     assertThat(line2.getSymbols()).isEmpty();
@@ -176,9 +177,9 @@ public class SymbolsLineReaderTest {
         newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_0, OFFSET_1, RANGE_LABEL_2),
         newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_0, OFFSET_1, RANGE_LABEL_2)));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
-    symbolsLineReader.read(line3);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
+    assertThat(symbolsLineReader.read(line3)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1;" + RANGE_LABEL_1 + ",2");
     assertThat(line2.getSymbols()).isEmpty();
@@ -195,7 +196,7 @@ public class SymbolsLineReaderTest {
         newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_0, OFFSET_1, RANGE_LABEL_1),
         newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_0, OFFSET_1, RANGE_LABEL_1)));
 
-    symbolsLineReader.read(line1);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
 
@@ -216,10 +217,10 @@ public class SymbolsLineReaderTest {
 
     SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
-    symbolsLineReader.read(line3);
-    symbolsLineReader.read(line4);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
+    assertThat(symbolsLineReader.read(line3)).isEmpty();
+    assertThat(symbolsLineReader.read(line4)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
     assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
@@ -236,10 +237,10 @@ public class SymbolsLineReaderTest {
 
     SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
-    symbolsLineReader.read(line3);
-    symbolsLineReader.read(line4);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).isEmpty();
+    assertThat(symbolsLineReader.read(line3)).isEmpty();
+    assertThat(symbolsLineReader.read(line4)).isEmpty();
 
     assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
     assertThat(line2.getSymbols()).isEmpty();
@@ -256,8 +257,9 @@ public class SymbolsLineReaderTest {
 
     SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
+    LineReader.ReadError readErrorLine1 = new LineReader.ReadError(SYMBOLS, LINE_1);
+    assertThat(symbolsLineReader.read(line1)).contains(readErrorLine1);
+    assertThat(symbolsLineReader.read(line2)).contains(readErrorLine1);
 
     assertNoSymbol();
     assertThat(logTester.logs(WARN)).isNotEmpty();
@@ -272,8 +274,8 @@ public class SymbolsLineReaderTest {
 
     SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
 
-    symbolsLineReader.read(line1);
-    symbolsLineReader.read(line2);
+    assertThat(symbolsLineReader.read(line1)).isEmpty();
+    assertThat(symbolsLineReader.read(line2)).contains(new LineReader.ReadError(SYMBOLS, LINE_2));
 
     assertThat(line1.hasSymbols()).isTrue();
     assertThat(line2.hasSymbols()).isFalse();
@@ -286,7 +288,8 @@ public class SymbolsLineReaderTest {
     doThrow(RangeOffsetConverter.RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(declaration, LINE_1, DEFAULT_LINE_LENGTH);
     SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_1, OFFSET_3, RANGE_LABEL_2)));
 
-    symbolsLineReader.read(line1);
+    assertThat(symbolsLineReader.read(line1))
+      .contains(new LineReader.ReadError(SYMBOLS, LINE_1));
 
     assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Symbols data. Symbols will be ignored for file 'FILE_KEY'");
   }

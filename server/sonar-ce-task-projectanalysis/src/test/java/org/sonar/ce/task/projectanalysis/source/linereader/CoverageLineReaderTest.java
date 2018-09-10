@@ -39,7 +39,7 @@ public class CoverageLineReaderTest {
       .build()).iterator());
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
-    computeCoverageLine.read(lineBuilder);
+    assertThat(computeCoverageLine.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.getLineHits()).isEqualTo(1);
     assertThat(lineBuilder.getConditions()).isEqualTo(10);
@@ -56,7 +56,7 @@ public class CoverageLineReaderTest {
       .build()).iterator());
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
-    computeCoverageLine.read(lineBuilder);
+    assertThat(computeCoverageLine.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.hasLineHits()).isFalse();
     assertThat(lineBuilder.getConditions()).isEqualTo(10);
@@ -70,7 +70,7 @@ public class CoverageLineReaderTest {
       .build()).iterator());
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
-    computeCoverageLine.read(lineBuilder);
+    assertThat(computeCoverageLine.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.hasLineHits()).isTrue();
     assertThat(lineBuilder.getLineHits()).isEqualTo(0);
@@ -81,7 +81,7 @@ public class CoverageLineReaderTest {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(Collections.<ScannerReport.LineCoverage>emptyList().iterator());
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
-    computeCoverageLine.read(lineBuilder);
+    assertThat(computeCoverageLine.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.hasLineHits()).isFalse();
     assertThat(lineBuilder.hasConditions()).isFalse();
@@ -141,7 +141,7 @@ public class CoverageLineReaderTest {
       .build()).iterator());
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
-    computeCoverageLine.read(lineBuilder);
+    assertThat(computeCoverageLine.read(lineBuilder)).isEmpty();
 
     assertThat(lineBuilder.hasDeprecatedUtLineHits()).isFalse();
     assertThat(lineBuilder.hasDeprecatedUtConditions()).isFalse();

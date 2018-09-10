@@ -42,7 +42,7 @@ public class FileSourceDataComputer {
     this.sourceHashComputer = new SourceHashComputer();
   }
 
-  public Data compute(Component file) {
+  public Data compute(Component file, FileSourceDataWarnings fileSourceDataWarnings) {
     try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
       SourceLineReadersFactory.LineReaders lineReaders = sourceLineReadersFactory.getLineReaders(file)) {
       SourceLinesHashRepositoryImpl.LineHashesComputer lineHashesComputer = sourceLinesHash.getLineHashesComputerToPersist(file);
@@ -51,25 +51,22 @@ public class FileSourceDataComputer {
 
       while (linesIterator.hasNext()) {
         currentLine++;
-        read(fileSourceBuilder, lineHashesComputer, lineReaders, currentLine, linesIterator.next(), linesIterator.hasNext());
+        String lineSource = linesIterator.next();
+        boolean hasNextLine = linesIterator.hasNext();
+
+        sourceHashComputer.addLine(lineSource, hasNextLine);
+        lineHashesComputer.addLine(lineSource);
+
+        DbFileSources.Line.Builder lineBuilder = fileSourceBuilder
+          .addLinesBuilder()
+          .setSource(lineSource)
+          .setLine(currentLine);
+        lineReaders.read(lineBuilder, readError -> fileSourceDataWarnings.addWarning(file, readError));
       }
 
       Changeset latestChangeWithRevision = lineReaders.getLatestChangeWithRevision();
       return new Data(fileSourceBuilder.build(), lineHashesComputer.getResult(), sourceHashComputer.getHash(), latestChangeWithRevision);
     }
-  }
-
-  private void read(DbFileSources.Data.Builder fileSourceBuilder, SourceLinesHashRepositoryImpl.LineHashesComputer lineHashesComputer,
-    SourceLineReadersFactory.LineReaders lineReaders, int currentLine, String lineSource, boolean hasNextLine) {
-    sourceHashComputer.addLine(lineSource, hasNextLine);
-    lineHashesComputer.addLine(lineSource);
-
-    DbFileSources.Line.Builder lineBuilder = fileSourceBuilder
-      .addLinesBuilder()
-      .setSource(lineSource)
-      .setLine(currentLine);
-
-    lineReaders.read(lineBuilder);
   }
 
   public static class Data {

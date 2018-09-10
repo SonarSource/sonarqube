@@ -22,23 +22,25 @@ package org.sonar.ce.task.projectanalysis.container;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.junit.Test;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.PicoContainer;
+import org.reflections.Reflections;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.step.PersistComponentsStep;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.ce.task.step.StepsExplorer;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.util.stream.MoreCollectors;
 
-import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.difference;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,23 +68,32 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
     AddedObjectsRecorderTaskContainer container = new AddedObjectsRecorderTaskContainer();
     underTest.populateContainer(container);
 
-    Set<String> computationStepClassNames = from(container.added)
-      .transform(new Function<Object, Class<?>>() {
-        @Nullable
-        @Override
-        public Class<?> apply(Object input) {
-          if (input instanceof Class) {
-            return (Class<?>) input;
-          }
-          return null;
+    Set<String> computationStepClassNames = container.added.stream()
+      .map(s -> {
+        if (s instanceof Class) {
+          return (Class<?>) s;
         }
+        return null;
       })
-      .filter(notNull())
-      .filter(IsComputationStep.INSTANCE)
-      .transform(StepsExplorer.toCanonicalName())
-      .toSet();
+      .filter(Objects::nonNull)
+      .filter(ComputationStep.class::isAssignableFrom)
+      .map(Class::getCanonicalName)
+      .collect(MoreCollectors.toSet());
 
-    assertThat(difference(StepsExplorer.retrieveStepPackageStepsCanonicalNames(PROJECTANALYSIS_STEP_PACKAGE), computationStepClassNames)).isEmpty();
+    assertThat(difference(retrieveStepPackageStepsCanonicalNames(PROJECTANALYSIS_STEP_PACKAGE), computationStepClassNames)).isEmpty();
+  }
+
+  /**
+   * Compute set of canonical names of classes implementing ComputationStep in the specified package using reflection.
+   */
+  private static Set<Object> retrieveStepPackageStepsCanonicalNames(String packageName) {
+    Reflections reflections = new Reflections(packageName);
+
+    return reflections.getSubTypesOf(ComputationStep.class).stream()
+      .filter(input -> !Modifier.isAbstract(input.getModifiers()))
+      .map(Class::getCanonicalName)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toSet());
   }
 
   @Test
@@ -111,15 +122,6 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
 
   private static final class MyClass {
 
-  }
-
-  private enum IsComputationStep implements Predicate<Class<?>> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(Class<?> input) {
-      return ComputationStep.class.isAssignableFrom(input);
-    }
   }
 
   private static class AddedObjectsRecorderTaskContainer implements TaskContainer {

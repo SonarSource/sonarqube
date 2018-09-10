@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
+import org.sonar.ce.task.projectanalysis.source.FileSourceDataWarnings;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
@@ -51,14 +52,17 @@ public class PersistFileSourcesStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final SourceLinesHashRepository sourceLinesHash;
   private final FileSourceDataComputer fileSourceDataComputer;
+  private final FileSourceDataWarnings fileSourceDataWarnings;
 
   public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder,
-    SourceLinesHashRepository sourceLinesHash, FileSourceDataComputer fileSourceDataComputer) {
+    SourceLinesHashRepository sourceLinesHash, FileSourceDataComputer fileSourceDataComputer,
+    FileSourceDataWarnings fileSourceDataWarnings) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.sourceLinesHash = sourceLinesHash;
     this.fileSourceDataComputer = fileSourceDataComputer;
+    this.fileSourceDataWarnings = fileSourceDataWarnings;
   }
 
   @Override
@@ -67,6 +71,8 @@ public class PersistFileSourcesStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       new DepthTraversalTypeAwareCrawler(new FileSourceVisitor(dbSession))
         .visit(treeRootHolder.getRoot());
+    } finally {
+      fileSourceDataWarnings.commitWarnings();
     }
   }
 
@@ -94,7 +100,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     @Override
     public void visitFile(Component file) {
       try {
-        FileSourceDataComputer.Data fileSourceData = fileSourceDataComputer.compute(file);
+        FileSourceDataComputer.Data fileSourceData = fileSourceDataComputer.compute(file, fileSourceDataWarnings);
         persistSource(fileSourceData, file);
       } catch (Exception e) {
         throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getDbKey()), e);

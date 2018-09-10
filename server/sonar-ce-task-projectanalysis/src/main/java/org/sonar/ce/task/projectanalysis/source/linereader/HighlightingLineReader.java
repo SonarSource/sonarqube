@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -34,6 +35,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.Hi
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.HIGHLIGHTING;
 import static org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter.OFFSET_SEPARATOR;
 import static org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter.SYMBOLS_SEPARATOR;
 
@@ -41,7 +43,7 @@ public class HighlightingLineReader implements LineReader {
 
   private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
 
-  private boolean isHighlightingValid = true;
+  private ReadError readError = null;
 
   private static final Map<HighlightingType, String> cssClassByType = ImmutableMap.<HighlightingType, String>builder()
     .put(HighlightingType.ANNOTATION, "a")
@@ -69,17 +71,22 @@ public class HighlightingLineReader implements LineReader {
     this.highlightingList = newArrayList();
   }
 
+  /**
+   * Stops reading at first encountered error, which implies the same
+   * {@link org.sonar.ce.task.projectanalysis.source.linereader.LineReader.ReadError} will be returned once an error
+   * has been encountered and for any then provided {@link DbFileSources.Line.Builder lineBuilder}.
+   */
   @Override
-  public void read(DbFileSources.Line.Builder lineBuilder) {
-    if (!isHighlightingValid) {
-      return;
+  public Optional<ReadError> read(DbFileSources.Line.Builder lineBuilder) {
+    if (readError == null) {
+      try {
+        processHighlightings(lineBuilder);
+      } catch (RangeOffsetConverterException e) {
+        readError = new ReadError(HIGHLIGHTING, lineBuilder.getLine());
+        LOG.warn(format("Inconsistency detected in Highlighting data. Highlighting will be ignored for file '%s'", file.getDbKey()), e);
+      }
     }
-    try {
-      processHighlightings(lineBuilder);
-    } catch (RangeOffsetConverterException e) {
-      isHighlightingValid = false;
-      LOG.warn(format("Inconsistency detected in Highlighting data. Highlighting will be ignored for file '%s'", file.getDbKey()), e);
-    }
+    return Optional.ofNullable(readError);
   }
 
   private void processHighlightings(DbFileSources.Line.Builder lineBuilder) {

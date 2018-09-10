@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
+import org.sonar.ce.task.log.CeTaskMessagesImpl;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.ce.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
@@ -112,6 +113,7 @@ import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.DbLineHashVersion;
 import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
+import org.sonar.ce.task.projectanalysis.source.FileSourceDataWarnings;
 import org.sonar.ce.task.projectanalysis.source.LastCommitVisitor;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SignificantCodeRepository;
@@ -165,6 +167,10 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
     return Arrays.asList(
       PostProjectAnalysisTasksExecutor.class,
       ComputationStepExecutor.class,
+
+      // messages/warnings
+      CeTaskMessagesImpl.class,
+      FileSourceDataWarnings.class,
 
       // File System
       new ComputationTempFolderProvider(),
