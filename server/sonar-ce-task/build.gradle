@@ -51,6 +51,7 @@ dependencies {
   testCompile 'org.assertj:assertj-guava'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.reflections:reflections'
+  testCompile project(':server:sonar-db-testing')
 }
 
 task testJar(type: Jar) {
