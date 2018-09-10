@@ -165,7 +165,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     } else if (component instanceof DefaultInputFile) {
       // skip files not marked for publishing
       DefaultInputFile inputFile = (DefaultInputFile) component;
-      return !inputFile.isPublished() || (branchConfiguration.isShortOrPullRequest() && inputFile.status() == Status.SAME);
+      return !inputFile.isPublished();
     }
     return false;
   }

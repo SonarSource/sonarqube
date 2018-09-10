@@ -86,6 +86,7 @@ public class DefaultSensorStorageTest {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
+    when(metricFinder.<Integer>findByKey(CoreMetrics.LINES_TO_COVER_KEY)).thenReturn(CoreMetrics.LINES_TO_COVER);
 
     settings = new MapSettings();
     moduleIssues = mock(ModuleIssues.class);
@@ -191,29 +192,20 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_skip_file_measure_on_short_branch_when_file_status_is_SAME() {
+  public void should_not_skip_file_measures_on_short_lived_branch_or_pull_request_when_file_status_is_SAME() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
 
+    ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
+    when(measureCache.put(eq(file.key()), eq(CoreMetrics.LINES_TO_COVER_KEY), argumentCaptor.capture())).thenReturn(null);
     underTest.store(new DefaultMeasure()
       .on(file)
-      .forMetric(CoreMetrics.NCLOC)
+      .forMetric(CoreMetrics.LINES_TO_COVER)
       .withValue(10));
 
-    verifyZeroInteractions(measureCache);
-  }
-
-  @Test
-  public void should_skip_file_measure_on_pull_request_when_file_status_is_SAME() {
-    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
-    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
-
-    underTest.store(new DefaultMeasure()
-      .on(file)
-      .forMetric(CoreMetrics.NCLOC)
-      .withValue(10));
-
-    verifyZeroInteractions(measureCache);
+    DefaultMeasure m = argumentCaptor.getValue();
+    assertThat(m.value()).isEqualTo(10);
+    assertThat(m.metric()).isEqualTo(CoreMetrics.LINES_TO_COVER);
   }
 
   @Test

@@ -231,9 +231,6 @@ public class DefaultSensorStorage implements SensorStorage {
   public void store(Measure newMeasure) {
     if (newMeasure.inputComponent() instanceof DefaultInputFile) {
       DefaultInputFile defaultInputFile = (DefaultInputFile) newMeasure.inputComponent();
-      if (shouldSkipStorage(defaultInputFile)) {
-        return;
-      }
       defaultInputFile.setPublished(true);
     }
     saveMeasure(newMeasure.inputComponent(), (DefaultMeasure<?>) newMeasure);
@@ -248,9 +245,6 @@ public class DefaultSensorStorage implements SensorStorage {
   private void saveMeasure(InputComponent component, DefaultMeasure<?> measure) {
     if (component.isFile()) {
       DefaultInputFile defaultInputFile = (DefaultInputFile) component;
-      if (shouldSkipStorage(defaultInputFile)) {
-        return;
-      }
       defaultInputFile.setPublished(true);
     }
 
@@ -471,9 +465,6 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(DefaultCoverage defaultCoverage) {
     DefaultInputFile inputFile = (DefaultInputFile) defaultCoverage.inputFile();
-    if (shouldSkipStorage(inputFile)) {
-      return;
-    }
     inputFile.setPublished(true);
     if (defaultCoverage.linesToCover() > 0) {
       saveCoverageMetricInternal(inputFile, LINES_TO_COVER, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(defaultCoverage.linesToCover()));

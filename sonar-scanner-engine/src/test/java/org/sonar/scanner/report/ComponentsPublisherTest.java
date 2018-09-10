@@ -309,7 +309,7 @@ public class ComponentsPublisherTest {
   }
 
   @Test
-  public void skip_unchanged_components_in_short_branches() throws IOException {
+  public void do_not_skip_unchanged_components_in_short_branches() throws IOException {
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
@@ -373,13 +373,14 @@ public class ComponentsPublisherTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isFalse();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isFalse();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+    // do not skip, needed for computing overall coverage
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isTrue();
   }
 
   @Test
-  public void skip_unchanged_components_in_pull_requests() throws IOException {
+  public void do_not_skip_unchanged_components_in_pull_requests() throws IOException {
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
@@ -443,9 +444,10 @@ public class ComponentsPublisherTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isFalse();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isFalse();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+    // do not skip, needed for computing overall coverage
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isTrue();
   }
 
   @Test

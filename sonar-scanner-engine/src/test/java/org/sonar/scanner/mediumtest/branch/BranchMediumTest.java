@@ -70,7 +70,7 @@ public class BranchMediumTest {
   }
 
   @Test
-  public void should_skip_report_for_unchanged_files_in_short_branch() {
+  public void should_not_skip_report_for_unchanged_files_in_short_branch() {
     // sanity check, normally report gets generated
     TaskResult result = getResult(tester);
     assertThat(getResult(tester).getReportComponent(result.inputFile(FILE_PATH).key())).isNotNull();
@@ -79,12 +79,12 @@ public class BranchMediumTest {
     assertThat(result.getReportReader().hasCoverage(fileId)).isTrue();
     assertThat(result.getReportReader().readFileSource(fileId)).isNotNull();
 
-    // file is skipped for short branches (no report, no coverage, no duplications)
+    // file is not skipped for short branches (need coverage, duplications coming soon)
     TaskResult result2 = getResult(tester.setBranchType(BranchType.SHORT));
-    assertThat(result2.getReportComponent(result2.inputFile(FILE_PATH).key())).isNull();
+    assertThat(result2.getReportComponent(result2.inputFile(FILE_PATH).key())).isNotNull();
     assertThat(result2.getReportReader().readChangesets(fileId)).isNull();
-    assertThat(result2.getReportReader().hasCoverage(fileId)).isFalse();
-    assertThat(result.getReportReader().readFileSource(fileId)).isNull();
+    assertThat(result2.getReportReader().hasCoverage(fileId)).isTrue();
+    assertThat(result2.getReportReader().readFileSource(fileId)).isNull();
   }
 
   @Test

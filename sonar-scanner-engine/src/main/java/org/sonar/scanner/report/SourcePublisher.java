@@ -44,7 +44,7 @@ public class SourcePublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    for (final DefaultInputFile inputFile : componentCache.allFilesToPublish()) {
+    for (final DefaultInputFile inputFile : componentCache.allChangedFilesToPublish()) {
       File iofile = writer.getSourceFile(inputFile.batchId());
 
       try (OutputStream output = new BufferedOutputStream(new FileOutputStream(iofile));

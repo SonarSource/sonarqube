@@ -31,12 +31,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -76,11 +76,19 @@ public class InputComponentStore {
     return inputComponents.values();
   }
 
-  public Iterable<DefaultInputFile> allFilesToPublish() {
+  private Stream<DefaultInputFile> allFilesToPublishStream() {
     return inputFileCache.values().stream()
       .map(f -> (DefaultInputFile) f)
-      .filter(DefaultInputFile::isPublished)
-      .filter(f -> !branchConfiguration.isShortOrPullRequest() || f.status() != Status.SAME)
+      .filter(DefaultInputFile::isPublished);
+  }
+
+  public Iterable<DefaultInputFile> allFilesToPublish() {
+    return allFilesToPublishStream()::iterator;
+  }
+
+  public Iterable<DefaultInputFile> allChangedFilesToPublish() {
+    return allFilesToPublishStream()
+      .filter(f -> !branchConfiguration.isShortOrPullRequest() || f.status() != InputFile.Status.SAME)
       ::iterator;
   }
 

@@ -119,7 +119,7 @@ public class ChangedLinesPublisherTest {
     Set<Path> paths = new HashSet<>(Arrays.asList(BASE_DIR.resolve("path1"), BASE_DIR.resolve("path2")));
     Set<Integer> lines = new HashSet<>(Arrays.asList(1, 10));
     when(provider.branchChangedLines(TARGET_BRANCH, BASE_DIR, paths)).thenReturn(Collections.singletonMap(BASE_DIR.resolve("path1"), lines));
-    when(inputComponentStore.allFilesToPublish()).thenReturn(Arrays.asList(fileWithChangedLines, fileWithoutChangedLines));
+    when(inputComponentStore.allChangedFilesToPublish()).thenReturn(Arrays.asList(fileWithChangedLines, fileWithoutChangedLines));
 
     publisher.publish(writer);
 

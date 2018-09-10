@@ -72,10 +72,16 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   }
 
   private int writeChangedLines(ScmProvider provider, ScannerReportWriter writer) {
+    String targetBranchName = branchConfiguration.branchTarget();
+    if (targetBranchName == null) {
+      return 0;
+    }
+
     Path rootBaseDir = inputModuleHierarchy.root().getBaseDir();
-    Map<Path, DefaultInputFile> allPublishedFiles = StreamSupport.stream(inputComponentStore.allFilesToPublish().spliterator(), false)
+    Map<Path, DefaultInputFile> changedFiles = StreamSupport.stream(inputComponentStore.allChangedFilesToPublish().spliterator(), false)
       .collect(Collectors.toMap(DefaultInputFile::path, f -> f));
-    Map<Path, Set<Integer>> pathSetMap = provider.branchChangedLines(branchConfiguration.branchTarget(), rootBaseDir, allPublishedFiles.keySet());
+
+    Map<Path, Set<Integer>> pathSetMap = provider.branchChangedLines(targetBranchName, rootBaseDir, changedFiles.keySet());
     int count = 0;
 
     if (pathSetMap == null) {
@@ -84,7 +90,7 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
       return count;
     }
 
-    for (Map.Entry<Path, DefaultInputFile> e : allPublishedFiles.entrySet()) {
+    for (Map.Entry<Path, DefaultInputFile> e : changedFiles.entrySet()) {
       Set<Integer> changedLines = pathSetMap.getOrDefault(e.getKey(), Collections.emptySet());
 
       if (changedLines.isEmpty()) {
