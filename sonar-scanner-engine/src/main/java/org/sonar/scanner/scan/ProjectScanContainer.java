@@ -55,6 +55,7 @@ import org.sonar.scanner.issue.tracking.LocalIssueTracking;
 import org.sonar.scanner.issue.tracking.ServerIssueRepository;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.mediumtest.ScanTaskObservers;
+import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.ChangedLinesPublisher;
@@ -188,6 +189,8 @@ public class ProjectScanContainer extends ComponentContainer {
       // context
       ContextPropertiesCache.class,
       ContextPropertiesPublisher.class,
+
+      DefaultAnalysisWarnings.class,
 
       SensorStrategy.class,
 
