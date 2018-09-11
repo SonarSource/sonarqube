@@ -27,7 +27,7 @@ import Search from './Search';
 import SearchEntryResult from './SearchEntryResult';
 
 export default class Sidebar extends React.PureComponent {
-  state = { loaded: false, query: '', results: [], versions: [] };
+  state = { loaded: false, results: [], versions: [] };
 
   componentDidMount() {
     this.loadVersions();
@@ -74,8 +74,8 @@ export default class Sidebar extends React.PureComponent {
     );
   };
 
-  handleSearch = (results, query) => {
-    this.setState({ results, query });
+  handleSearch = results => {
+    this.setState({ results });
   };
 
   render() {
@@ -111,8 +111,8 @@ export default class Sidebar extends React.PureComponent {
         </div>
         <div className="page-indexes">
           <Search pages={this.props.pages} onResultsChange={this.handleSearch} />
-          {this.state.query !== '' && this.renderResults()}
-          {this.state.query === '' &&
+          {this.state.results.length > 0 && this.renderResults()}
+          {this.state.results.length === 0 &&
             Object.keys(nodes).map(key => (
               <CategoryLink
                 key={key}

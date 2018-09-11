@@ -19,16 +19,13 @@
  */
 import React, { Component } from 'react';
 import lunr, { LunrIndex } from 'lunr';
-import ClearIcon from './icons/ClearIcon';
 
 // Search component
 export default class Search extends Component {
   index = null;
-  input = null;
 
   constructor(props) {
     super(props);
-    this.state = { value: '' };
     this.index = lunr(function() {
       this.ref('id');
       this.field('title', { boost: 10 });
@@ -40,7 +37,7 @@ export default class Search extends Component {
         this.add({
           id: page.id,
           title: page.frontmatter.title,
-          text: page.html.replace(/<(?:.|\n)*?>/gm, '').replace(/&#x3C;(?:.|\n)*?>/gm, '')
+          text: page.html.replace(/<(?:.|\n)*?>/gm, '')
         })
       );
     });
@@ -69,7 +66,7 @@ export default class Search extends Component {
           id: page.id,
           slug: page.fields.slug,
           title: page.frontmatter.title,
-          text: page.html.replace(/<(?:.|\n)*?>/gm, '').replace(/&#x3C;(?:.|\n)*?>/gm, '')
+          text: page.html.replace(/<(?:.|\n)*?>/gm, '')
         },
         highlights,
         longestTerm
@@ -77,43 +74,25 @@ export default class Search extends Component {
     });
   };
 
-  handleClear = event => {
-    this.setState({ value: '' });
-    this.props.onResultsChange([], '');
-    if (this.input) {
-      this.input.focus();
-    }
-  };
-
   handleChange = event => {
     const { value } = event.currentTarget;
-    this.setState({ value });
     if (value != '') {
       const results = this.getFormattedResults(value, this.index.search(`${value}~1 ${value}*`));
-      this.props.onResultsChange(results, value);
+      this.props.onResultsChange(results);
     } else {
-      this.props.onResultsChange([], value);
+      this.props.onResultsChange([]);
     }
   };
 
   render() {
     return (
-      <div className="search-container">
-        <input
-          aria-label="Search"
-          className="search-input"
-          onChange={this.handleChange}
-          placeholder="Search..."
-          ref={node => (this.input = node)}
-          type="search"
-          value={this.state.value}
-        />
-        {this.state.value && (
-          <button onClick={this.handleClear}>
-            <ClearIcon size="8" />
-          </button>
-        )}
-      </div>
+      <input
+        aria-label="Search"
+        className="search-input"
+        onChange={this.handleChange}
+        placeholder="Search..."
+        type="search"
+      />
     );
   }
 }
