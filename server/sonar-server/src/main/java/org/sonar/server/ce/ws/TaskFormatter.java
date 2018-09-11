@@ -46,6 +46,7 @@ import org.sonarqube.ws.Common;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -95,18 +96,18 @@ public class TaskFormatter {
     return builder.build();
   }
 
-  public Ce.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext) {
-    return formatActivity(dto, DtoCache.forActivityDtos(dbClient, dbSession, singletonList(dto)), scannerContext);
+  public Ce.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext, List<String> warnings) {
+    return formatActivity(dto, DtoCache.forActivityDtos(dbClient, dbSession, singletonList(dto)), scannerContext, warnings);
   }
 
   public List<Ce.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
     DtoCache cache = DtoCache.forActivityDtos(dbClient, dbSession, dtos);
     return dtos.stream()
-      .map(input -> formatActivity(input, cache, null))
+      .map(input -> formatActivity(input, cache, null, emptyList()))
       .collect(MoreCollectors.toList(dtos.size()));
   }
 
-  private static Ce.Task formatActivity(CeActivityDto dto, DtoCache cache, @Nullable String scannerContext) {
+  private static Ce.Task formatActivity(CeActivityDto dto, DtoCache cache, @Nullable String scannerContext, List<String> warnings) {
     Ce.Task.Builder builder = Ce.Task.newBuilder();
     String organizationKey = cache.getOrganizationKey(dto.getComponentUuid());
     setNullable(organizationKey, builder::setOrganization);
@@ -129,6 +130,9 @@ public class TaskFormatter {
     setNullable(dto.getErrorType(), builder::setErrorType);
     setNullable(scannerContext, builder::setScannerContext);
     builder.setHasScannerContext(dto.isHasScannerContext());
+    builder.setWarningCount(dto.getWarningCount());
+    warnings.forEach(builder::addWarnings);
+
     return builder.build();
   }
 

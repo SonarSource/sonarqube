@@ -20,12 +20,12 @@
 package org.sonar.server.ce.ws;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -53,6 +53,7 @@ import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
@@ -209,16 +210,16 @@ public class ActivityAction implements CeWsAction {
   private Optional<Ce.Task> searchTaskByUuid(DbSession dbSession, Request request) {
     String textQuery = request.getQ();
     if (textQuery == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
-    java.util.Optional<CeQueueDto> queue = dbClient.ceQueueDao().selectByUuid(dbSession, textQuery);
+    Optional<CeQueueDto> queue = dbClient.ceQueueDao().selectByUuid(dbSession, textQuery);
     if (queue.isPresent()) {
       return Optional.of(formatter.formatQueue(dbSession, queue.get()));
     }
 
-    java.util.Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
-    return activity.map(ceActivityDto -> Optional.of(formatter.formatActivity(dbSession, ceActivityDto, null))).orElseGet(Optional::absent);
+    Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
+    return activity.map(ceActivityDto -> formatter.formatActivity(dbSession, ceActivityDto, null, emptyList()));
   }
 
   private CeTaskQuery buildQuery(DbSession dbSession, Request request, @Nullable ComponentDto component) {

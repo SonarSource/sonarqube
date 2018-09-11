@@ -20,6 +20,8 @@
 package org.sonar.server.ce.ws;
 
 import java.util.Collections;
+import java.util.Random;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -44,6 +47,7 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
@@ -103,12 +107,15 @@ public class ComponentActionTest {
     assertThat(response.getQueue(1).getId()).isEqualTo("T5");
     // T3 is the latest task executed on PROJECT_1
     assertThat(response.hasCurrent()).isTrue();
-    assertThat(response.getCurrent().getId()).isEqualTo("T3");
-    assertThat(response.getCurrent().hasAnalysisId()).isFalse();
+    Ce.Task current = response.getCurrent();
+    assertThat(current.getId()).isEqualTo("T3");
+    assertThat(current.hasAnalysisId()).isFalse();
+    assertThat(current.getWarningCount()).isZero();
+    assertThat(current.getWarningsList()).isEmpty();
     assertThat(response.getQueueList())
       .extracting(Ce.Task::getOrganization)
       .containsOnly(organization.getKey());
-    assertThat(response.getCurrent().getOrganization()).isEqualTo(organization.getKey());
+    assertThat(current.getOrganization()).isEqualTo(organization.getKey());
   }
 
   @Test
@@ -122,8 +129,11 @@ public class ComponentActionTest {
       .setParam(PARAM_COMPONENT, project.getDbKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
-    assertThat(response.getCurrent().getId()).isEqualTo("T1");
-    assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());
+    Ce.Task current = response.getCurrent();
+    assertThat(current.getId()).isEqualTo("T1");
+    assertThat(current.getAnalysisId()).isEqualTo(analysis.getUuid());
+    assertThat(current.getWarningCount()).isZero();
+    assertThat(current.getWarningsList()).isEmpty();
   }
 
   @Test
@@ -137,8 +147,11 @@ public class ComponentActionTest {
       .setParam(PARAM_COMPONENT_ID, project.uuid())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
-    assertThat(response.getCurrent().getId()).isEqualTo("T1");
-    assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());
+    Ce.Task current = response.getCurrent();
+    assertThat(current.getId()).isEqualTo("T1");
+    assertThat(current.getAnalysisId()).isEqualTo(analysis.getUuid());
+    assertThat(current.getWarningCount()).isZero();
+    assertThat(current.getWarningsList()).isEmpty();
   }
 
   @Test
@@ -157,7 +170,10 @@ public class ComponentActionTest {
     assertThat(response.getQueueCount()).isEqualTo(0);
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
     assertThat(response.hasCurrent()).isTrue();
-    assertThat(response.getCurrent().getId()).isEqualTo("T3");
+    Ce.Task current = response.getCurrent();
+    assertThat(current.getId()).isEqualTo("T3");
+    assertThat(current.getWarningCount()).isZero();
+    assertThat(current.getWarningsList()).isEmpty();
   }
 
   @Test
@@ -175,9 +191,9 @@ public class ComponentActionTest {
       .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getCurrent())
-      .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
+      .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        "T1", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.SUCCESS, project.getKey());
+        "T1", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.SUCCESS, project.getKey(), 0, emptyList());
   }
 
   @Test
@@ -197,10 +213,10 @@ public class ComponentActionTest {
       .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getQueueList())
-      .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
+      .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.IN_PROGRESS, project.getKey()),
-        tuple("T2", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.PENDING, project.getKey()));
+        tuple("T1", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.IN_PROGRESS, project.getKey(), 0, emptyList()),
+        tuple("T2", longLivingBranch.getBranch(), Common.BranchType.LONG, Ce.TaskStatus.PENDING, project.getKey(), 0, emptyList()));
   }
 
   @Test
@@ -222,11 +238,34 @@ public class ComponentActionTest {
       .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getQueueList())
-      .extracting(Ce.Task::getId, Ce.Task::getComponentKey, Ce.Task::getBranch, Ce.Task::getBranchType)
+      .extracting(Ce.Task::getId, Ce.Task::getComponentKey, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        tuple("Main", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE),
-        tuple("Long", longLivingBranch.getKey(), longLivingBranch.getBranch(), Common.BranchType.LONG),
-        tuple("Short", shortLivingBranch.getKey(), shortLivingBranch.getBranch(), Common.BranchType.SHORT));
+        tuple("Main", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, 0, emptyList()),
+        tuple("Long", longLivingBranch.getKey(), longLivingBranch.getBranch(), Common.BranchType.LONG, 0, emptyList()),
+        tuple("Short", shortLivingBranch.getKey(), shortLivingBranch.getBranch(), Common.BranchType.SHORT, 0, emptyList()));
+  }
+
+  @Test
+  public void populates_warning_count_of_activities_but_not_warnings() {
+    ComponentDto privateProject = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, privateProject);
+    SnapshotDto analysis = db.components().insertSnapshot(privateProject);
+    CeActivityDto activity = insertActivity("Short", privateProject, SUCCESS, analysis);
+    int messageCount = 1 + new Random().nextInt(10);
+    IntStream.range(0, messageCount).forEach(i -> db.getDbClient().ceTaskMessageDao().insert(db.getSession(), new CeTaskMessageDto()
+      .setUuid("uuid_" + i)
+      .setTaskUuid(activity.getUuid())
+      .setMessage("m_" + i)
+      .setCreatedAt(i)));
+    db.commit();
+
+    Ce.ComponentResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, privateProject.getKey())
+      .executeProtobuf(Ce.ComponentResponse.class);
+    assertThat(response.hasCurrent()).isTrue();
+    assertThat(response.getCurrent())
+      .extracting(Ce.Task::getWarningCount, Ce.Task::getWarningsList)
+      .containsOnly(messageCount, emptyList());
   }
 
   @Test

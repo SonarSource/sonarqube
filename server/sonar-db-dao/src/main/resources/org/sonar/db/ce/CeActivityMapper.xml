@@ -15,6 +15,10 @@
     csc.task_uuid is not null as hasScannerContext
   </sql>
 
+  <sql id="countWarnings">
+    (select count(1) from ce_task_message ctm where ctm.task_uuid = ca.uuid) as warningCount
+  </sql>
+
   <sql id="columns">
     ca.id,
     ca.uuid,
@@ -42,25 +46,31 @@
 
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
     select
-    <include refid="columns"/>,
-    ca.error_stacktrace as errorStacktrace
+      <include refid="columns"/>,
+      ca.error_stacktrace as errorStacktrace,
+      <include refid="countWarnings"/>
     from ce_activity ca
-    left outer join ce_scanner_context csc on ca.uuid = csc.task_uuid
-    where ca.uuid=#{uuid,jdbcType=VARCHAR}
+    left outer join ce_scanner_context csc on
+      ca.uuid = csc.task_uuid
+    where
+      ca.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
     select
-      <include refid="columns"/>
+      <include refid="columns"/>,
+      <include refid="countWarnings"/>
     <include refid="sqlSelectByQuery" />
-    order by ca.id desc
+    order by
+      ca.id desc
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="mssql">
     select * from (
     select row_number() over(order by id desc) as number,
-      <include refid="columns"/>
+      <include refid="columns"/>,
+      <include refid="countWarnings"/>
       <include refid="sqlSelectByQuery" />
       ) as query
     where
@@ -72,7 +82,8 @@
     select * from (
       select rownum as rn, t.* from (
         select
-        <include refid="columns"/>
+        <include refid="columns"/>,
+        <include refid="countWarnings"/>
         <include refid="sqlSelectByQuery" />
         order by ca.id desc
       ) t

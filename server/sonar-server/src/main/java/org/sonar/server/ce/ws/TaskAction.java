@@ -38,6 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
@@ -105,7 +106,9 @@ public class TaskAction implements CeWsAction {
         Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
         maskErrorStacktrace(ceActivityDto, additionalFields);
         wsTaskResponse.setTask(
-          wsTaskFormatter.formatActivity(dbSession, ceActivityDto, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
+          wsTaskFormatter.formatActivity(dbSession, ceActivityDto,
+            extractScannerContext(dbSession, ceActivityDto, additionalFields),
+            extractWarnings(dbSession, ceActivityDto, additionalFields)));
       }
       writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
     }
@@ -147,9 +150,20 @@ public class TaskAction implements CeWsAction {
     return null;
   }
 
+  private List<String> extractWarnings(DbSession dbSession, CeActivityDto activityDto, Set<AdditionalField> additionalFields) {
+    if (additionalFields.contains(AdditionalField.WARNINGS)) {
+      List<CeTaskMessageDto> dtos = dbClient.ceTaskMessageDao().selectByTask(dbSession, activityDto.getUuid());
+      return dtos.stream()
+        .map(CeTaskMessageDto::getMessage)
+        .collect(MoreCollectors.toList(dtos.size()));
+    }
+    return Collections.emptyList();
+  }
+
   private enum AdditionalField {
     STACKTRACE("stacktrace"),
-    SCANNER_CONTEXT("scannerContext");
+    SCANNER_CONTEXT("scannerContext"),
+    WARNINGS("warnings");
 
     private final String label;
 

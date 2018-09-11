@@ -105,6 +105,8 @@ message Task {
   optional string errorType = 23;
   optional string pullRequest = 24;
   optional string pullRequestTitle = 25;
+  optional int32 warningCount = 26;
+  repeated string warnings = 27;
 }
 
 enum TaskStatus {

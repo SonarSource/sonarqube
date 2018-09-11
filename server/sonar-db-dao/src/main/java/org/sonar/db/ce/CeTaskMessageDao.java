@@ -19,12 +19,20 @@
  */
 package org.sonar.db.ce;
 
+import java.util.List;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 public class CeTaskMessageDao implements Dao {
   public void insert(DbSession dbSession, CeTaskMessageDto dto) {
     getMapper(dbSession).insert(dto);
+  }
+
+  /**
+   * @return the messages for the specific task, if any, in ascending order of column {@code CREATED_AT}.
+   */
+  public List<CeTaskMessageDto> selectByTask(DbSession dbSession, String taskUuid) {
+    return getMapper(dbSession).selectByTask(taskUuid);
   }
 
   private static CeTaskMessageMapper getMapper(DbSession dbSession) {

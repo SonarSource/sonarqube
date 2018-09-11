@@ -22,6 +22,7 @@ package org.sonar.server.ce.ws;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +37,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -57,6 +59,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -116,6 +119,7 @@ public class ActivityActionTest {
     assertThat(task.hasAnalysisId()).isFalse();
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
+    assertThat(task.getWarningCount()).isZero();
 
     task = activityResponse.getTasks(1);
     assertThat(task.getId()).isEqualTo("T1");
@@ -123,6 +127,7 @@ public class ActivityActionTest {
     assertThat(task.getComponentId()).isEqualTo(project1.uuid());
     assertThat(task.getLogs()).isFalse();
     assertThat(task.getOrganization()).isEqualTo(org1.getKey());
+    assertThat(task.getWarningCount()).isZero();
   }
 
   @Test
@@ -212,6 +217,36 @@ public class ActivityActionTest {
     assertPage(1, asList("T3"));
     assertPage(2, asList("T3", "T2"));
     assertPage(10, asList("T3", "T2", "T1"));
+  }
+
+  @Test
+  public void return_warnings_count_on_queue_and_activity_but_no_warnings_list() {
+    logInAsSystemAdministrator();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, FAILED);
+    insertQueue("T3", project1, IN_PROGRESS);
+    insertMessages("T1", 2);
+    insertMessages("T2", 0);
+    insertMessages("T3", 5);
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(Param.PAGE_SIZE, Integer.toString(10))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
+    assertThat(activityResponse.getTasksList())
+      .extracting(Task::getId, Task::getWarningCount, Task::getWarningsList)
+      .containsOnly(tuple("T1", 2, emptyList()), tuple("T2", 0, emptyList()), tuple("T3", 0, emptyList()));
+  }
+
+  private void insertMessages(String taskUuid, int messageCount) {
+    IntStream.range(0, messageCount)
+      .forEach(i -> db.getDbClient().ceTaskMessageDao().insert(db.getSession(), new CeTaskMessageDto()
+        .setUuid("uuid_" + taskUuid + "_" + i)
+        .setTaskUuid(taskUuid)
+        .setMessage("m_" + taskUuid + "_" + i)
+        .setCreatedAt(taskUuid.hashCode() + i)));
+    db.commit();
   }
 
   @Test

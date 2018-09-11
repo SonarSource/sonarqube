@@ -19,11 +19,15 @@
  */
 package org.sonar.server.ce.ws;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Random;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -35,6 +39,8 @@ import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Ce;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -45,6 +51,10 @@ public class TaskFormatterTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private int warningCount = new Random().nextInt(10);
 
   private System2 system2 = mock(System2.class);
   private TaskFormatter underTest = new TaskFormatter(db.getDbClient(), system2);
@@ -164,11 +174,21 @@ public class TaskFormatterTest {
   }
 
   @Test
+  public void formatActivity_throws_NPE_if_warnings_parameter_is_null() {
+    UserDto user = db.users().insertUser();
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, user);
+
+    expectedException.expect(NullPointerException.class);
+
+    underTest.formatActivity(db.getSession(), dto, "foo", null);
+  }
+
+  @Test
   public void formatActivity() {
     UserDto user = db.users().insertUser();
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, user);
 
-    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null);
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null, emptyList());
 
     assertThat(wsTask.getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(wsTask.getId()).isEqualTo("UUID");
@@ -179,6 +199,8 @@ public class TaskFormatterTest {
     assertThat(wsTask.getAnalysisId()).isEqualTo("U1");
     assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.hasScannerContext()).isFalse();
+    assertThat(wsTask.getWarningCount()).isEqualTo(warningCount);
+    assertThat(wsTask.getWarningsList()).isEmpty();
   }
 
   @Test
@@ -186,10 +208,21 @@ public class TaskFormatterTest {
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
 
     String expected = "scanner context baby!";
-    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, expected);
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, expected, emptyList());
 
     assertThat(wsTask.hasScannerContext()).isTrue();
     assertThat(wsTask.getScannerContext()).isEqualTo(expected);
+  }
+
+  @Test
+  public void formatActivity_set_warnings_list_if_argument_is_non_empty_not_checking_consistency_with_warning_count() {
+    CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
+    String[] warnings = IntStream.range(0, warningCount + 1 + new Random().nextInt(5)).mapToObj(i -> "warning_" + i).toArray(String[]::new);
+
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null, Arrays.stream(warnings).collect(toList()));
+
+    assertThat(wsTask.getWarningCount()).isEqualTo(warningCount);
+    assertThat(wsTask.getWarningsList()).containsExactly(warnings);
   }
 
   @Test
@@ -251,9 +284,28 @@ public class TaskFormatterTest {
       .setComponentUuid(componentUuid)
       .setSubmitterUuid(user == null ? null : user.getUuid())
       .setUuid(taskUuid);
-    return new CeActivityDto(queueDto)
+    TestActivityDto testActivityDto = new TestActivityDto(queueDto);
+    testActivityDto.setWarningCount(warningCount);
+    return testActivityDto
       .setStatus(status)
       .setExecutionTimeMs(500L)
       .setAnalysisUuid("U1");
+  }
+
+  private class TestActivityDto extends CeActivityDto {
+
+    public TestActivityDto(CeQueueDto queueDto) {
+      super(queueDto);
+    }
+
+    @Override
+    public CeActivityDto setHasScannerContext(boolean hasScannerContext) {
+      return super.setHasScannerContext(hasScannerContext);
+    }
+
+    @Override
+    public CeActivityDto setWarningCount(int warningCount) {
+      return super.setWarningCount(warningCount);
+    }
   }
 }

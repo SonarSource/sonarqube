@@ -3,6 +3,24 @@
 
 <mapper namespace="org.sonar.db.ce.CeTaskMessageMapper">
 
+  <sql id="columns">
+    ctm.uuid,
+    ctm.task_uuid as taskUuid,
+    ctm.message as message,
+    ctm.created_at as createdAt
+  </sql>
+
+  <select id="selectByTask" resultType="org.sonar.db.ce.CeTaskMessageDto">
+    select
+      <include refid="columns"/>
+    from
+      ce_task_message ctm
+    where
+      ctm.task_uuid=#{taskUuid,jdbcType=VARCHAR}
+    order by
+      ctm.created_at asc
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.ce.CeTaskMessageDto" useGeneratedKeys="false">
     insert into ce_task_message
     (

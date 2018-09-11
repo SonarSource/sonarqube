@@ -96,9 +96,14 @@ public class CeActivityDto {
    * Flag indicating whether the analysis of the current activity has a scanner context or not.
    * <p>
    * This property can not be populated when inserting but <strong>is populated when reading</strong>.
-   * </p>
    */
   private boolean hasScannerContext;
+  /**
+   * Count of warnings attached to the current activity.
+   * <p>
+   * This property can not be populated when inserting but <strong>is populated when retrieving the activity by UUID</strong>.
+   */
+  private int warningCount = 0;
 
   CeActivityDto() {
     // required for MyBatis
@@ -311,8 +316,19 @@ public class CeActivityDto {
     return hasScannerContext;
   }
 
-  protected void setHasScannerContext(boolean hasScannerContext) {
+  protected CeActivityDto setHasScannerContext(boolean hasScannerContext) {
     this.hasScannerContext = hasScannerContext;
+    return this;
+  }
+
+  public int getWarningCount() {
+    return warningCount;
+  }
+
+  protected CeActivityDto setWarningCount(int warningCount) {
+    checkArgument(warningCount >= 0);
+    this.warningCount = warningCount;
+    return this;
   }
 
   @Override
@@ -339,6 +355,7 @@ public class CeActivityDto {
       ", errorMessage='" + errorMessage + '\'' +
       ", errorStacktrace='" + errorStacktrace + '\'' +
       ", hasScannerContext=" + hasScannerContext +
+      ", warningCount=" + warningCount +
       '}';
   }
 

@@ -132,6 +132,16 @@ public class CeActivityDtoTest {
     assertThat(underTest.getErrorMessage()).isEqualTo(before + after);
   }
 
+  @Test
+  public void setWarningCount_throws_IAE_if_less_than_0() {
+    underTest.setWarningCount(0);
+    underTest.setWarningCount(1 + new Random().nextInt(10));
+
+    expectedException.expect(IllegalArgumentException.class);
+
+    underTest.setWarningCount(-1 - new Random().nextInt(10));
+  }
+
   @DataProvider
   public static Object[][] stringsWithChar0() {
     return new Object[][] {

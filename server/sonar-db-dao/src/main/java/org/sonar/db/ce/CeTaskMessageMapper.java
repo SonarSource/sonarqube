@@ -19,9 +19,12 @@
  */
 package org.sonar.db.ce;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface CeTaskMessageMapper {
   void insert(@Param("dto") CeTaskMessageDto dto);
+
+  List<CeTaskMessageDto> selectByTask(@Param("taskUuid") String taskUuid);
 
 }
