@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.batch;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
@@ -312,6 +313,18 @@ public class BatchReportReaderImplTest {
 
     CloseableIterator<ScannerReport.CoverageDetail> res = underTest.readCoverageDetails(COMPONENT_REF);
     assertThat(res).containsExactly(COVERAGE_DETAIL_1, COVERAGE_DETAIL_2);
+    res.close();
+  }
+
+  @Test
+  public void verify_readAnalysisWarnings() {
+    ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
+    ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
+    ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
+    writer.writeAnalysisWarnings(warnings);
+
+    CloseableIterator<ScannerReport.AnalysisWarning> res = underTest.readAnalysisWarnings();
+    assertThat(res).containsExactlyElementsOf(warnings);
     res.close();
   }
 }

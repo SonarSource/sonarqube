@@ -64,11 +64,11 @@ public class AnalysisWarningsPublisherTest {
     underTest.publish(writer);
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
-//    List<ScannerReport.AnalysisWarning> warnings = Lists.newArrayList(reader.readAnalysisWarnings());
-//
-//    assertThat(warnings)
-//      .extracting(ScannerReport.AnalysisWarning::getText)
-//      .containsExactly(warning1, warning2);
+    List<ScannerReport.AnalysisWarning> warnings = Lists.newArrayList(reader.readAnalysisWarnings());
+
+    assertThat(warnings)
+      .extracting(ScannerReport.AnalysisWarning::getText)
+      .containsExactly(warning1, warning2);
   }
 
   @Test
@@ -81,8 +81,8 @@ public class AnalysisWarningsPublisherTest {
     assertThat(writer.getFileStructure().analysisWarnings()).doesNotExist();
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
-//    List<ScannerReport.AnalysisWarning> warnings = Lists.newArrayList(reader.readAnalysisWarnings());
-//
-//    assertThat(warnings).isEmpty();
+    List<ScannerReport.AnalysisWarning> warnings = Lists.newArrayList(reader.readAnalysisWarnings());
+
+    assertThat(warnings).isEmpty();
   }
 }

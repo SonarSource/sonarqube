@@ -68,4 +68,6 @@ public interface BatchReportReader {
   Optional<CloseableIterator<ScannerReport.LineSgnificantCode>> readComponentSignificantCode(int fileRef);
 
   Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef);
+
+  CloseableIterator<ScannerReport.AnalysisWarning> readAnalysisWarnings();
 }

@@ -209,6 +209,14 @@ public class ScannerReportReader {
     return Protobuf.readStream(file, ScannerReport.ContextProperty.parser());
   }
 
+  public CloseableIterator<ScannerReport.AnalysisWarning> readAnalysisWarnings() {
+    File file = fileStructure.analysisWarnings();
+    if (!fileExists(file)) {
+      return emptyCloseableIterator();
+    }
+    return Protobuf.readStream(file, ScannerReport.AnalysisWarning.parser());
+  }
+
   private static boolean fileExists(File file) {
     return file.exists() && file.isFile();
   }

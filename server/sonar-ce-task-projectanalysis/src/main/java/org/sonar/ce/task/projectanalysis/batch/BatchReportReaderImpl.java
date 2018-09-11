@@ -274,7 +274,15 @@ public class BatchReportReaderImpl implements BatchReportReader {
     return Optional.ofNullable(delegate.readComponentSignificantCode(fileRef));
   }
 
-  @Override public Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef) {
+  @Override
+  public Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef) {
+    ensureInitialized();
     return Optional.ofNullable(delegate.readComponentChangedLines(fileRef));
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.AnalysisWarning> readAnalysisWarnings() {
+    ensureInitialized();
+    return delegate.readAnalysisWarnings();
   }
 }

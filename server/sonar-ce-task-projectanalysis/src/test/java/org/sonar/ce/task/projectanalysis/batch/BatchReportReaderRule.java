@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.batch;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, List<ScannerReport.CoverageDetail>> coverageDetails = new HashMap<>();
   private Map<Integer, List<ScannerReport.LineSgnificantCode>> significantCode = new HashMap<>();
   private Map<Integer, ScannerReport.ChangedLines> changedLines = new HashMap<>();
+  private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -250,8 +252,19 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return this;
   }
 
-  @Override public Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef) {
+  @Override
+  public Optional<ScannerReport.ChangedLines> readComponentChangedLines(int fileRef) {
     return Optional.ofNullable(changedLines.get(fileRef));
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.AnalysisWarning> readAnalysisWarnings() {
+    return closeableIterator(analysisWarnings);
+  }
+
+  public BatchReportReaderRule setAnalysisWarnings(List<ScannerReport.AnalysisWarning> analysisWarnings) {
+    this.analysisWarnings = new ArrayList<>(analysisWarnings);
+    return this;
   }
 
   @Override
