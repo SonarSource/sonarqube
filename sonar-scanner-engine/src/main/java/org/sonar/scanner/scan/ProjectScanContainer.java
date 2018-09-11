@@ -58,6 +58,7 @@ import org.sonar.scanner.mediumtest.ScanTaskObservers;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
+import org.sonar.scanner.report.AnalysisWarningsPublisher;
 import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
@@ -204,6 +205,7 @@ public class ProjectScanContainer extends ComponentContainer {
       AnalysisContextReportPublisher.class,
       MetadataPublisher.class,
       ActiveRulesPublisher.class,
+      AnalysisWarningsPublisher.class,
 
       // Cpd
       CpdExecutor.class,
@@ -226,8 +228,7 @@ public class ProjectScanContainer extends ComponentContainer {
       CoveragePublisher.class,
       SourcePublisher.class,
       ChangedLinesPublisher.class,
-      TestExecutionAndCoveragePublisher.class
-    );
+      TestExecutionAndCoveragePublisher.class);
   }
 
   private void addIssueTrackingComponents() {

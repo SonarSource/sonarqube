@@ -89,6 +89,10 @@ public class FileStructure {
     return new File(dir, "context-props.pb");
   }
 
+  public File analysisWarnings() {
+    return new File(dir, "analysis-warnings.pb");
+  }
+
   public File root() {
     return dir;
   }

@@ -172,6 +172,12 @@ public class ScannerReportWriter {
     return file;
   }
 
+  public File writeAnalysisWarnings(Iterable<ScannerReport.AnalysisWarning> analysisWarnings) {
+    File file = fileStructure.analysisWarnings();
+    Protobuf.writeStream(analysisWarnings, file, false);
+    return file;
+  }
+
   public File getSourceFile(int componentRef) {
     return fileStructure.fileFor(FileStructure.Domain.SOURCE, componentRef);
   }
