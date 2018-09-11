@@ -87,12 +87,12 @@ message ComponentLink {
   
   enum ComponentLinkType {
     UNSET = 0;
-	HOME = 1;
-	SCM = 2;
-	// SCM_DEV is no more set since 7.1. See SONAR-10299
-	IGNORED_SCM_DEV = 3;
-	ISSUE = 4;
-	CI = 5;
+    HOME = 1;
+    SCM = 2;
+    // SCM_DEV is no more set since 7.1. See SONAR-10299
+    IGNORED_SCM_DEV = 3;
+    ISSUE = 4;
+    CI = 5;
   }
 }
 
@@ -121,31 +121,30 @@ message Component {
   // Path relative to project base directory
   string project_relative_path = 14;
   
-	enum ComponentType {
-	  UNSET = 0;
-	  PROJECT = 1;
-	  MODULE = 2;
-	  DIRECTORY = 3;
-	  FILE = 4;
-	}
-	
-	enum FileStatus {
-	  UNAVAILABLE = 0;
-	  SAME = 1;
-	  CHANGED = 2;
-	  ADDED = 3;
-	}
-	
+  enum ComponentType {
+    UNSET = 0;
+    PROJECT = 1;
+    MODULE = 2;
+    DIRECTORY = 3;
+    FILE = 4;
+  }
+
+  enum FileStatus {
+    UNAVAILABLE = 0;
+    SAME = 1;
+    CHANGED = 2;
+    ADDED = 3;
+  }
 }
 
 message Measure {
   string metric_key = 1;
   oneof value {
-	  BoolValue boolean_value = 2;
-	  IntValue int_value = 3;
-	  LongValue long_value = 4;
-	  DoubleValue double_value = 5;
-	  StringValue string_value = 6;
+    BoolValue boolean_value = 2;
+    IntValue int_value = 3;
+    LongValue long_value = 4;
+    DoubleValue double_value = 5;
+    StringValue string_value = 6;
   }
   
   message BoolValue {
@@ -309,16 +308,16 @@ message SyntaxHighlightingRule {
   
   enum HighlightingType {
     UNSET = 0;
-	  ANNOTATION = 1;
-	  CONSTANT = 2;
-	  COMMENT = 3;
-	  CPP_DOC = 4;
-	  STRUCTURED_COMMENT = 5;
-	  KEYWORD = 6;
-	  HIGHLIGHTING_STRING = 7;
-	  KEYWORD_LIGHT = 8;
-	  PREPROCESS_DIRECTIVE = 9;
-	}
+    ANNOTATION = 1;
+    CONSTANT = 2;
+    COMMENT = 3;
+    CPP_DOC = 4;
+    STRUCTURED_COMMENT = 5;
+    KEYWORD = 6;
+    HIGHLIGHTING_STRING = 7;
+    KEYWORD_LIGHT = 8;
+    PREPROCESS_DIRECTIVE = 9;
+  }
 }
 
 message Test {
@@ -328,13 +327,13 @@ message Test {
   string stacktrace = 4;
   string msg = 5;
   
-	enum TestStatus {
-	  UNSET = 0;
-	  OK = 1;
-	  FAILURE = 2;
-	  ERROR = 3;
-	  SKIPPED = 4;
-	}
+  enum TestStatus {
+    UNSET = 0;
+    OK = 1;
+    FAILURE = 2;
+    ERROR = 3;
+    SKIPPED = 4;
+  }
 }
 
 message CoverageDetail {
