@@ -89,6 +89,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+    window.clearTimeout(this.watchStatusTimer);
   }
 
   addQualifier = (component: Component) => ({
