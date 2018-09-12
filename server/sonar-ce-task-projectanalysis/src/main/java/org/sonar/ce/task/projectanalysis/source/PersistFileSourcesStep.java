@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.ce.task.projectanalysis.source;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
@@ -34,9 +34,6 @@ import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawle
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
-import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
-import org.sonar.ce.task.projectanalysis.source.FileSourceDataWarnings;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

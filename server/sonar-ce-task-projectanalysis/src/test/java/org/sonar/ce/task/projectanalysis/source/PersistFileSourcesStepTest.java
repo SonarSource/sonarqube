@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,11 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
-import org.sonar.ce.task.projectanalysis.source.FileSourceDataComputer;
-import org.sonar.ce.task.projectanalysis.source.FileSourceDataWarnings;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepositoryImpl;
-import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
+import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
@@ -49,16 +45,11 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.db.source.LineHashVersion;
-import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.HIGHLIGHTING;
-import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.SYMBOLS;
 
 public class PersistFileSourcesStepTest extends BaseStepTest {
 
@@ -108,8 +99,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     DbFileSources.Data fileSourceData = DbFileSources.Data.newBuilder()
       .addAllLines(Arrays.asList(
         DbFileSources.Line.newBuilder().setSource("line1").setLine(1).build(),
-        DbFileSources.Line.newBuilder().setSource("line2").setLine(2).build()
-      ))
+        DbFileSources.Line.newBuilder().setSource("line2").setLine(2).build()))
       .build();
     when(fileSourceDataComputer.compute(fileComponent(), fileSourceDataWarnings)).thenReturn(new FileSourceDataComputer.Data(fileSourceData, lineHashes, sourceHash, null));
 
@@ -206,8 +196,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .setScmDate(223456789L)
         .build(),
       DbFileSources.Line.newBuilder()
-        .build()
-    )).build();
+        .build()))
+      .build();
     setComputedData(dbData);
 
     underTest.execute(new TestComputationStepContext());
@@ -238,8 +228,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     DbFileSources.Data dbData = DbFileSources.Data.newBuilder().addLines(
       DbFileSources.Line.newBuilder()
         .setHighlighting("2,4,a")
-        .build()
-    ).build();
+        .build())
+      .build();
     setComputedData(dbData);
 
     underTest.execute(new TestComputationStepContext());
@@ -262,8 +252,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       DbFileSources.Line.newBuilder().build(),
       DbFileSources.Line.newBuilder()
         .setSymbols("1,3,1")
-        .build()
-    )).build();
+        .build()))
+      .build();
     setComputedData(dbData);
 
     underTest.execute(new TestComputationStepContext());
@@ -279,8 +269,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     DbFileSources.Data dbData = DbFileSources.Data.newBuilder().addLines(
       DbFileSources.Line.newBuilder()
         .addDuplication(2)
-        .build()
-    ).build();
+        .build())
+      .build();
     setComputedData(dbData);
 
     underTest.execute(new TestComputationStepContext());

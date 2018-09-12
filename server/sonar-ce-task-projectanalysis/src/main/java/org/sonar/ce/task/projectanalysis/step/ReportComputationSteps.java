@@ -25,6 +25,7 @@ import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationChecksStep;
 import org.sonar.ce.task.projectanalysis.purge.PurgeDatastoresStep;
+import org.sonar.ce.task.projectanalysis.source.PersistFileSourcesStep;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.ExecuteStatelessInitExtensionsStep;
 
