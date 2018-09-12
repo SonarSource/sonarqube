@@ -19,10 +19,8 @@
  */
 package org.sonar.xoo.lang;
 
-import com.google.common.base.Splitter;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +33,8 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
+
+import static java.lang.Integer.parseInt;
 
 /**
  * Parse files *.xoo.highlighting
@@ -70,10 +70,21 @@ public class SyntaxHighlightingSensor implements Sensor {
 
   private static void processLine(File highlightingFile, int lineNumber, NewHighlighting highlighting, String line) {
     try {
-      Iterator<String> split = Splitter.on(":").split(line).iterator();
-      int startOffset = Integer.parseInt(split.next());
-      int endOffset = Integer.parseInt(split.next());
-      highlighting.highlight(startOffset, endOffset, TypeOfText.forCssClass(split.next()));
+      String[] split = line.split(":");
+      if (split.length == 3) {
+        int startOffset = parseInt(split[0]);
+        int endOffset = parseInt(split[1]);
+        highlighting.highlight(startOffset, endOffset, TypeOfText.forCssClass(split[2]));
+      } else if (split.length == 5) {
+        int startLine = parseInt(split[0]);
+        int startLineOffset = parseInt(split[1]);
+        int endLine = parseInt(split[2]);
+        int endLineOffset = parseInt(split[3]);
+        highlighting.highlight(startLine, startLineOffset, endLine, endLineOffset, TypeOfText.forCssClass(split[4]));
+      } else {
+        throw new IllegalStateException("Illegal number of elements separated by ':'. " +
+          "Must either be startOffset:endOffset:class (offset in whole file) or startLine:startLineOffset:endLine:endLineOffset:class");
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + highlightingFile.getAbsolutePath(), e);
     }
