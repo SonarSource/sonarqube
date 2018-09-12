@@ -32,6 +32,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
+import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.HIGHLIGHTING;
+import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.SYMBOLS;
 
 public class FileSourceDataWarnings {
   private static final Comparator<Component> COMPONENT_COMPARATOR = Comparator.comparingInt(t -> t.getReportAttributes().getRef());
@@ -61,25 +63,31 @@ public class FileSourceDataWarnings {
   public void commitWarnings() {
     checkNotCommitted();
     this.closed = true;
-    Set<Component> filesWithHighlightingErrors = fileErrorsPerData.get(LineReader.Data.HIGHLIGHTING);
-    if (filesWithHighlightingErrors == null) {
+    createWarning(HIGHLIGHTING, "highlighting");
+    createWarning(SYMBOLS, "symbol");
+  }
+
+  private void createWarning(LineReader.Data data, String dataWording) {
+    Set<Component> filesWithErrors = fileErrorsPerData.get(data);
+    if (filesWithErrors == null) {
       return;
     }
 
-    taskMessages.add(new CeTaskMessages.Message(computeMessage(filesWithHighlightingErrors), system2.now()));
+    taskMessages.add(new CeTaskMessages.Message(computeMessage(dataWording, filesWithErrors), system2.now()));
   }
 
-  private static String computeMessage(Set<Component> filesWithHighlightingErrors) {
-    if (filesWithHighlightingErrors.size() == 1) {
-      Component file = filesWithHighlightingErrors.iterator().next();
-      return format("Inconsistent highlighting data detected on file '%s'. " +
+  private static String computeMessage(String dataWording, Set<Component> filesWithErrors) {
+    if (filesWithErrors.size() == 1) {
+      Component file = filesWithErrors.iterator().next();
+      return format("Inconsistent %s data detected on file '%s'. " +
         "File source may have been modified while analysis was running.",
+        dataWording,
         file.getReportAttributes().getPath());
     }
     String lineHeader = "\n   ° ";
-    return format("Inconsistent highlighting data detected on some files (%s in total). " +
-      "File source may have been modified while analysis was running.", filesWithHighlightingErrors.size())
-      + filesWithHighlightingErrors.stream()
+    return format("Inconsistent %s data detected on some files (%s in total). " +
+      "File source may have been modified while analysis was running.", dataWording, filesWithErrors.size())
+      + filesWithErrors.stream()
         .sorted(COMPONENT_COMPARATOR)
         .limit(5)
         .map(component -> component.getReportAttributes().getPath())
