@@ -35,10 +35,8 @@ interface Props {
   organization?: { key: string };
   property?: string;
   query: { [x: string]: any };
-  value?: Array<string>;
+  value?: string[];
 }
-
-const LIST_SIZE = 10;
 
 export default class LanguagesFilter extends React.Component<Props> {
   static contextTypes = {
@@ -50,9 +48,7 @@ export default class LanguagesFilter extends React.Component<Props> {
     if (this.props.facet) {
       languageKeys = difference(languageKeys, Object.keys(this.props.facet));
     }
-    return languageKeys
-      .slice(0, LIST_SIZE)
-      .map(key => ({ label: this.context.languages[key].name, value: key }));
+    return languageKeys.map(key => ({ label: this.context.languages[key].name, value: key }));
   };
 
   getSortedOptions = (facet: Facet = {}) =>
