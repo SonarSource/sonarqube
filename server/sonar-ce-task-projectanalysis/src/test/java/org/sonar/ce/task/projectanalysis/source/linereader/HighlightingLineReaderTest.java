@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Data.HIGHLIGHTING;
 import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
@@ -259,7 +259,7 @@ public class HighlightingLineReaderTest {
     assertThat(highlightingLineReader.read(line2)).contains(readErrorLine1);
 
     assertNoHighlighting();
-    assertThat(logTester.logs(WARN)).isNotEmpty();
+    assertThat(logTester.logs(DEBUG)).isNotEmpty();
   }
 
   @Test
@@ -281,11 +281,11 @@ public class HighlightingLineReaderTest {
     assertThat(line1.hasHighlighting()).isTrue();
     assertThat(line2.hasHighlighting()).isFalse();
     assertThat(line3.hasHighlighting()).isFalse();
-    assertThat(logTester.logs(WARN)).isNotEmpty();
+    assertThat(logTester.logs(DEBUG)).isNotEmpty();
   }
 
   @Test
-  public void display_file_key_in_warning_when_range_offset_converter_throw_RangeOffsetConverterException() {
+  public void display_file_key_in_debug_when_range_offset_converter_throw_RangeOffsetConverterException() {
     TextRange textRange1 = newTextRange(LINE_1, LINE_1);
     doThrow(RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(textRange1, LINE_1, DEFAULT_LINE_LENGTH);
     HighlightingLineReader highlightingLineReader = newReader(of(textRange1, ANNOTATION));
@@ -293,7 +293,7 @@ public class HighlightingLineReaderTest {
     assertThat(highlightingLineReader.read(line1))
       .contains(new LineReader.ReadError(HIGHLIGHTING, 1));
 
-    assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Highlighting data. Highlighting will be ignored for file 'FILE_KEY'");
+    assertThat(logTester.logs(DEBUG)).containsOnly("Inconsistency detected in Highlighting data. Highlighting will be ignored for file 'FILE_KEY'");
   }
 
   private HighlightingLineReader newReader(Map<TextRange, HighlightingType> textRangeByType) {
