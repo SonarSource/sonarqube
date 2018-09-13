@@ -40,12 +40,25 @@ public class RuleDefinitionDto {
   private Integer id;
   private String repositoryKey;
   private String ruleKey;
+
+  /**
+   * Description can be null on external rule, otherwise it should never be null
+   */
   private String description;
+
+  /**
+   * Description format can be null on external rule, otherwise it should never be null
+   */
   private RuleDto.Format descriptionFormat;
   private RuleStatus status;
   private String name;
   private String configKey;
+
+  /**
+   * Severity can be null on external rule, otherwise it should never be null
+   */
   private Integer severity;
+
   private boolean isTemplate;
 
   /**
@@ -128,20 +141,22 @@ public class RuleDefinitionDto {
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public RuleDefinitionDto setDescription(String description) {
+  public RuleDefinitionDto setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
 
+  @CheckForNull
   public RuleDto.Format getDescriptionFormat() {
     return descriptionFormat;
   }
 
-  public RuleDefinitionDto setDescriptionFormat(RuleDto.Format descriptionFormat) {
+  public RuleDefinitionDto setDescriptionFormat(@Nullable RuleDto.Format descriptionFormat) {
     this.descriptionFormat = descriptionFormat;
     return this;
   }

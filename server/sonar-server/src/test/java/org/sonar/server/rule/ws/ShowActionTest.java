@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -41,6 +43,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.ShowResponse;
@@ -60,6 +63,8 @@ import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.server.rule.ws.ShowAction.PARAM_ACTIVES;
 import static org.sonar.server.rule.ws.ShowAction.PARAM_KEY;
 import static org.sonar.server.rule.ws.ShowAction.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.Common.RuleType.UNKNOWN;
+import static org.sonarqube.ws.Common.RuleType.VULNERABILITY;
 
 public class ShowActionTest {
 
@@ -230,6 +235,7 @@ public class ShowActionTest {
 
     Rule resultRule = result.getRule();
     assertThat(resultRule.getDefaultRemFnType()).isEqualTo("LINEAR_OFFSET");
+    assertThat(resultRule.getDefaultRemFnType()).isEqualTo("LINEAR_OFFSET");
     assertThat(resultRule.getDefaultRemFnGapMultiplier()).isEqualTo("5d");
     assertThat(resultRule.getDefaultRemFnBaseEffort()).isEqualTo("10h");
     assertThat(resultRule.getRemFnType()).isEqualTo("CONSTANT_ISSUE");
@@ -311,6 +317,99 @@ public class ShowActionTest {
     assertThat(result.getRule().getHtmlDesc()).isEqualTo(INTERPRETED);
     assertThat(result.getRule().getTemplateKey()).isEqualTo(templateRule.getKey().toString());
     verify(macroInterpreter).interpret("&lt;div&gt;line1<br/>line2&lt;/div&gt;");
+  }
+
+  @Test
+  public void show_external_rule() {
+    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+      .setIsExternal(true)
+      .setName("ext rule name"));
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, externalRule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+    assertThat(resultRule.getName()).isEqualTo("ext rule name");
+  }
+
+  @Test
+  public void show_adhoc_rule() {
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+      .setIsExternal(true)
+      .setIsAdHoc(true));
+    RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(externalRule, organization, m -> m
+      .setAdHocName("adhoc name")
+      .setAdHocDescription("<div>desc</div>")
+      .setAdHocSeverity(Severity.BLOCKER)
+      .setAdHocType(RuleType.VULNERABILITY)
+      .setNoteData(null)
+      .setNoteUserUuid(null));
+    doReturn("&lt;div&gt;desc2&lt;/div&gt;").when(macroInterpreter).interpret(metadata.getAdHocDescription());
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, externalRule.getKey().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+    assertThat(resultRule)
+      .extracting(Rule::getName, Rule::getHtmlDesc, Rule::getSeverity, Rule::getType)
+      .containsExactlyInAnyOrder("adhoc name", "&lt;div&gt;desc2&lt;/div&gt;", Severity.BLOCKER, VULNERABILITY);
+  }
+
+  @Test
+  public void ignore_predefined_info_on_adhoc_rule() {
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+      .setIsExternal(true)
+      .setIsAdHoc(true)
+      .setName("predefined name")
+      .setDescription("<div>predefined desc</div>")
+      .setSeverity(Severity.BLOCKER)
+      .setType(RuleType.VULNERABILITY));
+    RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(externalRule, organization, m -> m
+      .setAdHocName("adhoc name")
+      .setAdHocDescription("<div>adhoc desc</div>")
+      .setAdHocSeverity(Severity.MAJOR)
+      .setAdHocType(RuleType.CODE_SMELL)
+      .setNoteData(null)
+      .setNoteUserUuid(null));
+    doReturn("&lt;div&gt;adhoc desc&lt;/div&gt;").when(macroInterpreter).interpret(metadata.getAdHocDescription());
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, externalRule.getKey().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+    assertThat(resultRule)
+      .extracting(Rule::getName, Rule::getHtmlDesc, Rule::getSeverity, Rule::getType)
+      .containsExactlyInAnyOrder("adhoc name", "&lt;div&gt;adhoc desc&lt;/div&gt;", Severity.MAJOR, Common.RuleType.CODE_SMELL);
+  }
+
+  @Test
+  public void adhoc_info_are_empty_when_no_metadata() {
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto externalRule = db.rules().insert(r -> r
+      .setIsExternal(true)
+      .setIsAdHoc(true)
+      .setName(null)
+      .setDescription(null)
+      .setDescriptionFormat(null)
+      .setSeverity((String) null)
+      .setType(0));
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, externalRule.getKey().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(ShowResponse.class);
+
+    Rule resultRule = result.getRule();
+    assertThat(resultRule)
+      .extracting(Rule::hasName, Rule::hasHtmlDesc, Rule::hasSeverity, Rule::getType)
+      .containsExactlyInAnyOrder(false, false, false, UNKNOWN);
   }
 
   @Test

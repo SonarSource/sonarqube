@@ -629,6 +629,17 @@ public class SearchActionTest {
   }
 
   @Test
+  public void do_not_return_external_rule() {
+    db.rules().insert(r -> r.setIsExternal(true));
+    indexRules();
+
+    SearchResponse result = ws.newRequest().executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getTotal()).isZero();
+    assertThat(result.getRulesCount()).isZero();
+  }
+
+  @Test
   public void search_all_active_rules() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));

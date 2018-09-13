@@ -49,7 +49,6 @@ import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
 import org.sonar.xoo.rule.OneBugIssuePerLineSensor;
 import org.sonar.xoo.rule.OneDayDebtPerFileSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
-import org.sonar.xoo.rule.OnePredefinedRuleExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerDirectorySensor;
 import org.sonar.xoo.rule.OneIssuePerFileSensor;
@@ -57,6 +56,8 @@ import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssuePerModuleSensor;
 import org.sonar.xoo.rule.OneIssuePerTestFileSensor;
 import org.sonar.xoo.rule.OneIssuePerUnknownFileSensor;
+import org.sonar.xoo.rule.OnePredefinedAndAdHocRuleExternalIssuePerLineSensor;
+import org.sonar.xoo.rule.OnePredefinedRuleExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.OneVulnerabilityIssuePerModuleSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
 import org.sonar.xoo.rule.SaveDataTwiceSensor;
@@ -169,6 +170,7 @@ public class XooPlugin implements Plugin {
       context.addExtensions(
         OneExternalIssuePerLineSensor.class,
         OnePredefinedRuleExternalIssuePerLineSensor.class,
+        OnePredefinedAndAdHocRuleExternalIssuePerLineSensor.class,
         SignificantCodeSensor.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 3))) {

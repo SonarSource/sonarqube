@@ -60,7 +60,7 @@ public class XooPluginTest {
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
     assertThat(getExtensions(context))
-      .hasSize(52)
+      .hasSize(53)
       .contains(OneExternalIssuePerLineSensor.class);
   }
 
@@ -70,7 +70,7 @@ public class XooPluginTest {
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
     assertThat(getExtensions(context))
-      .hasSize(53)
+      .hasSize(54)
       .contains(OneExternalIssuePerLineSensor.class);
   }
 
