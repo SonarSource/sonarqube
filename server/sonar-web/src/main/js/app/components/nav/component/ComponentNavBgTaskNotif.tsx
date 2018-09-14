@@ -31,35 +31,38 @@ import { hasMessage, translate } from '../../../../helpers/l10n';
 interface Props {
   component: Component;
   currentTask?: Task;
+  currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
 }
 
 export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> {
-  renderMessage(messageKey: string, status?: string) {
+  renderMessage(messageKey: string, status?: string, branch?: string) {
     const { component } = this.props;
     const canSeeBackgroundTasks =
       component.configuration && component.configuration.showBackgroundTasks;
-    const bgTaskUrl = getComponentBackgroundTaskUrl(component.key, status);
 
+    let url;
     if (canSeeBackgroundTasks) {
-      return (
-        <FormattedMessage
-          defaultMessage={translate(messageKey, 'admin')}
-          id={messageKey + '.admin'}
-          values={{
-            url: <Link to={bgTaskUrl}>{translate('background_tasks.page')}</Link>
-          }}
-        />
+      messageKey += '.admin';
+      url = (
+        <Link to={getComponentBackgroundTaskUrl(component.key, status)}>
+          {translate('background_tasks.page')}
+        </Link>
       );
     }
 
-    return <span>{translate(messageKey)}</span>;
+    return (
+      <FormattedMessage
+        defaultMessage={translate(messageKey)}
+        id={messageKey}
+        values={{ branch, url }}
+      />
+    );
   }
 
   render() {
-    const { currentTask, isInProgress, isPending } = this.props;
-
+    const { currentTask, currentTaskOnSameBranch, isInProgress, isPending } = this.props;
     if (isInProgress) {
       return (
         <NavBarNotif className="alert alert-info">
@@ -81,12 +84,23 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
       ) {
         return <ComponentNavLicenseNotif currentTask={currentTask} />;
       }
+      const branch =
+        currentTask.branch ||
+        `${currentTask.pullRequest}${
+          currentTask.pullRequestTitle ? ' - ' + currentTask.pullRequestTitle : ''
+        }`;
+      let message;
+      if (currentTaskOnSameBranch === false && branch) {
+        message = this.renderMessage(
+          'component_navigation.status.failed_branch',
+          undefined,
+          branch
+        );
+      } else {
+        message = this.renderMessage('component_navigation.status.failed');
+      }
 
-      return (
-        <NavBarNotif className="alert alert-danger">
-          {this.renderMessage('component_navigation.status.failed')}
-        </NavBarNotif>
-      );
+      return <NavBarNotif className="alert alert-danger">{message}</NavBarNotif>;
     }
     return null;
   }

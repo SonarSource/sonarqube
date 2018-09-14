@@ -4,9 +4,50 @@ exports[`renders background task error correctly 1`] = `
 <NavBarNotif
   className="alert alert-danger"
 >
-  <span>
-    component_navigation.status.failed
-  </span>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.failed"
+    id="component_navigation.status.failed"
+    values={
+      Object {
+        "branch": undefined,
+        "url": undefined,
+      }
+    }
+  />
+</NavBarNotif>
+`;
+
+exports[`renders background task error correctly for a different branch/PR 1`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.failed_branch"
+    id="component_navigation.status.failed_branch"
+    values={
+      Object {
+        "branch": "my/branch",
+        "url": undefined,
+      }
+    }
+  />
+</NavBarNotif>
+`;
+
+exports[`renders background task error correctly for a different branch/PR 2`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.failed_branch"
+    id="component_navigation.status.failed_branch"
+    values={
+      Object {
+        "branch": "650 - feature/my_pr",
+        "url": undefined,
+      }
+    }
+  />
 </NavBarNotif>
 `;
 
@@ -17,9 +58,16 @@ exports[`renders background task in progress info correctly 1`] = `
   <i
     className="spinner spacer-right text-bottom"
   />
-  <span>
-    component_navigation.status.in_progress
-  </span>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.in_progress"
+    id="component_navigation.status.in_progress"
+    values={
+      Object {
+        "branch": undefined,
+        "url": undefined,
+      }
+    }
+  />
 </NavBarNotif>
 `;
 
@@ -42,9 +90,16 @@ exports[`renders background task pending info correctly 1`] = `
   <PendingIcon
     className="spacer-right"
   />
-  <span>
-    component_navigation.status.pending
-  </span>
+  <FormattedMessage
+    defaultMessage="component_navigation.status.pending"
+    id="component_navigation.status.pending"
+    values={
+      Object {
+        "branch": undefined,
+        "url": undefined,
+      }
+    }
+  />
 </NavBarNotif>
 `;
 
@@ -60,6 +115,7 @@ exports[`renders background task pending info correctly for admin 1`] = `
     id="component_navigation.status.pending.admin"
     values={
       Object {
+        "branch": undefined,
         "url": <Link
           onlyActiveOnIndex={false}
           style={Object {}}

@@ -43,6 +43,25 @@ it('renders background task error correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
+it('renders background task error correctly for a different branch/PR', () => {
+  expect(
+    getWrapper({
+      currentTask: { branch: 'my/branch', status: 'FAILED' } as Task,
+      currentTaskOnSameBranch: false
+    })
+  ).toMatchSnapshot();
+  expect(
+    getWrapper({
+      currentTask: {
+        pullRequest: '650',
+        pullRequestTitle: 'feature/my_pr',
+        status: 'FAILED'
+      } as Task,
+      currentTaskOnSameBranch: false
+    })
+  ).toMatchSnapshot();
+});
+
 it('renders background task pending info correctly', () => {
   expect(getWrapper({ isPending: true })).toMatchSnapshot();
 });

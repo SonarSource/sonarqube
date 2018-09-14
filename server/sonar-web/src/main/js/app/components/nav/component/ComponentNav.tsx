@@ -35,6 +35,7 @@ interface Props {
   currentBranchLike: BranchLike | undefined;
   component: Component;
   currentTask?: Task;
+  currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
   location: {};
@@ -74,6 +75,7 @@ export default class ComponentNav extends React.PureComponent<Props> {
         <ComponentNavBgTaskNotif
           component={component}
           currentTask={currentTask}
+          currentTaskOnSameBranch={this.props.currentTaskOnSameBranch}
           isInProgress={isInProgress}
           isPending={isPending}
         />
