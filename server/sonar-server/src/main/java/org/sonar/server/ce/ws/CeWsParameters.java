@@ -33,6 +33,9 @@ public class CeWsParameters {
   public static final String PARAM_MIN_SUBMITTED_AT = "minSubmittedAt";
   public static final String PARAM_MAX_EXECUTED_AT = "maxExecutedAt";
 
+  public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_PULL_REQUEST = "pullRequest";
+
   private CeWsParameters() {
     // prevent instantiation
   }

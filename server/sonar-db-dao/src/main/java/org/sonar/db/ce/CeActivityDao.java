@@ -80,6 +80,14 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).countLastByStatusAndMainComponentUuid(status, mainComponentUuid);
   }
 
+  public Optional<CeActivityDto> selectLastByComponentUuid(DbSession dbSession, String componentUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectLastByComponentUuid(componentUuid));
+  }
+
+  public Optional<CeActivityDto> selectLastByMainComponentUuid(DbSession dbSession, String mainComponentUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectLastByMainComponentUuid(mainComponentUuid));
+  }
+
   private static CeActivityMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(CeActivityMapper.class);
   }

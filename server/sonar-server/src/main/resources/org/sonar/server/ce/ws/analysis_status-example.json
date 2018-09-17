@@ -1,0 +1,8 @@
+{
+  "component": {
+    "organization": "my-org-1",
+    "key": "com.github.kevinsawicki:http-request-parent",
+    "name": "HttpRequest",
+    "warnings": []
+  }
+}

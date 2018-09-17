@@ -43,4 +43,10 @@ public interface CeActivityMapper {
   void clearMainIsLast(@Param("mainIsLastKey") String mainIsLastKey, @Param("updatedAt") long updatedAt);
 
   void deleteByUuids(@Param("uuids") List<String> uuids);
+
+  @CheckForNull
+  CeActivityDto selectLastByComponentUuid(@Param("componentUuid") String componentUuid);
+
+  @CheckForNull
+  CeActivityDto selectLastByMainComponentUuid(@Param("mainComponentUuid") String mainComponentUuid);
 }

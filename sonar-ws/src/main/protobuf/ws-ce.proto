@@ -51,6 +51,20 @@ message ActivityStatusWsResponse {
   optional int32 inProgress = 3;
 }
 
+// GET api/ce/analysis_status
+message AnalysisStatusWsResponse {
+  optional Component component = 1;
+
+  message Component {
+    optional string organization = 1;
+    optional string key = 2;
+    optional string name = 3;
+    repeated string warnings = 4;
+    optional string branch = 5;
+    optional string pullRequest = 6;
+  }
+}
+
 // GET api/ce/component
 message ComponentResponse {
   repeated Task queue = 1;

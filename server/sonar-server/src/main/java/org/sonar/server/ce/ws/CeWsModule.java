@@ -28,6 +28,7 @@ public class CeWsModule extends Module {
       CeWs.class,
       ActivityAction.class,
       ActivityStatusAction.class,
+      AnalysisStatusAction.class,
       CancelAction.class,
       CancelAllAction.class,
       ComponentAction.class,
