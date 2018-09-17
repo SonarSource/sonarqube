@@ -73,6 +73,24 @@ export default class AnalysisWarningsModal extends React.PureComponent<Props, St
     );
   }
 
+  keepLineBreaks = (warning: string) => {
+    if (warning.includes('\n')) {
+      const lines = warning.split('\n');
+      return (
+        <>
+          {lines.map((line, index) => (
+            <React.Fragment key={index}>
+              {line}
+              {index < lines.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </>
+      );
+    } else {
+      return warning;
+    }
+  };
+
   render() {
     const header = translate('warnings');
     return (
@@ -81,12 +99,12 @@ export default class AnalysisWarningsModal extends React.PureComponent<Props, St
           <h2>{header}</h2>
         </header>
 
-        <div className="modal-body js-analysis-warnings">
+        <div className="modal-body modal-container js-analysis-warnings">
           <DeferredSpinner loading={this.state.loading}>
             {this.state.warnings.map((warning, index) => (
               <div className="panel panel-vertical" key={index}>
                 <WarningIcon className="pull-left spacer-right" />
-                <div className="overflow-hidden markdown">{warning}</div>
+                <div className="overflow-hidden markdown">{this.keepLineBreaks(warning)}</div>
               </div>
             ))}
           </DeferredSpinner>

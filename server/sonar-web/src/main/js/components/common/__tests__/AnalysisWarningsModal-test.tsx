@@ -24,7 +24,11 @@ import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getTask } from '../../../api/ce';
 
 jest.mock('../../../api/ce', () => ({
-  getTask: jest.fn().mockResolvedValue({ warnings: ['message foo', 'message-bar'] })
+  getTask: jest
+    .fn()
+    .mockResolvedValue({
+      warnings: ['message foo', 'message-bar', 'multiline message\nsecondline\n  third line']
+    })
 }));
 
 it('should fetch warnings and render', async () => {

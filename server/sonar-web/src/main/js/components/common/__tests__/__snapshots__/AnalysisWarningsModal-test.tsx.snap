@@ -13,7 +13,7 @@ exports[`should fetch warnings and render 1`] = `
     </h2>
   </header>
   <div
-    className="modal-body js-analysis-warnings"
+    className="modal-body modal-container js-analysis-warnings"
   >
     <DeferredSpinner
       loading={false}
@@ -43,6 +43,37 @@ exports[`should fetch warnings and render 1`] = `
           className="overflow-hidden markdown"
         >
           message-bar
+        </div>
+      </div>
+      <div
+        className="panel panel-vertical"
+        key="2"
+      >
+        <WarningIcon
+          className="pull-left spacer-right"
+        />
+        <div
+          className="overflow-hidden markdown"
+        >
+          <React.Fragment>
+            <React.Fragment
+              key="0"
+            >
+              multiline message
+              <br />
+            </React.Fragment>
+            <React.Fragment
+              key="1"
+            >
+              secondline
+              <br />
+            </React.Fragment>
+            <React.Fragment
+              key="2"
+            >
+                third line
+            </React.Fragment>
+          </React.Fragment>
         </div>
       </div>
     </DeferredSpinner>
