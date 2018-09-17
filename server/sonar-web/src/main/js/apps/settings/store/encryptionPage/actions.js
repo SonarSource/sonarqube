@@ -19,10 +19,7 @@
  */
 import * as api from '../../../../api/settings';
 import { parseError } from '../../../../helpers/request';
-import {
-  addGlobalErrorMessage,
-  closeAllGlobalMessages
-} from '../../../../store/globalMessages';
+import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../../store/globalMessages';
 
 export const UPDATE_ENCRYPTION = 'UPDATE_ENCRYPTION';
 
