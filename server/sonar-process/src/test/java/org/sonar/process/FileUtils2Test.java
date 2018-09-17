@@ -283,6 +283,7 @@ public class FileUtils2Test {
 
   @Test
   public void sizeOf_ignores_size_of_non_regular_files() throws IOException {
+    assumeTrue(SystemUtils.IS_OS_UNIX);
     File outside = temporaryFolder.newFile();
     FileUtils.write(outside, "outside!!!", UTF_8);
     File dir = temporaryFolder.newFolder();

@@ -37,8 +37,9 @@ public class DefaultCpdTokensTest {
 
   private static final InputFile INPUT_FILE = new TestInputFileBuilder("foo", "src/Foo.java")
     .setLines(2)
-    .setOriginalLineOffsets(new int[] {0, 50})
-    .setLastValidOffset(100)
+    .setOriginalLineStartOffsets(new int[] {0, 50})
+    .setOriginalLineEndOffsets(new int[] {49, 100})
+    .setLastValidOffset(101)
     .build();
 
   @Test
@@ -146,7 +147,7 @@ public class DefaultCpdTokensTest {
       tokens.addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo");
       fail("Expected exception");
     } catch (Exception e) {
-      assertThat(e).hasMessage("Tokens of file src" + File.separator + "Foo.java should be provided in order.\n" +
+      assertThat(e).hasMessage("Tokens of file src/Foo.java should be provided in order.\n" +
         "Previous token: Range[from [line=1, lineOffset=6] to [line=1, lineOffset=10]]\n" +
         "Last token: Range[from [line=1, lineOffset=2] to [line=1, lineOffset=5]]");
     }

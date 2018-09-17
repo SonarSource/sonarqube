@@ -203,7 +203,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   @Override
   public boolean isEmpty() {
     checkMetadata();
-    return metadata.lastValidOffset() == 0;
+    return metadata.isEmpty();
   }
 
   @Override
@@ -214,7 +214,6 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   public int lastValidOffset() {
     checkMetadata();
-    Preconditions.checkState(metadata.lastValidOffset() >= 0, "InputFile is not properly initialized.");
     return metadata.lastValidOffset();
   }
 
@@ -231,12 +230,20 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return metadata.nonBlankLines();
   }
 
-  public int[] originalLineOffsets() {
+  public int[] originalLineStartOffsets() {
     checkMetadata();
-    Preconditions.checkState(metadata.originalLineOffsets() != null, "InputFile is not properly initialized.");
-    Preconditions.checkState(metadata.originalLineOffsets().length == metadata.lines(),
-      "InputFile is not properly initialized. 'originalLineOffsets' property length should be equal to 'lines'");
-    return metadata.originalLineOffsets();
+    Preconditions.checkState(metadata.originalLineStartOffsets() != null, "InputFile is not properly initialized.");
+    Preconditions.checkState(metadata.originalLineStartOffsets().length == metadata.lines(),
+      "InputFile is not properly initialized. 'originalLineStartOffsets' property length should be equal to 'lines'");
+    return metadata.originalLineStartOffsets();
+  }
+
+  public int[] originalLineEndOffsets() {
+    checkMetadata();
+    Preconditions.checkState(metadata.originalLineEndOffsets() != null, "InputFile is not properly initialized.");
+    Preconditions.checkState(metadata.originalLineEndOffsets().length == metadata.lines(),
+            "InputFile is not properly initialized. 'originalLineEndOffsets' property length should be equal to 'lines'");
+    return metadata.originalLineEndOffsets();
   }
 
   @Override
@@ -290,8 +297,9 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     Preconditions.checkArgument(globalOffset >= 0, "%s is not a valid offset for a file", globalOffset);
     Preconditions.checkArgument(globalOffset <= lastValidOffset(), "%s is not a valid offset for file %s. Max offset is %s", globalOffset, this, lastValidOffset());
     int line = findLine(globalOffset);
-    int startLineOffset = originalLineOffsets()[line - 1];
-    return new DefaultTextPointer(line, globalOffset - startLineOffset);
+    int startLineOffset = originalLineStartOffsets()[line - 1];
+    // In case the global offset is between \r and \n, move the pointer to a valid location
+    return new DefaultTextPointer(line, Math.min(globalOffset, originalLineEndOffsets()[line -1]) - startLineOffset);
   }
 
   public DefaultInputFile setStatus(Status status) {
@@ -314,11 +322,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   private int lineLength(int line) {
-    return lastValidGlobalOffsetForLine(line) - originalLineOffsets()[line - 1];
-  }
-
-  private int lastValidGlobalOffsetForLine(int line) {
-    return line < this.metadata.lines() ? (originalLineOffsets()[line] - 1) : lastValidOffset();
+    return originalLineEndOffsets()[line - 1] - originalLineStartOffsets()[line - 1];
   }
 
   private static TextRange newRangeValidPointers(TextPointer start, TextPointer end, boolean acceptEmptyRange) {
@@ -328,7 +332,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   private int findLine(int globalOffset) {
-    return Math.abs(Arrays.binarySearch(originalLineOffsets(), globalOffset) + 1);
+    return Math.abs(Arrays.binarySearch(originalLineStartOffsets(), globalOffset) + 1);
   }
 
   public DefaultInputFile setMetadata(Metadata metadata) {

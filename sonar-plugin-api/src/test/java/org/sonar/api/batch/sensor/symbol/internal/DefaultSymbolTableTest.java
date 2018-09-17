@@ -37,8 +37,9 @@ public class DefaultSymbolTableTest {
 
   private static final InputFile INPUT_FILE = new TestInputFileBuilder("foo", "src/Foo.java")
     .setLines(2)
-    .setOriginalLineOffsets(new int[] {0, 50})
-    .setLastValidOffset(100)
+    .setOriginalLineStartOffsets(new int[] {0, 50})
+    .setOriginalLineEndOffsets(new int[] {49, 100})
+    .setLastValidOffset(101)
     .build();
 
   private Map<TextRange, Set<TextRange>> referencesPerSymbol;

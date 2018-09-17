@@ -25,38 +25,47 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public class Metadata {
-  private final int lines;
-  private final int nonBlankLines;
-  private final String hash;
-  private final int[] originalLineOffsets;
-  private final int lastValidOffset;
+    private final int lines;
+    private final int nonBlankLines;
+    private final String hash;
+    private final int[] originalLineStartOffsets;
+    private final int[] originalLineEndOffsets;
+    private final int lastValidOffset;
 
-  public Metadata(int lines, int nonBlankLines, String hash, int[] originalLineOffsets, int lastValidOffset) {
-    this.lines = lines;
-    this.nonBlankLines = nonBlankLines;
-    this.hash = hash;
-    this.originalLineOffsets = Arrays.copyOf(originalLineOffsets, originalLineOffsets.length);
-    this.lastValidOffset = lastValidOffset;
-  }
+    public Metadata(int lines, int nonBlankLines, String hash, int[] originalLineStartOffsets, int[] originalLineEndOffsets, int lastValidOffset) {
+        this.lines = lines;
+        this.nonBlankLines = nonBlankLines;
+        this.hash = hash;
+        this.originalLineStartOffsets = Arrays.copyOf(originalLineStartOffsets, originalLineStartOffsets.length);
+        this.originalLineEndOffsets = Arrays.copyOf(originalLineEndOffsets, originalLineEndOffsets.length);
+        this.lastValidOffset = lastValidOffset;
+    }
 
-  public int lines() {
-    return lines;
-  }
+    public int lines() {
+        return lines;
+    }
 
-  public int nonBlankLines() {
-    return nonBlankLines;
-  }
+    public int nonBlankLines() {
+        return nonBlankLines;
+    }
 
-  public String hash() {
-    return hash;
-  }
+    public String hash() {
+        return hash;
+    }
 
-  public int[] originalLineOffsets() {
-    return originalLineOffsets;
-  }
+    public int[] originalLineStartOffsets() {
+        return originalLineStartOffsets;
+    }
 
-  public int lastValidOffset() {
-    return lastValidOffset;
-  }
+    public int[] originalLineEndOffsets() {
+        return originalLineEndOffsets;
+    }
 
+    public int lastValidOffset() {
+        return lastValidOffset;
+    }
+
+    public boolean isEmpty() {
+        return lastValidOffset == 0;
+    }
 }

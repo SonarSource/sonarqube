@@ -26,11 +26,13 @@ import org.junit.Test;
 public class MetadataTest {
   @Test
   public void testRoundtrip() {
-    Metadata metadata = new Metadata(10, 20, "hash", new int[] {1, 2}, 30);
-    assertThat(metadata.lastValidOffset()).isEqualTo(30);
+    Metadata metadata = new Metadata(10, 20, "hash", new int[] {1, 3}, new int[] {2, 4}, 5);
+    assertThat(metadata.isEmpty()).isFalse();
     assertThat(metadata.lines()).isEqualTo(10);
     assertThat(metadata.nonBlankLines()).isEqualTo(20);
-    assertThat(metadata.originalLineOffsets()).isEqualTo(new int[] {1, 2});
+    assertThat(metadata.originalLineStartOffsets()).isEqualTo(new int[] {1, 3});
+    assertThat(metadata.originalLineEndOffsets()).isEqualTo(new int[] {2, 4});
+    assertThat(metadata.lastValidOffset()).isEqualTo(5);
     assertThat(metadata.hash()).isEqualTo("hash");
   }
 }

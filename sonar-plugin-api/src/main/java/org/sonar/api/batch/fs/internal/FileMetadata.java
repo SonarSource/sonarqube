@@ -64,7 +64,8 @@ public class FileMetadata {
       CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter};
       readFile(stream, encoding, filePath, handlers);
     }
-    return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
+    return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineStartOffsets(),
+      lineOffsetCounter.getOriginalLineEndOffsets(),
       lineOffsetCounter.getLastValidOffset());
   }
 
@@ -86,7 +87,8 @@ public class FileMetadata {
     } catch (IOException e) {
       throw new IllegalStateException("Should never occur", e);
     }
-    return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
+    return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineStartOffsets(),
+      lineOffsetCounter.getOriginalLineEndOffsets(),
       lineOffsetCounter.getLastValidOffset());
   }
 

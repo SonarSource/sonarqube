@@ -65,10 +65,11 @@ public class TestInputFileBuilder {
   private InputFile.Status status;
   private int lines = -1;
   private Charset charset;
-  private int lastValidOffset = -1;
   private String hash;
   private int nonBlankLines;
-  private int[] originalLineOffsets = new int[0];
+  private int[] originalLineStartOffsets = new int[0];
+  private int[] originalLineEndOffsets = new int[0];
+  private int lastValidOffset = -1;
   private boolean publish = true;
   private String contents;
 
@@ -155,11 +156,6 @@ public class TestInputFileBuilder {
     return this;
   }
 
-  public TestInputFileBuilder setLastValidOffset(int lastValidOffset) {
-    this.lastValidOffset = lastValidOffset;
-    return this;
-  }
-
   public TestInputFileBuilder setHash(String hash) {
     this.hash = hash;
     return this;
@@ -181,8 +177,18 @@ public class TestInputFileBuilder {
     return this;
   }
 
-  public TestInputFileBuilder setOriginalLineOffsets(int[] originalLineOffsets) {
-    this.originalLineOffsets = originalLineOffsets;
+  public TestInputFileBuilder setLastValidOffset(int lastValidOffset) {
+    this.lastValidOffset = lastValidOffset;
+    return this;
+  }
+
+  public TestInputFileBuilder setOriginalLineStartOffsets(int[] originalLineStartOffsets) {
+    this.originalLineStartOffsets = originalLineStartOffsets;
+    return this;
+  }
+
+  public TestInputFileBuilder setOriginalLineEndOffsets(int[] originalLineEndOffsets) {
+    this.originalLineEndOffsets = originalLineEndOffsets;
     return this;
   }
 
@@ -196,7 +202,8 @@ public class TestInputFileBuilder {
     this.setLastValidOffset(metadata.lastValidOffset());
     this.setNonBlankLines(metadata.nonBlankLines());
     this.setHash(metadata.hash());
-    this.setOriginalLineOffsets(metadata.originalLineOffsets());
+    this.setOriginalLineStartOffsets(metadata.originalLineStartOffsets());
+    this.setOriginalLineEndOffsets(metadata.originalLineEndOffsets());
     return this;
   }
 
@@ -212,7 +219,7 @@ public class TestInputFileBuilder {
     String projectRelativePath = projectBaseDir.relativize(absolutePath).toString();
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, moduleKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy());
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
-      f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)),
+      f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineStartOffsets, originalLineEndOffsets, lastValidOffset)),
       contents);
     inputFile.setStatus(status);
     inputFile.setCharset(charset);

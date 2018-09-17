@@ -69,7 +69,7 @@ public class DefaultInputFileTest {
   @Test
   public void test() throws Exception {
 
-    Metadata metadata = new Metadata(42, 42, "", new int[0], 0);
+    Metadata metadata = new Metadata(42, 42, "", new int[0], new int[0], 10);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, (f) -> f.setMetadata(metadata))
       .setStatus(InputFile.Status.ADDED)
       .setCharset(StandardCharsets.ISO_8859_1);
@@ -103,7 +103,7 @@ public class DefaultInputFileTest {
 
     assertThat(Files.readAllLines(testFile, StandardCharsets.ISO_8859_1).get(0)).hasSize(content.length());
 
-    Metadata metadata = new Metadata(42, 30, "", new int[0], 0);
+    Metadata metadata = new Metadata(42, 30, "", new int[0], new int[0], 10);
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(metadata))
       .setStatus(InputFile.Status.ADDED)
@@ -129,7 +129,7 @@ public class DefaultInputFileTest {
 
     assertThat(Files.readAllLines(testFile, StandardCharsets.UTF_8).get(0)).hasSize(content.length() + 1);
 
-    Metadata metadata = new Metadata(42, 30, "", new int[0], 0);
+    Metadata metadata = new Metadata(42, 30, "", new int[0], new int[0], 10);
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(metadata))
       .setStatus(InputFile.Status.ADDED)
@@ -167,7 +167,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidPointer() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, 15);
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     assertThat(file.newPointer(1, 0).line()).isEqualTo(1);
     assertThat(file.newPointer(1, 0).lineOffset()).isEqualTo(0);
@@ -204,19 +204,24 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidPointerUsingGlobalOffset() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, 15);
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {8, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     assertThat(file.newPointer(0).line()).isEqualTo(1);
     assertThat(file.newPointer(0).lineOffset()).isEqualTo(0);
 
     assertThat(file.newPointer(9).line()).isEqualTo(1);
-    assertThat(file.newPointer(9).lineOffset()).isEqualTo(9);
+    // Ignore eol characters
+    assertThat(file.newPointer(9).lineOffset()).isEqualTo(8);
 
     assertThat(file.newPointer(10).line()).isEqualTo(2);
     assertThat(file.newPointer(10).lineOffset()).isEqualTo(0);
 
     assertThat(file.newPointer(15).line()).isEqualTo(2);
     assertThat(file.newPointer(15).lineOffset()).isEqualTo(5);
+
+    assertThat(file.newPointer(16).line()).isEqualTo(2);
+    // Ignore eol characters
+    assertThat(file.newPointer(16).lineOffset()).isEqualTo(5);
 
     try {
       file.newPointer(-1);
@@ -226,10 +231,10 @@ public class DefaultInputFileTest {
     }
 
     try {
-      file.newPointer(16);
+      file.newPointer(17);
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("16 is not a valid offset for file src/Foo.php. Max offset is 15");
+      assertThat(e).hasMessage("17 is not a valid offset for file src/Foo.php. Max offset is 16");
     }
   }
 
@@ -285,7 +290,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidRangeUsingGlobalOffset() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, 15);
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     TextRange newRange = file.newRange(10, 13);
     assertThat(newRange.start().line()).isEqualTo(2);
@@ -296,7 +301,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void testRangeOverlap() {
-    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, 15);
+    Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
     // Don't fail
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)).overlap(file.newRange(file.newPointer(1, 0), file.newPointer(1, 1)))).isTrue();

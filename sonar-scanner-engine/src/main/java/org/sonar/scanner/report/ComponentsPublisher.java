@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.utils.PathUtils;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
@@ -206,11 +207,11 @@ public class ComponentsPublisher implements ReportPublisherStep {
     Path projectBaseDir = moduleHierarchy.root().getBaseDir();
     if (component instanceof InputDir) {
       InputDir inputDir = (InputDir) component;
-      return projectBaseDir.relativize(inputDir.path()).toString();
+      return PathUtils.sanitize(projectBaseDir.relativize(inputDir.path()).toString());
     }
     if (component instanceof InputModule) {
       DefaultInputModule module = (DefaultInputModule) component;
-      return projectBaseDir.relativize(module.getBaseDir()).toString();
+      return PathUtils.sanitize(projectBaseDir.relativize(module.getBaseDir()).toString());
     }
     throw new IllegalStateException("Unknown component: " + component.getClass());
   }

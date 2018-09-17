@@ -55,8 +55,8 @@ public class InputFileBuilder {
 
   DefaultInputFile create(InputFile.Type type, Path absolutePath, @Nullable String language) {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, moduleKey,
-      PathUtils.sanitize(projectBaseDir.relativize(absolutePath).toString()),
-      PathUtils.sanitize(moduleBaseDir.relativize(absolutePath).toString()),
+      projectBaseDir.relativize(absolutePath).toString(),
+      moduleBaseDir.relativize(absolutePath).toString(),
       type, language, idGenerator.getAsInt(), sensorStrategy);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, moduleFileSystemInitializer.defaultEncoding()));
     if (language != null) {

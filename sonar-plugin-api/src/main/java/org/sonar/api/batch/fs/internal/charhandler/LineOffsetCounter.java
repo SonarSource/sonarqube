@@ -20,34 +20,48 @@
 package org.sonar.api.batch.fs.internal.charhandler;
 
 public class LineOffsetCounter extends CharHandler {
-  private long currentOriginalOffset = 0;
-  private IntArrayList originalLineOffsets = new IntArrayList();
+  private long currentOriginalLineStartOffset = 0;
+  private long currentOriginalLineEndOffset = 0;
+  private final IntArrayList originalLineStartOffsets = new IntArrayList();
+  private final IntArrayList originalLineEndOffsets = new IntArrayList();
   private long lastValidOffset = 0;
 
   public LineOffsetCounter() {
-    originalLineOffsets.add(0);
+    originalLineStartOffsets.add(0);
   }
 
   @Override
   public void handleAll(char c) {
-    currentOriginalOffset++;
+    currentOriginalLineStartOffset++;
+  }
+
+  @Override
+  public void handleIgnoreEoL(char c) {
+    currentOriginalLineEndOffset++;
   }
 
   @Override
   public void newLine() {
-    if (currentOriginalOffset > Integer.MAX_VALUE) {
-      throw new IllegalStateException("File is too big: " + currentOriginalOffset);
+    if (currentOriginalLineStartOffset > Integer.MAX_VALUE) {
+      throw new IllegalStateException("File is too big: " + currentOriginalLineStartOffset);
     }
-    originalLineOffsets.add((int) currentOriginalOffset);
+    originalLineStartOffsets.add((int) currentOriginalLineStartOffset);
+    originalLineEndOffsets.add((int) currentOriginalLineEndOffset);
+    currentOriginalLineEndOffset = currentOriginalLineStartOffset;
   }
 
   @Override
   public void eof() {
-    lastValidOffset = currentOriginalOffset;
+    originalLineEndOffsets.add((int) currentOriginalLineEndOffset);
+    lastValidOffset = currentOriginalLineStartOffset;
   }
 
-  public int[] getOriginalLineOffsets() {
-    return originalLineOffsets.trimAndGet();
+  public int[] getOriginalLineStartOffsets() {
+    return originalLineStartOffsets.trimAndGet();
+  }
+
+  public int[] getOriginalLineEndOffsets() {
+    return originalLineEndOffsets.trimAndGet();
   }
 
   public int getLastValidOffset() {

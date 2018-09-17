@@ -49,7 +49,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
    * Testing purposes only!
    */
   public DefaultIndexedFile(String moduleKey, Path baseDir, String relativePath, @Nullable String language) {
-    this(baseDir.resolve(relativePath), moduleKey, PathUtils.sanitize(relativePath), PathUtils.sanitize(relativePath), Type.MAIN, language, TestInputFileBuilder.nextBatchId(),
+    this(baseDir.resolve(relativePath), moduleKey, relativePath, relativePath, Type.MAIN, language, TestInputFileBuilder.nextBatchId(),
       new SensorStrategy());
   }
 
@@ -57,8 +57,8 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     SensorStrategy sensorStrategy) {
     super(batchId);
     this.moduleKey = moduleKey;
-    this.projectRelativePath = projectRelativePath;
-    this.moduleRelativePath = moduleRelativePath;
+    this.projectRelativePath = PathUtils.sanitize(projectRelativePath);
+    this.moduleRelativePath = PathUtils.sanitize(moduleRelativePath);
     this.type = type;
     this.language = language;
     this.sensorStrategy = sensorStrategy;
