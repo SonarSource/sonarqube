@@ -30,6 +30,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.permission.PermissionsHelper;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,12 +55,15 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   private GroupDto group2;
   private GroupDto group3;
 
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+
   @Override
   protected GroupsAction buildWsAction() {
     return new GroupsAction(
       db.getDbClient(),
       userSession,
-      newPermissionWsSupport());
+      newPermissionWsSupport(), wsParameters);
   }
 
   @Before

@@ -34,6 +34,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonarqube.ws.Permissions;
 
 import static java.lang.String.format;
@@ -55,6 +56,9 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private I18nRule i18n = new I18nRule();
 
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+
   @Before
   public void setUp() {
     i18n.setProjectPermissions();
@@ -66,7 +70,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     i18n.setProjectPermissions();
     ResourceTypesRule rootResourceTypes = newRootResourceTypes();
     PermissionWsSupport wsSupport = newPermissionWsSupport();
-    return new SearchProjectPermissionsAction(db.getDbClient(), userSession, i18n, rootResourceTypes, wsSupport);
+    return new SearchProjectPermissionsAction(db.getDbClient(), userSession, i18n, rootResourceTypes, wsSupport, wsParameters, permissionsHelper);
   }
 
   @Test

@@ -31,7 +31,9 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,10 +51,12 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   private PermissionTemplateDto template;
   private GroupDto group;
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
 
   @Override
   protected AddGroupToTemplateAction buildWsAction() {
-    return new AddGroupToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession);
+    return new AddGroupToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, wsParameters);
   }
 
   @Before
@@ -62,7 +66,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void add_group_to_template() throws Exception {
+  public void add_group_to_template() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(group.getName(), template.getUuid(), CODEVIEWER);
@@ -97,7 +101,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void does_not_add_a_group_twice() throws Exception {
+  public void does_not_add_a_group_twice() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
@@ -107,7 +111,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void add_anyone_group_to_template() throws Exception {
+  public void add_anyone_group_to_template() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(ANYONE, template.getUuid(), CODEVIEWER);
@@ -116,7 +120,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_add_anyone_group_to_admin_permission() throws Exception {
+  public void fail_if_add_anyone_group_to_admin_permission() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -126,7 +130,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_not_a_project_permission() throws Exception {
+  public void fail_if_not_a_project_permission() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -135,7 +139,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_not_admin_of_default_organization() throws Exception {
+  public void fail_if_not_admin_of_default_organization() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -144,7 +148,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_group_params_missing() throws Exception {
+  public void fail_if_group_params_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -153,7 +157,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_permission_missing() throws Exception {
+  public void fail_if_permission_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -162,7 +166,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_template_uuid_and_name_missing() throws Exception {
+  public void fail_if_template_uuid_and_name_missing() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -171,7 +175,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_group_does_not_exist() throws Exception {
+  public void fail_if_group_does_not_exist() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -181,7 +185,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_template_key_does_not_exist() throws Exception {
+  public void fail_if_template_key_does_not_exist() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);

@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws;
 
-import com.google.common.collect.FluentIterable;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
+import org.sonar.server.ws.WsUtils;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
@@ -39,17 +41,20 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
-public class PermissionRequestValidator {
+public class RequestValidator {
   public static final String MSG_TEMPLATE_WITH_SAME_NAME = "A template with the name '%s' already exists (case insensitive).";
-  public static final String MSG_TEMPLATE_NAME_NOT_BLANK = "The template name must not be blank";
+  private static final String MSG_TEMPLATE_NAME_NOT_BLANK = "The template name must not be blank";
 
-  private PermissionRequestValidator() {
-    // static methods only
+  private PermissionsHelper permissionsHelper;
+
+  public RequestValidator(PermissionsHelper permissionsHelper) {
+    this.permissionsHelper = permissionsHelper;
   }
 
-  public static String validateProjectPermission(String permission) {
-    checkRequest(ProjectPermissions.ALL.contains(permission),
-      format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, ProjectPermissions.ALL_ON_ONE_LINE, permission));
+  public String validateProjectPermission(String permission) {
+    WsUtils.checkRequest(permissionsHelper.allPermissions().contains(permission),
+      String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
+        permissionsHelper.allOnOneLine(), permission));
     return permission;
   }
 
@@ -67,18 +72,13 @@ public class PermissionRequestValidator {
     checkRequest(!isBlank(name), MSG_TEMPLATE_NAME_NOT_BLANK);
   }
 
-  public static void validateQualifier(String qualifier, Set<String> rootQualifiers) {
-    checkRequest(rootQualifiers.contains(qualifier),
-      format("The '%s' parameter must be one of %s. '%s' was passed.", PARAM_QUALIFIER, rootQualifiers, qualifier));
-  }
-
   public static void validateQualifier(@Nullable String qualifier, ResourceTypes resourceTypes) {
     if (qualifier == null) {
       return;
     }
-    Set<String> rootQualifiers = FluentIterable.from(resourceTypes.getRoots())
-      .transform(ResourceType::getQualifier)
-      .toSet();
+    Set<String> rootQualifiers = resourceTypes.getRoots().stream()
+      .map(ResourceType::getQualifier)
+      .collect(Collectors.toSet());
     checkRequest(rootQualifiers.contains(qualifier),
       format("The '%s' parameter must be one of %s. '%s' was passed.", PARAM_QUALIFIER, rootQualifiers, qualifier));
   }

@@ -35,6 +35,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -53,22 +54,23 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   private I18nRule i18n = new I18nRule();
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ResourceTypesRule resourceTypesWithViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
+  private ResourceTypesRule resourceTypesWithViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
   private ResourceTypesRule resourceTypesWithoutViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-
+  private PermissionsHelper permissionsHelperWithViews = new PermissionsHelper(resourceTypesWithViews);
+  private PermissionsHelper permissionsHelperWithoutViews = new PermissionsHelper(resourceTypesWithoutViews);
   private WsActionTester underTestWithoutViews;
 
   @Override
   protected SearchTemplatesAction buildWsAction() {
     DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithViews);
-    SearchTemplatesAction searchTemplatesAction = new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews);
+    SearchTemplatesAction searchTemplatesAction = new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionsHelperWithViews);
     return searchTemplatesAction;
   }
 
   @Before
   public void setUp() {
     DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithoutViews);
-    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews));
+    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionsHelperWithoutViews));
     i18n.setProjectPermissions();
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
   }
@@ -241,7 +243,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
           "    }" +
           "  ]" +
           "}");
-  }
+   }
 
   private PermissionTemplateDto insertProjectTemplate(OrganizationDto org) {
     return insertTemplate(newPermissionTemplateDto()

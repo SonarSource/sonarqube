@@ -20,6 +20,8 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Collections;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,14 +32,10 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newWsProjectRef;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
@@ -51,13 +49,15 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final PermissionTemplateService permissionTemplateService;
   private final PermissionWsSupport wsSupport;
+  private final WsParameters wsParameters;
 
   public ApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionTemplateService permissionTemplateService,
-    PermissionWsSupport wsSupport) {
+    PermissionWsSupport wsSupport, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionTemplateService = permissionTemplateService;
     this.wsSupport = wsSupport;
+    this.wsParameters = wsParameters;
   }
 
   private static ApplyTemplateRequest toApplyTemplateWsRequest(Request request) {
@@ -80,8 +80,8 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       .setSince("5.2")
       .setHandler(this);
 
-    createTemplateParameters(action);
-    createProjectParameters(action);
+    WsParameters.createTemplateParameters(action);
+    wsParameters.createProjectParameters(action);
   }
 
   @Override

@@ -372,7 +372,7 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keepAuthorizedProjectIds_returns_empty_for_user_and_any_permission_on_private_project_without_any_permission_in_DB() {
-    ProjectPermissions.ALL
+    ProjectPermissions.ALL_PERMISSIONS
       .forEach(perm -> {
         assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, user.getId(), perm))
           .isEmpty();
@@ -383,7 +383,7 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keepAuthorizedProjectIds_returns_empty_for_group_AnyOne_and_any_permission_on_private_project_without_any_permission_in_DB() {
-    ProjectPermissions.ALL
+    ProjectPermissions.ALL_PERMISSIONS
       .forEach(perm -> {
         assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, null, perm))
           .isEmpty();
@@ -621,7 +621,7 @@ public class AuthorizationDaoTest {
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_users_and_any_permission_on_private_project_without_any_permission_in_DB() {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
-    ProjectPermissions.ALL
+    ProjectPermissions.ALL_PERMISSIONS
       .forEach(perm -> {
         assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, perm, project.getId()))
           .isEmpty();

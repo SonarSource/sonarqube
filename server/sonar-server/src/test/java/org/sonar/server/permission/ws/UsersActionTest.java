@@ -32,6 +32,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
+import org.sonar.server.permission.PermissionsHelper;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.countMatches;
@@ -57,9 +58,13 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 
 public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+  private RequestValidator requestValidator = new RequestValidator(permissionsHelper);
+
   @Override
   protected UsersAction buildWsAction() {
-    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl());
+    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl(), requestValidator, wsParameters);
   }
 
   @Test

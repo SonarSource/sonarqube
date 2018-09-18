@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
@@ -31,6 +30,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.PermissionsHelper;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +57,9 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   private GroupDto aGroup;
 
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+
   @Before
   public void setUp() {
     aGroup = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
@@ -64,7 +67,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Override
   protected RemoveGroupAction buildWsAction() {
-    return new RemoveGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport());
+    return new RemoveGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionsHelper);
   }
 
   @Test
@@ -342,11 +345,11 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
   @Test
   public void no_effect_when_removing_any_permission_from_group_AnyOne_on_a_private_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    ProjectPermissions.ALL
+    newPermissionsHelper().allPermissions()
       .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    ProjectPermissions.ALL
+    newPermissionsHelper().allPermissions()
       .forEach(permission -> {
         newRequest()
           .setParam(PARAM_GROUP_NAME, "anyone")

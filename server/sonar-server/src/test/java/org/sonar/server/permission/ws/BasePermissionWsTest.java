@@ -35,6 +35,7 @@ import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.FooIndexDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
@@ -82,11 +83,15 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
     return new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
   }
 
+  protected PermissionsHelper newPermissionsHelper() {
+    return new PermissionsHelper(newRootResourceTypes());
+  }
+
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
       new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
       new UserPermissionChanger(db.getDbClient()),
-      new GroupPermissionChanger(db.getDbClient()));
+      new GroupPermissionChanger(db.getDbClient(), newPermissionWsSupport()));
   }
 
   protected TestRequest newRequest() {

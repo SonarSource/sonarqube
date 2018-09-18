@@ -30,6 +30,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.permission.PermissionsHelper;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +64,9 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   private UserDto user;
 
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+
   @Before
   public void setUp() {
     user = db.users().insertUser(A_LOGIN);
@@ -70,7 +74,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Override
   protected RemoveUserAction buildWsAction() {
-    return new RemoveUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport());
+    return new RemoveUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionsHelper);
   }
 
   @Test

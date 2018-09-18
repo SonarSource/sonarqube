@@ -19,6 +19,8 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -28,17 +30,12 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -49,11 +46,15 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
+  private final RequestValidator requestValidator;
+  private final WsParameters wsParameters;
 
-  public RemoveUserFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession) {
+  public RemoveUserFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, RequestValidator requestValidator, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.userSession = userSession;
+    this.requestValidator = requestValidator;
+    this.wsParameters = wsParameters;
   }
 
   private static RemoveUserFromTemplateRequest toRemoveUserFromTemplateWsRequest(Request request) {
@@ -75,9 +76,9 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
-    createTemplateParameters(action);
-    createProjectPermissionParameter(action);
-    createUserLoginParameter(action);
+    WsParameters.createTemplateParameters(action);
+    wsParameters.createProjectPermissionParameter(action);
+    WsParameters.createUserLoginParameter(action);
   }
 
   @Override
@@ -91,7 +92,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     String userLogin = request.getLogin();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      validateProjectPermission(permission);
+      requestValidator.validateProjectPermission(permission);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());

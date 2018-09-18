@@ -35,7 +35,10 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 
@@ -58,12 +61,15 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
 
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+
   private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
      new TestProjectIndexers(), userSession, defaultTemplatesResolver);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
-    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
+    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), wsParameters);
   }
 
   @Before

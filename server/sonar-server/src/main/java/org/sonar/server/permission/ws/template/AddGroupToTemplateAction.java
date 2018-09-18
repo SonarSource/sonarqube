@@ -27,16 +27,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.fromRequest;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -45,11 +42,13 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final PermissionWsSupport support;
   private final UserSession userSession;
+  private final WsParameters wsParameters;
 
-  public AddGroupToTemplateAction(DbClient dbClient, PermissionWsSupport support, UserSession userSession) {
+  public AddGroupToTemplateAction(DbClient dbClient, PermissionWsSupport support, UserSession userSession, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.support = support;
     this.userSession = userSession;
+    this.wsParameters = wsParameters;
   }
 
   @Override
@@ -63,10 +62,10 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
-    createTemplateParameters(action);
-    createProjectPermissionParameter(action);
-    createGroupIdParameter(action);
-    createGroupNameParameter(action);
+    WsParameters.createTemplateParameters(action);
+    wsParameters.createProjectPermissionParameter(action);
+    WsParameters.createGroupIdParameter(action);
+    WsParameters.createGroupNameParameter(action);
   }
 
   @Override

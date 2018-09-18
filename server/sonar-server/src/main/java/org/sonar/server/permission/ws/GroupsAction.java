@@ -50,9 +50,6 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -60,12 +57,14 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 public class GroupsAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionWsSupport support;
+  private final PermissionWsSupport wsSupport;
+  private final WsParameters wsParameters;
 
-  public GroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
+    this.wsSupport = wsSupport;
+    this.wsParameters = wsParameters;
   }
 
   @Override
@@ -91,16 +90,16 @@ public class GroupsAction implements PermissionsWsAction {
       .setDescription("Limit search to group names that contain the supplied string.")
       .setMinimumLength(SEARCH_QUERY_MIN_LENGTH);
 
-    createOrganizationParameter(action).setSince("6.2");
-    createPermissionParameter(action).setRequired(false);
-    createProjectParameters(action);
+    WsParameters.createOrganizationParameter(action).setSince("6.2");
+    wsParameters.createPermissionParameter(action).setRequired(false);
+    wsParameters.createProjectParameters(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION));
-      Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
+      OrganizationDto org = wsSupport.findOrganization(dbSession, request.param(PARAM_ORGANIZATION));
+      Optional<ProjectId> projectId = wsSupport.findProjectId(dbSession, request);
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionQuery query = buildPermissionQuery(request, org, projectId);

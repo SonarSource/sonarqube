@@ -88,6 +88,13 @@ public class ResourceTypesTest {
     new ResourceTypes(new ResourceTypeTree[] {tree1, tree2});
   }
 
+  @Test
+  public void isQualifierPresent() {
+    assertThat(types.isQualifierPresent(Qualifiers.APP)).isTrue();
+    assertThat(types.isQualifierPresent(Qualifiers.VIEW)).isTrue();
+    assertThat(types.isQualifierPresent("XXXX")).isFalse();
+  }
+
   static Collection<String> qualifiers(Collection<ResourceType> types) {
     return Collections2.transform(types, ResourceType::getQualifier);
   }

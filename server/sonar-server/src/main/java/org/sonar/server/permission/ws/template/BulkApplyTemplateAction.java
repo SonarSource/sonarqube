@@ -22,6 +22,8 @@ package org.sonar.server.permission.ws.template;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
@@ -39,19 +41,16 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
+import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
-import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
@@ -108,7 +107,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .setDefaultValue(Qualifiers.PROJECT)
       .setDeprecatedKey(PARAM_QUALIFIER, "6.6");
 
-    createTemplateParameters(action);
+    WsParameters.createTemplateParameters(action);
 
     action
       .createParam(PARAM_PROJECTS)

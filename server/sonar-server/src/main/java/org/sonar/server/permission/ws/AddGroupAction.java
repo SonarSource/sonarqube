@@ -28,17 +28,13 @@ import org.sonar.db.DbSession;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class AddGroupAction implements PermissionsWsAction {
@@ -48,13 +44,18 @@ public class AddGroupAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionUpdater permissionUpdater;
-  private final PermissionWsSupport support;
+  private final PermissionWsSupport wsSupport;
+  private final WsParameters wsParameters;
+  private final PermissionsHelper permissionsHelper;
 
-  public AddGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport support) {
+  public AddGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
+    WsParameters wsParameters, PermissionsHelper permissionsHelper) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
-    this.support = support;
+    this.wsSupport = wsSupport;
+    this.wsParameters = wsParameters;
+    this.permissionsHelper = permissionsHelper;
   }
 
   @Override
@@ -72,22 +73,23 @@ public class AddGroupAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createPermissionParameter(action);
-    createOrganizationParameter(action).setSince("6.2");
-    createGroupNameParameter(action);
-    createGroupIdParameter(action);
-    createProjectParameters(action);
+    wsParameters.createPermissionParameter(action);
+    WsParameters.createOrganizationParameter(action).setSince("6.2");
+    WsParameters.createGroupNameParameter(action);
+    WsParameters.createGroupIdParameter(action);
+    wsParameters.createProjectParameters(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupIdOrAnyone group = support.findGroup(dbSession, request);
-      Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
+      GroupIdOrAnyone group = wsSupport.findGroup(dbSession, request);
+      Optional<ProjectId> projectId = wsSupport.findProjectId(dbSession, request);
 
       checkProjectAdmin(userSession, group.getOrganizationUuid(), projectId);
 
       PermissionChange change = new GroupPermissionChange(
+        permissionsHelper,
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
         projectId.orElse(null),

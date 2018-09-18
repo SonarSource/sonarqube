@@ -95,6 +95,8 @@ public class RegisterPermissionTemplates {
       insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
       insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, admins.get());
       insertGroupPermission(dbSession, template, UserRole.SECURITYHOTSPOT_ADMIN, admins.get());
+      insertGroupPermission(dbSession, template, UserRole.APPLICATION_CREATOR, admins.get());
+      insertGroupPermission(dbSession, template, UserRole.PORTFOLIO_CREATOR, admins.get());
     } else {
       LOG.error("Cannot setup default permission for group: " + DefaultGroups.ADMINISTRATORS);
     }

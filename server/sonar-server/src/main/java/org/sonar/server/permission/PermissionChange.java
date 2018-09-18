@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.ProjectPermissions;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -39,7 +38,7 @@ public abstract class PermissionChange {
   private final String permission;
   private final ProjectId projectId;
 
-  public PermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId) {
+  public PermissionChange(PermissionsHelper permissionsHelper, Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId) {
     this.operation = requireNonNull(operation);
     this.organizationUuid = requireNonNull(organizationUuid);
     this.permission = requireNonNull(permission);
@@ -47,7 +46,7 @@ public abstract class PermissionChange {
     if (projectId == null) {
       checkRequest(GlobalPermissions.ALL.contains(permission), "Invalid global permission '%s'. Valid values are %s", permission, GlobalPermissions.ALL);
     } else {
-      checkRequest(ProjectPermissions.ALL.contains(permission), "Invalid project permission '%s'. Valid values are %s", permission, ProjectPermissions.ALL);
+      checkRequest(permissionsHelper.allPermissions().contains(permission), "Invalid project permission '%s'. Valid values are %s", permission, permissionsHelper.allPermissions());
     }
   }
 

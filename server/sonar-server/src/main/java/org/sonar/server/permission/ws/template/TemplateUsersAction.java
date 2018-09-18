@@ -38,6 +38,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.UsersWsResponse;
@@ -51,9 +53,6 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
@@ -61,14 +60,18 @@ public class TemplateUsersAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionWsSupport support;
+  private final PermissionWsSupport wsSupport;
   private final AvatarResolver avatarResolver;
+  private final RequestValidator requestValidator;
+  private final WsParameters wsParameters;
 
-  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support, AvatarResolver avatarResolver) {
+  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver, RequestValidator requestValidator, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
+    this.wsSupport = wsSupport;
     this.avatarResolver = avatarResolver;
+    this.requestValidator = requestValidator;
+    this.wsParameters = wsParameters;
   }
 
   @Override
@@ -89,15 +92,15 @@ public class TemplateUsersAction implements PermissionsWsAction {
       .setDescription("Limit search to user names that contain the supplied string. <br/>" +
         "When this parameter is not set, only users having at least one permission are returned.")
       .setExampleValue("eri");
-    createProjectPermissionParameter(action).setRequired(false);
-    createTemplateParameters(action);
+    wsParameters.createProjectPermissionParameter(action).setRequired(false);
+    WsParameters.createTemplateParameters(action);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
-      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, templateRef);
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionQuery query = buildQuery(wsRequest, template);
@@ -111,13 +114,13 @@ public class TemplateUsersAction implements PermissionsWsAction {
     }
   }
 
-  private static PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
+  private PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
     String textQuery = wsRequest.param(TEXT_QUERY);
     String permission = wsRequest.param(PARAM_PERMISSION);
     PermissionQuery.Builder query = PermissionQuery.builder()
       .setOrganizationUuid(template.getOrganizationUuid())
       .setTemplate(template.getUuid())
-      .setPermission(permission != null ? validateProjectPermission(permission) : null)
+      .setPermission(permission != null ? requestValidator.validateProjectPermission(permission) : null)
       .setPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
       .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))
       .setSearchQuery(textQuery);

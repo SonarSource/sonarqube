@@ -44,6 +44,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -70,6 +71,7 @@ public class DeleteTemplateActionTest {
   private DbClient dbClient = db.getDbClient();
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final ResourceTypesRule resourceTypesWithViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
+
   private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(resourceTypes);
   private DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithViews);
 
@@ -80,11 +82,9 @@ public class DeleteTemplateActionTest {
   public void setUp() throws Exception {
     GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, TestDefaultOrganizationProvider.from(db), new DefaultGroupFinder(db.getDbClient()));
     this.underTestWithoutViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
-      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport),
-      defaultTemplatesResolver));
+      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport), defaultTemplatesResolver));
     this.underTestWithViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
-      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport),
-      defaultTemplatesResolverWithViews));
+      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport), defaultTemplatesResolverWithViews));
   }
 
   @Test

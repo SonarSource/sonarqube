@@ -37,6 +37,8 @@ import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 
@@ -48,21 +50,22 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class TemplateGroupsAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionWsSupport support;
+  private final PermissionWsSupport wsSupport;
+  private final RequestValidator requestValidator;
+  private final WsParameters wsParameters;
 
-  public TemplateGroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support) {
+  public TemplateGroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, RequestValidator requestValidator, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
+    this.wsSupport = wsSupport;
+    this.requestValidator = requestValidator;
+    this.wsParameters = wsParameters;
   }
 
   @Override
@@ -83,15 +86,15 @@ public class TemplateGroupsAction implements PermissionsWsAction {
         "When this parameter is not set, only group having at least one permission are returned.")
       .setExampleValue("eri");
 
-    createProjectPermissionParameter(action, false);
-    createTemplateParameters(action);
+    wsParameters.createProjectPermissionParameter(action, false);
+    WsParameters.createTemplateParameters(action);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
-      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
+      PermissionTemplateDto template = wsSupport.findTemplate(dbSession, templateRef);
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionQuery query = buildPermissionQuery(wsRequest, template);
@@ -104,12 +107,12 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     }
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, PermissionTemplateDto template) {
+  private PermissionQuery buildPermissionQuery(Request request, PermissionTemplateDto template) {
     String textQuery = request.param(TEXT_QUERY);
     String permission = request.param(PARAM_PERMISSION);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
       .setOrganizationUuid(template.getOrganizationUuid())
-      .setPermission(permission != null ? validateProjectPermission(permission) : null)
+      .setPermission(permission != null ? requestValidator.validateProjectPermission(permission) : null)
       .setPageIndex(request.mandatoryParamAsInt(PAGE))
       .setPageSize(request.mandatoryParamAsInt(PAGE_SIZE))
       .setSearchQuery(textQuery);

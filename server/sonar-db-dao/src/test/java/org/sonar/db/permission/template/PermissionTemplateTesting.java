@@ -40,21 +40,21 @@ public class PermissionTemplateTesting {
 
   public static PermissionTemplateUserDto newPermissionTemplateUserDto() {
     return new PermissionTemplateUserDto()
-      .setPermission(ProjectPermissions.ALL.get(RandomUtils.nextInt(ProjectPermissions.ALL.size())))
+      .setPermission(ProjectPermissions.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(ProjectPermissions.ALL_PERMISSIONS.size())])
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
   }
 
   public static PermissionTemplateGroupDto newPermissionTemplateGroupDto() {
     return new PermissionTemplateGroupDto()
-      .setPermission(ProjectPermissions.ALL.get(RandomUtils.nextInt(ProjectPermissions.ALL.size())))
+      .setPermission(ProjectPermissions.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(ProjectPermissions.ALL_PERMISSIONS.size())])
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
   }
 
   public static PermissionTemplateCharacteristicDto newPermissionTemplateCharacteristicDto() {
     return new PermissionTemplateCharacteristicDto()
-      .setPermission(ProjectPermissions.ALL.get(RandomUtils.nextInt(ProjectPermissions.ALL.size())))
+      .setPermission(ProjectPermissions.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(ProjectPermissions.ALL_PERMISSIONS.size())])
       .setWithProjectCreator(RandomUtils.nextBoolean())
       .setCreatedAt(System.currentTimeMillis())
       .setUpdatedAt(System.currentTimeMillis());

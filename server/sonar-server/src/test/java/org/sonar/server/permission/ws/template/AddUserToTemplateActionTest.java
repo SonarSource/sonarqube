@@ -31,7 +31,10 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,10 +50,12 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   private UserDto user;
   private PermissionTemplateDto permissionTemplate;
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
 
   @Override
   protected AddUserToTemplateAction buildWsAction() {
-    return new AddUserToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession);
+    return new AddUserToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, wsParameters);
   }
 
   @Before

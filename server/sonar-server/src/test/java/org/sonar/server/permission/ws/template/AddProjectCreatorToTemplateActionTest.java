@@ -28,7 +28,10 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -43,10 +46,13 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
 
   private System2 system = spy(System2.INSTANCE);
   private PermissionTemplateDto template;
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+  private RequestValidator requestValidator = new RequestValidator(permissionsHelper);
 
   @Override
   protected AddProjectCreatorToTemplateAction buildWsAction() {
-    return new AddProjectCreatorToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, system);
+    return new AddProjectCreatorToTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, system, requestValidator, wsParameters);
   }
 
   @Before

@@ -62,6 +62,10 @@ public class I18nRule implements TestRule, I18n {
       "False Positive / Won't Fix or changing an Issue's severity. (Users will also need \"Browse\" permission)");
     put("projects_role.securityhotspotadmin", "Administer Security Hotspots");
     put("projects_role.securityhotspotadmin.desc", "Detect a Vulnerability from a \"Security Hotspot\". Reject, clear, accept, reopen a \"Security Hotspot\" (users also need \"Browse\" permissions).");
+    put("projects_role.applicationcreator", "Create Applications");
+    put("projects_role.applicationcreator.desc", "Allow to create applications for non system administrator.");
+    put("projects_role.portfoliocreator", "Create Portfolios");
+    put("projects_role.portfoliocreator.desc", "Allow to create portfolios for non system administrator.");
     put("projects_role.user", "Browse");
     put("projects_role.user.desc", "Ability to access a project, browse its measures, and create/edit issues for it.");
     put("projects_role.codeviewer", "See Source Code");

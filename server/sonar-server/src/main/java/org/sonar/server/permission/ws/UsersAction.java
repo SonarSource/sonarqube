@@ -50,11 +50,6 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateGlobalPermission;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -63,14 +58,18 @@ public class UsersAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionWsSupport support;
+  private final PermissionWsSupport wsSupport;
   private final AvatarResolver avatarResolver;
+  private final RequestValidator requestValidator;
+  private final WsParameters wsParameters;
 
-  public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support, AvatarResolver avatarResolver) {
+  public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver, RequestValidator requestValidator, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
+    this.wsSupport = wsSupport;
     this.avatarResolver = avatarResolver;
+    this.requestValidator = requestValidator;
+    this.wsParameters = wsParameters;
   }
 
   @Override
@@ -97,16 +96,16 @@ public class UsersAction implements PermissionsWsAction {
       .setDescription("Limit search to user names that contain the supplied string. <br/>")
       .setExampleValue("eri");
 
-    createOrganizationParameter(action).setSince("6.2");
-    createPermissionParameter(action).setRequired(false);
-    createProjectParameters(action);
+    WsParameters.createOrganizationParameter(action).setSince("6.2");
+    wsParameters.createPermissionParameter(action).setRequired(false);
+    wsParameters.createProjectParameters(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION));
-      Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
+      OrganizationDto org = wsSupport.findOrganization(dbSession, request.param(PARAM_ORGANIZATION));
+      Optional<ProjectId> projectId = wsSupport.findProjectId(dbSession, request);
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionQuery query = buildPermissionQuery(request, org, projectId);
@@ -119,7 +118,7 @@ public class UsersAction implements PermissionsWsAction {
     }
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, OrganizationDto organization, Optional<ProjectId> project) {
+  private PermissionQuery buildPermissionQuery(Request request, OrganizationDto organization, Optional<ProjectId> project) {
     String textQuery = request.param(Param.TEXT_QUERY);
     String permission = request.param(PARAM_PERMISSION);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
@@ -131,9 +130,9 @@ public class UsersAction implements PermissionsWsAction {
     project.ifPresent(projectId -> permissionQuery.setComponentUuid(projectId.getUuid()));
     if (permission != null) {
       if (project.isPresent()) {
-        validateProjectPermission(permission);
+        requestValidator.validateProjectPermission(permission);
       } else {
-        validateGlobalPermission(permission);
+        RequestValidator.validateGlobalPermission(permission);
       }
     }
 

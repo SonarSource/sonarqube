@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws;
 
-import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.server.ws.WebService.NewParam;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.Uuids;
+import org.sonar.server.permission.PermissionsHelper;
 
-import static java.lang.String.format;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
@@ -40,116 +39,106 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
-public class PermissionsWsParametersBuilder {
+public class WsParameters {
+  private PermissionsHelper permissionsHelper;
+  private final String permissionParamDescription;
+  private final String projectPermissionParamDescription;
 
-  private static final String PERMISSION_PARAM_DESCRIPTION = format("Permission" +
-    "<ul>" +
-    "<li>Possible values for global permissions: %s</li>" +
-    "<li>Possible values for project permissions %s</li>" +
-    "</ul>",
-    GlobalPermissions.ALL_ON_ONE_LINE,
-    ProjectPermissions.ALL_ON_ONE_LINE);
-  public static final String PROJECT_PERMISSION_PARAM_DESCRIPTION = format("Permission" +
-    "<ul>" +
-    "<li>Possible values for project permissions %s</li>" +
-    "</ul>",
-    ProjectPermissions.ALL_ON_ONE_LINE);
-
-  private PermissionsWsParametersBuilder() {
-    // static methods only
+  public WsParameters(PermissionsHelper permissionsHelper) {
+    this.permissionsHelper = permissionsHelper;
+    permissionParamDescription = String.format("Permission" +
+        "<ul>" +
+        "<li>Possible values for global permissions: %s</li>" +
+        "<li>Possible values for project permissions %s</li>" +
+        "</ul>",
+      GlobalPermissions.ALL_ON_ONE_LINE,
+      permissionsHelper.allOnOneLine());
+    projectPermissionParamDescription = String.format("Permission" +
+        "<ul>" +
+        "<li>Possible values for project permissions %s</li>" +
+        "</ul>",
+      permissionsHelper.allOnOneLine());
   }
 
-  public static NewParam createPermissionParameter(NewAction action) {
+  public WebService.NewParam createPermissionParameter(WebService.NewAction action) {
     return action.createParam(PARAM_PERMISSION)
-      .setDescription(PERMISSION_PARAM_DESCRIPTION)
+      .setDescription(permissionParamDescription)
       .setRequired(true);
   }
 
-  public static NewParam createProjectPermissionParameter(NewAction action, boolean required) {
+  public WebService.NewParam createProjectPermissionParameter(WebService.NewAction action, boolean required) {
     return action.createParam(PARAM_PERMISSION)
-      .setDescription(PROJECT_PERMISSION_PARAM_DESCRIPTION)
-      .setPossibleValues(ProjectPermissions.ALL)
+      .setDescription(projectPermissionParamDescription)
+      .setPossibleValues(permissionsHelper.allPermissions())
       .setRequired(required);
   }
 
-  public static NewParam createProjectPermissionParameter(NewAction action) {
+  public WebService.NewParam createProjectPermissionParameter(WebService.NewAction action) {
     return createProjectPermissionParameter(action, true);
   }
 
-  public static void createGroupNameParameter(NewAction action) {
+  public static void createGroupNameParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setExampleValue("sonar-administrators");
   }
 
-  public static NewParam createOrganizationParameter(NewAction action) {
+  public static WebService.NewParam createOrganizationParameter(WebService.NewAction action) {
     return action.createParam(PARAM_ORGANIZATION)
       .setDescription("Key of organization, used when group name is set")
       .setExampleValue("my-org")
       .setInternal(true);
   }
 
-  public static void createGroupIdParameter(NewAction action) {
+  public static void createGroupIdParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_ID)
       .setDescription("Group id")
       .setExampleValue("42");
   }
 
-  public static void createProjectParameters(NewAction action) {
-    createProjectIdParameter(action);
-    createProjectKeyParameter(action);
-  }
-
-  private static void createProjectIdParameter(NewAction action) {
+  public void createProjectParameters(WebService.NewAction action) {
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
+    createProjectKeyParameter(action);
   }
 
-  private static void createProjectKeyParameter(NewAction action) {
+  private static void createProjectKeyParameter(WebService.NewAction action) {
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
-  public static void createUserLoginParameter(NewAction action) {
+  public static void createUserLoginParameter(WebService.NewAction action) {
     action.createParam(PARAM_USER_LOGIN)
       .setRequired(true)
       .setDescription("User login")
       .setExampleValue("g.hopper");
   }
 
-  public static void createTemplateParameters(NewAction action) {
-    createTemplateIdParameter(action);
-    createOrganizationParameter(action);
-    createTemplateNameParameter(action);
-  }
-
-  private static void createTemplateIdParameter(NewAction action) {
+  public static void createTemplateParameters(WebService.NewAction action) {
     action.createParam(PARAM_TEMPLATE_ID)
       .setDescription("Template id")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
-  }
-
-  private static void createTemplateNameParameter(NewAction action) {
+    createOrganizationParameter(action);
     action.createParam(PARAM_TEMPLATE_NAME)
       .setDescription("Template name")
       .setExampleValue("Default Permission Template for Projects");
   }
 
-  public static void createTemplateProjectKeyPatternParameter(NewAction action) {
+  public static void createTemplateProjectKeyPatternParameter(WebService.NewAction action) {
     action.createParam(PARAM_PROJECT_KEY_PATTERN)
       .setDescription("Project key pattern. Must be a valid Java regular expression")
       .setExampleValue(".*\\.finance\\..*");
   }
 
-  public static void createTemplateDescriptionParameter(NewAction action) {
+  public static void createTemplateDescriptionParameter(WebService.NewAction action) {
     action.createParam(PARAM_DESCRIPTION)
       .setDescription("Description")
       .setExampleValue("Permissions for all projects related to the financial service");
   }
 
-  public static void createIdParameter(NewAction action) {
+  public static void createIdParameter(WebService.NewAction action) {
     action.createParam(PARAM_ID)
       .setRequired(true)
       .setDescription("Id")

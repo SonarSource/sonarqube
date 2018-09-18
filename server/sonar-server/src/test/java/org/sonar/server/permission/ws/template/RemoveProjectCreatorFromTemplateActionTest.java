@@ -30,7 +30,10 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,10 +46,13 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
 
   private System2 system = mock(System2.class);
   private PermissionTemplateDto template;
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private RequestValidator requestValidator = new RequestValidator(permissionsHelper);
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
 
   @Override
   protected RemoveProjectCreatorFromTemplateAction buildWsAction() {
-    return new RemoveProjectCreatorFromTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, system);
+    return new RemoveProjectCreatorFromTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, system, requestValidator, wsParameters);
   }
 
   @Before

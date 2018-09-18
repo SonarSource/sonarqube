@@ -20,6 +20,8 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,22 +33,16 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateDescriptionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateProjectKeyPatternParameter;
+import static org.sonar.server.permission.ws.RequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.template.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -96,9 +92,9 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setDescription("Name")
       .setExampleValue("Financial Service Permissions");
 
-    createTemplateProjectKeyPatternParameter(action);
-    createTemplateDescriptionParameter(action);
-    createOrganizationParameter(action).setSince("6.2");
+    WsParameters.createTemplateProjectKeyPatternParameter(action);
+    WsParameters.createTemplateDescriptionParameter(action);
+    WsParameters.createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override
@@ -113,7 +109,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, org.getUuid());
 
       validateTemplateNameForCreation(dbSession, org, request.getName());
-      validateProjectPattern(request.getProjectKeyPattern());
+      RequestValidator.validateProjectPattern(request.getProjectKeyPattern());
 
       PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, org, request);
 
@@ -122,7 +118,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplateNameForCreation(DbSession dbSession, OrganizationDto org, String name) {
-    validateTemplateNameFormat(name);
+    RequestValidator.validateTemplateNameFormat(name);
 
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao()
       .selectByName(dbSession, org.getUuid(), name);

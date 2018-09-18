@@ -81,6 +81,10 @@ public class ResourceTypes {
     return rootTypes;
   }
 
+  public boolean isQualifierPresent(String qualifier) {
+    return typeByQualifier.get(qualifier) != null;
+  }
+
   public List<String> getLeavesQualifiers(String qualifier) {
     ResourceTypeTree tree = getTree(qualifier);
     if (tree != null) {

@@ -31,7 +31,10 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.permission.ws.RequestValidator;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 import org.sonarqube.ws.Permissions;
 
@@ -49,10 +52,13 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersAction> {
+  private PermissionsHelper permissionsHelper = newPermissionsHelper();
+  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+  private RequestValidator requestValidator = new RequestValidator(permissionsHelper);
 
   @Override
   protected TemplateUsersAction buildWsAction() {
-    return new TemplateUsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl());
+    return new TemplateUsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl(), requestValidator, wsParameters);
   }
 
   @Test

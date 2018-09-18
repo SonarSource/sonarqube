@@ -19,19 +19,19 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.util.List;
-import java.util.Locale;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import java.util.List;
+import java.util.Locale;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
@@ -39,8 +39,10 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.Permission;
@@ -48,13 +50,9 @@ import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse.TemplateIdQualifier;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.template.SearchTemplatesData.builder;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -67,15 +65,17 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final I18n i18n;
-  private final PermissionWsSupport support;
+  private final PermissionWsSupport wsSupport;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
+  private final PermissionsHelper permissionsHelper;
 
-  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport support, DefaultTemplatesResolver defaultTemplatesResolver) {
+  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport wsSupport, DefaultTemplatesResolver defaultTemplatesResolver, PermissionsHelper permissionsHelper) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
-    this.support = support;
+    this.wsSupport = wsSupport;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
+    this.permissionsHelper = permissionsHelper;
   }
 
   @Override
@@ -88,13 +88,13 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       .addSearchQuery("defau", "permission template names")
       .setHandler(this);
 
-    createOrganizationParameter(action).setSince("6.2");
+    WsParameters.createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION));
+      OrganizationDto org = wsSupport.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION));
       SearchTemplatesRequest request = new SearchTemplatesRequest()
         .setOrganizationUuid(org.getUuid())
         .setQuery(wsRequest.param(Param.TEXT_QUERY));
@@ -121,7 +121,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
           .setTemplateId(viewDefaultTemplate)));
   }
 
-  private static void buildTemplatesResponse(Permissions.SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
+  private void buildTemplatesResponse(Permissions.SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
     Permission.Builder permissionResponse = Permission.newBuilder();
     PermissionTemplate.Builder templateBuilder = PermissionTemplate.newBuilder();
 
@@ -134,7 +134,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
         .setUpdatedAt(formatDateTime(templateDto.getUpdatedAt()));
       setNullable(templateDto.getKeyPattern(), templateBuilder::setProjectKeyPattern);
       setNullable(templateDto.getDescription(), templateBuilder::setDescription);
-      for (String permission : ProjectPermissions.ALL) {
+      for (String permission : permissionsHelper.allPermissions()) {
         templateBuilder.addPermissions(
           permissionResponse
             .clear()
@@ -159,7 +159,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   private void buildPermissionsResponse(SearchTemplatesWsResponse.Builder response) {
     Permission.Builder permissionResponse = Permission.newBuilder();
-    for (String permissionKey : ProjectPermissions.ALL) {
+    for (String permissionKey : permissionsHelper.allPermissions()) {
       response.addPermissions(
         permissionResponse
           .clear()

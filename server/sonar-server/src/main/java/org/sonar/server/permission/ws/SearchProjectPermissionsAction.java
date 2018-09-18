@@ -19,14 +19,15 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -35,13 +36,13 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonar.server.permission.PermissionPrivilegeChecker;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -49,17 +50,12 @@ import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse.Project;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -75,15 +71,19 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private final ResourceTypes resourceTypes;
   private final PermissionWsSupport wsSupport;
   private final String[] rootQualifiers;
+  private final WsParameters wsParameters;
+  private final PermissionsHelper permissionsHelper;
 
   public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes,
-    PermissionWsSupport wsSupport) {
+    PermissionWsSupport wsSupport, WsParameters wsParameters, PermissionsHelper permissionsHelper) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
     this.wsSupport = wsSupport;
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), ResourceType::getQualifier).toArray(new String[resourceTypes.getRoots().size()]);
+    this.wsParameters = wsParameters;
+    this.permissionsHelper = permissionsHelper;
   }
 
   @Override
@@ -107,7 +107,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
         "<li>project keys that are exactly the same as the supplied string</li>" +
         "</ul>")
       .setExampleValue("apac");
-    createProjectParameters(action);
+    wsParameters.createProjectParameters(action);
     createRootQualifierParameter(action, newQualifierParameterContext(i18n, resourceTypes))
       .setSince("5.3");
   }
@@ -121,7 +121,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private SearchProjectPermissionsWsResponse doHandle(SearchProjectPermissionsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkAuthorized(dbSession, request);
-      validateQualifier(request.getQualifier(), resourceTypes);
+      RequestValidator.validateQualifier(request.getQualifier(), resourceTypes);
       SearchProjectPermissionsData data = load(dbSession, request);
       return buildResponse(data);
     }
@@ -170,7 +170,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       response.addProjects(rootComponentBuilder);
     }
 
-    for (String permissionKey : ProjectPermissions.ALL) {
+    for (String permissionKey : permissionsHelper.allPermissions()) {
       response.addPermissions(
         permissionResponse
           .clear()

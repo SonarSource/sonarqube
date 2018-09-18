@@ -26,9 +26,9 @@ public class GroupPermissionChange extends PermissionChange {
 
   private final GroupIdOrAnyone groupId;
 
-  public GroupPermissionChange(Operation operation, String permission, @Nullable ProjectId projectId,
+  public GroupPermissionChange(PermissionsHelper permissionsHelper, Operation operation, String permission, @Nullable ProjectId projectId,
     GroupIdOrAnyone groupId) {
-    super(operation, groupId.getOrganizationUuid(), permission, projectId);
+    super(permissionsHelper, operation, groupId.getOrganizationUuid(), permission, projectId);
     this.groupId = groupId;
   }
 

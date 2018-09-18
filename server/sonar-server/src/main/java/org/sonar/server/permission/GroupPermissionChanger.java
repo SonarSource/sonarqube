@@ -25,19 +25,22 @@ import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.server.permission.ws.PermissionWsSupport;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
+import static org.sonar.server.permission.ws.RequestValidator.validateNotAnyoneAndAdminPermission;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class GroupPermissionChanger {
 
   private final DbClient dbClient;
+  private final PermissionWsSupport wsSupport;
 
-  public GroupPermissionChanger(DbClient dbClient) {
+  public GroupPermissionChanger(DbClient dbClient, PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {

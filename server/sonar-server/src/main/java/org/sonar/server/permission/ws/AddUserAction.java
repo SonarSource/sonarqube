@@ -30,6 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
@@ -38,10 +39,6 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -55,13 +52,18 @@ public class AddUserAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionUpdater permissionUpdater;
-  private final PermissionWsSupport support;
+  private final PermissionWsSupport wsSupport;
+  private final WsParameters wsParameters;
+  private final PermissionsHelper permissionsHelper;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport support) {
+  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport, WsParameters wsParameters,
+    PermissionsHelper permissionsHelper) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
-    this.support = support;
+    this.wsSupport = wsSupport;
+    this.wsParameters = wsParameters;
+    this.permissionsHelper = permissionsHelper;
   }
 
   @Override
@@ -78,10 +80,10 @@ public class AddUserAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createPermissionParameter(action);
-    createUserLoginParameter(action);
-    createProjectParameters(action);
-    createOrganizationParameter(action)
+    wsParameters.createPermissionParameter(action);
+    WsParameters.createUserLoginParameter(action);
+    wsParameters.createProjectParameters(action);
+    WsParameters.createOrganizationParameter(action)
       .setSince("6.2")
       .setDescription("Key of organization, cannot be used at the same time with %s and %s", PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
   }
@@ -89,20 +91,21 @@ public class AddUserAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserId user = support.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
-      Optional<ComponentDto> project = support.findProject(dbSession, request);
+      UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
+      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
       String organizationKey = request.param(PARAM_ORGANIZATION);
       checkArgument(!project.isPresent() || organizationKey == null, "Organization must not be set when project is set.");
       OrganizationDto org = project
         .map(dto -> dbClient.organizationDao().selectByUuid(dbSession, dto.getOrganizationUuid()))
-        .orElseGet(() -> Optional.ofNullable(support.findOrganization(dbSession, organizationKey)))
+        .orElseGet(() -> Optional.ofNullable(wsSupport.findOrganization(dbSession, organizationKey)))
         .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
-      support.checkMembership(dbSession, org, user);
+      wsSupport.checkMembership(dbSession, org, user);
 
       Optional<ProjectId> projectId = project.map(ProjectId::new);
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionChange change = new UserPermissionChange(
+        permissionsHelper,
         PermissionChange.Operation.ADD,
         org.getUuid(),
         request.mandatoryParam(PARAM_PERMISSION),

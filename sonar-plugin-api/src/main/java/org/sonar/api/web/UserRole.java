@@ -47,6 +47,12 @@ public @interface UserRole {
    */
   String SECURITYHOTSPOT_ADMIN = "securityhotspotadmin";
 
+  /**
+   * @since 7.4
+   */
+  String APPLICATION_CREATOR = "applicationcreator";
+  String PORTFOLIO_CREATOR = "portfoliocreator";
+
   String[] value() default {};
 
 }

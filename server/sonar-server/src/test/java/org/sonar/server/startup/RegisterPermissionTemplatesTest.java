@@ -25,11 +25,14 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
+import org.sonar.api.web.page.Page;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -39,6 +42,9 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
 public class RegisterPermissionTemplatesTest {
@@ -52,6 +58,7 @@ public class RegisterPermissionTemplatesTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private ResourceTypes resourceTypes = mock(ResourceTypes.class);
   private RegisterPermissionTemplates underTest = new RegisterPermissionTemplates(db.getDbClient(), defaultOrganizationProvider);
 
   @Test
@@ -73,20 +80,51 @@ public class RegisterPermissionTemplatesTest {
   }
 
   @Test
-  public void insert_default_permission_template_if_fresh_install() {
+  public void insert_default_permission_template_if_fresh_install_without_governance() {
     GroupDto defaultGroup = createAndSetDefaultGroup();
     db.users().insertGroup(db.getDefaultOrganization(), DefaultGroups.ADMINISTRATORS);
 
+    when(resourceTypes.isQualifierPresent(eq(Qualifiers.APP))).thenReturn(false);
+    when(resourceTypes.isQualifierPresent(eq(Qualifiers.VIEW))).thenReturn(false);
     underTest.start();
 
     PermissionTemplateDto defaultTemplate = selectTemplate();
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
 
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
-    assertThat(groupPermissions).hasSize(5);
+    assertThat(groupPermissions).hasSize(7);
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.APPLICATION_CREATOR, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.PORTFOLIO_CREATOR, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
+
+    verifyDefaultTemplates();
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+  }
+
+  @Test
+  public void insert_default_permission_template_if_fresh_install_with_governance() {
+    GroupDto defaultGroup = createAndSetDefaultGroup();
+    db.users().insertGroup(db.getDefaultOrganization(), DefaultGroups.ADMINISTRATORS);
+
+    when(resourceTypes.isQualifierPresent(eq(Qualifiers.APP))).thenReturn(true);
+    when(resourceTypes.isQualifierPresent(eq(Qualifiers.VIEW))).thenReturn(true);
+    underTest.start();
+
+    PermissionTemplateDto defaultTemplate = selectTemplate();
+    assertThat(defaultTemplate.getName()).isEqualTo("Default template");
+
+    List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
+    assertThat(groupPermissions).hasSize(7);
+    expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.APPLICATION_CREATOR, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, UserRole.PORTFOLIO_CREATOR, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
 
