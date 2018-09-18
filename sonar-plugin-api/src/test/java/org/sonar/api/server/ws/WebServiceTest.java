@@ -475,7 +475,7 @@ public class WebServiceTest {
     }).define(context);
 
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("Description is not set on action api/rule/list");
+      .contains("Description is not set on action api/rule/list");
   }
 
   @Test
@@ -488,7 +488,7 @@ public class WebServiceTest {
     }).define(context);
 
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("Description is not set on action api/rule/list");
+      .contains("Description is not set on action api/rule/list");
   }
 
   static class MetricWs implements WebService {
