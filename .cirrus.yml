@@ -140,5 +140,8 @@ promote_task:
     cpu: 1
     memory: 1Gb
   script:
+    # performance tests are executed on an internal infrastructure. Results are pushed to pipeline in burgr asynchronously,
+    # so after the promotion of artifacts.
+    # By default performance tests are executed only on master and maintenance branches.
     - if [ "$CIRRUS_BRANCH" == 'master' ] || [[ "$CIRRUS_BRANCH" == "branch-"* ]]; then ./private/cirrus/cirrus-trigger-perf.sh; fi
     - ./private/cirrus/cirrus-promote.sh
