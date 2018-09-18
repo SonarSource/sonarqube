@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withRouter, WithRouterProps } from 'react-router';
 import { CurrentUser, isLoggedIn } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
@@ -56,11 +57,10 @@ interface DispatchProps {
 }
 
 interface OwnProps {
-  location: { pathname: string };
   children?: React.ReactNode;
 }
 
-type Props = StateProps & DispatchProps & OwnProps;
+type Props = StateProps & DispatchProps & OwnProps & WithRouterProps;
 
 enum ModalKey {
   license,
@@ -77,10 +77,6 @@ interface State {
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
 export class StartupModal extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
   static childContextTypes = {
     openProjectOnboarding: PropTypes.func
   };
@@ -121,13 +117,13 @@ export class StartupModal extends React.PureComponent<Props, State> {
 
   openOrganizationOnboarding = () => {
     this.closeOnboarding();
-    this.context.router.push('/create-organization');
+    this.props.router.push({ pathname: '/create-organization', state: { paid: true } });
   };
 
   openProjectOnboarding = () => {
     if (isSonarCloud()) {
       this.setState({ automatic: false, modal: undefined });
-      this.context.router.push(`/projects/create`);
+      this.props.router.push(`/projects/create`);
     } else {
       this.setState({ modal: ModalKey.projectOnboarding });
     }
@@ -212,4 +208,4 @@ const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(StartupModal);
+)(withRouter(StartupModal));

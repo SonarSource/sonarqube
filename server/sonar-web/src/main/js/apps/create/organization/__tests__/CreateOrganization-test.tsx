@@ -20,26 +20,52 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { CreateOrganization } from '../CreateOrganization';
-import { mockRouter } from '../../../../helpers/testUtils';
+import { mockRouter, waitAndUpdate } from '../../../../helpers/testUtils';
+
+jest.mock('../../../../api/billing', () => ({
+  getSubscriptionPlans: jest
+    .fn()
+    .mockResolvedValue([{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }])
+}));
+
+const organization = {
+  avatar: 'http://example.com/avatar',
+  description: 'description-foo',
+  key: 'key-foo',
+  name: 'name-foo',
+  url: 'http://example.com/foo'
+};
 
 it('should render and create organization', async () => {
   const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
   const router = mockRouter();
   const wrapper = shallow(
     // @ts-ignore avoid passing everything from WithRouterProps
-    <CreateOrganization createOrganization={createOrganization} router={router} />
+    <CreateOrganization createOrganization={createOrganization} location={{}} router={router} />
   );
+  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  const organization = {
-    avatar: 'http://example.com/avatar',
-    description: 'description-foo',
-    key: 'key-foo',
-    name: 'name-foo',
-    url: 'http://example.com/foo'
-  };
   wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
-  await new Promise(setImmediate);
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('PlanStep').prop<Function>('onFreePlanChoose')();
+  await waitAndUpdate(wrapper);
   expect(createOrganization).toBeCalledWith(organization);
   expect(router.push).toBeCalledWith('/organizations/foo');
+});
+
+it('should preselect paid plan', async () => {
+  const router = mockRouter();
+  const location = { state: { paid: true } };
+  const wrapper = shallow(
+    // @ts-ignore avoid passing everything from WithRouterProps
+    <CreateOrganization createOrganization={jest.fn()} location={location} router={router} />
+  );
+  await waitAndUpdate(wrapper);
+  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.find('PlanStep').prop('onlyPaid')).toBe(true);
 });

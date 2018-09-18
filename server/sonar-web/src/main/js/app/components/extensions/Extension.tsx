@@ -17,36 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import * as PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import { injectIntl } from 'react-intl';
+import { withRouter, WithRouterProps } from 'react-router';
+import { injectIntl, InjectedIntlProps } from 'react-intl';
 import { getExtensionStart } from './utils';
 import { translate } from '../../../helpers/l10n';
 import getStore from '../../utils/getStore';
+import { CurrentUser } from '../../types';
 
-/*::
-type Props = {
-  currentUser: Object,
-  extension: {
-    key: string,
-    name: string
-  },
-  intl: Object,
-  location: { hash: string },
-  onFail: string => void,
-  options?: {},
-  router: Object
-};
-*/
+interface OwnProps {
+  currentUser: CurrentUser;
+  extension: { key: string; name: string };
+  onFail: (message: string) => void;
+  options?: {};
+}
 
-class Extension extends React.PureComponent {
-  /*:: container: Object; */
-  /*:: props: Props; */
-  /*:: stop: ?Function; */
+type Props = OwnProps & WithRouterProps & InjectedIntlProps;
+
+class Extension extends React.PureComponent<Props> {
+  container?: HTMLElement | null;
+  stop?: Function;
 
   static contextTypes = {
     suggestions: PropTypes.object.isRequired
@@ -56,15 +48,11 @@ class Extension extends React.PureComponent {
     this.startExtension();
   }
 
-  componentDidUpdate(prevProps /*: Props */) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.extension !== this.props.extension) {
       this.stopExtension();
       this.startExtension();
-    } else if (
-      prevProps.location !== this.props.location &&
-      // old router from backbone app updates hash, don't react in this case
-      prevProps.location.hash === this.props.location.hash
-    ) {
+    } else if (prevProps.location !== this.props.location) {
       this.startExtension();
     }
   }
@@ -73,7 +61,7 @@ class Extension extends React.PureComponent {
     this.stopExtension();
   }
 
-  handleStart = (start /*: Function */) => {
+  handleStart = (start: Function) => {
     const store = getStore();
     this.stop = start({
       store,
@@ -99,7 +87,7 @@ class Extension extends React.PureComponent {
   stopExtension() {
     if (this.stop) {
       this.stop();
-      this.stop = null;
+      this.stop = undefined;
     }
   }
 
@@ -113,4 +101,4 @@ class Extension extends React.PureComponent {
   }
 }
 
-export default injectIntl(withRouter(Extension));
+export default injectIntl<OwnProps>(withRouter<OwnProps & InjectedIntlProps>(Extension));

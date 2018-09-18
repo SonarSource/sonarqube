@@ -32,20 +32,28 @@ interface Props<V> {
 }
 
 export default class ValidationForm<V> extends React.Component<Props<V>> {
+  mounted = false;
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   handleSubmit = (data: V, { setSubmitting }: FormikActions<V>) => {
     const result = this.props.onSubmit(data);
+    const stopSubmitting = () => {
+      if (this.mounted) {
+        setSubmitting(false);
+      }
+    };
 
     if (result) {
-      result.then(
-        () => {
-          setSubmitting(false);
-        },
-        () => {
-          setSubmitting(false);
-        }
-      );
+      result.then(stopSubmitting, stopSubmitting);
     } else {
-      setSubmitting(false);
+      stopSubmitting();
     }
   };
 

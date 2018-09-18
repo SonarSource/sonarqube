@@ -1,0 +1,242 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should preselect paid plan 1`] = `
+<Step
+  finished={false}
+  onOpen={[Function]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={2}
+  stepTitle="onboarding.create_organization.enter_payment_details"
+/>
+`;
+
+exports[`should preselect paid plan 2`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    2
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.enter_payment_details
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <React.Fragment>
+      <React.Fragment>
+        <PaymentMethodSelect
+          onChange={[Function]}
+        />
+      </React.Fragment>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`should render and use free plan 1`] = `
+<Step
+  finished={false}
+  onOpen={[Function]}
+  open={true}
+  renderForm={[Function]}
+  renderResult={[Function]}
+  stepNumber={2}
+  stepTitle="onboarding.create_organization.choose_plan"
+/>
+`;
+
+exports[`should render and use free plan 2`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    2
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.choose_plan
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <React.Fragment>
+      <PlanSelect
+        onChange={[Function]}
+        plan="free"
+        startingPrice="10"
+      />
+      <SubmitButton
+        className="big-spacer-top"
+        onClick={[MockFunction]}
+      >
+        my_account.create_organization
+      </SubmitButton>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`should upgrade using card 1`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    2
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.choose_plan
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <React.Fragment>
+      <PlanSelect
+        onChange={[Function]}
+        plan="paid"
+        startingPrice="10"
+      />
+      <React.Fragment>
+        <PaymentMethodSelect
+          onChange={[Function]}
+        />
+      </React.Fragment>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`should upgrade using card 2`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    2
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.choose_plan
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <React.Fragment>
+      <PlanSelect
+        onChange={[Function]}
+        plan="paid"
+        startingPrice="10"
+      />
+      <React.Fragment>
+        <PaymentMethodSelect
+          onChange={[Function]}
+          paymentMethod="card"
+        />
+        <Connect(withCurrentUser(CardForm))
+          createOrganization={[MockFunction]}
+          onSubmit={[MockFunction]}
+          subscriptionPlans={Array []}
+        />
+      </React.Fragment>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`should upgrade using coupon 1`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    2
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.choose_plan
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <React.Fragment>
+      <PlanSelect
+        onChange={[Function]}
+        plan="paid"
+        startingPrice="10"
+      />
+      <React.Fragment>
+        <PaymentMethodSelect
+          onChange={[Function]}
+        />
+      </React.Fragment>
+    </React.Fragment>
+  </div>
+</div>
+`;
+
+exports[`should upgrade using coupon 2`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    2
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.choose_plan
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <React.Fragment>
+      <PlanSelect
+        onChange={[Function]}
+        plan="paid"
+        startingPrice="10"
+      />
+      <React.Fragment>
+        <PaymentMethodSelect
+          onChange={[Function]}
+          paymentMethod="coupon"
+        />
+        <Connect(withCurrentUser(CouponForm))
+          createOrganization={[MockFunction]}
+          onSubmit={[MockFunction]}
+        />
+      </React.Fragment>
+    </React.Fragment>
+  </div>
+</div>
+`;

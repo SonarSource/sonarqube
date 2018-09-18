@@ -49,5 +49,6 @@ function getRenderedType(wrapper: ShallowWrapper) {
   return wrapper
     .dive()
     .dive()
+    .dive()
     .type();
 }

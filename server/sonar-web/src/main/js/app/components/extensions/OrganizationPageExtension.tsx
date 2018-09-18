@@ -65,7 +65,6 @@ class OrganizationPageExtension extends React.PureComponent<Props> {
     return extension ? (
       <ExtensionContainer
         extension={extension}
-        location={this.props.location}
         options={{ organization, refreshOrganization: this.refreshOrganization }}
       />
     ) : (

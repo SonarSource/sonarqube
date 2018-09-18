@@ -17,35 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { connect } from 'react-redux';
-import ExtensionContainer from './ExtensionContainer';
-import NotFound from '../NotFound';
-import { getAppState } from '../../../store/rootReducer';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import { createStore } from 'redux';
+import { withCurrentUser } from '../withCurrentUser';
+import { CurrentUser } from '../../../../app/types';
 
-/*::
-type Props = {
-  adminPages: Array<{ key: string }>,
-  params: {
-    extensionKey: string,
-    pluginKey: string
+class X extends React.Component<{ currentUser: CurrentUser }> {
+  render() {
+    return <div />;
   }
-};
-*/
-
-function GlobalAdminPageExtension(props /*: Props */) {
-  const { extensionKey, pluginKey } = props.params;
-  const extension = props.adminPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
-  return extension ? (
-    <ExtensionContainer extension={extension} />
-  ) : (
-    <NotFound withContainer={false} />
-  );
 }
 
-const mapStateToProps = state => ({
-  adminPages: getAppState(state).adminPages
-});
+const UnderTest = withCurrentUser(X);
 
-export default connect(mapStateToProps)(GlobalAdminPageExtension);
+it('should pass logged in user', () => {
+  const currentUser = { isLoggedIn: false };
+  const store = createStore(state => state, { users: { currentUser } });
+  const wrapper = shallow(<UnderTest />, { context: { store } });
+  expect(wrapper.dive().type()).toBe(X);
+  expect(wrapper.dive().prop('currentUser')).toBe(currentUser);
+});

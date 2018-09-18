@@ -19,17 +19,6 @@ exports[`should render and create organization 1`] = `
       >
         onboarding.create_organization.page.header
       </h1>
-      <div
-        className="page-actions"
-      >
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/"
-        >
-          cancel
-        </Link>
-      </div>
       <p
         className="page-description"
       >
@@ -42,19 +31,107 @@ exports[`should render and create organization 1`] = `
               "more": <Link
                 onlyActiveOnIndex={false}
                 style={Object {}}
+                target="_blank"
                 to="/documentation/sonarcloud-pricing"
               >
                 learn_more
               </Link>,
-              "price": "€10",
+              "price": "billing.price_format.10",
             }
           }
         />
       </p>
     </header>
-    <OrganizationDetailsStep
-      onContinue={[Function]}
-    />
+    <React.Fragment>
+      <OrganizationDetailsStep
+        finished={false}
+        onContinue={[Function]}
+        onOpen={[Function]}
+        open={true}
+      />
+    </React.Fragment>
+  </div>
+</React.Fragment>
+`;
+
+exports[`should render and create organization 2`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.create_organization.page.header"
+    titleTemplate="%s"
+  />
+  <div
+    className="sonarcloud page page-limited"
+  >
+    <header
+      className="page-header"
+    >
+      <h1
+        className="page-title big-spacer-bottom"
+      >
+        onboarding.create_organization.page.header
+      </h1>
+      <p
+        className="page-description"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.create_organization.page.description"
+          id="onboarding.create_organization.page.description"
+          values={
+            Object {
+              "break": <br />,
+              "more": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/sonarcloud-pricing"
+              >
+                learn_more
+              </Link>,
+              "price": "billing.price_format.10",
+            }
+          }
+        />
+      </p>
+    </header>
+    <React.Fragment>
+      <OrganizationDetailsStep
+        finished={true}
+        onContinue={[Function]}
+        onOpen={[Function]}
+        open={false}
+        organization={
+          Object {
+            "avatar": "http://example.com/avatar",
+            "description": "description-foo",
+            "key": "key-foo",
+            "name": "name-foo",
+            "url": "http://example.com/foo",
+          }
+        }
+      />
+      <PlanStep
+        createOrganization={[Function]}
+        onFreePlanChoose={[Function]}
+        onPaidPlanChoose={[Function]}
+        open={true}
+        startingPrice="billing.price_format.10"
+        subscriptionPlans={
+          Array [
+            Object {
+              "maxNcloc": 100000,
+              "price": 10,
+            },
+            Object {
+              "maxNcloc": 250000,
+              "price": 75,
+            },
+          ]
+        }
+      />
+    </React.Fragment>
   </div>
 </React.Fragment>
 `;

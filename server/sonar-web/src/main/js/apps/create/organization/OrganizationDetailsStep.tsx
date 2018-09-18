@@ -23,6 +23,7 @@ import Step from '../../tutorials/components/Step';
 import ValidationForm, { ChildrenProps } from '../../../components/controls/ValidationForm';
 import { translate } from '../../../helpers/l10n';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
+import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import { isUrl } from '../../../helpers/urls';
 import { OrganizationBase } from '../../../app/types';
@@ -39,7 +40,11 @@ const initialValues: Values = {
 };
 
 interface Props {
+  finished: boolean;
   onContinue: (organization: Required<OrganizationBase>) => Promise<void>;
+  onOpen: () => void;
+  open: boolean;
+  organization?: OrganizationBase & { key: string };
 }
 
 interface State {
@@ -48,6 +53,21 @@ interface State {
 
 export default class OrganizationDetailsStep extends React.PureComponent<Props, State> {
   state: State = { additional: false };
+
+  getInitialValues = (): Values => {
+    const { organization } = this.props;
+    if (organization) {
+      return {
+        avatar: organization.avatar || '',
+        description: organization.description || '',
+        name: organization.name,
+        key: organization.key,
+        url: organization.url || ''
+      };
+    } else {
+      return initialValues;
+    }
+  };
 
   handleAdditionalClick = () => {
     this.setState(state => ({ additional: !state.additional }));
@@ -81,6 +101,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
       return Promise.reject(errors);
     }
 
+    // TODO debounce
     return this.checkFreeKey(key).then(free => {
       if (!free) {
         errors.key = translate('onboarding.create_organization.organization_name.taken');
@@ -178,10 +199,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
           </div>
         </div>
         <div className="big-spacer-top">
-          <SubmitButton disabled={isSubmitting || !isValid || !dirty}>
-            {/* // TODO change me */}
-            {translate('onboarding.create_organization.page.header')}
-          </SubmitButton>
+          <SubmitButton disabled={isSubmitting || !isValid}>{translate('continue')}</SubmitButton>
         </div>
       </>
     );
@@ -191,7 +209,8 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
     return (
       <div className="boxed-group-inner">
         <ValidationForm<Values>
-          initialValues={initialValues}
+          initialValues={this.getInitialValues()}
+          isInitialValid={this.props.organization !== undefined}
           onSubmit={this.props.onContinue}
           validate={this.handleValidate}>
           {this.renderInnerForm}
@@ -200,14 +219,24 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
     );
   };
 
+  renderResult = () => {
+    const { organization } = this.props;
+    return organization ? (
+      <div className="boxed-group-actions display-flex-center">
+        <AlertSuccessIcon className="spacer-right" />
+        <strong>{organization.key}</strong>
+      </div>
+    ) : null;
+  };
+
   render() {
     return (
       <Step
-        finished={false}
-        onOpen={() => {}}
-        open={true}
+        finished={this.props.finished}
+        onOpen={this.props.onOpen}
+        open={this.props.open}
         renderForm={this.renderForm}
-        renderResult={() => <div />}
+        renderResult={this.renderResult}
         stepNumber={1}
         stepTitle={translate('onboarding.create_organization.enter_org_details')}
       />

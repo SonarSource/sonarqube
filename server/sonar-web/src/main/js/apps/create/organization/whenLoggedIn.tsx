@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
+import { withCurrentUser } from './withCurrentUser';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
-import { Store, getCurrentUser } from '../../../store/rootReducer';
 
 export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
+  const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
+
   class Wrapper extends React.Component<P & { currentUser: CurrentUser } & WithRouterProps> {
-    static displayName = `whenLoggedIn(${WrappedComponent.displayName})`;
+    static displayName = `whenLoggedIn(${wrappedDisplayName})`;
 
     componentDidMount() {
       if (!isLoggedIn(this.props.currentUser)) {
@@ -46,9 +47,5 @@ export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
     }
   }
 
-  function mapStateToProps(state: Store) {
-    return { currentUser: getCurrentUser(state) };
-  }
-
-  return connect(mapStateToProps)(withRouter(Wrapper));
+  return withCurrentUser(withRouter(Wrapper));
 }

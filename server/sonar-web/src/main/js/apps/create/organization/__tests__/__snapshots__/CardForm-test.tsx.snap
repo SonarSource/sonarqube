@@ -1,0 +1,106 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="huge-spacer-top"
+>
+  <BillingFormShim
+    currentUser={
+      Object {
+        "isLoggedIn": false,
+      }
+    }
+    onClose={[Function]}
+    onCommit={[MockFunction]}
+    organizationKey={[MockFunction]}
+    subscriptionPlans={
+      Array [
+        Object {
+          "maxNcloc": 100000,
+          "price": 10,
+        },
+        Object {
+          "maxNcloc": 250000,
+          "price": 75,
+        },
+      ]
+    }
+  />
+</div>
+`;
+
+exports[`should render 2`] = `
+<div
+  id="BillingFormShim"
+>
+  <form
+    onSubmit={[MockFunction]}
+  >
+    <div
+      className="columns column-show-overflow"
+    >
+      <div
+        className="column-half"
+      >
+        <h3>
+          billing.upgrade.billing_info
+        </h3>
+        <div
+          id="email-input"
+        />
+        <div
+          id="type-of-use-select"
+        />
+        <div
+          id="billing-name"
+        />
+        <div
+          id="country-select"
+        />
+        <div
+          id="additional-info"
+        />
+      </div>
+      <div
+        className="column-half"
+      >
+        <h3>
+          billing.upgrade.plan
+        </h3>
+        <div
+          id="plan-select"
+        />
+        <h3>
+          billing.upgrade.card_info
+        </h3>
+        <div
+          id="braintree-client"
+        />
+      </div>
+    </div>
+    <div
+      className="upgrade-footer big-spacer-top"
+    >
+      <div
+        id="next-charge"
+      />
+      <hr
+        className="big-spacer-bottom"
+      />
+    </div>
+    <div
+      className=""
+    >
+      <div
+        id="spinner"
+      />
+      <div
+        id="submit-button"
+      />
+    </div>
+    <div
+      id="terms-of-service"
+    />
+  </form>
+</div>
+`;

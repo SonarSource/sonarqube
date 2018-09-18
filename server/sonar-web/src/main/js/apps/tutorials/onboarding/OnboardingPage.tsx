@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { InjectedRouter } from 'react-router';
 import OnboardingModal from './OnboardingModal';
 import { skipOnboarding } from '../../../api/users';
 import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
@@ -28,6 +29,10 @@ import { Organization } from '../../../app/types';
 
 interface DispatchProps {
   skipOnboardingAction: () => void;
+}
+
+interface OwnProps {
+  router: InjectedRouter;
 }
 
 enum ModalKey {
@@ -39,10 +44,9 @@ interface State {
   modal?: ModalKey;
 }
 
-export class OnboardingPage extends React.PureComponent<DispatchProps, State> {
+export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps, State> {
   static contextTypes = {
-    openProjectOnboarding: PropTypes.func.isRequired,
-    router: PropTypes.object.isRequired
+    openProjectOnboarding: PropTypes.func.isRequired
   };
 
   state: State = { modal: ModalKey.onboarding };
@@ -50,16 +54,16 @@ export class OnboardingPage extends React.PureComponent<DispatchProps, State> {
   closeOnboarding = () => {
     skipOnboarding();
     this.props.skipOnboardingAction();
-    this.context.router.replace('/');
+    this.props.router.replace('/');
   };
 
   closeOrganizationOnboarding = ({ key }: Pick<Organization, 'key'>) => {
     this.closeOnboarding();
-    this.context.router.push(`/organizations/${key}`);
+    this.props.router.push(`/organizations/${key}`);
   };
 
   openOrganizationOnboarding = () => {
-    this.context.router.push('/create-organizations');
+    this.props.router.push({ pathname: '/create-organization', state: { paid: true } });
   };
 
   openTeamOnboarding = () => {

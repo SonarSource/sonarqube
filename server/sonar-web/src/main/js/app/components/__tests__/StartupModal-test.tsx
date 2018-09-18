@@ -19,11 +19,13 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
+import { Location } from 'history';
+import { InjectedRouter } from 'react-router';
 import { StartupModal } from '../StartupModal';
 import { showLicense } from '../../../api/marketplace';
 import { save, get } from '../../../helpers/storage';
 import { hasMessage } from '../../../helpers/l10n';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { waitAndUpdate, mockRouter } from '../../../helpers/testUtils';
 import { differenceInDays, toShortNotSoISOString } from '../../../helpers/dates';
 import { LoggedInUser } from '../../types';
 import { EditionKey } from '../../../apps/marketplace/utils';
@@ -136,15 +138,16 @@ async function shouldDisplayLicense(wrapper: ShallowWrapper) {
 
 function getWrapper(props = {}) {
   return shallow(
+    // @ts-ignore avoid passing everything from WithRouterProps
     <StartupModal
       canAdmin={true}
       currentEdition={EditionKey.enterprise}
       currentUser={LOGGED_IN_USER}
-      location={{ pathname: 'foo/bar' }}
+      location={{ pathname: 'foo/bar' } as Location}
+      router={mockRouter() as InjectedRouter}
       skipOnboardingAction={jest.fn()}
       {...props}>
       <div />
-    </StartupModal>,
-    { context: { router: { push: jest.fn() } } }
+    </StartupModal>
   );
 }

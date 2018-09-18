@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import exposeLibraries from './exposeLibraries';
 import { getExtensionFromCache } from '../../utils/installExtensionsHandler';
+import { getBaseUrl } from '../../../helpers/urls';
 
-function installScript(key /*: string */) {
+function installScript(key: string) {
   return new Promise(resolve => {
     exposeLibraries();
     const scriptTag = document.createElement('script');
-    scriptTag.src = `${window.baseUrl}/static/${key}.js`;
+    scriptTag.src = `${getBaseUrl()}/static/${key}.js`;
     scriptTag.onload = resolve;
     document.getElementsByTagName('body')[0].appendChild(scriptTag);
   });
 }
 
-export function getExtensionStart(key /*: string */) {
+export function getExtensionStart(key: string): Promise<Function> {
   return new Promise((resolve, reject) => {
     const fromCache = getExtensionFromCache(key);
     if (fromCache) {

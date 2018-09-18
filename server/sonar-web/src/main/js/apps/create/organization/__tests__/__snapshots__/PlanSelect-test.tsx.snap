@@ -1,0 +1,123 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render and select 1`] = `
+<div
+  aria-label="onboarding.create_organization.choose_plan"
+  className="huge-spacer-bottom"
+  role="radiogroup"
+>
+  <div>
+    <Radio
+      checked={true}
+      onCheck={[Function]}
+    >
+      <span>
+        billing.free_plan.title
+      </span>
+    </Radio>
+    <p
+      className="note markdown little-spacer-top"
+    >
+      billing.free_plan.description
+    </p>
+  </div>
+  <div
+    className="big-spacer-top"
+  >
+    <Radio
+      checked={false}
+      onCheck={[Function]}
+    >
+      <span>
+        billing.paid_plan.title
+      </span>
+    </Radio>
+    <p
+      className="note markdown little-spacer-top"
+    >
+      <FormattedMessage
+        defaultMessage="billing.paid_plan.description"
+        id="billing.paid_plan.description"
+        values={
+          Object {
+            "more": <React.Fragment>
+               
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/sonarcloud-pricing"
+              >
+                learn_more
+              </Link>
+              <br />
+            </React.Fragment>,
+            "price": "10",
+          }
+        }
+      />
+    </p>
+  </div>
+</div>
+`;
+
+exports[`should render and select 2`] = `
+<div
+  aria-label="onboarding.create_organization.choose_plan"
+  className="huge-spacer-bottom"
+  role="radiogroup"
+>
+  <div>
+    <Radio
+      checked={false}
+      onCheck={[Function]}
+    >
+      <span>
+        billing.free_plan.title
+      </span>
+    </Radio>
+    <p
+      className="note markdown little-spacer-top"
+    >
+      billing.free_plan.description
+    </p>
+  </div>
+  <div
+    className="big-spacer-top"
+  >
+    <Radio
+      checked={true}
+      onCheck={[Function]}
+    >
+      <span>
+        billing.paid_plan.title
+      </span>
+    </Radio>
+    <p
+      className="note markdown little-spacer-top"
+    >
+      <FormattedMessage
+        defaultMessage="billing.paid_plan.description"
+        id="billing.paid_plan.description"
+        values={
+          Object {
+            "more": <React.Fragment>
+               
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/sonarcloud-pricing"
+              >
+                learn_more
+              </Link>
+              <br />
+            </React.Fragment>,
+            "price": "10",
+          }
+        }
+      />
+    </p>
+  </div>
+</div>
+`;

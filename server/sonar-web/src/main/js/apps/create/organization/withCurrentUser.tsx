@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import GlobalPageExtension from './GlobalPageExtension';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { CurrentUser } from '../../../app/types';
+import { Store, getCurrentUser } from '../../../store/rootReducer';
 
-export default function PortfoliosPage(props /*: Object */) {
-  return (
-    <div>
-      <GlobalPageExtension
-        location={props.location}
-        params={{ pluginKey: 'governance', extensionKey: 'portfolios' }}
-      />
-    </div>
-  );
+export function withCurrentUser<P>(
+  WrappedComponent: React.ComponentClass<P & { currentUser: CurrentUser }>
+) {
+  const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
+
+  class Wrapper extends React.Component<P & { currentUser: CurrentUser }> {
+    static displayName = `withCurrentUser(${wrappedDisplayName})`;
+
+    render() {
+      return <WrappedComponent {...this.props} />;
+    }
+  }
+
+  function mapStateToProps(state: Store) {
+    return { currentUser: getCurrentUser(state) };
+  }
+
+  return connect(mapStateToProps)(Wrapper);
 }

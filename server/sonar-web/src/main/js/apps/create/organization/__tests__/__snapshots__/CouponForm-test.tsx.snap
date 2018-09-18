@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="huge-spacer-top"
+>
+  <BillingFormShim
+    currentUser={
+      Object {
+        "isLoggedIn": false,
+      }
+    }
+    onClose={[Function]}
+    onCommit={[MockFunction]}
+    organizationKey={[MockFunction]}
+    subscriptionPlans={Array []}
+  />
+</div>
+`;

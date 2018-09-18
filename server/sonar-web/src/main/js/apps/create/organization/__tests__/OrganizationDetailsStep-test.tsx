@@ -31,8 +31,15 @@ beforeEach(() => {
   (getOrganization as jest.Mock).mockResolvedValue(undefined);
 });
 
-it('should render', () => {
-  const wrapper = shallow(<OrganizationDetailsStep onContinue={jest.fn()} />);
+it('should render form', () => {
+  const wrapper = shallow(
+    <OrganizationDetailsStep
+      finished={false}
+      onContinue={jest.fn()}
+      onOpen={jest.fn()}
+      open={true}
+    />
+  );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.dive()).toMatchSnapshot();
   expect(getForm(wrapper)).toMatchSnapshot();
@@ -52,7 +59,14 @@ it('should render', () => {
 });
 
 it('should validate', () => {
-  const wrapper = shallow(<OrganizationDetailsStep onContinue={jest.fn()} />);
+  const wrapper = shallow(
+    <OrganizationDetailsStep
+      finished={false}
+      onContinue={jest.fn()}
+      onOpen={jest.fn()}
+      open={true}
+    />
+  );
   const instance = wrapper.instance() as OrganizationDetailsStep;
 
   expect(
@@ -89,6 +103,19 @@ it('should validate', () => {
   expect(
     instance.handleValidate({ avatar: '', description: '', name: '', key: 'foo', url: '' })
   ).rejects.toEqual({ key: 'onboarding.create_organization.organization_name.taken' });
+});
+
+it('should render result', () => {
+  const wrapper = shallow(
+    <OrganizationDetailsStep
+      finished={true}
+      onContinue={jest.fn()}
+      onOpen={jest.fn()}
+      open={false}
+      organization={{ avatar: '', description: '', key: 'org', name: 'Organization', url: '' }}
+    />
+  );
+  expect(wrapper.dive()).toMatchSnapshot();
 });
 
 function getForm(wrapper: ShallowWrapper) {

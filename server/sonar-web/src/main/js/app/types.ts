@@ -703,6 +703,11 @@ export interface SourceViewerFile {
   uuid: string;
 }
 
+export interface SubscriptionPlan {
+  maxNcloc: number;
+  price: number;
+}
+
 export interface TestCase {
   coveredLines: number;
   durationInMs: number;

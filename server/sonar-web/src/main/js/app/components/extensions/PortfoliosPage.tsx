@@ -17,35 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { connect } from 'react-redux';
-import ExtensionContainer from './ExtensionContainer';
-import NotFound from '../NotFound';
-import { getAppState } from '../../../store/rootReducer';
+import * as React from 'react';
+import GlobalPageExtension from './GlobalPageExtension';
 
-/*::
-type Props = {
-  globalPages: Array<{ key: string }>,
-  params: {
-    extensionKey: string,
-    pluginKey: string
-  }
-};
-*/
-
-function GlobalPageExtension(props /*: Props */) {
-  const { extensionKey, pluginKey } = props.params;
-  const extension = props.globalPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
-  return extension ? (
-    <ExtensionContainer extension={extension} />
-  ) : (
-    <NotFound withContainer={false} />
-  );
+export default function PortfoliosPage() {
+  return <GlobalPageExtension params={{ pluginKey: 'governance', extensionKey: 'portfolios' }} />;
 }
-
-const mapStateToProps = state => ({
-  globalPages: getAppState(state).globalPages
-});
-
-export default connect(mapStateToProps)(GlobalPageExtension);
