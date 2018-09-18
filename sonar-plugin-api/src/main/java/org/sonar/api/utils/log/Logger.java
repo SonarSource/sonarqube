@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
  *
  *   public void doSomething() {
  *     LOGGER.info("something valuable for production environment");
- *     LOGGER.warn("message with arguments {} and {}", "foo", 42);
+ *     LOGGER.warn("message with arguments {} and {}", "foo", 42);
  *   }
  * }
  * </pre>

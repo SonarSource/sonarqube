@@ -48,7 +48,7 @@ public interface DebtRemediationFunction {
      * <p>
      * <code>Total remediation cost = base effort + (number of noncompliance x gap multiplier)</code>
      * 
-     * <p>The rule must provide the "gap" value when raising an issue. Let’s take as a example the “Paragraphs should not be too complex” rule.
+     * <p>The rule must provide the "gap" value when raising an issue. Let's take as a example the "Paragraphs should not be too complex" rule.
      * If you set the rule threshold to 20, and you have a paragraph with a complexity of 27, you have 7 points of complexity
      * to remove. Internally, this is called the Gap. In that case, if you use the LINEAR_OFFSET configuration
      * with an base effort of 4h and a remediation cost of 1mn, the effort for this issue related to a
