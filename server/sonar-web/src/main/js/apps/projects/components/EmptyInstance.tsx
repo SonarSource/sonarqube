@@ -34,6 +34,12 @@ export default class EmptyInstance extends React.PureComponent<Props> {
     openProjectOnboarding: PropTypes.func
   };
 
+  analyzeNewProject = () => {
+    const { organization } = this.props;
+    const organizationKey = organization && organization.key;
+    this.context.openProjectOnboarding(organizationKey);
+  };
+
   render() {
     const { currentUser, organization } = this.props;
     const showNewProjectButton = isSonarCloud()
@@ -53,7 +59,7 @@ export default class EmptyInstance extends React.PureComponent<Props> {
               {translate('projects.no_projects.empty_instance.how_to_add_projects')}
             </p>
             <p className="big-spacer-top">
-              <Button onClick={this.context.openProjectOnboarding}>
+              <Button onClick={this.analyzeNewProject}>
                 {translate('embed_docs.analyze_new_project')}
               </Button>
             </p>

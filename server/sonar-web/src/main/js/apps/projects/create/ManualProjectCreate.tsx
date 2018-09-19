@@ -41,6 +41,7 @@ interface DispatchProps {
 interface OwnProps {
   currentUser: LoggedInUser;
   onProjectCreate: (projectKeys: string[]) => void;
+  organization?: string;
 }
 
 type Props = OwnProps & StateProps & DispatchProps;
@@ -60,8 +61,7 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
     this.state = {
       projectName: '',
       projectKey: '',
-      selectedOrganization:
-        props.userOrganizations.length === 1 ? props.userOrganizations[0].key : '',
+      selectedOrganization: this.getInitialSelectedOrganization(props),
       submitting: false
     };
   }
@@ -72,6 +72,16 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  getInitialSelectedOrganization(props: Props) {
+    if (props.organization) {
+      return props.organization;
+    } else if (props.userOrganizations.length === 1) {
+      return props.userOrganizations[0].key;
+    } else {
+      return '';
+    }
   }
 
   handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {

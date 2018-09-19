@@ -23,19 +23,22 @@ import {
   RawQuery,
   parseAsBoolean,
   serializeOptionalBoolean,
-  parseAsOptionalString
+  parseAsOptionalString,
+  serializeString
 } from '../../../helpers/query';
 
 export interface Query {
   error?: string;
   manual: boolean;
+  organization?: string;
 }
 
 export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => {
     return {
       error: parseAsOptionalString(urlQuery['error']),
-      manual: parseAsBoolean(urlQuery['manual'], false)
+      manual: parseAsBoolean(urlQuery['manual'], false),
+      organization: parseAsOptionalString(urlQuery['organization'])
     };
   }
 );
@@ -43,6 +46,7 @@ export const parseQuery = memoize(
 export const serializeQuery = memoize(
   (query: Query): RawQuery =>
     cleanQuery({
-      manual: serializeOptionalBoolean(query.manual || undefined)
+      manual: serializeOptionalBoolean(query.manual || undefined),
+      organization: serializeString(query.organization)
     })
 );

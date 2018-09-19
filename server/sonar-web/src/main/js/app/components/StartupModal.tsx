@@ -120,10 +120,10 @@ export class StartupModal extends React.PureComponent<Props, State> {
     this.props.router.push({ pathname: '/create-organization', state: { paid: true } });
   };
 
-  openProjectOnboarding = () => {
+  openProjectOnboarding = (organization?: string) => {
     if (isSonarCloud()) {
       this.setState({ automatic: false, modal: undefined });
-      this.props.router.push(`/projects/create`);
+      this.props.router.push({ pathname: `/projects/create`, query: { organization } });
     } else {
       this.setState({ modal: ModalKey.projectOnboarding });
     }

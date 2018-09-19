@@ -151,6 +151,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     const displayManual = parseQuery(this.props.location.query).manual;
     const header = translate('onboarding.create_project.header');
     const hasAutoProvisioning = this.canAutoCreate() && identityProvider;
+    const query = parseQuery(this.props.location.query);
     return (
       <>
         <Helmet title={header} titleTemplate="%s" />
@@ -197,6 +198,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
                 <ManualProjectCreate
                   currentUser={currentUser}
                   onProjectCreate={this.handleProjectCreate}
+                  organization={query.organization}
                 />
               ) : (
                 <AutoProjectCreate
