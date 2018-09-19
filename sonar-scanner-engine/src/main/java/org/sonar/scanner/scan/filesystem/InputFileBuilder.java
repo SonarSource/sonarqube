@@ -21,13 +21,13 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.nio.file.Path;
 import javax.annotation.Nullable;
+
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.utils.PathUtils;
 import org.sonar.scanner.scan.ScanProperties;
 
 public class InputFileBuilder {

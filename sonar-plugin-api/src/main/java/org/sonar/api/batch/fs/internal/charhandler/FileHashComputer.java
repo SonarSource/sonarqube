@@ -27,8 +27,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-import javax.annotation.CheckForNull;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -78,7 +76,6 @@ public class FileHashComputer extends CharHandler {
     }
   }
 
-  @CheckForNull
   public String getHash() {
     return Hex.encodeHexString(globalMd5Digest.digest());
   }
