@@ -49,6 +49,7 @@ task copyBranding() {
 
 yarn_run {
   if (official) { dependsOn copyBranding }
+  inputs.property('official', official)
   ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
