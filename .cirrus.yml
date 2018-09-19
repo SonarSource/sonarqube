@@ -74,7 +74,7 @@ validate_task:
       - name: postgres
         image: postgres:9.3.23
         port: 5432
-        cpu: 0.8
+        cpu: 0.7
         memory: 1Gb
         env:
           POSTGRES_USER: postgres
@@ -94,7 +94,7 @@ qa_task:
     cluster_name: cirrus-cluster
     zone: us-central1-a
     namespace: default
-    cpu: 3
+    cpu: 2
     memory: 10Gb
     additional_containers:
     - name: postgres
