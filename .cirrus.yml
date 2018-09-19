@@ -51,7 +51,7 @@ deploy_docs_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
   gke_container:
-    image: gradle:4.9.0-jdk8
+    image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
     cluster_name: cirrus-cluster
     zone: us-central1-a
     namespace: default
