@@ -62,30 +62,56 @@ cd sonar-enterprise/server/sonar-docs
 yarn develop
 ```
 
+## Testing
+As documentation writers there are two ways it is possible for us to break the SonarQube build
+* malformed markup
+* broken links
+
+Even without spinning up servers, you can double-check that your changes won't break the build.
+**Test everything**
+You can run all the tests, and make sure that both your markup is well-formed and your links are correct by running the build script:
+```
+cd sonar-enterprise/
+./build.sh -x test -x obfuscate
+```
+**Test links only** 
+If you only want to double-check your links changes, you can
+```
+cd sonar-enterprise/server/sonar-docs
+yarn jest
+```
+
+This will run the broken link test and stop at the first broken link it finds. Continue running this iteratively until it passes.
+
+## Navigation trees
+Controlling the navigation trees of the tree instances is covered in [static/README.md](static)
+
+
 ## Writing docs
+
+### URLs
+All urls _must_ end with a trailing slash (`/`).
 
 ### Header
 
 Each documentation file should contain a header at the top of the file delimited by "---" top and bottom. The header holds file metadata:
 
 * The `title` tag defines the title of the page for the index
-* The `order` tag defines the order of the page for the index. (Floats are interpreted correctly)
-* The `scope` tag defines to which product the doc applies. Omit `scope` to have a file show up everywhere:
-  * “sonarqube” - visible only for SonarQube and the static website
-  * “sonarcloud” - visible only for SonarCloud
-  * "static" - visible only on the static website
+* The `url` tag is required and defines the path at which to publish the page. Reminder: end this with a trailing slash.
 
 Ex.:
 
 ```
 ---
 title: Demo page
-order: 0
-scope: static
+url: /sonarcloud-pricing
 ---
 ```
 
-Metadata tags can appear in any order, but by convention, `title` should come first.
+** Metadata conventions**
+* Metadata tags can appear in any order, but by convention, `title` should come first.
+* The `url` tag is optional, but by convention, should be specified to both make the publish path explicit and avoid problems potentially caused by moving or renaming files.
+
 
 ### Includes
 
@@ -98,15 +124,12 @@ Basic syntax: `@include tooltips/quality-gates/quality-gate`
 
 With special comments you can mark a page or a part of the content to be displayed only on SonarCloud, SonarQube or the static documentation website.
 
-To display a page only in a certain context use the frontmatter option:
-
-```md
----
-scope: sonarcloud (or sonarqube, or static)
----
+To drop in "SonarQube" or "SonarCloud" as appropriate, use:
+```
+{instance}
 ```
 
-To display/hide a part of the content use special comments:
+To display/hide some other part of the content, use special comments:
 
 ```md
 <!-- sonarcloud -->
@@ -128,7 +151,7 @@ this content is displayed only in the static website
 <!-- /static -->
 ```
 
-You can also use inline comments:
+You can also use these comments inline:
 
 ```md
 this content is displayed on <!-- sonarcloud -->SonarCloud<!-- /sonarcloud --><!-- sonarqube -->SonarQube<!-- /sonarqube -->

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HeadingAnchor from './HeadingAnchor';
 
 export default class HeadingsLink extends React.Component {
   skipScrollingHandler = false;
@@ -51,7 +52,7 @@ export default class HeadingsLink extends React.Component {
   highlightHeading = scrollTop => {
     let headingIndex = 0;
     for (let i = 0; i < this.state.headers.length; i++) {
-      if (document.querySelector('#header-' + (i + 1)).offsetTop > scrollTop + 40) {
+      if (document.querySelector('#header-' + (i + 1)).offsetTop > scrollTop + 200) {
         break;
       }
       headingIndex = i;
@@ -71,8 +72,8 @@ export default class HeadingsLink extends React.Component {
       node.classList.add('targetted-heading');
       if (scrollTo) {
         this.skipScrollingHandler = true;
-        window.scrollTo(0, node.offsetTop - 30);
-        this.highlightHeading(node.offsetTop - 30);
+        window.scrollTo(0, node.offsetTop - 200);
+        this.highlightHeading(node.offsetTop - 200);
       }
     }
   };
@@ -87,12 +88,8 @@ export default class HeadingsLink extends React.Component {
     this.highlightHeading(scrollTop);
   };
 
-  clickHandler = target => {
-    return event => {
-      event.stopPropagation();
-      event.preventDefault();
-      this.markH2(target, true);
-    };
+  clickHandler = index => {
+    this.markH2(index, true);
   };
 
   render() {
@@ -106,14 +103,13 @@ export default class HeadingsLink extends React.Component {
         <ul>
           {headers.map((header, index) => {
             return (
-              <li key={index + 1}>
-                <a
-                  onClick={this.clickHandler(index + 1)}
-                  href={'#header-' + (index + 1)}
-                  className={this.state.activeIndex === index ? 'active' : ''}>
-                  {header.value}
-                </a>
-              </li>
+              <HeadingAnchor
+                active={this.state.activeIndex === index}
+                clickHandler={this.clickHandler}
+                key={index}
+                index={index + 1}
+                value={header.value}
+              />
             );
           })}
         </ul>

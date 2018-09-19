@@ -51,10 +51,11 @@ export default class Page extends React.PureComponent {
     htmlWithInclusions = removeTableOfContents(htmlWithInclusions);
     htmlWithInclusions = createAnchorForHeadings(htmlWithInclusions, realHeadingsList);
     htmlWithInclusions = replaceDynamicLinks(htmlWithInclusions);
+    htmlWithInclusions = replaceInstanceTag(htmlWithInclusions);
 
     return (
       <div css={{ paddingTop: 24, paddingBottom: 24 }}>
-        <Helmet title={page.frontmatter.title}>
+        <Helmet title={page.frontmatter.title || 'Documentation'}>
           <html lang="en" />
         </Helmet>
         <HeaderList headers={realHeadingsList} />
@@ -99,6 +100,10 @@ export const query = graphql`
   }
 `;
 
+function replaceInstanceTag(content) {
+  return content.replace('{instance}', 'SonarQube');
+}
+
 function replaceDynamicLinks(content) {
   const version = process.env.GATSBY_DOCS_VERSION || '';
   const usePrefix = process.env.GATSBY_USE_PREFIX === '1';
@@ -113,12 +118,6 @@ function replaceDynamicLinks(content) {
   content = content.replace(
     /\<a href="http(.*)"\>(.*)\<\/a\>/gim,
     '<a href="http$1" target="_blank">$2</a>'
-  );
-
-  // Add trailing slash to local link
-  content = content.replace(
-    /\<a href="(?!http)(.*)(?!\/)"\>(.*)\<\/a\>/gim,
-    '<a href="$1/">$2</a>'
   );
 
   return content.replace(

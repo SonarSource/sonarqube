@@ -18,59 +18,79 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
-import * as classNames from 'classnames';
-import { sortBy } from 'lodash';
+import MenuBlock from './MenuBlock';
+import { MenuItem } from './MenuItem';
+import { MenuExternalLink } from './MenuExternalLink';
 import {
-  getEntryChildren,
   DocumentationEntry,
-  activeOrChildrenActive,
-  getEntryRoot
+  DocsNavigationBlock,
+  getNodeFromUrl,
+  isDocsNavigationBlock,
+  isDocsNavigationExternalLink,
+  DocsNavigationItem
 } from '../utils';
-import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
 
 interface Props {
+  navigation: DocsNavigationItem[];
   pages: DocumentationEntry[];
   splat: string;
 }
 
-type EntryWithChildren = DocumentationEntry & { children?: DocumentationEntry[] };
+interface State {
+  openBlockTitle: string;
+}
 
-export default class Menu extends React.PureComponent<Props> {
-  getMenuEntriesHierarchy = (root?: string): EntryWithChildren[] => {
-    const topLevelEntries = getEntryChildren(this.props.pages, root);
-    return sortBy(
-      topLevelEntries.map(entry => {
-        const entryRoot = getEntryRoot(entry.relativeName);
-        const children = entryRoot !== '' ? this.getMenuEntriesHierarchy(entryRoot) : [];
-        return { ...entry, children };
-      }),
-      entry => entry.order
-    );
-  };
+export default class Menu extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      openBlockTitle: this.getOpenBlockFromLocation(this.props.splat)
+    };
+  }
 
-  renderEntry = (entry: EntryWithChildren, depth: number): React.ReactNode => {
-    const active = entry.relativeName === this.props.splat;
-    const opened = activeOrChildrenActive(this.props.splat || '', entry);
-    const offset = 10 + 25 * depth;
-    const { children = [] } = entry;
-    return (
-      <React.Fragment key={entry.relativeName}>
-        <Link
-          className={classNames('list-group-item', { active })}
-          style={{ paddingLeft: offset }}
-          to={'/documentation/' + entry.relativeName}>
-          <h3 className="list-group-item-heading">
-            {children.length > 0 && <OpenCloseIcon className="little-spacer-right" open={opened} />}
-            {entry.title}
-          </h3>
-        </Link>
-        {opened && children.map(entry => this.renderEntry(entry, depth + 1))}
-      </React.Fragment>
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.splat !== nextProps.splat) {
+      this.setState({ openBlockTitle: this.getOpenBlockFromLocation(nextProps.splat) });
+    }
+  }
+
+  getOpenBlockFromLocation(splat: string) {
+    const element = this.props.navigation.find(
+      item => isDocsNavigationBlock(item) && item.children.some(child => '/' + splat === child)
     );
+    return element ? (element as DocsNavigationBlock).title : '';
+  }
+
+  toggleBlock = (title: string) => {
+    this.setState(state => ({ openBlockTitle: state.openBlockTitle === title ? '' : title }));
   };
 
   render() {
-    return <>{this.getMenuEntriesHierarchy().map(entry => this.renderEntry(entry, 0))}</>;
+    return this.props.navigation.map(item => {
+      if (isDocsNavigationBlock(item)) {
+        return (
+          <MenuBlock
+            block={item}
+            key={item.title}
+            onToggle={this.toggleBlock}
+            open={this.state.openBlockTitle === item.title}
+            pages={this.props.pages}
+            splat={this.props.splat}
+            title={item.title}
+          />
+        );
+      }
+      if (isDocsNavigationExternalLink(item)) {
+        return <MenuExternalLink key={item.title} title={item.title} url={item.url} />;
+      }
+      return (
+        <MenuItem
+          indent={false}
+          key={item}
+          node={getNodeFromUrl(this.props.pages, item)}
+          splat={this.props.splat}
+        />
+      );
+    });
   }
 }

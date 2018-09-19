@@ -20,6 +20,8 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
+import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree.json';
+import * as navigationTreeSonarCloud from 'Docs/../static/SonarCloudNavigationTree.json';
 import Sidebar from './Sidebar';
 import getPages from '../pages';
 import NotFound from '../../../app/components/NotFound';
@@ -27,6 +29,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
+import { DocsNavigationItem } from '../utils';
 import '../styles.css';
 
 interface Props {
@@ -52,8 +55,11 @@ export default class App extends React.PureComponent<Props> {
   }
 
   render() {
-    const { splat = 'index' } = this.props.params;
-    const page = this.pages.find(p => p.relativeName === splat);
+    const tree = isSonarCloud()
+      ? ((navigationTreeSonarCloud as any).default as DocsNavigationItem[])
+      : ((navigationTreeSonarQube as any).default as DocsNavigationItem[]);
+    const { splat = '' } = this.props.params;
+    const page = this.pages.find(p => p.url === '/' + splat);
     const mainTitle = translate('documentation.page');
 
     if (!page) {
@@ -71,7 +77,7 @@ export default class App extends React.PureComponent<Props> {
 
     return (
       <div className="layout-page">
-        <Helmet title={isIndex ? mainTitle : `${page.title} - ${mainTitle}`}>
+        <Helmet title={isIndex || !page.title ? mainTitle : `${page.title} - ${mainTitle}`}>
           {!isSonarCloud() && <meta content="noindex nofollow" name="robots" />}
         </Helmet>
 
@@ -85,7 +91,7 @@ export default class App extends React.PureComponent<Props> {
                       <h1>{translate('documentation.page')}</h1>
                     </Link>
                   </div>
-                  <Sidebar pages={this.pages} splat={splat} />
+                  <Sidebar navigation={tree} pages={this.pages} splat={splat} />
                 </div>
               </div>
             </div>

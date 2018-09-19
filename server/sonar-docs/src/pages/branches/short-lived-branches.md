@@ -1,5 +1,6 @@
 ---
 title: Short-lived Branches
+url: /branches/short-lived-branches/
 ---
 
 <!-- sonarqube -->

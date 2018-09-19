@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-import lunr, { LunrIndex } from 'lunr';
+import lunr from 'lunr';
 import ClearIcon from './icons/ClearIcon';
+import { getUrlsList } from '../utils';
 
 // Search component
 export default class Search extends Component {
@@ -36,13 +37,17 @@ export default class Search extends Component {
 
       this.metadataWhitelist = ['position'];
 
-      props.pages.forEach(page =>
-        this.add({
-          id: page.id,
-          title: page.frontmatter.title,
-          text: page.html.replace(/<(?:.|\n)*?>/gm, '').replace(/&#x3C;(?:.|\n)*?>/gm, '')
-        })
-      );
+      props.pages
+        .filter(page =>
+          getUrlsList(props.navigation).includes(page.frontmatter.url || page.fields.slug)
+        )
+        .forEach(page =>
+          this.add({
+            id: page.id,
+            text: page.html.replace(/<(?:.|\n)*?>/gm, '').replace(/&#x3C;(?:.|\n)*?>/gm, ''),
+            title: page.frontmatter.title
+          })
+        );
     });
   }
 
@@ -67,9 +72,9 @@ export default class Search extends Component {
       return {
         page: {
           id: page.id,
-          slug: page.fields.slug,
+          text: page.html.replace(/<(?:.|\n)*?>/gm, '').replace(/&#x3C;(?:.|\n)*?>/gm, ''),
           title: page.frontmatter.title,
-          text: page.html.replace(/<(?:.|\n)*?>/gm, '').replace(/&#x3C;(?:.|\n)*?>/gm, '')
+          url: page.frontmatter.url || page.fields.slug
         },
         highlights,
         longestTerm

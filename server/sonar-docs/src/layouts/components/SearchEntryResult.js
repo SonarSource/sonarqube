@@ -23,7 +23,7 @@ import { highlightMarks, cutWords } from '../utils';
 
 export default function SearchResultEntry({ active, result }) {
   return (
-    <Link className={active ? 'active search-result' : 'search-result'} to={result.page.slug}>
+    <Link className={active ? 'active search-result' : 'search-result'} to={result.page.url}>
       <SearchResultTitle result={result} />
       <SearchResultText result={result} />
     </Link>

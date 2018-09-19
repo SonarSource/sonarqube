@@ -1,70 +1,52 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render hierarchical menu 1`] = `
-<React.Fragment>
-  <React.Fragment
-    key="lorem/index"
-  >
-    <Link
-      className="list-group-item"
-      onlyActiveOnIndex={false}
-      style={
-        Object {
-          "paddingLeft": 10,
-        }
+Array [
+  <MenuBlock
+    block={
+      Object {
+        "children": Array [
+          "/lorem/index",
+          "/lorem/origin",
+        ],
+        "title": "Block",
       }
-      to="/documentation/lorem/index"
-    >
-      <h3
-        className="list-group-item-heading"
-      >
-        <OpenCloseIcon
-          className="little-spacer-right"
-          open={true}
-        />
-        Lorem Ipsum
-      </h3>
-    </Link>
-    <React.Fragment
-      key="lorem/origin"
-    >
-      <Link
-        className="list-group-item active"
-        onlyActiveOnIndex={false}
-        style={
-          Object {
-            "paddingLeft": 35,
-          }
-        }
-        to="/documentation/lorem/origin"
-      >
-        <h3
-          className="list-group-item-heading"
-        >
-          Where does it come from?
-        </h3>
-      </Link>
-    </React.Fragment>
-  </React.Fragment>
-  <React.Fragment
+    }
+    key="Block"
+    onToggle={[Function]}
+    open={true}
+    pages={
+      Array [
+        Object {
+          "content": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+          "relativeName": "lorem/index",
+          "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+          "title": "Lorem Ipsum",
+          "url": "/lorem/index",
+        },
+        Object {
+          "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
+          "relativeName": "lorem/origin",
+          "text": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
+          "title": "Where does it come from?",
+          "url": "/lorem/origin",
+        },
+        Object {
+          "content": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "relativeName": "foobar",
+          "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "title": "Where does Foobar come from?",
+          "url": "/foobar",
+        },
+      ]
+    }
+    splat="lorem/origin"
+    title="Block"
+  />,
+  <MenuItem
+    indent={false}
     key="foobar"
-  >
-    <Link
-      className="list-group-item"
-      onlyActiveOnIndex={false}
-      style={
-        Object {
-          "paddingLeft": 10,
-        }
-      }
-      to="/documentation/foobar"
-    >
-      <h3
-        className="list-group-item-heading"
-      >
-        Where does Foobar come from?
-      </h3>
-    </Link>
-  </React.Fragment>
-</React.Fragment>
+    splat="lorem/origin"
+  />,
+]
 `;

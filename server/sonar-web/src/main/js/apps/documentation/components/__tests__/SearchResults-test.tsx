@@ -37,7 +37,7 @@ jest.mock('lunr', () => ({
 }));
 
 function createPage(title: string, relativeName: string, text = '') {
-  return { relativeName, title, order: -1, text, content: text };
+  return { relativeName, url: '/' + relativeName, title, text, content: text };
 }
 
 const pages = [
@@ -59,7 +59,14 @@ const pages = [
 ];
 
 it('should search', () => {
-  const wrapper = shallow(<SearchResults pages={pages} query="from" splat="foobar" />);
+  const wrapper = shallow(
+    <SearchResults
+      navigation={['lorem/index', 'lorem/origin', 'foobar']}
+      pages={pages}
+      query="from"
+      splat="foobar"
+    />
+  );
   expect(wrapper).toMatchSnapshot();
   expect(lunr).toBeCalled();
   expect((wrapper.instance() as SearchResults).index.search).toBeCalledWith('from~1 from*');

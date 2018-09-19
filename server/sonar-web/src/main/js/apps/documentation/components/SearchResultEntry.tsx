@@ -37,7 +37,7 @@ export default function SearchResultEntry({ active, result }: Props) {
   return (
     <Link
       className={classNames('list-group-item', { active })}
-      to={'/documentation/' + result.page.relativeName}>
+      to={'/documentation' + result.page.url}>
       <SearchResultTitle result={result} />
       <SearchResultText result={result} />
     </Link>

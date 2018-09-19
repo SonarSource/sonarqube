@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import Sidebar from '../Sidebar';
 
 function createPage(title: string, relativeName: string, text = '') {
-  return { relativeName, title, order: -1, text, content: text };
+  return { relativeName, url: '/' + relativeName, title, text, content: text };
 }
 
 const pages = [
@@ -31,11 +31,25 @@ const pages = [
 ];
 
 it('should render menu', () => {
-  expect(shallow(<Sidebar pages={pages} splat="foobar" />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <Sidebar
+        navigation={[{ title: 'Block', children: ['/lorem/index'] }, 'foobar']}
+        pages={pages}
+        splat="foobar"
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('should search', () => {
-  const wrapper = shallow(<Sidebar pages={pages} splat="foobar" />);
+  const wrapper = shallow(
+    <Sidebar
+      navigation={[{ title: 'Block', children: ['/lorem/index'] }, 'foobar']}
+      pages={pages}
+      splat="foobar"
+    />
+  );
   wrapper.find('SearchBox').prop<Function>('onChange')('foo');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();

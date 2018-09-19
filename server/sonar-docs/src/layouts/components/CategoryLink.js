@@ -21,39 +21,59 @@ import * as React from 'react';
 import Link from 'gatsby-link';
 import SubpageLink from './SubpageLink';
 import HeadingsLink from './HeadingsLink';
-import { sortNodes } from '../utils';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronUpIcon from './icons/ChevronUpIcon';
 
-export default function CategoryLink({ node, location, headers, onToggle }) {
-  const hasChild = node.pages && node.pages.length > 0;
-  const prefix = process.env.GATSBY_USE_PREFIX === '1' ? '/' + process.env.GATSBY_DOCS_VERSION : '';
-  const { slug } = node.fields;
-  const isCurrentPage = location.pathname === prefix + slug;
-  const open = location.pathname.startsWith(prefix + slug);
-  return (
-    <div>
-      <h2 className={isCurrentPage || open ? 'active' : ''}>
-        <Link to={slug} title={node.frontmatter.title}>
-          {hasChild && open && <ChevronUpIcon />}
-          {hasChild && !open && <ChevronDownIcon />}
-          {node.frontmatter.title}
-        </Link>
-      </h2>
-      {isCurrentPage && <HeadingsLink headers={headers} />}
-      {hasChild &&
-        open && (
-          <div className="sub-menu">
-            {sortNodes(node.pages).map(page => (
-              <SubpageLink
-                key={page.fields.slug}
-                headers={headers}
-                displayHeading={location.pathname === prefix + page.fields.slug}
-                node={page}
-              />
-            ))}
-          </div>
-        )}
-    </div>
-  );
+export default class CategoryLink extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { open: props.open };
+  }
+
+  toggle = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.props.onToggle(this.props.title);
+  };
+
+  render() {
+    const { node, location, headers, children, title, open } = this.props;
+    const prefix =
+      process.env.GATSBY_USE_PREFIX === '1' ? '/' + process.env.GATSBY_DOCS_VERSION : '';
+    const url = node ? node.frontmatter.url || node.fields.slug : '';
+    const isCurrentPage = location.pathname === prefix + url;
+    return (
+      <div>
+        <h2 className={isCurrentPage || open ? 'active' : ''}>
+          {node ? (
+            <Link to={url} title={node.frontmatter.title}>
+              {node.frontmatter.title}
+            </Link>
+          ) : (
+            <a href="#" onClick={this.toggle}>
+              {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
+              {title}
+            </a>
+          )}
+        </h2>
+        {isCurrentPage && <HeadingsLink headers={headers} />}
+        {children &&
+          open && (
+            <div className="sub-menu">
+              {children.map(page => {
+                const url = page.frontmatter.url || page.fields.slug;
+                return (
+                  <SubpageLink
+                    displayHeading={location.pathname === prefix + url}
+                    headers={headers}
+                    key={url}
+                    node={page}
+                  />
+                );
+              })}
+            </div>
+          )}
+      </div>
+    );
+  }
 }

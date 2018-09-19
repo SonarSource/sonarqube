@@ -14,10 +14,10 @@ exports[`SearchResultEntry should render 1`] = `
         "longestTerm": "",
         "page": Object {
           "content": "",
-          "order": -1,
           "relativeName": "foo/bar",
           "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
           "title": "Foobar",
+          "url": "/foo/bar",
         },
       }
     }
@@ -29,10 +29,10 @@ exports[`SearchResultEntry should render 1`] = `
         "longestTerm": "",
         "page": Object {
           "content": "",
-          "order": -1,
           "relativeName": "foo/bar",
           "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
           "title": "Foobar",
+          "url": "/foo/bar",
         },
       }
     }

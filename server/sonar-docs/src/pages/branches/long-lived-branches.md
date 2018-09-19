@@ -1,5 +1,6 @@
 ---
 title: Long-lived Branches
+url: /branches/long-lived-branches/
 ---
 
 <!-- sonarqube -->

@@ -1,5 +1,6 @@
 ---
 title: Pull Request Analysis
+url: /analysis/pull-request/
 ---
 
 <!-- sonarqube -->
@@ -24,7 +25,7 @@ PR analyses on SonarQube are deleted automatically after 30 days with no analysi
 
 <!-- sonarcloud -->
 ## Integrations for GitHub, Bitbucket Cloud and VSTS
-If your repositories are hosted on GitHub, Bitbucket Cloud or VSTS, check out first the dedicated ["Integrations" pages](/integrations/index). Chances are that you do not need to read this page further since those integrations handle the configuration and analysis parameters for you.
+If your repositories are hosted on GitHub, Bitbucket Cloud or VSTS, check out first the dedicated Integrations for: [BitBucketCloud](/integrations/bitbucketcloud/), [GitHub](/integrations/github/), and [VSTS](/integrations/vsts/). Chances are that you do not need to read this page further since those integrations handle the configuration and analysis parameters for you.
 <!-- /sonarcloud -->
 
 ## Analysis Parameters

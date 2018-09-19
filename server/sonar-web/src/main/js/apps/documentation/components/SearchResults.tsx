@@ -21,9 +21,10 @@ import * as React from 'react';
 import lunr, { LunrIndex } from 'lunr';
 import { sortBy } from 'lodash';
 import SearchResultEntry, { SearchResult } from './SearchResultEntry';
-import { DocumentationEntry } from '../utils';
+import { DocumentationEntry, getUrlsList, DocsNavigationItem } from '../utils';
 
 interface Props {
+  navigation: DocsNavigationItem[];
   pages: DocumentationEntry[];
   query: string;
   splat: string;
@@ -41,7 +42,9 @@ export default class SearchResults extends React.PureComponent<Props> {
 
       this.metadataWhitelist = ['position'];
 
-      props.pages.forEach(page => this.add(page));
+      props.pages
+        .filter(page => getUrlsList(props.navigation).includes(page.url))
+        .forEach(page => this.add(page));
     });
   }
 

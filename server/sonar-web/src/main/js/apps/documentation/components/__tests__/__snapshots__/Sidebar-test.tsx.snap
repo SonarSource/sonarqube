@@ -16,21 +16,32 @@ exports[`should render menu 1`] = `
       className="list-group"
     >
       <Menu
+        navigation={
+          Array [
+            Object {
+              "children": Array [
+                "/lorem/index",
+              ],
+              "title": "Block",
+            },
+            "foobar",
+          ]
+        }
         pages={
           Array [
             Object {
               "content": "",
-              "order": -1,
               "relativeName": "lorem/index",
               "text": "",
               "title": "Lorem Ipsum",
+              "url": "/lorem/index",
             },
             Object {
               "content": "",
-              "order": -1,
               "relativeName": "foobar",
               "text": "",
               "title": "Where does Foobar come from?",
+              "url": "/foobar",
             },
           ]
         }
@@ -57,21 +68,32 @@ exports[`should search 1`] = `
       className="list-group"
     >
       <SearchResults
+        navigation={
+          Array [
+            Object {
+              "children": Array [
+                "/lorem/index",
+              ],
+              "title": "Block",
+            },
+            "foobar",
+          ]
+        }
         pages={
           Array [
             Object {
               "content": "",
-              "order": -1,
               "relativeName": "lorem/index",
               "text": "",
               "title": "Lorem Ipsum",
+              "url": "/lorem/index",
             },
             Object {
               "content": "",
-              "order": -1,
               "relativeName": "foobar",
               "text": "",
               "title": "Where does Foobar come from?",
+              "url": "/foobar",
             },
           ]
         }

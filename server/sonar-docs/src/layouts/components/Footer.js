@@ -23,10 +23,10 @@ export default function Footer() {
   return (
     <div className="page-footer">
       <a
+        href="https://creativecommons.org/licenses/by-nc/3.0/us/"
         rel="noopener noreferrer"
         target="_blank"
-        title="Creative Commons License"
-        href="https://creativecommons.org/licenses/by-nc/3.0/us/">
+        title="Creative Commons License">
         <img
           alt="Creative Commons License"
           src="https://licensebuttons.net/l/by-nc/3.0/us/88x31.png"
@@ -35,9 +35,9 @@ export default function Footer() {
       © 2008-2017, SonarSource S.A, Switzerland. Except where otherwise noted, content in this space
       is licensed under a{' '}
       <a
+        href="https://creativecommons.org/licenses/by-nc/3.0/us/"
         rel="noopener noreferrer"
-        target="_blank"
-        href="https://creativecommons.org/licenses/by-nc/3.0/us/">
+        target="_blank">
         Creative Commons Attribution-NonCommercial 3.0 United States License.
       </a>{' '}
       SONARQUBE is a trademark of SonarSource SA. All other trademarks and copyrights are the

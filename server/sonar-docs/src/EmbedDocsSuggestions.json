@@ -3,152 +3,152 @@
   "api_documentation": [],
   "background_tasks": [
     {
-      "link": "/documentation/analysis/background-tasks",
+      "link": "/documentation/analysis/background-tasks/",
       "text": "About Background Tasks"
     }
   ],
   "code": [],
   "coding_rules": [
     {
-      "link": "/documentation/quality-profiles",
+      "link": "/documentation/quality-profiles/",
       "text": "Quality Profiles"
     },
     {
-      "link": "/documentation/keyboard-shortcuts",
+      "link": "/documentation/keyboard-shortcuts/",
       "text": "Keyboard Shortcuts"
     }
   ],
   "component_measures": [
     {
-      "link": "/documentation/fixing-the-water-leak",
+      "link": "/documentation/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     },
     {
-      "link":"/documentation/metric-definitions",
-      "text":"Metric Definitions"
+      "link": "/documentation/metric-definitions/",
+      "text": "Metric Definitions"
     },
     {
-      "link": "/documentation/keyboard-shortcuts",
+      "link": "/documentation/keyboard-shortcuts/",
       "text": "Keyboard Shortcuts"
     }
   ],
   "custom_measures": [
     {
-      "link": "/documentation/custom-measures",
+      "link": "/documentation/custom-measures/",
       "text": "About Custom Measures"
     }
   ],
   "custom_metrics": [
     {
-      "link": "/documentation/custom-measures",
+      "link": "/documentation/custom-measures/",
       "text": "Custom Measures"
     }
   ],
   "extension_billing": [
     {
-      "link": "/documentation/sonarcloud-pricing",
+      "link": "/documentation/sonarcloud-pricing/",
       "text": "Pricing",
       "scope": "sonarcloud"
     }
   ],
   "global_permissions": [
     {
-      "link": "/documentation/organizations/manage-team",
+      "link": "/documentation/organizations/manage-team/",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
   ],
   "issues": [
     {
-      "link": "/documentation/keyboard-shortcuts",
+      "link": "/documentation/keyboard-shortcuts/",
       "text": "Keyboard Shortcuts"
     }
   ],
   "marketplace": [],
   "organization_members": [
     {
-      "link": "/documentation/organizations/manage-team",
+      "link": "/documentation/organizations/manage-team/",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
   ],
   "organization_projects": [
     {
-      "link": "/documentation/organizations/manage-team",
+      "link": "/documentation/organizations/manage-team/",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
   ],
   "organization_space": [
     {
-      "link": "/documentation/organizations/index",
+      "link": "/documentation/organizations/index/",
       "text": "Organizations",
       "scope": "sonarcloud"
     }
   ],
   "overview": [
     {
-      "link": "/documentation/fixing-the-water-leak",
+      "link": "/documentation/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     },
     {
-      "link": "/documentation/branches/index",
+      "link": "/documentation/branches/index/",
       "text": "Branches Overview"
     },
     {
-      "link": "/documentation/analysis/pull-request",
+      "link": "/documentation/analysis/pull-request/",
       "text": "Analyzing Pull Requests"
     }
   ],
   "permission_templates": [],
-  "profiles": [ 
+  "profiles": [
     {
-      "link": "/documentation/quality-profiles",
+      "link": "/documentation/quality-profiles/",
       "text": "Quality Profiles"
     }
   ],
   "project_activity": [],
   "project_quality_gate": [
     {
-      "link": "/documentation/fixing-the-water-leak",
+      "link": "/documentation/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     }
   ],
   "project_quality_profiles": [
     {
-      "link": "/documentation/quality-profiles",
+      "link": "/documentation/quality-profiles/",
       "text": "About Quality Profiles"
     }
   ],
   "projects_management": [
     {
-      "link": "/documentation/analyze-a-project",
+      "link": "/documentation/analyze-a-project/",
       "text": "Analyze a Project",
       "scope": "sonarcloud"
     }
   ],
   "projects": [
     {
-      "link": "/documentation/analyze-a-project",
+      "link": "/documentation/analyze-a-project/",
       "text": "Analyze a Project",
       "scope": "sonarcloud"
     }
   ],
   "quality_gates": [
     {
-      "link": "/documentation/fixing-the-water-leak",
+      "link": "/documentation/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     }
   ],
   "quality_profiles": [
     {
-      "link": "/documentation/quality-profiles",
+      "link": "/documentation/quality-profiles/",
       "text": "Quality Profiles"
     }
   ],
   "security_reports": [
     {
-      "link": "/documentation/security-reports",
+      "link": "/documentation/security-reports/",
       "text": "About Security Reports"
     }
   ],
@@ -156,7 +156,7 @@
   "system_info": [],
   "user_groups": [
     {
-      "link": "/documentation/organizations/manage-team",
+      "link": "/documentation/organizations/manage-team/",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
@@ -164,7 +164,7 @@
   "users": [],
   "webhooks": [
     {
-      "link": "/documentation/webhooks",
+      "link": "/documentation/webhooks/",
       "text": "About Webhooks"
     }
   ]

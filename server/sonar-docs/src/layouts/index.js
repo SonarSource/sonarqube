@@ -38,13 +38,7 @@ export default function Layout(props) {
                 location={props.location}
                 pages={props.data.allMarkdownRemark.edges
                   .map(e => e.node)
-                  .filter(n => !n.fields.slug.startsWith('/tooltips'))
-                  .filter(
-                    n =>
-                      !n.frontmatter.scope ||
-                      n.frontmatter.scope === 'sonarqube' ||
-                      n.frontmatter.scope === 'static'
-                  )}
+                  .filter(n => !n.fields.slug.startsWith('/tooltips'))}
                 searchIndex={props.data.siteSearchIndex}
                 version={version}
               />
@@ -95,8 +89,7 @@ export const query = graphql`
           }
           frontmatter {
             title
-            order
-            scope
+            url
           }
           fields {
             slug

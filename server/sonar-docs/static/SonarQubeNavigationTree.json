@@ -1,0 +1,46 @@
+[
+  {
+    "title": "Analyzing Source Code",
+    "children": [
+      "/analysis/overview/",
+      "/analysis/background-tasks/",
+      "/analysis/generic-issue/",
+      "/analysis/generic-test/",
+      "/analysis/pull-request/",
+      "/analysis/scm-integration/"
+    ]
+  },
+  {
+    "title": "Branches",
+    "children": [
+      "/branches/overview/",
+      "/branches/short-lived-branches/",
+      "/branches/long-lived-branches/",
+      "/branches/branches-faq/"
+    ]
+  },
+  {
+    "title": "User Guide",
+    "children": [
+      "/user-guide/fixing-the-water-leak/",
+      "/user-guide/keyboard-shortcuts/",
+      "/user-guide/quality-gates/",
+      "/user-guide/metric-definitions/",
+      "/user-guide/security-reports/",
+      "/user-guide/user-account/"
+    ]
+  },
+  {
+    "title": "Project Administration",
+    "children": ["/project-administration/webhooks/"]
+  },
+  {
+    "title": "Instance Administration",
+    "children": [
+      "/instance-administration/custom-measures/",
+      "/instance-administration/housekeeping/",
+      "/instance-administration/look-and-feel/",
+      "/instance-administration/quality-profiles/"
+    ]
+  }
+]

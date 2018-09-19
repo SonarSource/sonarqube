@@ -19,18 +19,44 @@
  */
 import React from 'react';
 import Link from 'gatsby-link';
-import { fromPairs } from 'lodash';
-import { sortNodes } from '../utils';
 import CategoryLink from './CategoryLink';
 import VersionSelect from './VersionSelect';
 import Search from './Search';
 import SearchEntryResult from './SearchEntryResult';
+import NavigationTree from '../../../static/StaticNavigationTree.json';
+import { ExternalLink } from './ExternalLink';
 
 export default class Sidebar extends React.PureComponent {
-  state = { loaded: false, query: '', results: [], versions: [] };
+  constructor(props) {
+    super(props);
+    this.state = {
+      loaded: false,
+      openBlockTitle: this.getOpenBlockFromLocation(this.props.location),
+      query: '',
+      results: [],
+      versions: []
+    };
+  }
 
   componentDidMount() {
     this.loadVersions();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      this.setState({ openBlockTitle: this.getOpenBlockFromLocation(this.props.location) });
+    }
+  }
+
+  // A block is opened if the current page is set to one of his children
+  getOpenBlockFromLocation({ pathname }) {
+    const element = NavigationTree.find(
+      item =>
+        typeof item === 'object' &&
+        item.children &&
+        item.children.some(child => pathname.endsWith(child))
+    );
+    return element ? element.title : '';
   }
 
   loadVersions() {
@@ -41,21 +67,43 @@ export default class Sidebar extends React.PureComponent {
     );
   }
 
-  getPagesHierarchy() {
-    const categories = sortNodes(
-      this.props.pages.filter(p => p.fields.slug.split('/').length === 3)
-    );
-    const pages = this.props.pages.filter(p => p.fields.slug.split('/').length > 3);
-    const categoriesObject = fromPairs(categories.map(c => [c.fields.slug, { ...c, pages: [] }]));
-    pages.forEach(page => {
-      const parentSlug = page.fields.slug
-        .split('/')
-        .slice(0, 2)
-        .join('/');
-      categoriesObject[parentSlug + '/'].pages.push(page);
+  getNodeFromUrl = url => {
+    return this.props.pages.find(p => p.fields.slug === url + '/' || p.frontmatter.url === url);
+  };
+
+  handleToggle = title => {
+    this.setState(state => ({ openBlockTitle: state.openBlockTitle === title ? '' : title }));
+  };
+
+  renderCategories = tree => {
+    return tree.map(item => {
+      if (typeof item === 'object') {
+        if (item.children) {
+          return (
+            <CategoryLink
+              children={item.children.map(child => this.getNodeFromUrl(child))}
+              headers={this.props.headers}
+              key={item.title}
+              location={this.props.location}
+              onToggle={this.handleToggle}
+              open={item.title === this.state.openBlockTitle}
+              title={item.title}
+            />
+          );
+        } else {
+          return <ExternalLink external={item.url} key={item.title} title={item.title} />;
+        }
+      }
+      return (
+        <CategoryLink
+          headers={this.props.headers}
+          key={item}
+          location={this.props.location}
+          node={this.getNodeFromUrl(item)}
+        />
+      );
     });
-    return categoriesObject;
-  }
+  };
 
   renderResults = () => {
     return (
@@ -79,7 +127,6 @@ export default class Sidebar extends React.PureComponent {
   };
 
   render() {
-    const nodes = this.getPagesHierarchy();
     const isOnCurrentVersion =
       this.state.versions.find(v => v.value === this.props.version) !== undefined;
     return (
@@ -89,9 +136,9 @@ export default class Sidebar extends React.PureComponent {
             <img
               alt="Continuous Code Quality"
               css={{ verticalAlign: 'top', margin: 0 }}
-              width="160"
               src="/images/SonarQubeIcon.svg"
               title="Continuous Code Quality"
+              width="160"
             />
           </Link>
           <VersionSelect
@@ -110,17 +157,13 @@ export default class Sidebar extends React.PureComponent {
             )}
         </div>
         <div className="page-indexes">
-          <Search pages={this.props.pages} onResultsChange={this.handleSearch} />
+          <Search
+            navigation={NavigationTree}
+            onResultsChange={this.handleSearch}
+            pages={this.props.pages}
+          />
           {this.state.query !== '' && this.renderResults()}
-          {this.state.query === '' &&
-            Object.keys(nodes).map(key => (
-              <CategoryLink
-                key={key}
-                headers={this.props.headers}
-                node={nodes[key]}
-                location={this.props.location}
-              />
-            ))}
+          {this.state.query === '' && this.renderCategories(NavigationTree)}
         </div>
       </div>
     );

@@ -42,7 +42,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
           edges {
             node {
               frontmatter {
-                scope
+                url
               }
               headings {
                 depth
@@ -57,16 +57,14 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
       }
     `).then(result => {
       result.data.allMarkdownRemark.edges.forEach(({ node }) => {
-        if (node.frontmatter.scope !== 'sonarcloud') {
-          createPage({
-            path: node.fields.slug,
-            component: path.resolve('./src/templates/page.js'),
-            context: {
-              // Data passed to context is available in page queries as GraphQL variables.
-              slug: node.fields.slug
-            }
-          });
-        }
+        createPage({
+          path: node.frontmatter.url || node.fields.slug,
+          component: path.resolve('./src/templates/page.js'),
+          context: {
+            // Data passed to context is available in page queries as GraphQL variables.
+            slug: node.fields.slug
+          }
+        });
       });
       resolve();
     });

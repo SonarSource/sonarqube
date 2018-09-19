@@ -22,7 +22,6 @@ import visit from 'unist-util-visit';
 import { DocumentationEntry, DocumentationEntryScope } from './utils';
 import * as Docs from './documentation.directory-loader';
 import { separateFrontMatter, filterContent } from '../../helpers/markdown';
-import { isSonarCloud } from '../../helpers/system';
 
 export default function getPages(): DocumentationEntry[] {
   return Docs.map((file: any) => {
@@ -32,6 +31,7 @@ export default function getPages(): DocumentationEntry[] {
 
     return {
       relativeName: file.path,
+      url: parsed.frontmatter.url || `/${file.path}`,
       title: parsed.frontmatter.title,
       order: Number(parsed.frontmatter.order || -1),
       scope: parsed.frontmatter.scope
@@ -40,11 +40,6 @@ export default function getPages(): DocumentationEntry[] {
       text,
       content: file.content
     };
-  }).filter((page: DocumentationEntry) => {
-    if (!page.scope) {
-      return true;
-    }
-    return isSonarCloud() ? page.scope === 'sonarcloud' : page.scope === 'sonarqube';
   });
 }
 

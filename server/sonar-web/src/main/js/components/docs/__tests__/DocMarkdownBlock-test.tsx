@@ -33,7 +33,10 @@ jest.mock('remark-react', () => {
   return { default: remarkReact };
 });
 
-jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+jest.mock('../../../helpers/system', () => ({
+  getInstance: jest.fn(),
+  isSonarCloud: jest.fn()
+}));
 
 it('should render simple markdown', () => {
   expect(shallow(<DocMarkdownBlock content="this is *bold* text" />)).toMatchSnapshot();

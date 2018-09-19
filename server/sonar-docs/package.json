@@ -22,17 +22,31 @@
     "typography": "^0.16.16"
   },
   "scripts": {
-    "build": "gatsby build --prefix-paths",
+    "build": "yarn jest && gatsby build --prefix-paths",
     "develop": "gatsby develop",
     "start": "serve public/",
     "format": "prettier --write 'src/**/*.{md,js}'"
   },
   "devDependencies": {
-    "prettier": "^1.12.0"
+    "glob-promise": "3.4.0",
+    "jest": "23.6.0",
+    "prettier": "^1.12.0",
+    "remark": "9.0.0",
+    "unist-util-visit": "1.4.0"
   },
   "prettier": {
     "jsxBracketSameLine": true,
     "printWidth": 100,
     "singleQuote": true
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/.cache"
+    ],
+    "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$"
   }
 }

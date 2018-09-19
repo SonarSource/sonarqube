@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render a closed menu block 1`] = `
+<React.Fragment>
+  <a
+    className="list-group-item"
+    href="#"
+    onClick={[Function]}
+  >
+    <h3
+      className="list-group-item-heading"
+    >
+      <OpenCloseIcon
+        className="little-spacer-right"
+        open={false}
+      />
+      Foobarbaz
+    </h3>
+  </a>
+</React.Fragment>
+`;
+
+exports[`should render an opened menu block 1`] = `
+<React.Fragment>
+  <a
+    className="list-group-item"
+    href="#"
+    onClick={[Function]}
+  >
+    <h3
+      className="list-group-item-heading"
+    >
+      <OpenCloseIcon
+        className="little-spacer-right"
+        open={true}
+      />
+      Foo
+    </h3>
+  </a>
+  <MenuItem
+    indent={true}
+    key="/bar/"
+    node={
+      Object {
+        "content": "bar",
+        "relativeName": "/bar/",
+        "text": "bar",
+        "title": "Bar",
+        "url": "/bar/",
+      }
+    }
+    splat="/foo/"
+  />
+  <MenuItem
+    indent={true}
+    key="/baz/"
+    node={
+      Object {
+        "content": "baz",
+        "relativeName": "/baz/",
+        "text": "baz",
+        "title": "baz",
+        "url": "/baz/",
+      }
+    }
+    splat="/foo/"
+  />
+</React.Fragment>
+`;

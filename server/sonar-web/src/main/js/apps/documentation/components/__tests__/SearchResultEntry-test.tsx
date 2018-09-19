@@ -27,8 +27,8 @@ import SearchResultEntry, {
 
 const page = {
   content: '',
-  order: -1,
   relativeName: 'foo/bar',
+  url: '/foo/bar',
   text: 'Foobar is a universal variable understood to represent whatever is being discussed.',
   title: 'Foobar'
 };
