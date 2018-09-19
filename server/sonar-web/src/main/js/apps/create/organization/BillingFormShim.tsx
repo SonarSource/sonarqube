@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CurrentUser, SubscriptionPlan } from '../../../app/types';
+import { CurrentUser, SubscriptionPlan, Coupon } from '../../../app/types';
 
 interface ChildrenProps {
   alertError: string | undefined;
@@ -45,7 +45,9 @@ interface Props {
   currentUser: CurrentUser;
   onClose: () => void;
   onCommit: () => void;
+  onCouponUpdate?: (coupon?: Coupon) => void;
   organizationKey: string | (() => Promise<string>);
+  skipBraintreeInit?: boolean;
   subscriptionPlans: SubscriptionPlan[];
 }
 

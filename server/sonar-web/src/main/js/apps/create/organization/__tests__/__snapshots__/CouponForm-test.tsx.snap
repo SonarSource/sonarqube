@@ -12,7 +12,9 @@ exports[`should render 1`] = `
     }
     onClose={[Function]}
     onCommit={[MockFunction]}
+    onCouponUpdate={[Function]}
     organizationKey={[MockFunction]}
+    skipBraintreeInit={true}
     subscriptionPlans={Array []}
   />
 </div>

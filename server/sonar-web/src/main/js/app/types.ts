@@ -161,6 +161,18 @@ export interface CoveredFile {
   coveredLines: number;
 }
 
+export interface Coupon {
+  billing?: {
+    address?: string;
+    country?: string;
+    email?: string;
+    name?: string;
+    use?: string;
+  };
+  maxNcloc: number;
+  planActiveUntil: string;
+}
+
 export interface CurrentUser {
   isLoggedIn: boolean;
   permissions?: { global: string[] };

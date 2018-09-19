@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import BillingFormShim from './BillingFormShim';
 import { withCurrentUser } from './withCurrentUser';
-import { CurrentUser } from '../../../app/types';
+import { CurrentUser, Coupon } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
 
@@ -31,10 +31,38 @@ interface Props {
   onSubmit: () => void;
 }
 
-export class CouponForm extends React.PureComponent<Props> {
+interface State {
+  coupon?: Coupon;
+}
+
+export class CouponForm extends React.PureComponent<Props, State> {
+  state: State = {};
+
   handleClose = () => {
     // do nothing
   };
+
+  handleCouponUpdate = (coupon?: Coupon) => {
+    this.setState({ coupon });
+  };
+
+  renderBillingInformation() {
+    if (!this.state.coupon || !this.state.coupon.billing) {
+      return null;
+    }
+    const { billing } = this.state.coupon;
+    return (
+      <div className="big-spacer-top big-spacer-bottom">
+        <h3 className="note">{translate('billing.upgrade.billing_info')}</h3>
+        <ul className="note">
+          {Boolean(billing.name) && <li>{billing.name}</li>}
+          {Boolean(billing.address) && <li>{billing.address}</li>}
+          {Boolean(billing.country) && <li>{billing.country}</li>}
+          {Boolean(billing.email) && <li>{billing.email}</li>}
+        </ul>
+      </div>
+    );
+  }
 
   render() {
     return (
@@ -43,11 +71,12 @@ export class CouponForm extends React.PureComponent<Props> {
           currentUser={this.props.currentUser}
           onClose={this.handleClose}
           onCommit={this.props.onSubmit}
+          onCouponUpdate={this.handleCouponUpdate}
           organizationKey={this.props.createOrganization}
+          skipBraintreeInit={true}
           subscriptionPlans={[]}>
           {form => (
             <form onSubmit={form.onSubmit}>
-              <div className="hidden">{form.renderBraintreeClient()}</div>
               {form.renderCouponInput(
                 <label htmlFor="coupon">
                   {translate('billing.upgrade.coupon')}
@@ -57,12 +86,21 @@ export class CouponForm extends React.PureComponent<Props> {
                   />
                 </label>
               )}
-              <h3 className="big-spacer-top">{translate('billing.upgrade.billing_info')}</h3>
-              {form.renderEmailInput()}
-              {form.renderTypeOfUseSelect()}
-              {form.renderBillingNameInput()}
-              {form.renderCountrySelect()}
-              {form.renderAdditionalInfo()}
+              {this.renderBillingInformation()}
+              {this.state.coupon &&
+                !this.state.coupon.billing && (
+                  <>
+                    <h3 className="big-spacer-top">{translate('billing.upgrade.billing_info')}</h3>
+                    {form.renderEmailInput()}
+                    {form.renderTypeOfUseSelect()}
+                    {form.renderBillingNameInput()}
+                    {form.renderCountrySelect()}
+                    {form.renderAdditionalInfo()}
+                  </>
+                )}
+              {this.state.coupon && (
+                <div className="big-spacer-bottom">{form.renderNextCharge()}</div>
+              )}
               {form.alertError && <p className="alert alert-danger">{form.alertError}</p>}
               <div className={classNames({ 'big-spacer-top': form.alertError !== undefined })}>
                 {form.renderSpinner()}
