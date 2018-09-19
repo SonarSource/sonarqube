@@ -17,7 +17,7 @@ exports[`should render 1`] = `
             href="#"
             onClick={[Function]}
           >
-            component_navigation.x_warnings.undefined
+            component_navigation.x_warnings.1
           </a>,
         }
       }
@@ -25,7 +25,11 @@ exports[`should render 1`] = `
   </div>
   <LazyLoader
     onClose={[Function]}
-    taskId="abcd1234"
+    warnings={
+      Array [
+        "warning 1",
+      ]
+    }
   />
 </React.Fragment>
 `;

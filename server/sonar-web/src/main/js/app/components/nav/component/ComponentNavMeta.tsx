@@ -27,8 +27,7 @@ import {
   isLoggedIn,
   HomePageType,
   HomePage,
-  Measure,
-  Task
+  Measure
 } from '../../../types';
 import BranchMeasures from '../../../../components/common/BranchMeasures';
 import BranchStatus from '../../../../components/common/BranchStatus';
@@ -54,10 +53,16 @@ interface Props extends StateProps {
   branchLike?: BranchLike;
   branchMeasures?: Measure[];
   component: Component;
-  currentTask?: Task;
+  warnings: string[];
 }
 
-export function ComponentNavMeta({ branchLike, branchMeasures, component, currentTask, currentUser }: Props) {
+export function ComponentNavMeta({
+  branchLike,
+  branchMeasures,
+  component,
+  currentUser,
+  warnings
+}: Props) {
   const mainBranch = !branchLike || isMainBranch(branchLike);
   const longBranch = isLongLivingBranch(branchLike);
   const currentPage = getCurrentPage(component, branchLike);
@@ -65,8 +70,7 @@ export function ComponentNavMeta({ branchLike, branchMeasures, component, curren
 
   return (
     <div className="navbar-context-meta">
-      {currentTask &&
-        Boolean(currentTask.warningCount) && <ComponentNavWarnings task={currentTask} />}
+      {warnings.length > 0 && <ComponentNavWarnings warnings={warnings} />}
       {component.analysisDate && (
         <div className="spacer-left text-ellipsis">
           <DateTimeFormatter date={component.analysisDate} />

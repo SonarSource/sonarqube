@@ -90,3 +90,63 @@ exports[`should fetch warnings and render 1`] = `
   </footer>
 </Modal>
 `;
+
+exports[`should render warnings without fetch 1`] = `
+<Modal
+  contentLabel="warnings"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      warnings
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container js-analysis-warnings"
+  >
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <div
+        className="panel panel-vertical"
+        key="0"
+      >
+        <WarningIcon
+          className="pull-left spacer-right"
+        />
+        <div
+          className="overflow-hidden markdown"
+        >
+          warning 1
+        </div>
+      </div>
+      <div
+        className="panel panel-vertical"
+        key="1"
+      >
+        <WarningIcon
+          className="pull-left spacer-right"
+        />
+        <div
+          className="overflow-hidden markdown"
+        >
+          warning 2
+        </div>
+      </div>
+    </DeferredSpinner>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      className="js-modal-close"
+      onClick={[MockFunction]}
+    >
+      close
+    </ResetButtonLink>
+  </footer>
+</Modal>
+`;

@@ -21,7 +21,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { lazyLoad } from '../../../../components/lazyLoad';
 import WarningIcon from '../../../../components/icons-components/WarningIcon';
-import { Task } from '../../../types';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 const AnalysisWarningsModal = lazyLoad(() =>
@@ -29,7 +28,7 @@ const AnalysisWarningsModal = lazyLoad(() =>
 );
 
 interface Props {
-  task: Pick<Task, 'id' | 'warningCount'>;
+  warnings: string[];
 }
 
 interface State {
@@ -62,7 +61,7 @@ export default class ComponentNavWarnings extends React.PureComponent<Props, Sta
                 <a href="#" onClick={this.handleClick}>
                   {translateWithParameters(
                     'component_navigation.x_warnings',
-                    String(this.props.task.warningCount)
+                    String(this.props.warnings.length)
                   )}
                 </a>
               )
@@ -70,7 +69,7 @@ export default class ComponentNavWarnings extends React.PureComponent<Props, Sta
           />
         </div>
         {this.state.modal && (
-          <AnalysisWarningsModal onClose={this.handleCloseModal} taskId={this.props.task.id} />
+          <AnalysisWarningsModal onClose={this.handleCloseModal} warnings={this.props.warnings} />
         )}
       </>
     );

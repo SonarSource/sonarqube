@@ -43,6 +43,7 @@ jest.mock('../../../api/branches', () => ({
 }));
 
 jest.mock('../../../api/ce', () => ({
+  getAnalysisStatus: jest.fn().mockResolvedValue({ component: { warnings: [] } }),
   getTasksForComponent: jest.fn().mockResolvedValue({ queue: [] })
 }));
 

@@ -52,6 +52,7 @@ it('renders status of short-living branch', () => {
         branchMeasures={MEASURES}
         component={COMPONENT}
         currentUser={{ isLoggedIn: false }}
+        warnings={[]}
       />
     )
   ).toMatchSnapshot();
@@ -70,6 +71,7 @@ it('renders meta for long-living branch', () => {
         branchLike={branch}
         component={COMPONENT}
         currentUser={{ isLoggedIn: false }}
+        warnings={[]}
       />
     )
   ).toMatchSnapshot();
@@ -90,6 +92,7 @@ it('renders meta for pull request', () => {
         branchLike={pullRequest}
         component={COMPONENT}
         currentUser={{ isLoggedIn: false }}
+        warnings={[]}
       />
     )
   ).toMatchSnapshot();

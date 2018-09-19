@@ -27,7 +27,8 @@ import { getTask } from '../../api/ce';
 
 interface Props {
   onClose: () => void;
-  taskId: string;
+  taskId?: string;
+  warnings?: string[];
 }
 
 interface State {
@@ -37,19 +38,25 @@ interface State {
 
 export default class AnalysisWarningsModal extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {
-    loading: true,
-    warnings: []
-  };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { loading: !props.warnings, warnings: props.warnings || [] };
+  }
 
   componentDidMount() {
     this.mounted = true;
-    this.loadWarnings();
+    if (!this.props.warnings && this.props.taskId) {
+      this.loadWarnings(this.props.taskId);
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.taskId !== this.props.taskId) {
-      this.loadWarnings();
+    const { taskId, warnings } = this.props;
+    if (!warnings && taskId && prevProps.taskId !== taskId) {
+      this.loadWarnings(taskId);
+    } else if (warnings && prevProps.warnings !== warnings) {
+      this.setState({ warnings });
     }
   }
 
@@ -57,9 +64,9 @@ export default class AnalysisWarningsModal extends React.PureComponent<Props, St
     this.mounted = false;
   }
 
-  loadWarnings() {
+  loadWarnings(taskId: string) {
     this.setState({ loading: true });
-    getTask(this.props.taskId, ['warnings']).then(
+    getTask(taskId, ['warnings']).then(
       ({ warnings = [] }) => {
         if (this.mounted) {
           this.setState({ loading: false, warnings });

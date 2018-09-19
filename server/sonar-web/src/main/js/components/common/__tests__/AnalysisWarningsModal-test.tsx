@@ -24,16 +24,26 @@ import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getTask } from '../../../api/ce';
 
 jest.mock('../../../api/ce', () => ({
-  getTask: jest
-    .fn()
-    .mockResolvedValue({
-      warnings: ['message foo', 'message-bar', 'multiline message\nsecondline\n  third line']
-    })
+  getTask: jest.fn().mockResolvedValue({
+    warnings: ['message foo', 'message-bar', 'multiline message\nsecondline\n  third line']
+  })
 }));
+
+beforeEach(() => {
+  (getTask as jest.Mock<any>).mockClear();
+});
 
 it('should fetch warnings and render', async () => {
   const wrapper = shallow(<AnalysisWarningsModal onClose={jest.fn()} taskId="abcd1234" />);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(getTask).toBeCalledWith('abcd1234', ['warnings']);
+});
+
+it('should render warnings without fetch', () => {
+  const wrapper = shallow(
+    <AnalysisWarningsModal onClose={jest.fn()} warnings={['warning 1', 'warning 2']} />
+  );
+  expect(wrapper).toMatchSnapshot();
+  expect(getTask).not.toBeCalled();
 });

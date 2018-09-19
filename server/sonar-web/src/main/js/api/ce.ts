@@ -21,6 +21,23 @@ import { getJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { Task } from '../app/types';
 
+export function getAnalysisStatus(data: {
+  component: string;
+  branch?: string;
+  pullRequest?: string;
+}): Promise<{
+  component: {
+    branch?: string;
+    key: string;
+    name: string;
+    organization?: string;
+    pullRequest?: string;
+    warnings: string[];
+  };
+}> {
+  return getJSON('/api/ce/analysis_status', data).catch(throwGlobalError);
+}
+
 export function getActivity(data: RequestData): Promise<{ tasks: Task[] }> {
   return getJSON('/api/ce/activity', data);
 }

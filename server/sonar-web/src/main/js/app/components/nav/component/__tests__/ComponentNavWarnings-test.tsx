@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import ComponentNavWarnings from '../ComponentNavWarnings';
 
 it('should render', () => {
-  const wrapper = shallow(<ComponentNavWarnings task={{ id: 'abcd1234' }} />);
+  const wrapper = shallow(<ComponentNavWarnings warnings={['warning 1']} />);
   wrapper.setState({ modal: true });
   expect(wrapper).toMatchSnapshot();
 });

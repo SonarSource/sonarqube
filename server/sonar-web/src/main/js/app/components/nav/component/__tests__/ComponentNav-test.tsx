@@ -36,6 +36,7 @@ it('renders', () => {
       component={component}
       currentBranchLike={undefined}
       location={{}}
+      warnings={[]}
     />
   );
   wrapper.setState({ isInProgress: true, isPending: true });

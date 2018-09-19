@@ -39,6 +39,7 @@ interface Props {
   isInProgress?: boolean;
   isPending?: boolean;
   location: {};
+  warnings: string[];
 }
 
 export default class ComponentNav extends React.PureComponent<Props> {
@@ -98,7 +99,7 @@ export default class ComponentNav extends React.PureComponent<Props> {
             branchLike={currentBranchLike}
             branchMeasures={this.props.branchMeasures}
             component={component}
-            currentTask={currentTask}
+            warnings={this.props.warnings}
           />
         </div>
         <ComponentNavMenu

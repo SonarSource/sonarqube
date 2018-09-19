@@ -26,7 +26,7 @@ import ComponentNav from './nav/component/ComponentNav';
 import { Component, BranchLike, Measure, Task } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches, getPullRequests } from '../../api/branches';
-import { getTasksForComponent } from '../../api/ce';
+import { getTasksForComponent, getAnalysisStatus } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getMeasures } from '../../api/measures';
 import { getComponentNavigation } from '../../api/nav';
@@ -58,6 +58,7 @@ interface State {
   isPending: boolean;
   loading: boolean;
   tasksInProgress?: Task[];
+  warnings: string[];
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -72,7 +73,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { branchLikes: [], isPending: false, loading: true };
+    this.state = { branchLikes: [], isPending: false, loading: true, warnings: [] };
   }
 
   componentDidMount() {
@@ -138,6 +139,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             loading: false
           });
           this.fetchStatus(component);
+          this.fetchWarnings(component, branchLike);
         }
       })
       .catch(onError);
@@ -254,6 +256,18 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     );
   };
 
+  fetchWarnings = (component: Component, branchLike?: BranchLike) => {
+    getAnalysisStatus({
+      component: component.key,
+      ...getBranchLikeQuery(branchLike)
+    }).then(
+      ({ component }) => {
+        this.setState({ warnings: component.warnings });
+      },
+      () => {}
+    );
+  };
+
   getCurrentBranchLike = (branchLikes: BranchLike[]) => {
     const { query } = this.props.location;
     return query.pullRequest
@@ -341,6 +355,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               isInProgress={isInProgress}
               isPending={isPending}
               location={this.props.location}
+              warnings={this.state.warnings}
             />
           )}
         {loading ? (
