@@ -45,8 +45,7 @@ build_task:
   script:
     - ./private/cirrus/cirrus-build.sh
   cleanup_before_cache_script:
-    - rm -rf ~/.gradle/caches/$GRADLE_VERSION/
-    - find ~/.gradle/caches/ -name "*.lock" -type f -delete
+    - ./private/cirrus/cleanup-gradle-cache.sh
 
 deploy_docs_task:
   depends_on: build
@@ -85,8 +84,7 @@ validate_task:
   script:
     - ./private/cirrus/cirrus-validate.sh postgres
   cleanup_before_cache_script:
-    - rm -rf ~/.gradle/caches/$GRADLE_VERSION/
-    - find ~/.gradle/caches/ -name "*.lock" -type f -delete
+    - ./private/cirrus/cleanup-gradle-cache.sh
 
 qa_task:
   depends_on: build
@@ -123,8 +121,7 @@ qa_task:
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
   cleanup_before_cache_script:
-    - rm -rf ~/.gradle/caches/$GRADLE_VERSION/
-    - find ~/.gradle/caches/ -name "*.lock" -type f -delete
+    - ./private/cirrus/cleanup-gradle-cache.sh
 
 promote_task:
   depends_on:
