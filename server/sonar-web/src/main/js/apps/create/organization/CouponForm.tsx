@@ -52,7 +52,7 @@ export class CouponForm extends React.PureComponent<Props, State> {
     }
     const { billing } = this.state.coupon;
     return (
-      <div className="big-spacer-top big-spacer-bottom">
+      <div className="big-spacer-top big-spacer-bottom" id="coupon-billing-information">
         <h3 className="note">{translate('billing.upgrade.billing_info')}</h3>
         <ul className="note">
           {Boolean(billing.name) && <li>{billing.name}</li>}
