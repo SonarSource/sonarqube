@@ -52,7 +52,8 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
   private final WsParameters wsParameters;
   private final RequestValidator requestValidator;
 
-  public RemoveProjectCreatorFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, System2 system, WsParameters wsParameters, RequestValidator requestValidator) {
+  public RemoveProjectCreatorFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, System2 system,
+    WsParameters wsParameters, RequestValidator requestValidator) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.userSession = userSession;

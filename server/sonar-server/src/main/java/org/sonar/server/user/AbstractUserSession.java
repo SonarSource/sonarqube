@@ -40,7 +40,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 public abstract class AbstractUserSession implements UserSession {
-  private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
+  private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER);
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
   private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
 

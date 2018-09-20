@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
@@ -188,7 +187,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Invalid global permission 'issueadmin'. Valid values are [admin, profileadmin, gateadmin, scan, provisioning]");
+    expectedException.expectMessage("Invalid global permission 'issueadmin'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
 
     executeRequest(aGroup, ISSUE_ADMIN);
   }

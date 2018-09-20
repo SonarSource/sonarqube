@@ -22,9 +22,10 @@ package org.sonar.server.permission;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.permission.OrganizationPermission;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public abstract class PermissionChange {
@@ -46,7 +47,9 @@ public abstract class PermissionChange {
     this.projectId = projectId;
     this.permissionService = permissionService;
     if (projectId == null) {
-      checkRequest(GlobalPermissions.ALL.contains(permission), "Invalid global permission '%s'. Valid values are %s", permission, GlobalPermissions.ALL);
+      checkRequest(permissionService.getAllOrganizationPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
+        "Invalid global permission '%s'. Valid values are %s", permission,
+        permissionService.getAllOrganizationPermissions().stream().map(OrganizationPermission::getKey).collect(toList()));
     } else {
       checkRequest(permissionService.getAllProjectPermissions().contains(permission), "Invalid project permission '%s'. Valid values are %s", permission,
         permissionService.getAllProjectPermissions());

@@ -29,7 +29,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
@@ -38,10 +37,8 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
@@ -370,7 +367,7 @@ public class GroupPermissionChangerTest {
           apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, null, groupId, permissionService));
           fail("a BadRequestException should have been thrown for permission " + permission);
         } catch (BadRequestException e) {
-          assertThat(e).hasMessage("Invalid global permission '" + permission + "'. Valid values are [admin, profileadmin, gateadmin, scan, provisioning]");
+          assertThat(e).hasMessage("Invalid global permission '" + permission + "'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
         }
       });
   }

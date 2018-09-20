@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
@@ -45,7 +44,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -269,7 +267,7 @@ public class UserPermissionChangerTest {
   @Test
   public void fail_to_add_project_permission_on_organization() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Invalid global permission 'issueadmin'. Valid values are [admin, profileadmin, gateadmin, scan, provisioning]");
+    expectedException.expectMessage("Invalid global permission 'issueadmin'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
 
     UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), ISSUE_ADMIN, null, UserId.from(user1), permissionService);
     apply(change);
