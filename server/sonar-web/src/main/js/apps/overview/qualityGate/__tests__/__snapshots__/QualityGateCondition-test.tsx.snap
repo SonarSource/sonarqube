@@ -24,7 +24,6 @@ exports[`new_maintainability_rating 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="new_maintainability_rating"
         metricType="RATING"
         value="3"
@@ -66,7 +65,6 @@ exports[`new_open_issues 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="new_open_issues"
         metricType="INT"
         value="10"
@@ -119,7 +117,6 @@ exports[`new_reliability_rating 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="new_reliability_rating"
         metricType="RATING"
         value="3"
@@ -172,7 +169,6 @@ exports[`new_security_rating 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="new_security_rating"
         metricType="RATING"
         value="3"
@@ -214,7 +210,6 @@ exports[`open_issues 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="open_issues"
         metricType="INT"
         value="10"
@@ -266,7 +261,6 @@ exports[`reliability_rating 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="reliability_rating"
         metricType="RATING"
         value="3"
@@ -318,7 +312,6 @@ exports[`security_rating 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="security_rating"
         metricType="RATING"
         value="3"
@@ -370,7 +363,6 @@ exports[`should work with branch 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="new_maintainability_rating"
         metricType="RATING"
         value="3"
@@ -421,7 +413,6 @@ exports[`sqale_rating 1`] = `
       className="overview-quality-gate-condition-value"
     >
       <Measure
-        decimals={null}
         metricKey="sqale_rating"
         metricType="RATING"
         value="3"

@@ -23,7 +23,7 @@ import DrilldownLink from '../../../components/shared/DrilldownLink';
 import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
 import SizeRating from '../../../components/ui/SizeRating';
 import { formatMeasure } from '../../../helpers/measures';
-import { getMetricName } from '../helpers/metrics';
+import { getMetricName } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { LightComponent, BranchLike, MeasureEnhanced } from '../../../app/types';
 

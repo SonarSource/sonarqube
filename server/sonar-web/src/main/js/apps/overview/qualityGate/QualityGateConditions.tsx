@@ -17,32 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { sortBy } from 'lodash';
-import PropTypes from 'prop-types';
 import QualityGateCondition from './QualityGateCondition';
-import { ComponentType, ConditionsListType } from '../propTypes';
+import { QualityGateStatusCondition, QualityGateStatusConditionEnhanced } from '../utils';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import { BranchLike, Component, MeasureEnhanced } from '../../../app/types';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
-function enhanceConditions(conditions, measures) {
-  return conditions.map(c => {
-    const measure = measures.find(measure => measure.metric.key === c.metric);
-    return { ...c, measure };
-  });
+interface Props {
+  branchLike?: BranchLike;
+  component: Pick<Component, 'key'>;
+  conditions: QualityGateStatusCondition[];
 }
 
-export default class QualityGateConditions extends React.PureComponent {
-  static propTypes = {
-    branchLike: PropTypes.object,
-    component: ComponentType.isRequired,
-    conditions: ConditionsListType.isRequired
-  };
+interface State {
+  conditions?: QualityGateStatusConditionEnhanced[];
+  loading: boolean;
+}
 
-  state = {
+export default class QualityGateConditions extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = {
     loading: true
   };
 
@@ -51,7 +50,7 @@ export default class QualityGateConditions extends React.PureComponent {
     this.loadFailedMeasures();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (
       !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
       prevProps.conditions !== this.props.conditions ||
@@ -73,15 +72,22 @@ export default class QualityGateConditions extends React.PureComponent {
       getMeasuresAndMeta(component.key, metrics, {
         additionalFields: 'metrics',
         ...getBranchLikeQuery(branchLike)
-      }).then(r => {
-        if (this.mounted) {
-          const measures = enhanceMeasuresWithMetrics(r.component.measures, r.metrics);
-          this.setState({
-            conditions: enhanceConditions(failedConditions, measures),
-            loading: false
-          });
+      }).then(
+        ({ component, metrics }) => {
+          if (this.mounted) {
+            const measures = enhanceMeasuresWithMetrics(component.measures || [], metrics || []);
+            this.setState({
+              conditions: enhanceConditions(failedConditions, measures),
+              loading: false
+            });
+          }
+        },
+        () => {
+          if (this.mounted) {
+            this.setState({ loading: false });
+          }
         }
-      });
+      );
     } else {
       this.setState({ loading: false });
     }
@@ -91,14 +97,14 @@ export default class QualityGateConditions extends React.PureComponent {
     const { branchLike, component } = this.props;
     const { loading, conditions } = this.state;
 
-    if (loading) {
+    if (loading || !conditions) {
       return null;
     }
 
     const sortedConditions = sortBy(
       conditions,
       condition => LEVEL_ORDER.indexOf(condition.level),
-      condition => condition.metric.name
+      condition => condition.measure.metric.name
     );
 
     return (
@@ -116,4 +122,14 @@ export default class QualityGateConditions extends React.PureComponent {
       </div>
     );
   }
+}
+
+function enhanceConditions(
+  conditions: QualityGateStatusCondition[],
+  measures: MeasureEnhanced[]
+): QualityGateStatusConditionEnhanced[] {
+  return conditions.map(condition => {
+    const measure = measures.find(measure => measure.metric.key === condition.metric)!;
+    return { ...condition, measure };
+  });
 }

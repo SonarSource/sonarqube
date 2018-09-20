@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-const EmptyQualityGate = () => {
+export default function EmptyQualityGate() {
   return (
     <div className="overview-quality-gate">
       <h2 className="overview-title">{translate('overview.quality_gate')}</h2>
@@ -29,6 +29,4 @@ const EmptyQualityGate = () => {
       </p>
     </div>
   );
-};
-
-export default EmptyQualityGate;
+}

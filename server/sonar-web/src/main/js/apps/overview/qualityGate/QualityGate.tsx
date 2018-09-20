@@ -17,33 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import QualityGateConditions from './QualityGateConditions';
 import EmptyQualityGate from './EmptyQualityGate';
 import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DocTooltip from '../../../components/docs/DocTooltip';
-/*:: import type { Component, MeasuresList } from '../types'; */
+import { Component, BranchLike, MeasureEnhanced } from '../../../app/types';
 
-function parseQualityGateDetails(rawDetails /*: string */) {
-  return JSON.parse(rawDetails);
+interface Props {
+  branchLike?: BranchLike;
+  component: Pick<Component, 'key' | 'qualifier'>;
+  measures: MeasureEnhanced[];
 }
 
-function isProject(component /*: Component */) {
-  return component.qualifier === 'TRK';
-}
-
-/*::
-type Props = {
-  branchLike?: {id?: string; name: string },
-  component: Component,
-  measures: MeasuresList
-};
-*/
-
-export default function QualityGate({ branchLike, component, measures } /*: Props */) {
+export default function QualityGate({ branchLike, component, measures }: Props) {
   const statusMeasure = measures.find(measure => measure.metric.key === 'alert_status');
   const detailsMeasure = measures.find(measure => measure.metric.key === 'quality_gate_details');
 
@@ -58,7 +47,7 @@ export default function QualityGate({ branchLike, component, measures } /*: Prop
   if (detailsMeasure && detailsMeasure.value) {
     const details = parseQualityGateDetails(detailsMeasure.value);
     conditions = details.conditions || [];
-    ignoredConditions = details.ignoredConditions;
+    ({ ignoredConditions } = details);
   }
 
   return (
@@ -69,7 +58,7 @@ export default function QualityGate({ branchLike, component, measures } /*: Prop
           className="spacer-left"
           doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
         />
-        <Level className="big-spacer-left" level={level} />
+        {level && <Level className="big-spacer-left" level={level} />}
       </div>
 
       {ignoredConditions && (
@@ -93,4 +82,12 @@ export default function QualityGate({ branchLike, component, measures } /*: Prop
       )}
     </div>
   );
+}
+
+function parseQualityGateDetails(rawDetails: string) {
+  return JSON.parse(rawDetails);
+}
+
+function isProject(component: Pick<Component, 'qualifier'>) {
+  return component.qualifier === 'TRK';
 }

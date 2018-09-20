@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { Link } from 'react-router';
+import { QualityGateStatusConditionEnhanced } from '../utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import Measure from '../../../components/measure/Measure';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
@@ -28,35 +28,27 @@ import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/me
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import { IssueType } from '../../../app/types';
-/*:: import type { Component } from '../types'; */
-/*:: import type { MeasureEnhanced } from '../../../components/measure/types'; */
+import { IssueType, BranchLike, Component } from '../../../app/types';
 
-export default class QualityGateCondition extends React.PureComponent {
-  /*:: props: {
-    branchLike?: { id?: string; name: string },
-    component: Component,
-    condition: {
-      level: string,
-      measure: MeasureEnhanced,
-      op: string,
-      period: number,
-      error: string,
-      warning: string
-    }
-  };
-*/
+interface Props {
+  branchLike?: BranchLike;
+  component: Pick<Component, 'key'>;
+  condition: QualityGateStatusConditionEnhanced;
+}
 
-  getDecimalsNumber(threshold /*: number */, value /*: number */) /*: ?number */ {
+export default class QualityGateCondition extends React.PureComponent<Props> {
+  getDecimalsNumber(threshold: number, value: number) {
     const delta = Math.abs(threshold - value);
     if (delta < 0.1 && delta > 0) {
-      //$FlowFixMe The matching result can't be null because of the previous check
-      return delta.toFixed(20).match('[^0.]').index - 1;
+      const match = delta.toFixed(20).match('[^0.]');
+      return match && match.index ? match.index - 1 : undefined;
+    } else {
+      return undefined;
     }
   }
 
-  getIssuesUrl = (sinceLeakPeriod /*: boolean */, customQuery /*: {} */) => {
-    const query /*: Object */ = {
+  getIssuesUrl = (sinceLeakPeriod: boolean, customQuery: { [x: string]: string }) => {
+    const query: { [x: string]: string | undefined } = {
       resolved: 'false',
       ...getBranchLikeQuery(this.props.branchLike),
       ...customQuery
@@ -67,11 +59,11 @@ export default class QualityGateCondition extends React.PureComponent {
     return getComponentIssuesUrl(this.props.component.key, query);
   };
 
-  getUrlForCodeSmells(sinceLeakPeriod /*: boolean */) {
+  getUrlForCodeSmells(sinceLeakPeriod: boolean) {
     return this.getIssuesUrl(sinceLeakPeriod, { types: IssueType.CodeSmell });
   }
 
-  getUrlForBugsOrVulnerabilities(type /*: string */, sinceLeakPeriod /*: boolean */) {
+  getUrlForBugsOrVulnerabilities(type: string, sinceLeakPeriod: boolean) {
     const RATING_TO_SEVERITIES_MAPPING = [
       'BLOCKER,CRITICAL,MAJOR,MINOR',
       'BLOCKER,CRITICAL,MAJOR',
@@ -88,13 +80,13 @@ export default class QualityGateCondition extends React.PureComponent {
     });
   }
 
-  getUrlForType(type /*: string */, sinceLeakPeriod /*: boolean */) {
+  getUrlForType(type: string, sinceLeakPeriod: boolean) {
     return type === IssueType.CodeSmell
       ? this.getUrlForCodeSmells(sinceLeakPeriod)
       : this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
   }
 
-  wrapWithLink(children /*: React.Element<*> */) {
+  wrapWithLink(children: React.ReactNode) {
     const { branchLike, component, condition } = this.props;
 
     const className = classNames(
@@ -106,7 +98,7 @@ export default class QualityGateCondition extends React.PureComponent {
     const metricKey = condition.measure.metric.key;
 
     /* eslint-disable camelcase */
-    const RATING_METRICS_MAPPING = {
+    const RATING_METRICS_MAPPING: { [metric: string]: [string, boolean] } = {
       reliability_rating: [IssueType.Bug, false],
       new_reliability_rating: [IssueType.Bug, true],
       security_rating: [IssueType.Vulnerability, false],
@@ -139,16 +131,18 @@ export default class QualityGateCondition extends React.PureComponent {
 
     const isDiff = isDiffMetric(metric.key);
 
-    const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
-    const actual = condition.period ? getPeriodValue(measure, condition.period) : measure.value;
+    const threshold = (condition.level === 'ERROR' ? condition.error : condition.warning) as string;
+    const actual = (condition.period
+      ? getPeriodValue(measure, condition.period)
+      : measure.value) as string;
 
     let operator = translate('quality_gates.operator', condition.op);
-    let decimals = null;
+    let decimals: number | undefined = undefined;
 
     if (metric.type === 'RATING') {
       operator = translate('quality_gates.operator', condition.op, 'rating');
     } else if (metric.type === 'PERCENT') {
-      decimals = this.getDecimalsNumber(parseFloat(condition.error), parseFloat(actual));
+      decimals = this.getDecimalsNumber(parseFloat(threshold), parseFloat(actual));
     }
 
     return this.wrapWithLink(

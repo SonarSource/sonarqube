@@ -25,7 +25,7 @@ import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import BugIcon from '../../../components/icons-components/BugIcon';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
-import { getMetricName } from '../helpers/metrics';
+import { getMetricName } from '../utils';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { isLongLivingBranch } from '../../../helpers/branches';

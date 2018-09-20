@@ -39,7 +39,20 @@ import { get } from '../../helpers/storage';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
 /*:: import type { Serie } from '../charts/AdvancedTimeline'; */
-/*:: import type { History, Metric } from '../../apps/overview/types'; */
+
+/*::
+type History = { [string]: Array<{ date: Date, value: string }> };
+*/
+
+/*::
+type Metric = {
+  custom?: boolean,
+  hidden?: boolean,
+  key: string,
+  name: string,
+  type: string
+};
+*/
 
 /*::
 type Props = {

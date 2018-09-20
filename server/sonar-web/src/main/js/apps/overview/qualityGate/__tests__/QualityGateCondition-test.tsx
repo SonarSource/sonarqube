@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import QualityGateCondition from '../QualityGateCondition';
+import { QualityGateStatusConditionEnhanced } from '../../utils';
 
-const mockRatingCondition = metric => ({
-  actual: '3',
+const mockRatingCondition = (metric: string): QualityGateStatusConditionEnhanced => ({
   error: '1',
   level: 'ERROR',
   measure: {
     metric: {
+      id: '100',
       key: metric,
       type: 'RATING',
       name: metric
@@ -40,12 +41,12 @@ const mockRatingCondition = metric => ({
 const periods = [{ value: '3', index: 1 }];
 
 it('open_issues', () => {
-  const condition = {
-    actual: '10',
+  const condition: QualityGateStatusConditionEnhanced = {
     error: '0',
     level: 'ERROR',
     measure: {
       metric: {
+        id: '1',
         key: 'open_issues',
         type: 'INT',
         name: 'Open open_issues'
@@ -61,12 +62,12 @@ it('open_issues', () => {
 });
 
 it('new_open_issues', () => {
-  const condition = {
-    actual: '10',
+  const condition: QualityGateStatusConditionEnhanced = {
     error: '0',
     level: 'ERROR',
     measure: {
       metric: {
+        id: '1',
         key: 'new_open_issues',
         type: 'INT',
         name: 'new_open_issues'
@@ -135,7 +136,7 @@ it('should be able to correctly decide how much decimals to show', () => {
   const condition = mockRatingCondition('new_maintainability_rating');
   const instance = shallow(
     <QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />
-  ).instance();
+  ).instance() as QualityGateCondition;
   expect(instance.getDecimalsNumber(85, 80)).toBe(undefined);
   expect(instance.getDecimalsNumber(85, 85)).toBe(undefined);
   expect(instance.getDecimalsNumber(85, 85.01)).toBe(2);
@@ -150,7 +151,7 @@ it('should work with branch', () => {
   expect(
     shallow(
       <QualityGateCondition
-        branch="feature"
+        branchLike={{ isMain: false, name: 'feature' }}
         component={{ key: 'abcd-key' }}
         condition={condition}
       />

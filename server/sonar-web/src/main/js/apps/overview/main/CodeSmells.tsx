@@ -20,7 +20,7 @@
 import * as React from 'react';
 import enhance, { ComposedProps } from './enhance';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { getMetricName } from '../helpers/metrics';
+import { getMetricName } from '../utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
