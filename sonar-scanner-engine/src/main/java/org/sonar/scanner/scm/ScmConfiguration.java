@@ -35,10 +35,13 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.ScannerProperties;
+
+import static org.sonar.api.CoreProperties.SCM_PROVIDER_KEY;
 
 @Properties({
   @Property(
@@ -59,24 +62,28 @@ public class ScmConfiguration implements Startable {
 
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 
+  static final String MESSAGE_SCM_STEP_IS_DISABLED_BY_CONFIGURATION = "SCM Step is disabled by configuration";
+
   private final Configuration settings;
+  private final AnalysisWarnings analysisWarnings;
   private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<>();
   private final AnalysisMode analysisMode;
   private final InputModuleHierarchy moduleHierarchy;
 
   private ScmProvider provider;
 
-  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Configuration settings, ScmProvider... providers) {
+  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Configuration settings, AnalysisWarnings analysisWarnings, ScmProvider... providers) {
     this.moduleHierarchy = moduleHierarchy;
     this.analysisMode = analysisMode;
     this.settings = settings;
+    this.analysisWarnings = analysisWarnings;
     for (ScmProvider scmProvider : providers) {
       providerPerKey.put(scmProvider.key(), scmProvider);
     }
   }
 
-  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Configuration settings) {
-    this(moduleHierarchy, analysisMode, settings, new ScmProvider[0]);
+  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Configuration settings, AnalysisWarnings analysisWarnings) {
+    this(moduleHierarchy, analysisMode, settings, analysisWarnings, new ScmProvider[0]);
   }
 
   @Override
@@ -85,19 +92,21 @@ public class ScmConfiguration implements Startable {
       return;
     }
     if (isDisabled()) {
-      LOG.debug("SCM Step is disabled by configuration");
+      LOG.debug(MESSAGE_SCM_STEP_IS_DISABLED_BY_CONFIGURATION);
       return;
     }
-    if (settings.hasKey(CoreProperties.SCM_PROVIDER_KEY)) {
-      settings.get(CoreProperties.SCM_PROVIDER_KEY).ifPresent(this::setProviderIfSupported);
+    if (settings.hasKey(SCM_PROVIDER_KEY)) {
+      settings.get(SCM_PROVIDER_KEY).ifPresent(this::setProviderIfSupported);
     } else {
       autodetection();
       if (this.provider == null) {
         considerOldScmUrl();
       }
       if (this.provider == null) {
-        LOG.warn("SCM provider autodetection failed. No SCM provider claims to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY
-          + " to define SCM of your project.");
+        String message = "SCM provider autodetection failed. Please use \"" + SCM_PROVIDER_KEY + "\" to define SCM of " +
+          "your project, or disable the SCM Sensor in the project settings.";
+        LOG.warn(message);
+        analysisWarnings.addUnique(message);
       }
     }
   }
@@ -130,7 +139,7 @@ public class ScmConfiguration implements Startable {
           this.provider = installedProvider;
         } else {
           throw MessageException.of("SCM provider autodetection failed. Both " + this.provider.key() + " and " + installedProvider.key()
-            + " claim to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY + " to define SCM of your project.");
+            + " claim to support this project. Please use \"" + SCM_PROVIDER_KEY + "\" to define SCM of your project.");
         }
       }
     }
