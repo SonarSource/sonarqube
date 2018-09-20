@@ -27,8 +27,17 @@ exports[`should display users and groups 1`] = `
       </tr>
     </thead>
     <tbody>
-      <UserHolder
-        key="user-foobar"
+      <GroupHolder
+        group={
+          Object {
+            "id": "barbaz",
+            "name": "Barbaz",
+            "permissions": Array [
+              "bar",
+            ],
+          }
+        }
+        key="group-barbaz"
         onToggle={[MockFunction]}
         permissions={
           Array [
@@ -41,15 +50,6 @@ exports[`should display users and groups 1`] = `
           ]
         }
         selectedPermission="bar"
-        user={
-          Object {
-            "login": "foobar",
-            "name": "Foobar",
-            "permissions": Array [
-              "bar",
-            ],
-          }
-        }
       />
       <UserHolder
         key="user-barbaz"
@@ -99,17 +99,8 @@ exports[`should display users and groups 1`] = `
         }
         selectedPermission="bar"
       />
-      <GroupHolder
-        group={
-          Object {
-            "id": "barbaz",
-            "name": "Barbaz",
-            "permissions": Array [
-              "bar",
-            ],
-          }
-        }
-        key="group-barbaz"
+      <UserHolder
+        key="user-foobar"
         onToggle={[MockFunction]}
         permissions={
           Array [
@@ -122,6 +113,57 @@ exports[`should display users and groups 1`] = `
           ]
         }
         selectedPermission="bar"
+        user={
+          Object {
+            "login": "foobar",
+            "name": "Foobar",
+            "permissions": Array [
+              "bar",
+            ],
+          }
+        }
+      />
+      <tr>
+        <td
+          className="divider"
+          colSpan={6}
+        />
+      </tr>
+      <GroupHolder
+        group={
+          Object {
+            "id": "abc",
+            "name": "abc",
+            "permissions": Array [],
+          }
+        }
+        key="group-abc"
+        onToggle={[MockFunction]}
+        permissions={Array []}
+        permissionsOrder={
+          Array [
+            "bar",
+          ]
+        }
+        selectedPermission="bar"
+      />
+      <UserHolder
+        key="user-bcd"
+        onToggle={[MockFunction]}
+        permissions={Array []}
+        permissionsOrder={
+          Array [
+            "bar",
+          ]
+        }
+        selectedPermission="bar"
+        user={
+          Object {
+            "login": "bcd",
+            "name": "bcd",
+            "permissions": Array [],
+          }
+        }
       />
     </tbody>
   </table>

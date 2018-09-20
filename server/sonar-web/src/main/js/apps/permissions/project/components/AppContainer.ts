@@ -19,9 +19,9 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getCurrentUser } from '../../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../../store/rootReducer';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 

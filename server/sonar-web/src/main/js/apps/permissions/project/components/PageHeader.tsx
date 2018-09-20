@@ -68,7 +68,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
     const visibilityDescription =
       component.qualifier === 'TRK' && component.visibility
         ? translate('visibility', component.visibility, 'description', component.qualifier)
-        : null;
+        : undefined;
 
     return (
       <header className="page-header">
@@ -95,7 +95,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
 
         <div className="page-description">
           <p>{description}</p>
-          {visibilityDescription != null && <p>{visibilityDescription}</p>}
+          {visibilityDescription && <p>{visibilityDescription}</p>}
         </div>
       </header>
     );

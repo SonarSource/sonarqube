@@ -25,7 +25,6 @@ import metrics, * as fromMetrics from './metrics';
 import organizations, * as fromOrganizations from './organizations';
 import users, * as fromUsers from './users';
 import { AppState, Languages } from '../app/types';
-import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
 import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
 
@@ -38,7 +37,6 @@ export type Store = {
   users: fromUsers.State;
 
   // apps
-  permissionsApp: any;
   projectAdminApp: any;
   settingsApp: any;
 };
@@ -52,7 +50,6 @@ export default combineReducers<Store>({
   users,
 
   // apps
-  permissionsApp,
   projectAdminApp,
   settingsApp
 });
@@ -91,34 +88,6 @@ export function getMyOrganizations(state: Store) {
 
 export function areThereCustomOrganizations(state: Store) {
   return getAppState(state).organizationsEnabled;
-}
-
-export function getPermissionsAppUsers(state: Store) {
-  return fromPermissionsApp.getUsers(state.permissionsApp);
-}
-
-export function getPermissionsAppGroups(state: Store) {
-  return fromPermissionsApp.getGroups(state.permissionsApp);
-}
-
-export function isPermissionsAppLoading(state: Store) {
-  return fromPermissionsApp.isLoading(state.permissionsApp);
-}
-
-export function getPermissionsAppQuery(state: Store) {
-  return fromPermissionsApp.getQuery(state.permissionsApp);
-}
-
-export function getPermissionsAppFilter(state: Store) {
-  return fromPermissionsApp.getFilter(state.permissionsApp);
-}
-
-export function getPermissionsAppSelectedPermission(state: Store) {
-  return fromPermissionsApp.getSelectedPermission(state.permissionsApp);
-}
-
-export function getPermissionsAppError(state: Store) {
-  return fromPermissionsApp.getError(state.permissionsApp);
 }
 
 export function getGlobalSettingValue(state: Store, key: string) {

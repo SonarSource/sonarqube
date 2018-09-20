@@ -17,9 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.permissions-table {
-}
-
 .permissions-table > tbody > tr > td {
   border-bottom: 10px solid #fff !important;
 }
@@ -30,4 +27,12 @@
 
 .permissions-table .permission-column-inner {
   width: 100px;
+}
+
+.permissions-table .divider {
+  background: #e6e6e6;
+  border-bottom: 20px solid #fff !important;
+  border-top: 20px solid #fff !important;
+  height: 1px;
+  padding: 0;
 }

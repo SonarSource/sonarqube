@@ -22,12 +22,7 @@ import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-
-export interface Permission {
-  key: string;
-  name: string;
-  description: string;
-}
+import { Permission } from '../../../../app/types';
 
 interface Props {
   onSelectPermission: (permission: string) => void;

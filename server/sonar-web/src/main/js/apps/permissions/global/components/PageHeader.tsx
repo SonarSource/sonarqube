@@ -17,16 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RECEIVE_HOLDERS_SUCCESS } from '../actions';
+import * as React from 'react';
+import { translate } from '../../../../helpers/l10n';
 
-const names = (state = [], action = {}) => {
-  if (action.type === RECEIVE_HOLDERS_SUCCESS) {
-    return action.groups.map(group => group.name);
-  } else {
-    return state;
+interface Props {
+  loading?: boolean;
+  organization?: {};
+}
+
+export default class PageHeader extends React.PureComponent<Props> {
+  render() {
+    const title = this.props.organization
+      ? translate('permissions.page')
+      : translate('global_permissions.page');
+
+    const description = this.props.organization
+      ? translate('organization_permissions.page.description')
+      : translate('global_permissions.page.description');
+
+    return (
+      <header className="page-header">
+        <h1 className="page-title">{title}</h1>
+
+        {this.props.loading && <i className="spinner" />}
+
+        <div className="page-description">{description}</div>
+      </header>
+    );
   }
-};
-
-export default names;
-
-export const getNames = state => state;
+}

@@ -18,38 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { without } from 'lodash';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
 import { translate } from '../../../../helpers/l10n';
-import { Organization, Paging, PermissionGroup, PermissionUser } from '../../../../app/types';
+import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
+import {
+  Component,
+  Paging,
+  PermissionGroup,
+  PermissionUser,
+  Visibility
+} from '../../../../app/types';
 import ListFooter from '../../../../components/controls/ListFooter';
 
-const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provisioning'];
-
 interface Props {
+  component: Component;
   filter: string;
-  grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
-  grantPermissionToUser: (login: string, permission: string) => Promise<void>;
+  grantPermissionToGroup: (group: string, permission: string) => Promise<void>;
+  grantPermissionToUser: (user: string, permission: string) => Promise<void>;
   groups: PermissionGroup[];
   groupsPaging: Paging;
-  loadHolders: () => void;
-  loading?: boolean;
   onLoadMore: (usersPageIndex: number, groupsPageIndex: number) => void;
-  onFilter: (filter: string) => void;
-  onSearch: (query: string) => void;
-  onSelectPermission: (permission: string) => void;
-  organization?: Organization;
+  onFilterChange: (filter: string) => void;
+  onPermissionSelect: (permissions?: string) => void;
+  onQueryChange: (query: string) => void;
   query: string;
-  revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
-  revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
+  revokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
+  revokePermissionFromUser: (user: string, permission: string) => Promise<void>;
   selectedPermission?: string;
   users: PermissionUser[];
   usersPaging: Paging;
+  visibility?: Visibility;
 }
 
 export default class AllHoldersList extends React.PureComponent<Props> {
   handleToggleUser = (user: PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
+
     if (hasPermission) {
       return this.props.revokePermissionFromUser(user.login, permission);
     } else {
@@ -67,6 +73,10 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     }
   };
 
+  handleSelectPermission = (permission?: string) => {
+    this.props.onPermissionSelect(permission);
+  };
+
   handleLoadMore = () => {
     this.props.onLoadMore(
       this.props.usersPaging.pageIndex + 1,
@@ -75,11 +85,15 @@ export default class AllHoldersList extends React.PureComponent<Props> {
   };
 
   render() {
-    const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
-    const permissions = PERMISSIONS_ORDER.map(p => ({
+    let order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
+    if (this.props.visibility === Visibility.Public) {
+      order = without(order, 'user', 'codeviewer');
+    }
+
+    const permissions = order.map(p => ({
       key: p,
-      name: translate(l10nPrefix, p),
-      description: translate(l10nPrefix, p, 'desc')
+      name: translate('projects_role', p),
+      description: translate('projects_role', p, 'desc')
     }));
 
     const count =
@@ -93,8 +107,7 @@ export default class AllHoldersList extends React.PureComponent<Props> {
       <>
         <HoldersList
           groups={this.props.groups}
-          loading={this.props.loading}
-          onSelectPermission={this.props.onSelectPermission}
+          onSelectPermission={this.handleSelectPermission}
           onToggleGroup={this.handleToggleGroup}
           onToggleUser={this.handleToggleUser}
           permissions={permissions}
@@ -102,8 +115,8 @@ export default class AllHoldersList extends React.PureComponent<Props> {
           users={this.props.users}>
           <SearchForm
             filter={this.props.filter}
-            onFilter={this.props.onFilter}
-            onSearch={this.props.onSearch}
+            onFilter={this.props.onFilterChange}
+            onSearch={this.props.onQueryChange}
             query={this.props.query}
           />
         </HoldersList>

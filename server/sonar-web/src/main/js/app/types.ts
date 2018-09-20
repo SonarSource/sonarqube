@@ -102,6 +102,7 @@ export interface Component extends LightComponent {
 
 interface ComponentConfiguration {
   canApplyPermissionTemplate?: boolean;
+  canUpdateProjectVisibilityToPrivate?: boolean;
   extensions?: Extension[];
   showBackgroundTasks?: boolean;
   showHistory?: boolean;
@@ -534,6 +535,27 @@ export enum PeriodMode {
   Version = 'version',
   PreviousAnalysis = 'previous_analysis',
   PreviousVersion = 'previous_version'
+}
+
+export interface Permission {
+  key: string;
+  name: string;
+  description: string;
+}
+
+export interface PermissionGroup {
+  id?: string;
+  name: string;
+  description?: string;
+  permissions: string[];
+}
+
+export interface PermissionUser {
+  login: string;
+  name: string;
+  email?: string;
+  permissions: string[];
+  avatar?: string;
 }
 
 export interface PermissionTemplate {

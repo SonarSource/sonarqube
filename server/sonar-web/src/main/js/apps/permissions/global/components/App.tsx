@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { without } from 'lodash';
 import PageHeader from './PageHeader';
-import AllHoldersListContainer from './AllHoldersListContainer';
-import PageError from '../../shared/components/PageError';
+import AllHoldersList from './AllHoldersList';
+import * as api from '../../../../api/permissions';
 import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
-import { Organization } from '../../../../app/types';
+import { Organization, Paging, PermissionGroup, PermissionUser } from '../../../../app/types';
 import forSingleOrganization from '../../../organizations/forSingleOrganization';
 import '../../styles.css';
 
@@ -32,16 +33,299 @@ interface Props {
   organization?: Organization;
 }
 
-function App({ organization }: Props) {
-  return (
-    <div className="page page-limited">
-      <Suggestions suggestions="global_permissions" />
-      <Helmet title={translate('global_permissions.permission')} />
-      <PageHeader organization={organization} />
-      <PageError />
-      <AllHoldersListContainer organization={organization} />
-    </div>
-  );
+interface State {
+  filter: string;
+  groups: PermissionGroup[];
+  groupsPaging: Paging;
+  loading: boolean;
+  query: string;
+  selectedPermission?: string;
+  users: PermissionUser[];
+  usersPaging: Paging;
+}
+
+export class App extends React.PureComponent<Props, State> {
+  mounted = false;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      filter: 'all',
+      groups: [],
+      groupsPaging: { pageIndex: 1, pageSize: 100, total: 0 },
+      loading: true,
+      query: '',
+      users: [],
+      usersPaging: { pageIndex: 1, pageSize: 100, total: 0 }
+    };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+    this.loadHolders();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  loadUsersAndGroups = (userPage?: number, groupsPage?: number) => {
+    const { organization } = this.props;
+    const { filter, query, selectedPermission } = this.state;
+
+    const getUsers =
+      filter !== 'groups'
+        ? api.getGlobalPermissionsUsers({
+            q: query || undefined,
+            permission: selectedPermission,
+            organization: organization && organization.key,
+            p: userPage
+          })
+        : Promise.resolve({
+            paging: {
+              pageIndex: 1,
+              pageSize: 100,
+              total: 0
+            },
+            users: []
+          });
+
+    const getGroups =
+      filter !== 'users'
+        ? api.getGlobalPermissionsGroups({
+            q: query || undefined,
+            permission: selectedPermission,
+            organization: organization && organization.key,
+            p: groupsPage
+          })
+        : Promise.resolve({
+            paging: { pageIndex: 1, pageSize: 100, total: 0 },
+            groups: []
+          });
+
+    return Promise.all([getUsers, getGroups]);
+  };
+
+  loadHolders = () => {
+    this.setState({ loading: true });
+    return this.loadUsersAndGroups().then(([usersResponse, groupsResponse]) => {
+      if (this.mounted) {
+        this.setState({
+          groups: groupsResponse.groups,
+          groupsPaging: groupsResponse.paging,
+          loading: false,
+          users: usersResponse.users,
+          usersPaging: usersResponse.paging
+        });
+      }
+    }, this.stopLoading);
+  };
+
+  onLoadMore = () => {
+    this.setState({ loading: true });
+    return this.loadUsersAndGroups(
+      this.state.usersPaging.pageIndex + 1,
+      this.state.groupsPaging.pageIndex + 1
+    ).then(([usersResponse, groupsResponse]) => {
+      if (this.mounted) {
+        this.setState(({ groups, users }) => ({
+          groups: [...groups, ...groupsResponse.groups],
+          groupsPaging: groupsResponse.paging,
+          loading: false,
+          users: [...users, ...usersResponse.users],
+          usersPaging: usersResponse.paging
+        }));
+      }
+    }, this.stopLoading);
+  };
+
+  onFilter = (filter: string) => {
+    this.setState({ filter }, this.loadHolders);
+  };
+
+  onSearch = (query: string) => {
+    this.setState({ query }, this.loadHolders);
+  };
+
+  onSelectPermission = (permission: string) => {
+    this.setState(
+      ({ selectedPermission }) => ({
+        selectedPermission: selectedPermission !== permission ? permission : undefined
+      }),
+      this.loadHolders
+    );
+  };
+
+  addPermissionToGroup = (groups: PermissionGroup[], group: string, permission: string) => {
+    return groups.map(
+      candidate =>
+        candidate.name === group
+          ? { ...candidate, permissions: [...candidate.permissions, permission] }
+          : candidate
+    );
+  };
+
+  addPermissionToUser = (users: PermissionUser[], user: string, permission: string) => {
+    return users.map(
+      candidate =>
+        candidate.login === user
+          ? { ...candidate, permissions: [...candidate.permissions, permission] }
+          : candidate
+    );
+  };
+
+  removePermissionFromGroup = (groups: PermissionGroup[], group: string, permission: string) => {
+    return groups.map(
+      candidate =>
+        candidate.name === group
+          ? { ...candidate, permissions: without(candidate.permissions, permission) }
+          : candidate
+    );
+  };
+
+  removePermissionFromUser = (users: PermissionUser[], user: string, permission: string) => {
+    return users.map(
+      candidate =>
+        candidate.login === user
+          ? { ...candidate, permissions: without(candidate.permissions, permission) }
+          : candidate
+    );
+  };
+
+  grantPermissionToGroup = (group: string, permission: string) => {
+    if (this.mounted) {
+      this.setState(({ groups }) => ({
+        groups: this.addPermissionToGroup(groups, group, permission)
+      }));
+      return api
+        .grantPermissionToGroup({
+          groupName: group,
+          permission,
+          organization: this.props.organization && this.props.organization.key
+        })
+        .then(
+          () => {},
+          () => {
+            if (this.mounted) {
+              this.setState(({ groups }) => ({
+                groups: this.removePermissionFromGroup(groups, group, permission)
+              }));
+            }
+          }
+        );
+    }
+    return Promise.resolve();
+  };
+
+  grantPermissionToUser = (user: string, permission: string) => {
+    if (this.mounted) {
+      this.setState(({ users }) => ({
+        users: this.addPermissionToUser(users, user, permission)
+      }));
+      return api
+        .grantPermissionToUser({
+          login: user,
+          permission,
+          organization: this.props.organization && this.props.organization.key
+        })
+        .then(
+          () => {},
+          () => {
+            if (this.mounted) {
+              this.setState(({ users }) => ({
+                users: this.removePermissionFromUser(users, user, permission)
+              }));
+            }
+          }
+        );
+    }
+    return Promise.resolve();
+  };
+
+  revokePermissionFromGroup = (group: string, permission: string) => {
+    if (this.mounted) {
+      this.setState(({ groups }) => ({
+        groups: this.removePermissionFromGroup(groups, group, permission)
+      }));
+      return api
+        .revokePermissionFromGroup({
+          groupName: group,
+          permission,
+          organization: this.props.organization && this.props.organization.key
+        })
+        .then(
+          () => {},
+          () => {
+            if (this.mounted) {
+              this.setState(({ groups }) => ({
+                groups: this.addPermissionToGroup(groups, group, permission)
+              }));
+            }
+          }
+        );
+    }
+    return Promise.resolve();
+  };
+
+  revokePermissionFromUser = (user: string, permission: string) => {
+    if (this.mounted) {
+      this.setState(({ users }) => ({
+        users: this.removePermissionFromUser(users, user, permission)
+      }));
+      return api
+        .revokePermissionFromUser({
+          login: user,
+          permission,
+          organization: this.props.organization && this.props.organization.key
+        })
+        .then(
+          () => {},
+          () => {
+            if (this.mounted) {
+              this.setState(({ users }) => ({
+                users: this.addPermissionToUser(users, user, permission)
+              }));
+            }
+          }
+        );
+    }
+    return Promise.resolve();
+  };
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
+  render() {
+    return (
+      <div className="page page-limited">
+        <Suggestions suggestions="global_permissions" />
+        <Helmet title={translate('global_permissions.permission')} />
+        <PageHeader loading={this.state.loading} organization={this.props.organization} />
+        <AllHoldersList
+          filter={this.state.filter}
+          grantPermissionToGroup={this.grantPermissionToGroup}
+          grantPermissionToUser={this.grantPermissionToUser}
+          groups={this.state.groups}
+          groupsPaging={this.state.groupsPaging}
+          loadHolders={this.loadHolders}
+          loading={this.state.loading}
+          onFilter={this.onFilter}
+          onLoadMore={this.onLoadMore}
+          onSearch={this.onSearch}
+          onSelectPermission={this.onSelectPermission}
+          query={this.state.query}
+          revokePermissionFromGroup={this.revokePermissionFromGroup}
+          revokePermissionFromUser={this.revokePermissionFromUser}
+          selectedPermission={this.state.selectedPermission}
+          users={this.state.users}
+          usersPaging={this.state.usersPaging}
+        />
+      </div>
+    );
+  }
 }
 
 export default forSingleOrganization(App);

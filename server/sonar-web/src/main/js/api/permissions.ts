@@ -18,73 +18,51 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BaseSearchProjectsParameters } from './components';
-import { PermissionTemplate, Visibility } from '../app/types';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import {
+  Paging,
+  PermissionGroup,
+  PermissionTemplate,
+  PermissionUser,
+  Visibility
+} from '../app/types';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 const PAGE_SIZE = 100;
 
-export function grantPermissionToUser(
-  projectKey: string | null,
-  login: string,
-  permission: string,
-  organization?: string
-) {
-  const data: RequestData = { login, permission };
-  if (projectKey) {
-    data.projectKey = projectKey;
-  }
-  if (organization && !projectKey) {
-    data.organization = organization;
-  }
+export function grantPermissionToUser(data: {
+  projectKey?: string;
+  login: string;
+  permission: string;
+  organization?: string;
+}) {
   return post('/api/permissions/add_user', data).catch(throwGlobalError);
 }
 
-export function revokePermissionFromUser(
-  projectKey: string | null,
-  login: string,
-  permission: string,
-  organization?: string
-) {
-  const data: RequestData = { login, permission };
-  if (projectKey) {
-    data.projectKey = projectKey;
-  }
-  if (organization && !projectKey) {
-    data.organization = organization;
-  }
+export function revokePermissionFromUser(data: {
+  projectKey?: string;
+  login: string;
+  permission: string;
+  organization?: string;
+}) {
   return post('/api/permissions/remove_user', data).catch(throwGlobalError);
 }
 
-export function grantPermissionToGroup(
-  projectKey: string | null,
-  groupName: string,
-  permission: string,
-  organization?: string
-) {
-  const data: RequestData = { groupName, permission };
-  if (projectKey) {
-    data.projectKey = projectKey;
-  }
-  if (organization) {
-    data.organization = organization;
-  }
+export function grantPermissionToGroup(data: {
+  projectKey?: string;
+  groupName: string;
+  permission: string;
+  organization?: string;
+}) {
   return post('/api/permissions/add_group', data).catch(throwGlobalError);
 }
 
-export function revokePermissionFromGroup(
-  projectKey: string | null,
-  groupName: string,
-  permission: string,
-  organization?: string
-) {
-  const data: RequestData = { groupName, permission };
-  if (projectKey) {
-    data.projectKey = projectKey;
-  }
-  if (organization) {
-    data.organization = organization;
-  }
+export function revokePermissionFromGroup(data: {
+  projectKey?: string;
+  groupName: string;
+  permission: string;
+  organization?: string;
+}) {
   return post('/api/permissions/remove_group', data).catch(throwGlobalError);
 }
 
@@ -165,93 +143,58 @@ export function removeProjectCreatorFromTemplate(
   return post('/api/permissions/remove_project_creator_from_template', { templateId, permission });
 }
 
-export interface PermissionUser {
-  login: string;
-  name: string;
-  email?: string;
-  permissions: string[];
-  avatar?: string;
+export function getPermissionsUsersForComponent(data: {
+  projectKey: string;
+  q?: string;
+  permission?: string;
+  organization?: string;
+  p?: number;
+  ps?: number;
+}): Promise<{ paging: Paging; users: PermissionUser[] }> {
+  if (!data.ps) {
+    data.ps = PAGE_SIZE;
+  }
+  return getJSON('/api/permissions/users', data).catch(throwGlobalError);
 }
 
-export function getPermissionsUsersForComponent(
-  projectKey: string,
-  query?: string,
-  permission?: string,
-  organization?: string
-): Promise<PermissionUser[]> {
-  const data: RequestData = { projectKey, ps: PAGE_SIZE };
-  if (query) {
-    data.q = query;
+export function getPermissionsGroupsForComponent(data: {
+  projectKey: string;
+  q?: string;
+  permission?: string;
+  organization?: string;
+  p?: number;
+  ps?: number;
+}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+  if (!data.ps) {
+    data.ps = PAGE_SIZE;
   }
-  if (permission) {
-    data.permission = permission;
-  }
-  if (organization) {
-    data.organization = organization;
-  }
-  return getJSON('/api/permissions/users', data).then(r => r.users, throwGlobalError);
+  return getJSON('/api/permissions/groups', data).catch(throwGlobalError);
 }
 
-export interface PermissionGroup {
-  id: string;
-  name: string;
-  description?: string;
-  permissions: string[];
+export function getGlobalPermissionsUsers(data: {
+  q?: string;
+  permission?: string;
+  organization?: string;
+  p?: number;
+  ps?: number;
+}): Promise<{ paging: Paging; users: PermissionUser[] }> {
+  if (!data.ps) {
+    data.ps = PAGE_SIZE;
+  }
+  return getJSON('/api/permissions/users', data);
 }
 
-export function getPermissionsGroupsForComponent(
-  projectKey: string,
-  query: string = '',
-  permission?: string,
-  organization?: string
-): Promise<PermissionGroup[]> {
-  const data: RequestData = { projectKey, ps: PAGE_SIZE };
-  if (query) {
-    data.q = query;
+export function getGlobalPermissionsGroups(data: {
+  q?: string;
+  permission?: string;
+  organization?: string;
+  p?: number;
+  ps?: number;
+}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+  if (!data.ps) {
+    data.ps = PAGE_SIZE;
   }
-  if (permission) {
-    data.permission = permission;
-  }
-  if (organization) {
-    data.organization = organization;
-  }
-  return getJSON('/api/permissions/groups', data).then(r => r.groups, throwGlobalError);
-}
-
-export function getGlobalPermissionsUsers(
-  query?: string,
-  permission?: string,
-  organization?: string
-): Promise<PermissionUser[]> {
-  const data: RequestData = { ps: PAGE_SIZE };
-  if (query) {
-    data.q = query;
-  }
-  if (permission) {
-    data.permission = permission;
-  }
-  if (organization) {
-    data.organization = organization;
-  }
-  return getJSON('/api/permissions/users', data).then(r => r.users);
-}
-
-export function getGlobalPermissionsGroups(
-  query?: string,
-  permission?: string,
-  organization?: string
-): Promise<PermissionGroup[]> {
-  const data: RequestData = { ps: PAGE_SIZE };
-  if (query) {
-    data.q = query;
-  }
-  if (permission) {
-    data.permission = permission;
-  }
-  if (organization) {
-    data.organization = organization;
-  }
-  return getJSON('/api/permissions/groups', data).then(r => r.groups);
+  return getJSON('/api/permissions/groups', data);
 }
 
 export function getPermissionTemplateUsers(

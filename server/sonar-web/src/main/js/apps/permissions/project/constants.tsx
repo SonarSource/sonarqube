@@ -30,7 +30,7 @@ export const PERMISSIONS_ORDER_FOR_VIEW = ['user', 'admin'];
 
 export const PERMISSIONS_ORDER_FOR_DEV = ['user', 'admin'];
 
-export const PERMISSIONS_ORDER_BY_QUALIFIER = {
+export const PERMISSIONS_ORDER_BY_QUALIFIER: { [index: string]: string[] } = {
   TRK: PERMISSIONS_ORDER_FOR_PROJECT,
   VW: PERMISSIONS_ORDER_FOR_VIEW,
   SVW: PERMISSIONS_ORDER_FOR_VIEW,

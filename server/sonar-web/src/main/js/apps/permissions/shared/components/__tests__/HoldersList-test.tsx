@@ -25,12 +25,14 @@ const permissions = [{ key: 'bar', name: 'bar', description: 'foo' }];
 
 const groups = [
   { id: 'foobar', name: 'Foobar', permissions: ['bar'] },
-  { id: 'barbaz', name: 'Barbaz', permissions: ['bar'] }
+  { id: 'barbaz', name: 'Barbaz', permissions: ['bar'] },
+  { id: 'abc', name: 'abc', permissions: [] }
 ];
 
 const users = [
   { login: 'foobar', name: 'Foobar', permissions: ['bar'] },
-  { login: 'barbaz', name: 'Barbaz', permissions: ['bar'] }
+  { login: 'barbaz', name: 'Barbaz', permissions: ['bar'] },
+  { login: 'bcd', name: 'bcd', permissions: [] }
 ];
 
 const elementsContainer = (

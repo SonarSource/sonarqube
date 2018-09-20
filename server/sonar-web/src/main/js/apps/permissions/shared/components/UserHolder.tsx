@@ -21,8 +21,8 @@ import * as React from 'react';
 import { without } from 'lodash';
 import Avatar from '../../../../components/ui/Avatar';
 import Checkbox from '../../../../components/controls/Checkbox';
-import { PermissionUser } from '../../../../api/permissions';
 import { translate } from '../../../../helpers/l10n';
+import { PermissionUser } from '../../../../app/types';
 
 interface Props {
   user: PermissionUser;

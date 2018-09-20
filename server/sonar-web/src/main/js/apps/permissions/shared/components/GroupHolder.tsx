@@ -21,7 +21,7 @@ import * as React from 'react';
 import { without } from 'lodash';
 import Checkbox from '../../../../components/controls/Checkbox';
 import GroupIcon from '../../../../components/icons-components/GroupIcon';
-import { PermissionGroup } from '../../../../api/permissions';
+import { PermissionGroup } from '../../../../app/types';
 
 interface Props {
   group: PermissionGroup;
