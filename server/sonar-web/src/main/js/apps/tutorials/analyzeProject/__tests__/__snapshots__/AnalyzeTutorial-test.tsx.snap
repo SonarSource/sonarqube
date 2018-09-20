@@ -21,9 +21,11 @@ exports[`renders correctly 1`] = `
     <TokenStep
       currentUser={
         Object {
+          "groups": Array [],
           "isLoggedIn": true,
           "login": "luke",
           "name": "Skywalker",
+          "scmAccounts": Array [],
         }
       }
       finished={false}

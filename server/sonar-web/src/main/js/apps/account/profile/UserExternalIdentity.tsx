@@ -17,13 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { getIdentityProviders } from '../../../api/users';
 import * as theme from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
+import { LoggedInUser, IdentityProvider } from '../../../app/types';
+import { getBaseUrl } from '../../../helpers/urls';
 
-export default class UserExternalIdentity extends React.PureComponent {
-  state = {
+interface Props {
+  user: LoggedInUser;
+}
+
+interface State {
+  identityProvider?: IdentityProvider;
+  loading: boolean;
+}
+
+export default class UserExternalIdentity extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = {
     loading: true
   };
 
@@ -32,7 +44,7 @@ export default class UserExternalIdentity extends React.PureComponent {
     this.fetchIdentityProviders();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.user !== this.props.user) {
       this.fetchIdentityProviders();
     }
@@ -90,7 +102,7 @@ export default class UserExternalIdentity extends React.PureComponent {
           alt={identityProvider.name}
           className="little-spacer-right"
           height="14"
-          src={window.baseUrl + identityProvider.iconPath}
+          src={getBaseUrl() + identityProvider.iconPath}
           width="14"
         />{' '}
         {user.externalIdentity}

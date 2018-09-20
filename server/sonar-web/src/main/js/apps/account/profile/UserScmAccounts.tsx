@@ -17,24 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
-import Password from './Password';
-import Tokens from './Tokens';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { LoggedInUser } from '../../../app/types';
 
-function Security(props) {
-  const { user } = props;
+interface Props {
+  scmAccounts: string[];
+  user: LoggedInUser;
+}
 
+export default function UserScmAccounts({ user, scmAccounts }: Props) {
   return (
-    <div className="account-body account-container">
-      <Helmet title={translate('my_account.security')} />
-      <Tokens login={user.login} />
-      {user.local && <Password user={user} />}
+    <div>
+      <h2 className="spacer-bottom">{translate('my_profile.scm_accounts')}</h2>
+      <ul id="scm-accounts">
+        <li className="little-spacer-bottom text-ellipsis" title={user.login}>
+          {user.login}
+        </li>
+
+        {user.email && (
+          <li className="little-spacer-bottom text-ellipsis" title={user.email}>
+            {user.email}
+          </li>
+        )}
+
+        {scmAccounts.map(scmAccount => (
+          <li className="little-spacer-bottom" key={scmAccount} title={scmAccount}>
+            {scmAccount}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
-
-export default connect(state => ({ user: getCurrentUser(state) }))(Security);

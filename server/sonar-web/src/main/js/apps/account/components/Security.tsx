@@ -18,32 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import AnalyzeTutorial from '../AnalyzeTutorial';
-import { LoggedInUser } from '../../../../app/types';
+import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
+import Password from './Password';
+import Tokens from './Tokens';
+import { translate } from '../../../helpers/l10n';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { LoggedInUser } from '../../../app/types';
 
-const component = {
-  key: 'foo',
-  analysisDate: '2016-01-01',
-  breadcrumbs: [],
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
+interface Props {
+  user: LoggedInUser;
+}
 
-const loggedInUser: LoggedInUser = {
-  groups: [],
-  isLoggedIn: true,
-  login: 'luke',
-  name: 'Skywalker',
-  scmAccounts: []
-};
+function Security({ user }: Props) {
+  return (
+    <div className="account-body account-container">
+      <Helmet title={translate('my_account.security')} />
+      <Tokens login={user.login} />
+      {user.local && <Password user={user} />}
+    </div>
+  );
+}
 
-it('renders correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
+const mapStateToProps = (state: Store) => ({
+  user: getCurrentUser(state) as LoggedInUser
 });
 
-function getWrapper(props = {}) {
-  return shallow(<AnalyzeTutorial component={component} currentUser={loggedInUser} {...props} />);
-}
+export default connect(mapStateToProps)(Security);

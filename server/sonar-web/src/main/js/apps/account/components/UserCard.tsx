@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import Avatar from '../../../components/ui/Avatar';
+import { LoggedInUser } from '../../../app/types';
 
-export default class UserCard extends React.PureComponent {
-  static propTypes = {
-    user: PropTypes.object.isRequired
-  };
+interface Props {
+  user: LoggedInUser;
+}
 
-  render() {
-    const { user } = this.props;
-
-    return (
-      <div className="account-user">
-        <div className="pull-left account-user-avatar" id="avatar">
-          <Avatar hash={user.avatar} name={user.name} size={60} />
-        </div>
-        <h1 className="pull-left" id="name">
-          {user.name}
-        </h1>
+export default function UserCard({ user }: Props) {
+  return (
+    <div className="account-user">
+      <div className="pull-left account-user-avatar" id="avatar">
+        <Avatar hash={user.avatar} name={user.name} size={60} />
       </div>
-    );
-  }
+      <h1 className="pull-left" id="name">
+        {user.name}
+      </h1>
+    </div>
+  );
 }

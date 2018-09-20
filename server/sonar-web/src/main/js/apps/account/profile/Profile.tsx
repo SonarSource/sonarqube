@@ -17,32 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import UserExternalIdentity from './UserExternalIdentity';
 import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
-import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
+import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
+import { LoggedInUser } from '../../../app/types';
 
-/*::
-type Props = {
-  customOrganizations: boolean,
-  user: {
-    email?: string,
-    externalProvider?: string,
-    groups: Array<*>,
-    local: boolean,
-    login: string,
-    scmAccounts: Array<*>
-  }
-};
-*/
+interface Props {
+  customOrganizations?: boolean;
+  user: LoggedInUser;
+}
 
-function Profile(props /*: Props */) {
-  const { customOrganizations, user } = props;
-
+function Profile({ customOrganizations, user }: Props) {
   return (
     <div className="account-body account-container">
       <div className="boxed-group boxed-group-inner">
@@ -63,8 +52,12 @@ function Profile(props /*: Props */) {
           </div>
         )}
 
-        {!customOrganizations && <hr className="account-separator" />}
-        {!customOrganizations && <UserGroups groups={user.groups} />}
+        {!customOrganizations && (
+          <>
+            <hr className="account-separator" />
+            <UserGroups groups={user.groups} />
+          </>
+        )}
 
         <hr />
 
@@ -74,9 +67,9 @@ function Profile(props /*: Props */) {
   );
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: Store) => ({
   customOrganizations: areThereCustomOrganizations(state),
-  user: getCurrentUser(state)
+  user: getCurrentUser(state) as LoggedInUser
 });
 
 export default connect(mapStateToProps)(Profile);

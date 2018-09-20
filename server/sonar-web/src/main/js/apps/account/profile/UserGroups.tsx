@@ -17,29 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class UserGroups extends React.PureComponent {
-  static propTypes = {
-    groups: PropTypes.arrayOf(PropTypes.string).isRequired
-  };
+interface Props {
+  groups: string[];
+}
 
-  render() {
-    const { groups } = this.props;
-
-    return (
-      <div>
-        <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
-        <ul id="groups">
-          {groups.map(group => (
-            <li className="little-spacer-bottom" key={group} title={group}>
-              {group}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
+export default function UserGroups({ groups }: Props) {
+  return (
+    <div>
+      <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
+      <ul id="groups">
+        {groups.map(group => (
+          <li className="little-spacer-bottom" key={group} title={group}>
+            {group}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }

@@ -40,9 +40,11 @@ jest.mock('../../../../api/users', () => ({
 
 const user: LoggedInUser = {
   externalProvider: 'github',
+  groups: [],
   isLoggedIn: true,
   login: 'foo',
-  name: 'Foo'
+  name: 'Foo',
+  scmAccounts: []
 };
 
 beforeEach(() => {

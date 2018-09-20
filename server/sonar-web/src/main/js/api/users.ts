@@ -29,8 +29,8 @@ export function changePassword(data: {
   login: string;
   password: string;
   previousPassword?: string;
-}): Promise<void> {
-  return post('/api/users/change_password', data);
+}) {
+  return post('/api/users/change_password', data).catch(throwGlobalError);
 }
 
 export interface UserGroup {

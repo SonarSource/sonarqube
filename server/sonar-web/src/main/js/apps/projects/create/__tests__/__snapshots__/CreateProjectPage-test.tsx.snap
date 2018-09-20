@@ -116,9 +116,11 @@ exports[`should render with Manual creation only 1`] = `
         currentUser={
           Object {
             "externalProvider": "microsoft",
+            "groups": Array [],
             "isLoggedIn": true,
             "login": "foo",
             "name": "Foo",
+            "scmAccounts": Array [],
           }
         }
         onProjectCreate={[Function]}

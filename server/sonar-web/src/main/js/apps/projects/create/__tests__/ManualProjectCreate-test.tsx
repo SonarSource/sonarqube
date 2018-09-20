@@ -69,7 +69,7 @@ it('should correctly create a project', async () => {
 function getWrapper(props = {}) {
   return shallow(
     <ManualProjectCreate
-      currentUser={{ isLoggedIn: true, login: 'foo', name: 'Foo' }}
+      currentUser={{ groups: [], isLoggedIn: true, login: 'foo', name: 'Foo', scmAccounts: [] }}
       fetchMyOrganizations={jest.fn()}
       onProjectCreate={jest.fn()}
       userOrganizations={[{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]}

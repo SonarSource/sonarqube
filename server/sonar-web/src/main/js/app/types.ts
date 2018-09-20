@@ -362,10 +362,13 @@ export interface LoggedInUser extends CurrentUser {
   email?: string;
   externalIdentity?: string;
   externalProvider?: string;
+  groups: string[];
   homepage?: HomePage;
   isLoggedIn: true;
+  local?: boolean;
   login: string;
   name: string;
+  scmAccounts: string[];
 }
 
 export interface LongLivingBranch extends Branch {

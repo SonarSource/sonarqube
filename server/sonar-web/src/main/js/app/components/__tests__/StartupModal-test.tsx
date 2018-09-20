@@ -48,9 +48,11 @@ jest.mock('../../../helpers/dates', () => ({
 }));
 
 const LOGGED_IN_USER: LoggedInUser = {
+  groups: [],
   isLoggedIn: true,
   login: 'luke',
   name: 'Skywalker',
+  scmAccounts: [],
   showOnboardingTutorial: false
 };
 

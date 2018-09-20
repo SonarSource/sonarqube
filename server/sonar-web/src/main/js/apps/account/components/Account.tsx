@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Nav from './Nav';
 import UserCard from './UserCard';
-import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
+import { CurrentUser, LoggedInUser } from '../../../app/types';
+import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import '../account.css';
 
-class Account extends React.PureComponent {
+interface Props {
+  currentUser: CurrentUser;
+  customOrganizations?: boolean;
+}
+
+class Account extends React.PureComponent<Props> {
   componentDidMount() {
     if (!this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();
@@ -49,8 +55,8 @@ class Account extends React.PureComponent {
         <Helmet defaultTitle={title} titleTemplate={'%s - ' + title} />
         <header className="account-header">
           <div className="account-container clearfix">
-            <UserCard user={currentUser} />
-            <Nav customOrganizations={this.props.customOrganizations} user={currentUser} />
+            <UserCard user={currentUser as LoggedInUser} />
+            <Nav customOrganizations={this.props.customOrganizations} />
           </div>
         </header>
 
@@ -60,7 +66,7 @@ class Account extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
   customOrganizations: areThereCustomOrganizations(state)
 });
