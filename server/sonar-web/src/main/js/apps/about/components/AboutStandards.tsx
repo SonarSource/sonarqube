@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import ReadMore from './ReadMore';
 import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { AppState } from '../../../app/types';
 
 const link = 'https://redirect.sonarsource.com/doc/rules.html';
 
@@ -30,19 +31,12 @@ const owaspTags =
   'owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10';
 const sans25Tags = 'sans-top25-porous,sans-top25-risky,sans-top25-insecure';
 
-/*::
-type Props = {
-  appState: {
-    defaultOrganization: string,
-    organizationsEnabled: boolean
-  }
-};
-*/
+interface Props {
+  appState: Pick<AppState, 'defaultOrganization' | 'organizationsEnabled'>;
+}
 
-export default function AboutStandards(props /*: Props */) {
-  const organization = props.appState.organizationsEnabled
-    ? props.appState.defaultOrganization
-    : undefined;
+export default function AboutStandards({ appState }: Props) {
+  const organization = appState.organizationsEnabled ? appState.defaultOrganization : undefined;
 
   return (
     <div className="boxed-group">

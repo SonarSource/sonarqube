@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/urls';
 
 const scanners = [
   {
@@ -59,7 +60,7 @@ export default function AboutScanners() {
               <img
                 alt={translate('about_page.scanners', scanner.key)}
                 height={60}
-                src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`}
+                src={`${getBaseUrl()}/images/scanner-logos/${scanner.key}.svg`}
               />
             </a>
           ))}

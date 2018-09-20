@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 
-const link = 'https://redirect.sonarsource.com/doc/quality-gates.html';
+const link = 'https://redirect.sonarsource.com/doc/fix-the-leak.html';
 
-export default function AboutQualityGates() {
+export default function AboutLeakPeriod() {
   return (
     <div className="boxed-group">
-      <h2>{translate('about_page.quality_gates')}</h2>
+      <h2>{translate('about_page.fix_the_leak')}</h2>
       <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.quality_gates.text')}</p>
+        <p className="about-page-text">{translate('about_page.fix_the_leak_on_new_code.text')}</p>
         <ReadMore link={link} />
       </div>
     </div>

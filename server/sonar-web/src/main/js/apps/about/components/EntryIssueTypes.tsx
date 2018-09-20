@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
@@ -28,22 +27,19 @@ import VulnerabilityIcon from '../../../components/icons-components/Vulnerabilit
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import { IssueType } from '../../../app/types';
 
-/*::
-type Props = {
-  bugs: ?number,
-  codeSmells: ?number,
-  loading: boolean,
-  vulnerabilities: ?number
-};
-*/
+interface Props {
+  bugs?: number;
+  codeSmells?: number;
+  loading: boolean;
+  vulnerabilities?: number;
+}
 
-export default function EntryIssueTypes(
-  { bugs, codeSmells, loading, vulnerabilities } /*: Props */
-) {
+export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabilities }: Props) {
   return (
     <div className="about-page-projects">
-      {loading && <i className="spinner" />}
-      {!loading && (
+      {loading ? (
+        <i className="spinner" />
+      ) : (
         <table className="about-page-issue-types">
           <tbody>
             <tr>

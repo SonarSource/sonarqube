@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { keyBy } from 'lodash';
 import { Link } from 'react-router';
+import { Location } from 'history';
 import AboutProjects from './AboutProjects';
 import EntryIssueTypes from './EntryIssueTypes';
 import AboutLanguages from './AboutLanguages';
@@ -34,63 +34,49 @@ import AboutScanners from './AboutScanners';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
 import GlobalContainer from '../../../app/components/GlobalContainer';
-import { getAppState, getCurrentUser, getGlobalSettingValue } from '../../../store/rootReducer';
+import {
+  getAppState,
+  getCurrentUser,
+  getGlobalSettingValue,
+  Store
+} from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
-import { isSonarCloud } from '../../../helpers/system';
-import { IssueType } from '../../../app/types';
+import { IssueType, AppState, CurrentUser } from '../../../app/types';
 import '../styles.css';
 
-/*::
-type State = {
-  loading: boolean,
-  projectsCount: number,
-  issueTypes?: {
-    [key: string]: ?{
-      count: number
-    }
-  }
-};
-*/
+interface Props {
+  appState: Pick<AppState, 'defaultOrganization' | 'organizationsEnabled'>;
+  currentUser: CurrentUser;
+  customText?: { value: string };
+  fetchAboutPageSettings: () => Promise<void>;
+  location: Location;
+}
 
-class AboutApp extends React.PureComponent {
-  /*:: mounted: boolean; */
+interface State {
+  issueTypes?: { [key: string]: { count: number } };
+  loading: boolean;
+  projectsCount: number;
+}
 
-  /*:: props: {
-    appState: {
-      defaultOrganization: string,
-      organizationsEnabled: boolean
-    },
-    currentUser: { isLoggedIn: boolean },
-    customText?: string,
-    fetchAboutPageSettings: () => Promise<*>,
-    location: { pathname: string }
-  };
-*/
+class AboutApp extends React.PureComponent<Props, State> {
+  mounted = false;
 
-  state /*: State */ = {
+  state: State = {
     loading: true,
     projectsCount: 0
   };
 
   componentDidMount() {
     this.mounted = true;
-    if (isSonarCloud()) {
-      window.location = 'https://about.sonarcloud.io';
-    } else {
-      this.loadData();
-      // $FlowFixMe
-      document.body.classList.add('white-page');
-      // $FlowFixMe
-      document.documentElement.classList.add('white-page');
-    }
+    this.loadData();
+    document.body.classList.add('white-page');
+    document.documentElement.classList.add('white-page');
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    // $FlowFixMe
     document.body.classList.remove('white-page');
-    // $FlowFixMe
     document.documentElement.classList.remove('white-page');
   }
 
@@ -112,11 +98,7 @@ class AboutApp extends React.PureComponent {
         if (this.mounted) {
           const [projectsCount, issues] = responses;
           const issueTypes = keyBy(issues.facet, 'val');
-          this.setState({
-            projectsCount,
-            issueTypes,
-            loading: false
-          });
+          this.setState({ projectsCount, issueTypes, loading: false });
         }
       },
       () => {
@@ -130,10 +112,6 @@ class AboutApp extends React.PureComponent {
   render() {
     const { customText } = this.props;
     const { loading, issueTypes, projectsCount } = this.state;
-
-    if (isSonarCloud()) {
-      return null;
-    }
 
     let bugs;
     let vulnerabilities;
@@ -213,13 +191,13 @@ class AboutApp extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: Store) => ({
   appState: getAppState(state),
   currentUser: getCurrentUser(state),
   customText: getGlobalSettingValue(state, 'sonar.lf.aboutText')
 });
 
-const mapDispatchToProps = { fetchAboutPageSettings };
+const mapDispatchToProps = { fetchAboutPageSettings } as any;
 
 export default connect(
   mapStateToProps,

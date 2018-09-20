@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import ReadMore from './ReadMore';
-import { translate } from '../../../helpers/l10n';
+import { Dispatch } from 'redux';
+import { getValues } from '../../api/settings';
+import { receiveValues } from '../settings/store/values/actions';
+import { Store } from '../../store/rootReducer';
 
-const link = 'https://redirect.sonarsource.com/doc/fix-the-leak.html';
+export const fetchAboutPageSettings = () => (dispatch: Dispatch<Store>) => {
+  const keys = ['sonar.lf.aboutText'];
 
-export default function AboutLeakPeriod() {
-  return (
-    <div className="boxed-group">
-      <h2>{translate('about_page.fix_the_leak')}</h2>
-      <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.fix_the_leak_on_new_code.text')}</p>
-        <ReadMore link={link} />
-      </div>
-    </div>
-  );
-}
+  return getValues({ keys: keys.join() }).then(values => {
+    dispatch(receiveValues(values));
+  });
+};

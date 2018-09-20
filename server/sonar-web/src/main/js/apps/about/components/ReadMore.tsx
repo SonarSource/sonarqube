@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class ReadMore extends React.PureComponent {
-  static propTypes = {
-    link: PropTypes.string.isRequired
-  };
+interface Props {
+  link: string;
+}
 
-  render() {
-    return (
-      <div className="big-spacer-top">
-        <a className="about-page-link-more" href={this.props.link} target="_blank">
-          <span>{translate('about_page.read_more')}</span>
-        </a>
-      </div>
-    );
-  }
+export default function ReadMore({ link }: Props) {
+  return (
+    <div className="big-spacer-top">
+      <a className="about-page-link-more" href={link} rel="noopener noreferrer" target="_blank">
+        <span>{translate('about_page.read_more')}</span>
+      </a>
+    </div>
+  );
 }

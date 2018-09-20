@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 const languages = [
@@ -56,7 +55,7 @@ export default function AboutLanguages() {
         <ul className="about-page-languages">
           {languages.slice(0, half).map((language, index) => (
             <li key={index}>
-              <a href={languages[index].url}>{languages[index].name}</a>
+              <a href={language.url}>{language.name}</a>
               <br />
               {index + half < languages.length && (
                 <a href={languages[index + half].url}>{languages[index + half].name}</a>

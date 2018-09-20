@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-/*:: import type { SettingValue } from '../../types'; */
+import * as React from 'react';
+import ReadMore from './ReadMore';
+import { translate } from '../../../helpers/l10n';
 
-export const RECEIVE_VALUES /*: string */ = 'RECEIVE_VALUES';
+const link = 'https://redirect.sonarsource.com/doc/issues.html';
 
-/**
- * Receive settings action creator
- * @param {Array} settings
- * @returns {Object}
- */
-export const receiveValues = (settings /*: SettingValue[] */, componentKey /*: ?string */) => ({
-  type: RECEIVE_VALUES,
-  settings,
-  componentKey
-});
+export default function AboutCleanCode() {
+  return (
+    <div className="boxed-group">
+      <h2>{translate('about_page.clean_code')}</h2>
+      <div className="boxed-group-inner">
+        <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
+        <ReadMore link={link} />
+      </div>
+    </div>
+  );
+}

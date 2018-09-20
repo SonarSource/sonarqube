@@ -17,20 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import ReadMore from './ReadMore';
-import { translate } from '../../../helpers/l10n';
+interface SettingValue {
+  key: string;
+  value?: string;
+}
 
-const link = 'https://redirect.sonarsource.com/doc/issues.html';
+export const RECEIVE_VALUES = 'RECEIVE_VALUES';
 
-export default function AboutCleanCode() {
-  return (
-    <div className="boxed-group">
-      <h2>{translate('about_page.clean_code')}</h2>
-      <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
-        <ReadMore link={link} />
-      </div>
-    </div>
-  );
+export function receiveValues(settings: SettingValue[], componentKey?: string) {
+  return { type: RECEIVE_VALUES, settings, componentKey };
 }

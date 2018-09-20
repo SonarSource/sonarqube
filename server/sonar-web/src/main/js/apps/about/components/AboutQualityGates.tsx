@@ -17,33 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
-import { Link } from 'react-router';
-import { formatMeasure } from '../../../helpers/measures';
+import * as React from 'react';
+import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 
-/*::
-type Props = {
-  count: number,
-  loading: boolean
-};
-*/
+const link = 'https://redirect.sonarsource.com/doc/quality-gates.html';
 
-export default function AboutProjects({ count, loading } /*: Props */) {
+export default function AboutQualityGates() {
   return (
-    <div className="about-page-projects">
-      {loading && <i className="spinner" />}
-      {!loading && (
-        <div>
-          <div>
-            <Link className="about-page-projects-link" to="/projects">
-              {formatMeasure(count, 'INT')}
-            </Link>
-          </div>
-          <div>{translate('about_page.projects_analyzed')}</div>
-        </div>
-      )}
+    <div className="boxed-group">
+      <h2>{translate('about_page.quality_gates')}</h2>
+      <div className="boxed-group-inner">
+        <p className="about-page-text">{translate('about_page.quality_gates.text')}</p>
+        <ReadMore link={link} />
+      </div>
     </div>
   );
 }
