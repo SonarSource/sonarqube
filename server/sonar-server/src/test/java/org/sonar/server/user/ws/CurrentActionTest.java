@@ -23,6 +23,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginRepository;
@@ -36,6 +40,8 @@ import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Users.CurrentWsResponse;
@@ -68,9 +74,10 @@ public class CurrentActionTest {
   private MapSettings settings = new MapSettings();
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private HomepageTypesImpl homepageTypes = new HomepageTypesImpl(settings.asConfig(), organizationFlags, db.getDbClient());
-
+  private PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
+    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
   private WsActionTester ws = new WsActionTester(
-    new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes, pluginRepository));
+    new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes, pluginRepository, permissionService));
 
   @Test
   public void return_user_info() {

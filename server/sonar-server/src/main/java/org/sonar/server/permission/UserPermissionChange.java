@@ -27,9 +27,9 @@ public class UserPermissionChange extends PermissionChange {
 
   private final UserId userId;
 
-  public UserPermissionChange(PermissionsHelper permissionsHelper, Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId,
-    UserId userId) {
-    super(permissionsHelper, operation, organizationUuid, permission, projectId);
+  public UserPermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId,
+    UserId userId, PermissionService permissionService) {
+    super(operation, organizationUuid, permission, projectId, permissionService);
     this.userId = requireNonNull(userId);
   }
 

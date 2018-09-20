@@ -42,7 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonar.server.permission.PermissionPrivilegeChecker;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -54,6 +54,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
+import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -71,19 +72,17 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private final ResourceTypes resourceTypes;
   private final PermissionWsSupport wsSupport;
   private final String[] rootQualifiers;
-  private final WsParameters wsParameters;
-  private final PermissionsHelper permissionsHelper;
+  private final PermissionService permissionService;
 
   public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes,
-    PermissionWsSupport wsSupport, WsParameters wsParameters, PermissionsHelper permissionsHelper) {
+    PermissionWsSupport wsSupport, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
     this.wsSupport = wsSupport;
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), ResourceType::getQualifier).toArray(new String[resourceTypes.getRoots().size()]);
-    this.wsParameters = wsParameters;
-    this.permissionsHelper = permissionsHelper;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -107,7 +106,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
         "<li>project keys that are exactly the same as the supplied string</li>" +
         "</ul>")
       .setExampleValue("apac");
-    wsParameters.createProjectParameters(action);
+    createProjectParameters(action);
     createRootQualifierParameter(action, newQualifierParameterContext(i18n, resourceTypes))
       .setSince("5.3");
   }
@@ -170,7 +169,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       response.addProjects(rootComponentBuilder);
     }
 
-    for (String permissionKey : permissionsHelper.allPermissions()) {
+    for (String permissionKey : permissionService.getAllProjectPermissions()) {
       response.addPermissions(
         permissionResponse
           .clear()

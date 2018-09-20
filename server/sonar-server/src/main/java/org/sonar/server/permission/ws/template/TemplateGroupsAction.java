@@ -50,6 +50,7 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
@@ -57,15 +58,15 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionWsSupport wsSupport;
-  private final RequestValidator requestValidator;
   private final WsParameters wsParameters;
+  private final RequestValidator requestValidator;
 
-  public TemplateGroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, RequestValidator requestValidator, WsParameters wsParameters) {
+  public TemplateGroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, WsParameters wsParameters, RequestValidator requestValidator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
-    this.requestValidator = requestValidator;
     this.wsParameters = wsParameters;
+    this.requestValidator = requestValidator;
   }
 
   @Override
@@ -87,7 +88,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       .setExampleValue("eri");
 
     wsParameters.createProjectPermissionParameter(action, false);
-    WsParameters.createTemplateParameters(action);
+    createTemplateParameters(action);
   }
 
   @Override

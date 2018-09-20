@@ -39,7 +39,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -67,15 +67,16 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   private final I18n i18n;
   private final PermissionWsSupport wsSupport;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
-  private final PermissionsHelper permissionsHelper;
+  private final PermissionService permissionService;
 
-  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport wsSupport, DefaultTemplatesResolver defaultTemplatesResolver, PermissionsHelper permissionsHelper) {
+  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport wsSupport,
+    DefaultTemplatesResolver defaultTemplatesResolver, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.wsSupport = wsSupport;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
-    this.permissionsHelper = permissionsHelper;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -134,7 +135,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
         .setUpdatedAt(formatDateTime(templateDto.getUpdatedAt()));
       setNullable(templateDto.getKeyPattern(), templateBuilder::setProjectKeyPattern);
       setNullable(templateDto.getDescription(), templateBuilder::setDescription);
-      for (String permission : permissionsHelper.allPermissions()) {
+      for (String permission : permissionService.getAllProjectPermissions()) {
         templateBuilder.addPermissions(
           permissionResponse
             .clear()
@@ -159,7 +160,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   private void buildPermissionsResponse(SearchTemplatesWsResponse.Builder response) {
     Permission.Builder permissionResponse = Permission.newBuilder();
-    for (String permissionKey : permissionsHelper.allPermissions()) {
+    for (String permissionKey : permissionService.getAllProjectPermissions()) {
       response.addPermissions(
         permissionResponse
           .clear()

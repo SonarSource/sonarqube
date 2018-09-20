@@ -38,6 +38,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -48,17 +49,17 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
   private final System2 system;
-  private final RequestValidator requestValidator;
   private final WsParameters wsParameters;
+  private final RequestValidator requestValidator;
 
-  public AddProjectCreatorToTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, System2 system, RequestValidator requestValidator,
-    WsParameters wsParameters) {
+  public AddProjectCreatorToTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, System2 system,
+    WsParameters wsParameters, RequestValidator requestValidator) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.userSession = userSession;
     this.system = system;
-    this.requestValidator = requestValidator;
     this.wsParameters = wsParameters;
+    this.requestValidator = requestValidator;
   }
 
   private AddProjectCreatorToTemplateRequest toWsRequest(Request request) {
@@ -81,7 +82,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    WsParameters.createTemplateParameters(action);
+    createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
   }
 

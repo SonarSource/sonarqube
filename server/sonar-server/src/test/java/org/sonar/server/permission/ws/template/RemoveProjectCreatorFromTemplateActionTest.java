@@ -22,15 +22,19 @@ package org.sonar.server.permission.ws.template;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.ws.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
@@ -46,13 +50,14 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
 
   private System2 system = mock(System2.class);
   private PermissionTemplateDto template;
-  private PermissionsHelper permissionsHelper = newPermissionsHelper();
-  private RequestValidator requestValidator = new RequestValidator(permissionsHelper);
-  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private WsParameters wsParameters = new WsParameters(permissionService);
+  private RequestValidator requestValidator = new RequestValidator(permissionService);
 
   @Override
   protected RemoveProjectCreatorFromTemplateAction buildWsAction() {
-    return new RemoveProjectCreatorFromTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, system, requestValidator, wsParameters);
+    return new RemoveProjectCreatorFromTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, system, wsParameters, requestValidator);
   }
 
   @Before

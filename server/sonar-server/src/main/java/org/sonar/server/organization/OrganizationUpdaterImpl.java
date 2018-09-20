@@ -47,6 +47,7 @@ import org.sonar.db.qualityprofile.OrgQProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.qualityprofile.BuiltInQProfile;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -76,10 +77,11 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DefaultGroupCreator defaultGroupCreator;
   private final UserIndexer userIndexer;
+  private final PermissionService permissionService;
 
   public OrganizationUpdaterImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Configuration config, UserIndexer userIndexer,
-    BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator) {
+    BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
@@ -88,6 +90,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     this.userIndexer = userIndexer;
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.defaultGroupCreator = defaultGroupCreator;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -140,7 +143,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     insertOrganizationMember(dbSession, organization, newUser.getId());
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
     dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
-    OrganizationPermission.all()
+    permissionService.getAllOrganizationPermissions()
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization, defaultGroup);
     try (DbSession batchDbSession = dbClient.openSession(true)) {
@@ -321,7 +324,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       .setOrganizationUuid(organization.getUuid())
       .setName(OWNERS_GROUP_NAME)
       .setDescription(format(OWNERS_GROUP_DESCRIPTION_PATTERN, organization.getName())));
-    OrganizationPermission.all().forEach(p -> addPermissionToGroup(dbSession, group, p));
+    permissionService.getAllOrganizationPermissions().forEach(p -> addPermissionToGroup(dbSession, group, p));
     return group;
   }
 

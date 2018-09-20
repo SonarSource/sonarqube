@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -50,7 +49,6 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 
@@ -61,13 +59,15 @@ public class PermissionTemplateService {
   private final ProjectIndexers projectIndexers;
   private final UserSession userSession;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
+  private final PermissionService permissionService;
 
   public PermissionTemplateService(DbClient dbClient, ProjectIndexers projectIndexers, UserSession userSession,
-    DefaultTemplatesResolver defaultTemplatesResolver) {
+    DefaultTemplatesResolver defaultTemplatesResolver, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.projectIndexers = projectIndexers;
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
+    this.permissionService = permissionService;
   }
 
   public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession,
@@ -152,7 +152,7 @@ public class PermissionTemplateService {
         dbClient.groupPermissionDao().insert(dbSession, dto);
       });
 
-    List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, asList(template.getId()));
+    List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, singletonList(template.getId()));
     if (projectCreatorUserId != null) {
       Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
         .filter(userPermission -> projectCreatorUserId.equals(userPermission.getUserId()))
@@ -169,8 +169,8 @@ public class PermissionTemplateService {
     }
   }
 
-  private static boolean permissionValidForProject(ComponentDto project, String permission) {
-    return project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission);
+  private boolean permissionValidForProject(ComponentDto project, String permission) {
+    return project.isPrivate() || !permissionService.getPublicPermissions().contains(permission);
   }
 
   private static boolean groupNameValidForProject(ComponentDto project, String groupName) {

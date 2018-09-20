@@ -37,13 +37,13 @@ import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.permission.ProjectPermissions.PUBLIC_PERMISSIONS;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
@@ -57,14 +57,16 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
   private final ProjectsWsSupport projectsWsSupport;
+  private final PermissionService permissionService;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport) {
+    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
     this.projectsWsSupport = projectsWsSupport;
+    this.permissionService = permissionService;
   }
 
   public void define(WebService.NewController context) {
@@ -134,7 +136,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     // delete project permissions for group AnyOne
     dbClient.groupPermissionDao().deleteByRootComponentIdAndGroupId(dbSession, component.getId(), null);
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
-    PUBLIC_PERMISSIONS.forEach(permission -> {
+    permissionService.getPublicPermissions().forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupIdsWithPermissionOnProjectBut(dbSession, component.getId(), permission)
         .forEach(groupId -> insertProjectPermissionOnGroup(dbSession, component, permission, groupId));
       dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, component.getId(), permission)
@@ -155,7 +157,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void updatePermissionsToPublic(DbSession dbSession, ComponentDto component) {
-    PUBLIC_PERMISSIONS.forEach(permission -> {
+    permissionService.getPublicPermissions().forEach(permission -> {
       // delete project group permission for UserRole.CODEVIEWER and UserRole.USER
       dbClient.groupPermissionDao().deleteByRootComponentIdAndPermission(dbSession, component.getId(), permission);
       // delete project user permission for UserRole.CODEVIEWER and UserRole.USER

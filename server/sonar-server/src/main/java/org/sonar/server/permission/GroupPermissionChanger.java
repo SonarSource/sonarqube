@@ -21,11 +21,9 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import java.util.Optional;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
-import org.sonar.server.permission.ws.PermissionWsSupport;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
@@ -36,11 +34,11 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class GroupPermissionChanger {
 
   private final DbClient dbClient;
-  private final PermissionWsSupport wsSupport;
+  private final PermissionService permissionService;
 
-  public GroupPermissionChanger(DbClient dbClient, PermissionWsSupport wsSupport) {
+  public GroupPermissionChanger(DbClient dbClient, PermissionService permissionService) {
     this.dbClient = dbClient;
-    this.wsSupport = wsSupport;
+    this.permissionService = permissionService;
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {
@@ -58,21 +56,21 @@ public class GroupPermissionChanger {
     }
   }
 
-  private static boolean isImplicitlyAlreadyDone(GroupPermissionChange change) {
+  private boolean isImplicitlyAlreadyDone(GroupPermissionChange change) {
     return change.getProjectId()
       .map(projectId -> isImplicitlyAlreadyDone(projectId, change))
       .orElse(false);
   }
 
-  private static boolean isImplicitlyAlreadyDone(ProjectId projectId, GroupPermissionChange change) {
+  private boolean isImplicitlyAlreadyDone(ProjectId projectId, GroupPermissionChange change) {
     return isAttemptToAddPublicPermissionToPublicComponent(change, projectId)
       || isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(change, projectId);
   }
 
-  private static boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ProjectId projectId) {
+  private boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ProjectId projectId) {
     return !projectId.isPrivate()
       && change.getOperation() == ADD
-      && ProjectPermissions.PUBLIC_PERMISSIONS.contains(change.getPermission());
+      && permissionService.getPublicPermissions().contains(change.getPermission());
   }
 
   private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectId projectId) {
@@ -81,7 +79,7 @@ public class GroupPermissionChanger {
       && change.getGroupIdOrAnyone().isAnyone();
   }
 
-  private static void ensureConsistencyWithVisibility(GroupPermissionChange change) {
+  private void ensureConsistencyWithVisibility(GroupPermissionChange change) {
     change.getProjectId()
       .ifPresent(projectId -> {
         checkRequest(
@@ -99,10 +97,10 @@ public class GroupPermissionChanger {
       && change.getGroupIdOrAnyone().isAnyone();
   }
 
-  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectId projectId) {
+  private boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectId projectId) {
     return !projectId.isPrivate()
       && change.getOperation() == REMOVE
-      && ProjectPermissions.PUBLIC_PERMISSIONS.contains(change.getPermission());
+      && permissionService.getPublicPermissions().contains(change.getPermission());
   }
 
   private boolean addPermission(DbSession dbSession, GroupPermissionChange change) {

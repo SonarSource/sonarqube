@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.db.permission;
 
-import org.junit.Test;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class PermissionsTestHelper {
 
-public class OrganizationPermissionTest {
+  public static final Set<String> ALL_PERMISSIONS = ImmutableSet.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN,
+    GlobalPermissions.SCAN_EXECUTION, UserRole.USER, OrganizationPermission.APPLICATION_CREATOR.getKey(), OrganizationPermission.PORTFOLIO_CREATOR.getKey());
 
-  @Test
-  public void fromKey_returns_enum_with_specified_key() {
-    for (OrganizationPermission p : OrganizationPermission.values()) {
-      assertThat(OrganizationPermission.fromKey(p.getKey())).isEqualTo(p);
-    }
+  private PermissionsTestHelper() {
   }
 }

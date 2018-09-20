@@ -35,6 +35,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
 
@@ -67,15 +68,17 @@ public class CurrentAction implements UsersWsAction {
   private final AvatarResolver avatarResolver;
   private final HomepageTypes homepageTypes;
   private final PluginRepository pluginRepository;
+  private final PermissionService permissionService;
 
   public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    AvatarResolver avatarResolver, HomepageTypes homepageTypes, PluginRepository pluginRepository) {
+    AvatarResolver avatarResolver, HomepageTypes homepageTypes, PluginRepository pluginRepository, PermissionService permissionService) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.avatarResolver = avatarResolver;
     this.homepageTypes = homepageTypes;
     this.pluginRepository = pluginRepository;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -130,7 +133,7 @@ public class CurrentAction implements UsersWsAction {
 
   private List<String> getGlobalPermissions() {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    return OrganizationPermission.all()
+    return permissionService.getAllOrganizationPermissions().stream()
       .filter(permission -> userSession.hasPermission(permission, defaultOrganizationUuid))
       .map(OrganizationPermission::getKey)
       .collect(toList());

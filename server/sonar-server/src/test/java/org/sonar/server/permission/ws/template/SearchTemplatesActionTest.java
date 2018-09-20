@@ -35,7 +35,8 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.l18n.I18nRule;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -56,27 +57,62 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   private DbSession dbSession = db.getSession();
   private ResourceTypesRule resourceTypesWithViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
   private ResourceTypesRule resourceTypesWithoutViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionsHelper permissionsHelperWithViews = new PermissionsHelper(resourceTypesWithViews);
-  private PermissionsHelper permissionsHelperWithoutViews = new PermissionsHelper(resourceTypesWithoutViews);
+  private PermissionService permissionServiceWithViews = new PermissionServiceImpl(resourceTypesWithViews);
+  private PermissionService permissionServiceWithoutViews = new PermissionServiceImpl(resourceTypesWithoutViews);
   private WsActionTester underTestWithoutViews;
 
   @Override
   protected SearchTemplatesAction buildWsAction() {
     DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithViews);
-    SearchTemplatesAction searchTemplatesAction = new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionsHelperWithViews);
-    return searchTemplatesAction;
+    return new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionServiceWithViews);
   }
 
   @Before
   public void setUp() {
     DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithoutViews);
-    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionsHelperWithoutViews));
+    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionServiceWithoutViews));
     i18n.setProjectPermissions();
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
   }
 
   @Test
-  public void search_project_permissions() {
+  public void search_project_permissions_without_views() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    PermissionTemplateDto projectTemplate = insertProjectTemplate(organization);
+    PermissionTemplateDto viewsTemplate = insertViewsTemplate(organization);
+
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    GroupDto group3 = db.users().insertGroup(organization);
+
+    addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getId(), user2.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getId(), user3.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.CODEVIEWER);
+    addGroupToTemplate(projectTemplate.getId(), group1.getId(), UserRole.ADMIN);
+    addPermissionTemplateWithProjectCreator(projectTemplate.getId(), UserRole.ADMIN);
+
+    addUserToTemplate(viewsTemplate.getId(), user1.getId(), UserRole.USER);
+    addUserToTemplate(viewsTemplate.getId(), user2.getId(), UserRole.USER);
+    addGroupToTemplate(viewsTemplate.getId(), group1.getId(), UserRole.ISSUE_ADMIN);
+    addGroupToTemplate(viewsTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
+    addGroupToTemplate(viewsTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
+
+    db.organizations().setDefaultTemplates(projectTemplate, viewsTemplate);
+
+    String result = newRequest(underTestWithoutViews).execute().getInput();
+
+    assertJson(result)
+      .withStrictArrayOrder()
+      .isSimilarTo(getClass().getResource("search_templates-example-without-views.json"));
+  }
+
+  @Test
+  public void search_project_permissions_with_views() {
     OrganizationDto organization = db.getDefaultOrganization();
     PermissionTemplateDto projectTemplate = insertProjectTemplate(organization);
     PermissionTemplateDto viewsTemplate = insertViewsTemplate(organization);
@@ -108,11 +144,11 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
     assertJson(result)
       .withStrictArrayOrder()
-      .isSimilarTo(getClass().getResource("search_templates-example.json"));
+      .isSimilarTo(getClass().getResource("search_templates-example-with-views.json"));
   }
 
   @Test
-  public void empty_result_with_views() {
+  public void empty_result() {
     db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz");
     String result = newRequest(wsTester).execute().getInput();
 
@@ -201,7 +237,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   public void display_all_project_permissions() {
     db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
 
-    String result = newRequest().execute().getInput();
+    String result = newRequest(underTestWithoutViews).execute().getInput();
 
     assertJson(result)
       .withStrictArrayOrder()
@@ -244,6 +280,64 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
           "  ]" +
           "}");
    }
+
+  @Test
+  public void display_all_project_permissions_with_views() {
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
+
+    String result = newRequest().execute().getInput();
+
+    assertJson(result)
+      .withStrictArrayOrder()
+      .ignoreFields("defaultTemplates", "permissionTemplates")
+      .isSimilarTo(
+        "{" +
+          "  \"permissions\": [" +
+          "    {" +
+          "      \"key\": \"admin\"," +
+          "      \"name\": \"Administer\"," +
+          "      \"description\": \"Ability to access project settings and perform administration tasks. (Users will also need \\\"Browse\\\" permission)\"" +
+          "    }," +
+          "    {" +
+          "      \"key\": \"codeviewer\"," +
+          "      \"name\": \"See Source Code\"," +
+          "      \"description\": \"Ability to view the project\\u0027s source code. (Users will also need \\\"Browse\\\" permission)\"" +
+          "    }," +
+          "    {" +
+          "      \"key\": \"issueadmin\"," +
+          "      \"name\": \"Administer Issues\"," +
+          "      \"description\": \"Grants the permission to perform advanced editing on issues: marking an issue False Positive / Won\\u0027t Fix or changing an Issue\\u0027s severity. (Users will also need \\\"Browse\\\" permission)\""
+          +
+          "    }," +
+          "    {" +
+          "      \"key\": \"securityhotspotadmin\"," +
+          "      \"name\": \"Administer Security Hotspots\"," +
+          "      \"description\": \"Detect a Vulnerability from a \\\"Security Hotspot\\\". Reject, clear, accept, reopen a \\\"Security Hotspot\\\" (users also need \\\"Browse\\\" permissions).\"" +
+          "    }," +
+          "    {" +
+          "      \"key\": \"scan\"," +
+          "      \"name\": \"Execute Analysis\"," +
+          "      \"description\": \"Ability to execute analyses, and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.\""
+          +
+          "    }," +
+          "    {" +
+          "      \"key\": \"user\"," +
+          "      \"name\": \"Browse\"," +
+          "      \"description\": \"Ability to access a project, browse its measures, and create/edit issues for it.\"" +
+          "    }," +
+          "    {" +
+          "      \"key\": \"applicationcreator\"," +
+          "      \"name\": \"Create Applications\"," +
+          "      \"description\": \"Allow to create applications for non system administrator.\"" +
+          "    }," +
+          "    {" +
+          "      \"key\": \"portfoliocreator\"," +
+          "      \"name\": \"Create Portfolios\"," +
+          "      \"description\": \"Allow to create portfolios for non system administrator.\"" +
+          "    }" +
+          "  ]" +
+          "}");
+  }
 
   private PermissionTemplateDto insertProjectTemplate(OrganizationDto org) {
     return insertTemplate(newPermissionTemplateDto()

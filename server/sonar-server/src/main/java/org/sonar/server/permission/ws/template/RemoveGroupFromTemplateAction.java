@@ -33,6 +33,9 @@ import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
+import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
+import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
@@ -59,10 +62,10 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
-    WsParameters.createTemplateParameters(action);
+    createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    WsParameters.createGroupIdParameter(action);
-    WsParameters.createGroupNameParameter(action);
+    createGroupIdParameter(action);
+    createGroupNameParameter(action);
   }
 
   @Override

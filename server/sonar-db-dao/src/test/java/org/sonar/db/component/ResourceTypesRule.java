@@ -86,6 +86,13 @@ public class ResourceTypesRule extends ResourceTypes {
   }
 
   @Override
+  public boolean isQualifierPresent(String qualifier) {
+    // FIXME looks strange to me
+    return rootResourceTypes.stream()
+      .anyMatch(resourceType -> qualifier.equals(resourceType.getQualifier()));
+  }
+
+  @Override
   public List<String> getLeavesQualifiers(String qualifier) {
     return this.leavesQualifiers;
   }

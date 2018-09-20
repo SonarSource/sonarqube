@@ -29,8 +29,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
@@ -39,6 +39,10 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
+
+import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
+import static org.sonar.server.permission.ws.WsParameters.createUserLoginParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -54,16 +58,16 @@ public class AddUserAction implements PermissionsWsAction {
   private final PermissionUpdater permissionUpdater;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
-  private final PermissionsHelper permissionsHelper;
+  private final PermissionService permissionService;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport, WsParameters wsParameters,
-    PermissionsHelper permissionsHelper) {
+  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
+    WsParameters wsParameters, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
-    this.permissionsHelper = permissionsHelper;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -81,9 +85,9 @@ public class AddUserAction implements PermissionsWsAction {
       .setHandler(this);
 
     wsParameters.createPermissionParameter(action);
-    WsParameters.createUserLoginParameter(action);
-    wsParameters.createProjectParameters(action);
-    WsParameters.createOrganizationParameter(action)
+    createUserLoginParameter(action);
+    createProjectParameters(action);
+    createOrganizationParameter(action)
       .setSince("6.2")
       .setDescription("Key of organization, cannot be used at the same time with %s and %s", PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
   }
@@ -105,12 +109,11 @@ public class AddUserAction implements PermissionsWsAction {
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionChange change = new UserPermissionChange(
-        permissionsHelper,
         PermissionChange.Operation.ADD,
         org.getUuid(),
         request.mandatoryParam(PARAM_PERMISSION),
         projectId.orElse(null),
-        user);
+        user, permissionService);
       permissionUpdater.apply(dbSession, singletonList(change));
     }
     response.noContent();

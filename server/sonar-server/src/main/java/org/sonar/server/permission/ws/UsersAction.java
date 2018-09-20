@@ -50,6 +50,9 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.ws.RequestValidator.validateGlobalPermission;
+import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
+import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -60,16 +63,17 @@ public class UsersAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final PermissionWsSupport wsSupport;
   private final AvatarResolver avatarResolver;
-  private final RequestValidator requestValidator;
   private final WsParameters wsParameters;
+  private final RequestValidator requestValidator;
 
-  public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver, RequestValidator requestValidator, WsParameters wsParameters) {
+  public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver, WsParameters wsParameters,
+    RequestValidator requestValidator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
     this.avatarResolver = avatarResolver;
-    this.requestValidator = requestValidator;
     this.wsParameters = wsParameters;
+    this.requestValidator = requestValidator;
   }
 
   @Override
@@ -96,9 +100,9 @@ public class UsersAction implements PermissionsWsAction {
       .setDescription("Limit search to user names that contain the supplied string. <br/>")
       .setExampleValue("eri");
 
-    WsParameters.createOrganizationParameter(action).setSince("6.2");
+    createOrganizationParameter(action).setSince("6.2");
     wsParameters.createPermissionParameter(action).setRequired(false);
-    wsParameters.createProjectParameters(action);
+    createProjectParameters(action);
   }
 
   @Override
@@ -132,7 +136,7 @@ public class UsersAction implements PermissionsWsAction {
       if (project.isPresent()) {
         requestValidator.validateProjectPermission(permission);
       } else {
-        RequestValidator.validateGlobalPermission(permission);
+        validateGlobalPermission(permission);
       }
     }
 

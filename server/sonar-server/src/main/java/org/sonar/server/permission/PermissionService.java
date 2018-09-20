@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.permission;
 
-import org.junit.Test;
+package org.sonar.server.permission;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
+import org.sonar.db.permission.OrganizationPermission;
 
-public class OrganizationPermissionTest {
+public interface PermissionService {
 
-  @Test
-  public void fromKey_returns_enum_with_specified_key() {
-    for (OrganizationPermission p : OrganizationPermission.values()) {
-      assertThat(OrganizationPermission.fromKey(p.getKey())).isEqualTo(p);
-    }
-  }
+  List<OrganizationPermission> getAllOrganizationPermissions();
+  List<String> getAllProjectPermissions();
+  List<String> getPublicPermissions();
 }

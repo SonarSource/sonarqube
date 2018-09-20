@@ -27,14 +27,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
+import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
+import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
+import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class RemoveGroupAction implements PermissionsWsAction {
@@ -46,16 +50,16 @@ public class RemoveGroupAction implements PermissionsWsAction {
   private final PermissionUpdater permissionUpdater;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
-  private final PermissionsHelper permissionsHelper;
+  private final PermissionService permissionService;
 
   public RemoveGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-    WsParameters wsParameters, PermissionsHelper permissionsHelper) {
+    WsParameters wsParameters, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
-    this.permissionsHelper = permissionsHelper;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -74,10 +78,10 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setHandler(this);
 
     wsParameters.createPermissionParameter(action);
-    WsParameters.createOrganizationParameter(action).setSince("6.2");
-    WsParameters.createGroupNameParameter(action);
-    WsParameters.createGroupIdParameter(action);
-    wsParameters.createProjectParameters(action);
+    createOrganizationParameter(action).setSince("6.2");
+    createGroupNameParameter(action);
+    createGroupIdParameter(action);
+    createProjectParameters(action);
   }
 
   @Override
@@ -89,11 +93,10 @@ public class RemoveGroupAction implements PermissionsWsAction {
       checkProjectAdmin(userSession, group.getOrganizationUuid(), projectId);
 
       PermissionChange change = new GroupPermissionChange(
-        permissionsHelper,
         PermissionChange.Operation.REMOVE,
         request.mandatoryParam(PARAM_PERMISSION),
         projectId.orElse(null),
-        group);
+        group, permissionService);
       permissionUpdater.apply(dbSession, asList(change));
     }
     response.noContent();

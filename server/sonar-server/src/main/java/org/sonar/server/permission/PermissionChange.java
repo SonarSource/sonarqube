@@ -37,16 +37,19 @@ public abstract class PermissionChange {
   private final String organizationUuid;
   private final String permission;
   private final ProjectId projectId;
+  protected final PermissionService permissionService;
 
-  public PermissionChange(PermissionsHelper permissionsHelper, Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId) {
+  public PermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId, PermissionService permissionService) {
     this.operation = requireNonNull(operation);
     this.organizationUuid = requireNonNull(organizationUuid);
     this.permission = requireNonNull(permission);
     this.projectId = projectId;
+    this.permissionService = permissionService;
     if (projectId == null) {
       checkRequest(GlobalPermissions.ALL.contains(permission), "Invalid global permission '%s'. Valid values are %s", permission, GlobalPermissions.ALL);
     } else {
-      checkRequest(permissionsHelper.allPermissions().contains(permission), "Invalid project permission '%s'. Valid values are %s", permission, permissionsHelper.allPermissions());
+      checkRequest(permissionService.getAllProjectPermissions().contains(permission), "Invalid project permission '%s'. Valid values are %s", permission,
+        permissionService.getAllProjectPermissions());
     }
   }
 

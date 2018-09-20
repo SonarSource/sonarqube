@@ -24,8 +24,11 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -34,11 +37,10 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
-import org.sonar.server.permission.ws.RequestValidator;
-import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 
@@ -61,15 +63,15 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
 
-  private PermissionsHelper permissionsHelper = newPermissionsHelper();
-  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
   private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-     new TestProjectIndexers(), userSession, defaultTemplatesResolver);
+     new TestProjectIndexers(), userSession, defaultTemplatesResolver, permissionService);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
-    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), wsParameters);
+    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
   }
 
   @Before

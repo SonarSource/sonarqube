@@ -20,7 +20,7 @@
 package org.sonar.server.permission.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.template.AddGroupToTemplateAction;
 import org.sonar.server.permission.ws.template.AddProjectCreatorToTemplateAction;
 import org.sonar.server.permission.ws.template.AddUserToTemplateAction;
@@ -68,8 +68,8 @@ public class PermissionsWsModule extends Module {
       BulkApplyTemplateAction.class,
       // utility classes
       PermissionWsSupport.class,
-      PermissionsHelper.class,
-      WsParameters.class,
-      RequestValidator.class);
+      PermissionServiceImpl.class,
+      RequestValidator.class,
+      WsParameters.class);
   }
 }

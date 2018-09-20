@@ -19,8 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import java.util.Date;
-import java.util.Optional;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -29,9 +27,13 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+
+import java.util.Date;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -95,8 +97,8 @@ public class RegisterPermissionTemplates {
       insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
       insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, admins.get());
       insertGroupPermission(dbSession, template, UserRole.SECURITYHOTSPOT_ADMIN, admins.get());
-      insertGroupPermission(dbSession, template, UserRole.APPLICATION_CREATOR, admins.get());
-      insertGroupPermission(dbSession, template, UserRole.PORTFOLIO_CREATOR, admins.get());
+      insertGroupPermission(dbSession, template, OrganizationPermission.APPLICATION_CREATOR.getKey(), admins.get());
+      insertGroupPermission(dbSession, template, OrganizationPermission.PORTFOLIO_CREATOR.getKey(), admins.get());
     } else {
       LOG.error("Cannot setup default permission for group: " + DefaultGroups.ADMINISTRATORS);
     }

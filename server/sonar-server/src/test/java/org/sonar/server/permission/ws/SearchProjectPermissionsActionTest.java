@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
@@ -34,7 +35,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.l18n.I18nRule;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonarqube.ws.Permissions;
 
 import static java.lang.String.format;
@@ -55,9 +57,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private I18nRule i18n = new I18nRule();
-
-  private PermissionsHelper permissionsHelper = newPermissionsHelper();
-  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
   @Before
   public void setUp() {
@@ -70,7 +71,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     i18n.setProjectPermissions();
     ResourceTypesRule rootResourceTypes = newRootResourceTypes();
     PermissionWsSupport wsSupport = newPermissionWsSupport();
-    return new SearchProjectPermissionsAction(db.getDbClient(), userSession, i18n, rootResourceTypes, wsSupport, wsParameters, permissionsHelper);
+    return new SearchProjectPermissionsAction(db.getDbClient(), userSession, i18n, rootResourceTypes, wsSupport, permissionService);
   }
 
   @Test

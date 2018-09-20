@@ -35,6 +35,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.DefaultTemplates;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
@@ -96,8 +97,8 @@ public class RegisterPermissionTemplatesTest {
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.APPLICATION_CREATOR, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.PORTFOLIO_CREATOR, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, OrganizationPermission.APPLICATION_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, OrganizationPermission.PORTFOLIO_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
 
@@ -123,8 +124,8 @@ public class RegisterPermissionTemplatesTest {
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.APPLICATION_CREATOR, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.PORTFOLIO_CREATOR, DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, OrganizationPermission.APPLICATION_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
+    expectGroupPermission(groupPermissions, OrganizationPermission.PORTFOLIO_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
 

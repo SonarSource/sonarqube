@@ -19,13 +19,15 @@
  */
 package org.sonar.db.user;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.permission.ProjectPermissions;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -45,6 +47,8 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class UserDbTester {
+  private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
+
   private final DbTester db;
   private final DbClient dbClient;
 
@@ -226,7 +230,7 @@ public class UserDbTester {
 
   public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ComponentDto project) {
     checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
-    checkArgument(!ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+    checkArgument(!PUBLIC_PERMISSIONS.contains(permission),
       "permission %s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
@@ -246,7 +250,7 @@ public class UserDbTester {
 
   public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, String permission, ComponentDto project) {
     checkArgument(group.getOrganizationUuid().equals(project.getOrganizationUuid()), "Different organizations");
-    checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+    checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
@@ -319,7 +323,7 @@ public class UserDbTester {
    * Grant permission on given project
    */
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
-    checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+    checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.getId());

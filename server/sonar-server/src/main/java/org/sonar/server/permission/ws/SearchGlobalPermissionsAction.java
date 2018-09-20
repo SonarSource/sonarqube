@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.PermissionQuery;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.WsSearchGlobalPermissionsResponse;
@@ -48,12 +49,14 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final I18n i18n;
   private final PermissionWsSupport wsSupport;
+  private final PermissionService permissionService;
 
-  public SearchGlobalPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport wsSupport) {
+  public SearchGlobalPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport wsSupport, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.wsSupport = wsSupport;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -84,7 +87,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     WsSearchGlobalPermissionsResponse.Builder response = WsSearchGlobalPermissionsResponse.newBuilder();
     Permission.Builder permission = newBuilder();
 
-    OrganizationPermission.all()
+    permissionService.getAllOrganizationPermissions().stream()
       .map(OrganizationPermission::getKey)
       .forEach(permissionKey -> {
         PermissionQuery query = permissionQuery(permissionKey, org);

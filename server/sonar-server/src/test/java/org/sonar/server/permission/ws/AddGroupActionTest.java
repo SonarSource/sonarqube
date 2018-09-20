@@ -20,16 +20,21 @@
 package org.sonar.server.permission.ws;
 
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,12 +63,13 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   private static final String A_PROJECT_UUID = "project-uuid";
   private static final String A_PROJECT_KEY = "project-key";
 
-  private PermissionsHelper permissionsHelper = newPermissionsHelper();
-  private WsParameters wsParameters = new WsParameters(permissionsHelper);
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private WsParameters wsParameters = new WsParameters(permissionService);
 
   @Override
   protected AddGroupAction buildWsAction() {
-    return new AddGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionsHelper);
+    return new AddGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService);
   }
 
   @Test
@@ -371,7 +377,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    newPermissionsHelper().allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(permission -> {
         try {
           newRequest()

@@ -21,7 +21,12 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
@@ -31,6 +36,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,10 +53,12 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<SearchGlobalPermissionsAction> {
 
   private I18nRule i18n = new I18nRule();
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
   @Override
   protected SearchGlobalPermissionsAction buildWsAction() {
-    return new SearchGlobalPermissionsAction(db.getDbClient(), userSession, i18n, newPermissionWsSupport());
+    return new SearchGlobalPermissionsAction(db.getDbClient(), userSession, i18n, newPermissionWsSupport(), permissionService);
   }
 
   @Before

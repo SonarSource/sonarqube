@@ -36,6 +36,8 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsParameters.createUserLoginParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -46,15 +48,15 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
-  private final RequestValidator requestValidator;
   private final WsParameters wsParameters;
+  private final RequestValidator requestValidator;
 
-  public RemoveUserFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, RequestValidator requestValidator, WsParameters wsParameters) {
+  public RemoveUserFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, WsParameters wsParameters, RequestValidator requestValidator) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.userSession = userSession;
-    this.requestValidator = requestValidator;
     this.wsParameters = wsParameters;
+    this.requestValidator = requestValidator;
   }
 
   private static RemoveUserFromTemplateRequest toRemoveUserFromTemplateWsRequest(Request request) {
@@ -76,9 +78,9 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
-    WsParameters.createTemplateParameters(action);
+    createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    WsParameters.createUserLoginParameter(action);
+    createUserLoginParameter(action);
   }
 
   @Override

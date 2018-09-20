@@ -53,6 +53,7 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
@@ -62,16 +63,17 @@ public class TemplateUsersAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final PermissionWsSupport wsSupport;
   private final AvatarResolver avatarResolver;
-  private final RequestValidator requestValidator;
   private final WsParameters wsParameters;
+  private final RequestValidator requestValidator;
 
-  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver, RequestValidator requestValidator, WsParameters wsParameters) {
+  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver,
+    WsParameters wsParameters, RequestValidator requestValidator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
     this.avatarResolver = avatarResolver;
-    this.requestValidator = requestValidator;
     this.wsParameters = wsParameters;
+    this.requestValidator = requestValidator;
   }
 
   @Override
@@ -93,7 +95,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
         "When this parameter is not set, only users having at least one permission are returned.")
       .setExampleValue("eri");
     wsParameters.createProjectPermissionParameter(action).setRequired(false);
-    WsParameters.createTemplateParameters(action);
+    createTemplateParameters(action);
   }
 
   @Override

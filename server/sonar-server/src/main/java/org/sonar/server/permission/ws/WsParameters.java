@@ -20,10 +20,11 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Joiner;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
@@ -40,24 +41,26 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class WsParameters {
-  private PermissionsHelper permissionsHelper;
   private final String permissionParamDescription;
   private final String projectPermissionParamDescription;
 
-  public WsParameters(PermissionsHelper permissionsHelper) {
-    this.permissionsHelper = permissionsHelper;
+  private final PermissionService permissionService;
+
+  public WsParameters(PermissionService permissionService) {
+    this.permissionService = permissionService;
+    String allProjectsPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getAllProjectPermissions());
     permissionParamDescription = String.format("Permission" +
         "<ul>" +
         "<li>Possible values for global permissions: %s</li>" +
         "<li>Possible values for project permissions %s</li>" +
         "</ul>",
       GlobalPermissions.ALL_ON_ONE_LINE,
-      permissionsHelper.allOnOneLine());
+      allProjectsPermissionsOnOneLine);
     projectPermissionParamDescription = String.format("Permission" +
         "<ul>" +
         "<li>Possible values for project permissions %s</li>" +
         "</ul>",
-      permissionsHelper.allOnOneLine());
+      allProjectsPermissionsOnOneLine);
   }
 
   public WebService.NewParam createPermissionParameter(WebService.NewAction action) {
@@ -69,7 +72,7 @@ public class WsParameters {
   public WebService.NewParam createProjectPermissionParameter(WebService.NewAction action, boolean required) {
     return action.createParam(PARAM_PERMISSION)
       .setDescription(projectPermissionParamDescription)
-      .setPossibleValues(permissionsHelper.allPermissions())
+      .setPossibleValues(permissionService.getAllProjectPermissions())
       .setRequired(required);
   }
 
@@ -96,7 +99,7 @@ public class WsParameters {
       .setExampleValue("42");
   }
 
-  public void createProjectParameters(WebService.NewAction action) {
+  public static void createProjectParameters(WebService.NewAction action) {
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");

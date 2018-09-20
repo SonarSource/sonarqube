@@ -19,18 +19,16 @@
  */
 package org.sonar.core.permission;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import org.sonar.api.web.UserRole;
-
 /**
  * Holds the constants representing the various component permissions that can be assigned to users & groups
  */
 public final class ProjectPermissions {
+
   /**
-   * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
+   * All the component permissions values
    */
-  public static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER);
-  public static final Set<String> ALL_PERMISSIONS = ImmutableSet.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN,
-    GlobalPermissions.SCAN_EXECUTION, UserRole.USER, UserRole.APPLICATION_CREATOR, UserRole.PORTFOLIO_CREATOR);
+
+  private ProjectPermissions() {
+    // static constants only
+  }
 }

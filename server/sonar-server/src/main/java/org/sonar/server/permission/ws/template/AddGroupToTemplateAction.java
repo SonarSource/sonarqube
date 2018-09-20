@@ -34,6 +34,9 @@ import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
+import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
+import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.fromRequest;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -62,10 +65,10 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
-    WsParameters.createTemplateParameters(action);
+    createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    WsParameters.createGroupIdParameter(action);
-    WsParameters.createGroupNameParameter(action);
+    createGroupIdParameter(action);
+    createGroupNameParameter(action);
   }
 
   @Override

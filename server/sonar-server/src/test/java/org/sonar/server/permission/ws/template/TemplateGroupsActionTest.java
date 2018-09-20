@@ -21,7 +21,10 @@ package org.sonar.server.permission.ws.template;
 
 import javax.annotation.Nullable;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
@@ -30,7 +33,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.ws.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
@@ -53,13 +57,15 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroupsAction> {
-  private PermissionsHelper permissionsHelper = newPermissionsHelper();
-  private WsParameters wsParameters = new WsParameters(permissionsHelper);
-  private RequestValidator requestValidator = new RequestValidator(permissionsHelper);
+
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private WsParameters wsParameters = new WsParameters(permissionService);
+  private RequestValidator requestValidator = new RequestValidator(permissionService);
 
   @Override
   protected TemplateGroupsAction buildWsAction() {
-    return new TemplateGroupsAction(db.getDbClient(), userSession, newPermissionWsSupport(), requestValidator, wsParameters);
+    return new TemplateGroupsAction(db.getDbClient(), userSession, newPermissionWsSupport(), wsParameters, requestValidator);
   }
 
   @Test

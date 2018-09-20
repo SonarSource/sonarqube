@@ -32,6 +32,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -58,7 +59,8 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.index.FooIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -81,14 +83,8 @@ public class UpdateVisibilityActionTest {
   private static final String PUBLIC = "public";
   private static final String PRIVATE = "private";
 
-  private static final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
-  private static final PermissionsHelper permissionsHelper = new PermissionsHelper(resourceTypes);
-
   private static final Set<String> ORGANIZATION_PERMISSIONS_NAME_SET = stream(OrganizationPermission.values()).map(OrganizationPermission::getKey)
     .collect(MoreCollectors.toSet(OrganizationPermission.values().length));
-  private static final Set<String> PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER = permissionsHelper.allPermissions().stream()
-    .filter(perm -> !perm.equals(UserRole.USER) && !perm.equals(UserRole.CODEVIEWER))
-    .collect(MoreCollectors.toSet(permissionsHelper.allPermissions().size() - 2));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -99,13 +95,19 @@ public class UpdateVisibilityActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final Set<String> PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER = permissionService.getAllProjectPermissions().stream()
+    .filter(perm -> !perm.equals(UserRole.USER) && !perm.equals(UserRole.CODEVIEWER))
+    .collect(MoreCollectors.toSet(permissionService.getAllProjectPermissions().size() - 2));
+
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
   private ProjectsWsSupport wsSupport = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(dbTester), billingValidations);
-  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester), userSessionRule, projectIndexers, wsSupport);
+  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester), userSessionRule, projectIndexers, wsSupport, permissionService);
   private WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -644,7 +646,7 @@ public class UpdateVisibilityActionTest {
         dbTester.users().insertPermissionOnGroup(group, organizationPermission);
         dbTester.users().insertPermissionOnUser(organization, user, organizationPermission);
       });
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(permission -> {
         unsafeInsertProjectPermissionOnAnyone(component, permission);
         unsafeInsertProjectPermissionOnGroup(component, group, permission);
@@ -688,9 +690,9 @@ public class UpdateVisibilityActionTest {
     assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null, component.getId()))
       .isEmpty();
     assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.getId()))
-      .containsAll(permissionsHelper.allPermissions());
+      .containsAll(permissionService.getAllProjectPermissions());
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), component.getId()))
-      .containsAll(permissionsHelper.allPermissions());
+      .containsAll(permissionService.getAllProjectPermissions());
   }
 
   private void verifyHasAllPermissionsButProjectPermissionsUserAndBrowse(ComponentDto component, UserDto user, GroupDto group) {
@@ -722,11 +724,11 @@ public class UpdateVisibilityActionTest {
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), component.getOrganizationUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
     assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null, component.getId()))
-      .containsAll(permissionsHelper.allPermissions());
+      .containsAll(permissionService.getAllProjectPermissions());
     assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.getId()))
-      .containsAll(permissionsHelper.allPermissions());
+      .containsAll(permissionService.getAllProjectPermissions());
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), component.getId()))
-      .containsAll(permissionsHelper.allPermissions());
+      .containsAll(permissionService.getAllProjectPermissions());
   }
 
   private void insertPendingTask(ComponentDto project) {

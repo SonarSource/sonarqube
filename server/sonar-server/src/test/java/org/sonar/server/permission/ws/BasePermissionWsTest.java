@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -34,8 +35,9 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChanger;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.PermissionsHelper;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.FooIndexDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
@@ -58,6 +60,9 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  protected ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  protected PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   protected UserSessionRule userSession = UserSessionRule.standalone();
@@ -83,15 +88,11 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
     return new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
   }
 
-  protected PermissionsHelper newPermissionsHelper() {
-    return new PermissionsHelper(newRootResourceTypes());
-  }
-
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
       new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
-      new UserPermissionChanger(db.getDbClient()),
-      new GroupPermissionChanger(db.getDbClient(), newPermissionWsSupport()));
+      new UserPermissionChanger(db.getDbClient(), permissionService),
+      new GroupPermissionChanger(db.getDbClient(), permissionService));
   }
 
   protected TestRequest newRequest() {

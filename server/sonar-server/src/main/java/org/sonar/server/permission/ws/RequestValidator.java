@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Joiner;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -29,7 +30,7 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 import org.sonar.server.ws.WsUtils;
 
@@ -44,17 +45,18 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 public class RequestValidator {
   public static final String MSG_TEMPLATE_WITH_SAME_NAME = "A template with the name '%s' already exists (case insensitive).";
   private static final String MSG_TEMPLATE_NAME_NOT_BLANK = "The template name must not be blank";
+  private final PermissionService permissionService;
+  private final String allProjectsPermissionsOnOneLine;
 
-  private PermissionsHelper permissionsHelper;
-
-  public RequestValidator(PermissionsHelper permissionsHelper) {
-    this.permissionsHelper = permissionsHelper;
+  public RequestValidator(PermissionService permissionService) {
+    this.permissionService = permissionService;
+    allProjectsPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getAllProjectPermissions());
   }
 
   public String validateProjectPermission(String permission) {
-    WsUtils.checkRequest(permissionsHelper.allPermissions().contains(permission),
+    WsUtils.checkRequest(permissionService.getAllProjectPermissions().contains(permission),
       String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
-        permissionsHelper.allOnOneLine(), permission));
+        allProjectsPermissionsOnOneLine, permission));
     return permission;
   }
 

@@ -28,7 +28,8 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.permission.PermissionsHelper;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.template.TemplateGroupsAction;
 import org.sonar.server.permission.ws.template.TemplateUsersAction;
 import org.sonar.server.tester.UserSessionRule;
@@ -48,16 +49,17 @@ public class PermissionsWsTest {
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private final PermissionsHelper permissionsHelper = new PermissionsHelper(resourceTypes);
   private final GroupWsSupport groupWsSupport = new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
   private final PermissionWsSupport wsSupport = new PermissionWsSupport(db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes), groupWsSupport);
 
-  private WsParameters wsParameters = new WsParameters(permissionsHelper);
-  private RequestValidator requestValidator = new RequestValidator(permissionsHelper);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private WsParameters wsParameters = new WsParameters(permissionService);
+  private RequestValidator requestValidator = new RequestValidator(permissionService);
+
 
   private WsTester underTest = new WsTester(new PermissionsWs(
-    new TemplateUsersAction(db.getDbClient(), userSession, wsSupport, new AvatarResolverImpl(), requestValidator, wsParameters),
-    new TemplateGroupsAction(db.getDbClient(), userSession, wsSupport, requestValidator, wsParameters)));
+    new TemplateUsersAction(db.getDbClient(), userSession, wsSupport, new AvatarResolverImpl(), wsParameters, requestValidator),
+    new TemplateGroupsAction(db.getDbClient(), userSession, wsSupport, wsParameters, requestValidator)));
 
   @Test
   public void define_controller() {

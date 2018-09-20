@@ -19,16 +19,19 @@
  */
 package org.sonar.db.permission;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
 public enum OrganizationPermission {
 
   ADMINISTER("admin"),
   ADMINISTER_QUALITY_GATES("gateadmin"),
   ADMINISTER_QUALITY_PROFILES("profileadmin"),
   PROVISION_PROJECTS("provisioning"),
-  SCAN("scan");
+  SCAN("scan"),
+
+  /**
+   * @since 7.4
+   */
+  APPLICATION_CREATOR("applicationcreator"),
+  PORTFOLIO_CREATOR("portfoliocreator");
 
   private final String key;
 
@@ -52,9 +55,5 @@ public enum OrganizationPermission {
       }
     }
     throw new IllegalArgumentException("Unsupported permission: " + key);
-  }
-
-  public static Stream<OrganizationPermission> all() {
-    return Arrays.stream(values());
   }
 }

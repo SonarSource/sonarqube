@@ -60,13 +60,14 @@ public class PermissionTemplateServiceTest {
   public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withGovernance();
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionsHelper permissionsHelper = new PermissionsHelper(resourceTypes);
+  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+
   private UserSessionRule userSession = UserSessionRule.standalone();
   private PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
   private DbSession session = dbTester.getSession();
   private ProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver);
+  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver, permissionService);
 
   @Test
   public void apply_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {
@@ -99,7 +100,7 @@ public class PermissionTemplateServiceTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
 
@@ -114,7 +115,7 @@ public class PermissionTemplateServiceTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
@@ -131,7 +132,7 @@ public class PermissionTemplateServiceTest {
     ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
 
@@ -147,7 +148,7 @@ public class PermissionTemplateServiceTest {
     GroupDto group = dbTester.users().insertGroup(organization);
     ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
@@ -164,7 +165,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
 
@@ -180,7 +181,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
@@ -197,7 +198,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     UserDto user = dbTester.users().insertUser();
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
 
@@ -213,7 +214,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     UserDto user = dbTester.users().insertUser();
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
@@ -230,7 +231,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
     UserDto user = dbTester.users().insertUser();
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
 
@@ -246,7 +247,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
     UserDto user = dbTester.users().insertUser();
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
@@ -263,7 +264,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     UserDto user = dbTester.users().insertUser();
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
@@ -280,7 +281,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
     UserDto user = dbTester.users().insertUser();
-    permissionsHelper.allPermissions()
+    permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);

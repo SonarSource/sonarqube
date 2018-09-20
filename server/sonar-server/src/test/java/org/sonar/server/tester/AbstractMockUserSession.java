@@ -20,13 +20,13 @@
 package org.sonar.server.tester;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
@@ -36,6 +36,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
+  private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
+
   private final Class<T> clazz;
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private final HashMultimap<String, OrganizationPermission> permissionsByOrganizationUuid = HashMultimap.create();
@@ -79,7 +81,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   public T addProjectPermission(String permission, ComponentDto... components) {
     Arrays.stream(components).forEach(component -> {
       checkArgument(
-        component.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+        component.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
         "public component %s can't be granted public permission %s", component.uuid(), permission);
     });
     registerComponents(components);

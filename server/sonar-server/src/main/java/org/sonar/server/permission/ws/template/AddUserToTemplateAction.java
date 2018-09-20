@@ -38,6 +38,8 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
+import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsParameters.createUserLoginParameter;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -77,9 +79,9 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
-    WsParameters.createTemplateParameters(action);
+    createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    WsParameters.createUserLoginParameter(action);
+    createUserLoginParameter(action);
   }
 
   @Override

@@ -1,0 +1,129 @@
+{
+  "permissionTemplates": [
+    {
+      "id": "AU-Tpxb--iU5OvuD2FLy",
+      "name": "Default template for Projects",
+      "description": "Template for new projects",
+      "createdAt": "2001-09-09T03:46:40+0200",
+      "updatedAt": "2001-09-09T03:46:40+0200",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 1,
+          "withProjectCreator": true
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 1,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 3,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "securityhotspotadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "scan",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "user",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "applicationcreator",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "portfoliocreator",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        }
+      ]
+    },
+    {
+      "id": "AU-TpxcA-iU5OvuD2FLz",
+      "name": "Default template for Views",
+      "description": "Template for new views",
+      "projectKeyPattern": ".*sonar.views.*",
+      "createdAt": "2001-09-09T03:46:40+0200",
+      "updatedAt": "2004-11-09T12:33:20+0100",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 0,
+          "groupsCount": 3,
+          "withProjectCreator": false
+        },
+        {
+          "key": "securityhotspotadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "scan",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "user",
+          "usersCount": 2,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "applicationcreator",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "portfoliocreator",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        }
+      ]
+    }
+  ],
+  "defaultTemplates": [
+    {
+      "templateId": "AU-Tpxb--iU5OvuD2FLy",
+      "qualifier": "TRK"
+    },
+    {
+      "templateId": "AU-TpxcA-iU5OvuD2FLz",
+      "qualifier": "VW"
+    }
+  ]
+}
