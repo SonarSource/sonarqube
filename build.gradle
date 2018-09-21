@@ -273,7 +273,7 @@ subprojects {
     jacoco {
       append = false
       enabled = project.hasProperty('jacocoEnabled')
-      includes = ['com.sonarsource.*', 'org.sonar.*', 'org.sonarsource.*']
+      includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*', 'io.sonarcloud.*']
     }
     if (project.hasProperty('maxParallelTests')) {
       // WARNING this is not compatible with jacocoEnabled
