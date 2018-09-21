@@ -2,4 +2,4 @@ Add new members to this organization and manage their permissions. Note that use
 
 ---
 
-See also: [Manage a Team](/organizations/manage-team)
+See also: [Manage a Team](/organizations/manage-team/)

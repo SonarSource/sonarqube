@@ -2,4 +2,4 @@ This project is public, which means anyone is able to browse its source code. Go
 
 ---
 
-See also: [Organization Visibility](/organizations/organization-visibility)
+See also: [Organization Visibility](/organizations/organization-visibility/)

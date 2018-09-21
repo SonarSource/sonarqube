@@ -2,4 +2,4 @@ For each Quality Gate condition you must choose the metric to be tested, the thr
 
 ---
 
-See also: [Fixing the Water Leak](/fixing-the-water-leak)
+See also: [Fixing the Water Leak](/user-guide/fixing-the-water-leak/)

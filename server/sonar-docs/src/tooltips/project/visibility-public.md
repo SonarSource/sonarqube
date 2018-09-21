@@ -2,4 +2,4 @@ This project is public, which means anyone is able to browse its source code. Co
 
 ---
 
-See also: [Pricing](/sonarcloud-pricing)
+See also: [Pricing](/sonarcloud-pricing/)
