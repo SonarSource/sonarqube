@@ -122,6 +122,7 @@ qa_task:
       QA_CATEGORY: Upgrade
       QA_CATEGORY: Governance
       QA_CATEGORY: Billing
+      QA_CATEGORY: License
       #QA_CATEGORY: Branch
   gradle_cache:
     folder: ~/.gradle/caches
