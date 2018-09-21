@@ -20,6 +20,8 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import { Location } from 'history';
+import OrganizationJustCreated from './OrganizationJustCreated';
 import OrganizationNavigation from '../navigation/OrganizationNavigation';
 import { fetchOrganization } from '../actions';
 import NotFound from '../../../app/components/NotFound';
@@ -34,7 +36,7 @@ import {
 
 interface OwnProps {
   children?: React.ReactNode;
-  location: { pathname: string };
+  location: Location;
   params: { organizationKey: string };
 }
 
@@ -84,6 +86,16 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
     this.props.fetchOrganization(organizationKey).then(this.stopLoading, this.stopLoading);
   };
 
+  renderChildren(organization: Organization) {
+    const { location } = this.props;
+    const justCreated = Boolean(location.state && location.state.justCreated);
+    return justCreated ? (
+      <OrganizationJustCreated organization={organization} />
+    ) : (
+      this.props.children
+    );
+  }
+
   render() {
     const { organization } = this.props;
 
@@ -105,7 +117,7 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
           organization={organization}
           userOrganizations={this.props.userOrganizations}
         />
-        {this.props.children}
+        {this.renderChildren(organization)}
       </div>
     );
   }

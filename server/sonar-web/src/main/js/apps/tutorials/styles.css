@@ -65,7 +65,7 @@
 .onboarding-choice {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   padding: calc(2 * var(--gridSize));
   width: 190px;
   height: 190px;
@@ -78,12 +78,13 @@
 
 .onboarding-choice svg {
   color: var(--gray40);
-  margin-bottom: calc(3 * var(--gridSize));
 }
 
-.onboarding-choice span {
+.onboarding-choice-name {
+  padding-top: var(--gridSize);
+  padding-bottom: calc(0.5 * var(--gridSize));
+  color: inherit;
   font-size: var(--mediumFontSize);
-  margin-bottom: calc(var(--gridSize) / 2);
 }
 
 .onboarding-choice .note {

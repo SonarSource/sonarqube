@@ -53,7 +53,10 @@ it('should render and create organization', async () => {
   wrapper.find('PlanStep').prop<Function>('onFreePlanChoose')();
   await waitAndUpdate(wrapper);
   expect(createOrganization).toBeCalledWith(organization);
-  expect(router.push).toBeCalledWith('/organizations/foo');
+  expect(router.push).toBeCalledWith({
+    pathname: '/organizations/foo',
+    state: { justCreated: true }
+  });
 });
 
 it('should preselect paid plan', async () => {

@@ -88,6 +88,13 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     );
   };
 
+  finishCreation = (key: string) => {
+    this.props.router.push({
+      pathname: getOrganizationUrl(key),
+      state: { justCreated: true }
+    });
+  };
+
   handleOrganizationDetailsStepOpen = () => {
     this.setState({ step: Step.OrganizationDetails });
   };
@@ -99,13 +106,13 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   handlePaidPlanChoose = () => {
     if (this.state.organization) {
-      this.props.router.push(getOrganizationUrl(this.state.organization.key));
+      this.finishCreation(this.state.organization.key);
     }
   };
 
   handleFreePlanChoose = () => {
     return this.createOrganization().then(key => {
-      this.props.router.push(getOrganizationUrl(key));
+      this.finishCreation(key);
     });
   };
 

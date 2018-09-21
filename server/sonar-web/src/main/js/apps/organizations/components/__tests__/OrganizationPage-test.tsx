@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { Location } from 'history';
 import { OrganizationPage } from '../OrganizationPage';
 
 const fetchOrganization = jest.fn().mockResolvedValue(undefined);
@@ -54,7 +55,7 @@ function getWrapper(props = {}) {
     <OrganizationPage
       currentUser={{ isLoggedIn: false }}
       fetchOrganization={fetchOrganization}
-      location={{ pathname: 'foo' }}
+      location={{ pathname: 'foo' } as Location}
       params={{ organizationKey: 'foo' }}
       userOrganizations={[]}
       {...props}>

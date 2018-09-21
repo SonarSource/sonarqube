@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="organization-just-created"
+>
+  <h3
+    className="text-center"
+  >
+    onboarding.create_organization.ready
+  </h3>
+  <div
+    className="onboarding-choices"
+  >
+    <Button
+      className="onboarding-choice"
+      onClick={[Function]}
+    >
+      <OnboardingProjectIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name"
+      >
+        provisioning.create_new_project
+      </h6>
+    </Button>
+    <Button
+      className="onboarding-choice"
+      onClick={[Function]}
+    >
+      <OnboardingAddMembersIcon />
+      <h6
+        className="onboarding-choice-name"
+      >
+        organization.members.add.multiple
+      </h6>
+    </Button>
+  </div>
+</div>
+`;

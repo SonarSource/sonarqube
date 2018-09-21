@@ -26,7 +26,7 @@ export interface IconProps {
 }
 
 interface Props {
-  children: React.ReactElement<any>;
+  children: React.ReactNode;
   className?: string;
   size?: number;
   style?: React.CSSProperties;

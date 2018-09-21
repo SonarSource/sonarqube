@@ -26,10 +26,14 @@ exports[`renders correctly 1`] = `
       className="onboarding-choice"
       onClick={[MockFunction]}
     >
-      <OnboardingProjectIcon />
-      <span>
+      <OnboardingProjectIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name"
+      >
         onboarding.analyze_public_code
-      </span>
+      </h6>
       <p
         className="note"
       >
@@ -40,10 +44,14 @@ exports[`renders correctly 1`] = `
       className="onboarding-choice"
       onClick={[MockFunction]}
     >
-      <OnboardingPrivateIcon />
-      <span>
+      <OnboardingPrivateIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name"
+      >
         onboarding.analyze_private_code
-      </span>
+      </h6>
       <p
         className="note"
       >
@@ -54,10 +62,14 @@ exports[`renders correctly 1`] = `
       className="onboarding-choice"
       onClick={[MockFunction]}
     >
-      <OnboardingTeamIcon />
-      <span>
+      <OnboardingTeamIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name"
+      >
         onboarding.contribute_existing_project
-      </span>
+      </h6>
       <p
         className="note"
       >

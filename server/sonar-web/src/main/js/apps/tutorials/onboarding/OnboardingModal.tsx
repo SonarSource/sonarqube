@@ -68,18 +68,24 @@ export class OnboardingModal extends React.PureComponent<Props> {
         </div>
         <div className="modal-simple-body text-center onboarding-choices">
           <Button className="onboarding-choice" onClick={this.props.onOpenProjectOnboarding}>
-            <OnboardingProjectIcon />
-            <span>{translate('onboarding.analyze_public_code')}</span>
+            <OnboardingProjectIcon className="big-spacer-bottom" />
+            <h6 className="onboarding-choice-name">
+              {translate('onboarding.analyze_public_code')}
+            </h6>
             <p className="note">{translate('onboarding.analyze_public_code.note')}</p>
           </Button>
           <Button className="onboarding-choice" onClick={this.props.onOpenOrganizationOnboarding}>
-            <OnboardingPrivateIcon />
-            <span>{translate('onboarding.analyze_private_code')}</span>
+            <OnboardingPrivateIcon className="big-spacer-bottom" />
+            <h6 className="onboarding-choice-name">
+              {translate('onboarding.analyze_private_code')}
+            </h6>
             <p className="note">{translate('onboarding.analyze_private_code.note')}</p>
           </Button>
           <Button className="onboarding-choice" onClick={this.props.onOpenTeamOnboarding}>
-            <OnboardingTeamIcon />
-            <span>{translate('onboarding.contribute_existing_project')}</span>
+            <OnboardingTeamIcon className="big-spacer-bottom" />
+            <h6 className="onboarding-choice-name">
+              {translate('onboarding.contribute_existing_project')}
+            </h6>
             <p className="note">{translate('onboarding.contribute_existing_project.note')}</p>
           </Button>
         </div>
