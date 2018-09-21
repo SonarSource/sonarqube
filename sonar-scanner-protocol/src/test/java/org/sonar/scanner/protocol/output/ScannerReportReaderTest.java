@@ -109,7 +109,7 @@ public class ScannerReportReaderTest {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     ScannerReport.ExternalIssue issue = ScannerReport.ExternalIssue.newBuilder()
       .build();
-    writer.writeComponentExternalIssues(1, asList(issue));
+    writer.appendComponentExternalIssue(1, issue);
 
     assertThat(underTest.readComponentExternalIssues(1)).hasSize(1);
     assertThat(underTest.readComponentExternalIssues(200)).isEmpty();

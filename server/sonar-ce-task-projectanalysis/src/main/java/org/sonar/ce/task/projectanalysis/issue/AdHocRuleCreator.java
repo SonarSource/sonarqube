@@ -63,7 +63,7 @@ public class AdHocRuleCreator {
         .setRuleKey(adHoc.getKey())
         .setIsExternal(true)
         .setIsAdHoc(true)
-        .setName(adHoc.getEngineId() + ": " + adHoc.getRuleId())
+        .setName(adHoc.getEngineId() + ":" + adHoc.getRuleId())
         .setScope(ALL)
         .setStatus(READY)
         .setCreatedAt(now)

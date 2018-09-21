@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
+import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
@@ -126,12 +127,33 @@ public class ScannerReportWriterTest {
       .setMsg("the message")
       .build();
 
-    underTest.writeComponentExternalIssues(1, asList(issue));
+    underTest.appendComponentExternalIssue(1, issue);
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.EXTERNAL_ISSUES, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.EXTERNAL_ISSUES, 1);
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.ExternalIssue> read = Protobuf.readStream(file, ScannerReport.ExternalIssue.parser())) {
+      assertThat(Iterators.size(read)).isEqualTo(1);
+    }
+  }
+
+  @Test
+  public void write_adhoc_rule() {
+
+    // write data
+    ScannerReport.AdHocRule rule = ScannerReport.AdHocRule.newBuilder()
+            .setEngineId("eslint")
+            .setRuleId("123")
+            .setName("Foo")
+            .setDescription("Description")
+            .setSeverity(Constants.Severity.BLOCKER)
+            .setType(ScannerReport.IssueType.BUG)
+            .build();
+    underTest.appendAdHocRule(rule);
+
+    File file = underTest.getFileStructure().adHocRules();
+    assertThat(file).exists().isFile();
+    try (CloseableIterator<ScannerReport.AdHocRule> read = Protobuf.readStream(file, ScannerReport.AdHocRule.parser())) {
       assertThat(Iterators.size(read)).isEqualTo(1);
     }
   }

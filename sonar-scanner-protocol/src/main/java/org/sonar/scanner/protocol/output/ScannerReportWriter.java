@@ -88,12 +88,6 @@ public class ScannerReportWriter {
     }
   }
 
-  public File writeComponentExternalIssues(int componentRef, Iterable<ScannerReport.ExternalIssue> issues) {
-    File file = fileStructure.fileFor(FileStructure.Domain.EXTERNAL_ISSUES, componentRef);
-    Protobuf.writeStream(issues, file, false);
-    return file;
-  }
-
   public File writeComponentChangedLines(int componentRef, ScannerReport.ChangedLines changedLines) {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGED_LINES, componentRef);
     Protobuf.write(changedLines, file);

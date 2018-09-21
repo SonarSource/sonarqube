@@ -27,6 +27,7 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.rules.RuleType;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,14 +40,21 @@ public class DefaultAdHocRuleTest {
   @Test
   public void store() {
     SensorStorage storage = mock(SensorStorage.class);
-    new DefaultAdHocRule(storage)
+    DefaultAdHocRule rule = new DefaultAdHocRule(storage)
       .engineId("engine")
       .ruleId("ruleId")
       .name("name")
       .description("desc")
       .severity(Severity.BLOCKER)
-      .type(RuleType.CODE_SMELL)
-      .save();
+      .type(RuleType.CODE_SMELL);
+      rule.save();
+
+    assertThat(rule.engineId()).isEqualTo("engine");
+    assertThat(rule.ruleId()).isEqualTo("ruleId");
+    assertThat(rule.name()).isEqualTo("name");
+    assertThat(rule.description()).isEqualTo("desc");
+    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.type()).isEqualTo(RuleType.CODE_SMELL);
 
     verify(storage).store(any(DefaultAdHocRule.class));
   }

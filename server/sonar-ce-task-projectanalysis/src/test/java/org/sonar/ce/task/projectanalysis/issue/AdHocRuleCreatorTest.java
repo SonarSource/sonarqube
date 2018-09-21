@@ -60,7 +60,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule.isAdHoc()).isTrue();
     assertThat(rule.getId()).isGreaterThan(0);
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
-    assertThat(rule.getName()).isEqualTo("eslint: no-cond-assign");
+    assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(rule.getDescription()).isNull();
     assertThat(rule.getSeverity()).isNull();
     assertThat(rule.getType()).isEqualTo(0);
@@ -89,7 +89,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule.isAdHoc()).isTrue();
     assertThat(rule.getId()).isGreaterThan(0);
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
-    assertThat(rule.getName()).isEqualTo("eslint: no-cond-assign");
+    assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(rule.getDescription()).isNull();
     assertThat(rule.getSeverity()).isNull();
     assertThat(rule.getType()).isEqualTo(0);
@@ -128,7 +128,7 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.isAdHoc()).isTrue();
     assertThat(ruleUpdated.getId()).isGreaterThan(0);
     assertThat(ruleUpdated.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
-    assertThat(ruleUpdated.getName()).isEqualTo("eslint: no-cond-assign");
+    assertThat(ruleUpdated.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(ruleUpdated.getDescription()).isNull();
     assertThat(ruleUpdated.getSeverity()).isNull();
     assertThat(ruleUpdated.getType()).isEqualTo(0);
