@@ -25,7 +25,6 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -35,7 +34,6 @@ import org.sonar.process.Props;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-@Ignore
 public class EmbeddedTomcatTest {
 
   @Rule
