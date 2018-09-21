@@ -40,7 +40,7 @@ export default function MembersPageHeader(props: Props) {
           id="organization.members.page.description"
           values={{
             link: (
-              <Link to="/documentation/organizations/manage-team">
+              <Link to="/documentation/organizations/manage-team/">
                 {translate('organization.members.manage_a_team')}
               </Link>
             )

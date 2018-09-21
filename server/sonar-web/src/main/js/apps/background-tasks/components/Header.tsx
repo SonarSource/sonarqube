@@ -40,7 +40,7 @@ export default function Header(props: Props) {
         <Link
           className="spacer-left"
           target="_blank"
-          to={{ pathname: '/documentation/analysis/background-tasks' }}>
+          to={{ pathname: '/documentation/analysis/background-tasks/' }}>
           {translate('learn_more')}
         </Link>
       </p>

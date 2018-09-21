@@ -41,7 +41,9 @@ export default function PageHeader({ children, loading }: Props) {
           id={'webhooks.description'}
           values={{
             url: (
-              <Link to="/documentation/webhooks">{translate('webhooks.documentation_link')}</Link>
+              <Link to="/documentation/project-administration/webhooks/">
+                {translate('webhooks.documentation_link')}
+              </Link>
             )
           }}
         />

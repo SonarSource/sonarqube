@@ -16,7 +16,7 @@ exports[`renders bitbucket suggestions correctly 1`] = `
     values={
       Object {
         "link": <a
-          href="/documentation/integrations/bitbucketcloud#analyzing-with-pipelines"
+          href="/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines"
           target="_blank"
         >
           onboarding.project_analysis.guide_to_integrate_piplines
@@ -66,7 +66,7 @@ exports[`renders vsts suggestions correctly 1`] = `
     values={
       Object {
         "link": <a
-          href="/documentation/integrations/vsts"
+          href="/documentation/integrations/vsts/"
           target="_blank"
         >
           onboarding.project_analysis.guide_to_integrate_vsts

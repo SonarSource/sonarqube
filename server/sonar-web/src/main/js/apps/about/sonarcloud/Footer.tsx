@@ -99,12 +99,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li className="spacer-top">
-                <Link className="sc-footer-link" to="/documentation/privacy">
+                <Link className="sc-footer-link" to="/documentation/privacy/">
                   Privacy
                 </Link>
               </li>
               <li className="spacer-top">
-                <Link className="sc-footer-link" to="/documentation/security">
+                <Link className="sc-footer-link" to="/documentation/security/">
                   Security
                 </Link>
               </li>

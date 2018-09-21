@@ -103,7 +103,9 @@ export default class PageHeader extends React.PureComponent<Props, State> {
           <Link
             className="spacer-left"
             target="_blank"
-            to={{ pathname: '/documentation/quality-profiles' }}>
+            to={{
+              pathname: '/documentation/instance-administration/quality-profiles/'
+            }}>
             {translate('learn_more')}
           </Link>
         </div>

@@ -39,7 +39,7 @@ exports[`renders correctly 1`] = `
               onClick={[MockFunction]}
               onlyActiveOnIndex={false}
               style={Object {}}
-              to="/documentation/organizations/manage-team"
+              to="/documentation/organizations/manage-team/"
             >
               as_explained_here
             </Link>,

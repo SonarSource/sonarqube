@@ -51,7 +51,7 @@ export default class TeamOnboardingModal extends React.PureComponent<Props> {
               id="onboarding.team.how_to_join"
               values={{
                 link: (
-                  <Link onClick={this.props.onFinish} to="/documentation/organizations/manage-team">
+                  <Link onClick={this.props.onFinish} to="/documentation/organizations/manage-team/">
                     {translate('as_explained_here')}
                   </Link>
                 )

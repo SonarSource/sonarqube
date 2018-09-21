@@ -37,7 +37,7 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
               <a
                 href={
                   getBaseUrl() +
-                  '/documentation/integrations/bitbucketcloud#analyzing-with-pipelines'
+                  '/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines'
                 }
                 target="_blank">
                 {translate('onboarding.project_analysis.guide_to_integrate_piplines')}
@@ -76,7 +76,7 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
           id={'onboarding.project_analysis.simply_link'}
           values={{
             link: (
-              <a href={getBaseUrl() + '/documentation/integrations/vsts'} target="_blank">
+              <a href={getBaseUrl() + '/documentation/integrations/vsts/'} target="_blank">
                 {translate('onboarding.project_analysis.guide_to_integrate_vsts')}
               </a>
             )

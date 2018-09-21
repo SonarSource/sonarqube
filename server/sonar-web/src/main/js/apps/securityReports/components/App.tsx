@@ -142,7 +142,7 @@ export default class App extends React.PureComponent<Props, State> {
             <Link
               className="spacer-left"
               target="_blank"
-              to={{ pathname: '/documentation/security-reports' }}>
+              to={{ pathname: '/documentation/user-guide/security-reports/' }}>
               {translate('learn_more')}
             </Link>
             <p className="alert alert-info spacer-top display-inline-block">

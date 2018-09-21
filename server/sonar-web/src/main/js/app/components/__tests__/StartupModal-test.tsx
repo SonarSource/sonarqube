@@ -87,7 +87,7 @@ it('should render only the children', async () => {
     getWrapper({
       canAdmin: false,
       currentUser: { ...LOGGED_IN_USER, showOnboardingTutorial: true },
-      location: { pathname: 'documentation/index' }
+      location: { pathname: 'documentation/' }
     })
   );
 });

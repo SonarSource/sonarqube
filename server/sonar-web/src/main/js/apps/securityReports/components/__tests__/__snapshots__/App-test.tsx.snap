@@ -32,7 +32,7 @@ exports[`handle checkbox for cwe display 1`] = `
         target="_blank"
         to={
           Object {
-            "pathname": "/documentation/security-reports",
+            "pathname": "/documentation/user-guide/security-reports/",
           }
         }
       >
@@ -142,7 +142,7 @@ exports[`handle checkbox for cwe display 2`] = `
         target="_blank"
         to={
           Object {
-            "pathname": "/documentation/security-reports",
+            "pathname": "/documentation/user-guide/security-reports/",
           }
         }
       >
@@ -295,7 +295,7 @@ exports[`renders owaspTop10 1`] = `
         target="_blank"
         to={
           Object {
-            "pathname": "/documentation/security-reports",
+            "pathname": "/documentation/user-guide/security-reports/",
           }
         }
       >
@@ -405,7 +405,7 @@ exports[`renders sansTop25 1`] = `
         target="_blank"
         to={
           Object {
-            "pathname": "/documentation/security-reports",
+            "pathname": "/documentation/user-guide/security-reports/",
           }
         }
       >
@@ -515,7 +515,7 @@ exports[`renders with cwe 1`] = `
         target="_blank"
         to={
           Object {
-            "pathname": "/documentation/security-reports",
+            "pathname": "/documentation/user-guide/security-reports/",
           }
         }
       >

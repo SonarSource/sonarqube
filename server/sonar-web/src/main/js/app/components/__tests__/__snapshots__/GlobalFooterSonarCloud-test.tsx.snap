@@ -61,7 +61,7 @@ exports[`should render correctly 1`] = `
       <Link
         onlyActiveOnIndex={false}
         style={Object {}}
-        to="/documentation/privacy"
+        to="/documentation/privacy/"
       >
         footer.privacy
       </Link>
@@ -72,7 +72,7 @@ exports[`should render correctly 1`] = `
       <Link
         onlyActiveOnIndex={false}
         style={Object {}}
-        to="/documentation/security"
+        to="/documentation/security/"
       >
         footer.security
       </Link>

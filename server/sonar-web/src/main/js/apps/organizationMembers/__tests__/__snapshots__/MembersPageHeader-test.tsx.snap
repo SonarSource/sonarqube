@@ -27,7 +27,7 @@ exports[`should render 1`] = `
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/documentation/organizations/manage-team"
+            to="/documentation/organizations/manage-team/"
           >
             organization.members.manage_a_team
           </Link>,
