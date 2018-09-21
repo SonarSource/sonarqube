@@ -25,6 +25,7 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -87,17 +88,19 @@ public class GroupWithPermissionTemplateDaoTest {
   }
 
   @Test
-  public void select_group_names_by_query_and_template_is_ordered_by_group_names() {
+  public void selectGroupNamesByQueryAndTemplate_is_ordering_results_by_groups_with_permission_then_by_name() {
     OrganizationDto organization = db.organizations().insert();
-    GroupDto group2 = db.users().insertGroup(organization, "Group-2");
-    db.users().insertGroup(organization, "Group-3");
-    db.users().insertGroup(organization, "Group-1");
-
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), USER);
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder(), organization, template))
-      .containsExactly("Anyone", "Group-1", "Group-2", "Group-3");
+    GroupDto group1 = db.users().insertGroup(organization, "A");
+    GroupDto group2 = db.users().insertGroup(organization, "B");
+    GroupDto group3 = db.users().insertGroup(organization, "C");
+
+    permissionTemplateDbTester.addGroupToTemplate(template, group3, UserRole.USER);
+
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId()))
+      .containsExactly("Anyone", group3.getName(), group1.getName(), group2.getName());
   }
 
   @Test

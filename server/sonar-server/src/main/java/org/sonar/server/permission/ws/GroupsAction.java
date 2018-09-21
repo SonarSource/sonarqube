@@ -26,6 +26,7 @@ import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -81,11 +82,13 @@ public class GroupsAction implements PermissionsWsAction {
         "<li>'Administer' rights on the specified project</li>" +
         "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
+      .setChangelog(
+        new Change("7.4", "The response list is returning all groups even those without permissions, the groups with permission are at the top of the list."))
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
       .setHandler(this);
 
     action.createSearchQuery("sonar", "names")
-      .setDescription("Limit search to group names that contain the supplied string. When this parameter is not set, only groups having at least one permission are returned.")
+      .setDescription("Limit search to group names that contain the supplied string.")
       .setMinimumLength(SEARCH_QUERY_MIN_LENGTH);
 
     createOrganizationParameter(action).setSince("6.2");
@@ -122,9 +125,7 @@ public class GroupsAction implements PermissionsWsAction {
     if (project.isPresent()) {
       permissionQuery.setComponentUuid(project.get().getUuid());
     }
-    if (textQuery == null) {
-      permissionQuery.withAtLeastOnePermission();
-    }
+
     return permissionQuery.build();
   }
 

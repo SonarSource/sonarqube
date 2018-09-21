@@ -126,15 +126,16 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
-  public void selectGroupNamesByQuery_is_ordered_by_group_names() {
+  public void selectGroupNamesByQuery_is_ordered_by_permissions_then_by_group_names() {
     OrganizationDto organizationDto = db.organizations().insert();
     GroupDto group2 = db.users().insertGroup(organizationDto, "Group-2");
     GroupDto group3 = db.users().insertGroup(organizationDto, "Group-3");
     GroupDto group1 = db.users().insertGroup(organizationDto, "Group-1");
     db.users().insertPermissionOnAnyone(organizationDto, SCAN);
+    db.users().insertPermissionOnGroup(group3, SCAN);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery().setOrganizationUuid(organizationDto.getUuid()).build()))
-      .containsExactly(ANYONE, group1.getName(), group2.getName(), group3.getName());
+      .containsExactly(ANYONE, group3.getName(), group1.getName(), group2.getName());
   }
 
   @Test

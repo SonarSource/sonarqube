@@ -40,9 +40,10 @@
   </select>
 
   <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
-    select distinct sub.name, lower(sub.name), sub.groupId
+    select sub.name, lower(sub.name), sub.groupId
     <include refid="groupsByQuery" />
-    order by lower(sub.name), sub.name, sub.groupId
+    group by sub.name, lower(sub.name), sub.groupId
+    order by case when (count(sub.permission) > 0) then 1 else 2 end asc, lower(sub.name), sub.name, sub.groupId
   </select>
 
   <select id="countGroupsByQuery" parameterType="map" resultType="int">

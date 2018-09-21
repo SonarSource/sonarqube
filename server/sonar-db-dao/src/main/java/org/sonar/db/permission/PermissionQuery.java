@@ -152,7 +152,7 @@ public class PermissionQuery {
       return this;
     }
 
-    public Builder setComponentUuid(@Nullable String componentUuid) {
+    public Builder setComponentUuid(String componentUuid) {
       this.componentUuid = componentUuid;
       return this;
     }

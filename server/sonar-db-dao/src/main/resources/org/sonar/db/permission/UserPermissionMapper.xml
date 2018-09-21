@@ -18,12 +18,13 @@
 
   <select id="selectUserIdsByQuery" parameterType="map" resultType="int">
     select
-      distinct u.id, lower(u.name) as lowerName
-      <include refid="sqlQueryJoins" />
-      <where>
-        <include refid="sqlQueryFilters" />
-      </where>
-    order by lowerName asc
+      u.id, lower(u.name) as lowerName
+    <include refid="sqlQueryJoins" />
+    <where>
+      <include refid="sqlQueryFilters" />
+    </where>
+    group by u.id, lowerName
+    order by case when (count(ur.role) > 0) then 1 else 2 end asc, lowerName asc
   </select>
 
   <select id="countUsersByQuery" parameterType="map" resultType="int">

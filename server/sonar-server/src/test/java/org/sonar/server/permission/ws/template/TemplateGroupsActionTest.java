@@ -130,7 +130,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .executeProtobuf(WsGroupsResponse.class);
 
-    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name");
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name", "group-3-name");
     assertThat(response.getGroups(0).getPermissionsList()).containsOnly("user", "issueadmin");
     assertThat(response.getGroups(1).getPermissionsList()).containsOnly("codeviewer", "admin");
     assertThat(response.getGroups(2).getPermissionsList()).containsOnly("user", "admin");
@@ -188,7 +188,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .executeProtobuf(WsGroupsResponse.class);
 
-    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name");
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name", "group-3-name");
   }
 
   @Test

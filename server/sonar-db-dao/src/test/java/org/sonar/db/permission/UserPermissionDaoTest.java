@@ -43,6 +43,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
@@ -153,6 +154,41 @@ public class UserPermissionDaoTest {
     // permissions of unknown project
     query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setComponentUuid("missing").withAtLeastOnePermission().build();
     expectPermissions(query, emptyList());
+  }
+
+  @Test
+  public void selectUserIdsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"), organization);
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"), organization);
+    UserDto user3 = insertUser(u -> u.setLogin("login3").setName("Z").setEmail("zanother3@another.com"), organization);
+    UserDto user4 = insertUser(u -> u.setLogin("login4").setName("A").setEmail("zanother3@another.com"), organization);
+    addGlobalPermission(organization, SYSTEM_ADMIN, user1);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    addProjectPermission(organization, USER, user2, project1);
+
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+
+    assertThat(underTest.selectUserIdsByQuery(dbSession, query))
+      .containsExactly(user2.getId(), user1.getId(), user4.getId(), user3.getId());
+  }
+
+  @Test
+  public void selectUserIdsByQuery_is_not_ordering_by_number_of_permissions() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"), organization);
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"), organization);
+    addGlobalPermission(organization, SYSTEM_ADMIN, user1);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    addProjectPermission(organization, USER, user2, project1);
+    addProjectPermission(organization, USER, user1, project1);
+    addProjectPermission(organization, ADMIN, user1, project1);
+
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+
+    // Even if user1 has 3 permissions, the name is used to order
+    assertThat(underTest.selectUserIdsByQuery(dbSession, query))
+      .containsExactly(user2.getId(), user1.getId());
   }
 
   @Test

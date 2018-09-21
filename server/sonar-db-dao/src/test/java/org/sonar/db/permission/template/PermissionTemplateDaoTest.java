@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 

@@ -113,9 +113,6 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       .setPageIndex(request.mandatoryParamAsInt(PAGE))
       .setPageSize(request.mandatoryParamAsInt(PAGE_SIZE))
       .setSearchQuery(textQuery);
-    if (textQuery == null) {
-      permissionQuery.withAtLeastOnePermission();
-    }
     return permissionQuery.build();
   }
 

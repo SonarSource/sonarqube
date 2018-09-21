@@ -33,7 +33,7 @@ import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
@@ -94,7 +94,7 @@ public class RemoveUserAction implements PermissionsWsAction {
         request.mandatoryParam(PARAM_PERMISSION),
         projectId.orElse(null),
         user);
-      permissionUpdater.apply(dbSession, asList(change));
+      permissionUpdater.apply(dbSession, singletonList(change));
       response.noContent();
     }
   }

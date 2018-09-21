@@ -25,6 +25,7 @@ import com.google.common.collect.TreeMultimap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -85,14 +86,15 @@ public class UsersAction implements PermissionsWsAction {
         "<li>'Administer' rights on the specified project</li>" +
         "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
+      .setChangelog(
+        new Change("7.4", "The response list is returning all users even those without permissions, the users with permission are at the top of the list."))
       .setInternal(true)
       .setResponseExample(getClass().getResource("users-example.json"))
       .setHandler(this);
 
     action.createParam(Param.TEXT_QUERY)
       .setMinimumLength(SEARCH_QUERY_MIN_LENGTH)
-      .setDescription("Limit search to user names that contain the supplied string. <br/>" +
-        "When this parameter is not set, only users having at least one permission are returned.")
+      .setDescription("Limit search to user names that contain the supplied string. <br/>")
       .setExampleValue("eri");
 
     createOrganizationParameter(action).setSince("6.2");
@@ -134,9 +136,7 @@ public class UsersAction implements PermissionsWsAction {
         validateGlobalPermission(permission);
       }
     }
-    if (textQuery == null) {
-      permissionQuery.withAtLeastOnePermission();
-    }
+
     return permissionQuery.build();
   }
 

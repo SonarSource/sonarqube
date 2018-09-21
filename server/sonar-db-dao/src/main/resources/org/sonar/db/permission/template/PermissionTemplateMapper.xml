@@ -124,11 +124,10 @@
   </delete>
 
   <select id="selectUserLoginsByQueryAndTemplate" parameterType="map" resultType="string">
-    SELECT u.login FROM
-      (SELECT DISTINCT u.login AS login, u.name AS name
+    select u.login as login
       <include refid="userLoginsByQueryAndTemplate"/>
-      ) u
-    ORDER BY u.name
+    group by u.login, u.name
+    order by case when (count(ptu.permission_reference) > 0) then 1 else 2 end asc, u.name
   </select>
 
   <select id="countUserLoginsByQueryAndTemplate" parameterType="map" resultType="int">
@@ -157,9 +156,10 @@
   </sql>
 
   <select id="selectGroupNamesByQueryAndTemplate" parameterType="map" resultType="string">
-    SELECT DISTINCT groups.name, LOWER(groups.name), groups.group_id
+    select groups.name, lower(groups.name), groups.group_id
     <include refid="groupNamesByQueryAndTemplate" />
-    ORDER BY LOWER(groups.name), groups.name, groups.group_id
+    group by groups.name, lower(groups.name), groups.group_id
+    order by case when (count(groups.permission) > 0) then 1 else 2 end asc, lower(groups.name), groups.name, groups.group_id
   </select>
 
   <select id="countGroupNamesByQueryAndTemplate" parameterType="map" resultType="int">

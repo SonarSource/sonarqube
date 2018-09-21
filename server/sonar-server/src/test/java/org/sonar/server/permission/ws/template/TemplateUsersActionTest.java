@@ -191,21 +191,6 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   @Test
-  public void empty_result_when_no_user_on_template() {
-    UserDto user = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
-    addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user));
-
-    loginAsAdmin(db.getDefaultOrganization());
-    Permissions.UsersWsResponse response = newRequest(null, null)
-      .setParam(PARAM_TEMPLATE_NAME, template.getName())
-      .executeProtobuf(Permissions.UsersWsResponse.class);
-
-    assertThat(response.getUsersList()).isEmpty();
-  }
-
-  @Test
   public void fail_if_not_a_project_permission() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     loginAsAdmin(db.getDefaultOrganization());

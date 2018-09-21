@@ -23,9 +23,11 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
@@ -143,19 +145,18 @@ public class UserWithPermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_be_sorted_by_user_name() {
+  public void selectUserLoginsByQueryAndTemplate_is_ordering_result_by_users_with_permissions_then_by_name() {
     OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = db.users().insertUser(u -> u.setName("User3"));
-    UserDto user2 = db.users().insertUser(u -> u.setName("User1"));
-    UserDto user3 = db.users().insertUser(u -> u.setName("User2"));
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
+    UserDto user1 = db.users().insertUser(u -> u.setName("A"));
+    UserDto user2 = db.users().insertUser(u -> u.setName("B"));
+    UserDto user3 = db.users().insertUser(u -> u.setName("C"));
     db.organizations().addMember(organization, user1, user2, user3);
-    PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
-    db.permissionTemplates().addUserToTemplate(permissionTemplate, user1, USER);
-    db.permissionTemplates().addUserToTemplate(permissionTemplate, user2, USER);
+    db.permissionTemplates().addUserToTemplate(template.getId(), user3.getId(), UserRole.USER);
 
-    assertThat(underTest.selectUserLoginsByQueryAndTemplate(dbSession,
-      builder().setOrganizationUuid(organization.getUuid()).build(), permissionTemplate.getId()))
-        .containsExactly(user2.getLogin(), user3.getLogin(), user1.getLogin());
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(db.getSession(), query, template.getId()))
+      .containsExactly(user3.getLogin(), user1.getLogin(), user2.getLogin());
   }
 
   @Test
