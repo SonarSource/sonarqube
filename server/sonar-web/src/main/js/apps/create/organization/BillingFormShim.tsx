@@ -46,6 +46,7 @@ interface Props {
   onClose: () => void;
   onCommit: () => void;
   onCouponUpdate?: (coupon?: Coupon) => void;
+  onFailToUpgrade?: () => void;
   organizationKey: string | (() => Promise<string>);
   skipBraintreeInit?: boolean;
   subscriptionPlans: SubscriptionPlan[];

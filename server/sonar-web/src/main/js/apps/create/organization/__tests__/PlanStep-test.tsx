@@ -29,10 +29,11 @@ jest.mock('../../../../app/components/extensions/utils', () => ({
 }));
 
 it('should render and use free plan', async () => {
-  const onFreePlanChoose = jest.fn();
+  const onFreePlanChoose = jest.fn().mockResolvedValue(undefined);
   const wrapper = shallow(
     <PlanStep
       createOrganization={jest.fn().mockResolvedValue('org')}
+      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
       onFreePlanChoose={onFreePlanChoose}
       onPaidPlanChoose={jest.fn()}
       open={true}
@@ -53,7 +54,8 @@ it('should upgrade using card', async () => {
   const wrapper = shallow(
     <PlanStep
       createOrganization={jest.fn().mockResolvedValue('org')}
-      onFreePlanChoose={jest.fn()}
+      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
+      onFreePlanChoose={jest.fn().mockResolvedValue(undefined)}
       onPaidPlanChoose={onPaidPlanChoose}
       open={true}
       startingPrice="10"
@@ -86,7 +88,8 @@ it('should upgrade using coupon', async () => {
   const wrapper = shallow(
     <PlanStep
       createOrganization={jest.fn().mockResolvedValue('org')}
-      onFreePlanChoose={jest.fn()}
+      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
+      onFreePlanChoose={jest.fn().mockResolvedValue(undefined)}
       onPaidPlanChoose={onPaidPlanChoose}
       open={true}
       startingPrice="10"
@@ -118,7 +121,8 @@ it('should preselect paid plan', async () => {
   const wrapper = shallow(
     <PlanStep
       createOrganization={jest.fn()}
-      onFreePlanChoose={jest.fn()}
+      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
+      onFreePlanChoose={jest.fn().mockResolvedValue(undefined)}
       onPaidPlanChoose={jest.fn()}
       onlyPaid={true}
       open={true}

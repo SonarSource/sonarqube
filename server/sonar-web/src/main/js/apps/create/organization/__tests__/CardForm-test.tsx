@@ -28,6 +28,7 @@ it('should render', () => {
     <CardForm
       createOrganization={jest.fn()}
       currentUser={{ isLoggedIn: false }}
+      onFailToUpgrade={jest.fn()}
       onSubmit={jest.fn()}
       subscriptionPlans={[{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }]}
     />

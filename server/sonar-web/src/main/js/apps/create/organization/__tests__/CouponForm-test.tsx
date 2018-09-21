@@ -28,6 +28,7 @@ it('should render', () => {
     <CouponForm
       createOrganization={jest.fn()}
       currentUser={{ isLoggedIn: false }}
+      onFailToUpgrade={jest.fn()}
       onSubmit={jest.fn()}
     />
   );

@@ -79,12 +79,16 @@ exports[`should render and use free plan 2`] = `
         plan="free"
         startingPrice="10"
       />
-      <SubmitButton
-        className="big-spacer-top"
-        onClick={[MockFunction]}
+      <div
+        className="display-flex-center big-spacer-top"
       >
-        my_account.create_organization
-      </SubmitButton>
+        <SubmitButton
+          disabled={false}
+          onClick={[Function]}
+        >
+          my_account.create_organization
+        </SubmitButton>
+      </div>
     </React.Fragment>
   </div>
 </div>
@@ -157,6 +161,7 @@ exports[`should upgrade using card 2`] = `
         />
         <Connect(withCurrentUser(CardForm))
           createOrganization={[MockFunction]}
+          onFailToUpgrade={[MockFunction]}
           onSubmit={[MockFunction]}
           subscriptionPlans={Array []}
         />
@@ -233,6 +238,7 @@ exports[`should upgrade using coupon 2`] = `
         />
         <Connect(withCurrentUser(CouponForm))
           createOrganization={[MockFunction]}
+          onFailToUpgrade={[MockFunction]}
           onSubmit={[MockFunction]}
         />
       </React.Fragment>

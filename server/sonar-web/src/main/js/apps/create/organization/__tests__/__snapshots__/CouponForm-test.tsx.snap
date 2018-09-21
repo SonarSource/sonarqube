@@ -13,6 +13,7 @@ exports[`should render 1`] = `
     onClose={[Function]}
     onCommit={[MockFunction]}
     onCouponUpdate={[Function]}
+    onFailToUpgrade={[MockFunction]}
     organizationKey={[MockFunction]}
     skipBraintreeInit={true}
     subscriptionPlans={Array []}

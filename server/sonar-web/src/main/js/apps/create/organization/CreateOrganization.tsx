@@ -22,20 +22,24 @@ import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { Link, withRouter, WithRouterProps } from 'react-router';
 import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
 import { formatPrice } from './utils';
 import { whenLoggedIn } from './whenLoggedIn';
-import { createOrganization } from '../../organizations/actions';
 import { getSubscriptionPlans } from '../../../api/billing';
 import { OrganizationBase, Organization, SubscriptionPlan } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { getOrganizationUrl } from '../../../helpers/urls';
+import * as api from '../../../api/organizations';
+import * as actions from '../../../store/organizations';
+import { Store } from '../../../store/rootReducer';
 import '../../../app/styles/sonarcloud.css';
 import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
   createOrganization: (organization: OrganizationBase) => Promise<Organization>;
+  deleteOrganization: (key: string) => Promise<void>;
 }
 
 enum Step {
@@ -100,10 +104,9 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   };
 
   handleFreePlanChoose = () => {
-    this.createOrganization().then(
-      key => this.props.router.push(getOrganizationUrl(key)),
-      () => {}
-    );
+    return this.createOrganization().then(key => {
+      this.props.router.push(getOrganizationUrl(key));
+    });
   };
 
   createOrganization = () => {
@@ -120,6 +123,13 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
         .then(({ key }) => key);
     } else {
       return Promise.reject();
+    }
+  };
+
+  deleteOrganization = () => {
+    const { organization } = this.state;
+    if (organization) {
+      this.props.deleteOrganization(organization.key).catch(() => {});
     }
   };
 
@@ -171,6 +181,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
                 this.state.organization && (
                   <PlanStep
                     createOrganization={this.createOrganization}
+                    deleteOrganization={this.deleteOrganization}
                     onFreePlanChoose={this.handleFreePlanChoose}
                     onPaidPlanChoose={this.handlePaidPlanChoose}
                     onlyPaid={location.state && location.state.paid === true}
@@ -187,7 +198,27 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   }
 }
 
-const mapDispatchToProps = { createOrganization: createOrganization as any };
+function createOrganization(organization: OrganizationBase) {
+  return (dispatch: Dispatch<Store>) => {
+    return api.createOrganization(organization).then((organization: Organization) => {
+      dispatch(actions.createOrganization(organization));
+      return organization;
+    });
+  };
+}
+
+function deleteOrganization(key: string) {
+  return (dispatch: Dispatch<Store>) => {
+    return api.deleteOrganization(key).then(() => {
+      dispatch(actions.deleteOrganization(key));
+    });
+  };
+}
+
+const mapDispatchToProps = {
+  createOrganization: createOrganization as any,
+  deleteOrganization: deleteOrganization as any
+};
 
 export default whenLoggedIn(
   connect(

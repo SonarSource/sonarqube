@@ -114,6 +114,7 @@ exports[`should render and create organization 2`] = `
       />
       <PlanStep
         createOrganization={[Function]}
+        deleteOrganization={[Function]}
         onFreePlanChoose={[Function]}
         onPaidPlanChoose={[Function]}
         open={true}

@@ -12,6 +12,7 @@ exports[`should render 1`] = `
     }
     onClose={[Function]}
     onCommit={[MockFunction]}
+    onFailToUpgrade={[MockFunction]}
     organizationKey={[MockFunction]}
     subscriptionPlans={
       Array [

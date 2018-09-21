@@ -69,3 +69,29 @@ it('should preselect paid plan', async () => {
 
   expect(wrapper.find('PlanStep').prop('onlyPaid')).toBe(true);
 });
+
+it('should roll back after upgrade failure', async () => {
+  const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
+  const deleteOrganization = jest.fn().mockResolvedValue(undefined);
+  const router = mockRouter();
+  const wrapper = shallow(
+    <CreateOrganization
+      createOrganization={createOrganization}
+      deleteOrganization={deleteOrganization}
+      // @ts-ignore avoid passing everything from WithRouterProps
+      location={{}}
+      // @ts-ignore avoid passing everything from WithRouterProps
+      router={router}
+    />
+  );
+  await waitAndUpdate(wrapper);
+
+  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
+  await waitAndUpdate(wrapper);
+
+  wrapper.find('PlanStep').prop<Function>('createOrganization')();
+  expect(createOrganization).toBeCalledWith(organization);
+
+  wrapper.find('PlanStep').prop<Function>('deleteOrganization')();
+  expect(deleteOrganization).toBeCalledWith(organization.key);
+});

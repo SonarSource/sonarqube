@@ -28,6 +28,7 @@ import DocTooltip from '../../../components/docs/DocTooltip';
 interface Props {
   createOrganization: () => Promise<string>;
   currentUser: CurrentUser;
+  onFailToUpgrade: () => void;
   onSubmit: () => void;
 }
 
@@ -72,6 +73,7 @@ export class CouponForm extends React.PureComponent<Props, State> {
           onClose={this.handleClose}
           onCommit={this.props.onSubmit}
           onCouponUpdate={this.handleCouponUpdate}
+          onFailToUpgrade={this.props.onFailToUpgrade}
           organizationKey={this.props.createOrganization}
           skipBraintreeInit={true}
           subscriptionPlans={[]}>

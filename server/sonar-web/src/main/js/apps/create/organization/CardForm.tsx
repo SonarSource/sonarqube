@@ -27,6 +27,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   createOrganization: () => Promise<string>;
   currentUser: CurrentUser;
+  onFailToUpgrade: () => void;
   onSubmit: () => void;
   subscriptionPlans: SubscriptionPlan[];
 }
@@ -43,6 +44,7 @@ export class CardForm extends React.PureComponent<Props> {
           currentUser={this.props.currentUser}
           onClose={this.handleClose}
           onCommit={this.props.onSubmit}
+          onFailToUpgrade={this.props.onFailToUpgrade}
           organizationKey={this.props.createOrganization}
           subscriptionPlans={this.props.subscriptionPlans}>
           {form => (
