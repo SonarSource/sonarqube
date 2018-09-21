@@ -10,37 +10,37 @@
   "code": [],
   "coding_rules": [
     {
-      "link": "/documentation/quality-profiles/",
+      "link": "/documentation/instance-administration/quality-profiles/",
       "text": "Quality Profiles"
     },
     {
-      "link": "/documentation/keyboard-shortcuts/",
+      "link": "/documentation/user-guide/keyboard-shortcuts/",
       "text": "Keyboard Shortcuts"
     }
   ],
   "component_measures": [
     {
-      "link": "/documentation/fixing-the-water-leak/",
+      "link": "/documentation/user-guide/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     },
     {
-      "link": "/documentation/metric-definitions/",
+      "link": "/documentation/user-guide/metric-definitions/",
       "text": "Metric Definitions"
     },
     {
-      "link": "/documentation/keyboard-shortcuts/",
+      "link": "/documentation/user-guide/keyboard-shortcuts/",
       "text": "Keyboard Shortcuts"
     }
   ],
   "custom_measures": [
     {
-      "link": "/documentation/custom-measures/",
+      "link": "/documentation/instance-administration/custom-measures/",
       "text": "About Custom Measures"
     }
   ],
   "custom_metrics": [
     {
-      "link": "/documentation/custom-measures/",
+      "link": "/documentation/instance-administration/custom-measures/",
       "text": "Custom Measures"
     }
   ],
@@ -60,7 +60,7 @@
   ],
   "issues": [
     {
-      "link": "/documentation/keyboard-shortcuts/",
+      "link": "/documentation/user-guide/keyboard-shortcuts/",
       "text": "Keyboard Shortcuts"
     }
   ],
@@ -81,18 +81,18 @@
   ],
   "organization_space": [
     {
-      "link": "/documentation/organizations/index/",
+      "link": "/documentation/organizations/overview/",
       "text": "Organizations",
       "scope": "sonarcloud"
     }
   ],
   "overview": [
     {
-      "link": "/documentation/fixing-the-water-leak/",
+      "link": "/documentation/user-guide/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     },
     {
-      "link": "/documentation/branches/index/",
+      "link": "/documentation/branches/overview/",
       "text": "Branches Overview"
     },
     {
@@ -103,20 +103,20 @@
   "permission_templates": [],
   "profiles": [
     {
-      "link": "/documentation/quality-profiles/",
+      "link": "/documentation/instance-administration/quality-profiles/",
       "text": "Quality Profiles"
     }
   ],
   "project_activity": [],
   "project_quality_gate": [
     {
-      "link": "/documentation/fixing-the-water-leak/",
+      "link": "/documentation/user-guide/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     }
   ],
   "project_quality_profiles": [
     {
-      "link": "/documentation/quality-profiles/",
+      "link": "/documentation/instance-administration/quality-profiles/",
       "text": "About Quality Profiles"
     }
   ],
@@ -136,19 +136,19 @@
   ],
   "quality_gates": [
     {
-      "link": "/documentation/fixing-the-water-leak/",
+      "link": "/documentation/user-guide/fixing-the-water-leak/",
       "text": "Fixing the Water Leak"
     }
   ],
   "quality_profiles": [
     {
-      "link": "/documentation/quality-profiles/",
+      "link": "/documentation/instance-administration/quality-profiles/",
       "text": "Quality Profiles"
     }
   ],
   "security_reports": [
     {
-      "link": "/documentation/security-reports/",
+      "link": "/documentation/user-guide/security-reports/",
       "text": "About Security Reports"
     }
   ],
@@ -164,7 +164,7 @@
   "users": [],
   "webhooks": [
     {
-      "link": "/documentation/webhooks/",
+      "link": "/documentation/project-administration/webhooks/",
       "text": "About Webhooks"
     }
   ]
