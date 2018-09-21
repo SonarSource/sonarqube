@@ -16,6 +16,12 @@ out/
 # Directories generated on build on Windows
 bin/
 
+# npm logs
+npm-debug.log*
+npm.tar.gz
+yarn-debug.log*
+yarn-error.log*
+
 # ---- Eclipse
 .classpath
 .project
@@ -37,10 +43,12 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
-# ---- vscode
-.vscode
+# ---- frontend
+node/
+node_modules/
+.vscode/
 
-# ---- Sonar
+# ---- SonarQube
 .sonar/
 
 # scripts patches, they are local to each developer
