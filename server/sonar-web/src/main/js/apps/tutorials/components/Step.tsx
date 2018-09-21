@@ -55,7 +55,8 @@ export default function Step(props: Props) {
       <div className="boxed-group-header">
         <h2>{props.stepTitle}</h2>
       </div>
-      {props.open ? props.renderForm() : <div className="boxed-group-inner" />}
+      {!props.open && <div className="boxed-group-inner" />}
+      <div className={classNames({ hidden: !props.open })}>{props.renderForm()}</div>
     </div>
   );
 }

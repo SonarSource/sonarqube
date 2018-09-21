@@ -16,8 +16,12 @@ exports[`renders 1`] = `
       First Step
     </h2>
   </div>
-  <div>
-    form
+  <div
+    className=""
+  >
+    <div>
+      form
+    </div>
   </div>
 </div>
 `;
@@ -47,5 +51,12 @@ exports[`renders 2`] = `
   <div
     className="boxed-group-inner"
   />
+  <div
+    className="hidden"
+  >
+    <div>
+      form
+    </div>
+  </div>
 </div>
 `;

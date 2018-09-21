@@ -29,22 +29,26 @@ exports[`should render form 2`] = `
     </h2>
   </div>
   <div
-    className="boxed-group-inner"
+    className=""
   >
-    <ValidationForm
-      initialValues={
-        Object {
-          "avatar": "",
-          "description": "",
-          "key": "",
-          "name": "",
-          "url": "",
+    <div
+      className="boxed-group-inner"
+    >
+      <ValidationForm
+        initialValues={
+          Object {
+            "avatar": "",
+            "description": "",
+            "key": "",
+            "name": "",
+            "url": "",
+          }
         }
-      }
-      isInitialValid={false}
-      onSubmit={[MockFunction]}
-      validate={[Function]}
-    />
+        isInitialValid={false}
+        onSubmit={[MockFunction]}
+        validate={[Function]}
+      />
+    </div>
   </div>
 </div>
 `;
@@ -187,5 +191,27 @@ exports[`should render result 1`] = `
   <div
     className="boxed-group-inner"
   />
+  <div
+    className="hidden"
+  >
+    <div
+      className="boxed-group-inner"
+    >
+      <ValidationForm
+        initialValues={
+          Object {
+            "avatar": "",
+            "description": "",
+            "key": "org",
+            "name": "Organization",
+            "url": "",
+          }
+        }
+        isInitialValid={true}
+        onSubmit={[MockFunction]}
+        validate={[Function]}
+      />
+    </div>
+  </div>
 </div>
 `;

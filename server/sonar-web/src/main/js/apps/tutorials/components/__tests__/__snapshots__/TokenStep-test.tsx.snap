@@ -38,77 +38,81 @@ exports[`generates token 1`] = `
         </h2>
       </div>
       <div
-        className="boxed-group-inner"
+        className=""
       >
-        <div>
+        <div
+          className="boxed-group-inner"
+        >
           <div>
-            <a
-              className="js-new link-base-color link-no-underline"
-              href="#"
-              onClick={[Function]}
-            >
-              <i
-                className="icon-radio spacer-right is-checked"
-              />
-              onboarding.token.generate_token
-            </a>
+            <div>
+              <a
+                className="js-new link-base-color link-no-underline"
+                href="#"
+                onClick={[Function]}
+              >
+                <i
+                  className="icon-radio spacer-right is-checked"
+                />
+                onboarding.token.generate_token
+              </a>
+              <div
+                className="big-spacer-top"
+              >
+                <form
+                  onSubmit={[Function]}
+                >
+                  <input
+                    autoFocus={true}
+                    className="input-large spacer-right text-middle"
+                    onChange={[Function]}
+                    placeholder="onboarding.token.generate_token.placeholder"
+                    required={true}
+                    type="text"
+                    value=""
+                  />
+                  <SubmitButton
+                    className="text-middle"
+                    disabled={true}
+                  >
+                    <Button
+                      className="text-middle"
+                      disabled={true}
+                      preventDefault={false}
+                      type="submit"
+                    >
+                      <button
+                        className="button text-middle"
+                        disabled={true}
+                        onClick={[Function]}
+                        type="submit"
+                      >
+                        onboarding.token.generate
+                      </button>
+                    </Button>
+                  </SubmitButton>
+                </form>
+              </div>
+            </div>
             <div
               className="big-spacer-top"
             >
-              <form
-                onSubmit={[Function]}
+              <a
+                className="js-new link-base-color link-no-underline"
+                href="#"
+                onClick={[Function]}
               >
-                <input
-                  autoFocus={true}
-                  className="input-large spacer-right text-middle"
-                  onChange={[Function]}
-                  placeholder="onboarding.token.generate_token.placeholder"
-                  required={true}
-                  type="text"
-                  value=""
+                <i
+                  className="icon-radio spacer-right"
                 />
-                <SubmitButton
-                  className="text-middle"
-                  disabled={true}
-                >
-                  <Button
-                    className="text-middle"
-                    disabled={true}
-                    preventDefault={false}
-                    type="submit"
-                  >
-                    <button
-                      className="button text-middle"
-                      disabled={true}
-                      onClick={[Function]}
-                      type="submit"
-                    >
-                      onboarding.token.generate
-                    </button>
-                  </Button>
-                </SubmitButton>
-              </form>
+                onboarding.token.use_existing_token
+              </a>
             </div>
           </div>
           <div
-            className="big-spacer-top"
+            className="note big-spacer-top width-50"
           >
-            <a
-              className="js-new link-base-color link-no-underline"
-              href="#"
-              onClick={[Function]}
-            >
-              <i
-                className="icon-radio spacer-right"
-              />
-              onboarding.token.use_existing_token
-            </a>
+            onboarding.token.text
           </div>
-        </div>
-        <div
-          className="note big-spacer-top width-50"
-        >
-          onboarding.token.text
         </div>
       </div>
     </div>
@@ -154,60 +158,64 @@ exports[`generates token 2`] = `
         </h2>
       </div>
       <div
-        className="boxed-group-inner"
+        className=""
       >
-        <div>
+        <div
+          className="boxed-group-inner"
+        >
           <div>
-            <a
-              className="js-new link-base-color link-no-underline"
-              href="#"
-              onClick={[Function]}
-            >
-              <i
-                className="icon-radio spacer-right is-checked"
-              />
-              onboarding.token.generate_token
-            </a>
+            <div>
+              <a
+                className="js-new link-base-color link-no-underline"
+                href="#"
+                onClick={[Function]}
+              >
+                <i
+                  className="icon-radio spacer-right is-checked"
+                />
+                onboarding.token.generate_token
+              </a>
+              <div
+                className="big-spacer-top"
+              >
+                <form
+                  onSubmit={[Function]}
+                >
+                  <input
+                    autoFocus={true}
+                    className="input-large spacer-right text-middle"
+                    onChange={[Function]}
+                    placeholder="onboarding.token.generate_token.placeholder"
+                    required={true}
+                    type="text"
+                    value="my token"
+                  />
+                  <i
+                    className="spinner text-middle"
+                  />
+                </form>
+              </div>
+            </div>
             <div
               className="big-spacer-top"
             >
-              <form
-                onSubmit={[Function]}
+              <a
+                className="js-new link-base-color link-no-underline"
+                href="#"
+                onClick={[Function]}
               >
-                <input
-                  autoFocus={true}
-                  className="input-large spacer-right text-middle"
-                  onChange={[Function]}
-                  placeholder="onboarding.token.generate_token.placeholder"
-                  required={true}
-                  type="text"
-                  value="my token"
-                />
                 <i
-                  className="spinner text-middle"
+                  className="icon-radio spacer-right"
                 />
-              </form>
+                onboarding.token.use_existing_token
+              </a>
             </div>
           </div>
           <div
-            className="big-spacer-top"
+            className="note big-spacer-top width-50"
           >
-            <a
-              className="js-new link-base-color link-no-underline"
-              href="#"
-              onClick={[Function]}
-            >
-              <i
-                className="icon-radio spacer-right"
-              />
-              onboarding.token.use_existing_token
-            </a>
+            onboarding.token.text
           </div>
-        </div>
-        <div
-          className="note big-spacer-top width-50"
-        >
-          onboarding.token.text
         </div>
       </div>
     </div>
@@ -253,77 +261,81 @@ exports[`generates token 3`] = `
         </h2>
       </div>
       <div
-        className="boxed-group-inner"
+        className=""
       >
-        <form
-          onSubmit={[Function]}
+        <div
+          className="boxed-group-inner"
         >
-          <span
-            className="text-middle"
+          <form
+            onSubmit={[Function]}
           >
-            my token
-            : 
-          </span>
-          <strong
-            className="spacer-right text-middle"
-          >
-            abcd1234
-          </strong>
-          <DeleteButton
-            className="button-small text-middle"
-            onClick={[Function]}
-          >
-            <ButtonIcon
+            <span
+              className="text-middle"
+            >
+              my token
+              : 
+            </span>
+            <strong
+              className="spacer-right text-middle"
+            >
+              abcd1234
+            </strong>
+            <DeleteButton
               className="button-small text-middle"
-              color="#d4333f"
               onClick={[Function]}
             >
-              <Button
-                className="button-small text-middle button-icon"
+              <ButtonIcon
+                className="button-small text-middle"
+                color="#d4333f"
                 onClick={[Function]}
-                stopPropagation={true}
-                style={
-                  Object {
-                    "color": "#d4333f",
-                  }
-                }
               >
-                <button
-                  className="button button-small text-middle button-icon"
+                <Button
+                  className="button-small text-middle button-icon"
                   onClick={[Function]}
+                  stopPropagation={true}
                   style={
                     Object {
                       "color": "#d4333f",
                     }
                   }
-                  type="button"
                 >
-                  <ClearIcon />
-                </button>
-              </Button>
-            </ButtonIcon>
-          </DeleteButton>
-        </form>
-        <div
-          className="note big-spacer-top width-50"
-        >
-          onboarding.token.text
-        </div>
-        <div
-          className="big-spacer-top"
-        >
-          <Button
-            className="js-continue"
-            onClick={[Function]}
+                  <button
+                    className="button button-small text-middle button-icon"
+                    onClick={[Function]}
+                    style={
+                      Object {
+                        "color": "#d4333f",
+                      }
+                    }
+                    type="button"
+                  >
+                    <ClearIcon />
+                  </button>
+                </Button>
+              </ButtonIcon>
+            </DeleteButton>
+          </form>
+          <div
+            className="note big-spacer-top width-50"
           >
-            <button
-              className="button js-continue"
+            onboarding.token.text
+          </div>
+          <div
+            className="big-spacer-top"
+          >
+            <Button
+              className="js-continue"
               onClick={[Function]}
-              type="button"
             >
-              continue
-            </button>
-          </Button>
+              <button
+                className="button js-continue"
+                onClick={[Function]}
+                type="button"
+              >
+                continue
+              </button>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -369,77 +381,81 @@ exports[`revokes token 1`] = `
         </h2>
       </div>
       <div
-        className="boxed-group-inner"
+        className=""
       >
-        <form
-          onSubmit={[Function]}
+        <div
+          className="boxed-group-inner"
         >
-          <span
-            className="text-middle"
+          <form
+            onSubmit={[Function]}
           >
-            my token
-            : 
-          </span>
-          <strong
-            className="spacer-right text-middle"
-          >
-            abcd1234
-          </strong>
-          <DeleteButton
-            className="button-small text-middle"
-            onClick={[Function]}
-          >
-            <ButtonIcon
+            <span
+              className="text-middle"
+            >
+              my token
+              : 
+            </span>
+            <strong
+              className="spacer-right text-middle"
+            >
+              abcd1234
+            </strong>
+            <DeleteButton
               className="button-small text-middle"
-              color="#d4333f"
               onClick={[Function]}
             >
-              <Button
-                className="button-small text-middle button-icon"
+              <ButtonIcon
+                className="button-small text-middle"
+                color="#d4333f"
                 onClick={[Function]}
-                stopPropagation={true}
-                style={
-                  Object {
-                    "color": "#d4333f",
-                  }
-                }
               >
-                <button
-                  className="button button-small text-middle button-icon"
+                <Button
+                  className="button-small text-middle button-icon"
                   onClick={[Function]}
+                  stopPropagation={true}
                   style={
                     Object {
                       "color": "#d4333f",
                     }
                   }
-                  type="button"
                 >
-                  <ClearIcon />
-                </button>
-              </Button>
-            </ButtonIcon>
-          </DeleteButton>
-        </form>
-        <div
-          className="note big-spacer-top width-50"
-        >
-          onboarding.token.text
-        </div>
-        <div
-          className="big-spacer-top"
-        >
-          <Button
-            className="js-continue"
-            onClick={[Function]}
+                  <button
+                    className="button button-small text-middle button-icon"
+                    onClick={[Function]}
+                    style={
+                      Object {
+                        "color": "#d4333f",
+                      }
+                    }
+                    type="button"
+                  >
+                    <ClearIcon />
+                  </button>
+                </Button>
+              </ButtonIcon>
+            </DeleteButton>
+          </form>
+          <div
+            className="note big-spacer-top width-50"
           >
-            <button
-              className="button js-continue"
+            onboarding.token.text
+          </div>
+          <div
+            className="big-spacer-top"
+          >
+            <Button
+              className="js-continue"
               onClick={[Function]}
-              type="button"
             >
-              continue
-            </button>
-          </Button>
+              <button
+                className="button js-continue"
+                onClick={[Function]}
+                type="button"
+              >
+                continue
+              </button>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -485,46 +501,50 @@ exports[`revokes token 2`] = `
         </h2>
       </div>
       <div
-        className="boxed-group-inner"
+        className=""
       >
-        <form
-          onSubmit={[Function]}
-        >
-          <span
-            className="text-middle"
-          >
-            my token
-            : 
-          </span>
-          <strong
-            className="spacer-right text-middle"
-          >
-            abcd1234
-          </strong>
-          <i
-            className="spinner text-middle"
-          />
-        </form>
         <div
-          className="note big-spacer-top width-50"
+          className="boxed-group-inner"
         >
-          onboarding.token.text
-        </div>
-        <div
-          className="big-spacer-top"
-        >
-          <Button
-            className="js-continue"
-            onClick={[Function]}
+          <form
+            onSubmit={[Function]}
           >
-            <button
-              className="button js-continue"
-              onClick={[Function]}
-              type="button"
+            <span
+              className="text-middle"
             >
-              continue
-            </button>
-          </Button>
+              my token
+              : 
+            </span>
+            <strong
+              className="spacer-right text-middle"
+            >
+              abcd1234
+            </strong>
+            <i
+              className="spinner text-middle"
+            />
+          </form>
+          <div
+            className="note big-spacer-top width-50"
+          >
+            onboarding.token.text
+          </div>
+          <div
+            className="big-spacer-top"
+          >
+            <Button
+              className="js-continue"
+              onClick={[Function]}
+            >
+              <button
+                className="button js-continue"
+                onClick={[Function]}
+                type="button"
+              >
+                continue
+              </button>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -570,77 +590,81 @@ exports[`revokes token 3`] = `
         </h2>
       </div>
       <div
-        className="boxed-group-inner"
+        className=""
       >
-        <div>
+        <div
+          className="boxed-group-inner"
+        >
           <div>
-            <a
-              className="js-new link-base-color link-no-underline"
-              href="#"
-              onClick={[Function]}
-            >
-              <i
-                className="icon-radio spacer-right is-checked"
-              />
-              onboarding.token.generate_token
-            </a>
+            <div>
+              <a
+                className="js-new link-base-color link-no-underline"
+                href="#"
+                onClick={[Function]}
+              >
+                <i
+                  className="icon-radio spacer-right is-checked"
+                />
+                onboarding.token.generate_token
+              </a>
+              <div
+                className="big-spacer-top"
+              >
+                <form
+                  onSubmit={[Function]}
+                >
+                  <input
+                    autoFocus={true}
+                    className="input-large spacer-right text-middle"
+                    onChange={[Function]}
+                    placeholder="onboarding.token.generate_token.placeholder"
+                    required={true}
+                    type="text"
+                    value=""
+                  />
+                  <SubmitButton
+                    className="text-middle"
+                    disabled={true}
+                  >
+                    <Button
+                      className="text-middle"
+                      disabled={true}
+                      preventDefault={false}
+                      type="submit"
+                    >
+                      <button
+                        className="button text-middle"
+                        disabled={true}
+                        onClick={[Function]}
+                        type="submit"
+                      >
+                        onboarding.token.generate
+                      </button>
+                    </Button>
+                  </SubmitButton>
+                </form>
+              </div>
+            </div>
             <div
               className="big-spacer-top"
             >
-              <form
-                onSubmit={[Function]}
+              <a
+                className="js-new link-base-color link-no-underline"
+                href="#"
+                onClick={[Function]}
               >
-                <input
-                  autoFocus={true}
-                  className="input-large spacer-right text-middle"
-                  onChange={[Function]}
-                  placeholder="onboarding.token.generate_token.placeholder"
-                  required={true}
-                  type="text"
-                  value=""
+                <i
+                  className="icon-radio spacer-right"
                 />
-                <SubmitButton
-                  className="text-middle"
-                  disabled={true}
-                >
-                  <Button
-                    className="text-middle"
-                    disabled={true}
-                    preventDefault={false}
-                    type="submit"
-                  >
-                    <button
-                      className="button text-middle"
-                      disabled={true}
-                      onClick={[Function]}
-                      type="submit"
-                    >
-                      onboarding.token.generate
-                    </button>
-                  </Button>
-                </SubmitButton>
-              </form>
+                onboarding.token.use_existing_token
+              </a>
             </div>
           </div>
           <div
-            className="big-spacer-top"
+            className="note big-spacer-top width-50"
           >
-            <a
-              className="js-new link-base-color link-no-underline"
-              href="#"
-              onClick={[Function]}
-            >
-              <i
-                className="icon-radio spacer-right"
-              />
-              onboarding.token.use_existing_token
-            </a>
+            onboarding.token.text
           </div>
-        </div>
-        <div
-          className="note big-spacer-top width-50"
-        >
-          onboarding.token.text
         </div>
       </div>
     </div>

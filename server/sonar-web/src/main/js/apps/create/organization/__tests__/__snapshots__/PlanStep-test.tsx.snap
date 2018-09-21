@@ -29,15 +29,19 @@ exports[`should preselect paid plan 2`] = `
     </h2>
   </div>
   <div
-    className="boxed-group-inner"
+    className=""
   >
-    <React.Fragment>
+    <div
+      className="boxed-group-inner"
+    >
       <React.Fragment>
-        <PaymentMethodSelect
-          onChange={[Function]}
-        />
+        <React.Fragment>
+          <PaymentMethodSelect
+            onChange={[Function]}
+          />
+        </React.Fragment>
       </React.Fragment>
-    </React.Fragment>
+    </div>
   </div>
 </div>
 `;
@@ -71,25 +75,29 @@ exports[`should render and use free plan 2`] = `
     </h2>
   </div>
   <div
-    className="boxed-group-inner"
+    className=""
   >
-    <React.Fragment>
-      <PlanSelect
-        onChange={[Function]}
-        plan="free"
-        startingPrice="10"
-      />
-      <div
-        className="display-flex-center big-spacer-top"
-      >
-        <SubmitButton
-          disabled={false}
-          onClick={[Function]}
+    <div
+      className="boxed-group-inner"
+    >
+      <React.Fragment>
+        <PlanSelect
+          onChange={[Function]}
+          plan="free"
+          startingPrice="10"
+        />
+        <div
+          className="display-flex-center big-spacer-top"
         >
-          my_account.create_organization
-        </SubmitButton>
-      </div>
-    </React.Fragment>
+          <SubmitButton
+            disabled={false}
+            onClick={[Function]}
+          >
+            my_account.create_organization
+          </SubmitButton>
+        </div>
+      </React.Fragment>
+    </div>
   </div>
 </div>
 `;
@@ -111,20 +119,24 @@ exports[`should upgrade using card 1`] = `
     </h2>
   </div>
   <div
-    className="boxed-group-inner"
+    className=""
   >
-    <React.Fragment>
-      <PlanSelect
-        onChange={[Function]}
-        plan="paid"
-        startingPrice="10"
-      />
+    <div
+      className="boxed-group-inner"
+    >
       <React.Fragment>
-        <PaymentMethodSelect
+        <PlanSelect
           onChange={[Function]}
+          plan="paid"
+          startingPrice="10"
         />
+        <React.Fragment>
+          <PaymentMethodSelect
+            onChange={[Function]}
+          />
+        </React.Fragment>
       </React.Fragment>
-    </React.Fragment>
+    </div>
   </div>
 </div>
 `;
@@ -146,27 +158,31 @@ exports[`should upgrade using card 2`] = `
     </h2>
   </div>
   <div
-    className="boxed-group-inner"
+    className=""
   >
-    <React.Fragment>
-      <PlanSelect
-        onChange={[Function]}
-        plan="paid"
-        startingPrice="10"
-      />
+    <div
+      className="boxed-group-inner"
+    >
       <React.Fragment>
-        <PaymentMethodSelect
+        <PlanSelect
           onChange={[Function]}
-          paymentMethod="card"
+          plan="paid"
+          startingPrice="10"
         />
-        <Connect(withCurrentUser(CardForm))
-          createOrganization={[MockFunction]}
-          onFailToUpgrade={[MockFunction]}
-          onSubmit={[MockFunction]}
-          subscriptionPlans={Array []}
-        />
+        <React.Fragment>
+          <PaymentMethodSelect
+            onChange={[Function]}
+            paymentMethod="card"
+          />
+          <Connect(withCurrentUser(CardForm))
+            createOrganization={[MockFunction]}
+            onFailToUpgrade={[MockFunction]}
+            onSubmit={[MockFunction]}
+            subscriptionPlans={Array []}
+          />
+        </React.Fragment>
       </React.Fragment>
-    </React.Fragment>
+    </div>
   </div>
 </div>
 `;
@@ -188,20 +204,24 @@ exports[`should upgrade using coupon 1`] = `
     </h2>
   </div>
   <div
-    className="boxed-group-inner"
+    className=""
   >
-    <React.Fragment>
-      <PlanSelect
-        onChange={[Function]}
-        plan="paid"
-        startingPrice="10"
-      />
+    <div
+      className="boxed-group-inner"
+    >
       <React.Fragment>
-        <PaymentMethodSelect
+        <PlanSelect
           onChange={[Function]}
+          plan="paid"
+          startingPrice="10"
         />
+        <React.Fragment>
+          <PaymentMethodSelect
+            onChange={[Function]}
+          />
+        </React.Fragment>
       </React.Fragment>
-    </React.Fragment>
+    </div>
   </div>
 </div>
 `;
@@ -223,26 +243,30 @@ exports[`should upgrade using coupon 2`] = `
     </h2>
   </div>
   <div
-    className="boxed-group-inner"
+    className=""
   >
-    <React.Fragment>
-      <PlanSelect
-        onChange={[Function]}
-        plan="paid"
-        startingPrice="10"
-      />
+    <div
+      className="boxed-group-inner"
+    >
       <React.Fragment>
-        <PaymentMethodSelect
+        <PlanSelect
           onChange={[Function]}
-          paymentMethod="coupon"
+          plan="paid"
+          startingPrice="10"
         />
-        <Connect(withCurrentUser(CouponForm))
-          createOrganization={[MockFunction]}
-          onFailToUpgrade={[MockFunction]}
-          onSubmit={[MockFunction]}
-        />
+        <React.Fragment>
+          <PaymentMethodSelect
+            onChange={[Function]}
+            paymentMethod="coupon"
+          />
+          <Connect(withCurrentUser(CouponForm))
+            createOrganization={[MockFunction]}
+            onFailToUpgrade={[MockFunction]}
+            onSubmit={[MockFunction]}
+          />
+        </React.Fragment>
       </React.Fragment>
-    </React.Fragment>
+    </div>
   </div>
 </div>
 `;
