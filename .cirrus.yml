@@ -71,13 +71,13 @@ validate_task:
     cluster_name: cirrus-cluster
     zone: us-central1-a
     namespace: default
-    cpu: 2
+    cpu: 2.4
     memory: 10Gb
     additional_containers:
       - name: postgres
         image: postgres:9.3.23
         port: 5432
-        cpu: 0.7
+        cpu: 1
         memory: 1Gb
         env:
           POSTGRES_USER: postgres
@@ -98,13 +98,13 @@ qa_task:
     cluster_name: cirrus-cluster
     zone: us-central1-a
     namespace: default
-    cpu: 2
+    cpu: 2.4
     memory: 10Gb
     additional_containers:
     - name: postgres
       image: postgres:9.3.23
       port: 5432
-      cpu: 0.7
+      cpu: 1
       memory: 1Gb
       env:
         POSTGRES_USER: postgres
