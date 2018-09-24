@@ -204,6 +204,38 @@ public class SearchActionTest {
   }
 
   @Test
+  public void return_external_information() {
+    UserDto user = db.users().insertUser();
+    userIndexer.indexOnStartup(null);
+    userSession.logIn().setSystemAdministrator();
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getExternalIdentity, User::getExternalProvider)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getExternalLogin(), user.getExternalIdentityProvider()));
+  }
+
+  @Test
+  public void return_external_identity_only_when_system_administer() {
+    UserDto user = db.users().insertUser();
+    userIndexer.indexOnStartup(null);
+
+    userSession.logIn().setSystemAdministrator();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getLogin, User::getExternalIdentity)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getExternalLogin()));
+
+    userSession.logIn();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getLogin, User::hasExternalIdentity)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
+  }
+
+  @Test
   public void only_return_login_and_name_when_not_logged() {
     UserDto user = db.users().insertUser();
     db.users().insertToken(user);
