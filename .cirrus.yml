@@ -94,7 +94,7 @@ qa_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
-    image: gcr.io/ci-cd-215716/sonar-enterprise-qa:0.0.1
+    image: gcr.io/ci-cd-215716/sonar-enterprise-qa:0.0.2
     cluster_name: cirrus-cluster
     zone: us-central1-a
     namespace: default
