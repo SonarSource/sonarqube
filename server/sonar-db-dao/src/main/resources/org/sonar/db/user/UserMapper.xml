@@ -143,6 +143,13 @@
         WHERE u.external_id=#{externalId} AND u.external_identity_provider=#{externalIdentityProvider}
     </select>
 
+    <select id="selectByExternalIdentityProvider" parameterType="map" resultType="User">
+        SELECT
+        <include refid="userColumns"/>
+        FROM users u
+        WHERE u.external_identity_provider=#{externalIdentityProvider}
+    </select>
+
     <select id="countRootUsersButLogin" parameterType="String" resultType="long">
         select
         count(1)
