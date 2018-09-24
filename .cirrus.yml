@@ -32,7 +32,7 @@ env:
   CI_ENV: cirrus
 
 build_task:
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gradle:4.10.1-jdk8
@@ -64,7 +64,7 @@ deploy_docs_task:
 
 validate_task:
   depends_on: build
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-build:0.0.2
@@ -91,7 +91,7 @@ validate_task:
 
 qa_task:
   depends_on: build
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-qa:0.0.1
@@ -136,7 +136,7 @@ promote_task:
     - build
     - validate
     - qa
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/*" && $CIRRUS_BRANCH != "public_master"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
