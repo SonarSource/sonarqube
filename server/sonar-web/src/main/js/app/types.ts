@@ -343,6 +343,15 @@ export enum IssueType {
   Hotspot = 'SECURITY_HOTSPOT'
 }
 
+export interface Language {
+  key: string;
+  name: string;
+}
+
+export interface Languages {
+  [key: string]: Language;
+}
+
 export interface LightComponent {
   key: string;
   organization: string;

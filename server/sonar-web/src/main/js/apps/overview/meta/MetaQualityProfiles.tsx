@@ -26,10 +26,10 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
 import { getLanguages, Store } from '../../../store/rootReducer';
-import { ComponentQualityProfile } from '../../../app/types';
+import { ComponentQualityProfile, Languages } from '../../../app/types';
 
 interface StateProps {
-  languages: { [key: string]: { name: string } };
+  languages: Languages;
 }
 
 interface OwnProps {

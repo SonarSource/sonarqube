@@ -24,8 +24,10 @@ import { Profile } from '../../../api/quality-profiles';
 import Dropdown from '../../../components/controls/Dropdown';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { Languages } from '../../../app/types';
 
 interface Props {
+  languages: Languages;
   organization: string | undefined;
   query: Query;
   referencedProfiles: { [profile: string]: Profile };
@@ -129,6 +131,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
           this.state.action && (
             <BulkChangeModal
               action={this.state.action}
+              languages={this.props.languages}
               onClose={this.closeModal}
               organization={this.props.organization}
               profile={this.state.profile}

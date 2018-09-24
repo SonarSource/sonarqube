@@ -21,7 +21,7 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { Languages } from '../../../store/languages';
+import { Languages } from '../../../app/types';
 
 interface Props {
   distribution?: string;

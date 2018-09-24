@@ -26,14 +26,16 @@ import Select from '../../../components/controls/Select';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { Languages } from '../../../app/types';
 
 interface Props {
   action: string;
+  languages: Languages;
   onClose: () => void;
   organization: string | undefined;
-  referencedProfiles: { [profile: string]: Profile };
   profile?: Profile;
   query: Query;
+  referencedProfiles: { [profile: string]: Profile };
   total: number;
 }
 
@@ -148,6 +150,10 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     if (!profile) {
       return null;
     }
+    const { languages } = this.props;
+    const language = languages[profile.language]
+      ? languages[profile.language].name
+      : profile.language;
     return (
       <div
         className={classNames('alert', {
@@ -159,14 +165,14 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           ? translateWithParameters(
               'coding_rules.bulk_change.warning',
               profile.name,
-              profile.language,
+              language,
               result.succeeded,
               result.failed
             )
           : translateWithParameters(
               'coding_rules.bulk_change.success',
               profile.name,
-              profile.language,
+              language,
               result.succeeded
             )}
       </div>

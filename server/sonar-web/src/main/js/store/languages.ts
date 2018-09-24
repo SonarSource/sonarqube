@@ -19,16 +19,13 @@
  */
 import { keyBy } from 'lodash';
 import { ActionType } from './utils/actions';
+import { Languages } from '../app/types';
 
 export function receiveLanguages(languages: Array<{ key: string; name: string }>) {
   return { type: 'RECEIVE_LANGUAGES', languages };
 }
 
 type Action = ActionType<typeof receiveLanguages, 'RECEIVE_LANGUAGES'>;
-
-export interface Languages {
-  [key: string]: { key: string; name: string };
-}
 
 export default function(state: Languages = {}, action: Action): Languages {
   if (action.type === 'RECEIVE_LANGUAGES') {

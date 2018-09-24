@@ -51,11 +51,23 @@ import FiltersHeader from '../../../components/common/FiltersHeader';
 import SearchBox from '../../../components/controls/SearchBox';
 import { searchRules, getRulesApp } from '../../../api/rules';
 import { searchQualityProfiles, Profile } from '../../../api/quality-profiles';
-import { getCurrentUser, getMyOrganizations, Store } from '../../../store/rootReducer';
+import {
+  getCurrentUser,
+  getLanguages,
+  getMyOrganizations,
+  Store
+} from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { Paging, Rule, RuleActivation, Organization, CurrentUser } from '../../../app/types';
+import {
+  CurrentUser,
+  Languages,
+  Paging,
+  Organization,
+  Rule,
+  RuleActivation
+} from '../../../app/types';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 import { hasPrivateAccess } from '../../../helpers/organizations';
@@ -65,6 +77,7 @@ const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface StateToProps {
   currentUser: CurrentUser;
+  languages: Languages;
   userOrganizations: Organization[];
 }
 
@@ -544,6 +557,7 @@ export class App extends React.PureComponent<Props, State> {
                   ) : (
                     this.state.paging && (
                       <BulkChange
+                        languages={this.props.languages}
                         organization={organization}
                         query={this.state.query}
                         referencedProfiles={this.state.referencedProfiles}
@@ -636,6 +650,7 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
 
 const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
+  languages: getLanguages(state),
   userOrganizations: getMyOrganizations(state)
 });
 

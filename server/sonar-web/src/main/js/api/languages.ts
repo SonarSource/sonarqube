@@ -18,12 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON } from '../helpers/request';
+import { Language } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
-
-export interface Language {
-  key: string;
-  name: string;
-}
 
 export function getLanguages(): Promise<Language[]> {
   return getJSON('/api/languages/list').then(r => r.languages, throwGlobalError);

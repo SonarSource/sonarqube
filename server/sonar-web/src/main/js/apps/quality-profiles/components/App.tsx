@@ -24,7 +24,7 @@ import { sortProfiles } from '../utils';
 import { Exporter, Profile } from '../types';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import { translate } from '../../../helpers/l10n';
-import { Languages } from '../../../store/languages';
+import { Languages } from '../../../app/types';
 import '../styles.css';
 
 interface Props {
