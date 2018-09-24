@@ -44,7 +44,6 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.CreateAction.CreateRequest;
@@ -84,7 +83,6 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private GroupDto defaultGroupInDefaultOrg;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
@@ -303,6 +301,19 @@ public class CreateActionTest {
   }
 
   @Test
+  public void fail_when_login_is_too_short() {
+    logInAsSystemAdministrator();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'login' length (1) is shorter than the minimum authorized (2)");
+    call(CreateRequest.builder()
+      .setLogin("a")
+      .setName("John")
+      .setPassword("1234")
+      .build());
+  }
+
+  @Test
   public void fail_when_missing_name() {
     logInAsSystemAdministrator();
 
@@ -358,7 +369,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);

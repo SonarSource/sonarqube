@@ -148,6 +148,35 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
+  public void create_user_generates_unique_login_no_login_provided() {
+    createDefaultGroup();
+
+    UserDto user = underTest.createAndCommit(db.getSession(), NewUser.builder()
+      .setName("John Doe")
+      .build(), u -> {
+      });
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, user.getLogin());
+    assertThat(dto.getLogin()).startsWith("john-doe");
+    assertThat(dto.getName()).isEqualTo("John Doe");
+  }
+
+  @Test
+  public void create_user_generates_unique_login_when_login_is_emnpty() {
+    createDefaultGroup();
+
+    UserDto user = underTest.createAndCommit(db.getSession(), NewUser.builder()
+      .setLogin("")
+      .setName("John Doe")
+      .build(), u -> {
+      });
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, user.getLogin());
+    assertThat(dto.getLogin()).startsWith("john-doe");
+    assertThat(dto.getName()).isEqualTo("John Doe");
+  }
+
+  @Test
   public void create_user_with_sq_authority_when_no_authority_set() {
     createDefaultGroup();
 
@@ -191,7 +220,7 @@ public class UserUpdaterCreateTest {
     underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user", null))
+      .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user", "user"))
       .build(), u -> {
       });
 
@@ -291,20 +320,6 @@ public class UserUpdaterCreateTest {
       }, otherUser);
 
     assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(created.getUuid(), otherUser.getUuid());
-  }
-
-  @Test
-  public void fail_to_create_user_with_missing_login() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login can't be empty");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(null)
-      .setName("Marius")
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .build(), u -> {
-      });
   }
 
   @Test
@@ -417,7 +432,7 @@ public class UserUpdaterCreateTest {
         });
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors()).hasSize(3);
+      assertThat(e.errors()).containsExactlyInAnyOrder("Name can't be empty", "Password can't be empty");
     }
   }
 
@@ -515,7 +530,7 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
       .build(), u -> {
-    });
+      });
   }
 
   @Test

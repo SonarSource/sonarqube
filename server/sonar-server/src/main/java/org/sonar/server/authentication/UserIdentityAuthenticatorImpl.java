@@ -98,28 +98,18 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
 
   @CheckForNull
   private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
-    String externalId = userIdentity.getProviderId();
-    UserDto user = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, externalId == null ? userIdentity.getProviderLogin() : externalId, provider.getKey());
+    UserDto user = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, getProviderIdOrProviderLogin(userIdentity), provider.getKey());
+    if (user != null) {
+      return user;
+    }
     // We need to search by login because :
-    // 1. external id may have not been set before,
-    // 2. user may have been provisioned,
-    // 3. user may have been disabled.
-    return user != null ? user : dbClient.userDao().selectByLogin(dbSession, userIdentity.getLogin());
-  }
-
-  private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentityAuthenticatorParameters authenticatorParameters) {
-    UpdateUser update = new UpdateUser()
-      .setLogin(authenticatorParameters.getUserIdentity().getLogin())
-      .setEmail(authenticatorParameters.getUserIdentity().getEmail())
-      .setName(authenticatorParameters.getUserIdentity().getName())
-      .setExternalIdentity(new ExternalIdentity(
-        authenticatorParameters.getProvider().getKey(),
-        authenticatorParameters.getUserIdentity().getProviderLogin(),
-        authenticatorParameters.getUserIdentity().getProviderId()));
-    detectLoginUpdate(dbSession, userDto, update, authenticatorParameters);
-    Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
-    userUpdater.updateAndCommit(dbSession, userDto, update, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
-    return userDto;
+    // 1. user may have been provisioned,
+    // 2. user may have been disabled.
+    String login = userIdentity.getLogin();
+    if (login == null) {
+      return null;
+    }
+    return dbClient.userDao().selectByLogin(dbSession, login);
   }
 
   private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserIdentityAuthenticatorParameters authenticatorParameters) {
@@ -129,6 +119,24 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
       return userUpdater.createAndCommit(dbSession, newUser, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
     }
     return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
+  }
+
+  private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentityAuthenticatorParameters authenticatorParameters) {
+    UpdateUser update = new UpdateUser()
+      .setEmail(authenticatorParameters.getUserIdentity().getEmail())
+      .setName(authenticatorParameters.getUserIdentity().getName())
+      .setExternalIdentity(new ExternalIdentity(
+        authenticatorParameters.getProvider().getKey(),
+        authenticatorParameters.getUserIdentity().getProviderLogin(),
+        authenticatorParameters.getUserIdentity().getProviderId()));
+    String login = authenticatorParameters.getUserIdentity().getLogin();
+    if (login != null) {
+      update.setLogin(login);
+    }
+    detectLoginUpdate(dbSession, userDto, update, authenticatorParameters);
+    Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
+    userUpdater.updateAndCommit(dbSession, userDto, update, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
+    return userDto;
   }
 
   private Optional<UserDto> detectEmailUpdate(DbSession dbSession, UserIdentityAuthenticatorParameters authenticatorParameters) {
@@ -147,7 +155,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     UserDto existingUser = existingUsers.get(0);
     if (existingUser == null
       || Objects.equals(existingUser.getLogin(), authenticatorParameters.getUserIdentity().getLogin())
-      || (Objects.equals(existingUser.getExternalId(), authenticatorParameters.getUserIdentity().getProviderId())
+      || (Objects.equals(existingUser.getExternalId(), getProviderIdOrProviderLogin(authenticatorParameters.getUserIdentity()))
         && Objects.equals(existingUser.getExternalIdentityProvider(), authenticatorParameters.getProvider().getKey()))) {
       return Optional.empty();
     }
@@ -197,7 +205,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     if (!userIdentity.shouldSyncGroups()) {
       return;
     }
-    String userLogin = userIdentity.getLogin();
+    String userLogin = userDto.getLogin();
     Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin));
     Set<String> identityGroups = userIdentity.getGroups();
     LOGGER.debug("List of groups returned by the identity provider '{}'", identityGroups);
@@ -245,7 +253,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     if (!authenticatorParameters.getProvider().allowsUsersToSignUp()) {
       throw AuthenticationException.newBuilder()
         .setSource(authenticatorParameters.getSource())
-        .setLogin(authenticatorParameters.getUserIdentity().getLogin())
+        .setLogin(authenticatorParameters.getUserIdentity().getProviderLogin())
         .setMessage(format("User signup disabled for provider '%s'", identityProviderKey))
         .setPublicMessage(format("'%s' users are not allowed to sign up", identityProviderKey))
         .build();
@@ -269,12 +277,17 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
   private static AuthenticationException generateExistingEmailError(UserIdentityAuthenticatorParameters authenticatorParameters, String email) {
     return AuthenticationException.newBuilder()
       .setSource(authenticatorParameters.getSource())
-      .setLogin(authenticatorParameters.getUserIdentity().getLogin())
+      .setLogin(authenticatorParameters.getUserIdentity().getProviderLogin())
       .setMessage(format("Email '%s' is already used", email))
       .setPublicMessage(format(
         "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
         email))
       .build();
+  }
+
+  private static String getProviderIdOrProviderLogin(UserIdentity userIdentity) {
+    String providerId = userIdentity.getProviderId();
+    return providerId == null ? userIdentity.getProviderLogin() : providerId;
   }
 
 }

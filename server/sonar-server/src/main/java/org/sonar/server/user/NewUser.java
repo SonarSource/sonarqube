@@ -44,6 +44,7 @@ public class NewUser {
     this.externalIdentity = builder.externalIdentity;
   }
 
+  @CheckForNull
   public String login() {
     return login;
   }
@@ -103,7 +104,7 @@ public class NewUser {
     private String password;
     private ExternalIdentity externalIdentity;
 
-    public Builder setLogin(String login) {
+    public Builder setLogin(@Nullable String login) {
       this.login = login;
       return this;
     }

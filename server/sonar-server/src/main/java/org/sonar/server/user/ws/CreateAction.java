@@ -44,6 +44,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
+import static org.sonar.server.user.UserUpdater.LOGIN_MIN_LENGTH;
 import static org.sonar.server.user.UserUpdater.NAME_MAX_LENGTH;
 import static org.sonar.server.user.ws.EmailValidator.isValidIfPresent;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -85,6 +86,7 @@ public class CreateAction implements UsersWsAction {
 
     action.createParam(PARAM_LOGIN)
       .setRequired(true)
+      .setMinimumLength(LOGIN_MIN_LENGTH)
       .setMaximumLength(LOGIN_MAX_LENGTH)
       .setDescription("User login")
       .setExampleValue("myuser");

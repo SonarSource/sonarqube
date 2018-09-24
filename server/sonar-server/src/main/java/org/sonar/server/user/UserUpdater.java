@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
@@ -54,6 +55,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
+import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -67,7 +69,7 @@ public class UserUpdater {
   private static final String NAME_PARAM = "Name";
   private static final String EMAIL_PARAM = "Email";
 
-  private static final int LOGIN_MIN_LENGTH = 2;
+  public static final int LOGIN_MIN_LENGTH = 2;
   public static final int LOGIN_MAX_LENGTH = 255;
   public static final int EMAIL_MAX_LENGTH = 100;
   public static final int NAME_MAX_LENGTH = 200;
@@ -83,8 +85,8 @@ public class UserUpdater {
   private final LocalAuthentication localAuthentication;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
-                     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, Configuration config,
-                     LocalAuthentication localAuthentication) {
+    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, Configuration config,
+    LocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
@@ -109,13 +111,17 @@ public class UserUpdater {
 
   private void reactivateUser(DbSession dbSession, UserDto disabledUser, NewUser newUser) {
     UpdateUser updateUser = new UpdateUser()
-      .setLogin(newUser.login())
       .setName(newUser.name())
       .setEmail(newUser.email())
       .setScmAccounts(newUser.scmAccounts())
       .setExternalIdentity(newUser.externalIdentity());
-    if (newUser.password() != null) {
-      updateUser.setPassword(newUser.password());
+    String login = newUser.login();
+    if (login != null) {
+      updateUser.setLogin(login);
+    }
+    String password = newUser.password();
+    if (password != null) {
+      updateUser.setPassword(password);
     }
     setOnboarded(disabledUser);
     updateDto(dbSession, updateUser, disabledUser);
@@ -148,7 +154,9 @@ public class UserUpdater {
     List<String> messages = new ArrayList<>();
 
     String login = newUser.login();
-    if (validateLoginFormat(login, messages)) {
+    if (isNullOrEmpty(login)) {
+      userDto.setLogin(generateUniqueLogin(dbSession, newUser.name()));
+    } else if (validateLoginFormat(login, messages)) {
       checkLoginUniqueness(dbSession, login);
       userDto.setLogin(login);
     }
@@ -178,6 +186,18 @@ public class UserUpdater {
 
     checkRequest(messages.isEmpty(), messages);
     return userDto;
+  }
+
+  private String generateUniqueLogin(DbSession dbSession, String userName) {
+    String slugName = slugify(userName);
+    for (int i = 0; i < 10; i++) {
+      String login = slugName + RandomUtils.nextInt(100_000);
+      UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
+      if (existingUser == null) {
+        return login;
+      }
+    }
+    throw new IllegalStateException("Cannot create unique login for user name " + userName);
   }
 
   private boolean updateDto(DbSession dbSession, UpdateUser update, UserDto dto) {

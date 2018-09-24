@@ -55,14 +55,13 @@ public class UserIdentityTest {
   public void create_user_with_minimum_fields() {
     UserIdentity underTest = UserIdentity.builder()
       .setProviderLogin("john")
-      .setLogin("1234")
       .setName("John")
       .build();
 
-    assertThat(underTest.getProviderId()).isNull();
     assertThat(underTest.getProviderLogin()).isEqualTo("john");
-    assertThat(underTest.getLogin()).isEqualTo("1234");
     assertThat(underTest.getName()).isEqualTo("John");
+    assertThat(underTest.getProviderId()).isNull();
+    assertThat(underTest.getLogin()).isNull();
     assertThat(underTest.getEmail()).isNull();
     assertThat(underTest.shouldSyncGroups()).isFalse();
     assertThat(underTest.getGroups()).isEmpty();
@@ -77,18 +76,6 @@ public class UserIdentityTest {
       .setProviderLogin("john")
       .setLogin("1234")
       .setName("John")
-      .build();
-  }
-
-  @Test
-  public void fail_when_login_is_empty() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User login must not be blank");
-    UserIdentity.builder()
-      .setProviderLogin("john")
-      .setLogin("")
-      .setName("John")
-      .setEmail("john@email.com")
       .build();
   }
 

@@ -134,6 +134,33 @@ public class UserIdentityAuthenticatorImplTest {
   }
 
   @Test
+  public void authenticate_new_user_generate_login_when_no_login_provided() {
+    organizationFlags.setEnabled(true);
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderId("ABCD")
+        .setProviderLogin("johndoo")
+        .setName("John Doe")
+        .setEmail("john@email.com")
+        .build())
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.realm(BASIC, IDENTITY_PROVIDER.getName()))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+
+    UserDto user = db.getDbClient().userDao().selectByEmail(db.getSession(), "john@email.com").get(0);
+    assertThat(user).isNotNull();
+    assertThat(user.isActive()).isTrue();
+    assertThat(user.getLogin()).isNotEqualTo("John Doe").startsWith("john-doe");
+    assertThat(user.getEmail()).isEqualTo("john@email.com");
+    assertThat(user.getExternalLogin()).isEqualTo("johndoo");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.getExternalId()).isEqualTo("ABCD");
+  }
+
+  @Test
   public void authenticate_new_user_with_groups() {
     organizationFlags.setEnabled(true);
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
@@ -281,7 +308,7 @@ public class UserIdentityAuthenticatorImplTest {
     Source source = Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName());
 
     expectedException.expect(authenticationException().from(source)
-      .withLogin(USER_IDENTITY.getLogin())
+      .withLogin(USER_IDENTITY.getProviderLogin())
       .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
@@ -303,7 +330,7 @@ public class UserIdentityAuthenticatorImplTest {
     Source source = Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName());
 
     expectedException.expect(authenticationException().from(source)
-      .withLogin(USER_IDENTITY.getLogin())
+      .withLogin(USER_IDENTITY.getProviderLogin())
       .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
@@ -327,7 +354,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setAllowsUsersToSignUp(false);
     Source source = Source.realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
 
-    expectedException.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()).andPublicMessage("'github' users are not allowed to sign up"));
+    expectedException.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getProviderLogin()).andPublicMessage("'github' users are not allowed to sign up"));
     expectedException.expectMessage("User signup disabled for provider 'github'");
 
     underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
@@ -340,7 +367,7 @@ public class UserIdentityAuthenticatorImplTest {
   }
 
   @Test
-  public void authenticate_existing_user_matching_login() {
+  public void authenticate_and_update_existing_user_matching_login() {
     db.users().insertUser(u -> u
       .setLogin(USER_LOGIN)
       .setName("Old name")
@@ -363,7 +390,7 @@ public class UserIdentityAuthenticatorImplTest {
   }
 
   @Test
-  public void authenticate_existing_user_matching_external_id() {
+  public void authenticate_and_update_existing_user_matching_external_id() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("Old login")
       .setName("Old name")
@@ -415,6 +442,32 @@ public class UserIdentityAuthenticatorImplTest {
   }
 
   @Test
+  public void authenticate_existing_user_and_update_only_identity_provider_key() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin(USER_LOGIN)
+      .setName(USER_IDENTITY.getName())
+      .setEmail(USER_IDENTITY.getEmail())
+      .setExternalId(USER_IDENTITY.getProviderId())
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
+      .setExternalIdentityProvider("old identity provider"));
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .containsExactlyInAnyOrder(USER_LOGIN, USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(),
+        IDENTITY_PROVIDER.getKey(),
+        true);
+  }
+
+  @Test
   public void authenticate_existing_user_matching_login_when_external_id_is_null() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin(USER_LOGIN)
@@ -442,6 +495,32 @@ public class UserIdentityAuthenticatorImplTest {
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
       .contains(user.getLogin(), "John", "john@email.com", "johndoo", "johndoo", "github", true);
+  }
+
+  @Test
+  public void authenticate_existing_user_when_login_is_not_provided() {
+    UserDto user = db.users().insertUser(u -> u.setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
+
+    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderId(user.getExternalId())
+        .setProviderLogin(user.getExternalLogin())
+        // No login provided
+        .setName(user.getName())
+        .setEmail(user.getEmail())
+        .build())
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+
+    // No new user is created
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(1);
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains(user.getLogin(), user.getName(), user.getEmail(), user.getExternalId(), user.getExternalLogin(), user.getExternalIdentityProvider(), true);
   }
 
   @Test
@@ -650,7 +729,7 @@ public class UserIdentityAuthenticatorImplTest {
       .build();
 
     expectedException.expect(authenticationException().from(Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName()))
-      .withLogin(userIdentity.getLogin())
+      .withLogin(userIdentity.getProviderLogin())
       .andPublicMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
@@ -667,10 +746,12 @@ public class UserIdentityAuthenticatorImplTest {
   @Test
   public void does_not_fail_to_authenticate_user_when_email_has_not_changed_and_strategy_is_FORBID() {
     organizationFlags.setEnabled(true);
-    UserDto currentUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
+    UserDto currentUser = db.users().insertUser(u -> u.setEmail("john@email.com")
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
     UserIdentity userIdentity = UserIdentity.builder()
       .setLogin(currentUser.getLogin())
-      .setProviderLogin("johndoo")
+      .setProviderId(currentUser.getExternalId())
+      .setProviderLogin(currentUser.getExternalLogin())
       .setName("John")
       .setEmail("john@email.com")
       .build();

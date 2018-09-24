@@ -102,6 +102,24 @@ public class UserUpdaterReactivateTest {
   }
 
   @Test
+  public void reactivate_user_without_providing_login() {
+    UserDto user = db.users().insertUser(u -> u.setActive(false));
+    createDefaultGroup();
+
+    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .build(),
+      u -> {
+      });
+
+    UserDto reloaded = dbClient.userDao().selectByUuid(session, user.getUuid());
+    assertThat(reloaded.isActive()).isTrue();
+    assertThat(reloaded.getLogin()).isEqualTo(user.getLogin());
+  }
+
+  @Test
   public void reactivate_user_not_having_password() {
     UserDto user = db.users().insertDisabledUser(u -> u.setSalt(null).setCryptedPassword(null));
     createDefaultGroup();

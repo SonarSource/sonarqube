@@ -19,37 +19,32 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common.Paging;
+import org.sonarqube.ws.Users.SearchWsResponse;
+import org.sonarqube.ws.Users.SearchWsResponse.User;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
-
-  private System2 system2 = System2.INSTANCE;
 
   @Rule
   public EsTester es = EsTester.create();
@@ -58,71 +53,32 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private UserIndex index = new UserIndex(es.client(), system2);
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private WsTester ws = new WsTester(new UsersWs(new SearchAction(userSession, index, dbClient, new AvatarResolverImpl())));
+  private UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
+  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
+  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, index, db.getDbClient(), new AvatarResolverImpl()));
 
   @Test
-  public void test_json_example() throws Exception {
-    UserDto fmallet = db.users().insertUser(u -> u.setLogin("fmallet").setName("Freddy Mallet").setEmail("f@m.com")
-      .setActive(true)
-      .setLocal(true)
-      .setScmAccounts(emptyList())
-      .setExternalLogin("fmallet")
-      .setExternalIdentityProvider("sonarqube"));
-    UserDto simon = db.users().insertUser(u -> u.setLogin("sbrandhof").setName("Simon").setEmail("s.brandhof@company.tld")
-      .setActive(true)
-      .setLocal(false)
-      .setExternalLogin("sbrandhof@ldap.com")
-      .setExternalIdentityProvider("LDAP")
-      .setScmAccounts(newArrayList("simon.brandhof", "s.brandhof@company.tld")));
-    GroupDto sonarUsers = db.users().insertGroup(newGroupDto().setName("sonar-users"));
-    GroupDto sonarAdministrators = db.users().insertGroup(newGroupDto().setName("sonar-administrators"));
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(simon.getId()).setGroupId(sonarUsers.getId()));
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarUsers.getId()));
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarAdministrators.getId()));
-    db.commit();
-    for (int i = 0; i < 3; i++) {
-      db.users().insertToken(simon);
-    }
-    db.users().insertToken(fmallet);
+  public void search_for_all_users() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
     userIndexer.indexOnStartup(null);
-    loginAsSystemAdministrator();
+    userSession.logIn();
 
-    String response = ws.newGetRequest("api/users", "search").execute().outputAsString();
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
 
-    assertJson(response).isSimilarTo(getClass().getResource("search-example.json"));
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getName)
+      .containsExactlyInAnyOrder(
+        tuple(user1.getLogin(), user1.getName()),
+        tuple(user2.getLogin(), user2.getName()));
   }
 
   @Test
-  public void search_empty() throws Exception {
-    loginAsSimpleUser();
-    ws.newGetRequest("api/users", "search").execute().assertJson("{\n" +
-      "  \"paging\": {\n" +
-      "    \"pageIndex\": 1,\n" +
-      "    \"pageSize\": 50,\n" +
-      "    \"total\": 0\n" +
-      "  },\n" +
-      "  \"users\": []\n" +
-      "}");
-  }
-
-  @Test
-  public void search_without_parameters() throws Exception {
-    loginAsSimpleUser();
-    injectUsers(5);
-
-    ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "five_users.json");
-  }
-
-  @Test
-  public void search_with_query() throws Exception {
-    loginAsSimpleUser();
-    injectUsers(5);
+  public void search_with_query() {
+    userSession.logIn();
     UserDto user = db.users().insertUser(u -> u
       .setLogin("user-%_%-login")
       .setName("user-name")
@@ -131,190 +87,238 @@ public class SearchActionTest {
       .setScmAccounts(singletonList("user1")));
     userIndexer.indexOnStartup(null);
 
-    ws.newGetRequest("api/users", "search").setParam("q", "user-%_%-").execute().assertJson(getClass(), "user_one.json");
-    ws.newGetRequest("api/users", "search").setParam("q", "user@MAIL.com").execute().assertJson(getClass(), "user_one.json");
-    ws.newGetRequest("api/users", "search").setParam("q", "user-name").execute().assertJson(getClass(), "user_one.json");
+    assertThat(ws.newRequest()
+      .setParam("q", "user-%_%-")
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(user.getLogin());
+    assertThat(ws.newRequest()
+      .setParam("q", "user@MAIL.com")
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(user.getLogin());
+    assertThat(ws.newRequest()
+      .setParam("q", "user-name")
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin)
+        .containsExactlyInAnyOrder(user.getLogin());
   }
 
   @Test
-  public void search_with_paging() throws Exception {
-    loginAsSimpleUser();
-    injectUsers(10);
+  public void return_avatar() {
+    UserDto user = db.users().insertUser(u -> u.setEmail("john@doe.com"));
+    userIndexer.indexOnStartup(null);
+    userSession.logIn();
 
-    ws.newGetRequest("api/users", "search").setParam(Param.PAGE_SIZE, "5").execute().assertJson(getClass(), "page_one.json");
-    ws.newGetRequest("api/users", "search").setParam(Param.PAGE_SIZE, "5").setParam(Param.PAGE, "2").execute().assertJson(getClass(), "page_two.json");
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getAvatar)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), "6a6c19fea4a3676970167ce51f39e6ee"));
   }
 
   @Test
-  public void search_with_fields() throws Exception {
-    loginAsSimpleUser();
-    injectUsers(1);
+  public void return_scm_accounts() {
+    UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("john1", "john2")));
+    userIndexer.indexOnStartup(null);
+    userSession.logIn();
 
-    assertThat(ws.newGetRequest("api/users", "search").execute().outputAsString())
-      .contains("login")
-      .contains("name")
-      .contains("avatar")
-      .contains("scmAccounts")
-      .doesNotContain("groups");
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(ws.newGetRequest("api/users", "search").setParam(Param.FIELDS, "").execute().outputAsString())
-      .contains("login")
-      .contains("name")
-      .contains("avatar")
-      .contains("scmAccounts")
-      .doesNotContain("groups");
-
-    assertThat(ws.newGetRequest("api/users", "search").setParam(Param.FIELDS, "scmAccounts").execute().outputAsString())
-      .contains("login")
-      .doesNotContain("name")
-      .doesNotContain("avatar")
-      .contains("scmAccounts")
-      .doesNotContain("groups");
-
-    assertThat(ws.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
-      .contains("login")
-      .doesNotContain("name")
-      .doesNotContain("avatar")
-      .doesNotContain("scmAccounts")
-      .doesNotContain("groups");
-
-    loginAsSystemAdministrator();
-
-    assertThat(ws.newGetRequest("api/users", "search").execute().outputAsString())
-      .contains("login")
-      .contains("name")
-      .contains("email")
-      .contains("avatar")
-      .contains("scmAccounts")
-      .contains("groups");
-
-    assertThat(ws.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
-      .contains("login")
-      .doesNotContain("name")
-      .doesNotContain("email")
-      .doesNotContain("avatar")
-      .doesNotContain("scmAccounts")
-      .contains("groups");
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, u -> u.getScmAccounts().getScmAccountsList())
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), asList("john1", "john2")));
   }
 
   @Test
-  public void search_with_groups() throws Exception {
-    loginAsSystemAdministrator();
-    injectUsers(1);
+  public void return_tokens_count() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    db.users().insertToken(user);
+    userIndexer.indexOnStartup(null);
+    userSession.logIn();
 
-    ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "user_with_groups.json");
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getTokensCount)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
   }
 
   @Test
-  public void does_not_return_email_when_not_when_system_administer() throws Exception {
-    loginAsSimpleUser();
-    insertUser(user -> user.setLogin("john").setName("John").setEmail("john@email.com"));
+  public void return_email_only_when_system_administer() {
+    UserDto user = db.users().insertUser();
+    userIndexer.indexOnStartup(null);
 
-    ws.newGetRequest("api/users", "search").execute().assertJson(
-      "{" +
-        "  \"users\": [" +
-        "    {" +
-        "      \"login\": \"john\"," +
-        "      \"name\": \"John\"," +
-        "      \"avatar\": \"41193cdbffbf06be0cdf231b28c54b18\"" +
-        "    }" +
-        "  ]" +
-        "}");
+    userSession.logIn().setSystemAdministrator();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::getEmail)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getEmail()));
+
+    userSession.logIn();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::hasEmail)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
-  public void return_email_and_avatar_when_system_administer() throws Exception {
-    loginAsSystemAdministrator();
-    insertUser(user -> user.setLogin("john").setName("John").setEmail("john@email.com"));
+  public void return_user_not_having_email() {
+    UserDto user = db.users().insertUser(u -> u.setEmail(null));
+    userIndexer.indexOnStartup(null);
+    userSession.logIn().setSystemAdministrator();
 
-    ws.newGetRequest("api/users", "search").execute().assertJson(
-      "{" +
-        "  \"users\": [" +
-        "    {" +
-        "      \"login\": \"john\"," +
-        "      \"name\": \"John\"," +
-        "      \"email\": \"john@email.com\"," +
-        "      \"avatar\": \"41193cdbffbf06be0cdf231b28c54b18\"" +
-        "    }" +
-        "  ]" +
-        "}");
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::hasEmail)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
-  public void does_not_fail_when_user_has_no_email() throws Exception {
-    loginAsSystemAdministrator();
-    insertUser(user -> user.setLogin("john").setName("John").setEmail(null));
+  public void return_groups_only_when_system_administer() {
+    UserDto user = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    GroupDto group3 = db.users().insertGroup(db.getDefaultOrganization(), "group3");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
+    userIndexer.indexOnStartup(null);
 
-    ws.newGetRequest("api/users", "search").execute().assertJson(
-      "{" +
-        "  \"users\": [" +
-        "    {" +
-        "      \"login\": \"john\"," +
-        "      \"name\": \"John\"" +
-        "    }" +
-        "  ]" +
-        "}");
+    userSession.logIn().setSystemAdministrator();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, u -> u.getGroups().getGroupsList())
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), asList(group1.getName(), group2.getName())));
+
+    userSession.logIn();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
-  public void only_return_login_and_name_when_not_logged() throws Exception {
+  public void only_return_login_and_name_when_not_logged() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
+    db.users().insertMember(group, user);
+    userIndexer.indexOnStartup(null);
     userSession.anonymous();
 
-    db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
-    dbSession.commit();
-    userIndexer.indexOnStartup(null);
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
 
-    ws.newGetRequest("api/users", "search").execute().assertJson(
-      "{" +
-        "  \"users\": [" +
-        "    {" +
-        "      \"login\": \"john\"," +
-        "      \"name\": \"John\"" +
-        "    }" +
-        "  ]" +
-        "}");
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getName, User::hasTokensCount, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getName(), false, false, false, false));
   }
 
-  private List<UserDto> injectUsers(int numberOfUsers) {
-    List<UserDto> userDtos = new ArrayList<>();
-    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("sonar-users"));
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("sonar-admins"));
-    for (int index = 0; index < numberOfUsers; index++) {
-      String email = String.format("user-%d@mail.com", index);
-      String login = String.format("user-%d", index);
-      String name = String.format("User %d", index);
-      List<String> scmAccounts = singletonList(String.format("user-%d", index));
-
-      UserDto userDto = db.users().insertUser(u -> u.setActive(true)
-        .setEmail(email)
-        .setLogin(login)
-        .setName(name)
-        .setScmAccounts(scmAccounts)
-        .setLocal(true)
-        .setExternalLogin(login)
-        .setExternalIdentityProvider("sonarqube"));
-      userDtos.add(userDto);
-
-      IntStream.range(0, index).forEach(i -> db.users().insertToken(userDto, t -> t.setName(String.format("%s-%d", login, i))));
-      db.users().insertMember(group1, userDto);
-      db.users().insertMember(group2, userDto);
-    }
+  @Test
+  public void search_with_fields() {
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
+    db.users().insertMember(group, user);
     userIndexer.indexOnStartup(null);
-    return userDtos;
-  }
-
-  private UserDto insertUser(Consumer<UserDto> populateUserDto) {
-    UserDto user = db.users().insertUser(populateUserDto);
-    userIndexer.indexOnStartup(null);
-    return user;
-  }
-
-  private void loginAsSystemAdministrator() {
     userSession.logIn().setSystemAdministrator();
+
+    assertThat(ws.newRequest()
+      .setParam(Param.FIELDS, "scmAccounts")
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false, true, false, false));
+    assertThat(ws.newRequest()
+      .setParam(Param.FIELDS, "groups")
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false, false, false, true));
+    assertThat(ws.newRequest()
+      .setParam(Param.FIELDS, "")
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), true, true, true, true));
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), true, true, true, true));
   }
 
-  private void loginAsSimpleUser() {
+  @Test
+  public void search_with_paging() {
     userSession.logIn();
+    IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
+    userIndexer.indexOnStartup(null);
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(Param.PAGE_SIZE, "5")
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin)
+      .containsExactly("user-0", "user-1", "user-2", "user-3", "user-4");
+    assertThat(response.getPaging())
+      .extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal)
+      .containsExactly(1, 5, 10);
+
+    response = ws.newRequest()
+      .setParam(Param.PAGE_SIZE, "5")
+      .setParam(Param.PAGE, "2")
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin)
+      .containsExactly("user-5", "user-6", "user-7", "user-8", "user-9");
+    assertThat(response.getPaging())
+      .extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal)
+      .containsExactly(2, 5, 10);
+  }
+
+  @Test
+  public void return_empty_result_when_no_user() {
+    userSession.logIn();
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList()).isEmpty();
+    assertThat(response.getPaging().getTotal()).isZero();
+  }
+
+  @Test
+  public void test_json_example() {
+    UserDto fmallet = db.users().insertUser(u -> u.setLogin("fmallet").setName("Freddy Mallet").setEmail("f@m.com")
+      .setLocal(true)
+      .setScmAccounts(emptyList())
+      .setExternalLogin("fmallet")
+      .setExternalIdentityProvider("sonarqube"));
+    UserDto simon = db.users().insertUser(u -> u.setLogin("sbrandhof").setName("Simon").setEmail("s.brandhof@company.tld")
+      .setLocal(false)
+      .setExternalLogin("sbrandhof@ldap.com")
+      .setExternalIdentityProvider("LDAP")
+      .setScmAccounts(asList("simon.brandhof", "s.brandhof@company.tld")));
+    GroupDto sonarUsers = db.users().insertGroup(db.getDefaultOrganization(), "sonar-users");
+    GroupDto sonarAdministrators = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
+    db.users().insertMember(sonarUsers, simon);
+    db.users().insertMember(sonarUsers, fmallet);
+    db.users().insertMember(sonarAdministrators, fmallet);
+    db.users().insertToken(simon);
+    db.users().insertToken(simon);
+    db.users().insertToken(simon);
+    db.users().insertToken(fmallet);
+    userIndexer.indexOnStartup(null);
+    userSession.logIn().setSystemAdministrator();
+
+    String response = ws.newRequest().execute().getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("search-example.json"));
   }
 
 }
