@@ -76,15 +76,18 @@ public class OrganizationDbTester {
     dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, projectDefaultTemplate.getOrganizationUuid(),
       new DefaultTemplates()
         .setProjectUuid(projectDefaultTemplate.getUuid())
-        .setViewUuid(viewDefaultTemplate == null ? null : viewDefaultTemplate.getUuid()));
+        .setApplicationsUuid(viewDefaultTemplate == null ? null : viewDefaultTemplate.getUuid()));
     dbSession.commit();
   }
 
-  public void setDefaultTemplates(OrganizationDto defaultOrganization,
-    String projectDefaultTemplateUuid, @Nullable String viewDefaultTemplateUuid) {
+  public void setDefaultTemplates(OrganizationDto defaultOrganization, String projectDefaultTemplateUuid,
+    @Nullable String applicationDefaultTemplateUuid, @Nullable String portfoliosDefaultTemplateUuid) {
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(),
-      new DefaultTemplates().setProjectUuid(projectDefaultTemplateUuid).setViewUuid(viewDefaultTemplateUuid));
+      new DefaultTemplates()
+        .setProjectUuid(projectDefaultTemplateUuid)
+        .setApplicationsUuid(applicationDefaultTemplateUuid)
+        .setPortfoliosUuid(portfoliosDefaultTemplateUuid));
     dbSession.commit();
   }
 

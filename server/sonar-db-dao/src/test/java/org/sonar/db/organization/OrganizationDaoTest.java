@@ -647,7 +647,7 @@ public class OrganizationDaoTest {
   @Test
   public void getDefaultTemplates_is_case_sensitive() {
     insertOrganization(ORGANIZATION_DTO_1);
-    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid(PERMISSION_1).setViewUuid(PERMISSION_2));
+    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid(PERMISSION_1).setApplicationsUuid(PERMISSION_2));
 
     assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid().toUpperCase(Locale.ENGLISH)))
       .isEmpty();
@@ -682,7 +682,7 @@ public class OrganizationDaoTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("defaultTemplates.project can't be null");
 
-    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates().setViewUuid(PERMISSION_1));
+    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates().setApplicationsUuid(PERMISSION_1));
   }
 
   @Test
@@ -1261,7 +1261,7 @@ public class OrganizationDaoTest {
   }
 
   private void setDefaultTemplate(OrganizationDto organizationDto1, @Nullable String project, @Nullable String view) {
-    underTest.setDefaultTemplates(dbSession, organizationDto1.getUuid(), new DefaultTemplates().setProjectUuid(project).setViewUuid(view));
+    underTest.setDefaultTemplates(dbSession, organizationDto1.getUuid(), new DefaultTemplates().setProjectUuid(project).setApplicationsUuid(view));
     dbSession.commit();
   }
 
@@ -1331,7 +1331,7 @@ public class OrganizationDaoTest {
     assertThat(optional).isNotEmpty();
     DefaultTemplates defaultTemplates = optional.get();
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(expectedProject);
-    assertThat(defaultTemplates.getViewUuid()).isEqualTo(expectedView);
+    assertThat(defaultTemplates.getApplicationsUuid()).isEqualTo(expectedView);
   }
 
   private void verifyOrganizationUpdatedAt(String organization, Long updatedAt) {

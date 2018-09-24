@@ -114,7 +114,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       .setQualifier(Qualifiers.PROJECT)
       .setTemplateId(resolvedDefaultTemplates.getProject()));
 
-    resolvedDefaultTemplates.getView()
+    resolvedDefaultTemplates.getApplication()
       .ifPresent(viewDefaultTemplate -> response.addDefaultTemplates(
         templateUuidQualifierBuilder
           .clear()

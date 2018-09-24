@@ -88,7 +88,7 @@ public class PermissionTemplateServiceTest {
     UserDto creator = dbTester.users().insertUser();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), privateProject, creator.getId());
 
@@ -118,7 +118,7 @@ public class PermissionTemplateServiceTest {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), publicProject, null);
 
@@ -151,7 +151,7 @@ public class PermissionTemplateServiceTest {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), privateProject, null);
 
@@ -184,7 +184,7 @@ public class PermissionTemplateServiceTest {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), publicProject, null);
 
@@ -217,7 +217,7 @@ public class PermissionTemplateServiceTest {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), publicProject, null);
 
@@ -250,7 +250,7 @@ public class PermissionTemplateServiceTest {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), privateProject, null);
 
@@ -267,7 +267,7 @@ public class PermissionTemplateServiceTest {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), publicProject, user.getId());
 
@@ -284,7 +284,7 @@ public class PermissionTemplateServiceTest {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), privateProject, user.getId());
 
@@ -300,7 +300,7 @@ public class PermissionTemplateServiceTest {
     GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, ADMINISTER.getKey());
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, PROVISION_PROJECTS.getKey());
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), view, null);
 
@@ -309,15 +309,32 @@ public class PermissionTemplateServiceTest {
   }
 
   @Test
-  public void apply_default_template_on_view() {
+  public void apply_default_template_on_application() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto view = dbTester.components().insertView(organization);
+    ComponentDto view = dbTester.components().insertPublicApplication(organization);
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
-    PermissionTemplateDto viewPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto appPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
-    dbTester.permissionTemplates().addGroupToTemplate(viewPermissionTemplate, group, ADMINISTER.getKey());
-    dbTester.permissionTemplates().addGroupToTemplate(viewPermissionTemplate, group, PROVISION_PROJECTS.getKey());
-    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), viewPermissionTemplate.getUuid());
+    dbTester.permissionTemplates().addGroupToTemplate(appPermissionTemplate, group, ADMINISTER.getKey());
+    dbTester.permissionTemplates().addGroupToTemplate(appPermissionTemplate, group, PROVISION_PROJECTS.getKey());
+    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), appPermissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), view, null);
+
+    assertThat(selectProjectPermissionsOfGroup(organization, group, view))
+      .containsOnly(ADMINISTER.getKey(), PROVISION_PROJECTS.getKey());
+  }
+
+  @Test
+  public void apply_default_template_on_portfolio() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto view = dbTester.components().insertPublicPortfolio(organization);
+    PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto portPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    GroupDto group = dbTester.users().insertGroup(organization);
+    dbTester.permissionTemplates().addGroupToTemplate(portPermissionTemplate, group, ADMINISTER.getKey());
+    dbTester.permissionTemplates().addGroupToTemplate(portPermissionTemplate, group, PROVISION_PROJECTS.getKey());
+    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), null, portPermissionTemplate.getUuid());
 
     underTest.applyDefault(session, organization.getUuid(), view, null);
 
@@ -332,7 +349,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.permissionTemplates().addGroupToTemplate(projectPermissionTemplate, group, PROVISION_PROJECTS.getKey());
-    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), view, null);
 
@@ -347,7 +364,7 @@ public class PermissionTemplateServiceTest {
     GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, ADMINISTER.getKey());
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, PROVISION_PROJECTS.getKey());
-    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), application, null);
 
@@ -360,11 +377,12 @@ public class PermissionTemplateServiceTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto application = dbTester.components().insertApplication(organization);
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
-    PermissionTemplateDto viewPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto appPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto portPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
-    dbTester.permissionTemplates().addGroupToTemplate(viewPermissionTemplate, group, ADMINISTER.getKey());
-    dbTester.permissionTemplates().addGroupToTemplate(viewPermissionTemplate, group, PROVISION_PROJECTS.getKey());
-    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), viewPermissionTemplate.getUuid());
+    dbTester.permissionTemplates().addGroupToTemplate(appPermissionTemplate, group, ADMINISTER.getKey());
+    dbTester.permissionTemplates().addGroupToTemplate(appPermissionTemplate, group, PROVISION_PROJECTS.getKey());
+    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), appPermissionTemplate.getUuid(), portPermissionTemplate.getUuid());
 
     underTest.applyDefault(session, organization.getUuid(), application, null);
 
@@ -379,7 +397,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.permissionTemplates().addGroupToTemplate(projectPermissionTemplate, group, PROVISION_PROJECTS.getKey());
-    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(organization, projectPermissionTemplate.getUuid(), null, null);
 
     underTest.applyDefault(session, organization.getUuid(), application, null);
 
@@ -450,7 +468,7 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void would_user_have_scan_permission_with_unknown_default_permission_template() {
-    dbTester.organizations().setDefaultTemplates(dbTester.getDefaultOrganization(), "UNKNOWN_TEMPLATE_UUID", null);
+    dbTester.organizations().setDefaultTemplates(dbTester.getDefaultOrganization(), "UNKNOWN_TEMPLATE_UUID", null, null);
 
     checkWouldUserHaveScanPermission(dbTester.getDefaultOrganization(), null, false);
   }

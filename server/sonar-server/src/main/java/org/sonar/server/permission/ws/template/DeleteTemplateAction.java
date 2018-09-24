@@ -101,9 +101,9 @@ public class DeleteTemplateAction implements PermissionsWsAction {
    * to a non existing template, we update the default templates.
    */
   private void updateViewDefaultTemplateWhenGovernanceIsNotInstalled(DbSession dbSession, PermissionTemplateDto template, DefaultTemplates defaultTemplates) {
-    String viewDefaultTemplateUuid = defaultTemplates.getViewUuid();
+    String viewDefaultTemplateUuid = defaultTemplates.getApplicationsUuid();
     if (viewDefaultTemplateUuid != null && viewDefaultTemplateUuid.equals(template.getUuid())) {
-      defaultTemplates.setViewUuid(null);
+      defaultTemplates.setApplicationsUuid(null);
       dbClient.organizationDao().setDefaultTemplates(dbSession, template.getOrganizationUuid(), defaultTemplates);
     }
   }
@@ -119,7 +119,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
     DefaultTemplatesResolverImpl.ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
     checkRequest(!resolvedDefaultTemplates.getProject().equals(template.getUuid()),
       "It is not possible to delete the default permission template for projects");
-    resolvedDefaultTemplates.getView()
+    resolvedDefaultTemplates.getApplication()
       .ifPresent(viewDefaultTemplateUuid -> checkRequest(
         !viewDefaultTemplateUuid.equals(template.getUuid()),
         "It is not possible to delete the default permission template for views"));

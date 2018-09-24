@@ -44,8 +44,8 @@ public class DefaultTemplatesResolverImplTest {
   @Test
   public void project_is_project_of_DefaultTemplates_no_matter_if_views_is_installed() {
     Stream.of(
-      new DefaultTemplates().setProjectUuid("foo").setViewUuid(null),
-      new DefaultTemplates().setProjectUuid("foo").setViewUuid("bar")).forEach(
+      new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid(null),
+      new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid("bar")).forEach(
         defaultTemplates -> {
           assertThat(underTestWithoutViews.resolve(defaultTemplates).getProject()).isEqualTo("foo");
           assertThat(underTestWithViews.resolve(defaultTemplates).getProject()).isEqualTo("foo");
@@ -54,24 +54,24 @@ public class DefaultTemplatesResolverImplTest {
 
   @Test
   public void view_is_empty_no_matter_view_in_DefaultTemplates_if_views_is_not_installed() {
-    DefaultTemplates defaultTemplatesNoView = new DefaultTemplates().setProjectUuid("foo").setViewUuid(null);
-    DefaultTemplates defaultTemplatesView = new DefaultTemplates().setProjectUuid("foo").setViewUuid("bar");
+    DefaultTemplates defaultTemplatesNoView = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid(null);
+    DefaultTemplates defaultTemplatesView = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid("bar");
 
-    assertThat(underTestWithoutViews.resolve(defaultTemplatesNoView).getView()).isEmpty();
-    assertThat(underTestWithoutViews.resolve(defaultTemplatesView).getView()).isEmpty();
+    assertThat(underTestWithoutViews.resolve(defaultTemplatesNoView).getApplication()).isEmpty();
+    assertThat(underTestWithoutViews.resolve(defaultTemplatesView).getApplication()).isEmpty();
   }
 
   @Test
   public void view_is_project_of_DefaultTemplates_if_view_in_DefaultTemplates_is_null_and_views_is_installed() {
-    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setViewUuid(null);
+    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid(null);
 
-    assertThat(underTestWithViews.resolve(defaultTemplates).getView()).contains("foo");
+    assertThat(underTestWithViews.resolve(defaultTemplates).getApplication()).contains("foo");
   }
 
   @Test
   public void view_is_view_of_DefaultTemplates_if_view_in_DefaultTemplates_is_not_null_and_views_is_installed() {
-    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setViewUuid("bar");
+    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid("bar");
 
-    assertThat(underTestWithViews.resolve(defaultTemplates).getView()).contains("bar");
+    assertThat(underTestWithViews.resolve(defaultTemplates).getApplication()).contains("bar");
   }
 }

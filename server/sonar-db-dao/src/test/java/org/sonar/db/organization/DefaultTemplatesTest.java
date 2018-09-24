@@ -48,16 +48,22 @@ public class DefaultTemplatesTest {
   }
 
   @Test
-  public void setView_accepts_null() {
-    underTest.setViewUuid(null);
+  public void setApplicationsUuid_accepts_null() {
+    underTest.setApplicationsUuid(null);
+  }
+
+  @Test
+  public void setPortfoliosUuid_accepts_null() {
+    underTest.setPortfoliosUuid(null);
   }
 
   @Test
   public void check_toString() {
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='null', viewUuid='null'}");
+    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='null', portfoliosUuid='null', applicationsUuid='null'}");
     underTest
         .setProjectUuid("a project")
-        .setViewUuid("a view");
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='a project', viewUuid='a view'}");
+        .setApplicationsUuid("an application")
+        .setPortfoliosUuid("a portfolio");
+    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='a project', portfoliosUuid='a portfolio', applicationsUuid='an application'}");
   }
 }

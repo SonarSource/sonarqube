@@ -71,7 +71,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
   @Test
   public void update_project_default_template_without_qualifier_param() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setDefaultTemplates(organization, "any-project-template-uuid", "any-view-template-uuid");
+    db.organizations().setDefaultTemplates(organization, "any-project-template-uuid", "any-view-template-uuid", null);
     PermissionTemplateDto template = insertTemplate(organization);
     loginAsAdmin(organization);
 
@@ -213,6 +213,6 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
       .orElseThrow(() -> new IllegalStateException("No default templates for organization with uuid '" + organizationDto.getUuid() + "'"));
 
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(projectDefaultTemplateUuid);
-    assertThat(defaultTemplates.getViewUuid()).isEqualTo(viewDefaultTemplateUuid);
+    assertThat(defaultTemplates.getApplicationsUuid()).isEqualTo(viewDefaultTemplateUuid);
   }
 }

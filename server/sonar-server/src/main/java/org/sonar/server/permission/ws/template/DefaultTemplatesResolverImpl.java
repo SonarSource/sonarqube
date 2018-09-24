@@ -39,7 +39,8 @@ public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
 
     return new ResolvedDefaultTemplates(
       projectDefaultTemplate,
-      isViewsEnabled(resourceTypes) ? ofNullable(defaultTemplates.getViewUuid()).orElse(projectDefaultTemplate) : null);
+      isViewsEnabled(resourceTypes) ? ofNullable(defaultTemplates.getApplicationsUuid()).orElse(projectDefaultTemplate) : null,
+      isViewsEnabled(resourceTypes) ? ofNullable(defaultTemplates.getPortfoliosUuid()).orElse(projectDefaultTemplate) : null);
   }
 
   private static boolean isViewsEnabled(ResourceTypes resourceTypes) {

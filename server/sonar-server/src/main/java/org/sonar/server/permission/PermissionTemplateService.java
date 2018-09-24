@@ -206,10 +206,13 @@ public class PermissionTemplateService {
       case Qualifiers.PROJECT:
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, resolvedDefaultTemplates.getProject());
       case Qualifiers.VIEW:
-      case Qualifiers.APP:
-        String viewDefaultTemplateUuid = resolvedDefaultTemplates.getView().orElseThrow(
+        String portDefaultTemplateUuid = resolvedDefaultTemplates.getPortfolio().orElseThrow(
           () -> new IllegalStateException("Attempt to create a view when Governance plugin is not installed"));
-        return dbClient.permissionTemplateDao().selectByUuid(dbSession, viewDefaultTemplateUuid);
+        return dbClient.permissionTemplateDao().selectByUuid(dbSession, portDefaultTemplateUuid);
+      case Qualifiers.APP:
+        String appDefaultTemplateUuid = resolvedDefaultTemplates.getApplication().orElseThrow(
+          () -> new IllegalStateException("Attempt to create a view when Governance plugin is not installed"));
+        return dbClient.permissionTemplateDao().selectByUuid(dbSession, appDefaultTemplateUuid);
       default:
         throw new IllegalArgumentException(format("Qualifier '%s' is not supported", qualifier));
     }

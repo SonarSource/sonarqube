@@ -248,7 +248,7 @@ public class DeleteTemplateActionTest {
     assertTemplateDoesNotExist(viewTemplate);
 
     assertThat(db.getDbClient().organizationDao().getDefaultTemplates(db.getSession(), organization.getUuid())
-      .get().getViewUuid())
+      .get().getApplicationsUuid())
         .isNull();
   }
 

@@ -25,8 +25,12 @@ import javax.annotation.Nullable;
 import static java.util.Objects.requireNonNull;
 
 public class DefaultTemplates {
+  // Hold the template uuid for new projects
   private String projectUuid;
-  private String viewUuid;
+  // Hold the template uuid for new applications
+  private String applicationsUuid;
+  // Hold the template uuid for new portfolios
+  private String portfoliosUuid;
 
   public String getProjectUuid() {
     checkProjectNotNull(this.projectUuid);
@@ -44,12 +48,22 @@ public class DefaultTemplates {
   }
 
   @CheckForNull
-  public String getViewUuid() {
-    return viewUuid;
+  public String getApplicationsUuid() {
+    return applicationsUuid;
   }
 
-  public DefaultTemplates setViewUuid(@Nullable String viewUuid) {
-    this.viewUuid = viewUuid;
+  public DefaultTemplates setApplicationsUuid(@Nullable String applicationsUuid) {
+    this.applicationsUuid = applicationsUuid;
+    return this;
+  }
+
+  @CheckForNull
+  public String getPortfoliosUuid() {
+    return portfoliosUuid;
+  }
+
+  public DefaultTemplates setPortfoliosUuid(@Nullable String portfoliosUuid) {
+    this.portfoliosUuid = portfoliosUuid;
     return this;
   }
 
@@ -57,7 +71,8 @@ public class DefaultTemplates {
   public String toString() {
     return "DefaultTemplates{" +
       "projectUuid='" + projectUuid + '\'' +
-      ", viewUuid='" + viewUuid + '\'' +
+      ", portfoliosUuid='" + portfoliosUuid + '\'' +
+      ", applicationsUuid='" + applicationsUuid + '\'' +
       '}';
   }
 }

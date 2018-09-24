@@ -32,8 +32,10 @@ public interface DefaultTemplatesResolver {
    * Resolve the effective default templates uuid for the specified {@link DefaultTemplates}.
    * <ul>
    *   <li>{@link ResolvedDefaultTemplates#project} is always the same as {@link DefaultTemplates#projectUuid}</li>
-   *   <li>when Governance is not installed, {@link ResolvedDefaultTemplates#view} is always {@code null}</li>
-   *   <li>when Governance is not installed, {@link ResolvedDefaultTemplates#view} is  {@link DefaultTemplates#viewUuid}
+   *   <li>when Governance is not installed, {@link ResolvedDefaultTemplates#application} is always {@code null}</li>
+   *   <li>when Governance is installed, {@link ResolvedDefaultTemplates#application} is  {@link DefaultTemplates#applicationsUuid}
+   *       when it is non {@code null}, otherwise it is {@link DefaultTemplates#projectUuid}</li>
+   *   <li>when Governance is installed, {@link ResolvedDefaultTemplates#portfolio} is  {@link DefaultTemplates#portfoliosUuid}
    *       when it is non {@code null}, otherwise it is {@link DefaultTemplates#projectUuid}</li>
    * </ul>
    */
@@ -42,19 +44,25 @@ public interface DefaultTemplatesResolver {
   @Immutable
   final class ResolvedDefaultTemplates {
     private final String project;
-    private final String view;
+    private final String application;
+    private final String portfolio;
 
-    ResolvedDefaultTemplates(String project, @Nullable String view) {
+    ResolvedDefaultTemplates(String project, @Nullable String application, @Nullable String portfolio) {
       this.project = requireNonNull(project, "project can't be null");
-      this.view = view;
+      this.application = application;
+      this.portfolio = portfolio;
     }
 
     public String getProject() {
       return project;
     }
 
-    public Optional<String> getView() {
-      return ofNullable(view);
+    public Optional<String> getApplication() {
+      return ofNullable(application);
+    }
+
+    public Optional<String> getPortfolio() {
+      return ofNullable(portfolio);
     }
   }
 }

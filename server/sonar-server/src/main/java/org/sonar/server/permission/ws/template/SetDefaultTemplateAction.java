@@ -118,7 +118,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     if (Qualifiers.PROJECT.equals(qualifier)) {
       defaultTemplates.setProjectUuid(permissionTemplateDto.getUuid());
     } else if (Qualifiers.VIEW.equals(qualifier)) {
-      defaultTemplates.setViewUuid(permissionTemplateDto.getUuid());
+      defaultTemplates.setApplicationsUuid(permissionTemplateDto.getUuid());
     }
     organizationDao.setDefaultTemplates(dbSession, organizationUuid, defaultTemplates);
   }
