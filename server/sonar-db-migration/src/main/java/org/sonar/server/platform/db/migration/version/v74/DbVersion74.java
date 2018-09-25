@@ -41,6 +41,7 @@ public class DbVersion74 implements DbVersion {
       .add(2318, "Finalize CE_QUEUE.MAIN_COMPONENT_UUID 3/3", FinalizeMainComponentUuidColumnsToCeActivity.class)
       .add(2319, "Finalize CE_ACTIVITY.MAIN_COMPONENT_UUID 3/3", FinalizeMainComponentUuidColumnsToCeQueue.class)
       .add(2320, "Finalize CE_ACTIVITY.MAIN_LAST_KEY 3/3", FinalizeMainLastKeyColumnsToCeActivity.class)
+      .add(2321, "Increase organization key and name length", IncreaseOrganizationsKeeAndNameLength.class)
     ;
   }
 }

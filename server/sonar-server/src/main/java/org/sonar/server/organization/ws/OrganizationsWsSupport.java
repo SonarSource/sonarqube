@@ -29,6 +29,7 @@ import org.sonarqube.ws.Organizations.Organization;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.organization.OrganizationValidation.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.organization.OrganizationValidation.NAME_MAX_LENGTH;
+import static org.sonar.server.organization.OrganizationValidation.NAME_MIN_LENGTH;
 import static org.sonar.server.organization.OrganizationValidation.URL_MAX_LENGTH;
 
 /**
@@ -83,9 +84,9 @@ public class OrganizationsWsSupport {
   void addOrganizationDetailsParams(WebService.NewAction action, boolean isNameRequired) {
     action.createParam(PARAM_NAME)
       .setRequired(isNameRequired)
+      .setMinimumLength(NAME_MIN_LENGTH)
       .setMaximumLength(NAME_MAX_LENGTH)
-      .setDescription("Name of the organization. <br />" +
-        "It must be between 2 and 64 chars longs.")
+      .setDescription("Name of the organization")
       .setExampleValue("Foo Company");
 
     action.createParam(PARAM_DESCRIPTION)

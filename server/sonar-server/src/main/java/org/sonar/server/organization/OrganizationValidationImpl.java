@@ -23,7 +23,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.Math.min;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.Slug.slugify;
 
@@ -79,6 +78,6 @@ public class OrganizationValidationImpl implements OrganizationValidation {
 
   @Override
   public String generateKeyFrom(String source) {
-    return slugify(source.substring(0, min(source.length(), KEY_MAX_LENGTH)));
+    return slugify(source);
   }
 }

@@ -19,22 +19,37 @@
  */
 package org.sonar.server.platform.db.migration.version.v74;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.VARCHAR;
 
-public class DbVersion74Test {
+public class IncreaseOrganizationsKeeAndNameLengthTest {
 
-  private DbVersion74 underTest = new DbVersion74();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(IncreaseOrganizationsKeeAndNameLengthTest.class, "organizations.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private IncreaseOrganizationsKeeAndNameLength underTest = new IncreaseOrganizationsKeeAndNameLength(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2300() {
-    verifyMinimumMigrationNumber(underTest, 2300);
+  public void column_is_updated() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDefinition("organizations", "kee", VARCHAR, 300, false);
+    db.assertColumnDefinition("organizations", "name", VARCHAR, 300, false);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 15);
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+
+    underTest.execute();
   }
+
 }

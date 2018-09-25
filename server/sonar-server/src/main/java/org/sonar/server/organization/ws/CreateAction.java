@@ -40,6 +40,7 @@ import org.sonarqube.ws.Organizations.CreateWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.newOrganizationBuilder;
 import static org.sonar.server.organization.OrganizationValidation.KEY_MAX_LENGTH;
+import static org.sonar.server.organization.OrganizationValidation.KEY_MIN_LENGTH;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -74,16 +75,20 @@ public class CreateAction implements OrganizationsWsAction {
       .setResponseExample(getClass().getResource("create-example.json"))
       .setInternal(true)
       .setSince("6.2")
-      .setChangelog(new Change("7.2", "Minimal number of character of name and key is one character"))
+      .setChangelog(
+        new Change("7.4", "Maximal number of character of name and key is 300 characters"),
+        new Change("7.2", "Minimal number of character of name and key is one character")
+      )
       .setHandler(this);
 
     action.createParam(PARAM_KEY)
       .setRequired(false)
+      .setMinimumLength(KEY_MIN_LENGTH)
       .setMaximumLength(KEY_MAX_LENGTH)
       .setDescription("Key of the organization. <br />" +
         "The key is unique to the whole SonarQube. <br/>" +
         "When not specified, the key is computed from the name. <br />" +
-        "Otherwise, it must be between 1 and 32 chars long. All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)")
+        "All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)")
       .setExampleValue("foo-company");
 
     wsSupport.addOrganizationDetailsParams(action, true);

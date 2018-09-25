@@ -22,6 +22,7 @@ package org.sonar.server.organization.ws;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,12 +35,12 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 
 import static java.lang.String.format;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_AVATAR_URL;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_DESCRIPTION;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_URL;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements OrganizationsWsAction {
@@ -66,6 +67,7 @@ public class UpdateAction implements OrganizationsWsAction {
         "Require 'Administer System' permission. Organization support must be enabled.")
       .setInternal(true)
       .setSince("6.2")
+      .setChangelog(new Change("7.4", "Maximal number of character of name is 300 characters"))
       .setHandler(this);
 
     action.createParam(PARAM_KEY)

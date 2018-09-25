@@ -69,7 +69,6 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE;
-import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
@@ -281,16 +280,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void request_succeeds_if_name_is_64_char_long() {
-    createUserAndLogInAsSystemAdministrator();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    String name = STRING_65_CHARS_LONG.substring(0, 64);
-
-    verifyResponseAndDb(executeRequest(name), name, name.substring(0, 32), NOW);
-  }
-
-  @Test
   public void request_succeeds_if_key_is_2_chars_long() {
     createUserAndLogInAsSystemAdministrator();
     db.qualityGates().insertBuiltInQualityGate();
@@ -325,17 +314,6 @@ public class CreateActionTest {
 
     CreateWsResponse response = executeRequest("foo", "bar", "moo", "doo", "boo");
     verifyResponseAndDb(response, "foo", "bar", "moo", "doo", "boo", NOW);
-  }
-
-  @Test
-  public void request_succeeds_to_generate_key_from_name_more_then_32_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    String name = STRING_65_CHARS_LONG.substring(0, 33);
-
-    CreateWsResponse response = executeRequest(name);
-    verifyResponseAndDb(response, name, name.substring(0, 32), NOW);
   }
 
   @Test
@@ -390,40 +368,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void request_fails_if_name_is_empty() {
-    createUserAndLogInAsSystemAdministrator();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name must not be empty");
-
-    wsTester.newRequest()
-      .setParam(PARAM_NAME, "")
-      .execute();
-  }
-
-  @Test
-  public void request_fails_if_name_is_65_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'name' length (65) is longer than the maximum authorized (64)");
-
-    executeRequest(STRING_65_CHARS_LONG);
-  }
-
-  @Test
-  public void request_fails_if_key_is_33_chars_long() {
-    createUserAndLogInAsSystemAdministrator();
-
-    String key = STRING_65_CHARS_LONG.substring(0, 33);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'key' length (33) is longer than the maximum authorized (32)");
-
-    executeRequest("foo", key);
-  }
-
-  @Test
   public void requests_fails_if_key_contains_non_ascii_chars_but_dash() {
     createUserAndLogInAsSystemAdministrator();
 
@@ -464,19 +408,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void request_fails_if_key_is_empty() {
-    createUserAndLogInAsSystemAdministrator();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Key must not be empty");
-
-    wsTester.newRequest()
-      .setParam(PARAM_KEY, "")
-      .setParam(PARAM_NAME, "foo")
-      .execute();
-  }
-
-  @Test
   public void request_fails_if_key_is_specified_and_already_exists_in_DB() {
     createUserAndLogInAsSystemAdministrator();
     OrganizationDto org = db.organizations().insert(o -> o.setKey("the-key"));
@@ -490,9 +421,9 @@ public class CreateActionTest {
   @Test
   public void request_fails_if_key_computed_from_name_already_exists_in_DB() {
     createUserAndLogInAsSystemAdministrator();
-    String key = STRING_65_CHARS_LONG.substring(0, 32);
+    String key = "key";
     db.organizations().insert(o -> o.setKey(key));
-    String name = STRING_65_CHARS_LONG.substring(0, 64);
+    String name = "Key";
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Key '" + key + "' generated from name '" + name + "' is already used. Specify one.");
@@ -584,13 +515,18 @@ public class CreateActionTest {
     assertThat(action.handler()).isNotNull();
     assertThat(action.params()).hasSize(5);
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("create-example.json"));
+
     assertThat(action.param("name"))
       .matches(WebService.Param::isRequired)
       .matches(param -> "Foo Company".equals(param.exampleValue()))
+      .matches(param -> param.minimumLength().equals(1))
+      .matches(param -> param.maximumLength().equals(300))
       .matches(param -> param.description() != null);
     assertThat(action.param("key"))
       .matches(param -> !param.isRequired())
       .matches(param -> "foo-company".equals(param.exampleValue()))
+      .matches(param -> param.minimumLength().equals(1))
+      .matches(param -> param.maximumLength().equals(300))
       .matches(param -> param.description() != null);
     assertThat(action.param("description"))
       .matches(param -> !param.isRequired())

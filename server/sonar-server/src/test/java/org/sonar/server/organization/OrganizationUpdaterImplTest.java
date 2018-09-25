@@ -73,7 +73,6 @@ public class OrganizationUpdaterImplTest {
   private static final long A_DATE = 12893434L;
   private static final String A_LOGIN = "a-login";
   private static final String SLUG_OF_A_LOGIN = "slug-of-a-login";
-  private static final String STRING_64_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   private static final String A_NAME = "a name";
 
   private OrganizationUpdater.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
@@ -191,7 +190,8 @@ public class OrganizationUpdaterImplTest {
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), UserRole.SECURITYHOTSPOT_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), UserRole.SECURITYHOTSPOT_ADMIN),
+        tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
         tuple(defaultGroupId, UserRole.USER), tuple(defaultGroupId, UserRole.CODEVIEWER));
   }
 
@@ -426,54 +426,6 @@ public class OrganizationUpdaterImplTest {
   }
 
   @Test
-  public void createForUser_does_not_fail_if_name_is_too_long_for_an_organization_name() {
-    String nameTooLong = STRING_64_CHARS + "b";
-    UserDto user = db.users().insertUser(dto -> dto.setName(nameTooLong).setLogin(A_LOGIN));
-    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
-    assertThat(organization.getDescription()).isEqualTo(nameTooLong + "'s personal organization");
-  }
-
-  @Test
-  public void createForUser_does_not_fail_if_name_is_empty_and_login_is_too_long_for_an_organization_name() {
-    String login = STRING_64_CHARS + "b";
-    UserDto user = db.users().insertUser(dto -> dto.setName("").setLogin(login));
-    when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
-    assertThat(organization.getDescription()).isEqualTo(login + "'s personal organization");
-  }
-
-  @Test
-  public void createForUser_does_not_fail_if_name_is_null_and_login_is_too_long_for_an_organization_name() {
-    String login = STRING_64_CHARS + "b";
-    UserDto user = db.users().insertUser(dto -> dto.setName(null).setLogin(login));
-    when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
-    enableCreatePersonalOrg(true);
-    builtInQProfileRepositoryRule.initialize();
-    db.qualityGates().insertBuiltInQualityGate();
-
-    underTest.createForUser(dbSession, user);
-
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
-    assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
-    assertThat(organization.getDescription()).isEqualTo(login + "'s personal organization");
-  }
-
-  @Test
   public void createForUser_associates_to_built_in_quality_profiles() {
     UserDto user = db.users().insertUser(A_LOGIN);
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
@@ -535,7 +487,6 @@ public class OrganizationUpdaterImplTest {
     assertThat(db.countRowsOfTable("perm_templates_users")).isEqualTo(0);
     assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
   }
-
 
   @Test
   public void update_personal_organization() {

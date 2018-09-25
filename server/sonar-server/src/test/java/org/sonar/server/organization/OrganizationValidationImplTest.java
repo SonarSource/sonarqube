@@ -19,6 +19,7 @@
  */
 package org.sonar.server.organization;
 
+import com.google.common.base.Strings;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +32,8 @@ public class OrganizationValidationImplTest {
   private static final String STRING_32_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   private static final String STRING_64_CHARS = STRING_32_CHARS + STRING_32_CHARS;
   private static final String STRING_256_CHARS = STRING_64_CHARS + STRING_64_CHARS + STRING_64_CHARS + STRING_64_CHARS;
+
+  private static final String STRING_300_CHARS = Strings.repeat("a", 300);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -62,27 +65,22 @@ public class OrganizationValidationImplTest {
   }
 
   @Test
-  public void checkValidKey_does_not_fail_if_arg_is_2_to_32_chars_long() {
-    String str = "aa";
-    for (int i = 0; i < 31; i++) {
+  public void checkValidKey_does_not_fail_if_arg_is_1_to_300_chars_long() {
+    String str = "a";
+    for (int i = 0; i < 299; i++) {
       underTest.checkKey(str);
       str += "a";
     }
   }
 
   @Test
-  public void checkValidKey_throws_IAE_if_arg_is_33_or_more_chars_long() {
-    String str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    underTest.checkKey(str);
-    for (int i = 0; i < 5 + Math.abs(new Random().nextInt(10)); i++) {
-      str += "c";
-      try {
-        underTest.checkKey(str);
-        fail("A IllegalArgumentException should have been thrown");
-      } catch (IllegalArgumentException e) {
-        assertThat(e).hasMessage("Key '" + str + "' must be at most 32 chars long");
-      }
-    }
+  public void checkValidKey_throws_IAE_when_more_than_300_characters() {
+    String key = STRING_300_CHARS + "b";
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Key '" + key + "' must be at most 300 chars long");
+
+    underTest.checkKey(key);
   }
 
   @Test
@@ -117,27 +115,22 @@ public class OrganizationValidationImplTest {
   }
 
   @Test
-  public void checkValidName_does_not_fail_if_arg_is_2_to_32_chars_long() {
-    String str = "aa";
-    for (int i = 0; i < 63; i++) {
+  public void checkValidName_does_not_fail_if_arg_is_1_to_300_chars_long() {
+    String str = "a";
+    for (int i = 0; i < 299; i++) {
       underTest.checkName(str);
       str += "a";
     }
   }
 
   @Test
-  public void checkValidName_throws_IAE_if_arg_is_65_or_more_chars_long() {
-    String str = STRING_64_CHARS;
+  public void checkValidName_throws_IAE_when_more_than_300_characters() {
+    String str = STRING_300_CHARS + "b";
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Name '" + str + "' must be at most 300 chars long");
+
     underTest.checkName(str);
-    for (int i = 0; i < 5 + Math.abs(new Random().nextInt(10)); i++) {
-      str += "c";
-      try {
-        underTest.checkName(str);
-        fail("A IllegalArgumentException should have been thrown");
-      } catch (IllegalArgumentException e) {
-        assertThat(e).hasMessage("Name '" + str + "' must be at most 64 chars long");
-      }
-    }
   }
 
   @Test
@@ -244,10 +237,4 @@ public class OrganizationValidationImplTest {
     assertThat(underTest.generateKeyFrom("<\"foo:\">")).isEqualTo("foo");
   }
 
-  @Test
-  public void generateKeyFrom_truncate_arg_to_32_chars() {
-    assertThat(underTest.generateKeyFrom(STRING_64_CHARS))
-      .isEqualTo(underTest.generateKeyFrom(STRING_256_CHARS))
-      .isEqualTo(underTest.generateKeyFrom(STRING_32_CHARS));
-  }
 }
