@@ -8,7 +8,7 @@ exports[`should display the available edition boxes correctly 1`] = `
     currentEdition="community"
     edition={
       Object {
-        "downloadUrl": "https://sonarsource.bintray.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip",
+        "downloadUrl": "https://binaries.sonarsource.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip",
         "homeUrl": "https://redirect.sonarsource.com/editions/developer.html",
         "key": "developer",
         "name": "Developer Edition",
@@ -20,7 +20,7 @@ exports[`should display the available edition boxes correctly 1`] = `
     currentEdition="community"
     edition={
       Object {
-        "downloadUrl": "https://sonarsource.bintray.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip",
+        "downloadUrl": "https://binaries.sonarsource.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip",
         "homeUrl": "https://redirect.sonarsource.com/editions/enterprise.html",
         "key": "enterprise",
         "name": "Enterprise Edition",
@@ -32,7 +32,7 @@ exports[`should display the available edition boxes correctly 1`] = `
     currentEdition="community"
     edition={
       Object {
-        "downloadUrl": "https://sonarsource.bintray.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip",
+        "downloadUrl": "https://binaries.sonarsource.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip",
         "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
         "key": "datacenter",
         "name": "Data Center Edition",
@@ -51,7 +51,7 @@ exports[`should display the datacenter edition box only 1`] = `
     currentEdition="enterprise"
     edition={
       Object {
-        "downloadUrl": "https://sonarsource.bintray.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip",
+        "downloadUrl": "https://binaries.sonarsource.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip",
         "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
         "key": "datacenter",
         "name": "Data Center Edition",
@@ -70,7 +70,7 @@ exports[`should display the enterprise and datacenter edition boxes 1`] = `
     currentEdition="developer"
     edition={
       Object {
-        "downloadUrl": "https://sonarsource.bintray.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip",
+        "downloadUrl": "https://binaries.sonarsource.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip",
         "homeUrl": "https://redirect.sonarsource.com/editions/enterprise.html",
         "key": "enterprise",
         "name": "Enterprise Edition",
@@ -82,7 +82,7 @@ exports[`should display the enterprise and datacenter edition boxes 1`] = `
     currentEdition="developer"
     edition={
       Object {
-        "downloadUrl": "https://sonarsource.bintray.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip",
+        "downloadUrl": "https://binaries.sonarsource.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip",
         "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
         "key": "datacenter",
         "name": "Data Center Edition",

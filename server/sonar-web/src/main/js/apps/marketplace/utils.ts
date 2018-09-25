@@ -53,21 +53,21 @@ export const EDITIONS: Edition[] = [
     name: 'Developer Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/developer.html',
     downloadUrl:
-      'https://sonarsource.bintray.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip'
+      'https://binaries.sonarsource.com/CommercialDistribution/editions/developer-edition-7.0.0.717.zip'
   },
   {
     key: EditionKey.enterprise,
     name: 'Enterprise Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/enterprise.html',
     downloadUrl:
-      'https://sonarsource.bintray.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip'
+      'https://binaries.sonarsource.com/CommercialDistribution/editions/enterprise-edition-7.0.0.717.zip'
   },
   {
     key: EditionKey.datacenter,
     name: 'Data Center Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/datacenter.html',
     downloadUrl:
-      'https://sonarsource.bintray.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip'
+      'https://binaries.sonarsource.com/CommercialDistribution/editions/datacenter-edition-7.0.0.717.zip'
   }
 ];
 
