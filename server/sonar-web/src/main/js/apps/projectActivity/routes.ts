@@ -22,7 +22,7 @@ import { lazyLoad } from '../../components/lazyLoad';
 const routes = [
   {
     indexRoute: {
-      component: lazyLoad(() => import('./components/ProjectActivityAppContainer') as any)
+      component: lazyLoad(() => import('./components/ProjectActivityAppContainer'))
     }
   }
 ];

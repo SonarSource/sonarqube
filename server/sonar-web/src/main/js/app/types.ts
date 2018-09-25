@@ -30,6 +30,19 @@ export interface AlmRepository {
   linkedProjectName?: string;
 }
 
+export interface Analysis {
+  date: string;
+  events: AnalysisEvent[];
+  key: string;
+}
+
+export interface AnalysisEvent {
+  category: string;
+  description?: string;
+  key: string;
+  name: string;
+}
+
 export interface AppState {
   adminPages?: Extension[];
   authenticationError?: boolean;
@@ -76,6 +89,7 @@ export interface Component extends LightComponent {
   description?: string;
   extensions?: Extension[];
   isFavorite?: boolean;
+  leakPeriodDate?: string;
   name: string;
   path?: string;
   refKey?: string;
@@ -90,6 +104,7 @@ interface ComponentConfiguration {
   canApplyPermissionTemplate?: boolean;
   extensions?: Extension[];
   showBackgroundTasks?: boolean;
+  showHistory?: boolean;
   showLinks?: boolean;
   showManualMeasures?: boolean;
   showQualityGates?: boolean;

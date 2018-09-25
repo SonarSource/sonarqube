@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Event as IEvent } from '../../../api/projectActivity';
 import { translate } from '../../../helpers/l10n';
+import { AnalysisEvent } from '../../../app/types';
 
 interface Props {
-  event: IEvent;
+  event: AnalysisEvent;
 }
 
 export default function Event({ event }: Props) {

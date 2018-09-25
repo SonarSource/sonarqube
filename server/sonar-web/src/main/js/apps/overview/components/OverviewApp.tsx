@@ -29,7 +29,7 @@ import MetaContainer from '../meta/MetaContainer';
 import QualityGate from '../qualityGate/QualityGate';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getAllTimeMachineData, History } from '../../../api/time-machine';
+import { getAllTimeMachineData } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
@@ -69,7 +69,9 @@ interface DispatchToProps {
 type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
-  history?: History;
+  history?: {
+    [metric: string]: Array<{ date: Date; value?: string }>;
+  };
   historyStartDate?: Date;
   loading: boolean;
   measures: MeasureEnhanced[];
@@ -144,7 +146,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
       metrics: metrics.join()
     }).then(r => {
       if (this.mounted) {
-        const history: History = {};
+        const history: { [metric: string]: Array<{ date: Date; value?: string }> } = {};
         r.measures.forEach(measure => {
           const measureHistory = measure.history.map(analysis => ({
             date: parseDate(analysis.date),

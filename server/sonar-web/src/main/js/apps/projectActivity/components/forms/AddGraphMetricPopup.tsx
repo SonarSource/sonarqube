@@ -24,7 +24,7 @@ import { translate, translateWithParameters } from '../../../../helpers/l10n';
 interface Props {
   elements: string[];
   filterSelected: (query: string, selectedElements: string[]) => string[];
-  metricsTypeFilter: string[];
+  metricsTypeFilter?: string[];
   onSearch: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
@@ -42,7 +42,7 @@ export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...pr
         {translate('project_activity.graphs.custom.add_metric_info')}
       </span>
     );
-  } else if (metricsTypeFilter != null && metricsTypeFilter.length > 0) {
+  } else if (metricsTypeFilter && metricsTypeFilter.length > 0) {
     footerNode = (
       <span className="alert alert-info spacer-left spacer-right spacer-top">
         {translateWithParameters(

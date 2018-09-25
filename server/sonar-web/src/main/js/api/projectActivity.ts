@@ -19,20 +19,7 @@
  */
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, BranchParameters } from '../app/types';
-
-export interface Event {
-  key: string;
-  name: string;
-  category: string;
-  description?: string;
-}
-
-export interface Analysis {
-  key: string;
-  date: string;
-  events: Event[];
-}
+import { Paging, BranchParameters, Analysis } from '../app/types';
 
 export function getProjectActivity(
   data: { project: string; category?: string; p?: number; ps?: number } & BranchParameters

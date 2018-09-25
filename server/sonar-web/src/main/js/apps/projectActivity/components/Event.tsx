@@ -24,15 +24,15 @@ import RemoveEventForm from './forms/RemoveEventForm';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DeleteButton, EditButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Event as IEvent } from '../../../api/projectActivity';
+import { AnalysisEvent } from '../../../app/types';
 
 interface Props {
   analysis: string;
-  canAdmin: boolean;
+  canAdmin?: boolean;
   changeEvent: (event: string, name: string) => Promise<void>;
   deleteEvent: (analysis: string, event: string) => Promise<void>;
-  event: IEvent;
-  isFirst: boolean;
+  event: AnalysisEvent;
+  isFirst?: boolean;
 }
 
 interface State {

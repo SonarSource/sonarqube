@@ -21,19 +21,19 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import Event from './Event';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
-import { Analysis as IAnalysis, Event as IEvent } from '../../../api/projectActivity';
+import { Analysis as AnalysisType } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  analysis: IAnalysis;
+  analysis: AnalysisType;
   qualifier: string;
 }
 
 export default function Analysis({ analysis, ...props }: Props) {
-  const sortedEvents: Array<IEvent> = sortBy(
+  const sortedEvents = sortBy(
     analysis.events,
     // versions first
-    (event: IEvent) => (event.category === 'VERSION' ? 0 : 1),
+    event => (event.category === 'VERSION' ? 0 : 1),
     // then the rest sorted by category
     'category'
   );

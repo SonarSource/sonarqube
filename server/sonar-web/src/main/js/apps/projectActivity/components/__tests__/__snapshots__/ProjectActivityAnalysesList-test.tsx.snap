@@ -1,0 +1,373 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly filter analyses by category 1`] = `
+<ul
+  className="project-activity-versions-list"
+  onScroll={[Function]}
+  style={
+    Object {
+      "paddingTop": 52,
+    }
+  }
+>
+  <li
+    key="E2"
+  >
+    <div
+      className="project-activity-version-badge first"
+    >
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.4"
+      >
+        <span
+          className="badge"
+        >
+          6.4
+        </span>
+      </Tooltip>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477267200000"
+        key="1477267200000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477267200000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-24T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "QUALITY_GATE",
+                    "key": "E1",
+                    "name": "Quality gate changed to red...",
+                  },
+                ],
+                "key": "A4",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={true}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isFirst={false}
+            key="A4"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;
+
+exports[`should correctly filter analyses by date range 1`] = `
+<ul
+  className="project-activity-versions-list"
+  onScroll={[Function]}
+  style={
+    Object {
+      "paddingTop": 52,
+    }
+  }
+>
+  <li
+    key="E1"
+  >
+    <div
+      className="project-activity-version-badge first"
+    >
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.5-SNAPSHOT"
+      >
+        <span
+          className="badge"
+        >
+          6.5-SNAPSHOT
+        </span>
+      </Tooltip>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477526400000"
+        key="1477526400000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477526400000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-27T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E1",
+                    "name": "6.5-SNAPSHOT",
+                  },
+                ],
+                "key": "A1",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={true}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isFirst={true}
+            key="A1"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;
+
+exports[`should render correctly 1`] = `
+<ul
+  className="project-activity-versions-list"
+  onScroll={[Function]}
+  style={
+    Object {
+      "paddingTop": 52,
+    }
+  }
+>
+  <li
+    key="E1"
+  >
+    <div
+      className="project-activity-version-badge first"
+    >
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.5-SNAPSHOT"
+      >
+        <span
+          className="badge"
+        >
+          6.5-SNAPSHOT
+        </span>
+      </Tooltip>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477526400000"
+        key="1477526400000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477526400000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-27T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E1",
+                    "name": "6.5-SNAPSHOT",
+                  },
+                ],
+                "key": "A1",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={true}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isFirst={true}
+            key="A1"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+          <ProjectActivityAnalysis
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-27T12:21:15.000Z,
+                "events": Array [],
+                "key": "A2",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={true}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isFirst={false}
+            key="A2"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li
+    key="E2"
+  >
+    <div
+      className="project-activity-version-badge"
+    >
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.4"
+      >
+        <span
+          className="badge"
+        >
+          6.4
+        </span>
+      </Tooltip>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477440000000"
+        key="1477440000000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477440000000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-26T12:17:29.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E2",
+                    "name": "6.4",
+                  },
+                  Object {
+                    "category": "OTHER",
+                    "key": "E3",
+                    "name": "foo",
+                  },
+                ],
+                "key": "A3",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={true}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isFirst={false}
+            key="A3"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+      <li
+        className="project-activity-day"
+        data-day="ISO.1477267200000"
+        key="1477267200000"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <DateFormatter
+            date={1477267200000}
+            long={true}
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[MockFunction]}
+            addVersion={[MockFunction]}
+            analysis={
+              Object {
+                "date": 2016-10-24T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "QUALITY_GATE",
+                    "key": "E1",
+                    "name": "Quality gate changed to red...",
+                  },
+                ],
+                "key": "A4",
+              }
+            }
+            canAdmin={false}
+            canCreateVersion={true}
+            changeEvent={[MockFunction]}
+            deleteAnalysis={[MockFunction]}
+            deleteEvent={[MockFunction]}
+            isFirst={false}
+            key="A4"
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;

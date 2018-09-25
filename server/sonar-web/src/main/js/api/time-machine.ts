@@ -21,19 +21,10 @@ import { getJSON } from '../helpers/request';
 import { Paging, BranchParameters } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export interface HistoryItem {
-  date: Date;
-  value?: string;
-}
-
-export interface History {
-  [metric: string]: HistoryItem[];
-}
-
 interface TimeMachineResponse {
   measures: {
     metric: string;
-    history: HistoryItem[];
+    history: Array<{ date: string; value?: string }>;
   }[];
   paging: Paging;
 }

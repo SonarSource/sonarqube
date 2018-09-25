@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tbody>
+  <tr>
+    <td
+      className="project-activity-graph-tooltip-separator"
+      colSpan={3}
+    >
+      <hr />
+    </td>
+  </tr>
+  <tr
+    className="project-activity-graph-tooltip-line"
+  >
+    <td
+      className="project-activity-graph-tooltip-value text-right spacer-right thin"
+      colSpan={2}
+    >
+      10,245.0%
+    </td>
+    <td>
+      metric.duplicated_lines_density.name
+    </td>
+  </tr>
+</tbody>
+`;

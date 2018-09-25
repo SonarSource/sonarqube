@@ -1,0 +1,220 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly the graph and legends 1`] = `
+<div
+  className="project-activity-layout-page-main-inner boxed-group boxed-group-inner"
+>
+  <ProjectActivityGraphsHeader
+    addCustomMetric={[Function]}
+    graph="issues"
+    metrics={
+      Array [
+        Object {
+          "id": "1",
+          "key": "code_smells",
+          "name": "Code Smells",
+          "type": "INT",
+        },
+      ]
+    }
+    removeCustomMetric={[Function]}
+    selectedMetrics={Array []}
+    updateGraph={[Function]}
+  />
+  <GraphsHistory
+    analyses={
+      Array [
+        Object {
+          "date": 2016-10-27T14:33:50.000Z,
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "E1",
+              "name": "6.5-SNAPSHOT",
+            },
+          ],
+          "key": "A1",
+        },
+        Object {
+          "date": 2016-10-27T10:21:15.000Z,
+          "events": Array [],
+          "key": "A2",
+        },
+        Object {
+          "date": 2016-10-26T10:17:29.000Z,
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "E2",
+              "name": "6.4",
+            },
+            Object {
+              "category": "OTHER",
+              "key": "E3",
+              "name": "foo",
+            },
+          ],
+          "key": "A3",
+        },
+      ]
+    }
+    eventFilter=""
+    graph="issues"
+    graphs={
+      Array [
+        Array [
+          Object {
+            "data": Array [
+              Object {
+                "x": 2016-10-26T10:17:29.000Z,
+                "y": 2286,
+              },
+              Object {
+                "x": 2016-10-27T10:21:15.000Z,
+                "y": 1749,
+              },
+              Object {
+                "x": 2016-10-27T14:33:50.000Z,
+                "y": 500,
+              },
+            ],
+            "name": "code_smells",
+            "translatedName": "Code Smells",
+            "type": "INT",
+          },
+        ],
+      ]
+    }
+    leakPeriodDate={2017-05-16T11:50:02.000Z}
+    loading={false}
+    measuresHistory={
+      Array [
+        Object {
+          "history": Array [
+            Object {
+              "date": 2016-10-26T10:17:29.000Z,
+              "value": "2286",
+            },
+            Object {
+              "date": 2016-10-27T10:21:15.000Z,
+              "value": "1749",
+            },
+            Object {
+              "date": 2016-10-27T14:33:50.000Z,
+              "value": "500",
+            },
+          ],
+          "metric": "code_smells",
+        },
+      ]
+    }
+    removeCustomMetric={[Function]}
+    series={
+      Array [
+        Object {
+          "data": Array [
+            Object {
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 2286,
+            },
+            Object {
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 1749,
+            },
+            Object {
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 500,
+            },
+          ],
+          "name": "code_smells",
+          "translatedName": "Code Smells",
+          "type": "INT",
+        },
+      ]
+    }
+    updateGraphZoom={[Function]}
+    updateSelectedDate={[Function]}
+  />
+  <GraphsZoom
+    leakPeriodDate={2017-05-16T11:50:02.000Z}
+    loading={false}
+    metricsType="INT"
+    series={
+      Array [
+        Object {
+          "data": Array [
+            Object {
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 2286,
+            },
+            Object {
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 1749,
+            },
+            Object {
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 500,
+            },
+          ],
+          "name": "code_smells",
+          "translatedName": "Code Smells",
+          "type": "INT",
+        },
+      ]
+    }
+    showAreas={false}
+    updateGraphZoom={[Function]}
+  />
+</div>
+`;
+
+exports[`should render correctly with filter history on dates 1`] = `
+Object {
+  "graphEndDate": undefined,
+  "graphStartDate": 2016-10-27T10:21:15.000Z,
+  "graphs": Array [
+    Array [
+      Object {
+        "data": Array [
+          Object {
+            "x": 2016-10-26T10:17:29.000Z,
+            "y": 2286,
+          },
+          Object {
+            "x": 2016-10-27T10:21:15.000Z,
+            "y": 1749,
+          },
+          Object {
+            "x": 2016-10-27T14:33:50.000Z,
+            "y": 500,
+          },
+        ],
+        "name": "code_smells",
+        "translatedName": "Code Smells",
+        "type": "INT",
+      },
+    ],
+  ],
+  "series": Array [
+    Object {
+      "data": Array [
+        Object {
+          "x": 2016-10-26T10:17:29.000Z,
+          "y": 2286,
+        },
+        Object {
+          "x": 2016-10-27T10:21:15.000Z,
+          "y": 1749,
+        },
+        Object {
+          "x": 2016-10-27T14:33:50.000Z,
+          "y": 500,
+        },
+      ],
+      "name": "code_smells",
+      "translatedName": "Code Smells",
+      "type": "INT",
+    },
+  ],
+}
+`;

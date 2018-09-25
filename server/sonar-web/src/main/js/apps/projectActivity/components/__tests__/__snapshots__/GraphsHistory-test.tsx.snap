@@ -1,0 +1,150 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly render a graph 1`] = `
+<div
+  className="project-activity-graphs"
+>
+  <GraphHistory
+    events={Array []}
+    graph="issues"
+    isCustom={false}
+    key="0"
+    leakPeriodDate={2017-05-16T11:50:02.000Z}
+    measuresHistory={Array []}
+    metricsType="INT"
+    removeCustomMetric={[Function]}
+    series={
+      Array [
+        Object {
+          "data": Array [
+            Object {
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 5,
+            },
+            Object {
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 16,
+            },
+            Object {
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 12,
+            },
+          ],
+          "name": "bugs",
+          "translatedName": "metric.bugs.name",
+          "type": "INT",
+        },
+      ]
+    }
+    showAreas={false}
+    updateGraphZoom={[Function]}
+    updateSelectedDate={[Function]}
+    updateTooltip={[Function]}
+  />
+</div>
+`;
+
+exports[`should correctly render multiple graphs 1`] = `
+<div
+  className="project-activity-graphs"
+>
+  <GraphHistory
+    events={Array []}
+    graph="issues"
+    isCustom={false}
+    key="0"
+    leakPeriodDate={2017-05-16T11:50:02.000Z}
+    measuresHistory={Array []}
+    metricsType="INT"
+    removeCustomMetric={[Function]}
+    series={
+      Array [
+        Object {
+          "data": Array [
+            Object {
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 5,
+            },
+            Object {
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 16,
+            },
+            Object {
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 12,
+            },
+          ],
+          "name": "bugs",
+          "translatedName": "metric.bugs.name",
+          "type": "INT",
+        },
+      ]
+    }
+    showAreas={false}
+    updateGraphZoom={[Function]}
+    updateSelectedDate={[Function]}
+    updateTooltip={[Function]}
+  />
+  <GraphHistory
+    events={Array []}
+    graph="issues"
+    isCustom={false}
+    key="1"
+    leakPeriodDate={2017-05-16T11:50:02.000Z}
+    measuresHistory={Array []}
+    metricsType="INT"
+    removeCustomMetric={[Function]}
+    series={
+      Array [
+        Object {
+          "data": Array [
+            Object {
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 5,
+            },
+            Object {
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 16,
+            },
+            Object {
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 12,
+            },
+          ],
+          "name": "bugs",
+          "translatedName": "metric.bugs.name",
+          "type": "INT",
+        },
+      ]
+    }
+    showAreas={false}
+    updateGraphZoom={[Function]}
+    updateSelectedDate={[Function]}
+    updateTooltip={[Function]}
+  />
+</div>
+`;
+
+exports[`should show that there is no history data 1`] = `
+<div
+  className="project-activity-graph-container"
+>
+  <div
+    className="note text-center"
+  >
+    component_measures.no_history
+  </div>
+</div>
+`;
+
+exports[`should show that there is no history data 2`] = `
+<div
+  className="project-activity-graph-container"
+>
+  <div
+    className="note text-center"
+  >
+    component_measures.no_history
+  </div>
+</div>
+`;

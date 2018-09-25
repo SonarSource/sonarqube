@@ -38,7 +38,6 @@ import {
   Organization,
   MeasureEnhanced
 } from '../../../app/types';
-import { History } from '../../../api/time-machine';
 import { translate } from '../../../helpers/l10n';
 import { hasPrivateAccess } from '../../../helpers/organizations';
 import {
@@ -58,7 +57,9 @@ interface StateToProps {
 interface OwnProps {
   branchLike?: BranchLike;
   component: Component;
-  history?: History;
+  history?: {
+    [metric: string]: Array<{ date: Date; value?: string }>;
+  };
   measures?: MeasureEnhanced[];
   metrics?: { [key: string]: Metric };
   onComponentChange: (changes: {}) => void;

@@ -40,7 +40,6 @@ import {
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
 import { Component, BranchLike, MeasureEnhanced, Period } from '../../../app/types';
-import { History } from '../../../api/time-machine';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
 export interface EnhanceProps {
@@ -48,7 +47,9 @@ export interface EnhanceProps {
   component: Component;
   measures: MeasureEnhanced[];
   leakPeriod?: Period;
-  history?: History;
+  history?: {
+    [metric: string]: Array<{ date: Date; value?: string }>;
+  };
   historyStartDate?: Date;
 }
 

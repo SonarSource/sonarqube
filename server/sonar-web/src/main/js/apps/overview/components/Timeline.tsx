@@ -20,12 +20,11 @@
 import * as React from 'react';
 import { max } from 'd3-array';
 import LineChart from '../../../components/charts/LineChart';
-import { HistoryItem } from '../../../api/time-machine';
 
 const HEIGHT = 80;
 
 interface Props {
-  history: HistoryItem[];
+  history: Array<{ date: Date; value?: string }>;
   before?: Date;
   after?: Date;
 }

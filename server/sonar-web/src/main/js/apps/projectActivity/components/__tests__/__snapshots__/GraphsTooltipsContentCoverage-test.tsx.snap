@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tbody>
+  <tr>
+    <td
+      className="project-activity-graph-tooltip-separator"
+      colSpan={3}
+    >
+      <hr />
+    </td>
+  </tr>
+  <tr
+    className="project-activity-graph-tooltip-line"
+  >
+    <td
+      className="project-activity-graph-tooltip-value text-right spacer-right thin"
+      colSpan={2}
+    >
+      10short_number_suffix.k
+    </td>
+    <td>
+      metric.uncovered_lines.name
+    </td>
+  </tr>
+  <tr
+    className="project-activity-graph-tooltip-line"
+  >
+    <td
+      className="project-activity-graph-tooltip-value text-right spacer-right thin"
+      colSpan={2}
+    >
+      80.3%
+    </td>
+    <td>
+      metric.coverage.name
+    </td>
+  </tr>
+</tbody>
+`;
+
+exports[`should render correctly when data is missing 1`] = `
+<tbody>
+  <tr>
+    <td
+      className="project-activity-graph-tooltip-separator"
+      colSpan={3}
+    >
+      <hr />
+    </td>
+  </tr>
+  <tr
+    className="project-activity-graph-tooltip-line"
+  >
+    <td
+      className="project-activity-graph-tooltip-value text-right spacer-right thin"
+      colSpan={2}
+    >
+      41short_number_suffix.k
+    </td>
+    <td>
+      metric.uncovered_lines.name
+    </td>
+  </tr>
+</tbody>
+`;

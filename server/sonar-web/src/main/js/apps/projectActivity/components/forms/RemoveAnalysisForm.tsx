@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
-import { Analysis } from '../../../../api/projectActivity';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
+import { ParsedAnalysis } from '../../utils';
 
 interface Props {
-  analysis: Analysis;
+  analysis: ParsedAnalysis;
   deleteAnalysis: (analysis: string) => Promise<void>;
   onClose: () => void;
 }
