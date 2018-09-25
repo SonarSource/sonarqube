@@ -93,7 +93,8 @@ public class DeleteTemplateActionTest {
       PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
       db.organizations().setDefaultTemplates(
         db.permissionTemplates().insertTemplate(organization),
-        db.permissionTemplates().insertTemplate(organization));
+        null, db.permissionTemplates().insertTemplate(organization)
+      );
       loginAsAdmin(organization);
 
       TestResponse result = newRequestByUuid(underTest, template.getUuid());
@@ -109,7 +110,8 @@ public class DeleteTemplateActionTest {
       OrganizationDto organization = db.organizations().insert();
       db.organizations().setDefaultTemplates(
         db.permissionTemplates().insertTemplate(organization),
-        db.permissionTemplates().insertTemplate(organization));
+        db.permissionTemplates().insertTemplate(organization), db.permissionTemplates().insertTemplate(organization)
+      );
       PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
       loginAsAdmin(organization);
       newRequestByName(underTest, organization, template);
@@ -123,7 +125,8 @@ public class DeleteTemplateActionTest {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setDefaultTemplates(
       db.permissionTemplates().insertTemplate(organization),
-      db.permissionTemplates().insertTemplate(organization));
+      db.permissionTemplates().insertTemplate(organization), db.permissionTemplates().insertTemplate(organization)
+    );
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
     loginAsAdmin(organization);
 
@@ -143,7 +146,8 @@ public class DeleteTemplateActionTest {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setDefaultTemplates(
       db.permissionTemplates().insertTemplate(organization),
-      db.permissionTemplates().insertTemplate(organization));
+      db.permissionTemplates().insertTemplate(organization), db.permissionTemplates().insertTemplate(organization)
+    );
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
     OrganizationDto otherOrganization = db.organizations().insert();
     loginAsAdmin(organization);
@@ -160,7 +164,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_if_uuid_is_not_known_without_views() throws Exception {
+  public void fail_if_uuid_is_not_known_without_views() {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
@@ -169,7 +173,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_if_uuid_is_not_known_with_views() throws Exception {
+  public void fail_if_uuid_is_not_known_with_views() {
     userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
@@ -187,11 +191,11 @@ public class DeleteTemplateActionTest {
     fail_to_delete_by_uuid_if_template_is_default_template_for_project(this.underTestWithViews);
   }
 
-  private void fail_to_delete_by_uuid_if_template_is_default_template_for_project(WsActionTester underTest) throws Exception {
+  private void fail_to_delete_by_uuid_if_template_is_default_template_for_project(WsActionTester underTest) {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto projectTemplate = insertTemplateAndAssociatedPermissions(organization);
     db.organizations().setDefaultTemplates(projectTemplate,
-      db.permissionTemplates().insertTemplate(organization));
+      null, db.permissionTemplates().insertTemplate(organization));
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
@@ -210,10 +214,10 @@ public class DeleteTemplateActionTest {
     fail_to_delete_by_name_if_template_is_default_template_for_project(this.underTestWithViews);
   }
 
-  private void fail_to_delete_by_name_if_template_is_default_template_for_project(WsActionTester underTest) throws Exception {
+  private void fail_to_delete_by_name_if_template_is_default_template_for_project(WsActionTester underTest) {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto projectTemplate = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(projectTemplate, db.permissionTemplates().insertTemplate(organization));
+    db.organizations().setDefaultTemplates(projectTemplate, null, db.permissionTemplates().insertTemplate(organization));
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
@@ -223,24 +227,37 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_to_delete_by_uuid_if_template_is_default_template_for_view_with_views() throws Exception {
+  public void fail_to_delete_by_uuid_if_template_is_default_template_for_portfolios_with_views() {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization), template);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization), null, template);
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("It is not possible to delete the default permission template for views");
+    expectedException.expectMessage("It is not possible to delete the default permission template for portfolios");
 
     newRequestByUuid(this.underTestWithViews, template.getUuid());
   }
 
   @Test
-  public void default_template_for_views_can_be_deleted_by_uuid_if_views_is_not_installed_and_default_template_for_views_is_reset() throws Exception {
+  public void fail_to_delete_by_uuid_if_template_is_default_template_for_applications_with_views() {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization), template, null);
+    loginAsAdmin(organization);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("It is not possible to delete the default permission template for applications");
+
+    newRequestByUuid(this.underTestWithViews, template.getUuid());
+  }
+
+  @Test
+  public void default_template_for_views_can_be_deleted_by_uuid_if_views_is_not_installed_and_default_template_for_views_is_reset() {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(organization);
     PermissionTemplateDto viewTemplate = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(projectTemplate, viewTemplate);
+    db.organizations().setDefaultTemplates(projectTemplate, null, viewTemplate);
     loginAsAdmin(organization);
 
     newRequestByUuid(this.underTestWithoutViews, viewTemplate.getUuid());
@@ -253,35 +270,35 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_to_delete_by_uuid_if_not_logged_in_without_views() throws Exception {
+  public void fail_to_delete_by_uuid_if_not_logged_in_without_views() {
     expectedException.expect(UnauthorizedException.class);
 
     newRequestByUuid(underTestWithoutViews, "uuid");
   }
 
   @Test
-  public void fail_to_delete_by_uuid_if_not_logged_in_with_views() throws Exception {
+  public void fail_to_delete_by_uuid_if_not_logged_in_with_views() {
     expectedException.expect(UnauthorizedException.class);
 
     newRequestByUuid(underTestWithViews, "uuid");
   }
 
   @Test
-  public void fail_to_delete_by_name_if_not_logged_in_without_views() throws Exception {
+  public void fail_to_delete_by_name_if_not_logged_in_without_views() {
     expectedException.expect(UnauthorizedException.class);
 
     newRequestByName(underTestWithoutViews, "whatever", "name");
   }
 
   @Test
-  public void fail_to_delete_by_name_if_not_logged_in_with_views() throws Exception {
+  public void fail_to_delete_by_name_if_not_logged_in_with_views() {
     expectedException.expect(UnauthorizedException.class);
 
     newRequestByName(underTestWithViews, "whatever", "name");
   }
 
   @Test
-  public void fail_to_delete_by_uuid_if_not_admin_without_views() throws Exception {
+  public void fail_to_delete_by_uuid_if_not_admin_without_views() {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
     userSession.logIn();
@@ -292,7 +309,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_to_delete_by_uuid_if_not_admin_with_views() throws Exception {
+  public void fail_to_delete_by_uuid_if_not_admin_with_views() {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
     userSession.logIn();
@@ -303,7 +320,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_to_delete_by_name_if_not_admin_without_views() throws Exception {
+  public void fail_to_delete_by_name_if_not_admin_without_views() {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
     userSession.logIn();
@@ -327,7 +344,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_if_neither_uuid_nor_name_is_provided_without_views() throws Exception {
+  public void fail_if_neither_uuid_nor_name_is_provided_without_views() {
     userSession.logIn();
 
     expectedException.expect(BadRequestException.class);
@@ -336,7 +353,7 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
-  public void fail_if_neither_uuid_nor_name_is_provided_with_views() throws Exception {
+  public void fail_if_neither_uuid_nor_name_is_provided_with_views() {
     userSession.logIn();
 
     expectedException.expect(BadRequestException.class);

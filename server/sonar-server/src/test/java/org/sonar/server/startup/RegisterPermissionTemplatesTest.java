@@ -169,7 +169,7 @@ public class RegisterPermissionTemplatesTest {
     PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(newPermissionTemplateDto()
         .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .setUuid(DEFAULT_TEMPLATE_UUID));
-    db.organizations().setDefaultTemplates(projectTemplate, null);
+    db.organizations().setDefaultTemplates(projectTemplate, null, null);
 
     underTest.start();
 

@@ -1,6 +1,98 @@
 {
   "permissionTemplates": [
     {
+      "id": "AU-TpxcB-iU5OvuD2FL7",
+      "name": "Default template for Applications",
+      "description": "Template for new applications",
+      "projectKeyPattern": ".*sonar.views.*",
+      "createdAt": "2001-09-09T03:46:40+0200",
+      "updatedAt": "2004-11-09T12:33:20+0100",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "securityhotspotadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "scan",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "user",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        }
+      ]
+    },
+    {
+      "id": "AU-TpxcA-iU5OvuD2FLz",
+      "name": "Default template for Portfolios",
+      "description": "Template for new portfolios",
+      "projectKeyPattern": ".*sonar.views.*",
+      "createdAt": "2001-09-09T03:46:40+0200",
+      "updatedAt": "2004-11-09T12:33:20+0100",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 0,
+          "groupsCount": 3,
+          "withProjectCreator": false
+        },
+        {
+          "key": "securityhotspotadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "scan",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "user",
+          "usersCount": 2,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        }
+      ]
+    },
+    {
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "Default template for Projects",
       "description": "Template for new projects",
@@ -42,76 +134,6 @@
           "usersCount": 0,
           "groupsCount": 0,
           "withProjectCreator": false
-        },
-        {
-          "key": "applicationcreator",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        },
-        {
-          "key": "portfoliocreator",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        }
-      ]
-    },
-    {
-      "id": "AU-TpxcA-iU5OvuD2FLz",
-      "name": "Default template for Views",
-      "description": "Template for new views",
-      "projectKeyPattern": ".*sonar.views.*",
-      "createdAt": "2001-09-09T03:46:40+0200",
-      "updatedAt": "2004-11-09T12:33:20+0100",
-      "permissions": [
-        {
-          "key": "admin",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        },
-        {
-          "key": "codeviewer",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        },
-        {
-          "key": "issueadmin",
-          "usersCount": 0,
-          "groupsCount": 3,
-          "withProjectCreator": false
-        },
-        {
-          "key": "securityhotspotadmin",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        },
-        {
-          "key": "scan",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        },
-        {
-          "key": "user",
-          "usersCount": 2,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        },
-        {
-          "key": "applicationcreator",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
-        },
-        {
-          "key": "portfoliocreator",
-          "usersCount": 0,
-          "groupsCount": 0,
-          "withProjectCreator": false
         }
       ]
     }
@@ -120,6 +142,10 @@
     {
       "templateId": "AU-Tpxb--iU5OvuD2FLy",
       "qualifier": "TRK"
+    },
+    {
+      "templateId": "AU-TpxcB-iU5OvuD2FL7",
+      "qualifier": "APP"
     },
     {
       "templateId": "AU-TpxcA-iU5OvuD2FLz",

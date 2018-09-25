@@ -35,8 +35,7 @@ import static java.util.stream.Collectors.toList;
 public class PermissionServiceImpl implements PermissionService {
 
   private static final List<String> ALL_PROJECT_PERMISSIONS = ImmutableList.of(
-    UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION, UserRole.USER,
-    OrganizationPermission.APPLICATION_CREATOR.getKey(), OrganizationPermission.PORTFOLIO_CREATOR.getKey());
+    UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION, UserRole.USER);
 
   private static final List<OrganizationPermission> ALL_GLOBAL_PERMISSIONS = ImmutableList.copyOf(OrganizationPermission.values());
 

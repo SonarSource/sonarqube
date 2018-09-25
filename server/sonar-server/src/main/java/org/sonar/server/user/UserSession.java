@@ -189,7 +189,7 @@ public interface UserSession {
    * If the permission is not granted, then the organization permission is _not_ checked.
    *
    * @param component non-null component.
-   * @param permission project permission as defined by {@link org.sonar.core.permission.ProjectPermissions}
+   * @param permission project permission as defined by {@link org.sonar.server.permission.PermissionService}
    */
   boolean hasComponentPermission(String permission, ComponentDto component);
 

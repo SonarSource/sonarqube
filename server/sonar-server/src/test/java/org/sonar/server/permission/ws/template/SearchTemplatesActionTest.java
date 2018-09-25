@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_10;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -79,7 +80,6 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   public void search_project_permissions_without_views() {
     OrganizationDto organization = db.getDefaultOrganization();
     PermissionTemplateDto projectTemplate = insertProjectTemplate(organization);
-    PermissionTemplateDto viewsTemplate = insertViewsTemplate(organization);
 
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -96,13 +96,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     addGroupToTemplate(projectTemplate.getId(), group1.getId(), UserRole.ADMIN);
     addPermissionTemplateWithProjectCreator(projectTemplate.getId(), UserRole.ADMIN);
 
-    addUserToTemplate(viewsTemplate.getId(), user1.getId(), UserRole.USER);
-    addUserToTemplate(viewsTemplate.getId(), user2.getId(), UserRole.USER);
-    addGroupToTemplate(viewsTemplate.getId(), group1.getId(), UserRole.ISSUE_ADMIN);
-    addGroupToTemplate(viewsTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
-    addGroupToTemplate(viewsTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
-
-    db.organizations().setDefaultTemplates(projectTemplate, viewsTemplate);
+    db.organizations().setDefaultTemplates(projectTemplate, null, null);
 
     String result = newRequest(underTestWithoutViews).execute().getInput();
 
@@ -115,7 +109,8 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   public void search_project_permissions_with_views() {
     OrganizationDto organization = db.getDefaultOrganization();
     PermissionTemplateDto projectTemplate = insertProjectTemplate(organization);
-    PermissionTemplateDto viewsTemplate = insertViewsTemplate(organization);
+    PermissionTemplateDto portfoliosTemplate = insertPortfoliosTemplate(organization);
+    PermissionTemplateDto applicationsTemplate = insertApplicationsTemplate(organization);
 
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -132,13 +127,13 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     addGroupToTemplate(projectTemplate.getId(), group1.getId(), UserRole.ADMIN);
     addPermissionTemplateWithProjectCreator(projectTemplate.getId(), UserRole.ADMIN);
 
-    addUserToTemplate(viewsTemplate.getId(), user1.getId(), UserRole.USER);
-    addUserToTemplate(viewsTemplate.getId(), user2.getId(), UserRole.USER);
-    addGroupToTemplate(viewsTemplate.getId(), group1.getId(), UserRole.ISSUE_ADMIN);
-    addGroupToTemplate(viewsTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
-    addGroupToTemplate(viewsTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(portfoliosTemplate.getId(), user1.getId(), UserRole.USER);
+    addUserToTemplate(portfoliosTemplate.getId(), user2.getId(), UserRole.USER);
+    addGroupToTemplate(portfoliosTemplate.getId(), group1.getId(), UserRole.ISSUE_ADMIN);
+    addGroupToTemplate(portfoliosTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
+    addGroupToTemplate(portfoliosTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
 
-    db.organizations().setDefaultTemplates(projectTemplate, viewsTemplate);
+    db.organizations().setDefaultTemplates(projectTemplate, applicationsTemplate, portfoliosTemplate);
 
     String result = newRequest().execute().getInput();
 
@@ -149,7 +144,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void empty_result() {
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz");
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-Tpxb--iU5OvuD2FLz", "AU-TpxcA-iU5OvuD2FLx");
     String result = newRequest(wsTester).execute().getInput();
 
     assertJson(result)
@@ -163,7 +158,11 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
         "      \"qualifier\": \"TRK\"" +
         "    }," +
         "    {" +
-        "      \"templateId\": \"AU-TpxcA-iU5OvuD2FLz\"," +
+        "      \"templateId\": \"AU-Tpxb--iU5OvuD2FLz\"," +
+        "      \"qualifier\": \"APP\"" +
+        "    }," +
+        "    {" +
+        "      \"templateId\": \"AU-TpxcA-iU5OvuD2FLx\"," +
         "      \"qualifier\": \"VW\"" +
         "    }" +
         "  ]" +
@@ -191,16 +190,16 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void search_by_name_in_default_organization() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null, null);
     insertProjectTemplate(db.getDefaultOrganization());
-    insertViewsTemplate(db.getDefaultOrganization());
+    insertPortfoliosTemplate(db.getDefaultOrganization());
 
     String result = newRequest(wsTester)
-      .setParam(TEXT_QUERY, "views")
+      .setParam(TEXT_QUERY, "portfolio")
       .execute()
       .getInput();
 
-    assertThat(result).contains("Default template for Views")
+    assertThat(result).contains("Default template for Portfolios")
       .doesNotContain("projects")
       .doesNotContain("developers");
   }
@@ -209,7 +208,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   public void search_in_organization() {
     OrganizationDto org = db.organizations().insert();
     PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(org);
-    db.organizations().setDefaultTemplates(projectDefaultTemplate, null);
+    db.organizations().setDefaultTemplates(projectDefaultTemplate, null, null);
     PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
     insertProjectTemplate(db.getDefaultOrganization());
     db.commit();
@@ -235,7 +234,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void display_all_project_permissions() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null, null);
 
     String result = newRequest(underTestWithoutViews).execute().getInput();
 
@@ -283,7 +282,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void display_all_project_permissions_with_views() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null, null);
 
     String result = newRequest().execute().getInput();
 
@@ -324,16 +323,6 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
           "      \"key\": \"user\"," +
           "      \"name\": \"Browse\"," +
           "      \"description\": \"Ability to access a project, browse its measures, and create/edit issues for it.\"" +
-          "    }," +
-          "    {" +
-          "      \"key\": \"applicationcreator\"," +
-          "      \"name\": \"Create Applications\"," +
-          "      \"description\": \"Allow to create applications for non system administrator.\"" +
-          "    }," +
-          "    {" +
-          "      \"key\": \"portfoliocreator\"," +
-          "      \"name\": \"Create Portfolios\"," +
-          "      \"description\": \"Allow to create portfolios for non system administrator.\"" +
           "    }" +
           "  ]" +
           "}");
@@ -350,12 +339,23 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
       .setUpdatedAt(new Date(1_000_000_000_000L)));
   }
 
-  private PermissionTemplateDto insertViewsTemplate(OrganizationDto organization) {
+  private PermissionTemplateDto insertPortfoliosTemplate(OrganizationDto organization) {
     return insertTemplate(newPermissionTemplateDto()
       .setOrganizationUuid(organization.getUuid())
       .setUuid(UUID_EXAMPLE_02)
-      .setName("Default template for Views")
-      .setDescription("Template for new views")
+      .setName("Default template for Portfolios")
+      .setDescription("Template for new portfolios")
+      .setKeyPattern(".*sonar.views.*")
+      .setCreatedAt(new Date(1_000_000_000_000L))
+      .setUpdatedAt(new Date(1_100_000_000_000L)));
+  }
+
+  private PermissionTemplateDto insertApplicationsTemplate(OrganizationDto organization) {
+    return insertTemplate(newPermissionTemplateDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setUuid(UUID_EXAMPLE_10)
+      .setName("Default template for Applications")
+      .setDescription("Template for new applications")
       .setKeyPattern(".*sonar.views.*")
       .setCreatedAt(new Date(1_000_000_000_000L))
       .setUpdatedAt(new Date(1_100_000_000_000L)));

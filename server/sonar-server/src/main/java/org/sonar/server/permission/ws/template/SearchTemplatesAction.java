@@ -118,6 +118,13 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       .ifPresent(viewDefaultTemplate -> response.addDefaultTemplates(
         templateUuidQualifierBuilder
           .clear()
+          .setQualifier(Qualifiers.APP)
+          .setTemplateId(viewDefaultTemplate)));
+
+    resolvedDefaultTemplates.getPortfolio()
+      .ifPresent(viewDefaultTemplate -> response.addDefaultTemplates(
+        templateUuidQualifierBuilder
+          .clear()
           .setQualifier(Qualifiers.VIEW)
           .setTemplateId(viewDefaultTemplate)));
   }

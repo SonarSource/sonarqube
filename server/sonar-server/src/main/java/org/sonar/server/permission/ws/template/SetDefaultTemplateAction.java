@@ -115,9 +115,12 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     DefaultTemplates defaultTemplates = checkFoundWithOptional(
       organizationDao.getDefaultTemplates(dbSession, organizationUuid),
       "No Default templates for organization with uuid '%s'", organizationUuid);
+
     if (Qualifiers.PROJECT.equals(qualifier)) {
       defaultTemplates.setProjectUuid(permissionTemplateDto.getUuid());
     } else if (Qualifiers.VIEW.equals(qualifier)) {
+      defaultTemplates.setPortfoliosUuid(permissionTemplateDto.getUuid());
+    } else if (Qualifiers.APP.equals(qualifier)) {
       defaultTemplates.setApplicationsUuid(permissionTemplateDto.getUuid());
     }
     organizationDao.setDefaultTemplates(dbSession, organizationUuid, defaultTemplates);

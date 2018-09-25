@@ -47,6 +47,6 @@ public class PermissionServiceImplTest {
   @Test
   public void projectPermissions_must_be_ordered() {
     assertThat(underTest.getAllProjectPermissions())
-      .containsExactly("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "scan", "user", "applicationcreator", "portfoliocreator");
+      .containsExactly("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "scan", "user");
   }
 }

@@ -122,7 +122,11 @@ public class DeleteTemplateAction implements PermissionsWsAction {
     resolvedDefaultTemplates.getApplication()
       .ifPresent(viewDefaultTemplateUuid -> checkRequest(
         !viewDefaultTemplateUuid.equals(template.getUuid()),
-        "It is not possible to delete the default permission template for views"));
+        "It is not possible to delete the default permission template for applications"));
+    resolvedDefaultTemplates.getPortfolio()
+      .ifPresent(viewDefaultTemplateUuid -> checkRequest(
+        !viewDefaultTemplateUuid.equals(template.getUuid()),
+        "It is not possible to delete the default permission template for portfolios"));
   }
 
   private static class DeleteTemplateRequest {

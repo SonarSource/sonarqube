@@ -29,7 +29,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -453,7 +452,7 @@ public class PermissionTemplateServiceTest {
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertMember(group, user);
     PermissionTemplateDto template = templateDb.insertTemplate(organization);
-    dbTester.organizations().setDefaultTemplates(template, null);
+    dbTester.organizations().setDefaultTemplates(template, null, null);
     templateDb.addProjectCreatorToTemplate(template.getId(), SCAN_EXECUTION);
     templateDb.addUserToTemplate(template.getId(), user.getId(), UserRole.USER);
     templateDb.addGroupToTemplate(template.getId(), group.getId(), UserRole.CODEVIEWER);
@@ -476,7 +475,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void would_user_have_scan_permission_with_empty_template() {
     PermissionTemplateDto template = templateDb.insertTemplate(dbTester.getDefaultOrganization());
-    dbTester.organizations().setDefaultTemplates(template, null);
+    dbTester.organizations().setDefaultTemplates(template, null, null);
 
     checkWouldUserHaveScanPermission(dbTester.getDefaultOrganization(), null, false);
   }

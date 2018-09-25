@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
@@ -74,7 +73,6 @@ public class WsParameterBuilder {
   private static Set<String> getDefaultTemplateQualifiers(ResourceTypes resourceTypes) {
     return resourceTypes.getRoots().stream()
       .map(ResourceType::getQualifier)
-      .filter(q -> !Qualifiers.APP.equals(q))
       .collect(Collectors.toCollection(TreeSet::new));
   }
 

@@ -67,16 +67,21 @@ public class OrganizationDbTester {
     return dto;
   }
 
-  public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto viewDefaultTemplate) {
-    checkArgument(viewDefaultTemplate == null
-      || viewDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
-      "default template for project and view must belong to the same organization");
+  public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto applicationDefaultTemplate,
+    @Nullable PermissionTemplateDto portfolioDefaultTemplate) {
+    checkArgument(portfolioDefaultTemplate == null
+      || portfolioDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
+      "default template for project and portfolio must belong to the same organization");
+    checkArgument(applicationDefaultTemplate == null
+        || applicationDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
+      "default template for project and application must belong to the same organization");
 
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, projectDefaultTemplate.getOrganizationUuid(),
       new DefaultTemplates()
         .setProjectUuid(projectDefaultTemplate.getUuid())
-        .setApplicationsUuid(viewDefaultTemplate == null ? null : viewDefaultTemplate.getUuid()));
+        .setPortfoliosUuid(portfolioDefaultTemplate == null ? null : portfolioDefaultTemplate.getUuid())
+        .setApplicationsUuid(applicationDefaultTemplate == null ? null : applicationDefaultTemplate.getUuid()));
     dbSession.commit();
   }
 
