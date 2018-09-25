@@ -44,8 +44,8 @@
 }
 
 .navbar-context-meta-branch-menu-item-name {
-  flex: 1;
-  max-width: 300px;
+  flex: 0 1 300px; /* Workaround for SONAR-10971 */
+  min-width: 0;
 }
 
 .navbar-context-meta-branch-menu-item-actions {

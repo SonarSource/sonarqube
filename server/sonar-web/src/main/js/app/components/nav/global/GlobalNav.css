@@ -101,8 +101,8 @@
 }
 
 .global-navbar-menu-right .navbar-search {
-  flex: 1;
-  max-width: 310px;
+  flex: 0 1 310px; /* Workaround for SONAR-10971 */
+  min-width: 0;
 }
 
 .global-navbar-menu-right .navbar-search .search-box,
