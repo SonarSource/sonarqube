@@ -96,7 +96,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     // No project, no snapshot
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   @Test
@@ -128,7 +128,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "UNKNWOWN VERSION");
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   @Test
@@ -141,7 +141,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "");
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   @Test
@@ -154,7 +154,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "100");
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   @Test
@@ -219,7 +219,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "2008-11-30");
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   @Test
@@ -257,7 +257,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "0");
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   @Test
@@ -322,7 +322,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "previous_version");
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   @Test
@@ -401,7 +401,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "0.8");
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(periodsHolder.getPeriod()).isNull();
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   private void setupRoot(ComponentDto project) {

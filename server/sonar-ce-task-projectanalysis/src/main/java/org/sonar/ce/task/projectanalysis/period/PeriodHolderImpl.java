@@ -50,6 +50,7 @@ public class PeriodHolderImpl implements PeriodHolder {
   @Override
   public Period getPeriod() {
     checkHolderIsInitialized();
+    checkState(period != null, "There is no period. Use hasPeriod() before calling this method");
     return period;
   }
 
