@@ -87,7 +87,7 @@ if [ "$script_name" = "logs.sh" ]; then
     esac
   done
 
-  checkEditionArgument "$EDITION"
+  checkEdition "$EDITION"
   checkLogArgument "$LOG"
 
   SQ_HOME_WILDCARD="$(distributionDirOf "$EDITION")/sonarqube-*"
