@@ -148,10 +148,12 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   private static Project createProject(org.sonar.ce.task.CeTask ceTask) {
-    return new ProjectImpl(
-      ceTask.getComponentUuid(),
-      ceTask.getComponentKey(),
-      ceTask.getComponentName());
+    return ceTask.getMainComponent()
+      .map(c -> new ProjectImpl(
+        c.getUuid(),
+        c.getKey().orElseThrow(() -> new IllegalStateException("Missing project key")),
+        c.getName().orElseThrow(() -> new IllegalStateException("Missing project name"))))
+      .orElseThrow(() -> new IllegalStateException("Report processed for a task of a deleted component"));
   }
 
   @CheckForNull

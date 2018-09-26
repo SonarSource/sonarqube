@@ -20,13 +20,18 @@
 package org.sonar.ce.task;
 
 import com.google.common.collect.ImmutableMap;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+@RunWith(DataProviderRunner.class)
 public class CeTaskTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -92,14 +97,39 @@ public class CeTaskTest {
   }
 
   @Test
+  @UseDataProvider("oneAndOnlyOneOfComponentAndMainComponent")
+  public void build_fails_with_IAE_if_only_one_of_component_and_main_component_is_non_null(CeTask.Component component, CeTask.Component mainComponent) {
+    underTest.setOrganizationUuid("org1");
+    underTest.setType("TYPE_1");
+    underTest.setUuid("UUID_1");
+    underTest.setComponent(component);
+    underTest.setMainComponent(mainComponent);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("None or both component and main component must be non null");
+    
+    underTest.build();
+  }
+
+  @DataProvider
+  public static Object[][] oneAndOnlyOneOfComponentAndMainComponent() {
+    CeTask.Component component = new CeTask.Component("COMPONENT_UUID_1", "COMPONENT_KEY_1", "The component");
+    return new Object[][] {
+      {component, null},
+      {null, component}
+    };
+  }
+
+  @Test
   public void verify_getters() {
+    CeTask.Component component = new CeTask.Component("COMPONENT_UUID_1", "COMPONENT_KEY_1", "The component");
+    CeTask.Component mainComponent = new CeTask.Component("MAIN_COMPONENT_UUID_1", "MAIN_COMPONENT_KEY_1", "The main component");
     underTest.setOrganizationUuid("org1");
     underTest.setType("TYPE_1");
     underTest.setUuid("UUID_1");
     underTest.setSubmitterUuid("LOGIN_1");
-    underTest.setComponentKey("COMPONENT_KEY_1");
-    underTest.setComponentUuid("COMPONENT_UUID_1");
-    underTest.setComponentName("The component");
+    underTest.setComponent(component);
+    underTest.setMainComponent(mainComponent);
     underTest.setCharacteristics(ImmutableMap.of("k1", "v1", "k2", "v2"));
 
     CeTask task = underTest.build();
@@ -108,23 +138,9 @@ public class CeTaskTest {
     assertThat(task.getUuid()).isEqualTo("UUID_1");
     assertThat(task.getType()).isEqualTo("TYPE_1");
     assertThat(task.getSubmitterUuid()).isEqualTo("LOGIN_1");
-    assertThat(task.getComponentKey()).isEqualTo("COMPONENT_KEY_1");
-    assertThat(task.getComponentUuid()).isEqualTo("COMPONENT_UUID_1");
-    assertThat(task.getComponentName()).isEqualTo("The component");
+    assertThat(task.getComponent()).contains(component);
+    assertThat(task.getMainComponent()).contains(mainComponent);
     assertThat(task.getCharacteristics()).containsExactly(entry("k1", "v1"), entry("k2", "v2"));
-  }
-
-  @Test
-  public void empty_in_component_properties_is_considered_as_null() {
-    CeTask ceTask = underTest.setOrganizationUuid("org1").setUuid("uuid").setType("type")
-      .setComponentKey("")
-      .setComponentName("")
-      .setComponentUuid("")
-      .build();
-
-    assertThat(ceTask.getComponentKey()).isNull();
-    assertThat(ceTask.getComponentName()).isNull();
-    assertThat(ceTask.getComponentUuid()).isNull();
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.ce.notification;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -121,7 +122,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   public void onEnd_has_no_effect_if_there_is_no_subscriber_for_ReportAnalysisFailureNotification_type() {
     String componentUuid = randomAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    when(ceTaskMock.getComponentUuid()).thenReturn(componentUuid);
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.TYPE)))
       .thenReturn(false);
 
@@ -134,7 +135,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   public void onEnd_fails_with_RowNotFoundException_if_component_does_not_exist_in_DB() {
     String componentUuid = randomAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    when(ceTaskMock.getComponentUuid()).thenReturn(componentUuid);
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.TYPE)))
       .thenReturn(true);
 
@@ -160,7 +161,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     Arrays.asList(module, directory, file, view, subView, projectCopy, application)
       .forEach(component -> {
         try {
-          when(ceTaskMock.getComponentUuid()).thenReturn(component.uuid());
+          when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(component.uuid(), null, null)));
           when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.TYPE)))
             .thenReturn(true);
 
@@ -180,7 +181,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     String taskUuid = randomAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getUuid()).thenReturn(taskUuid);
-    when(ceTaskMock.getComponentUuid()).thenReturn(componentUuid);
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.TYPE)))
       .thenReturn(true);
     dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid));
@@ -293,7 +294,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   private ComponentDto initMocksToPassConditions(String taskUuid, int createdAt, @Nullable Long executedAt) {
     ComponentDto project = random.nextBoolean() ? dbTester.components().insertPrivateProject() : dbTester.components().insertPublicProject();
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
-    when(ceTaskMock.getComponentUuid()).thenReturn(project.uuid());
+    when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(project.uuid(), null, null)));
     when(ceTaskMock.getUuid()).thenReturn(taskUuid);
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), singleton(ReportAnalysisFailureNotification.TYPE)))
       .thenReturn(true);

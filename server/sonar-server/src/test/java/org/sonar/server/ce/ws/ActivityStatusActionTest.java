@@ -45,9 +45,9 @@ import org.sonarqube.ws.Ce;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.ce.ws.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ActivityStatusActionTest {
 
@@ -84,22 +84,23 @@ public class ActivityStatusActionTest {
     String anotherProjectUuid = "another-project-uuid";
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = newPrivateProjectDto(organizationDto, projectUuid);
+    ComponentDto anotherProject = newPrivateProjectDto(organizationDto, anotherProjectUuid);
     db.components().insertComponent(project);
     db.components().insertComponent(newPrivateProjectDto(organizationDto, anotherProjectUuid));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
-    insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
-    insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
+    insertInQueue(CeQueueDto.Status.PENDING, project);
+    insertInQueue(CeQueueDto.Status.PENDING, project);
     // other tasks not returned
-    insertInQueue(CeQueueDto.Status.IN_PROGRESS, projectUuid);
-    insertInQueue(CeQueueDto.Status.PENDING, anotherProjectUuid);
+    insertInQueue(CeQueueDto.Status.IN_PROGRESS, project);
+    insertInQueue(CeQueueDto.Status.PENDING, anotherProject);
     insertInQueue(CeQueueDto.Status.PENDING, null);
     // only one last activity for a given project
-    insertActivity(CeActivityDto.Status.SUCCESS, projectUuid);
-    insertActivity(CeActivityDto.Status.CANCELED, projectUuid);
-    insertActivity(CeActivityDto.Status.FAILED, projectUuid);
-    insertActivity(CeActivityDto.Status.FAILED, projectUuid);
-    insertActivity(CeActivityDto.Status.FAILED, anotherProjectUuid);
+    insertActivity(CeActivityDto.Status.SUCCESS, project);
+    insertActivity(CeActivityDto.Status.CANCELED, project);
+    insertActivity(CeActivityDto.Status.FAILED, project);
+    insertActivity(CeActivityDto.Status.FAILED, project);
+    insertActivity(CeActivityDto.Status.FAILED, anotherProject);
 
     Ce.ActivityStatusWsResponse result = call(projectUuid);
 
@@ -159,18 +160,18 @@ public class ActivityStatusActionTest {
     callByComponentKey(project.getDbKey());
   }
 
-  private void insertInQueue(CeQueueDto.Status status, @Nullable String componentUuid) {
+  private void insertInQueue(CeQueueDto.Status status, @Nullable ComponentDto componentDto) {
     dbClient.ceQueueDao().insert(dbSession, newCeQueueDto(Uuids.createFast())
       .setStatus(status)
-      .setComponentUuid(componentUuid));
+      .setComponent(componentDto));
     db.commit();
   }
 
-  private void insertActivity(CeActivityDto.Status status, @Nullable String componentUuid) {
-    dbClient.ceActivityDao().insert(dbSession, new CeActivityDto(
-      newCeQueueDto(Uuids.createFast())
-        .setComponentUuid(componentUuid))
-          .setStatus(status));
+  private void insertActivity(CeActivityDto.Status status, @Nullable ComponentDto dto) {
+    CeQueueDto ceQueueDto = newCeQueueDto(Uuids.createFast());
+    ceQueueDto.setComponent(dto);
+    dbClient.ceActivityDao().insert(dbSession, new CeActivityDto(ceQueueDto)
+      .setStatus(status));
     db.commit();
   }
 

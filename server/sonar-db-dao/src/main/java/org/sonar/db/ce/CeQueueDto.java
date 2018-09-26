@@ -21,8 +21,11 @@ package org.sonar.db.ce;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.component.ComponentDto;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 public class CeQueueDto {
 
@@ -32,7 +35,21 @@ public class CeQueueDto {
 
   private String uuid;
   private String taskType;
+  /**
+   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
+   * at the same time as {@link #mainComponentUuid}.
+   * <p>
+   * The component uuid of a any component (project or not) is its own UUID.
+   */
   private String componentUuid;
+  /**
+   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
+   * at the same time as {@link #componentUuid}.
+   * <p>
+   * The main component uuid of the main branch of project is its own UUID. For other branches of a project, it is the
+   * project UUID of the main branch of that project ({@link ComponentDto#getMainBranchProjectUuid()}).
+   */
+  private String mainComponentUuid;
   private Status status;
   private String submitterUuid;
   /**
@@ -48,8 +65,23 @@ public class CeQueueDto {
   }
 
   public CeQueueDto setUuid(String s) {
-    checkArgument(s.length() <= 40, "Value of UUID is too long: %s", s);
+    checkUuid(s, "UUID");
     this.uuid = s;
+    return this;
+  }
+
+  /**
+   * Helper methods which sets both {@link #componentUuid} and {@link #mainComponentUuid} from the specified
+   * {@link ComponentDto}.
+   */
+  public CeQueueDto setComponent(@Nullable ComponentDto component) {
+    if (component == null) {
+      this.componentUuid = null;
+      this.mainComponentUuid = null;
+    } else {
+      this.componentUuid = requireNonNull(component.uuid());
+      this.mainComponentUuid = firstNonNull(component.getMainBranchProjectUuid(), component.uuid());
+    }
     return this;
   }
 
@@ -59,9 +91,24 @@ public class CeQueueDto {
   }
 
   public CeQueueDto setComponentUuid(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 40, "Value of component UUID is too long: %s", s);
+    checkUuid(s, "COMPONENT_UUID");
     this.componentUuid = s;
     return this;
+  }
+
+  @CheckForNull
+  public String getMainComponentUuid() {
+    return mainComponentUuid;
+  }
+
+  public CeQueueDto setMainComponentUuid(@Nullable String s) {
+    checkUuid(s, "MAIN_COMPONENT_UUID");
+    this.mainComponentUuid = s;
+    return this;
+  }
+
+  private static void checkUuid(@Nullable String s, String columnName) {
+    checkArgument(s == null || s.length() <= 40, "Value is too long for column CE_QUEUE.%s: %s", columnName, s);
   }
 
   public Status getStatus() {
@@ -101,8 +148,9 @@ public class CeQueueDto {
   /**
    * Accessed by MyBatis through reflexion. Field is otherwise read-only.
    */
-  private  void setWorkerUuid(@Nullable String workerUuid) {
+  protected CeQueueDto setWorkerUuid(@Nullable String workerUuid) {
     this.workerUuid = workerUuid;
+    return this;
   }
 
   @CheckForNull
@@ -113,8 +161,9 @@ public class CeQueueDto {
   /**
    * Accessed by MyBatis through reflexion. Field is otherwise read-only.
    */
-  private void setStartedAt(@Nullable Long l) {
+  protected CeQueueDto setStartedAt(@Nullable Long l) {
     this.startedAt = l;
+    return this;
   }
 
   public long getCreatedAt() {
@@ -141,6 +190,7 @@ public class CeQueueDto {
       "uuid='" + uuid + '\'' +
       ", taskType='" + taskType + '\'' +
       ", componentUuid='" + componentUuid + '\'' +
+      ", mainComponentUuid='" + mainComponentUuid + '\'' +
       ", status=" + status +
       ", submitterLogin='" + submitterUuid + '\'' +
       ", workerUuid='" + workerUuid + '\'' +

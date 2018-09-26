@@ -29,7 +29,7 @@ import org.sonar.db.Pagination;
 
 public interface CeQueueMapper {
 
-  List<CeQueueDto> selectByComponentUuid(@Param("componentUuid") String componentUuid);
+  List<CeQueueDto> selectByMainComponentUuid(@Param("mainComponentUuid") String mainComponentUuid);
 
   List<CeQueueDto> selectAllInAscOrder();
 
@@ -62,9 +62,9 @@ public interface CeQueueMapper {
    */
   void resetAllInProgressTasks(@Param("updatedAt") long updatedAt);
 
-  int countByStatusAndComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("componentUuid") String componentUuid);
+  int countByStatusAndMainComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
 
-  List<QueueCount> countByStatusAndComponentUuids(@Param("status") CeQueueDto.Status status, @Param("componentUuids") Set<String> componentUuids);
+  List<QueueCount> countByStatusAndMainComponentUuids(@Param("status") CeQueueDto.Status status, @Param("mainComponentUuids") Set<String> mainComponentUuids);
 
   void insert(CeQueueDto dto);
 

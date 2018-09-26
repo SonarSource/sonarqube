@@ -19,7 +19,8 @@
     ca.id,
     ca.uuid,
     ca.task_type as taskType,
-    ca.component_uuid as componentUuid,
+    ca.tmp_component_uuid as componentUuid,
+    ca.tmp_main_component_uuid as mainComponentUuid,
     ca.analysis_uuid as analysisUuid,
     ca.status as status,
     ca.submitter_uuid as submitterUuid,
@@ -29,8 +30,10 @@
     ca.executed_at as executedAt,
     ca.created_at as createdAt,
     ca.updated_at as updatedAt,
-    ca.is_last as isLast,
-    ca.is_last_key as isLastKey,
+    ca.tmp_is_last as isLast,
+    ca.tmp_is_last_key as isLastKey,
+    ca.tmp_main_is_last as mainIsLast,
+    ca.tmp_main_is_last_key as mainIsLastKey,
     ca.execution_time_ms as executionTimeMs,
     ca.error_message as errorMessage,
     ca.error_type as errorType,
@@ -83,11 +86,11 @@
     left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
     <where>
       <if test="query.onlyCurrents">
-        and ca.is_last=${_true}
+        and ca.tmp_main_is_last=${_true}
       </if>
-      <if test="query.componentUuids != null and query.componentUuids.size()>0">
-        and ca.component_uuid in
-        <foreach collection="query.componentUuids" open="(" close=")" item="cUuid" separator=",">
+      <if test="query.mainComponentUuids != null and query.mainComponentUuids.size()>0">
+        and ca.tmp_main_component_uuid in
+        <foreach collection="query.mainComponentUuids" open="(" close=")" item="cUuid" separator=",">
           #{cUuid,jdbcType=VARCHAR}
         </foreach>
       </if>
@@ -118,26 +121,32 @@
       ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </select>
   
-  <select id="countLastByStatusAndComponentUuid" resultType="int">
+  <select id="countLastByStatusAndMainComponentUuid" resultType="int">
     select
       count(1)
     from
       ce_activity
     where
-      status=#{status,jdbcType=VARCHAR}
-      and is_last=${_true}
-      <if test="componentUuid!=null">
-        and component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      tmp_main_is_last=${_true}
+      and status=#{status,jdbcType=VARCHAR}
+      <if test="mainComponentUuid!=null">
+        and tmp_main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
     insert into ce_activity (
       uuid,
+      tmp_component_uuid,
+      tmp_main_component_uuid,
       component_uuid,
       analysis_uuid,
       status,
       task_type,
+      tmp_is_last,
+      tmp_is_last_key,
+      tmp_main_is_last,
+      tmp_main_is_last_key,
       is_last,
       is_last_key,
       submitter_uuid,
@@ -156,11 +165,17 @@
     values (
       #{uuid,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
+      #{mainComponentUuid,jdbcType=VARCHAR},
+      #{mainComponentUuid,jdbcType=VARCHAR},
       #{analysisUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{taskType,jdbcType=VARCHAR},
       #{isLast,jdbcType=BOOLEAN},
       #{isLastKey,jdbcType=VARCHAR},
+      #{mainIsLast,jdbcType=BOOLEAN},
+      #{mainIsLastKey,jdbcType=VARCHAR},
+      #{mainIsLast,jdbcType=BOOLEAN},
+      #{mainIsLastKey,jdbcType=VARCHAR},
       #{submitterUuid,jdbcType=VARCHAR},
       #{submittedAt,jdbcType=BIGINT},
       #{workerUuid,jdbcType=VARCHAR},
@@ -176,11 +191,16 @@
     )
   </insert>
 
-  <update id="updateIsLastToFalseForLastKey" parameterType="map">
-    update ce_activity
-    set is_last=${_false},
-    updated_at=#{updatedAt,jdbcType=BIGINT}
-    where is_last=${_true} and is_last_key=#{isLastKey,jdbcType=VARCHAR}
+  <update id="clearIsLast" parameterType="map">
+    update ce_activity set
+      tmp_is_last=${_false},
+      tmp_main_is_last=${_false},
+      is_last=${_false},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where
+      (tmp_is_last=${_true} and tmp_is_last_key=#{isLastKey,jdbcType=VARCHAR})
+      or
+      (tmp_main_is_last=${_true} and tmp_main_is_last_key=#{mainIsLastKey,jdbcType=VARCHAR})
   </update>
 
   <delete id="deleteByUuids" parameterType="string">

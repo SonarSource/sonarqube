@@ -63,6 +63,7 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -905,6 +906,7 @@ public class PurgeDaoTest {
     queueDto.setUuid(Uuids.create());
     queueDto.setTaskType(REPORT);
     queueDto.setComponentUuid(component.uuid());
+    queueDto.setMainComponentUuid(firstNonNull(component.getMainBranchProjectUuid(), component.uuid()));
     queueDto.setSubmitterUuid("submitter uuid");
     queueDto.setCreatedAt(1_300_000_000_000L);
     queueDto.setStatus(status);
@@ -929,6 +931,7 @@ public class PurgeDaoTest {
       .setUuid(UuidFactoryFast.getInstance().create())
       .setTaskType("foo")
       .setComponentUuid(project.uuid())
+      .setMainComponentUuid(firstNonNull(project.getMainBranchProjectUuid(), project.uuid()))
       .setStatus(Status.PENDING)
       .setCreatedAt(1_2323_222L)
       .setUpdatedAt(1_2323_222L);

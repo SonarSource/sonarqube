@@ -36,31 +36,31 @@ public class CeTaskQuery {
 
   private boolean onlyCurrents = false;
   // SONAR-7681 a public implementation of List must be used in MyBatis - potential concurrency exceptions otherwise
-  private ArrayList<String> componentUuids;
+  private ArrayList<String> mainComponentUuids;
   private ArrayList<String> statuses;
   private String type;
   private Long minSubmittedAt;
   private Long maxExecutedAt;
 
   @CheckForNull
-  public List<String> getComponentUuids() {
-    return componentUuids;
+  public List<String> getMainComponentUuids() {
+    return mainComponentUuids;
   }
 
-  public CeTaskQuery setComponentUuids(@Nullable List<String> l) {
-    this.componentUuids = l == null ? null : newArrayList(l);
+  public CeTaskQuery setMainComponentUuids(@Nullable List<String> l) {
+    this.mainComponentUuids = l == null ? null : newArrayList(l);
     return this;
   }
 
-  public boolean isShortCircuitedByComponentUuids() {
-    return componentUuids != null && (componentUuids.isEmpty() || componentUuids.size() > MAX_COMPONENT_UUIDS);
+  public boolean isShortCircuitedByMainComponentUuids() {
+    return mainComponentUuids != null && (mainComponentUuids.isEmpty() || mainComponentUuids.size() > MAX_COMPONENT_UUIDS);
   }
 
-  public CeTaskQuery setComponentUuid(@Nullable String s) {
+  public CeTaskQuery setMainComponentUuid(@Nullable String s) {
     if (s == null) {
-      this.componentUuids = null;
+      this.mainComponentUuids = null;
     } else {
-      this.componentUuids = newArrayList(s);
+      this.mainComponentUuids = newArrayList(s);
     }
     return this;
   }

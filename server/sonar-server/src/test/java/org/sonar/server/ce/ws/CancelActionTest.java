@@ -62,7 +62,7 @@ public class CancelActionTest {
   public void cancel_pending_task_on_project() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
-    CeQueueDto queue = createTaskSubmit(project.uuid());
+    CeQueueDto queue = createTaskSubmit(project);
 
     tester.newRequest()
       .setParam("id", queue.getUuid())
@@ -87,7 +87,7 @@ public class CancelActionTest {
   public void cancel_pending_task_when_system_administer() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
-    CeQueueDto queue = createTaskSubmit(project.uuid());
+    CeQueueDto queue = createTaskSubmit(project);
 
     tester.newRequest()
       .setParam("id", queue.getUuid())
@@ -100,7 +100,7 @@ public class CancelActionTest {
   public void cancel_pending_task_when_project_administer() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.ADMIN, project);
-    CeQueueDto queue = createTaskSubmit(project.uuid());
+    CeQueueDto queue = createTaskSubmit(project);
 
     tester.newRequest()
       .setParam("id", queue.getUuid())
@@ -132,7 +132,7 @@ public class CancelActionTest {
   public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_on_project() {
     userSession.logIn().setNonSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
-    CeQueueDto queue = createTaskSubmit(project.uuid());
+    CeQueueDto queue = createTaskSubmit(project);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -158,7 +158,7 @@ public class CancelActionTest {
   @Test
   public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_when_project_does_not_exist() {
     userSession.logIn().setNonSystemAdministrator();
-    CeQueueDto queue = createTaskSubmit("UNKNOWN");
+    CeQueueDto queue = createTaskSubmit(nonExistentComponentDot());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -168,16 +168,22 @@ public class CancelActionTest {
       .execute();
   }
 
+  private static ComponentDto nonExistentComponentDot() {
+    return new ComponentDto().setUuid("does_not_exist").setProjectUuid("unknown");
+  }
+
   private void logInAsSystemAdministrator() {
     userSession.logIn().setSystemAdministrator();
   }
 
-  private CeQueueDto createTaskSubmit(@Nullable String componentUuid) {
+  private CeQueueDto createTaskSubmit(@Nullable ComponentDto componentDto) {
     CeTaskSubmit.Builder submission = queue.prepareSubmit()
       .setType(CeTaskTypes.REPORT)
-      .setComponentUuid(componentUuid)
       .setSubmitterUuid(null)
       .setCharacteristics(emptyMap());
+    if (componentDto != null) {
+      submission.setComponent(CeTaskSubmit.Component.fromDto(componentDto));
+    }
     CeTask task = queue.submit(submission.build());
     return db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
   }

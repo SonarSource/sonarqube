@@ -46,11 +46,12 @@ public class CeActivityDao implements Dao {
   public void insert(DbSession dbSession, CeActivityDto dto) {
     dto.setCreatedAt(system2.now());
     dto.setUpdatedAt(system2.now());
-    dto.setIsLast(dto.getStatus() != CeActivityDto.Status.CANCELED);
+    boolean isLast = dto.getStatus() != CeActivityDto.Status.CANCELED;
+    dto.setIsLast(isLast);
 
     CeActivityMapper ceActivityMapper = mapper(dbSession);
-    if (dto.getIsLast()) {
-      ceActivityMapper.updateIsLastToFalseForLastKey(dto.getIsLastKey(), dto.getUpdatedAt());
+    if (isLast) {
+      ceActivityMapper.clearIsLast(dto.getIsLastKey(), dto.getMainIsLastKey(), dto.getUpdatedAt());
     }
     ceActivityMapper.insert(dto);
   }
@@ -67,15 +68,15 @@ public class CeActivityDao implements Dao {
    * Ordered by id desc -> newest to oldest
    */
   public List<CeActivityDto> selectByQuery(DbSession dbSession, CeTaskQuery query, Pagination pagination) {
-    if (query.isShortCircuitedByComponentUuids()) {
+    if (query.isShortCircuitedByMainComponentUuids()) {
       return Collections.emptyList();
     }
 
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
-  public int countLastByStatusAndComponentUuid(DbSession dbSession, CeActivityDto.Status status, @Nullable String componentUuid) {
-    return mapper(dbSession).countLastByStatusAndComponentUuid(status, componentUuid);
+  public int countLastByStatusAndMainComponentUuid(DbSession dbSession, CeActivityDto.Status status, @Nullable String mainComponentUuid) {
+    return mapper(dbSession).countLastByStatusAndMainComponentUuid(status, mainComponentUuid);
   }
 
   private static CeActivityMapper mapper(DbSession dbSession) {

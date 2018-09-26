@@ -39,7 +39,6 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 
 public abstract class AbstractUserSession implements UserSession {
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
-  private static final ForbiddenException INSUFFICIENT_PRIVILEGES_EXCEPTION = new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
   private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
 
   protected static Identity computeIdentity(UserDto userDto) {
@@ -191,7 +190,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   public static ForbiddenException insufficientPrivilegesException() {
-    return INSUFFICIENT_PRIVILEGES_EXCEPTION;
+    return new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
   }
 
   @Override

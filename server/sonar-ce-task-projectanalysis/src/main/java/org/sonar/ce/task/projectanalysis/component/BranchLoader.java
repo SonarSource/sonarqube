@@ -21,10 +21,11 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType.UNSET;
 
 public class BranchLoader {
   private final MutableAnalysisMetadataHolder metadataHolder;
@@ -47,10 +48,22 @@ public class BranchLoader {
       throw MessageException.of("Properties sonar.branch and sonar.branch.name can't be set together");
     }
 
+    if (delegate == null && hasBranchProperties(metadata)) {
+      throw MessageException.of("Current edition does not support branch feature");
+    }
+
     if (delegate != null && deprecatedBranch == null) {
       delegate.load(metadata);
     } else {
       metadataHolder.setBranch(new DefaultBranchImpl(deprecatedBranch));
     }
   }
+
+  private static boolean hasBranchProperties(ScannerReport.Metadata metadata) {
+    return !metadata.getBranchName().isEmpty()
+      || !metadata.getPullRequestKey().isEmpty()
+      || !metadata.getMergeBranchName().isEmpty()
+      || metadata.getBranchType() != UNSET;
+  }
+
 }

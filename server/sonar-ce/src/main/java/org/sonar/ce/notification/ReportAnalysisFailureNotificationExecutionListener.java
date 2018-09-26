@@ -64,7 +64,7 @@ public class ReportAnalysisFailureNotificationExecutionListener implements CeWor
     if (status == CeActivityDto.Status.SUCCESS) {
       return;
     }
-    String projectUuid = ceTask.getComponentUuid();
+    String projectUuid = ceTask.getComponent().map(CeTask.Component::getUuid).orElse(null);
     if (!CeTaskTypes.REPORT.equals(ceTask.getType()) || projectUuid == null) {
       return;
     }

@@ -121,7 +121,7 @@ public class SubmitAction implements CeWsAction {
       CeTask task = reportSubmitter.submit(organizationKey, projectKey, deprecatedBranch, projectName, characteristics, report);
       Ce.SubmitResponse submitResponse = Ce.SubmitResponse.newBuilder()
         .setTaskId(task.getUuid())
-        .setProjectId(task.getComponentUuid())
+        .setProjectId(task.getComponent().get().getUuid())
         .build();
       WsUtils.writeProtobuf(submitResponse, wsRequest, wsResponse);
     }

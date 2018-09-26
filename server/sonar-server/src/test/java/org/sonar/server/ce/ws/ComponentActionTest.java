@@ -281,7 +281,7 @@ public class ComponentActionTest {
   private CeQueueDto insertQueue(String taskUuid, ComponentDto component, CeQueueDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(component.uuid());
+    queueDto.setComponent(component);
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
     db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);
@@ -296,7 +296,7 @@ public class ComponentActionTest {
   private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status, @Nullable SnapshotDto analysis) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(component.uuid());
+    queueDto.setComponent(component);
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

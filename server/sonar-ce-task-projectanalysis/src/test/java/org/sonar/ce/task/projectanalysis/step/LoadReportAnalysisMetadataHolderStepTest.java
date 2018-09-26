@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
@@ -166,9 +167,43 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
+  public void execute_fails_with_ISE_if_component_is_null_in_CE_task() {
+    CeTask res = mock(CeTask.class);
+    when(res.getComponent()).thenReturn(Optional.empty());
+    when(res.getOrganizationUuid()).thenReturn(defaultOrganizationProvider.get().getUuid());
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
+
+    ComputationStep underTest = createStep(res);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("component missing on ce task");
+
+    underTest.execute(new TestComputationStepContext());
+  }
+
+  @Test
+  public void execute_fails_with_MessageException_if_main_projectKey_is_null_in_CE_task() {
+    CeTask res = mock(CeTask.class);
+    Optional<CeTask.Component> component = Optional.of(new CeTask.Component("main_prj_uuid", null, null));
+    when(res.getComponent()).thenReturn(component);
+    when(res.getMainComponent()).thenReturn(component);
+    when(res.getOrganizationUuid()).thenReturn(defaultOrganizationProvider.get().getUuid());
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
+
+    ComputationStep underTest = createStep(res);
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Compute Engine task main component key is null. Project with UUID main_prj_uuid must have been deleted since report was uploaded. Can not proceed.");
+
+    underTest.execute(new TestComputationStepContext());
+  }
+
+  @Test
   public void execute_fails_with_MessageException_if_projectKey_is_null_in_CE_task() {
     CeTask res = mock(CeTask.class);
-    when(res.getComponentUuid()).thenReturn("prj_uuid");
+    Optional<CeTask.Component> component = Optional.of(new CeTask.Component("prj_uuid", null, null));
+    when(res.getComponent()).thenReturn(component);
+    when(res.getMainComponent()).thenReturn(Optional.of(new CeTask.Component("main_prj_uuid", "main_prj_key", null)));
     when(res.getOrganizationUuid()).thenReturn(defaultOrganizationProvider.get().getUuid());
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
@@ -407,8 +442,10 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private CeTask createCeTask(String projectKey, String organizationUuid) {
     CeTask res = mock(CeTask.class);
+    Optional<CeTask.Component> component = Optional.of(new CeTask.Component(projectKey + "_uuid", projectKey, projectKey + "_name"));
     when(res.getOrganizationUuid()).thenReturn(organizationUuid);
-    when(res.getComponentKey()).thenReturn(projectKey);
+    when(res.getComponent()).thenReturn(component);
+    when(res.getMainComponent()).thenReturn(component);
     return res;
   }
 

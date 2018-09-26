@@ -32,6 +32,12 @@ public class DbVersion74 implements DbVersion {
       .add(2302, "Populate IS_AD_HOC in RULES", PopulateIsAdHocOnRules.class)
       .add(2303, "Set IS_EXTERNAL and IS_AD_HOC not nullable in RULES", SetIsExternalAndIsAdHocNotNullableInRules.class)
       .add(2304, "Add ad hoc related columns in RULES_METADATA", AddAdHocColumnsInInRulesMetadata.class)
+      .add(2305, "Add CE_QUEUE.MAIN_COMPONENT_UUID 1/5", AddTmpColumnsToCeQueue.class)
+      .add(2306, "Add CE_ACTIVITY.MAIN_COMPONENT_UUID 1/5", AddTmpColumnsToCeActivity.class)
+      .add(2307, "Populate CE_QUEUE.MAIN_COMPONENT_UUID 2/5", PopulateTmpColumnsToCeQueue.class)
+      .add(2308, "Populate CE_ACTIVITY.MAIN_COMPONENT_UUID 2/5", PopulateTmpColumnsToCeActivity.class)
+      .add(2309, "Add CE_ACTIVITY.MAIN_LAST_KEY 1/6", AddTmpLastKeyColumnsToCeActivity.class)
+      .add(2310, "Populate CE_ACTIVITY.MAIN_LAST_KEY 2/6", PopulateTmpLastKeyColumnsToCeActivity.class)
     ;
   }
 }

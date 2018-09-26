@@ -21,11 +21,11 @@ package org.sonar.db.ce;
 
 public class QueueCount {
   // set by reflection by MyBatis
-  private String componentUuid;
+  private String mainComponentUuid;
   private int total;
 
-  public String getComponentUuid() {
-    return componentUuid;
+  public String getMainComponentUuid() {
+    return mainComponentUuid;
   }
 
   public int getTotal() {

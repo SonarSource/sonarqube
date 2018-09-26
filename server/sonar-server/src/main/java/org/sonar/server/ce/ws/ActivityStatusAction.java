@@ -83,9 +83,9 @@ public class ActivityStatusAction implements CeWsAction {
       Optional<ComponentDto> component = searchComponent(dbSession, request);
       String componentUuid = component.isPresent() ? component.get().uuid() : null;
       checkPermissions(component);
-      int pendingCount = dbClient.ceQueueDao().countByStatusAndComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
-      int inProgressCount = dbClient.ceQueueDao().countByStatusAndComponentUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, componentUuid);
-      int failingCount = dbClient.ceActivityDao().countLastByStatusAndComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
+      int pendingCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
+      int inProgressCount = dbClient.ceQueueDao().countByStatusAndMainComponentUuid(dbSession, CeQueueDto.Status.IN_PROGRESS, componentUuid);
+      int failingCount = dbClient.ceActivityDao().countLastByStatusAndMainComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
 
       return ActivityStatusWsResponse.newBuilder()
         .setPending(pendingCount)

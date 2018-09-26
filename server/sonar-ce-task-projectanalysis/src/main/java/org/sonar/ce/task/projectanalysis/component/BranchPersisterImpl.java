@@ -19,10 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Date;
-import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbClient;
@@ -32,18 +29,16 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 
-import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
-
+/**
+ * Creates or updates the data in table {@code PROJECT_BRANCHES} for the current root.
+ */
 public class BranchPersisterImpl implements BranchPersister {
   private final DbClient dbClient;
-  private final System2 system2;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public BranchPersisterImpl(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
+  public BranchPersisterImpl(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
-    this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
@@ -52,32 +47,14 @@ public class BranchPersisterImpl implements BranchPersister {
     Branch branch = analysisMetadataHolder.getBranch();
     String branchUuid = treeRootHolder.getRoot().getUuid();
 
-    Optional<ComponentDto> branchComponentDtoOpt = dbClient.componentDao().selectByUuid(dbSession, branchUuid);
-
-    ComponentDto branchComponentDto;
-    if (branch.isMain()) {
-      checkState(branchComponentDtoOpt.isPresent(), "Project has been deleted by end-user during analysis");
-      branchComponentDto = branchComponentDtoOpt.get();
-    } else {
-      // inserts new row in table projects if it's the first time branch is analyzed
-      branchComponentDto = branchComponentDtoOpt.orElseGet(() -> insertIntoProjectsTable(dbSession, branchUuid));
-    }
+    ComponentDto branchComponentDto = dbClient.componentDao().selectByUuid(dbSession, branchUuid)
+      .orElseThrow(() -> new IllegalStateException("Component has been deleted by end-user during analysis"));
 
     // insert or update in table project_branches
     dbClient.branchDao().upsert(dbSession, toBranchDto(branchComponentDto, branch));
   }
 
-  private static void checkState(boolean condition, String msg) {
-    if (!condition) {
-      throw new IllegalStateException(msg);
-    }
-  }
-
-  private static <T> T firstNonNull(@Nullable T first, T second) {
-    return (first != null) ? first : second;
-  }
-
-  private BranchDto toBranchDto(ComponentDto componentDto, Branch branch) {
+  protected BranchDto toBranchDto(ComponentDto componentDto, Branch branch) {
     BranchDto dto = new BranchDto();
     dto.setUuid(componentDto.uuid());
 
@@ -103,19 +80,8 @@ public class BranchPersisterImpl implements BranchPersister {
     return dto;
   }
 
-  private ComponentDto insertIntoProjectsTable(DbSession dbSession, String branchUuid) {
-    String mainBranchProjectUuid = analysisMetadataHolder.getProject().getUuid();
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, mainBranchProjectUuid);
-    ComponentDto branchDto = project.copy();
-    branchDto.setUuid(branchUuid);
-    branchDto.setProjectUuid(branchUuid);
-    branchDto.setRootUuid(branchUuid);
-    branchDto.setUuidPath(UUID_PATH_OF_ROOT);
-    branchDto.setModuleUuidPath(UUID_PATH_SEPARATOR + branchUuid + UUID_PATH_SEPARATOR);
-    branchDto.setMainBranchProjectUuid(mainBranchProjectUuid);
-    branchDto.setDbKey(treeRootHolder.getRoot().getDbKey());
-    branchDto.setCreatedAt(new Date(system2.now()));
-    dbClient.componentDao().insert(dbSession, branchDto);
-    return branchDto;
+  private static <T> T firstNonNull(@Nullable T first, T second) {
+    return (first != null) ? first : second;
   }
+
 }

@@ -51,11 +51,14 @@ import static org.mockito.Mockito.when;
 
 public class SubmitActionTest {
 
+  private static final String PROJECT_UUID = "PROJECT_1";
+  private static final CeTask.Component COMPONENT = new CeTask.Component(PROJECT_UUID, "KEY_1", "NAME_1");
   private static final CeTask A_CE_TASK = new CeTask.Builder()
     .setOrganizationUuid("org1")
     .setUuid("TASK_1")
     .setType(CeTaskTypes.REPORT)
-    .setComponentUuid("PROJECT_1")
+    .setComponent(COMPONENT)
+    .setMainComponent(COMPONENT)
     .setSubmitterUuid("robert")
     .build();
 
@@ -89,7 +92,7 @@ public class SubmitActionTest {
       anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    assertThat(submitResponse.getProjectId()).isEqualTo("PROJECT_1");
+    assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
   }
 
   @Test
@@ -132,7 +135,7 @@ public class SubmitActionTest {
       anyMap(), any());
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
-    assertThat(submitResponse.getProjectId()).isEqualTo("PROJECT_1");
+    assertThat(submitResponse.getProjectId()).isEqualTo(PROJECT_UUID);
   }
 
   @Test

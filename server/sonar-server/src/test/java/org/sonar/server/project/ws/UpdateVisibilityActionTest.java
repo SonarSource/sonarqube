@@ -266,7 +266,7 @@ public class UpdateVisibilityActionTest {
   }
 
   @Test
-  public void execute_throws_BadRequestException_if_specified_component_has_in_progress_tasks() {
+  public void execute_throws_BadRequestException_if_main_component_of_specified_component_has_in_progress_tasks() {
     ComponentDto project = randomPublicOrPrivateProject();
     IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .forEach(i -> insertInProgressTask(project));
@@ -734,7 +734,7 @@ public class UpdateVisibilityActionTest {
   private void insertCeQueueDto(ComponentDto project, CeQueueDto.Status status) {
     dbClient.ceQueueDao().insert(dbTester.getSession(), new CeQueueDto()
       .setUuid("pending" + counter++)
-      .setComponentUuid(project.uuid())
+      .setComponent(project)
       .setTaskType("foo")
       .setStatus(status));
     dbTester.commit();

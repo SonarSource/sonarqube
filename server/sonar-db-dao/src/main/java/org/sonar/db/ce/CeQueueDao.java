@@ -55,7 +55,7 @@ public class CeQueueDao implements Dao {
   }
 
   public List<CeQueueDto> selectByQueryInDescOrder(DbSession dbSession, CeTaskQuery query, int pageSize) {
-    if (query.isShortCircuitedByComponentUuids()
+    if (query.isShortCircuitedByMainComponentUuids()
       || query.isOnlyCurrents()
       || query.getMaxExecutedAt() != null) {
       return emptyList();
@@ -65,7 +65,7 @@ public class CeQueueDao implements Dao {
   }
 
   public int countByQuery(DbSession dbSession, CeTaskQuery query) {
-    if (query.isShortCircuitedByComponentUuids()
+    if (query.isShortCircuitedByMainComponentUuids()
       || query.isOnlyCurrents()
       || query.getMaxExecutedAt() != null) {
       return 0;
@@ -77,8 +77,8 @@ public class CeQueueDao implements Dao {
   /**
    * Ordered by ascending id: oldest to newest
    */
-  public List<CeQueueDto> selectByComponentUuid(DbSession session, String componentUuid) {
-    return mapper(session).selectByComponentUuid(componentUuid);
+  public List<CeQueueDto> selectByMainComponentUuid(DbSession session, String projectUuid) {
+    return mapper(session).selectByMainComponentUuid(projectUuid);
   }
 
   public Optional<CeQueueDto> selectByUuid(DbSession session, String uuid) {
@@ -131,30 +131,30 @@ public class CeQueueDao implements Dao {
   }
 
   public int countByStatus(DbSession dbSession, CeQueueDto.Status status) {
-    return mapper(dbSession).countByStatusAndComponentUuid(status, null);
+    return mapper(dbSession).countByStatusAndMainComponentUuid(status, null);
   }
 
-  public int countByStatusAndComponentUuid(DbSession dbSession, CeQueueDto.Status status, @Nullable String componentUuid) {
-    return mapper(dbSession).countByStatusAndComponentUuid(status, componentUuid);
+  public int countByStatusAndMainComponentUuid(DbSession dbSession, CeQueueDto.Status status, @Nullable String mainComponentUuid) {
+    return mapper(dbSession).countByStatusAndMainComponentUuid(status, mainComponentUuid);
   }
 
   /**
-   * Counts entries in the queue with the specified status for each specified component uuid.
+   * Counts entries in the queue with the specified status for each specified main component uuid.
    *
-   * The returned map doesn't contain any entry for component uuid for which there is no entry in the queue (ie.
+   * The returned map doesn't contain any entry for main component uuids for which there is no entry in the queue (ie.
    * all entries have a value >= 0).
    */
-  public Map<String, Integer> countByStatusAndComponentUuids(DbSession dbSession, CeQueueDto.Status status, Set<String> componentUuids) {
-    if (componentUuids.isEmpty()) {
+  public Map<String, Integer> countByStatusAndMainComponentUuids(DbSession dbSession, CeQueueDto.Status status, Set<String> projectUuids) {
+    if (projectUuids.isEmpty()) {
       return emptyMap();
     }
 
     ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     executeLargeUpdates(
-      componentUuids,
+      projectUuids,
       uuids -> {
-        List<QueueCount> i = mapper(dbSession).countByStatusAndComponentUuids(status, componentUuids);
-        i.forEach(o -> builder.put(o.getComponentUuid(), o.getTotal()));
+        List<QueueCount> i = mapper(dbSession).countByStatusAndMainComponentUuids(status, projectUuids);
+        i.forEach(o -> builder.put(o.getMainComponentUuid(), o.getTotal()));
       });
     return builder.build();
   }

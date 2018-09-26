@@ -24,6 +24,7 @@ import org.sonar.ce.task.log.CeTaskLogging;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.core.platform.Module;
 import org.sonar.server.ce.http.CeHttpClientImpl;
+import org.sonar.server.ce.queue.BranchSupport;
 import org.sonar.server.ce.queue.ReportSubmitter;
 
 public class CeModule extends Module {
@@ -34,6 +35,7 @@ public class CeModule extends Module {
 
       // Queue
       CeQueueImpl.class,
+      BranchSupport.class,
       ReportSubmitter.class,
 
       // Core tasks processors

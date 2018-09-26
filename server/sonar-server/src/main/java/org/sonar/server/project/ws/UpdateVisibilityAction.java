@@ -126,7 +126,8 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private boolean noPendingTask(DbSession dbSession, ComponentDto rootComponent) {
-    return dbClient.ceQueueDao().selectByComponentUuid(dbSession, rootComponent.uuid()).isEmpty();
+    // FIXME this is probably broken in case a branch is passed to the WS
+    return dbClient.ceQueueDao().selectByMainComponentUuid(dbSession, rootComponent.uuid()).isEmpty();
   }
 
   private void updatePermissionsToPrivate(DbSession dbSession, ComponentDto component) {

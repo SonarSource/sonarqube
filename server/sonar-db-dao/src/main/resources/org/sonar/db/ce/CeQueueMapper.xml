@@ -6,7 +6,8 @@
   <sql id="columns">
     cq.uuid,
     cq.task_type as taskType,
-    cq.component_uuid as componentUuid,
+    cq.tmp_component_uuid as componentUuid,
+    cq.tmp_main_component_uuid as mainComponentUuid,
     cq.status as status,
     cq.submitter_uuid as submitterUuid,
     cq.worker_uuid as workerUuid,
@@ -36,31 +37,31 @@
       cq.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="countByStatusAndComponentUuid" parameterType="map" resultType="int">
+  <select id="countByStatusAndMainComponentUuid" parameterType="map" resultType="int">
     select
       count(1)
     from
       ce_queue
     where
       status=#{status,jdbcType=VARCHAR}
-      <if test="componentUuid!=null">
-        and component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      <if test="mainComponentUuid!=null">
+        and tmp_main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
-  <select id="countByStatusAndComponentUuids" resultType="org.sonar.db.ce.QueueCount">
+  <select id="countByStatusAndMainComponentUuids" resultType="org.sonar.db.ce.QueueCount">
     select
-      component_uuid as componentUuid,
+      tmp_main_component_uuid as mainComponentUuid,
       count(1) as total
     from
       ce_queue
     where
       status=#{status,jdbcType=VARCHAR}
-      and component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="cUuid" separator=",">
-        #{cUuid,jdbcType=VARCHAR}
+      and tmp_main_component_uuid in
+      <foreach collection="mainComponentUuids" open="(" close=")" item="mainComponentUuid" separator=",">
+        #{mainComponentUuid,jdbcType=VARCHAR}
       </foreach>
-    group by component_uuid
+    group by tmp_main_component_uuid
   </select>
 
   <select id="countAll" resultType="int">
@@ -70,13 +71,13 @@
       ce_queue
   </select>
 
-  <select id="selectByComponentUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
+  <select id="selectByMainComponentUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
     select
       <include refid="columns"/>
     from
       ce_queue cq
     where
-      cq.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      cq.tmp_main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
     <include refid="orderByDateAndId"/>
   </select>
 
@@ -105,10 +106,10 @@
     from
       ce_queue cq
     <where>
-      <if test="query.componentUuids != null and query.componentUuids.size()>0">
-        and cq.component_uuid in
-        <foreach collection="query.componentUuids" open="(" close=")" item="cUuid" separator=",">
-          #{cUuid,jdbcType=VARCHAR}
+      <if test="query.mainComponentUuids != null and query.mainComponentUuids.size()>0">
+        and cq.tmp_main_component_uuid in
+        <foreach collection="query.mainComponentUuids" open="(" close=")" item="mainComponentUuid" separator=",">
+          #{mainComponentUuid,jdbcType=VARCHAR}
         </foreach>
       </if>
       <if test="query.statuses != null">
@@ -176,7 +177,7 @@
         from
           ce_queue cq2
         where
-          cq.component_uuid=cq2.component_uuid
+          cq.tmp_main_component_uuid=cq2.tmp_main_component_uuid
           and cq2.status &lt;&gt; 'PENDING'
       )
   </sql>
@@ -211,7 +212,9 @@
     (
       uuid,
       task_type,
+      tmp_component_uuid,
       component_uuid,
+      tmp_main_component_uuid,
       status,
       submitter_uuid,
       execution_count,
@@ -222,6 +225,8 @@
       #{uuid,jdbcType=VARCHAR},
       #{taskType,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
+      #{mainComponentUuid,jdbcType=VARCHAR},
+      #{mainComponentUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{submitterUuid,jdbcType=VARCHAR},
       0,

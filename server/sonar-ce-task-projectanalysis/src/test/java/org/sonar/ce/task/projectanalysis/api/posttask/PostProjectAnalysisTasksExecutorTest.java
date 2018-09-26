@@ -87,13 +87,13 @@ public class PostProjectAnalysisTasksExecutorTest {
   private String organizationName = organizationUuid + "_name";
   private System2 system2 = mock(System2.class);
   private ArgumentCaptor<PostProjectAnalysisTask.ProjectAnalysis> projectAnalysisArgumentCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.ProjectAnalysis.class);
+  private CeTask.Component component = new CeTask.Component("component uuid", "component key", "component name");
   private CeTask ceTask = new CeTask.Builder()
     .setOrganizationUuid(organizationUuid)
     .setType("type")
     .setUuid("uuid")
-    .setComponentKey("component key")
-    .setComponentName("component name")
-    .setComponentUuid("component uuid")
+    .setComponent(component)
+    .setMainComponent(component)
     .build();
   private PostProjectAnalysisTask postProjectAnalysisTask = mock(PostProjectAnalysisTask.class);
   private PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
@@ -203,9 +203,9 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
 
     Project project = projectAnalysisArgumentCaptor.getValue().getProject();
-    assertThat(project.getUuid()).isEqualTo(ceTask.getComponentUuid());
-    assertThat(project.getKey()).isEqualTo(ceTask.getComponentKey());
-    assertThat(project.getName()).isEqualTo(ceTask.getComponentName());
+    assertThat(project.getUuid()).isEqualTo(ceTask.getComponent().get().getUuid());
+    assertThat(project.getKey()).isEqualTo(ceTask.getComponent().get().getKey().get());
+    assertThat(project.getName()).isEqualTo(ceTask.getComponent().get().getName().get());
   }
 
   @Test

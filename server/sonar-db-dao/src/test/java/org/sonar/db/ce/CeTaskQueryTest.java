@@ -33,22 +33,22 @@ public class CeTaskQueryTest {
 
   @Test
   public void no_filter_on_component_uuids_by_default() {
-    assertThat(underTest.getComponentUuids()).isNull();
-    assertThat(underTest.isShortCircuitedByComponentUuids()).isFalse();
+    assertThat(underTest.getMainComponentUuids()).isNull();
+    assertThat(underTest.isShortCircuitedByMainComponentUuids()).isFalse();
   }
 
   @Test
   public void filter_on_component_uuid() {
-    underTest.setComponentUuid("UUID1");
-    assertThat(underTest.getComponentUuids()).containsOnly("UUID1");
-    assertThat(underTest.isShortCircuitedByComponentUuids()).isFalse();
+    underTest.setMainComponentUuid("UUID1");
+    assertThat(underTest.getMainComponentUuids()).containsOnly("UUID1");
+    assertThat(underTest.isShortCircuitedByMainComponentUuids()).isFalse();
   }
 
   @Test
   public void filter_on_multiple_component_uuids() {
-    underTest.setComponentUuids(asList("UUID1", "UUID2"));
-    assertThat(underTest.getComponentUuids()).containsOnly("UUID1", "UUID2");
-    assertThat(underTest.isShortCircuitedByComponentUuids()).isFalse();
+    underTest.setMainComponentUuids(asList("UUID1", "UUID2"));
+    assertThat(underTest.getMainComponentUuids()).containsOnly("UUID1", "UUID2");
+    assertThat(underTest.isShortCircuitedByMainComponentUuids()).isFalse();
   }
 
   /**
@@ -57,9 +57,9 @@ public class CeTaskQueryTest {
    */
   @Test
   public void short_circuited_if_empty_component_uuid_filter() {
-    underTest.setComponentUuids(Collections.emptyList());
-    assertThat(underTest.getComponentUuids()).isEmpty();
-    assertThat(underTest.isShortCircuitedByComponentUuids()).isTrue();
+    underTest.setMainComponentUuids(Collections.emptyList());
+    assertThat(underTest.getMainComponentUuids()).isEmpty();
+    assertThat(underTest.isShortCircuitedByMainComponentUuids()).isTrue();
   }
 
   /**
@@ -72,8 +72,8 @@ public class CeTaskQueryTest {
     for (int i = 0; i < CeTaskQuery.MAX_COMPONENT_UUIDS + 2; i++) {
       uuids.add(String.valueOf(i));
     }
-    underTest.setComponentUuids(uuids);
-    assertThat(underTest.getComponentUuids()).hasSize(CeTaskQuery.MAX_COMPONENT_UUIDS + 2);
-    assertThat(underTest.isShortCircuitedByComponentUuids()).isTrue();
+    underTest.setMainComponentUuids(uuids);
+    assertThat(underTest.getMainComponentUuids()).hasSize(CeTaskQuery.MAX_COMPONENT_UUIDS + 2);
+    assertThat(underTest.isShortCircuitedByMainComponentUuids()).isTrue();
   }
 }

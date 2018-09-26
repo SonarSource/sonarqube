@@ -23,6 +23,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,6 +58,9 @@ public class PopulateFileSourceLineCountTest {
 
   @Test
   public void execute_has_no_effect_on_empty_table() throws SQLException {
+    String projectUuid = randomAlphanumeric(4);
+    when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
+
     underTest.execute();
   }
 
@@ -65,7 +69,7 @@ public class PopulateFileSourceLineCountTest {
   public void execute_populates_line_count_of_any_type(String type) throws SQLException {
     String projectUuid = randomAlphanumeric(4);
     String fileUuid = randomAlphanumeric(5);
-    when(ceTask.getComponentUuid()).thenReturn(projectUuid);
+    when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
     int lineCount = 1 + random.nextInt(15);
     insertUnpopulatedFileSource(projectUuid, fileUuid, type, lineCount);
     assertThat(getLineCountByFileUuid(fileUuid)).isEqualTo(LINE_COUNT_NOT_POPULATED);
@@ -86,7 +90,7 @@ public class PopulateFileSourceLineCountTest {
     int lineCountFile2 = 50 + random.nextInt(15);
     int lineCountFile3 = 150 + random.nextInt(15);
 
-    when(ceTask.getComponentUuid()).thenReturn(projectUuid);
+    when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
     insertPopulatedFileSource(projectUuid, fileUuid1, type, lineCountFile1);
     int badLineCountFile2 = insertInconsistentPopulatedFileSource(projectUuid, fileUuid2, type, lineCountFile2);
     insertUnpopulatedFileSource(projectUuid, fileUuid3, type, lineCountFile3);
@@ -111,7 +115,7 @@ public class PopulateFileSourceLineCountTest {
     int lineCountFile1 = 100 + random.nextInt(15);
     int lineCountFile2 = 30 + random.nextInt(15);
 
-    when(ceTask.getComponentUuid()).thenReturn(projectUuid1);
+    when(ceTask.getComponent()).thenReturn(newComponent(projectUuid1));
     insertUnpopulatedFileSource(projectUuid1, fileUuid1, type, lineCountFile1);
     insertUnpopulatedFileSource(projectUuid2, fileUuid2, type, lineCountFile2);
 
@@ -127,7 +131,7 @@ public class PopulateFileSourceLineCountTest {
     String projectUuid = randomAlphanumeric(4);
     String fileUuid1 = randomAlphanumeric(5);
 
-    when(ceTask.getComponentUuid()).thenReturn(projectUuid);
+    when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
     insertFileSource(projectUuid, fileUuid1, type, null, LINE_COUNT_NOT_POPULATED);
 
     underTest.execute();
@@ -141,7 +145,7 @@ public class PopulateFileSourceLineCountTest {
     String projectUuid = randomAlphanumeric(4);
     String fileUuid1 = randomAlphanumeric(5);
 
-    when(ceTask.getComponentUuid()).thenReturn(projectUuid);
+    when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
     insertFileSource(projectUuid, fileUuid1, type, "", LINE_COUNT_NOT_POPULATED);
 
     underTest.execute();
@@ -203,5 +207,9 @@ public class PopulateFileSourceLineCountTest {
       "CREATED_AT", 1_222_333L,
       "UPDATED_AT", 1_222_333L);
     db.commit();
+  }
+
+  private static Optional<CeTask.Component> newComponent(String projectUuid) {
+    return Optional.of(new CeTask.Component(projectUuid, "key_" + projectUuid, "name_" + projectUuid));
   }
 }

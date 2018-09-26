@@ -53,6 +53,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 @ComputeEngineSide
@@ -90,15 +91,13 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid);
       if (opt.isPresent()) {
         CeQueueDto taskDto = opt.get();
-        ComponentDto component = null;
-        String componentUuid = taskDto.getComponentUuid();
-        if (componentUuid != null) {
-          component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orElse(null);
-        }
+        Map<String, ComponentDto> componentsByUuid = loadComponentDtos(dbSession, taskDto);
         Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
           .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
 
-        CeTask task = convertToTask(taskDto, characteristics, component);
+        CeTask task = convertToTask(taskDto, characteristics,
+          ofNullable(taskDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
+          ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null));
         queueStatus.addInProgress();
         return Optional.of(task);
       }

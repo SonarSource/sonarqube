@@ -41,18 +41,19 @@ public class PopulateFileSourceLineCount extends DataChange implements ProjectAn
 
   @Override
   protected void execute(Context context) throws SQLException {
+    String componentUuid = ceTask.getComponent().get().getUuid();
     Long unInitializedFileSources = context.prepareSelect("select count(1) from file_sources where line_count = ? and project_uuid = ?")
       .setInt(1, LINE_COUNT_NOT_POPULATED)
-      .setString(2, ceTask.getComponentUuid())
+      .setString(2, componentUuid)
       .get(row -> row.getLong(1));
 
     if (unInitializedFileSources != null && unInitializedFileSources > 0) {
       MassUpdate massUpdate = context.prepareMassUpdate();
       massUpdate.select("select id,line_hashes from file_sources where line_count = ? and project_uuid = ?")
         .setInt(1, LINE_COUNT_NOT_POPULATED)
-        .setString(2, ceTask.getComponentUuid());
+        .setString(2, componentUuid);
       massUpdate.update("update file_sources set line_count = ? where id = ?");
-      massUpdate.rowPluralName("line counts of sources of project " + ceTask.getComponentUuid());
+      massUpdate.rowPluralName("line counts of sources of project " + componentUuid);
       massUpdate.execute(PopulateFileSourceLineCount::handle);
     }
   }

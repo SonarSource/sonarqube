@@ -22,10 +22,13 @@ package org.sonar.ce.task;
 import com.google.common.base.MoreObjects;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
@@ -37,9 +40,8 @@ public class CeTask {
   private final String organizationUuid;
   private final String type;
   private final String uuid;
-  private final String componentUuid;
-  private final String componentKey;
-  private final String componentName;
+  private final Component component;
+  private final Component mainComponent;
   private final String submitterUuid;
   private final Map<String, String> characteristics;
 
@@ -47,9 +49,10 @@ public class CeTask {
     this.organizationUuid = requireNonNull(emptyToNull(builder.organizationUuid), "organizationUuid can't be null nor empty");
     this.uuid = requireNonNull(emptyToNull(builder.uuid), "uuid can't be null nor empty");
     this.type = requireNonNull(emptyToNull(builder.type), "type can't be null nor empty");
-    this.componentUuid = emptyToNull(builder.componentUuid);
-    this.componentKey = emptyToNull(builder.componentKey);
-    this.componentName = emptyToNull(builder.componentName);
+    checkArgument((builder.component == null) == (builder.mainComponent == null),
+      "None or both component and main component must be non null");
+    this.component = builder.component;
+    this.mainComponent = builder.mainComponent;
     this.submitterUuid = emptyToNull(builder.submitterUuid);
     if (builder.characteristics == null) {
       this.characteristics = emptyMap();
@@ -70,19 +73,12 @@ public class CeTask {
     return type;
   }
 
-  @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public Optional<Component> getComponent() {
+    return Optional.ofNullable(component);
   }
 
-  @CheckForNull
-  public String getComponentKey() {
-    return componentKey;
-  }
-
-  @CheckForNull
-  public String getComponentName() {
-    return componentName;
+  public Optional<Component> getMainComponent() {
+    return Optional.ofNullable(mainComponent);
   }
 
   @CheckForNull
@@ -100,9 +96,8 @@ public class CeTask {
       .add("organizationUuid", organizationUuid)
       .add("type", type)
       .add("uuid", uuid)
-      .add("componentUuid", componentUuid)
-      .add("componentKey", componentKey)
-      .add("componentName", componentName)
+      .add("component", component)
+      .add("mainComponent", mainComponent)
       .add("submitterUuid", submitterUuid)
       .toString();
   }
@@ -128,9 +123,8 @@ public class CeTask {
     private String organizationUuid;
     private String uuid;
     private String type;
-    private String componentUuid;
-    private String componentKey;
-    private String componentName;
+    private Component component;
+    private Component mainComponent;
     private String submitterUuid;
     private Map<String, String> characteristics;
 
@@ -154,18 +148,13 @@ public class CeTask {
       return this;
     }
 
-    public Builder setComponentUuid(@Nullable String componentUuid) {
-      this.componentUuid = componentUuid;
+    public Builder setComponent(@Nullable Component component) {
+      this.component = component;
       return this;
     }
 
-    public Builder setComponentKey(@Nullable String s) {
-      this.componentKey = s;
-      return this;
-    }
-
-    public Builder setComponentName(@Nullable String s) {
-      this.componentName = s;
+    public Builder setMainComponent(@Nullable Component mainComponent) {
+      this.mainComponent = mainComponent;
       return this;
     }
 
@@ -181,6 +170,60 @@ public class CeTask {
 
     public CeTask build() {
       return new CeTask(this);
+    }
+  }
+
+  public static final class Component {
+    private final String uuid;
+    @CheckForNull
+    private final String key;
+    @CheckForNull
+    private final String name;
+
+    public Component(String uuid, @Nullable String key, @Nullable String name) {
+      this.uuid = requireNonNull(emptyToNull(uuid), "uuid can't be null nor empty");
+      this.key = emptyToNull(key);
+      this.name = emptyToNull(name);
+    }
+
+    public String getUuid() {
+      return uuid;
+    }
+
+    public Optional<String> getKey() {
+      return Optional.ofNullable(key);
+    }
+
+    public Optional<String> getName() {
+      return Optional.ofNullable(name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Component component = (Component) o;
+      return Objects.equals(uuid, component.uuid) &&
+        Objects.equals(key, component.key) &&
+        Objects.equals(name, component.name);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(uuid, key, name);
+    }
+
+    @Override
+    public String toString() {
+      return "Component{" +
+        "uuid='" + uuid + '\'' +
+        ", key='" + key + '\'' +
+        ", name='" + name + '\'' +
+        '}';
     }
   }
 }

@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -36,12 +37,28 @@ public class CeActivityDto {
   }
 
   private String uuid;
+  /**
+   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
+   * at the same time as {@link #mainComponentUuid}.
+   * <p>
+   * The component uuid of a any component (project or not) is its own UUID.
+   */
   private String componentUuid;
+  /**
+   * Can be {@code null} when task is not associated to any data in table PROJECTS, but must always be non {@code null}
+   * at the same time as {@link #componentUuid}.
+   * <p>
+   * The main component uuid of the main branch of project is its own UUID. For other branches of a project, it is the
+   * project UUID of the main branch of that project ({@link ComponentDto#getMainBranchProjectUuid()}).
+   */
+  private String mainComponentUuid;
   private String analysisUuid;
   private Status status;
   private String taskType;
   private boolean isLast;
   private String isLastKey;
+  private boolean mainIsLast;
+  private String mainIsLastKey;
   private String submitterUuid;
   private String workerUuid;
   private long submittedAt;
@@ -91,7 +108,9 @@ public class CeActivityDto {
     this.uuid = queueDto.getUuid();
     this.taskType = queueDto.getTaskType();
     this.componentUuid = queueDto.getComponentUuid();
+    this.mainComponentUuid = queueDto.getMainComponentUuid();
     this.isLastKey = format("%s%s", taskType, Strings.nullToEmpty(componentUuid));
+    this.mainIsLastKey = format("%s%s", taskType, Strings.nullToEmpty(mainComponentUuid));
     this.submitterUuid = queueDto.getSubmitterUuid();
     this.workerUuid = queueDto.getWorkerUuid();
     this.submittedAt = queueDto.getCreatedAt();
@@ -102,8 +121,8 @@ public class CeActivityDto {
     return uuid;
   }
 
-  public CeActivityDto setUuid(String s) {
-    checkArgument(s.length() <= 40, "Value is too long for column CE_ACTIVITY.UUID: %s", s);
+  public CeActivityDto setUuid(@Nullable String s) {
+    validateUuid(s, "UUID");
     this.uuid = s;
     return this;
   }
@@ -123,9 +142,24 @@ public class CeActivityDto {
   }
 
   public CeActivityDto setComponentUuid(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 40, "Value is too long for column CE_ACTIVITY.COMPONENT_UUID: %s", s);
+    validateUuid(s, "COMPONENT_UUID");
     this.componentUuid = s;
     return this;
+  }
+
+  @CheckForNull
+  public String getMainComponentUuid() {
+    return mainComponentUuid;
+  }
+
+  public CeActivityDto setMainComponentUuid(@Nullable String s) {
+    validateUuid(s, "MAIN_COMPONENT_UUID");
+    this.mainComponentUuid = s;
+    return this;
+  }
+
+  private static void validateUuid(@Nullable String s, String columnName) {
+    checkArgument(s == null || s.length() <= 40, "Value is too long for column CE_ACTIVITY.%s: %s", columnName, s);
   }
 
   public Status getStatus() {
@@ -143,11 +177,20 @@ public class CeActivityDto {
 
   CeActivityDto setIsLast(boolean b) {
     this.isLast = b;
+    this.mainIsLast = b;
     return this;
   }
 
   public String getIsLastKey() {
     return isLastKey;
+  }
+
+  public boolean getMainIsLast() {
+    return mainIsLast;
+  }
+
+  public String getMainIsLastKey() {
+    return mainIsLastKey;
   }
 
   @CheckForNull
@@ -277,11 +320,14 @@ public class CeActivityDto {
     return "CeActivityDto{" +
       "uuid='" + uuid + '\'' +
       ", componentUuid='" + componentUuid + '\'' +
+      ", mainComponentUuid='" + mainComponentUuid + '\'' +
       ", analysisUuid='" + analysisUuid + '\'' +
       ", status=" + status +
       ", taskType='" + taskType + '\'' +
       ", isLast=" + isLast +
       ", isLastKey='" + isLastKey + '\'' +
+      ", mainIsLast=" + mainIsLast +
+      ", mainIsLastKey='" + mainIsLastKey + '\'' +
       ", submitterUuid='" + submitterUuid + '\'' +
       ", workerUuid='" + workerUuid + '\'' +
       ", submittedAt=" + submittedAt +

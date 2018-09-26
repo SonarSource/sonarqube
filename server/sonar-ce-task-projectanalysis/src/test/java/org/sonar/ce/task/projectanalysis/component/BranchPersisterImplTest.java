@@ -19,25 +19,36 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.protobuf.DbProjectBranches;
 import org.sonar.server.project.Project;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
+@RunWith(DataProviderRunner.class)
 public class BranchPersisterImplTest {
   private final static Component MAIN = builder(PROJECT, 1).setUuid("PROJECT_UUID").setKey("PROJECT_KEY").build();
   private final static Component BRANCH = builder(PROJECT, 1).setUuid("BRANCH_UUID").setKey("BRANCH_KEY").build();
@@ -51,66 +62,133 @@ public class BranchPersisterImplTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), System2.INSTANCE, treeRootHolder, analysisMetadataHolder);
+  BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder);
 
   @Test
-  public void fail_if_no_component_for_main_branches() {
-    analysisMetadataHolder.setBranch(createBranch(BranchType.LONG, true, "master"));
+  public void persist_fails_with_ISE_if_no_component_for_main_branches() {
+    analysisMetadataHolder.setBranch(createBranch(LONG, true, "master"));
     treeRootHolder.setRoot(MAIN);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Project has been deleted by end-user during analysis");
+    expectMissingComponentISE();
 
     underTest.persist(dbTester.getSession());
   }
 
   @Test
-  public void persist_secondary_branch() {
-    analysisMetadataHolder.setBranch(createBranch(BranchType.LONG, false, "branch"));
+  public void persist_fails_with_ISE_if_no_component_for_long_branches() {
+    analysisMetadataHolder.setBranch(createBranch(LONG, false, "foo"));
     treeRootHolder.setRoot(BRANCH);
 
-    // add main branch in project table and in metadata
-    ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getDbKey());
-    analysisMetadataHolder.setProject(Project.from(dto));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), dto);
+    expectMissingComponentISE();
 
-    // this should add new columns in project and project_branches
+    underTest.persist(dbTester.getSession());
+  }
+
+  @Test
+  public void persist_fails_with_ISE_if_no_component_for_short_branches() {
+    analysisMetadataHolder.setBranch(createBranch(BranchType.SHORT, false, "foo"));
+    treeRootHolder.setRoot(BRANCH);
+
+    expectMissingComponentISE();
+
+    underTest.persist(dbTester.getSession());
+  }
+
+  @Test
+  public void persist_fails_with_ISE_if_no_component_for_pull_request() {
+    analysisMetadataHolder.setBranch(createBranch(BranchType.PULL_REQUEST, false, "12"));
+    treeRootHolder.setRoot(BRANCH);
+
+    expectMissingComponentISE();
+
+    underTest.persist(dbTester.getSession());
+  }
+
+  @Test
+  @UseDataProvider("nullOrNotNullString")
+  public void persist_creates_row_in_PROJECTS_BRANCHES_for_long_branch(@Nullable String mergeBranchUuid) {
+    String branchName = "branch";
+
+    // add project and branch in table PROJECTS
+    ComponentDto mainComponent = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
+    ComponentDto component = ComponentTesting.newProjectBranch(mainComponent, new BranchDto().setUuid(BRANCH.getUuid()).setKey(BRANCH.getKey()).setBranchType(LONG));
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), mainComponent, component);
+    dbTester.commit();
+    // set project in metadata
+    treeRootHolder.setRoot(BRANCH);
+    analysisMetadataHolder.setBranch(createBranch(LONG, false, branchName, mergeBranchUuid));
+    analysisMetadataHolder.setProject(Project.from(mainComponent));
+
     underTest.persist(dbTester.getSession());
 
     dbTester.getSession().commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(2);
-    assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(1);
+    Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), BRANCH.getUuid());
+    assertThat(branchDto).isPresent();
+    assertThat(branchDto.get().getBranchType()).isEqualTo(LONG);
+    assertThat(branchDto.get().getKey()).isEqualTo(branchName);
+    assertThat(branchDto.get().getMergeBranchUuid()).isEqualTo(mergeBranchUuid);
+    assertThat(branchDto.get().getProjectUuid()).isEqualTo(MAIN.getUuid());
+    assertThat(branchDto.get().getPullRequestData()).isNull();
+  }
+
+  @DataProvider
+  public static Object[][] nullOrNotNullString() {
+    return new Object[][] {
+      {null},
+      {randomAlphabetic(12)}
+    };
   }
 
   @Test
-  public void persist_pull_request_data() {
+  @UseDataProvider("nullOrNotNullString")
+  public void persist_creates_row_in_PROJECTS_BRANCHES_for_pull_request(@Nullable String mergeBranchUuid) {
     String pullRequestId = "pr-123";
-    analysisMetadataHolder.setBranch(createBranch(BranchType.PULL_REQUEST, false, pullRequestId));
-    analysisMetadataHolder.setPullRequestKey(pullRequestId);
+
+    // add project and branch in table PROJECTS
+    ComponentDto mainComponent = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getKey());
+    ComponentDto component = ComponentTesting.newProjectBranch(mainComponent, new BranchDto().setUuid(BRANCH.getUuid()).setKey(BRANCH.getKey()).setBranchType(PULL_REQUEST));
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), mainComponent, component);
+    dbTester.commit();
+    // set project in metadata
     treeRootHolder.setRoot(BRANCH);
+    analysisMetadataHolder.setBranch(createBranch(PULL_REQUEST, false, pullRequestId, mergeBranchUuid));
+    analysisMetadataHolder.setProject(Project.from(mainComponent));
+    analysisMetadataHolder.setPullRequestKey(pullRequestId);
 
-    // add main branch in project table and in metadata
-    ComponentDto dto = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), MAIN.getUuid()).setDbKey(MAIN.getDbKey());
-    analysisMetadataHolder.setProject(Project.from(dto));
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), dto);
-
-    // this should add new columns in project and project_branches
     underTest.persist(dbTester.getSession());
 
     dbTester.getSession().commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(2);
-    assertThat(dbTester.countRowsOfTable("project_branches")).isEqualTo(1);
-    assertThat(dbTester.countSql("select count(*) from project_branches where pull_request_binary is not null")).isEqualTo(1);
+    Optional<BranchDto> branchDto = dbTester.getDbClient().branchDao().selectByUuid(dbTester.getSession(), BRANCH.getUuid());
+    assertThat(branchDto).isPresent();
+    assertThat(branchDto.get().getBranchType()).isEqualTo(PULL_REQUEST);
+    assertThat(branchDto.get().getKey()).isEqualTo(pullRequestId);
+    assertThat(branchDto.get().getMergeBranchUuid()).isEqualTo(mergeBranchUuid);
+    assertThat(branchDto.get().getProjectUuid()).isEqualTo(MAIN.getUuid());
+    assertThat(branchDto.get().getPullRequestData()).isEqualTo(DbProjectBranches.PullRequestData.newBuilder()
+      .setBranch(pullRequestId)
+      .setTitle(pullRequestId)
+      .build());
   }
 
   private static Branch createBranch(BranchType type, boolean isMain, String name) {
+    return createBranch(type, isMain, name, null);
+  }
+
+  private static Branch createBranch(BranchType type, boolean isMain, String name, @Nullable String mergeBranchUuid) {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(type);
     when(branch.getName()).thenReturn(name);
     when(branch.isMain()).thenReturn(isMain);
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.empty());
+    when(branch.getMergeBranchUuid()).thenReturn(Optional.ofNullable(mergeBranchUuid));
     return branch;
+  }
+
+  private void expectMissingComponentISE() {
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Component has been deleted by end-user during analysis");
   }
 }

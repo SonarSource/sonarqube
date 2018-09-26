@@ -47,9 +47,27 @@ public class CeQueueDtoTest {
     String str_41_chars = STR_40_CHARS + "a";
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of component UUID is too long: " + str_41_chars);
+    expectedException.expectMessage("Value is too long for column CE_QUEUE.COMPONENT_UUID: " + str_41_chars);
 
     underTest.setComponentUuid(str_41_chars);
+  }
+
+  @Test
+  public void setMainComponentUuid_accepts_null_empty_and_string_40_chars_or_less() {
+    underTest.setMainComponentUuid(null);
+    underTest.setMainComponentUuid("");
+    underTest.setMainComponentUuid("bar");
+    underTest.setMainComponentUuid(STR_40_CHARS);
+  }
+
+  @Test
+  public void setMainComponentUuid_throws_IAE_if_value_is_41_chars() {
+    String str_41_chars = STR_40_CHARS + "a";
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value is too long for column CE_QUEUE.MAIN_COMPONENT_UUID: " + str_41_chars);
+
+    underTest.setMainComponentUuid(str_41_chars);
   }
 
   @Test

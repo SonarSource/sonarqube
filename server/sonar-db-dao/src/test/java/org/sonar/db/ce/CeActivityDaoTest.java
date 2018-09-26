@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.internal.TestSystem2;
@@ -37,6 +38,7 @@ import org.sonar.db.Pagination;
 
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
@@ -46,6 +48,10 @@ import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
 public class CeActivityDaoTest {
+
+  private static final String MAINCOMPONENT_1 = randomAlphabetic(12);
+  private static final String MAINCOMPONENT_2 = randomAlphabetic(13);
+  private static final String COMPONENT_1 = randomAlphabetic(14);
 
   private TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
@@ -57,19 +63,22 @@ public class CeActivityDaoTest {
 
   @Test
   public void test_insert() {
-    CeActivityDto inserted = insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    CeActivityDto inserted = insert("TASK_1", REPORT, COMPONENT_1, MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
 
     Optional<CeActivityDto> saved = underTest.selectByUuid(db.getSession(), "TASK_1");
     assertThat(saved).isPresent();
     CeActivityDto dto = saved.get();
     assertThat(dto.getUuid()).isEqualTo("TASK_1");
-    assertThat(dto.getComponentUuid()).isEqualTo("PROJECT_1");
+    assertThat(dto.getMainComponentUuid()).isEqualTo(MAINCOMPONENT_1);
+    assertThat(dto.getComponentUuid()).isEqualTo(COMPONENT_1);
     assertThat(dto.getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(dto.getSubmitterUuid()).isEqualTo("submitter uuid");
     assertThat(dto.getSubmittedAt()).isEqualTo(1_450_000_000_000L);
     assertThat(dto.getWorkerUuid()).isEqualTo("worker uuid");
     assertThat(dto.getIsLast()).isTrue();
-    assertThat(dto.getIsLastKey()).isEqualTo("REPORTPROJECT_1");
+    assertThat(dto.getMainIsLast()).isTrue();
+    assertThat(dto.getIsLastKey()).isEqualTo("REPORT" + COMPONENT_1);
+    assertThat(dto.getMainIsLastKey()).isEqualTo("REPORT" + MAINCOMPONENT_1);
     assertThat(dto.getCreatedAt()).isEqualTo(1_450_000_000_000L);
     assertThat(dto.getStartedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(dto.getExecutedAt()).isEqualTo(1_500_000_000_500L);
@@ -84,7 +93,7 @@ public class CeActivityDaoTest {
 
   @Test
   public void test_insert_of_errorMessage_of_1_000_chars() {
-    CeActivityDto dto = createActivityDto("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED)
+    CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, MAINCOMPONENT_1, CeActivityDto.Status.FAILED)
       .setErrorMessage(Strings.repeat("x", 1_000));
     underTest.insert(db.getSession(), dto);
 
@@ -95,7 +104,7 @@ public class CeActivityDaoTest {
   @Test
   public void test_insert_of_errorMessage_of_1_001_chars_is_truncated_to_1000() {
     String expected = Strings.repeat("x", 1_000);
-    CeActivityDto dto = createActivityDto("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED)
+    CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, MAINCOMPONENT_1, CeActivityDto.Status.FAILED)
       .setErrorMessage(expected + "y");
     underTest.insert(db.getSession(), dto);
 
@@ -105,7 +114,7 @@ public class CeActivityDaoTest {
 
   @Test
   public void test_insert_error_message_and_stacktrace() {
-    CeActivityDto dto = createActivityDto("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED)
+    CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, MAINCOMPONENT_1, CeActivityDto.Status.FAILED)
       .setErrorStacktrace("error stack");
     underTest.insert(db.getSession(), dto);
 
@@ -118,7 +127,7 @@ public class CeActivityDaoTest {
 
   @Test
   public void test_insert_error_message_only() {
-    CeActivityDto dto = createActivityDto("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED);
+    CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, MAINCOMPONENT_1, CeActivityDto.Status.FAILED);
     underTest.insert(db.getSession(), dto);
 
     Optional<CeActivityDto> saved = underTest.selectByUuid(db.getSession(), "TASK_1");
@@ -129,22 +138,22 @@ public class CeActivityDaoTest {
 
   @Test
   public void insert_must_set_relevant_is_last_field() {
-    // only a single task on PROJECT_1 -> is_last=true
-    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    // only a single task on MAINCOMPONENT_1 -> is_last=true
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").get().getIsLast()).isTrue();
 
-    // only a single task on PROJECT_2 -> is_last=true
-    insert("TASK_2", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
+    // only a single task on MAINCOMPONENT_2 -> is_last=true
+    insert("TASK_2", REPORT, MAINCOMPONENT_2, CeActivityDto.Status.SUCCESS);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
 
-    // two tasks on PROJECT_1, the most recent one is TASK_3
-    insert("TASK_3", REPORT, "PROJECT_1", FAILED);
+    // two tasks on MAINCOMPONENT_1, the most recent one is TASK_3
+    insert("TASK_3", REPORT, MAINCOMPONENT_1, FAILED);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").get().getIsLast()).isFalse();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").get().getIsLast()).isTrue();
 
     // inserting a cancelled task does not change the last task
-    insert("TASK_4", REPORT, "PROJECT_1", CeActivityDto.Status.CANCELED);
+    insert("TASK_4", REPORT, MAINCOMPONENT_1, CeActivityDto.Status.CANCELED);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").get().getIsLast()).isFalse();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").get().getIsLast()).isTrue();
@@ -153,9 +162,9 @@ public class CeActivityDaoTest {
 
   @Test
   public void test_selectByQuery() {
-    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insert("TASK_2", REPORT, "PROJECT_1", FAILED);
-    insert("TASK_3", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
+    insert("TASK_2", REPORT, MAINCOMPONENT_1, FAILED);
+    insert("TASK_3", REPORT, MAINCOMPONENT_2, CeActivityDto.Status.SUCCESS);
     insert("TASK_4", "views", null, CeActivityDto.Status.SUCCESS);
 
     // no filters
@@ -164,7 +173,7 @@ public class CeActivityDaoTest {
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
 
     // select by component uuid
-    query = new CeTaskQuery().setComponentUuid("PROJECT_1");
+    query = new CeTaskQuery().setMainComponentUuid(MAINCOMPONENT_1);
     dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100));
     assertThat(dtos).extracting("uuid").containsExactly("TASK_2", "TASK_1");
 
@@ -182,17 +191,17 @@ public class CeActivityDaoTest {
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4");
 
     // select by multiple conditions
-    query = new CeTaskQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
+    query = new CeTaskQuery().setType(REPORT).setOnlyCurrents(true).setMainComponentUuid(MAINCOMPONENT_1);
     dtos = underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(100));
     assertThat(dtos).extracting("uuid").containsExactly("TASK_2");
   }
 
   @Test
   public void selectByQuery_does_not_populate_errorStacktrace_field() {
-    insert("TASK_1", REPORT, "PROJECT_1", FAILED);
-    underTest.insert(db.getSession(), createActivityDto("TASK_2", REPORT, "PROJECT_1", FAILED).setErrorStacktrace("some stack"));
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, FAILED);
+    underTest.insert(db.getSession(), createActivityDto("TASK_2", REPORT, COMPONENT_1, MAINCOMPONENT_1, FAILED).setErrorStacktrace("some stack"));
 
-    List<CeActivityDto> dtos = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setComponentUuid("PROJECT_1"), forPage(1).andSize(100));
+    List<CeActivityDto> dtos = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setMainComponentUuid(MAINCOMPONENT_1), forPage(1).andSize(100));
 
     assertThat(dtos)
       .hasSize(2)
@@ -201,21 +210,21 @@ public class CeActivityDaoTest {
 
   @Test
   public void selectByQuery_populates_hasScannerContext_flag() {
-    insert("TASK_1", REPORT, "PROJECT_1", SUCCESS);
-    CeActivityDto dto2 = insert("TASK_2", REPORT, "PROJECT_2", SUCCESS);
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, SUCCESS);
+    CeActivityDto dto2 = insert("TASK_2", REPORT, MAINCOMPONENT_2, SUCCESS);
     insertScannerContext(dto2.getUuid());
 
-    CeActivityDto dto = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setComponentUuid("PROJECT_1"), forPage(1).andSize(100)).iterator().next();
+    CeActivityDto dto = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setMainComponentUuid(MAINCOMPONENT_1), forPage(1).andSize(100)).iterator().next();
     assertThat(dto.isHasScannerContext()).isFalse();
-    dto = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setComponentUuid("PROJECT_2"), forPage(1).andSize(100)).iterator().next();
+    dto = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setMainComponentUuid(MAINCOMPONENT_2), forPage(1).andSize(100)).iterator().next();
     assertThat(dto.isHasScannerContext()).isTrue();
   }
 
   @Test
   public void selectByQuery_is_paginated_and_return_results_sorted_from_last_to_first() {
-    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insert("TASK_2", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED);
-    insert("TASK_3", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
+    insert("TASK_2", REPORT, MAINCOMPONENT_1, CeActivityDto.Status.FAILED);
+    insert("TASK_3", REPORT, MAINCOMPONENT_2, CeActivityDto.Status.SUCCESS);
     insert("TASK_4", "views", null, CeActivityDto.Status.SUCCESS);
 
     assertThat(selectPageOfUuids(forPage(1).andSize(1))).containsExactly("TASK_4");
@@ -229,10 +238,10 @@ public class CeActivityDaoTest {
 
   @Test
   public void selectByQuery_no_results_if_shortcircuited_by_component_uuids() {
-    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
 
     CeTaskQuery query = new CeTaskQuery();
-    query.setComponentUuids(Collections.emptyList());
+    query.setMainComponentUuids(Collections.emptyList());
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(1))).isEmpty();
   }
 
@@ -291,8 +300,8 @@ public class CeActivityDaoTest {
 
   @Test
   public void selectOlderThan_does_not_populate_errorStacktrace() {
-    insert("TASK_1", REPORT, "PROJECT_1", FAILED);
-    underTest.insert(db.getSession(), createActivityDto("TASK_2", REPORT, "PROJECT_1", FAILED).setErrorStacktrace("some stack"));
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, FAILED);
+    underTest.insert(db.getSession(), createActivityDto("TASK_2", REPORT, COMPONENT_1, MAINCOMPONENT_1, FAILED).setErrorStacktrace("some stack"));
 
     List<CeActivityDto> dtos = underTest.selectOlderThan(db.getSession(), system2.now() + 1_000_000L);
 
@@ -303,9 +312,9 @@ public class CeActivityDaoTest {
 
   @Test
   public void deleteByUuids() {
-    insert("TASK_1", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
-    insert("TASK_2", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
-    insert("TASK_3", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_1", "REPORT", MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
+    insert("TASK_2", "REPORT", MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
+    insert("TASK_3", "REPORT", MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
 
     underTest.deleteByUuids(db.getSession(), ImmutableSet.of("TASK_1", "TASK_3"));
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").isPresent()).isFalse();
@@ -315,7 +324,7 @@ public class CeActivityDaoTest {
 
   @Test
   public void deleteByUuids_does_nothing_if_uuid_does_not_exist() {
-    insert("TASK_1", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_1", "REPORT", MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
 
     // must not fail
     underTest.deleteByUuids(db.getSession(), singleton("TASK_2"));
@@ -324,33 +333,38 @@ public class CeActivityDaoTest {
   }
 
   @Test
-  public void count_last_by_status_and_component_uuid() {
-    insert("TASK_1", CeTaskTypes.REPORT, "COMPONENT1", CeActivityDto.Status.SUCCESS);
+  public void count_last_by_status_and_main_component_uuid() {
+    insert("TASK_1", CeTaskTypes.REPORT, MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
     // component 2
-    insert("TASK_2", CeTaskTypes.REPORT, "COMPONENT2", CeActivityDto.Status.SUCCESS);
+    insert("TASK_2", CeTaskTypes.REPORT, MAINCOMPONENT_2, CeActivityDto.Status.SUCCESS);
     // status failed
-    insert("TASK_3", CeTaskTypes.REPORT, "COMPONENT1", CeActivityDto.Status.FAILED);
+    insert("TASK_3", CeTaskTypes.REPORT, MAINCOMPONENT_1, CeActivityDto.Status.FAILED);
     // status canceled
-    insert("TASK_4", CeTaskTypes.REPORT, "COMPONENT1", CeActivityDto.Status.CANCELED);
-    insert("TASK_5", CeTaskTypes.REPORT, "COMPONENT1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_4", CeTaskTypes.REPORT, MAINCOMPONENT_1, CeActivityDto.Status.CANCELED);
+    insert("TASK_5", CeTaskTypes.REPORT, MAINCOMPONENT_1, CeActivityDto.Status.SUCCESS);
     db.commit();
 
-    assertThat(underTest.countLastByStatusAndComponentUuid(dbSession, SUCCESS, "COMPONENT1")).isEqualTo(1);
-    assertThat(underTest.countLastByStatusAndComponentUuid(dbSession, SUCCESS, null)).isEqualTo(2);
+    assertThat(underTest.countLastByStatusAndMainComponentUuid(dbSession, SUCCESS, MAINCOMPONENT_1)).isEqualTo(1);
+    assertThat(underTest.countLastByStatusAndMainComponentUuid(dbSession, SUCCESS, null)).isEqualTo(2);
   }
 
-  private CeActivityDto insert(String uuid, String type, String componentUuid, CeActivityDto.Status status) {
-    CeActivityDto dto = createActivityDto(uuid, type, componentUuid, status);
+  private CeActivityDto insert(String uuid, String type, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
+    return insert(uuid, type, mainComponentUuid, mainComponentUuid, status);
+  }
+
+  private CeActivityDto insert(String uuid, String type, String componentUuid, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
+    CeActivityDto dto = createActivityDto(uuid, type, componentUuid, mainComponentUuid, status);
     underTest.insert(db.getSession(), dto);
     return dto;
   }
 
-  private CeActivityDto createActivityDto(String uuid, String type, String componentUuid, CeActivityDto.Status status) {
+  private CeActivityDto createActivityDto(String uuid, String type, @Nullable String componentUuid, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
     CeQueueDto creating = new CeQueueDto();
     creating.setUuid(uuid);
     creating.setStatus(PENDING);
     creating.setTaskType(type);
     creating.setComponentUuid(componentUuid);
+    creating.setMainComponentUuid(mainComponentUuid);
     creating.setSubmitterUuid("submitter uuid");
     creating.setCreatedAt(1_300_000_000_000L);
 

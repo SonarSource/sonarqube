@@ -554,10 +554,12 @@ public class CeWorkerImplTest {
     for (int i = 0; i < characteristics.length; i += 2) {
       characteristicMap.put(characteristics[i], characteristics[i + 1]);
     }
+    CeTask.Component component = new CeTask.Component("PROJECT_1", null, null);
     return new CeTask.Builder()
       .setOrganizationUuid("org1")
       .setUuid("TASK_1").setType(CeTaskTypes.REPORT)
-      .setComponentUuid("PROJECT_1")
+      .setComponent(component)
+      .setMainComponent(component)
       .setSubmitterUuid(submitterLogin)
       .setCharacteristics(characteristicMap)
       .build();
