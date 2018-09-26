@@ -1,7 +1,7 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
         "modules": false,
         "targets": {
@@ -13,7 +13,7 @@
             "IE 11"
           ]
         },
-        "useBuiltIns": true,
+        "useBuiltIns": "entry",
         "exclude": [
           "es6.math.acosh",
           "es6.math.asinh",
@@ -69,28 +69,34 @@
         ]
       }
     ],
-    "react"
+    "@babel/preset-react"
   ],
   "plugins": [
-    "transform-class-properties",
-    ["transform-object-rest-spread", { "useBuiltIns": true }],
+    "@babel/plugin-proposal-class-properties",
+    ["@babel/plugin-proposal-object-rest-spread", { "useBuiltIns": true }],
     "lodash"
   ],
   "env": {
     "production": {
-      "plugins": ["syntax-dynamic-import", "transform-react-constant-elements"]
+      "plugins": [
+        "@babel/plugin-syntax-dynamic-import",
+        "@babel/plugin-transform-react-constant-elements"
+      ]
     },
     "development": {
-      "plugins": ["syntax-dynamic-import", "transform-react-jsx-source", "transform-react-jsx-self"]
+      "plugins": [
+        "@babel/plugin-syntax-dynamic-import",
+        "@babel/plugin-transform-react-jsx-source",
+        "@babel/plugin-transform-react-jsx-self"
+      ]
     },
     "test": {
       "plugins": [
-        "transform-es2015-modules-commonjs",
+        "@babel/plugin-transform-modules-commonjs",
         "dynamic-import-node",
-        "transform-react-jsx-source",
-        "transform-react-jsx-self"
+        "@babel/plugin-transform-react-jsx-source",
+        "@babel/plugin-transform-react-jsx-self"
       ]
     }
-  },
-  "ignore": ["**/libs/**"]
+  }
 }

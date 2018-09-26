@@ -2,7 +2,7 @@
 
 exports[`display c# command 1`] = `
 <DotNet
-  host="null"
+  host="HOST"
   projectKey="project-foo"
   token="myToken"
 />
@@ -10,7 +10,7 @@ exports[`display c# command 1`] = `
 
 exports[`display c-family command 1`] = `
 <Msvc
-  host="null"
+  host="HOST"
   projectKey="project-foo"
   token="myToken"
 />
@@ -18,7 +18,7 @@ exports[`display c-family command 1`] = `
 
 exports[`display c-family command 2`] = `
 <ClangGCC
-  host="null"
+  host="HOST"
   os="linux"
   projectKey="project-foo"
   token="myToken"
@@ -27,21 +27,21 @@ exports[`display c-family command 2`] = `
 
 exports[`display java command 1`] = `
 <JavaGradle
-  host="null"
+  host="HOST"
   token="myToken"
 />
 `;
 
 exports[`display java command 2`] = `
 <JavaMaven
-  host="null"
+  host="HOST"
   token="myToken"
 />
 `;
 
 exports[`display others command 1`] = `
 <Other
-  host="null"
+  host="HOST"
   os="window"
   projectKey="project-foo"
   token="myToken"

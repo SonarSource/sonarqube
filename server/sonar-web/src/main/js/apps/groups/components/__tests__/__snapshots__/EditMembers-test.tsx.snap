@@ -246,7 +246,7 @@ exports[`should edit members 2`] = `
                 className="modal-body"
               >
                 <DeferredSpinner
-                  loading={false}
+                  loading={true}
                   timeout={100}
                 >
                   <SelectList

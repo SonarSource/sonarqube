@@ -30,7 +30,6 @@ it('should edit members', async () => {
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('ButtonIcon'));
-  await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);

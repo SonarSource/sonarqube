@@ -25,6 +25,10 @@ jest.mock('../../../../../helpers/system', () => ({
   isSonarCloud: jest.fn().mockReturnValue(true)
 }));
 
+jest.mock('../../../../../helpers/urls', () => ({
+  getHostUrl: () => 'HOST'
+}));
+
 it('display java command', () => {
   expect(
     getWrapper({ languageConfig: { language: 'java', javaBuild: 'gradle' } })
