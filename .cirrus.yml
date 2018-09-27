@@ -25,8 +25,6 @@ env:
   DOCS_JOB_TOKEN: ENCRYPTED[7771f76a0fc0038f9929c32d98588963c8dcda6148ba054f57358bc17faa109ac638134c89067f3bacc8933d2fa2c541]
   # analysis on next.sonarqube.com
   SONARQUBE_NEXT_TOKEN: ENCRYPTED[e3d98fa0ecceb015e9803d47f78c3040f5a710d678a631107635d69f650d4e53ecaf2e2334cc1fe0c47037ec915dcda0]
-  # could be used in Artifactory statistics
-  CI_ENV: cirrus
 
 auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
 
@@ -83,9 +81,7 @@ validate_task:
     memory: 10Gb
     additional_containers:
       - name: postgres
-        # 9.5 is the version used internally at SonarSource.
-        # The minimal supported version is 9.3 and is tested by nightly QA jobs.
-        image: postgres:9.5
+        image: postgres:10.6
         port: 5432
         cpu: 1
         memory: 1Gb
@@ -112,16 +108,14 @@ qa_task:
     cpu: 2.4
     memory: 10Gb
     additional_containers:
-    - name: postgres
-      # 9.5 is the version used internally at SonarSource.
-      # The minimal supported version is 9.3 and is tested by nightly QA jobs.
-      image: postgres:9.5
-      port: 5432
-      cpu: 1
-      memory: 1Gb
-      env:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
+      - name: postgres
+        image: postgres:10.6
+        port: 5432
+        cpu: 1
+        memory: 1Gb
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
   env:
     matrix:
       QA_CATEGORY: Cat1
@@ -162,3 +156,89 @@ promote_task:
     CIRRUS_CLONE_DEPTH: 1
   script:
     - ./private/cirrus/cirrus-promote.sh
+
+db_unit_mysql57_task:
+  depends_on: build
+  # Comment the following line and commit with message "DO NOT MERGE" in order to run
+  # this task on your branch
+  only_if: $CIRRUS_BRANCH == "master"
+  gke_container:
+    image: gradle:4.10.1-jdk8
+    cluster_name: cirrus-euw3a-cluster
+    zone: europe-west3-a
+    namespace: default
+    cpu: 1
+    memory: 10Gb
+    additional_containers:
+      - name: mysql
+        image: mysql:5.7 # see https://github.com/mysql/mysql-docker
+        port: 3306
+        cpu: 1
+        memory: 1Gb
+        env:
+          MYSQL_ROOT_PASSWORD: sonarsource
+          MYSQL_DATABASE: sonar
+          MYSQL_USER: sonar
+          MYSQL_PASSWORD: sonar
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-db-unit-test.sh mysql
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
+
+db_mssql2017_task:
+  depends_on: build
+  # Comment the following line and commit with message "DO NOT MERGE" in order to run
+  # this task on your branch
+  only_if: $CIRRUS_BRANCH == "master"
+  gke_container:
+    image: gradle:4.10.1-jdk8
+    cluster_name: cirrus-euw3a-cluster
+    zone: europe-west3-a
+    namespace: default
+    cpu: 1
+    memory: 5Gb
+    additional_containers:
+      - name: mssql
+        image: microsoft/mssql-server:2017-CU12-ubuntu
+        port: 1433
+        cpu: 2
+        memory: 5Gb
+        env:
+          MSSQL_PID: Developer # this is the default edition
+          ACCEPT_EULA: Y
+          SA_PASSWORD: sonarqube!1
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-db-unit-test.sh mssql
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
+
+db_oracle12_task:
+  depends_on: build
+  # Comment the following line and commit with message "DO NOT MERGE" in order to run
+  # this task on your branch
+  only_if: $CIRRUS_BRANCH == "master"
+  gke_container:
+    image: gradle:4.10.1-jdk8
+    cluster_name: cirrus-euw3a-cluster
+    zone: europe-west3-a
+    namespace: default
+    cpu: 1
+    memory: 5Gb
+    additional_containers:
+      - name: oracle
+        image: gcr.io/ci-cd-215716/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
+        port: 1521
+        cpu: 2
+        memory: 5Gb
+        env:
+          ORACLE_PWD: sonarqube
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-db-unit-test.sh oracle
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
