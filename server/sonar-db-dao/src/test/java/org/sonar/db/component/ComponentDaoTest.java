@@ -19,7 +19,6 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -29,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -68,7 +68,6 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -136,7 +135,7 @@ public class ComponentDaoTest {
     assertThat(result.getCopyResourceUuid()).isNull();
     assertThat(result.isPrivate()).isTrue();
 
-    assertThat(underTest.selectByUuid(dbSession, "UNKNOWN")).isAbsent();
+    assertThat(underTest.selectByUuid(dbSession, "UNKNOWN")).isEmpty();
   }
 
   @Test
@@ -211,7 +210,7 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.projectUuid()).isEqualTo(project.uuid());
 
-    assertThat(underTest.selectByKey(dbSession, "unknown")).isAbsent();
+    assertThat(underTest.selectByKey(dbSession, "unknown")).isEmpty();
   }
 
   @Test
@@ -393,7 +392,7 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     assertThat(underTest.selectById(dbSession, project.getId())).isPresent();
-    assertThat(underTest.selectById(dbSession, 0L)).isAbsent();
+    assertThat(underTest.selectById(dbSession, 0L)).isEmpty();
   }
 
   @Test
@@ -1437,7 +1436,7 @@ public class ComponentDaoTest {
     underTest.delete(dbSession, project1.getId());
     dbSession.commit();
 
-    assertThat(underTest.selectByKey(dbSession, "PROJECT_1")).isAbsent();
+    assertThat(underTest.selectByKey(dbSession, "PROJECT_1")).isEmpty();
     assertThat(underTest.selectByKey(dbSession, "PROJECT_2")).isPresent();
   }
 

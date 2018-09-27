@@ -19,12 +19,12 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -177,7 +177,7 @@ public class ChangelogAction implements IssuesWsAction {
     private boolean isMember(DbSession dbSession, IssueDto issue) {
       Optional<ComponentDto> project = dbClient.componentDao().selectByUuid(dbSession, issue.getProjectUuid());
       checkState(project.isPresent(), "Cannot find the project with uuid %s from issue.id %s", issue.getProjectUuid(), issue.getId());
-      java.util.Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, project.get().getOrganizationUuid());
+      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, project.get().getOrganizationUuid());
       checkState(organization.isPresent(), "Cannot find the organization with uuid %s from issue.id %s", project.get().getOrganizationUuid(), issue.getId());
       return userSession.hasMembership(organization.get());
     }

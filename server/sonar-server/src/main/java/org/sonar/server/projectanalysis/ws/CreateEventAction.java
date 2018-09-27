@@ -140,7 +140,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private ComponentDto getProjectOrApplication(DbSession dbSession, SnapshotDto analysis) {
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, analysis.getComponentUuid()).orNull();
+    ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, analysis.getComponentUuid()).orElse(null);
     checkState(project != null, "Project of analysis '%s' is not found", analysis.getUuid());
     checkArgument(ALLOWED_QUALIFIERS.contains(project.qualifier()) && Scopes.PROJECT.equals(project.scope()),
       "An event must be created on a project or an application");

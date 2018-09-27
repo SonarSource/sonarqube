@@ -92,7 +92,7 @@ public class CancelAction implements CeWsAction {
     if (componentUuid == null) {
       throw insufficientPrivilegesException();
     }
-    com.google.common.base.Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+    Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
     if (!component.isPresent()) {
       throw insufficientPrivilegesException();
     }

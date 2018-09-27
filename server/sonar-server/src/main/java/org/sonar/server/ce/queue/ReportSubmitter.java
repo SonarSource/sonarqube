@@ -19,11 +19,11 @@
  */
 package org.sonar.server.ce.queue;
 
-import com.google.common.base.Optional;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -82,7 +82,7 @@ public class ReportSubmitter {
       Optional<ComponentDto> component = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
       validateProject(dbSession, component, projectKey);
       ensureOrganizationIsConsistent(component, organizationDto);
-      ComponentDto project = component.or(() -> createProject(dbSession, organizationDto, projectKey, deprecatedBranch, projectName));
+      ComponentDto project = component.orElseGet(() -> createProject(dbSession, organizationDto, projectKey, deprecatedBranch, projectName));
       checkScanPermission(project);
       return submitReport(dbSession, reportInput, project, characteristics);
     }

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;

@@ -41,7 +41,7 @@ import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyList;
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -78,17 +78,17 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     // Check project key has been updated
-    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, project.getDbKey())).isAbsent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, project.getDbKey())).isEmpty();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root")).isNotNull();
 
     // Check file key has been updated
-    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.getDbKey())).isAbsent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.getDbKey())).isEmpty();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/File.xoo")).isNotNull();
     assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/InactiveFile.xoo")).isNotNull();
 
-    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getDbKey())).isAbsent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getDbKey())).isEmpty();
 
-    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test
@@ -108,7 +108,7 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyHasBeenUpdated(file.getDbKey(), "sample:root2:module:src/File.xoo");
 
     // do not index the module but the project
-    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test
@@ -122,7 +122,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.getDbKey(), "provisionedProject2");
-    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
+    assertThat(projectIndexers.hasBeenCalled(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test
@@ -219,7 +219,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
   }
 
@@ -233,7 +233,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
   }
 

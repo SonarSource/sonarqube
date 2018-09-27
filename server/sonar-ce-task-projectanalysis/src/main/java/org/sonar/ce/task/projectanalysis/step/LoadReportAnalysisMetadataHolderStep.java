@@ -216,7 +216,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
   private ComponentDto toProject(String projectKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      com.google.common.base.Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, projectKey);
+      Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, projectKey);
       checkState(opt.isPresent(), "Project with key '%s' can't be found", projectKey);
       return opt.get();
     }

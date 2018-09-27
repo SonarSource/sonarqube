@@ -82,7 +82,7 @@ public class ShowActionTest {
   public void show_source() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(eq(session), eq(file.uuid()), anyInt(), anyInt())).thenReturn(Optional.of(newArrayList(
       "/*",
       " * Header",
@@ -99,7 +99,7 @@ public class ShowActionTest {
   public void show_source_with_from_and_to_params() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(session, file.uuid(), 3, 5)).thenReturn(Optional.of(newArrayList(
       " */",
       "",
@@ -116,7 +116,7 @@ public class ShowActionTest {
   public void show_source_accept_from_less_than_one() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(session, file.uuid(), 1, 5)).thenReturn(Optional.of(newArrayList(
       " */",
       "",
@@ -133,7 +133,7 @@ public class ShowActionTest {
   @Test(expected = ForbiddenException.class)
   public void require_code_viewer() throws Exception {
     String fileKey = "src/Foo.java";
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     tester.newGetRequest("api/sources", "show").setParam("key", fileKey).execute();
   }
 }

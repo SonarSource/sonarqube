@@ -119,7 +119,7 @@ public class ListAction implements WebhooksWsAction {
 
     if (isNotBlank(projectKey)) {
 
-      Optional<ComponentDto> optional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
+      Optional<ComponentDto> optional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orElse(null));
       ComponentDto componentDto = checkFoundWithOptional(optional, "project %s does not exist", projectKey);
       webhookSupport.checkPermission(componentDto);
       webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);

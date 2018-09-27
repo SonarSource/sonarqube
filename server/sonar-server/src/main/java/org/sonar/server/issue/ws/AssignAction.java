@@ -148,7 +148,7 @@ public class AssignAction implements IssuesWsAction {
 
   private void checkMembership(DbSession dbSession, IssueDto issueDto, UserDto user) {
     String projectUuid = requireNonNull(issueDto.getProjectUuid());
-    ComponentDto project = Optional.ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull())
+    ComponentDto project = Optional.ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orElse(null))
       .orElseThrow(() -> new IllegalStateException(format("Unknown project %s", projectUuid)));
     OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid())
       .orElseThrow(() -> new IllegalStateException(format("Unknown organizationMember %s", project.getOrganizationUuid())));

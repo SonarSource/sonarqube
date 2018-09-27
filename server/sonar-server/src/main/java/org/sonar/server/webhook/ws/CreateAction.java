@@ -138,7 +138,7 @@ public class CreateAction implements WebhooksWsAction {
 
       ComponentDto projectDto = null;
       if (isNotBlank(projectKey)) {
-        Optional<ComponentDto> dtoOptional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orNull());
+        Optional<ComponentDto> dtoOptional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orElse(null));
         ComponentDto componentDto = checkFoundWithOptional(dtoOptional, "No project with key '%s'", projectKey);
         webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
         webhookSupport.checkPermission(componentDto);

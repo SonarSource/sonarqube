@@ -167,7 +167,7 @@ public class ServerUserSession extends AbstractUserSession {
       return of(projectUuid);
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      com.google.common.base.Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+      Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
       if (!component.isPresent()) {
         return Optional.empty();
       }
@@ -190,7 +190,7 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Set<String> loadProjectPermissions(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      com.google.common.base.Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
+      Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
       if (!component.isPresent()) {
         return Collections.emptySet();
       }

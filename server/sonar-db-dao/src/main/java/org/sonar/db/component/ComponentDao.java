@@ -19,15 +19,15 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -86,11 +86,11 @@ public class ComponentDao implements Dao {
   }
 
   public Optional<ComponentDto> selectById(DbSession session, long id) {
-    return Optional.fromNullable(mapper(session).selectById(id));
+    return Optional.ofNullable(mapper(session).selectById(id));
   }
 
   public Optional<ComponentDto> selectByUuid(DbSession session, String uuid) {
-    return Optional.fromNullable(mapper(session).selectByUuid(uuid));
+    return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
 
   public ComponentDto selectOrFailByUuid(DbSession session, String uuid) {
@@ -258,15 +258,15 @@ public class ComponentDao implements Dao {
   }
 
   public Optional<ComponentDto> selectByKey(DbSession session, String key) {
-    return Optional.fromNullable(mapper(session).selectByKey(key));
+    return Optional.ofNullable(mapper(session).selectByKey(key));
   }
 
-  public java.util.Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
-    return java.util.Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generateBranchKey(key, branch), branch));
+  public Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
+    return Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generateBranchKey(key, branch), branch));
   }
 
-  public java.util.Optional<ComponentDto> selectByKeyAndPullRequest(DbSession session, String key, String pullRequestId) {
-    return java.util.Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generatePullRequestKey(key, pullRequestId), pullRequestId));
+  public Optional<ComponentDto> selectByKeyAndPullRequest(DbSession session, String key, String pullRequestId) {
+    return Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generatePullRequestKey(key, pullRequestId), pullRequestId));
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
@@ -366,13 +366,15 @@ public class ComponentDao implements Dao {
   }
 
   public void insert(DbSession session, Collection<ComponentDto> items) {
-    for (ComponentDto item : items) {
-      insert(session, item);
-    }
+    insert(session, items.stream());
+  }
+
+  private void insert(DbSession session, Stream<ComponentDto> items) {
+    items.forEach(item -> insert(session, item));
   }
 
   public void insert(DbSession session, ComponentDto item, ComponentDto... others) {
-    insert(session, Lists.asList(item, others));
+    insert(session, Stream.concat(Stream.of(item), Arrays.stream(others)));
   }
 
   public void update(DbSession session, ComponentUpdateDto component) {

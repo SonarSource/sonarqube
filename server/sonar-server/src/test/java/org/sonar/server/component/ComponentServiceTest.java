@@ -33,7 +33,7 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -73,12 +73,8 @@ public class ComponentServiceTest {
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isEmpty();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
-  }
-
-  private void assertComponentKeyNotUpdated(String key) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
   }
 
 }

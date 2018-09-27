@@ -20,7 +20,6 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -29,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -176,7 +176,7 @@ public class ComponentAction implements MeasuresWsAction {
 
   private Optional<ComponentDto> getReferenceComponent(DbSession dbSession, ComponentDto component) {
     if (component.getCopyResourceUuid() == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     return dbClient.componentDao().selectByUuid(dbSession, component.getCopyResourceUuid());

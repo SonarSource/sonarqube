@@ -571,7 +571,7 @@ public class FileMoveDetectionStepTest {
   @CheckForNull
   private FileSourceDto insertContentOfFileInDb(String key, @Nullable String[] content) {
     return dbTester.getDbClient().componentDao().selectByKey(dbTester.getSession(), key)
-      .transform(file -> {
+      .map(file -> {
         SourceLineHashesComputer linesHashesComputer = new SourceLineHashesComputer();
         if (content != null) {
           stream(content).forEach(linesHashesComputer::addLine);
@@ -584,7 +584,7 @@ public class FileMoveDetectionStepTest {
         dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), fileSourceDto);
         dbTester.commit();
         return fileSourceDto;
-      }).orNull();
+      }).orElse(null);
   }
 
   private void setFilesInReport(Component... files) {

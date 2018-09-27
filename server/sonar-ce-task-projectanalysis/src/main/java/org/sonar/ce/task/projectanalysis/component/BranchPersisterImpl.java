@@ -20,16 +20,17 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbProjectBranches;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
@@ -51,7 +52,7 @@ public class BranchPersisterImpl implements BranchPersister {
     Branch branch = analysisMetadataHolder.getBranch();
     String branchUuid = treeRootHolder.getRoot().getUuid();
 
-    com.google.common.base.Optional<ComponentDto> branchComponentDtoOpt = dbClient.componentDao().selectByUuid(dbSession, branchUuid);
+    Optional<ComponentDto> branchComponentDtoOpt = dbClient.componentDao().selectByUuid(dbSession, branchUuid);
 
     ComponentDto branchComponentDto;
     if (branch.isMain()) {
@@ -59,7 +60,7 @@ public class BranchPersisterImpl implements BranchPersister {
       branchComponentDto = branchComponentDtoOpt.get();
     } else {
       // inserts new row in table projects if it's the first time branch is analyzed
-      branchComponentDto = branchComponentDtoOpt.or(() -> insertIntoProjectsTable(dbSession, branchUuid));
+      branchComponentDto = branchComponentDtoOpt.orElseGet(() -> insertIntoProjectsTable(dbSession, branchUuid));
     }
 
     // insert or update in table project_branches

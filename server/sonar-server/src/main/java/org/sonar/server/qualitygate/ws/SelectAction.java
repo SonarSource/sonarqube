@@ -118,7 +118,7 @@ public class SelectAction implements QualityGatesWsAction {
 
     try {
       long dbId = Long.parseLong(projectId);
-      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orNull());
+      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orElse(null));
     } catch (NumberFormatException e) {
       return Optional.empty();
     }

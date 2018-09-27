@@ -113,7 +113,7 @@ public class UpdateAction implements WebhooksWsAction {
 
       String projectUuid = webhookDto.getProjectUuid();
       if (projectUuid != null) {
-        Optional<ComponentDto> optionalDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orNull());
+        Optional<ComponentDto> optionalDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orElse(null));
         ComponentDto componentDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
         webhookSupport.checkPermission(componentDto);
         updateWebhook(dbSession, webhookDto, name, url);

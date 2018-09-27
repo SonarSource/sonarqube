@@ -95,12 +95,12 @@ public class TaskAction implements CeWsAction {
       Ce.TaskResponse.Builder wsTaskResponse = Ce.TaskResponse.newBuilder();
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
-        com.google.common.base.Optional<ComponentDto> component = loadComponent(dbSession, queueDto.get().getComponentUuid());
+        Optional<ComponentDto> component = loadComponent(dbSession, queueDto.get().getComponentUuid());
         checkPermission(component);
         wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
       } else {
         CeActivityDto ceActivityDto = WsUtils.checkFoundWithOptional(dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid), "No activity found for task '%s'", taskUuid);
-        com.google.common.base.Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
+        Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
         checkPermission(component);
         Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
         maskErrorStacktrace(ceActivityDto, additionalFields);
@@ -111,14 +111,14 @@ public class TaskAction implements CeWsAction {
     }
   }
 
-  private com.google.common.base.Optional<ComponentDto> loadComponent(DbSession dbSession, @Nullable String projectUuid) {
+  private Optional<ComponentDto> loadComponent(DbSession dbSession, @Nullable String projectUuid) {
     if (projectUuid == null) {
-      return com.google.common.base.Optional.absent();
+      return Optional.empty();
     }
     return dbClient.componentDao().selectByUuid(dbSession, projectUuid);
   }
 
-  private void checkPermission(com.google.common.base.Optional<ComponentDto> component) {
+  private void checkPermission(Optional<ComponentDto> component) {
     if (component.isPresent()) {
       String orgUuid = component.get().getOrganizationUuid();
       if (!userSession.hasPermission(OrganizationPermission.ADMINISTER, orgUuid) &&

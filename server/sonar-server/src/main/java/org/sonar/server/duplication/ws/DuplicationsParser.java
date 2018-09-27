@@ -20,13 +20,13 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
@@ -90,9 +90,9 @@ public class DuplicationsParser {
     if (component == null) {
       Optional<ComponentDto> componentDtoOptional;
       if (branch != null) {
-        componentDtoOptional = Optional.fromNullable(componentDao.selectByKeyAndBranch(session, componentKey, branch).orElseGet(null));
+        componentDtoOptional = Optional.ofNullable(componentDao.selectByKeyAndBranch(session, componentKey, branch).orElseGet(null));
       } else if (pullRequest != null) {
-        componentDtoOptional = Optional.fromNullable(componentDao.selectByKeyAndPullRequest(session, componentKey, pullRequest).orElseGet(null));
+        componentDtoOptional = Optional.ofNullable(componentDao.selectByKeyAndPullRequest(session, componentKey, pullRequest).orElseGet(null));
       } else {
         componentDtoOptional = componentDao.selectByKey(session, componentKey);
       }

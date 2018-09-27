@@ -20,11 +20,11 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
@@ -119,7 +119,7 @@ public class ValidateProjectStep implements ComputationStep {
 
     private void validateAnalysisDate(Optional<ComponentDto> baseProject) {
       if (baseProject.isPresent()) {
-        java.util.Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, baseProject.get().uuid());
+        Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, baseProject.get().uuid());
         long currentAnalysisDate = analysisMetadataHolder.getAnalysisDate();
         Long lastAnalysisDate = snapshotDto.map(SnapshotDto::getCreatedAt).orElse(null);
         if (lastAnalysisDate != null && currentAnalysisDate <= lastAnalysisDate) {

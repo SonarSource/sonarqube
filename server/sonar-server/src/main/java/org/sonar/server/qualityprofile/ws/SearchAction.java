@@ -185,7 +185,7 @@ public class SearchAction implements QProfileWsAction {
     if (project.isRoot()) {
       return project;
     }
-    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, project.projectUuid()).orNull();
+    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, project.projectUuid()).orElse(null);
     checkState(component != null, "Project uuid of component uuid '%s' does not exist", project.uuid());
     return component;
   }

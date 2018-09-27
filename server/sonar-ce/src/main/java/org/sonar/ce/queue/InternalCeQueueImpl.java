@@ -93,7 +93,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         ComponentDto component = null;
         String componentUuid = taskDto.getComponentUuid();
         if (componentUuid != null) {
-          component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orNull();
+          component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orElse(null);
         }
         Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
           .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
