@@ -68,13 +68,14 @@ As documentation writers there are two ways it is possible for us to break the S
 * broken links
 
 Even without spinning up servers, you can double-check that your changes won't break the build.
-**Test everything**
+
+**Test everything**  
 You can run all the tests, and make sure that both your markup is well-formed and your links are correct by running the build script:
 ```
 cd sonar-enterprise/
 ./build.sh -x test -x obfuscate
 ```
-**Test links only** 
+**Test links only**  
 If you only want to double-check your links changes, you can
 ```
 cd sonar-enterprise/server/sonar-docs
@@ -104,13 +105,13 @@ Ex.:
 ```
 ---
 title: Demo page
-url: /sonarcloud-pricing
+url: /sonarcloud-pricing/
 ---
 ```
 
 ** Metadata conventions**
 * Metadata tags can appear in any order, but by convention, `title` should come first.
-* The `url` tag is optional, but by convention, should be specified to both make the publish path explicit and avoid problems potentially caused by moving or renaming files.
+* The `url` tag is required, and should start and end with '/'
 
 
 ### Includes
@@ -221,7 +222,8 @@ baz
 
 Basic syntax:
 
-```[[collapse]]
+```
+[[collapse]]
 | ## Block title
 | Block content
 ```

@@ -1,5 +1,5 @@
 ---
-title: SonarCloud Security
+title: Security Statement
 url: /security/
 ---
 
