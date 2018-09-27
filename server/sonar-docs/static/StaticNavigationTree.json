@@ -1,37 +1,16 @@
 [
   {
-    "title": "Architecture and Integration",
-    "children": [
-      "/architecture/architecture-integration/"
-    ]
-  },
-  {
     "title": "Requirements",
-    "children": [
-      "/requirements/requirements/",
-      "/requirements/benchmark/",
-      "/requirements/hardware-recommendations/"
-    ]
+    "children": []
   },
   {
     "title": "Setup and Upgrade",
-    "children": [
-      "/setup/overview/",
-      "/setup/get-started-2-minutes/",
-      "/setup/install-server/",
-      "/setup/operate-server/",
-      "/setup/install-plugin/",
-      "/setup/install-cluster/",
-      "/setup/upgrading/",
-      "/setup/upgrade-notes/",
-      "/setup/troubleshooting/"
-    ]
+    "children": []
   },
   {
     "title": "Analyzing Source Code",
     "children": [
       "/analysis/overview/",
-      "/analysis/analysis-parameters/",
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
@@ -52,54 +31,24 @@
     "title": "User Guide",
     "children": [
       "/user-guide/fixing-the-water-leak/",
-      "/user-guide/project-page/",
-      "/user-guide/applications/",
-      "/user-guide/portfolios/",
-      "/user-guide/issues/",
-      "/user-guide/rules/",
-      "/user-guide/security-rules/",
-      "/user-guide/built-in-rule-tags/",
+      "/user-guide/keyboard-shortcuts/",
       "/user-guide/quality-gates/",
       "/user-guide/metric-definitions/",
       "/user-guide/security-reports/",
-      "/user-guide/user-account/",
-      "/user-guide/keyboard-shortcuts/"
+      "/user-guide/user-account/"
     ]
   },
   {
     "title": "Project Administration",
-    "children": [
-      "/project-administration/project-existence/",
-      "/project-administration/managing-project-history/",
-      "/project-administration/narrowing-the-focus/",
-      "/project-administration/portfolio-pdf-configuration/",
-      "/project-administration/project-settings/",
-      "/project-administration/webhooks/"
-    ]
+    "children": ["/project-administration/webhooks/"]
   },
   {
     "title": "Instance Administration",
     "children": [
-      "/instance-administration/configuring-portfolios-and-applications/",
       "/instance-administration/custom-measures/",
-      "/instance-administration/git-integration/",
-      "/instance-administration/project-move/",
       "/instance-administration/housekeeping/",
       "/instance-administration/look-and-feel/",
-      "/instance-administration/quality-profiles/",
-      "/instance-administration/security/",
-      "/instance-administration/delegated-auth/",
-      "/instance-administration/system-info/"
+      "/instance-administration/quality-profiles/"
     ]
-  }, "/previous-versions/"
-  , {
-    "title": "Scanners",
-    "url": "https://docs.sonarqube.org/display/SCAN"
-  }, {
-    "title": "Plugins",
-    "url": "https://docs.sonarqube.org/display/PLUG"
-  }, {
-    "title": "Extension",
-    "url": "https://docs.sonarqube.org/display/DEV"
   }
 ]

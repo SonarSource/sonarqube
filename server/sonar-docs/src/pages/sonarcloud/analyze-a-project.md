@@ -8,7 +8,7 @@ url: /analyze-a-project/
 A project must belong to an [organization](/organizations/overview/). Create one if you intend to collaborate with your team mates, or use your personal organization for test purposes.
 
 [[info]]
-| ** Important note for private code:** Newly created organizations and personal organizations are under a free plan by default. This means projects analyzed on these organizations are public by default: the code will be browsable by anyone. If you want private projects, you should [upgrade your organization to a paid plan](/sonarcloud-pricing/).
+| ** Important note for private code:** Newly created organizations and personal organizations are under a free plan by default. This means projects analyzed on these organizations are public by default: the code will be browsable by anyone. If you want private projects, you should [upgrade your organization to a paid plan](/sonarcloud-pricing/) in the "Administration > Billing" page of your organization.
 
 Find the key of your organization, you will need it at later stages. It can be found on the top right corner of your organization's header.
 

@@ -1,5 +1,5 @@
 ---
-title: Privacy Policy
+title: Privacy
 url: /privacy/
 ---
 

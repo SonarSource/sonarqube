@@ -1,28 +1,22 @@
 [
-  {
-    "title": "Getting Started",
-    "children": [
-      "/analyze-a-project/"
-    ]
-  },
-  {
-    "title": "Integrations",
-    "children": [
-      "/integrations/bitbucketcloud/", 
-      "/integrations/github/", 
-      "/integrations/vsts/"
-    ]
-  },
+  "/privacy/",
+  "/security/",
+  "/sonarcloud-pricing/",
+  "/analyze-a-project/",
   {
     "title": "Analyzing Source Code",
     "children": [
       "/analysis/overview/",
-      "/analysis/analysis-parameters/",
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
-      "/analysis/pull-request/"
+      "/analysis/pull-request/",
+      "/analysis/scm-integration/"
     ]
+  },
+  {
+    "title": "Integrations",
+    "children": ["/integrations/bitbucketcloud/", "/integrations/github/", "/integrations/vsts/"]
   },
   {
     "title": "Branches",
@@ -37,40 +31,24 @@
     "title": "User Guide",
     "children": [
       "/user-guide/fixing-the-water-leak/",
-      "/user-guide/project-page/",
-      "/user-guide/issues/",
-      "/user-guide/rules/",
-      "/user-guide/security-rules/",
-      "/user-guide/built-in-rule-tags/",
+      "/user-guide/keyboard-shortcuts/",
       "/user-guide/quality-gates/",
       "/instance-administration/quality-profiles/",
       "/user-guide/metric-definitions/",
       "/user-guide/security-reports/",
-      "/user-guide/user-account/",
-      "/user-guide/keyboard-shortcuts/"
+      "/user-guide/user-account/"
     ]
   },
   {
-    "title": "Project Admin Guide",
-    "children": [
-      "/project-administration/webhooks/",
-      "/project-administration/narrowing-the-focus/"
-    ]
+    "title": "Project Administration",
+    "children": ["/project-administration/webhooks/"]
   },
   {
-    "title": "Organization Admin Guide",
+    "title": "Organizations",
     "children": [
       "/organizations/overview/",
       "/organizations/manage-team/",
       "/organizations/organization-visibility/"
-    ]
-  },
-  {
-    "title": "Appendices",
-    "children": [
-      "/sonarcloud-pricing/",
-      "/privacy/",
-      "/security/"
     ]
   }
 ]
