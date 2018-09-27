@@ -22,9 +22,6 @@ import App from './App';
 import forSingleOrganization from '../../organizations/forSingleOrganization';
 import { getAppState } from '../../../store/rootReducer';
 
-const mapStateToProps = state => ({
-  // treat applications as portfolios
-  topQualifiers: getAppState(state).qualifiers.filter(q => q !== 'APP')
-});
+const mapStateToProps = state => ({ topQualifiers: getAppState(state).qualifiers });
 
 export default forSingleOrganization(connect(mapStateToProps)(App));

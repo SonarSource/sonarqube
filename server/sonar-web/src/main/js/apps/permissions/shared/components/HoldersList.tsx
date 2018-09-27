@@ -55,7 +55,7 @@ export default class HoldersList extends React.PureComponent<Props> {
   renderItem(item: PermissionUser | PermissionGroup, permissions: PermissionDefinitions) {
     return this.isPermissionUser(item) ? (
       <UserHolder
-        key={'user-' + item.login}
+        key={`user-${item.login}`}
         onToggle={this.props.onToggleUser}
         permissions={permissions}
         selectedPermission={this.props.selectedPermission}
@@ -64,7 +64,7 @@ export default class HoldersList extends React.PureComponent<Props> {
     ) : (
       <GroupHolder
         group={item}
-        key={'group-' + item.id}
+        key={`group-${item.id || item.name}`}
         onToggle={this.props.onToggleGroup}
         permissions={permissions}
         selectedPermission={this.props.selectedPermission}

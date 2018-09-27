@@ -170,9 +170,9 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
         {this.state.governanceReady &&
           this.state.createPortfolio && (
             <CreateFormShim
+              defaultQualifier={defaultQualifier}
               onClose={this.closeCreatePortfolioForm}
               onCreate={this.handleCreatePortfolio}
-              defaultQualifier={defaultQualifier}
             />
           )}
       </>
