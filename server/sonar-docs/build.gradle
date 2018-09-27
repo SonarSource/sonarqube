@@ -18,7 +18,7 @@ yarn_run {
   args = ['build']
 }
 
-task yarn_validate_ci() {
+task "yarn_validate-ci"() {
 
 }
 
