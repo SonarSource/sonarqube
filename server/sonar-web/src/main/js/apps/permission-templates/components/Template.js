@@ -20,12 +20,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import { debounce } from 'lodash';
 import TemplateHeader from './TemplateHeader';
 import TemplateDetails from './TemplateDetails';
 import HoldersList from '../../permissions/shared/components/HoldersList';
 import SearchForm from '../../permissions/shared/components/SearchForm';
-import { PERMISSIONS_ORDER_FOR_PROJECT } from '../../permissions/project/constants';
+import {
+  convertToPermissionDefinitions,
+  PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE
+} from '../../permissions/utils';
 import * as api from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
 
@@ -165,11 +167,10 @@ export default class Template extends React.PureComponent {
   };
 
   render() {
-    const permissions = PERMISSIONS_ORDER_FOR_PROJECT.map(p => ({
-      key: p,
-      name: translate('projects_role', p),
-      description: translate('projects_role', p, 'desc')
-    }));
+    const permissions = convertToPermissionDefinitions(
+      PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
+      'projects_role'
+    );
 
     const allUsers = [...this.state.users];
 

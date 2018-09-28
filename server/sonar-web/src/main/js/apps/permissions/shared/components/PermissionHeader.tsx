@@ -18,15 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
-import Tooltip from '../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { Permission } from '../../../../app/types';
+import { PermissionDefinition, PermissionDefinitionGroup } from '../../../../app/types';
+import { isPermissionDefinitionGroup } from '../../utils';
+import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
-  onSelectPermission: (permission: string) => void;
-  permission: Permission;
+  onSelectPermission?: (permission: string) => void;
+  permission: PermissionDefinition | PermissionDefinitionGroup;
   selectedPermission?: string;
   showPublicProjectsWarning?: boolean;
 }
@@ -35,42 +37,68 @@ export default class PermissionHeader extends React.PureComponent<Props> {
   handlePermissionClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.props.onSelectPermission(this.props.permission.key);
+    const { permission } = this.props;
+    if (this.props.onSelectPermission && !isPermissionDefinitionGroup(permission)) {
+      this.props.onSelectPermission(permission.key);
+    }
   };
 
-  renderTooltip = (permission: Permission) => {
-    if (this.props.showPublicProjectsWarning && ['user', 'codeviewer'].includes(permission.key)) {
-      return (
-        <div>
-          <InstanceMessage message={permission.description} />
-          <div className="alert alert-warning spacer-top">
-            {translate('projects_role.public_projects_warning')}
+  getTooltipOverlay = () => {
+    const { permission } = this.props;
+
+    if (isPermissionDefinitionGroup(permission)) {
+      return permission.permissions.map(permission => (
+        <>
+          <b className="little-spacer-right">{permission.name}:</b>
+          <InstanceMessage key={permission.key} message={permission.description} />
+          <br />
+        </>
+      ));
+    } else {
+      if (this.props.showPublicProjectsWarning && ['user', 'codeviewer'].includes(permission.key)) {
+        return (
+          <div>
+            <InstanceMessage message={permission.description} />
+            <div className="alert alert-warning spacer-top">
+              {translate('projects_role.public_projects_warning')}
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
+      return <InstanceMessage message={permission.description} />;
     }
-    return <InstanceMessage message={permission.description} />;
   };
 
   render() {
-    const { permission, selectedPermission } = this.props;
+    const { onSelectPermission, permission } = this.props;
+    let name;
+    if (isPermissionDefinitionGroup(permission)) {
+      name = translate('global_permissions', permission.category);
+    } else {
+      name = onSelectPermission ? (
+        <Tooltip
+          overlay={translateWithParameters(
+            'global_permissions.filter_by_x_permission',
+            permission.name
+          )}>
+          <a href="#" onClick={this.handlePermissionClick}>
+            {permission.name}
+          </a>
+        </Tooltip>
+      ) : (
+        permission.name
+      );
+    }
     return (
       <th
-        className="permission-column text-center"
-        style={{
-          backgroundColor: permission.key === selectedPermission ? '#d9edf7' : 'transparent'
-        }}>
+        className={classNames('permission-column text-center text-middle', {
+          selected:
+            !isPermissionDefinitionGroup(permission) &&
+            permission.key === this.props.selectedPermission
+        })}>
         <div className="permission-column-inner">
-          <Tooltip
-            overlay={translateWithParameters(
-              'global_permissions.filter_by_x_permission',
-              permission.name
-            )}>
-            <a className="text-middle" href="#" onClick={this.handlePermissionClick}>
-              {permission.name}
-            </a>
-          </Tooltip>
-          <HelpTooltip className="spacer-left" overlay={this.renderTooltip(permission)} />
+          {name}
+          <HelpTooltip className="spacer-left" overlay={this.getTooltipOverlay()} />
         </div>
       </th>
     );

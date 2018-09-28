@@ -34,14 +34,13 @@ interface Props {
 }
 
 interface State {
-  filter: string;
+  filter: 'all' | 'groups' | 'users';
   groups: PermissionGroup[];
-  groupsPaging: Paging;
+  groupsPaging?: Paging;
   loading: boolean;
   query: string;
-  selectedPermission?: string;
   users: PermissionUser[];
-  usersPaging: Paging;
+  usersPaging?: Paging;
 }
 
 export class App extends React.PureComponent<Props, State> {
@@ -52,11 +51,9 @@ export class App extends React.PureComponent<Props, State> {
     this.state = {
       filter: 'all',
       groups: [],
-      groupsPaging: { pageIndex: 1, pageSize: 100, total: 0 },
       loading: true,
       query: '',
-      users: [],
-      usersPaging: { pageIndex: 1, pageSize: 100, total: 0 }
+      users: []
     };
   }
 
@@ -71,37 +68,25 @@ export class App extends React.PureComponent<Props, State> {
 
   loadUsersAndGroups = (userPage?: number, groupsPage?: number) => {
     const { organization } = this.props;
-    const { filter, query, selectedPermission } = this.state;
+    const { filter, query } = this.state;
 
-    const getUsers =
+    const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
       filter !== 'groups'
         ? api.getGlobalPermissionsUsers({
             q: query || undefined,
-            permission: selectedPermission,
             organization: organization && organization.key,
             p: userPage
           })
-        : Promise.resolve({
-            paging: {
-              pageIndex: 1,
-              pageSize: 100,
-              total: 0
-            },
-            users: []
-          });
+        : Promise.resolve({ paging: undefined, users: [] });
 
-    const getGroups =
+    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
       filter !== 'users'
         ? api.getGlobalPermissionsGroups({
             q: query || undefined,
-            permission: selectedPermission,
             organization: organization && organization.key,
             p: groupsPage
           })
-        : Promise.resolve({
-            paging: { pageIndex: 1, pageSize: 100, total: 0 },
-            groups: []
-          });
+        : Promise.resolve({ paging: undefined, groups: [] });
 
     return Promise.all([getUsers, getGroups]);
   };
@@ -122,10 +107,11 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   onLoadMore = () => {
+    const { usersPaging, groupsPaging } = this.state;
     this.setState({ loading: true });
     return this.loadUsersAndGroups(
-      this.state.usersPaging.pageIndex + 1,
-      this.state.groupsPaging.pageIndex + 1
+      usersPaging ? usersPaging.pageIndex + 1 : 1,
+      groupsPaging ? groupsPaging.pageIndex + 1 : 1
     ).then(([usersResponse, groupsResponse]) => {
       if (this.mounted) {
         this.setState(({ groups, users }) => ({
@@ -139,21 +125,12 @@ export class App extends React.PureComponent<Props, State> {
     }, this.stopLoading);
   };
 
-  onFilter = (filter: string) => {
+  onFilter = (filter: 'all' | 'groups' | 'users') => {
     this.setState({ filter }, this.loadHolders);
   };
 
   onSearch = (query: string) => {
     this.setState({ query }, this.loadHolders);
-  };
-
-  onSelectPermission = (permission: string) => {
-    this.setState(
-      ({ selectedPermission }) => ({
-        selectedPermission: selectedPermission !== permission ? permission : undefined
-      }),
-      this.loadHolders
-    );
   };
 
   addPermissionToGroup = (groups: PermissionGroup[], group: string, permission: string) => {
@@ -315,11 +292,9 @@ export class App extends React.PureComponent<Props, State> {
           onFilter={this.onFilter}
           onLoadMore={this.onLoadMore}
           onSearch={this.onSearch}
-          onSelectPermission={this.onSelectPermission}
           query={this.state.query}
           revokePermissionFromGroup={this.revokePermissionFromGroup}
           revokePermissionFromUser={this.revokePermissionFromUser}
-          selectedPermission={this.state.selectedPermission}
           users={this.state.users}
           usersPaging={this.state.usersPaging}
         />

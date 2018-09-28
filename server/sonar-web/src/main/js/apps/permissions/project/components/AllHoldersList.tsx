@@ -21,8 +21,8 @@ import * as React from 'react';
 import { without } from 'lodash';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
-import { translate } from '../../../../helpers/l10n';
-import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
+import ListFooter from '../../../../components/controls/ListFooter';
+import { PERMISSIONS_ORDER_BY_QUALIFIER, convertToPermissionDefinitions } from '../../utils';
 import {
   Component,
   Paging,
@@ -30,7 +30,6 @@ import {
   PermissionUser,
   Visibility
 } from '../../../../app/types';
-import ListFooter from '../../../../components/controls/ListFooter';
 
 interface Props {
   component: Component;
@@ -38,8 +37,8 @@ interface Props {
   grantPermissionToGroup: (group: string, permission: string) => Promise<void>;
   grantPermissionToUser: (user: string, permission: string) => Promise<void>;
   groups: PermissionGroup[];
-  groupsPaging: Paging;
-  onLoadMore: (usersPageIndex: number, groupsPageIndex: number) => void;
+  groupsPaging?: Paging;
+  onLoadMore: () => void;
   onFilterChange: (filter: string) => void;
   onPermissionSelect: (permissions?: string) => void;
   onQueryChange: (query: string) => void;
@@ -48,7 +47,7 @@ interface Props {
   revokePermissionFromUser: (user: string, permission: string) => Promise<void>;
   selectedPermission?: string;
   users: PermissionUser[];
-  usersPaging: Paging;
+  usersPaging?: Paging;
   visibility?: Visibility;
 }
 
@@ -77,31 +76,24 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     this.props.onPermissionSelect(permission);
   };
 
-  handleLoadMore = () => {
-    this.props.onLoadMore(
-      this.props.usersPaging.pageIndex + 1,
-      this.props.groupsPaging.pageIndex + 1
-    );
-  };
-
   render() {
+    const { filter, groups, groupsPaging, users, usersPaging } = this.props;
     let order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
     if (this.props.visibility === Visibility.Public) {
       order = without(order, 'user', 'codeviewer');
     }
+    const permissions = convertToPermissionDefinitions(order, 'projects_role');
 
-    const permissions = order.map(p => ({
-      key: p,
-      name: translate('projects_role', p),
-      description: translate('projects_role', p, 'desc')
-    }));
-
-    const count =
-      (this.props.filter !== 'users' ? this.props.groups.length : 0) +
-      (this.props.filter !== 'groups' ? this.props.users.length : 0);
-    const total =
-      (this.props.filter !== 'users' ? this.props.groupsPaging.total : 0) +
-      (this.props.filter !== 'groups' ? this.props.usersPaging.total : 0);
+    let count = 0;
+    let total = 0;
+    if (filter !== 'users') {
+      count += groups.length;
+      total += groupsPaging ? groupsPaging.total : groups.length;
+    }
+    if (filter !== 'groups') {
+      count += users.length;
+      total += usersPaging ? usersPaging.total : users.length;
+    }
 
     return (
       <>
@@ -120,7 +112,7 @@ export default class AllHoldersList extends React.PureComponent<Props> {
             query={this.props.query}
           />
         </HoldersList>
-        <ListFooter count={count} loadMore={this.handleLoadMore} total={total} />
+        <ListFooter count={count} loadMore={this.props.onLoadMore} total={total} />
       </>
     );
   }

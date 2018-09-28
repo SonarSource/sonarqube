@@ -18,20 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { groupBy } from 'lodash';
+import { partition, sortBy } from 'lodash';
 import UserHolder from './UserHolder';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';
 import { translate } from '../../../../helpers/l10n';
-import { Permission, PermissionGroup, PermissionUser } from '../../../../app/types';
+import { PermissionGroup, PermissionUser, PermissionDefinitions } from '../../../../app/types';
+import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {
   loading?: boolean;
   groups: PermissionGroup[];
-  onSelectPermission: (permission: string) => void;
+  onSelectPermission?: (permission: string) => void;
   onToggleGroup: (group: PermissionGroup, permission: string) => Promise<void>;
   onToggleUser: (user: PermissionUser, permission: string) => Promise<void>;
-  permissions: Permission[];
+  permissions: PermissionDefinitions;
   selectedPermission?: string;
   showPublicProjectsWarning?: boolean;
   users: PermissionUser[];
@@ -40,27 +41,6 @@ interface Props {
 export default class HoldersList extends React.PureComponent<Props> {
   isPermissionUser(item: PermissionGroup | PermissionUser): item is PermissionUser {
     return (item as PermissionUser).login !== undefined;
-  }
-
-  renderTableHeader() {
-    const { onSelectPermission, selectedPermission, showPublicProjectsWarning } = this.props;
-    const cells = this.props.permissions.map(p => (
-      <PermissionHeader
-        key={p.key}
-        onSelectPermission={onSelectPermission}
-        permission={p}
-        selectedPermission={selectedPermission}
-        showPublicProjectsWarning={showPublicProjectsWarning}
-      />
-    ));
-    return (
-      <thead>
-        <tr>
-          <td className="nowrap bordered-bottom">{this.props.children}</td>
-          {cells}
-        </tr>
-      </thead>
-    );
   }
 
   renderEmpty() {
@@ -72,65 +52,71 @@ export default class HoldersList extends React.PureComponent<Props> {
     );
   }
 
-  renderItem(item: PermissionUser | PermissionGroup, permissionsOrder: string[]) {
-    return this.isPermissionUser(item)
-      ? this.renderUser(item, permissionsOrder)
-      : this.renderGroup(item, permissionsOrder);
-  }
-
-  renderUser(user: PermissionUser, permissionsOrder: string[]) {
-    return (
+  renderItem(item: PermissionUser | PermissionGroup, permissions: PermissionDefinitions) {
+    return this.isPermissionUser(item) ? (
       <UserHolder
-        key={'user-' + user.login}
+        key={'user-' + item.login}
         onToggle={this.props.onToggleUser}
-        permissions={user.permissions}
-        permissionsOrder={permissionsOrder}
+        permissions={permissions}
         selectedPermission={this.props.selectedPermission}
-        user={user}
+        user={item}
       />
-    );
-  }
-
-  renderGroup(group: PermissionGroup, permissionsOrder: string[]) {
-    return (
+    ) : (
       <GroupHolder
-        group={group}
-        key={'group-' + group.id}
+        group={item}
+        key={'group-' + item.id}
         onToggle={this.props.onToggleGroup}
-        permissions={group.permissions}
-        permissionsOrder={permissionsOrder}
+        permissions={permissions}
         selectedPermission={this.props.selectedPermission}
       />
     );
   }
 
   render() {
-    const permissionsOrder = this.props.permissions.map(p => p.key);
-    const items = [...this.props.users, ...this.props.groups].sort((a, b) => {
-      return a.name < b.name ? -1 : 1;
+    const { permissions } = this.props;
+    const items = sortBy([...this.props.users, ...this.props.groups], item => {
+      if (this.isPermissionUser(item) && item.login === '<creator>') {
+        return 0;
+      }
+      return item.name;
     });
-
-    const { true: itemWithPermissions = [], false: itemWithoutPermissions = [] } = groupBy(
+    const [itemWithPermissions, itemWithoutPermissions] = partition(
       items,
       item => item.permissions.length > 0
     );
     return (
       <div className="boxed-group boxed-group-inner">
         <table className="data zebra permissions-table">
-          {this.renderTableHeader()}
+          <thead>
+            <tr>
+              <td className="nowrap bordered-bottom">{this.props.children}</td>
+              {permissions.map(permission => (
+                <PermissionHeader
+                  key={
+                    isPermissionDefinitionGroup(permission) ? permission.category : permission.key
+                  }
+                  onSelectPermission={this.props.onSelectPermission}
+                  permission={permission}
+                  selectedPermission={this.props.selectedPermission}
+                  showPublicProjectsWarning={this.props.showPublicProjectsWarning}
+                />
+              ))}
+            </tr>
+          </thead>
           <tbody>
             {items.length === 0 && !this.props.loading && this.renderEmpty()}
-            {itemWithPermissions.map(item => this.renderItem(item, permissionsOrder))}
+            {itemWithPermissions.map(item => this.renderItem(item, permissions))}
             {itemWithPermissions.length > 0 &&
               itemWithoutPermissions.length > 0 && (
                 <>
                   <tr>
-                    <td className="divider" colSpan={6} />
+                    <td className="divider" colSpan={20} />
                   </tr>
-                  <tr /> {/* Keep correct zebra colors in the table */}
+                  <tr />
+                  {/* Keep correct zebra colors in the table */}
                 </>
               )}
-            {itemWithoutPermissions.map(item => this.renderItem(item, permissionsOrder))}
+            {itemWithoutPermissions.map(item => this.renderItem(item, permissions))}
           </tbody>
         </table>
       </div>

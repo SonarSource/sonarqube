@@ -21,7 +21,16 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import HoldersList from '../HoldersList';
 
-const permissions = [{ key: 'bar', name: 'bar', description: 'foo' }];
+const permissions = [
+  { key: 'foo', name: 'Foo', description: '' },
+  {
+    category: 'admin',
+    permissions: [
+      { key: 'bar', name: 'Bar', description: '' },
+      { key: 'baz', name: 'Baz', description: '' }
+    ]
+  }
+];
 
 const groups = [
   { id: 'foobar', name: 'Foobar', permissions: ['bar'] },

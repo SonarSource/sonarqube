@@ -33,29 +33,35 @@ const groupHolder = (
     group={group}
     key="foo"
     onToggle={jest.fn(() => Promise.resolve())}
-    permissions={['bar']}
-    permissionsOrder={['bar', 'baz']}
+    permissions={[
+      {
+        category: 'admin',
+        permissions: [
+          { key: 'foo', name: 'Foo', description: '' },
+          { key: 'bar', name: 'Bar', description: '' }
+        ]
+      },
+      { key: 'baz', name: 'Baz', description: '' }
+    ]}
     selectedPermission={'bar'}
   />
 );
 
-it('should display checkboxes for permissions', () => {
+it('should render correctly', () => {
   expect(shallow(groupHolder)).toMatchSnapshot();
 });
 
-it('should disabled checkboxes when waiting for promise to return', async () => {
+it('should disabled PermissionCell checkboxes when waiting for promise to return', async () => {
   const wrapper = shallow(groupHolder);
   expect(wrapper.state().loading).toEqual([]);
 
   (wrapper.instance() as GroupHolder).handleCheck(true, 'baz');
   wrapper.update();
   expect(wrapper.state().loading).toEqual(['baz']);
-  expect(wrapper).toMatchSnapshot();
 
   (wrapper.instance() as GroupHolder).handleCheck(true, 'bar');
   wrapper.update();
   expect(wrapper.state().loading).toEqual(['baz', 'bar']);
-  expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toEqual([]);

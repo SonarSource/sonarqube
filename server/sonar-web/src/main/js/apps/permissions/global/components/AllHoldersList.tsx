@@ -18,36 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
-import { translate } from '../../../../helpers/l10n';
-import { Organization, Paging, PermissionGroup, PermissionUser } from '../../../../app/types';
 import ListFooter from '../../../../components/controls/ListFooter';
+import {
+  AppState,
+  Organization,
+  Paging,
+  PermissionGroup,
+  PermissionUser
+} from '../../../../app/types';
+import {
+  PERMISSIONS_ORDER_GLOBAL,
+  convertToPermissionDefinitions,
+  PERMISSIONS_ORDER_GLOBAL_GOV
+} from '../../utils';
+import { Store, getAppState } from '../../../../store/rootReducer';
 
-const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provisioning'];
+interface StateProps {
+  appState: Pick<AppState, 'qualifiers'>;
+}
 
-interface Props {
+interface OwnProps {
   filter: string;
   grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
   grantPermissionToUser: (login: string, permission: string) => Promise<void>;
   groups: PermissionGroup[];
-  groupsPaging: Paging;
+  groupsPaging?: Paging;
   loadHolders: () => void;
   loading?: boolean;
-  onLoadMore: (usersPageIndex: number, groupsPageIndex: number) => void;
+  onLoadMore: () => void;
   onFilter: (filter: string) => void;
   onSearch: (query: string) => void;
-  onSelectPermission: (permission: string) => void;
   organization?: Organization;
   query: string;
   revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
   revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
-  selectedPermission?: string;
   users: PermissionUser[];
-  usersPaging: Paging;
+  usersPaging?: Paging;
 }
 
-export default class AllHoldersList extends React.PureComponent<Props> {
+type Props = StateProps & OwnProps;
+
+export class AllHoldersList extends React.PureComponent<Props> {
   handleToggleUser = (user: PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
     if (hasPermission) {
@@ -67,38 +81,34 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     }
   };
 
-  handleLoadMore = () => {
-    this.props.onLoadMore(
-      this.props.usersPaging.pageIndex + 1,
-      this.props.groupsPaging.pageIndex + 1
-    );
-  };
-
   render() {
+    const { filter, groups, groupsPaging, users, usersPaging } = this.props;
     const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
-    const permissions = PERMISSIONS_ORDER.map(p => ({
-      key: p,
-      name: translate(l10nPrefix, p),
-      description: translate(l10nPrefix, p, 'desc')
-    }));
+    const governanceInstalled = this.props.appState.qualifiers.includes('VW');
+    const permissions = convertToPermissionDefinitions(
+      governanceInstalled ? PERMISSIONS_ORDER_GLOBAL_GOV : PERMISSIONS_ORDER_GLOBAL,
+      l10nPrefix
+    );
 
-    const count =
-      (this.props.filter !== 'users' ? this.props.groups.length : 0) +
-      (this.props.filter !== 'groups' ? this.props.users.length : 0);
-    const total =
-      (this.props.filter !== 'users' ? this.props.groupsPaging.total : 0) +
-      (this.props.filter !== 'groups' ? this.props.usersPaging.total : 0);
+    let count = 0;
+    let total = 0;
+    if (filter !== 'users') {
+      count += groups.length;
+      total += groupsPaging ? groupsPaging.total : groups.length;
+    }
+    if (filter !== 'groups') {
+      count += users.length;
+      total += usersPaging ? usersPaging.total : users.length;
+    }
 
     return (
       <>
         <HoldersList
           groups={this.props.groups}
           loading={this.props.loading}
-          onSelectPermission={this.props.onSelectPermission}
           onToggleGroup={this.handleToggleGroup}
           onToggleUser={this.handleToggleUser}
           permissions={permissions}
-          selectedPermission={this.props.selectedPermission}
           users={this.props.users}>
           <SearchForm
             filter={this.props.filter}
@@ -107,8 +117,14 @@ export default class AllHoldersList extends React.PureComponent<Props> {
             query={this.props.query}
           />
         </HoldersList>
-        <ListFooter count={count} loadMore={this.handleLoadMore} total={total} />
+        <ListFooter count={count} loadMore={this.props.onLoadMore} total={total} />
       </>
     );
   }
 }
+
+const mapStateToProps = (state: Store): StateProps => ({
+  appState: getAppState(state)
+});
+
+export default connect(mapStateToProps)(AllHoldersList);

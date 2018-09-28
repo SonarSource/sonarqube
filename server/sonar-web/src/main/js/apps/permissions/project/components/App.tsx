@@ -45,12 +45,12 @@ interface State {
   disclaimer: boolean;
   filter: string;
   groups: PermissionGroup[];
-  groupsPaging: Paging;
+  groupsPaging?: Paging;
   loading: boolean;
   query: string;
   selectedPermission?: string;
   users: PermissionUser[];
-  usersPaging: Paging;
+  usersPaging?: Paging;
 }
 
 export default class App extends React.PureComponent<Props, State> {
@@ -62,11 +62,9 @@ export default class App extends React.PureComponent<Props, State> {
       disclaimer: false,
       filter: 'all',
       groups: [],
-      groupsPaging: { pageIndex: 1, pageSize: 100, total: 0 },
       loading: true,
       query: '',
-      users: [],
-      usersPaging: { pageIndex: 1, pageSize: 100, total: 0 }
+      users: []
     };
   }
 
@@ -85,55 +83,67 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  loadHolders = (usersPageIndex?: number, groupsPageIndex?: number) => {
-    if (this.mounted) {
-      this.setState({ loading: true });
+  loadUsersAndGroups = (userPage?: number, groupsPage?: number) => {
+    const { component } = this.props;
+    const { filter, query, selectedPermission } = this.state;
 
-      const { component } = this.props;
-      const { filter, query, selectedPermission } = this.state;
+    const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
+      filter !== 'groups'
+        ? api.getPermissionsUsersForComponent({
+            projectKey: component.key,
+            q: query || undefined,
+            permission: selectedPermission,
+            organization: component.organization,
+            p: userPage
+          })
+        : Promise.resolve({ paging: undefined, users: [] });
 
-      const getUsers =
-        filter !== 'groups'
-          ? api.getPermissionsUsersForComponent({
-              projectKey: component.key,
-              q: query || undefined,
-              permission: selectedPermission,
-              organization: component.organization,
-              p: usersPageIndex
-            })
-          : Promise.resolve({
-              paging: { pageIndex: 1, pageSize: 100, total: 0 },
-              users: []
-            });
+    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
+      filter !== 'users'
+        ? api.getPermissionsGroupsForComponent({
+            projectKey: component.key,
+            q: query || undefined,
+            permission: selectedPermission,
+            organization: component.organization,
+            p: groupsPage
+          })
+        : Promise.resolve({ paging: undefined, groups: [] });
 
-      const getGroups =
-        filter !== 'users'
-          ? api.getPermissionsGroupsForComponent({
-              projectKey: component.key,
-              q: query || undefined,
-              permission: selectedPermission,
-              organization: component.organization,
-              p: groupsPageIndex
-            })
-          : Promise.resolve({
-              paging: { pageIndex: 1, pageSize: 100, total: 0 },
-              groups: []
-            });
+    return Promise.all([getUsers, getGroups]);
+  };
 
-      Promise.all([getUsers, getGroups]).then(responses => {
-        if (this.mounted) {
-          this.setState(state => ({
-            loading: false,
-            groups: groupsPageIndex
-              ? [...state.groups, ...responses[1].groups]
-              : responses[1].groups,
-            groupsPaging: responses[1].paging,
-            users: usersPageIndex ? [...state.users, ...responses[0].users] : responses[0].users,
-            usersPaging: responses[0].paging
-          }));
-        }
-      }, this.stopLoading);
-    }
+  loadHolders = () => {
+    this.setState({ loading: true });
+    return this.loadUsersAndGroups().then(([usersResponse, groupsResponse]) => {
+      if (this.mounted) {
+        this.setState({
+          groups: groupsResponse.groups,
+          groupsPaging: groupsResponse.paging,
+          loading: false,
+          users: usersResponse.users,
+          usersPaging: usersResponse.paging
+        });
+      }
+    }, this.stopLoading);
+  };
+
+  onLoadMore = () => {
+    const { usersPaging, groupsPaging } = this.state;
+    this.setState({ loading: true });
+    return this.loadUsersAndGroups(
+      usersPaging ? usersPaging.pageIndex + 1 : 1,
+      groupsPaging ? groupsPaging.pageIndex + 1 : 1
+    ).then(([usersResponse, groupsResponse]) => {
+      if (this.mounted) {
+        this.setState(({ groups, users }) => ({
+          groups: [...groups, ...groupsResponse.groups],
+          groupsPaging: groupsResponse.paging,
+          loading: false,
+          users: [...users, ...usersResponse.users],
+          usersPaging: usersResponse.paging
+        }));
+      }
+    }, this.stopLoading);
   };
 
   handleFilterChange = (filter: string) => {
@@ -344,10 +354,6 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  handleLoadMore = (usersPageIndex: number, groupsPageIndex: number) => {
-    this.loadHolders(usersPageIndex, groupsPageIndex);
-  };
-
   render() {
     const canTurnToPrivate =
       this.props.component.configuration != null &&
@@ -389,7 +395,7 @@ export default class App extends React.PureComponent<Props, State> {
           groups={this.state.groups}
           groupsPaging={this.state.groupsPaging}
           onFilterChange={this.handleFilterChange}
-          onLoadMore={this.handleLoadMore}
+          onLoadMore={this.onLoadMore}
           onPermissionSelect={this.handlePermissionSelect}
           onQueryChange={this.handleQueryChange}
           query={this.state.query}

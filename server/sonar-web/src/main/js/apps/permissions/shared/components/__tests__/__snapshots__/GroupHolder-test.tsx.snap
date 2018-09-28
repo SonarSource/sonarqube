@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should disabled checkboxes when waiting for promise to return 1`] = `
+exports[`should render correctly 1`] = `
 <tr>
   <td
-    className="nowrap"
+    className="nowrap text-middle"
   >
     <div
       className="display-inline-block text-middle big-spacer-right"
@@ -28,169 +28,59 @@ exports[`should disabled checkboxes when waiting for promise to return 1`] = `
       />
     </div>
   </td>
-  <td
-    className="text-center text-middle"
-    key="bar"
-    style={
+  <PermissionCell
+    key="admin"
+    loading={Array []}
+    onCheck={[Function]}
+    permission={
       Object {
-        "backgroundColor": "#d9edf7",
-      }
-    }
-  >
-    <Checkbox
-      checked={true}
-      disabled={false}
-      id="bar"
-      onCheck={[Function]}
-      thirdState={false}
-    />
-  </td>
-  <td
-    className="text-center text-middle"
-    key="baz"
-    style={
-      Object {
-        "backgroundColor": "transparent",
-      }
-    }
-  >
-    <Checkbox
-      checked={false}
-      disabled={true}
-      id="baz"
-      onCheck={[Function]}
-      thirdState={false}
-    />
-  </td>
-</tr>
-`;
-
-exports[`should disabled checkboxes when waiting for promise to return 2`] = `
-<tr>
-  <td
-    className="nowrap"
-  >
-    <div
-      className="display-inline-block text-middle big-spacer-right"
-    >
-      <GroupIcon />
-    </div>
-    <div
-      className="display-inline-block text-middle"
-    >
-      <div>
-        <strong>
-          Foobar
-        </strong>
-      </div>
-      <div
-        className="little-spacer-top"
-        style={
+        "category": "admin",
+        "permissions": Array [
           Object {
-            "whiteSpace": "normal",
-          }
-        }
-      />
-    </div>
-  </td>
-  <td
-    className="text-center text-middle"
-    key="bar"
-    style={
-      Object {
-        "backgroundColor": "#d9edf7",
-      }
-    }
-  >
-    <Checkbox
-      checked={true}
-      disabled={true}
-      id="bar"
-      onCheck={[Function]}
-      thirdState={false}
-    />
-  </td>
-  <td
-    className="text-center text-middle"
-    key="baz"
-    style={
-      Object {
-        "backgroundColor": "transparent",
-      }
-    }
-  >
-    <Checkbox
-      checked={false}
-      disabled={true}
-      id="baz"
-      onCheck={[Function]}
-      thirdState={false}
-    />
-  </td>
-</tr>
-`;
-
-exports[`should display checkboxes for permissions 1`] = `
-<tr>
-  <td
-    className="nowrap"
-  >
-    <div
-      className="display-inline-block text-middle big-spacer-right"
-    >
-      <GroupIcon />
-    </div>
-    <div
-      className="display-inline-block text-middle"
-    >
-      <div>
-        <strong>
-          Foobar
-        </strong>
-      </div>
-      <div
-        className="little-spacer-top"
-        style={
+            "description": "",
+            "key": "foo",
+            "name": "Foo",
+          },
           Object {
-            "whiteSpace": "normal",
-          }
-        }
-      />
-    </div>
-  </td>
-  <td
-    className="text-center text-middle"
-    key="bar"
-    style={
-      Object {
-        "backgroundColor": "#d9edf7",
+            "description": "",
+            "key": "bar",
+            "name": "Bar",
+          },
+        ],
       }
     }
-  >
-    <Checkbox
-      checked={true}
-      disabled={false}
-      id="bar"
-      onCheck={[Function]}
-      thirdState={false}
-    />
-  </td>
-  <td
-    className="text-center text-middle"
+    permissionItem={
+      Object {
+        "id": "foobar",
+        "name": "Foobar",
+        "permissions": Array [
+          "bar",
+        ],
+      }
+    }
+    selectedPermission="bar"
+  />
+  <PermissionCell
     key="baz"
-    style={
+    loading={Array []}
+    onCheck={[Function]}
+    permission={
       Object {
-        "backgroundColor": "transparent",
+        "description": "",
+        "key": "baz",
+        "name": "Baz",
       }
     }
-  >
-    <Checkbox
-      checked={false}
-      disabled={false}
-      id="baz"
-      onCheck={[Function]}
-      thirdState={false}
-    />
-  </td>
+    permissionItem={
+      Object {
+        "id": "foobar",
+        "name": "Foobar",
+        "permissions": Array [
+          "bar",
+        ],
+      }
+    }
+    selectedPermission="bar"
+  />
 </tr>
 `;

@@ -19,17 +19,17 @@
  */
 import * as React from 'react';
 import { without } from 'lodash';
+import PermissionCell from './PermissionCell';
 import Avatar from '../../../../components/ui/Avatar';
-import Checkbox from '../../../../components/controls/Checkbox';
 import { translate } from '../../../../helpers/l10n';
-import { PermissionUser } from '../../../../app/types';
+import { PermissionDefinitions, PermissionUser } from '../../../../app/types';
+import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {
-  user: PermissionUser;
-  permissions: string[];
-  selectedPermission?: string;
-  permissionsOrder: string[];
   onToggle: (user: PermissionUser, permission: string) => Promise<void>;
+  permissions: PermissionDefinitions;
+  selectedPermission?: string;
+  user: PermissionUser;
 }
 
 interface State {
@@ -64,26 +64,22 @@ export default class UserHolder extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { selectedPermission } = this.props;
-    const permissionCells = this.props.permissionsOrder.map(permission => (
-      <td
-        className="text-center text-middle"
-        key={permission}
-        style={{ backgroundColor: permission === selectedPermission ? '#d9edf7' : 'transparent' }}>
-        <Checkbox
-          checked={this.props.permissions.includes(permission)}
-          disabled={this.state.loading.includes(permission)}
-          id={permission}
-          onCheck={this.handleCheck}
-        />
-      </td>
+    const { user } = this.props;
+    const permissionCells = this.props.permissions.map(permission => (
+      <PermissionCell
+        key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
+        loading={this.state.loading}
+        onCheck={this.handleCheck}
+        permission={permission}
+        permissionItem={user}
+        selectedPermission={this.props.selectedPermission}
+      />
     ));
 
-    const { user } = this.props;
     if (user.login === '<creator>') {
       return (
         <tr>
-          <td className="nowrap">
+          <td className="nowrap text-middle">
             <div className="display-inline-block text-middle">
               <div>
                 <strong>{user.name}</strong>
@@ -100,7 +96,7 @@ export default class UserHolder extends React.PureComponent<Props, State> {
 
     return (
       <tr>
-        <td className="nowrap">
+        <td className="nowrap text-middle">
           <Avatar
             className="text-middle big-spacer-right"
             hash={user.avatar}

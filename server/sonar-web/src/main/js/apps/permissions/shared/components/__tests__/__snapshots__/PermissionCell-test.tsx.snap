@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display disabled checkbox 1`] = `
+<td
+  className="permission-column text-center text-middle"
+>
+  <Checkbox
+    checked={false}
+    disabled={true}
+    id="baz"
+    onCheck={[MockFunction]}
+    thirdState={false}
+  />
+</td>
+`;
+
+exports[`should display multiple checkboxes with one checked 1`] = `
+<td
+  className="text-middle"
+>
+  <div
+    key="foo"
+  >
+    <Checkbox
+      checked={false}
+      disabled={false}
+      id="foo"
+      onCheck={[MockFunction]}
+      thirdState={false}
+    >
+      <span
+        className="little-spacer-left"
+      >
+        Foo
+      </span>
+    </Checkbox>
+  </div>
+  <div
+    key="bar"
+  >
+    <Checkbox
+      checked={true}
+      disabled={false}
+      id="bar"
+      onCheck={[MockFunction]}
+      thirdState={false}
+    >
+      <span
+        className="little-spacer-left"
+      >
+        Bar
+      </span>
+    </Checkbox>
+  </div>
+</td>
+`;
+
+exports[`should display selected checkbox 1`] = `
+<td
+  className="permission-column text-center text-middle selected"
+>
+  <Checkbox
+    checked={false}
+    disabled={false}
+    id="baz"
+    onCheck={[MockFunction]}
+    thirdState={false}
+  />
+</td>
+`;
+
+exports[`should display unchecked checkbox 1`] = `
+<td
+  className="permission-column text-center text-middle"
+>
+  <Checkbox
+    checked={false}
+    disabled={false}
+    id="baz"
+    onCheck={[MockFunction]}
+    thirdState={false}
+  />
+</td>
+`;

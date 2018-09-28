@@ -537,25 +537,32 @@ export enum PeriodMode {
   PreviousVersion = 'previous_version'
 }
 
-export interface Permission {
+export interface PermissionDefinition {
   key: string;
   name: string;
   description: string;
 }
 
+export type PermissionDefinitions = Array<PermissionDefinition | PermissionDefinitionGroup>;
+
+export interface PermissionDefinitionGroup {
+  category: string;
+  permissions: PermissionDefinition[];
+}
+
 export interface PermissionGroup {
+  description?: string;
   id?: string;
   name: string;
-  description?: string;
   permissions: string[];
 }
 
 export interface PermissionUser {
+  avatar?: string;
+  email?: string;
   login: string;
   name: string;
-  email?: string;
   permissions: string[];
-  avatar?: string;
 }
 
 export interface PermissionTemplate {

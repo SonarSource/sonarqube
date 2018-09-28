@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import { without } from 'lodash';
-import Checkbox from '../../../../components/controls/Checkbox';
+import PermissionCell from './PermissionCell';
 import GroupIcon from '../../../../components/icons-components/GroupIcon';
-import { PermissionGroup } from '../../../../app/types';
+import { PermissionDefinitions, PermissionGroup } from '../../../../app/types';
+import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {
   group: PermissionGroup;
-  permissions: string[];
-  selectedPermission?: string;
-  permissionsOrder: string[];
   onToggle: (group: PermissionGroup, permission: string) => Promise<void>;
+  permissions: PermissionDefinitions;
+  selectedPermission?: string;
 }
 
 interface State {
@@ -63,26 +63,11 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { selectedPermission } = this.props;
-    const permissionCells = this.props.permissionsOrder.map(permission => (
-      <td
-        className="text-center text-middle"
-        key={permission}
-        style={{ backgroundColor: permission === selectedPermission ? '#d9edf7' : 'transparent' }}>
-        <Checkbox
-          checked={this.props.permissions.includes(permission)}
-          disabled={this.state.loading.includes(permission)}
-          id={permission}
-          onCheck={this.handleCheck}
-        />
-      </td>
-    ));
-
     const { group } = this.props;
 
     return (
       <tr>
-        <td className="nowrap">
+        <td className="nowrap text-middle">
           <div className="display-inline-block text-middle big-spacer-right">
             <GroupIcon />
           </div>
@@ -95,7 +80,16 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
             </div>
           </div>
         </td>
-        {permissionCells}
+        {this.props.permissions.map(permission => (
+          <PermissionCell
+            key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
+            loading={this.state.loading}
+            onCheck={this.handleCheck}
+            permission={permission}
+            permissionItem={group}
+            selectedPermission={this.props.selectedPermission}
+          />
+        ))}
       </tr>
     );
   }

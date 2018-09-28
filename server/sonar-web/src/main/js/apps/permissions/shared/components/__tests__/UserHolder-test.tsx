@@ -32,30 +32,36 @@ const userHolder = (
   <UserHolder
     key="foo"
     onToggle={jest.fn(() => Promise.resolve())}
-    permissions={['bar']}
-    permissionsOrder={['bar', 'baz']}
+    permissions={[
+      {
+        category: 'admin',
+        permissions: [
+          { key: 'foo', name: 'Foo', description: '' },
+          { key: 'bar', name: 'Bar', description: '' }
+        ]
+      },
+      { key: 'baz', name: 'Baz', description: '' }
+    ]}
     selectedPermission={'bar'}
     user={user}
   />
 );
 
-it('should display checkboxes for permissions', () => {
+it('should render correctly', () => {
   expect(shallow(userHolder)).toMatchSnapshot();
 });
 
-it('should disabled checkboxes when waiting for promise to return', async () => {
+it('should disabled PermissionCell checkboxes when waiting for promise to return', async () => {
   const wrapper = shallow(userHolder);
   expect(wrapper.state().loading).toEqual([]);
 
   (wrapper.instance() as UserHolder).handleCheck(true, 'baz');
   wrapper.update();
   expect(wrapper.state().loading).toEqual(['baz']);
-  expect(wrapper).toMatchSnapshot();
 
   (wrapper.instance() as UserHolder).handleCheck(true, 'bar');
   wrapper.update();
   expect(wrapper.state().loading).toEqual(['baz', 'bar']);
-  expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toEqual([]);
