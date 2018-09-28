@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import PaymentMethodSelect, { PaymentMethod } from './PaymentMethodSelect';
-import CardForm from './CardForm';
-import CouponForm from './CouponForm';
+import BillingFormShim from './BillingFormShim';
+import { withCurrentUser } from './withCurrentUser';
 import PlanSelect, { Plan } from './PlanSelect';
 import Step from '../../tutorials/components/Step';
 import { translate } from '../../../helpers/l10n';
@@ -28,6 +27,8 @@ import { getExtensionStart } from '../../../app/components/extensions/utils';
 import { SubscriptionPlan } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+
+const BillingForm = withCurrentUser(BillingFormShim);
 
 interface Props {
   createOrganization: () => Promise<string>;
@@ -41,7 +42,6 @@ interface Props {
 }
 
 interface State {
-  paymentMethod?: PaymentMethod;
   plan: Plan;
   ready: boolean;
   submitting: boolean;
@@ -79,10 +79,6 @@ export default class PlanStep extends React.PureComponent<Props, State> {
     this.setState({ plan });
   };
 
-  handlePaymentMethodChange = (paymentMethod: PaymentMethod) => {
-    this.setState({ paymentMethod });
-  };
-
   stopSubmitting = () => {
     if (this.mounted) {
       this.setState({ submitting: false });
@@ -108,27 +104,22 @@ export default class PlanStep extends React.PureComponent<Props, State> {
             )}
 
             {this.state.plan === Plan.Paid ? (
-              <>
-                <PaymentMethodSelect
-                  onChange={this.handlePaymentMethodChange}
-                  paymentMethod={this.state.paymentMethod}
-                />
-                {this.state.paymentMethod === PaymentMethod.Card && (
-                  <CardForm
-                    createOrganization={this.props.createOrganization}
-                    onFailToUpgrade={this.props.deleteOrganization}
-                    onSubmit={this.props.onPaidPlanChoose}
-                    subscriptionPlans={this.props.subscriptionPlans}
-                  />
+              <BillingForm
+                onCommit={this.props.onPaidPlanChoose}
+                onFailToUpgrade={this.props.deleteOrganization}
+                organizationKey={this.props.createOrganization}
+                subscriptionPlans={this.props.subscriptionPlans}>
+                {({ onSubmit, renderFormFields, renderSubmitGroup }) => (
+                  <form onSubmit={onSubmit}>
+                    {renderFormFields()}
+                    <div className="billing-input-large big-spacer-top">
+                      {renderSubmitGroup(
+                        translate('onboarding.create_organization.create_and_upgrade')
+                      )}
+                    </div>
+                  </form>
                 )}
-                {this.state.paymentMethod === PaymentMethod.Coupon && (
-                  <CouponForm
-                    createOrganization={this.props.createOrganization}
-                    onFailToUpgrade={this.props.deleteOrganization}
-                    onSubmit={this.props.onPaidPlanChoose}
-                  />
-                )}
-              </>
+              </BillingForm>
             ) : (
               <div className="display-flex-center big-spacer-top">
                 <SubmitButton disabled={this.state.submitting} onClick={this.handleFreePlanSubmit}>

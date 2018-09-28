@@ -32,6 +32,10 @@
   line-height: var(--controlHeight);
 }
 
+.onboarding-step hr {
+  margin-left: -54px;
+}
+
 .onboarding-step-number {
   position: absolute;
   top: 15px;

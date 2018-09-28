@@ -24,22 +24,9 @@ export default class BillingFormShim extends React.Component<{ children: any }> 
     return (
       <div id="BillingFormShim">
         {this.props.children({
-          alertError: undefined,
-          couponValue: '',
           onSubmit: jest.fn(),
-          renderAdditionalInfo: () => <div id="additional-info" />,
-          renderBillingNameInput: () => <div id="billing-name" />,
-          renderBraintreeClient: () => <div id="braintree-client" />,
-          renderCountrySelect: () => <div id="country-select" />,
-          renderCouponInput: () => <div id="coupon-input" />,
-          renderEmailInput: () => <div id="email-input" />,
-          renderNextCharge: () => <div id="next-charge" />,
-          renderPlanSelect: () => <div id="plan-select" />,
-          renderResetButton: () => <div id="reset-button" />,
-          renderSpinner: () => <div id="spinner" />,
-          renderSubmitButton: () => <div id="submit-button" />,
-          renderTermsOfService: () => <div id="terms-of-service" />,
-          renderTypeOfUseSelect: () => <div id="type-of-use-select" />
+          renderFormFields: () => <div id="form-fields" />,
+          renderSubmitGroup: () => <div id="submit-group" />
         })}
       </div>
     );

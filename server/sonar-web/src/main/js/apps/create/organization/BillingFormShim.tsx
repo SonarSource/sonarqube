@@ -18,37 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CurrentUser, SubscriptionPlan, Coupon } from '../../../app/types';
+import { CurrentUser, SubscriptionPlan } from '../../../app/types';
 
 interface ChildrenProps {
-  alertError: string | undefined;
-  couponValue: string;
   onSubmit: React.FormEventHandler;
-  renderAdditionalInfo: () => React.ReactNode;
-  renderBillingNameInput: () => React.ReactNode;
-  renderBraintreeClient: () => React.ReactNode;
-  renderCountrySelect: () => React.ReactNode;
-  renderCouponInput: (children?: React.ReactNode) => React.ReactNode;
-  renderEmailInput: () => React.ReactNode;
-  renderNextCharge: () => React.ReactNode;
-  renderPlanSelect: () => React.ReactNode;
-  renderResetButton: () => React.ReactNode;
-  renderSpinner: () => React.ReactNode;
-  renderSubmitButton: (text?: string) => React.ReactNode;
-  renderTermsOfService: () => React.ReactNode;
-  renderTypeOfUseSelect: () => React.ReactNode;
+  renderFormFields: () => React.ReactElement<any>;
+  renderSubmitGroup: (submitText?: string) => React.ReactElement<any>;
 }
 
 interface Props {
   children: (props: ChildrenProps) => React.ReactElement<any>;
-  country?: string;
+  initialCountry?: string;
   currentUser: CurrentUser;
-  onClose: () => void;
   onCommit: () => void;
-  onCouponUpdate?: (coupon?: Coupon) => void;
   onFailToUpgrade?: () => void;
   organizationKey: string | (() => Promise<string>);
-  skipBraintreeInit?: boolean;
   subscriptionPlans: SubscriptionPlan[];
 }
 

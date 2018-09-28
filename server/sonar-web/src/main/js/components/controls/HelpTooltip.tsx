@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Tooltip from './Tooltip';
+import Tooltip, { Placement } from './Tooltip';
 import HelpIcon from '../icons-components/HelpIcon';
 import * as theme from '../../app/theme';
 import './HelpTooltip.css';
@@ -29,6 +29,7 @@ interface Props {
   children?: React.ReactNode;
   onShow?: () => void;
   overlay: React.ReactNode;
+  placement?: Placement;
   tagName?: string;
 }
 
@@ -38,7 +39,11 @@ export default function HelpTooltip(props: Props) {
   return React.createElement(
     tagName,
     { className: classNames('help-tooltip', props.className) },
-    <Tooltip mouseLeaveDelay={0.25} onShow={props.onShow} overlay={props.overlay}>
+    <Tooltip
+      mouseLeaveDelay={0.25}
+      onShow={props.onShow}
+      overlay={props.overlay}
+      placement={props.placement}>
       <span className="display-inline-flex-center">{children}</span>
     </Tooltip>
   );

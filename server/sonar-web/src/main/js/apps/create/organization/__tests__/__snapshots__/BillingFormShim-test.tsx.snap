@@ -7,7 +7,6 @@ exports[`should render 1`] = `
       "isLoggedIn": false,
     }
   }
-  onClose={[MockFunction]}
   onCommit={[MockFunction]}
   organizationKey="org"
   subscriptionPlans={Array []}

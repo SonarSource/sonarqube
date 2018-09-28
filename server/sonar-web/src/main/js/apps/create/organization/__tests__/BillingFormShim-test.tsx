@@ -38,7 +38,6 @@ it('should render', () => {
     shallow(
       <BillingFormShim
         currentUser={{ isLoggedIn: false }}
-        onClose={jest.fn()}
         onCommit={jest.fn()}
         organizationKey="org"
         subscriptionPlans={[]}>

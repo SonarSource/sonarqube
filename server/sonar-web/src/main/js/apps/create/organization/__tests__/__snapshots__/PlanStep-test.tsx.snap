@@ -35,11 +35,12 @@ exports[`should preselect paid plan 2`] = `
       className="boxed-group-inner"
     >
       <React.Fragment>
-        <React.Fragment>
-          <PaymentMethodSelect
-            onChange={[Function]}
-          />
-        </React.Fragment>
+        <Connect(withCurrentUser(BillingFormShim))
+          onCommit={[MockFunction]}
+          onFailToUpgrade={[MockFunction]}
+          organizationKey={[MockFunction]}
+          subscriptionPlans={Array []}
+        />
       </React.Fragment>
     </div>
   </div>
@@ -102,7 +103,7 @@ exports[`should render and use free plan 2`] = `
 </div>
 `;
 
-exports[`should upgrade using card 1`] = `
+exports[`should upgrade 1`] = `
 <div
   className="boxed-group onboarding-step is-open"
 >
@@ -130,141 +131,12 @@ exports[`should upgrade using card 1`] = `
           plan="paid"
           startingPrice="10"
         />
-        <React.Fragment>
-          <PaymentMethodSelect
-            onChange={[Function]}
-          />
-        </React.Fragment>
-      </React.Fragment>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should upgrade using card 2`] = `
-<div
-  className="boxed-group onboarding-step is-open"
->
-  <div
-    className="onboarding-step-number"
-  >
-    2
-  </div>
-  <div
-    className="boxed-group-header"
-  >
-    <h2>
-      onboarding.create_organization.choose_plan
-    </h2>
-  </div>
-  <div
-    className=""
-  >
-    <div
-      className="boxed-group-inner"
-    >
-      <React.Fragment>
-        <PlanSelect
-          onChange={[Function]}
-          plan="paid"
-          startingPrice="10"
+        <Connect(withCurrentUser(BillingFormShim))
+          onCommit={[MockFunction]}
+          onFailToUpgrade={[MockFunction]}
+          organizationKey={[MockFunction]}
+          subscriptionPlans={Array []}
         />
-        <React.Fragment>
-          <PaymentMethodSelect
-            onChange={[Function]}
-            paymentMethod="card"
-          />
-          <Connect(withCurrentUser(CardForm))
-            createOrganization={[MockFunction]}
-            onFailToUpgrade={[MockFunction]}
-            onSubmit={[MockFunction]}
-            subscriptionPlans={Array []}
-          />
-        </React.Fragment>
-      </React.Fragment>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should upgrade using coupon 1`] = `
-<div
-  className="boxed-group onboarding-step is-open"
->
-  <div
-    className="onboarding-step-number"
-  >
-    2
-  </div>
-  <div
-    className="boxed-group-header"
-  >
-    <h2>
-      onboarding.create_organization.choose_plan
-    </h2>
-  </div>
-  <div
-    className=""
-  >
-    <div
-      className="boxed-group-inner"
-    >
-      <React.Fragment>
-        <PlanSelect
-          onChange={[Function]}
-          plan="paid"
-          startingPrice="10"
-        />
-        <React.Fragment>
-          <PaymentMethodSelect
-            onChange={[Function]}
-          />
-        </React.Fragment>
-      </React.Fragment>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should upgrade using coupon 2`] = `
-<div
-  className="boxed-group onboarding-step is-open"
->
-  <div
-    className="onboarding-step-number"
-  >
-    2
-  </div>
-  <div
-    className="boxed-group-header"
-  >
-    <h2>
-      onboarding.create_organization.choose_plan
-    </h2>
-  </div>
-  <div
-    className=""
-  >
-    <div
-      className="boxed-group-inner"
-    >
-      <React.Fragment>
-        <PlanSelect
-          onChange={[Function]}
-          plan="paid"
-          startingPrice="10"
-        />
-        <React.Fragment>
-          <PaymentMethodSelect
-            onChange={[Function]}
-            paymentMethod="coupon"
-          />
-          <Connect(withCurrentUser(CouponForm))
-            createOrganization={[MockFunction]}
-            onFailToUpgrade={[MockFunction]}
-            onSubmit={[MockFunction]}
-          />
-        </React.Fragment>
       </React.Fragment>
     </div>
   </div>

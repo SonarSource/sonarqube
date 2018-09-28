@@ -62,6 +62,7 @@ import ActionsDropdown, { ActionsDropdownItem } from '../../../components/contro
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import SearchSelect from '../../../components/controls/SearchSelect';
+import RadioToggle from '../../../components/controls/RadioToggle';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -103,6 +104,7 @@ const exposeLibraries = () => {
     Modal,
     PullRequestIcon,
     QualifierIcon,
+    RadioToggle,
     Rating,
     ReloadButton,
     ResetButtonLink,

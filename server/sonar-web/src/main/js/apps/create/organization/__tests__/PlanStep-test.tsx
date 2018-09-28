@@ -22,7 +22,6 @@ import { shallow } from 'enzyme';
 import PlanStep from '../PlanStep';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 import { Plan } from '../PlanSelect';
-import { PaymentMethod } from '../PaymentMethodSelect';
 
 jest.mock('../../../../app/components/extensions/utils', () => ({
   getExtensionStart: jest.fn().mockResolvedValue(undefined)
@@ -49,7 +48,7 @@ it('should render and use free plan', async () => {
   expect(onFreePlanChoose).toBeCalled();
 });
 
-it('should upgrade using card', async () => {
+it('should upgrade', async () => {
   const onPaidPlanChoose = jest.fn();
   const wrapper = shallow(
     <PlanStep
@@ -72,48 +71,8 @@ it('should upgrade using card', async () => {
 
   wrapper
     .dive()
-    .find('PaymentMethodSelect')
-    .prop<Function>('onChange')(PaymentMethod.Card);
-  expect(wrapper.dive()).toMatchSnapshot();
-
-  wrapper
-    .dive()
-    .find('Connect(withCurrentUser(CardForm))')
-    .prop<Function>('onSubmit')();
-  expect(onPaidPlanChoose).toBeCalled();
-});
-
-it('should upgrade using coupon', async () => {
-  const onPaidPlanChoose = jest.fn();
-  const wrapper = shallow(
-    <PlanStep
-      createOrganization={jest.fn().mockResolvedValue('org')}
-      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
-      onFreePlanChoose={jest.fn().mockResolvedValue(undefined)}
-      onPaidPlanChoose={onPaidPlanChoose}
-      open={true}
-      startingPrice="10"
-      subscriptionPlans={[]}
-    />
-  );
-  await waitAndUpdate(wrapper);
-
-  wrapper
-    .dive()
-    .find('PlanSelect')
-    .prop<Function>('onChange')(Plan.Paid);
-  expect(wrapper.dive()).toMatchSnapshot();
-
-  wrapper
-    .dive()
-    .find('PaymentMethodSelect')
-    .prop<Function>('onChange')(PaymentMethod.Coupon);
-  expect(wrapper.dive()).toMatchSnapshot();
-
-  wrapper
-    .dive()
-    .find('Connect(withCurrentUser(CouponForm))')
-    .prop<Function>('onSubmit')();
+    .find('Connect(withCurrentUser(BillingFormShim))')
+    .prop<Function>('onCommit')();
   expect(onPaidPlanChoose).toBeCalled();
 });
 
