@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
@@ -60,14 +63,16 @@ public class UserIdentityAuthenticator {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
   private final DefaultGroupFinder defaultGroupFinder;
+  private final Configuration config;
 
   public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, OrganizationFlags organizationFlags,
-    DefaultGroupFinder defaultGroupFinder) {
+    DefaultGroupFinder defaultGroupFinder, Configuration config) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
     this.defaultGroupFinder = defaultGroupFinder;
+    this.config = config;
   }
 
   public UserDto authenticate(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
@@ -139,6 +144,20 @@ public class UserIdentityAuthenticator {
     Collection<String> allGroups = new ArrayList<>(groupsToAdd);
     allGroups.addAll(groupsToRemove);
     DefaultOrganization defaultOrganization = defaultOrganizationProvider.get();
+    
+    if (config.getBoolean(CoreProperties.CODE_AUTHENTICATOR_SYNC_CREATE_MISSING_GROUPS).orElse(false)) {
+      // make sure Sonar missing groups are added
+      String orgUuid = defaultOrganization.getUuid();
+      allGroups.stream()
+        .filter(groupName -> !dbClient.groupDao().selectByName(dbSession, orgUuid, groupName).isPresent())
+        .forEach(groupName -> {
+          LOGGER.debug("Adding new remote group '{}' for user '{}'", groupName, userDto.getLogin());
+          GroupDto groupDto = new GroupDto();
+          groupDto.setName(groupName).setOrganizationUuid(orgUuid);
+          dbClient.groupDao().insert(dbSession, groupDto);
+        });
+    }
+    
     Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, defaultOrganization.getUuid(), allGroups)
       .stream()
       .collect(uniqueIndex(GroupDto::getName));

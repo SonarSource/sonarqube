@@ -107,7 +107,8 @@ public class SsoAuthenticatorTest {
     db.getDbClient(),
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
       new DefaultGroupFinder(db.getDbClient()), settings.asConfig()),
-    defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()));
+    defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()),
+    settings.asConfig());
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);

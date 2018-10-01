@@ -228,6 +228,11 @@ public interface CoreProperties {
    * @since 2.14
    */
   String CORE_AUTHENTICATOR_REALM = "sonar.security.realm";
+  
+  /**
+   * @since 6.7.6
+   */
+  String CODE_AUTHENTICATOR_SYNC_CREATE_MISSING_GROUPS = "sonar.security.sync.createMissingGroups";
 
   String CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE = "sonar.authenticator.ignoreStartupFailure";
 

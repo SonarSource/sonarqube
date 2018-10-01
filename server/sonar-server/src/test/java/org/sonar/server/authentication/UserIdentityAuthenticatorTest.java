@@ -94,7 +94,7 @@ public class UserIdentityAuthenticatorTest {
     settings.asConfig());
 
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
-    new DefaultGroupFinder(db.getDbClient()));
+    new DefaultGroupFinder(db.getDbClient()), settings.asConfig());
 
   @Test
   public void authenticate_new_user() {
