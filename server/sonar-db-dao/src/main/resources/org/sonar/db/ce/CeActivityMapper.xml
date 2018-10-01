@@ -139,8 +139,6 @@
       uuid,
       component_uuid,
       main_component_uuid,
-      tmp_component_uuid,
-      tmp_main_component_uuid,
       analysis_uuid,
       status,
       task_type,
@@ -148,10 +146,6 @@
       is_last_key,
       main_is_last,
       main_is_last_key,
-      tmp_is_last,
-      tmp_is_last_key,
-      tmp_main_is_last,
-      tmp_main_is_last_key,
       submitter_uuid,
       submitted_at,
       worker_uuid,
@@ -169,15 +163,9 @@
       #{uuid,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
       #{mainComponentUuid,jdbcType=VARCHAR},
-      #{componentUuid,jdbcType=VARCHAR},
-      #{mainComponentUuid,jdbcType=VARCHAR},
       #{analysisUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{taskType,jdbcType=VARCHAR},
-      #{isLast,jdbcType=BOOLEAN},
-      #{isLastKey,jdbcType=VARCHAR},
-      #{mainIsLast,jdbcType=BOOLEAN},
-      #{mainIsLastKey,jdbcType=VARCHAR},
       #{isLast,jdbcType=BOOLEAN},
       #{isLastKey,jdbcType=VARCHAR},
       #{mainIsLast,jdbcType=BOOLEAN},
@@ -209,8 +197,6 @@
   <update id="clearMainIsLast" parameterType="map">
     update ce_activity set
       main_is_last=${_false},
-      tmp_is_last=${_false},
-      tmp_main_is_last=${_false},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       main_is_last=${_true}

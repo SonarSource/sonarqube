@@ -214,8 +214,6 @@
       task_type,
       component_uuid,
       main_component_uuid,
-      tmp_component_uuid,
-      tmp_main_component_uuid,
       status,
       submitter_uuid,
       execution_count,
@@ -225,8 +223,6 @@
     values (
       #{uuid,jdbcType=VARCHAR},
       #{taskType,jdbcType=VARCHAR},
-      #{componentUuid,jdbcType=VARCHAR},
-      #{mainComponentUuid,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
       #{mainComponentUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},

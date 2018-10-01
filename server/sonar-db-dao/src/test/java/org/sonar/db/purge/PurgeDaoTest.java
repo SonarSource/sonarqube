@@ -414,7 +414,7 @@ public class PurgeDaoTest {
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("ce_queue")).isEqualTo(1);
-    assertThat(db.countSql("select count(*) from ce_queue where tmp_main_component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql("select count(*) from ce_queue where main_component_uuid='" + projectToBeDeleted.uuid() + "'")).isEqualTo(0);
   }
 
   @Test

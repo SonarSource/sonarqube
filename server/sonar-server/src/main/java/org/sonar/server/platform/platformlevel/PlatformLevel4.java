@@ -128,7 +128,6 @@ import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.HealthActionModule;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.LogsAction;
-import org.sonar.server.platform.ws.MigrateDataAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
 import org.sonar.server.platform.ws.PingAction;
 import org.sonar.server.platform.ws.RestartAction;
@@ -513,7 +512,6 @@ public class PlatformLevel4 extends PlatformLevel {
       UpgradesAction.class,
       StatusAction.class,
       MigrateDbAction.class,
-      MigrateDataAction.class,
       LogsAction.class,
       ChangeLogLevelAction.class,
       DbMigrationStatusAction.class,
