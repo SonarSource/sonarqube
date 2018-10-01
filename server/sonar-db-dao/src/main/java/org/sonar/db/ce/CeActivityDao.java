@@ -51,7 +51,8 @@ public class CeActivityDao implements Dao {
 
     CeActivityMapper ceActivityMapper = mapper(dbSession);
     if (isLast) {
-      ceActivityMapper.clearIsLast(dto.getIsLastKey(), dto.getMainIsLastKey(), dto.getUpdatedAt());
+      ceActivityMapper.clearIsLast(dto.getIsLastKey(), dto.getUpdatedAt());
+      ceActivityMapper.clearMainIsLast(dto.getMainIsLastKey(), dto.getUpdatedAt());
     }
     ceActivityMapper.insert(dto);
   }

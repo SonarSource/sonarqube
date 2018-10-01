@@ -19,22 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.version.v74;
 
-import org.junit.Test;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class PopulateMainComponentUuidColumnsToCeQueue extends PopulateMainComponentUuidColumnsToCeTable {
 
-public class DbVersion74Test {
-
-  private DbVersion74 underTest = new DbVersion74();
-
-  @Test
-  public void migrationNumber_starts_at_2300() {
-    verifyMinimumMigrationNumber(underTest, 2300);
+  public PopulateMainComponentUuidColumnsToCeQueue(Database db) {
+    super(db, "ce_queue");
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 18);
-  }
 }

@@ -38,7 +38,9 @@ public interface CeActivityMapper {
 
   void insert(CeActivityDto dto);
 
-  void clearIsLast(@Param("isLastKey") String isLastKey, @Param("mainIsLastKey") String mainIsLastKey, @Param("updatedAt") long updatedAt);
+  void clearIsLast(@Param("isLastKey") String isLastKey, @Param("updatedAt") long updatedAt);
+
+  void clearMainIsLast(@Param("mainIsLastKey") String mainIsLastKey, @Param("updatedAt") long updatedAt);
 
   void deleteByUuids(@Param("uuids") List<String> uuids);
 }

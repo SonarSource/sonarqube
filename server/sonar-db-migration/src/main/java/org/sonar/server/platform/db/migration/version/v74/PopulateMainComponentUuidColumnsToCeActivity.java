@@ -19,22 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v74;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.api.config.Configuration;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class PopulateMainComponentUuidColumnsToCeActivity extends PopulateMainComponentUuidColumnsToCeTable {
+  private final Configuration configuration;
 
-public class DbVersion74Test {
-
-  private DbVersion74 underTest = new DbVersion74();
-
-  @Test
-  public void migrationNumber_starts_at_2300() {
-    verifyMinimumMigrationNumber(underTest, 2300);
+  public PopulateMainComponentUuidColumnsToCeActivity(Database db, Configuration configuration) {
+    super(db, "ce_activity");
+    this.configuration = configuration;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 18);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    if (configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false)) {
+      // data migration will be done in background so that interruption of service
+      // is reduced during upgrade
+      return;
+    }
+
+    super.execute(context);
   }
 }

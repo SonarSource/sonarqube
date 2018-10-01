@@ -22,15 +22,24 @@ package org.sonar.db.ce;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.ObjectAssert;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -40,13 +49,16 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.db.ce.CeActivityDto.Status.CANCELED;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
+@RunWith(DataProviderRunner.class)
 public class CeActivityDaoTest {
 
   private static final String MAINCOMPONENT_1 = randomAlphabetic(12);
@@ -89,6 +101,197 @@ public class CeActivityDaoTest {
     assertThat(dto.getErrorStacktrace()).isNull();
     assertThat(dto.getErrorType()).isNull();
     assertThat(dto.isHasScannerContext()).isFalse();
+  }
+
+  @Test
+  @UseDataProvider("notCanceledStatus")
+  public void insert_resets_is_last_and_main_is_last_fields_based_on_component_and_main_component(CeActivityDto.Status status) {
+    String project1 = randomAlphabetic(5);
+    String branch11 = randomAlphabetic(6);
+    String project2 = randomAlphabetic(8);
+    String branch21 = randomAlphabetic(9);
+    String type = randomAlphabetic(10);
+
+    String task1Project1 = insertAndCommit(newUuid(), type, project1, project1, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(true, true));
+
+    String task2Project1 = insertAndCommit(newUuid(), type, project1, project1, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project1).containsOnly(tuple(true, true));
+
+    String task1Branch11 = insertAndCommit(newUuid(), type, branch11, project1, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch11).containsOnly(tuple(true, true));
+
+    String task2Branch11 = insertAndCommit(newUuid(), type, branch11, project1, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch11).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Branch11).containsOnly(tuple(true, true));
+
+    String task1Project2 = insertAndCommit(newUuid(), type, project2, project2, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch11).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Branch11).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(true, true));
+
+    String task2Project2 = insertAndCommit(newUuid(), type, project2, project2, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch11).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Branch11).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project2).containsOnly(tuple(true, true));
+
+    String task1Branch21 = insertAndCommit(newUuid(), type, branch21, project2, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch11).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Branch11).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project2).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch21).containsOnly(tuple(true, true));
+
+    String task3project1 = insertAndCommit(newUuid(), type, project1, project1, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch11).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Branch11).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task2Project2).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch21).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(task3project1).containsOnly(tuple(true, true));
+  }
+
+  @Test
+  @UseDataProvider("notCanceledStatus")
+  public void insert_resets_is_last_and_main_is_last_fields_based_on_type(CeActivityDto.Status status) {
+    String type1 = randomAlphabetic(10);
+    String type2 = randomAlphabetic(11);
+    String project = randomAlphabetic(5);
+    String branch = randomAlphabetic(6);
+
+    String type1Project1 = insertAndCommit(newUuid(), type1, project, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+
+    String type2Project1 = insertAndCommit(newUuid(), type2, project, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type2Project1).containsOnly(tuple(true, true));
+
+    String type2Project2 = insertAndCommit(newUuid(), type2, project, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type2Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Project2).containsOnly(tuple(true, true));
+
+    String type1Branch1 = insertAndCommit(newUuid(), type1, branch, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Project2).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type1Branch1).containsOnly(tuple(true, true));
+
+    String type2Branch1 = insertAndCommit(newUuid(), type2, branch, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Project2).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(type1Branch1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type2Branch1).containsOnly(tuple(true, true));
+
+    String type2Branch2 = insertAndCommit(newUuid(), type2, branch, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Project2).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(type1Branch1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type2Branch1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type2Branch2).containsOnly(tuple(true, true));
+  }
+
+  @Test
+  @UseDataProvider("notCanceledStatus")
+  public void insert_resets_is_last_and_main_is_last_fields_based_on_component_or_not(CeActivityDto.Status status) {
+    String project = randomAlphabetic(5);
+    String type1 = randomAlphabetic(11);
+    String type2 = randomAlphabetic(11);
+
+    String type1Project1 = insertAndCommit(newUuid(), type1, project, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+
+    String type1NoProject1 = insertAndCommit(newUuid(), type1, null, null, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject1).containsOnly(tuple(true, true));
+
+    String type1NoProject2 = insertAndCommit(newUuid(), type1, null, null, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject2).containsOnly(tuple(true, true));
+
+    String type2NoProject1 = insertAndCommit(newUuid(), type2, null, null, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject2).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type2NoProject1).containsOnly(tuple(true, true));
+
+    String type2NoProject2 = insertAndCommit(newUuid(), type2, null, null, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject2).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type2NoProject1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type2NoProject2).containsOnly(tuple(true, true));
+
+    String type1Project2 = insertAndCommit(newUuid(), type1, project, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type1NoProject2).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type2NoProject1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(type2NoProject2).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(type1Project2).containsOnly(tuple(true, true));
+  }
+
+  @Test
+  @UseDataProvider("notCanceledStatus")
+  public void insert_does_not_resets_is_last_and_main_is_last_fields_if_status_is_CANCELED(CeActivityDto.Status status) {
+    String project = randomAlphabetic(5);
+    String branch = randomAlphabetic(6);
+    String type = randomAlphabetic(10);
+
+    String task1Project1 = insertAndCommit(newUuid(), type, project, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(true, true));
+
+    String task1Project2 = insertAndCommit(newUuid(), type, project, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(true, true));
+
+    String task1Project3 = insertAndCommit(newUuid(), type, project, project, CANCELED).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(task1Project3).containsOnly(tuple(false, false));
+
+    String task1Branch1 = insertAndCommit(newUuid(), type, branch, project, status).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Project3).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch1).containsOnly(tuple(true, true));
+
+    String task1Branch2 = insertAndCommit(newUuid(), type, branch, project, CANCELED).getUuid();
+    assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Project2).containsOnly(tuple(true, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Project3).containsOnly(tuple(false, false));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch1).containsOnly(tuple(true, true));
+    assertIsLastAndMainIsLastFieldsOf(task1Branch2).containsOnly(tuple(false, false));
+  }
+
+  @DataProvider
+  public static Object[][] notCanceledStatus() {
+    return Arrays.stream(CeActivityDto.Status.values())
+      .filter(t -> t != CANCELED)
+      .map(t -> new Object[] {t})
+      .toArray(Object[][]::new);
+  }
+
+  private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> assertIsLastAndMainIsLastFieldsOf(String taskUuid) {
+    return assertThat(db.select("select is_last as \"IS_LAST\", main_is_last as \"MAIN_IS_LAST\" from ce_activity where uuid='" + taskUuid + "'"))
+      .extracting(t -> (Boolean) t.get("IS_LAST"), t -> (Boolean) t.get("MAIN_IS_LAST"));
   }
 
   @Test
@@ -352,7 +555,13 @@ public class CeActivityDaoTest {
     return insert(uuid, type, mainComponentUuid, mainComponentUuid, status);
   }
 
-  private CeActivityDto insert(String uuid, String type, String componentUuid, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
+  private CeActivityDto insertAndCommit(String uuid, String type, @Nullable String componentUuid, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
+    CeActivityDto res = insert(uuid, type, componentUuid, mainComponentUuid, status);
+    db.commit();
+    return res;
+  }
+
+  private CeActivityDto insert(String uuid, String type, @Nullable String componentUuid, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
     CeActivityDto dto = createActivityDto(uuid, type, componentUuid, mainComponentUuid, status);
     underTest.insert(db.getSession(), dto);
     return dto;
@@ -417,5 +626,9 @@ public class CeActivityDaoTest {
     public String apply(@Nonnull CeActivityDto input) {
       return input.getUuid();
     }
+  }
+
+  private static String newUuid() {
+    return UuidFactoryFast.getInstance().create();
   }
 }

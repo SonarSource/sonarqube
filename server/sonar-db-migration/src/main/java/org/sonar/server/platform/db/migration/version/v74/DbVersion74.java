@@ -39,6 +39,12 @@ public class DbVersion74 implements DbVersion {
       .add(2309, "Add CE_ACTIVITY.MAIN_LAST_KEY 1/6", AddTmpLastKeyColumnsToCeActivity.class)
       .add(2310, "Populate CE_ACTIVITY.MAIN_LAST_KEY 2/6", PopulateTmpLastKeyColumnsToCeActivity.class)
       .add(2311, "Populate CE_ACTIVITY.MAIN_LAST_KEY 3/6", MakeCeActivityLastKeyColumnsNullable.class)
+      .add(2312, "Add CE_QUEUE.MAIN_COMPONENT_UUID 3/5", AddMainComponentUuidColumnsToCeQueue.class)
+      .add(2313, "Add CE_ACTIVITY.MAIN_COMPONENT_UUID 3/5", AddMainComponentUuidColumnsToCeActivity.class)
+      .add(2314, "Add CE_ACTIVITY.MAIN_LAST_KEY 3/6", AddLastKeyColumnsToCeActivity.class)
+      .add(2315, "Populate CE_QUEUE.MAIN_COMPONENT_UUID 4/5", PopulateMainComponentUuidColumnsToCeQueue.class)
+      .add(2316, "Populate CE_ACTIVITY.MAIN_COMPONENT_UUID 4/5", PopulateMainComponentUuidColumnsToCeActivity.class)
+      .add(2317, "Populate CE_ACTIVITY.MAIN_LAST_KEY 4/6", PopulateLastKeyColumnsToCeActivity.class)
     ;
   }
 }

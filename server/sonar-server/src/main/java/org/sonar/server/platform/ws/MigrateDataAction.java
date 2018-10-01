@@ -27,9 +27,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
-import org.sonar.server.platform.db.migration.version.v74.PopulateTmpColumnsToCeActivity;
-import org.sonar.server.platform.db.migration.version.v74.PopulateTmpColumnsToCeQueue;
-import org.sonar.server.platform.db.migration.version.v74.PopulateTmpLastKeyColumnsToCeActivity;
+import org.sonar.server.platform.db.migration.version.v74.PopulateLastKeyColumnsToCeActivity;
+import org.sonar.server.platform.db.migration.version.v74.PopulateMainComponentUuidColumnsToCeActivity;
+import org.sonar.server.platform.db.migration.version.v74.PopulateMainComponentUuidColumnsToCeQueue;
 import org.sonar.server.user.UserSession;
 
 public class MigrateDataAction implements SystemWsAction {
@@ -55,9 +55,9 @@ public class MigrateDataAction implements SystemWsAction {
     userSession.isSystemAdministrator();
 
     Configuration emptyConfiguration = new MapSettings().asConfig();
-    new PopulateTmpColumnsToCeQueue(dbClient.getDatabase()).execute();
-    new PopulateTmpColumnsToCeActivity(dbClient.getDatabase(), emptyConfiguration).execute();
-    new PopulateTmpLastKeyColumnsToCeActivity(dbClient.getDatabase(), emptyConfiguration).execute();
+    new PopulateMainComponentUuidColumnsToCeQueue(dbClient.getDatabase()).execute();
+    new PopulateMainComponentUuidColumnsToCeActivity(dbClient.getDatabase(), emptyConfiguration).execute();
+    new PopulateLastKeyColumnsToCeActivity(dbClient.getDatabase(), emptyConfiguration).execute();
     LOG.info("done");
 
     response.noContent();
