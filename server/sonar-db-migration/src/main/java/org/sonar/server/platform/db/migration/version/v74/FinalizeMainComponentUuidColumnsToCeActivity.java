@@ -20,13 +20,11 @@
 package org.sonar.server.platform.db.migration.version.v74;
 
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 
-@SupportsBlueGreen
-public class PopulateMainComponentUuidColumnsToCeQueue extends PopulateMainComponentUuidColumnsToCeTable {
+public class FinalizeMainComponentUuidColumnsToCeActivity extends FinalizeMainComponentUuidColumnsToCeTable {
 
-  public PopulateMainComponentUuidColumnsToCeQueue(Database db) {
-    super(db, "ce_queue");
+  public FinalizeMainComponentUuidColumnsToCeActivity(Database db) {
+    super(db,  "ce_activity");
   }
 
 }
