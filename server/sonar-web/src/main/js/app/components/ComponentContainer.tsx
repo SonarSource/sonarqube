@@ -104,9 +104,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     const { branch, id: key, pullRequest } = props.location.query;
     this.setState({ loading: true });
 
-    const onError = (error: any) => {
+    const onError = (response?: Response) => {
       if (this.mounted) {
-        if (error.response && error.response.status === 403) {
+        if (response && response.status === 403) {
           handleRequiredAuthorization();
         } else {
           this.setState({ loading: false });
