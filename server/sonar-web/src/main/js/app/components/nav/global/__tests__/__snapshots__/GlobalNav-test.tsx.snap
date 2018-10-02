@@ -39,13 +39,7 @@ exports[`should render for SonarCloud 1`] = `
       }
     />
     <EmbedDocsPopupHelper
-      currentUser={
-        Object {
-          "isLoggedIn": false,
-        }
-      }
       suggestions={Array []}
-      tooltip={false}
     />
     <withRouter(Search)
       appState={
@@ -119,13 +113,7 @@ exports[`should render for SonarQube 1`] = `
     className="global-navbar-menu global-navbar-menu-right"
   >
     <EmbedDocsPopupHelper
-      currentUser={
-        Object {
-          "isLoggedIn": false,
-        }
-      }
       suggestions={Array []}
-      tooltip={true}
     />
     <withRouter(Search)
       appState={

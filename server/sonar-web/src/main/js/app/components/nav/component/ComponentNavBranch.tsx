@@ -38,6 +38,7 @@ import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Toggler from '../../../../components/controls/Toggler';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
+import { getPortfolioAdminUrl } from '../../../../helpers/urls';
 
 interface Props {
   branchLikes: BranchLike[];
@@ -128,15 +129,13 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   renderOverlay = () => {
-    const adminLink = {
-      pathname: '/project/admin/extension/governance/console',
-      query: { id: this.props.component.breadcrumbs[0].key, qualifier: 'APP' }
-    };
     return (
       <>
         <p>{translate('application.branches.help')}</p>
         <hr className="spacer-top spacer-bottom" />
-        <Link className="spacer-left link-no-underline" to={adminLink}>
+        <Link
+          className="spacer-left link-no-underline"
+          to={getPortfolioAdminUrl(this.props.component.breadcrumbs[0].key, 'APP')}>
           {translate('application.branches.link')}
         </Link>
       </>

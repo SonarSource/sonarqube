@@ -57,6 +57,10 @@ export function getPortfolioUrl(key: string): Location {
   return { pathname: '/portfolio', query: { id: key } };
 }
 
+export function getPortfolioAdminUrl(key: string, qualifier: string) {
+  return { pathname: '/project/admin/extension/governance/console', query: { id: key, qualifier } };
+}
+
 export function getComponentBackgroundTaskUrl(componentKey: string, status?: string): Location {
   return { pathname: '/project/background_tasks', query: { id: componentKey, status } };
 }

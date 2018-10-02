@@ -15,19 +15,6 @@ exports[`render 1`] = `
           provisioning.create_new_project
         </a>
       </li>
-      <li
-        className="divider"
-      />
-      <li>
-        <Link
-          className="js-new-organization"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/create-organization"
-        >
-          my_account.create_new_organization
-        </Link>
-      </li>
     </ul>
   }
   tagName="li"
@@ -35,9 +22,65 @@ exports[`render 1`] = `
   <a
     className="navbar-plus"
     href="#"
-    title="my_account.create_new_project_or_organization"
+    title="my_account.create_new_project_portfolio_or_application"
   >
     <PlusIcon />
   </a>
 </Dropdown>
+`;
+
+exports[`should display create application 1`] = `
+<a
+  className="js-new-portfolio"
+  href="#"
+  onClick={[Function]}
+>
+  my_account.create_new.APP
+</a>
+`;
+
+exports[`should display create new organization on SonarCloud only 1`] = `
+<ul
+  className="menu"
+>
+  <li>
+    <a
+      className="js-new-project"
+      href="#"
+      onClick={[Function]}
+    >
+      provisioning.create_new_project
+    </a>
+  </li>
+  <li>
+    <Link
+      className="js-new-organization"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/create-organization"
+    >
+      my_account.create_new_organization
+    </Link>
+  </li>
+</ul>
+`;
+
+exports[`should display create portfolio 1`] = `
+<a
+  className="js-new-portfolio"
+  href="#"
+  onClick={[Function]}
+>
+  my_account.create_new.VW
+</a>
+`;
+
+exports[`should display create portfolio and application 1`] = `
+<a
+  className="js-new-portfolio"
+  href="#"
+  onClick={[Function]}
+>
+  my_account.create_new_portfolio_application
+</a>
 `;

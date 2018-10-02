@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { SuggestionLink } from './SuggestionsProvider';
-import { CurrentUser } from '../../types';
 import Toggler from '../../../components/controls/Toggler';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import { lazyLoad } from '../../../components/lazyLoad';
@@ -28,9 +27,7 @@ import { translate } from '../../../helpers/l10n';
 const EmbedDocsPopup = lazyLoad(() => import('./EmbedDocsPopup'));
 
 interface Props {
-  currentUser: CurrentUser;
   suggestions: Array<SuggestionLink>;
-  tooltip: boolean;
 }
 interface State {
   helpOpen: boolean;
@@ -85,11 +82,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<Props, Sta
           onRequestClose={this.closeHelp}
           open={this.state.helpOpen}
           overlay={
-            <EmbedDocsPopup
-              currentUser={this.props.currentUser}
-              onClose={this.closeHelp}
-              suggestions={this.props.suggestions}
-            />
+            <EmbedDocsPopup onClose={this.closeHelp} suggestions={this.props.suggestions} />
           }>
           <a className="navbar-help" href="#" onClick={this.handleClick} title={translate('help')}>
             <HelpIcon />

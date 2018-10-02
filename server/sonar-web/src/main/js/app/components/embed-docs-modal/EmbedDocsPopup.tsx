@@ -18,33 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import ProductNewsMenuItem from './ProductNewsMenuItem';
 import { SuggestionLink } from './SuggestionsProvider';
-import { CurrentUser, isLoggedIn, hasGlobalPermission } from '../../types';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 
 interface Props {
-  currentUser: CurrentUser;
   onClose: () => void;
   suggestions: Array<SuggestionLink>;
 }
 
 export default class EmbedDocsPopup extends React.PureComponent<Props> {
-  static contextTypes = {
-    openProjectOnboarding: PropTypes.func
-  };
-
-  onAnalyzeProjectClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.context.openProjectOnboarding();
-  };
-
   renderTitle(text: string) {
     return <li className="menu-header">{text}</li>;
   }
@@ -119,17 +106,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
   }
 
   renderSonarQubeLinks() {
-    const { currentUser } = this.props;
     return (
       <React.Fragment>
-        {isLoggedIn(currentUser) &&
-          hasGlobalPermission(currentUser, 'provisioning') && (
-            <li>
-              <a data-test="analyze-new-project" href="#" onClick={this.onAnalyzeProjectClick}>
-                {translate('embed_docs.analyze_new_project')}
-              </a>
-            </li>
-          )}
         <li className="divider" />
         <li>
           <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">

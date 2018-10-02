@@ -28,55 +28,19 @@ const suggestions = [{ link: '#', text: 'foo' }, { link: '#', text: 'bar' }];
 
 it('should display suggestion links', () => {
   const context = {};
-  const wrapper = shallow(
-    <EmbedDocsPopup
-      currentUser={{ isLoggedIn: true }}
-      onClose={jest.fn()}
-      suggestions={suggestions}
-    />,
-    {
-      context
-    }
-  );
+  const wrapper = shallow(<EmbedDocsPopup onClose={jest.fn()} suggestions={suggestions} />, {
+    context
+  });
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should display analyze new project link when user has permission', () => {
-  const wrapper = shallow(
-    <EmbedDocsPopup
-      currentUser={{ isLoggedIn: true, permissions: { global: ['provisioning'] } }}
-      onClose={jest.fn()}
-      suggestions={suggestions}
-    />
-  );
-  expect(wrapper.find('[data-test="analyze-new-project"]').exists()).toBe(true);
-});
-
-it('should not display analyze new project link when user does not have permission', () => {
-  const wrapper = shallow(
-    <EmbedDocsPopup
-      currentUser={{ isLoggedIn: true }}
-      onClose={jest.fn()}
-      suggestions={suggestions}
-    />
-  );
-  expect(wrapper.find('[data-test="analyze-new-project"]').exists()).toBe(false);
 });
 
 it('should display correct links for SonarCloud', () => {
   (isSonarCloud as jest.Mock<any>).mockReturnValueOnce(true);
   const context = {};
-  const wrapper = shallow(
-    <EmbedDocsPopup
-      currentUser={{ isLoggedIn: true }}
-      onClose={jest.fn()}
-      suggestions={suggestions}
-    />,
-    {
-      context
-    }
-  );
+  const wrapper = shallow(<EmbedDocsPopup onClose={jest.fn()} suggestions={suggestions} />, {
+    context
+  });
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
