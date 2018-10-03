@@ -135,7 +135,7 @@ public class UserSessionInitializer {
       session = userSessionFactory.createAnonymous();
     }
     threadLocalSession.set(session);
-    response.addHeader(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
+    response.setHeader(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
   }
 
   private void failIfAuthenticationIsRequired() {
