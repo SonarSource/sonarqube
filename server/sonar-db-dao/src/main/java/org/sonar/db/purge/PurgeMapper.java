@@ -90,25 +90,25 @@ public interface PurgeMapper {
 
   void deleteFileSourcesByFileUuid(@Param("fileUuids") List<String> fileUuids);
 
-  void deleteCeTaskCharacteristicsOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeTaskCharacteristicsOfCeActivityByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeTaskInputOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeTaskInputOfCeActivityByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeTaskMessageOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeScannerContextOfCeActivityByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeScannerContextOfCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeTaskMessageOfCeActivityByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeActivityByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeScannerContextOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeScannerContextOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeTaskCharacteristicsOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeTaskCharacteristicsOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeTaskInputOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeTaskInputOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeTaskMessageOfCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeTaskMessageOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteCeQueueByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
 
   void deleteWebhooksByProjectUuid(@Param("projectUuid") String projectUuid);
 

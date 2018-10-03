@@ -74,6 +74,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
+import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -138,7 +139,7 @@ public class PurgeDaoTest {
     underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
-    assertThat(getUuidsInTableProjects()).containsOnly(project.uuid(), longBranch.uuid(), recentShortBranch.uuid());
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentShortBranch.uuid());
   }
 
   @Test
@@ -164,7 +165,7 @@ public class PurgeDaoTest {
     underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
-    assertThat(getUuidsInTableProjects()).containsOnly(project.uuid(), longBranch.uuid(), recentPullRequest.uuid());
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentPullRequest.uuid());
   }
 
   @Test
@@ -297,50 +298,6 @@ public class PurgeDaoTest {
       .containsExactlyInAnyOrder(webhookDeliveryNotDeleted.getUuid());
   }
 
-  @Test
-  public void delete_branch_and_associated_data() {
-    ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    CeQueueDto projectCeQueue = insertCeQueue(project);
-    CeActivityDto projectCeActivity = insertCeActivity(project);
-    CeQueueDto branchCeQueue = insertCeQueue(branch);
-    CeActivityDto branchCeActivity = insertCeActivity(branch);
-    Stream.of(projectCeQueue.getUuid(), projectCeActivity.getUuid(), branchCeQueue.getUuid(), branchCeActivity.getUuid())
-      .forEach(taskUuid -> {
-        insertCeScannerContext(taskUuid);
-        insertCeTaskCharacteristics(taskUuid, 2);
-        insertCeTaskMessages(taskUuid, 3);
-        insertCeTaskInput(taskUuid);
-      });
-
-    underTest.deleteBranch(dbSession, branch.uuid());
-    dbSession.commit();
-
-    assertThat(uuidsOfTable("projects")).containsOnly(project.uuid());
-    assertThat(uuidsOfTable("project_branches")).containsOnly(project.uuid());
-    // deleteBranch is bugged and does not delete from ce_* tables (see SONAR-10642)
-    assertThat(uuidsOfTable("ce_queue"))
-      .containsOnly(projectCeQueue.getUuid(), branchCeQueue.getUuid())
-      .hasSize(2);
-    assertThat(uuidsOfTable("ce_activity"))
-      .containsOnly(projectCeActivity.getUuid(), branchCeActivity.getUuid())
-      .hasSize(2);
-    String[] allTaskUuids = {projectCeQueue.getUuid(), projectCeActivity.getUuid(), branchCeQueue.getUuid(), branchCeActivity.getUuid()};
-    assertThat(taskUuidsOfTable("ce_scanner_context"))
-      .containsOnly(allTaskUuids)
-      .hasSize(4);
-    assertThat(taskUuidsOfTable("ce_task_characteristics"))
-      .containsOnly(allTaskUuids)
-      .hasSize(8);
-    assertThat(taskUuidsOfTable("ce_task_message"))
-      .containsOnly(allTaskUuids)
-      .hasSize(12);
-    assertThat(taskUuidsOfTable("ce_task_input"))
-      .containsOnly(allTaskUuids)
-      .hasSize(4);
-  }
-
   private Stream<String> taskUuidsOfTable(String tableName) {
     return db.select("select task_uuid as \"TASK_UUID\" from " + tableName)
       .stream()
@@ -374,77 +331,130 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_input_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeActivityDto toBeDeleted = insertCeActivity(projectToBeDeleted);
-    insertCeTaskInput(toBeDeleted.getUuid());
-    CeActivityDto toNotDelete = insertCeActivity(anotherLivingProject);
-    insertCeTaskInput(toNotDelete.getUuid());
+    CeActivityDto projectTask = insertCeActivity(project);
+    insertCeTaskInput(projectTask.getUuid());
+    CeActivityDto branchTask = insertCeActivity(branch);
+    insertCeTaskInput(branchTask.getUuid());
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    insertCeTaskInput(anotherBranchTask.getUuid());
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    insertCeTaskInput(anotherProjectTask.getUuid());
     insertCeTaskInput("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, branch.uuid());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\" from ce_activity"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"UUID\" from ce_task_input"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
+    assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_input")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
+
+    underTest.deleteProject(dbSession, project.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_input")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
   @Test
   public void delete_row_in_ce_scanner_context_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeActivityDto toBeDeleted = insertCeActivity(projectToBeDeleted);
-    insertCeScannerContext(toBeDeleted.getUuid());
-    CeActivityDto toNotDelete = insertCeActivity(anotherLivingProject);
-    insertCeScannerContext(toNotDelete.getUuid());
+    CeActivityDto projectTask = insertCeActivity(project);
+    insertCeScannerContext(projectTask.getUuid());
+    CeActivityDto branchTask = insertCeActivity(branch);
+    insertCeScannerContext(branchTask.getUuid());
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    insertCeScannerContext(anotherBranchTask.getUuid());
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    insertCeScannerContext(anotherProjectTask.getUuid());
     insertCeScannerContext("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, branch.uuid());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\" from ce_activity"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"UUID\" from ce_scanner_context"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
+    assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_scanner_context")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
+
+    underTest.deleteProject(dbSession, project.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_scanner_context")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
   @Test
   public void delete_row_in_ce_task_characteristics_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeActivityDto toBeDeleted = insertCeActivity(projectToBeDeleted);
-    insertCeTaskCharacteristics(toBeDeleted.getUuid(), 3);
-    CeActivityDto toNotDelete = insertCeActivity(anotherLivingProject);
-    insertCeTaskCharacteristics(toNotDelete.getUuid(), 2);
+    CeActivityDto projectTask = insertCeActivity(project);
+    insertCeTaskCharacteristics(projectTask.getUuid(), 3);
+    CeActivityDto branchTask = insertCeActivity(branch);
+    insertCeTaskCharacteristics(branchTask.getUuid(), 2);
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    insertCeTaskCharacteristics(anotherBranchTask.getUuid(), 6);
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    insertCeTaskCharacteristics(anotherProjectTask.getUuid(), 2);
     insertCeTaskCharacteristics("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, branch.uuid());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\" from ce_activity"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"UUID\" from ce_task_characteristics"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
+    assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_characteristics")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
+
+    underTest.deleteProject(dbSession, project.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_characteristics")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
+  }
+
+  @Test
+  public void delete_row_in_ce_task_message_referring_to_a_row_in_ce_activity_when_deleting_project() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+
+    CeActivityDto projectTask = insertCeActivity(project);
+    insertCeTaskMessages(projectTask.getUuid(), 3);
+    CeActivityDto branchTask = insertCeActivity(branch);
+    insertCeTaskMessages(branchTask.getUuid(), 2);
+    CeActivityDto anotherBranchTask = insertCeActivity(anotherBranch);
+    insertCeTaskMessages(anotherBranchTask.getUuid(), 6);
+    CeActivityDto anotherProjectTask = insertCeActivity(anotherProject);
+    insertCeTaskMessages(anotherProjectTask.getUuid(), 2);
+    insertCeTaskMessages("non existing task", 5);
+    dbSession.commit();
+
+    underTest.deleteProject(dbSession, branch.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_activity")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_message")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
+
+    underTest.deleteProject(dbSession, project.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_message")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
   @Test
@@ -468,127 +478,133 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_row_in_ce_task_input_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeQueueDto toBeDeleted = insertCeQueue(projectToBeDeleted);
-    insertCeTaskInput(toBeDeleted.getUuid());
-    CeQueueDto toNotDelete = insertCeQueue(anotherLivingProject);
-    insertCeTaskInput(toNotDelete.getUuid());
+    CeQueueDto projectTask = insertCeQueue(project);
+    insertCeTaskInput(projectTask.getUuid());
+    CeQueueDto branchTask = insertCeQueue(branch);
+    insertCeTaskInput(branchTask.getUuid());
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    insertCeTaskInput(anotherBranchTask.getUuid());
+    CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
+    insertCeTaskInput(anotherProjectTask.getUuid());
     insertCeTaskInput("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, branch.uuid());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\" from ce_queue"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"UUID\" from ce_task_input"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
+    assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_input")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
+
+    underTest.deleteProject(dbSession, project.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_input")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
   @Test
   public void delete_row_in_ce_scanner_context_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeQueueDto toBeDeleted = insertCeQueue(projectToBeDeleted);
-    insertCeScannerContext(toBeDeleted.getUuid());
-    CeQueueDto toNotDelete = insertCeQueue(anotherLivingProject);
-    insertCeScannerContext(toNotDelete.getUuid());
+    CeQueueDto projectTask = insertCeQueue(project);
+    insertCeScannerContext(projectTask.getUuid());
+    CeQueueDto branchTask = insertCeQueue(branch);
+    insertCeScannerContext(branchTask.getUuid());
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    insertCeScannerContext(anotherBranchTask.getUuid());
+    CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
+    insertCeScannerContext(anotherProjectTask.getUuid());
     insertCeScannerContext("non existing task");
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, branch.uuid());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\" from ce_queue"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"UUID\" from ce_scanner_context"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
+    assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_scanner_context"))
+      .containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
+
+    underTest.deleteProject(dbSession, project.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_scanner_context")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
   @Test
   public void delete_row_in_ce_task_characteristics_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeQueueDto toBeDeleted = insertCeQueue(projectToBeDeleted);
-    insertCeTaskCharacteristics(toBeDeleted.getUuid(), 3);
-    CeQueueDto toNotDelete = insertCeQueue(anotherLivingProject);
-    insertCeTaskCharacteristics(toNotDelete.getUuid(), 2);
+    CeQueueDto projectTask = insertCeQueue(project);
+    insertCeTaskCharacteristics(projectTask.getUuid(), 3);
+    CeQueueDto branchTask = insertCeQueue(branch);
+    insertCeTaskCharacteristics(branchTask.getUuid(), 1);
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    insertCeTaskCharacteristics(anotherBranchTask.getUuid(), 5);
+    CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
+    insertCeTaskCharacteristics(anotherProjectTask.getUuid(), 2);
     insertCeTaskCharacteristics("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, branch.uuid());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\" from ce_queue"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"UUID\" from ce_task_characteristics"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
+    assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_characteristics"))
+      .containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
+
+    underTest.deleteProject(dbSession, project.uuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_characteristics")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
   @Test
   public void delete_row_in_ce_task_message_referring_to_a_row_in_ce_queue_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
 
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeQueueDto toBeDeleted = insertCeQueue(projectToBeDeleted);
-    insertCeTaskMessages(toBeDeleted.getUuid(), 3);
-    CeQueueDto toNotDelete = insertCeQueue(anotherLivingProject);
-    insertCeTaskMessages(toNotDelete.getUuid(), 2);
+    CeQueueDto projectTask = insertCeQueue(project);
+    insertCeTaskMessages(projectTask.getUuid(), 3);
+    CeQueueDto branchTask = insertCeQueue(branch);
+    insertCeTaskMessages(branchTask.getUuid(), 1);
+    CeQueueDto anotherBranchTask = insertCeQueue(anotherBranch);
+    insertCeTaskMessages(anotherBranchTask.getUuid(), 5);
+    CeQueueDto anotherProjectTask = insertCeQueue(anotherProject);
+    insertCeTaskMessages(anotherProjectTask.getUuid(), 2);
     insertCeTaskMessages("non existing task", 5);
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    underTest.deleteProject(dbSession, branch.uuid());
     dbSession.commit();
 
-    assertThat(db.select("select uuid as \"UUID\" from ce_queue"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"TASK_UUID\" from ce_task_message"))
-      .extracting(row -> (String) row.get("TASK_UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
-  }
+    assertThat(uuidsIn("ce_queue")).containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_message"))
+      .containsOnly(projectTask.getUuid(), anotherBranchTask.getUuid(), anotherProjectTask.getUuid(), "non existing task");
 
-  @Test
-  public void delete_row_in_ce_task_message_referring_to_a_row_in_ce_activity_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization());
-    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
-
-    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and one on another project
-    CeActivityDto toBeDeleted = insertCeActivity(projectToBeDeleted);
-    insertCeTaskMessages(toBeDeleted.getUuid(), 3);
-    CeActivityDto toNotDelete = insertCeActivity(anotherLivingProject);
-    insertCeTaskMessages(toNotDelete.getUuid(), 2);
-    insertCeTaskMessages("non existing task", 5);
+    underTest.deleteProject(dbSession, project.uuid());
     dbSession.commit();
 
-    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
-    dbSession.commit();
-
-    assertThat(db.select("select uuid as \"UUID\" from ce_activity"))
-      .extracting(row -> (String) row.get("UUID"))
-      .containsOnly(toNotDelete.getUuid());
-    assertThat(db.select("select task_uuid as \"TASK_UUID\" from ce_task_message"))
-      .extracting(row -> (String) row.get("TASK_UUID"))
-      .containsOnly(toNotDelete.getUuid(), "non existing task");
+    assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
+    assertThat(taskUuidsIn("ce_task_message")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
   }
 
   private ComponentDto insertProjectWithBranchAndRelatedData() {
@@ -829,7 +845,7 @@ public class PurgeDaoTest {
 
     underTest.deleteNonRootComponentsInView(dbSession, components);
 
-    assertThat(getUuidsInTableProjects())
+    assertThat(uuidsIn("projects"))
       .containsOnly(project.uuid());
   }
 
@@ -855,12 +871,8 @@ public class PurgeDaoTest {
 
     underTest.deleteNonRootComponentsInView(dbSession, components);
 
-    assertThat(getUuidsInTableProjects())
+    assertThat(uuidsIn("projects"))
       .containsOnly(view.uuid(), projects[0].uuid(), projects[1].uuid(), projects[2].uuid());
-  }
-
-  private Stream<String> getUuidsInTableProjects() {
-    return db.select("select uuid as \"UUID\" from projects").stream().map(row -> (String) row.get("UUID"));
   }
 
   @Test
@@ -875,11 +887,11 @@ public class PurgeDaoTest {
     ComponentDto file3 = db.components().insertComponent(newFileDto(project));
 
     underTest.deleteNonRootComponentsInView(dbSession, singletonList(file3));
-    assertThat(getUuidsInTableProjects())
+    assertThat(uuidsIn("projects"))
       .containsOnly(project.uuid(), module1.uuid(), module2.uuid(), dir1.uuid(), dir2.uuid(), file1.uuid(), file2.uuid());
 
     underTest.deleteNonRootComponentsInView(dbSession, asList(module1, dir2, file1));
-    assertThat(getUuidsInTableProjects())
+    assertThat(uuidsIn("projects"))
       .containsOnly(project.uuid(), module2.uuid(), dir1.uuid(), file2.uuid());
   }
 
@@ -899,12 +911,12 @@ public class PurgeDaoTest {
     ComponentDto pc3 = db.components().insertComponent(newProjectCopy("c", projects[2], subview2));
 
     underTest.deleteNonRootComponentsInView(dbSession, singletonList(pc3));
-    assertThat(getUuidsInTableProjects())
+    assertThat(uuidsIn("projects"))
       .containsOnly(view.uuid(), projects[0].uuid(), projects[1].uuid(), projects[2].uuid(),
         subview1.uuid(), subview2.uuid(), pc1.uuid(), pc2.uuid());
 
     underTest.deleteNonRootComponentsInView(dbSession, asList(subview1, pc2));
-    assertThat(getUuidsInTableProjects())
+    assertThat(uuidsIn("projects"))
       .containsOnly(view.uuid(), projects[0].uuid(), projects[1].uuid(), projects[2].uuid(), subview2.uuid(), pc1.uuid());
   }
 
@@ -1077,6 +1089,18 @@ public class PurgeDaoTest {
       .filter(snapshot -> uuid.equals(snapshot.getAnalysisUuid()))
       .findFirst()
       .orElse(null);
+  }
+
+  private Stream<String> uuidsIn(String tableName) {
+    return db.select("select uuid as \"UUID\" from " + tableName)
+      .stream()
+      .map(row -> (String) row.get("UUID"));
+  }
+
+  private Stream<String> taskUuidsIn(String tableName) {
+    return db.select("select task_uuid as \"UUID\" from " + tableName)
+      .stream()
+      .map(row -> (String) row.get("UUID"));
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {

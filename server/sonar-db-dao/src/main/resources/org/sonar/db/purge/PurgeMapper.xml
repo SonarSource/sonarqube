@@ -312,60 +312,122 @@
     </foreach>
   </delete>
 
-  <delete id="deleteCeScannerContextOfCeActivityByProjectUuid">
+  <delete id="deleteCeScannerContextOfCeActivityByRootUuid">
     delete from ce_scanner_context
     where
-      task_uuid in (select uuid from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_activity
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeTaskCharacteristicsOfCeActivityByProjectUuid">
+  <delete id="deleteCeTaskCharacteristicsOfCeActivityByRootUuid">
     delete from ce_task_characteristics
     where
-      task_uuid in (select uuid from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_activity
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeTaskInputOfCeActivityByProjectUuid">
+  <delete id="deleteCeTaskInputOfCeActivityByRootUuid">
     delete from ce_task_input
     where
-      task_uuid in (select uuid from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_activity
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeTaskMessageOfCeActivityByProjectUuid">
+  <delete id="deleteCeTaskMessageOfCeActivityByRootUuid">
     delete from ce_task_message
     where
-      task_uuid in (select uuid from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_activity
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeActivityByProjectUuid">
-      delete from ce_activity where main_component_uuid=#{projectUuid,jdbcType=VARCHAR}
+  <delete id="deleteCeActivityByRootUuid">
+      delete from ce_activity
+      where
+        component_uuid=#{rootUuid,jdbcType=VARCHAR}
+        or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteCeScannerContextOfCeQueueByProjectUuid">
+  <delete id="deleteCeScannerContextOfCeQueueByRootUuid">
     delete from ce_scanner_context
     where
-      task_uuid in (select uuid from ce_queue where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_queue
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeTaskCharacteristicsOfCeQueueByProjectUuid">
+  <delete id="deleteCeTaskCharacteristicsOfCeQueueByRootUuid">
     delete from ce_task_characteristics
     where
-      task_uuid in (select uuid from ce_queue where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_queue
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeTaskInputOfCeQueueByProjectUuid">
+  <delete id="deleteCeTaskInputOfCeQueueByRootUuid">
     delete from ce_task_input
     where
-      task_uuid in (select uuid from ce_queue where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_queue
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeTaskMessageOfCeQueueByProjectUuid">
+  <delete id="deleteCeTaskMessageOfCeQueueByRootUuid">
     delete from ce_task_message
     where
-      task_uuid in (select uuid from ce_queue where main_component_uuid=#{projectUuid,jdbcType=VARCHAR})
+      task_uuid in (
+        select
+          uuid
+        from ce_queue
+        where
+          component_uuid=#{rootUuid,jdbcType=VARCHAR}
+          or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
-  <delete id="deleteCeQueueByProjectUuid">
-    delete from ce_queue where main_component_uuid=#{projectUuid,jdbcType=VARCHAR}
+  <delete id="deleteCeQueueByRootUuid">
+    delete from ce_queue
+    where
+      component_uuid=#{rootUuid,jdbcType=VARCHAR}
+      or main_component_uuid=#{rootUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteWebhooksByProjectUuid">

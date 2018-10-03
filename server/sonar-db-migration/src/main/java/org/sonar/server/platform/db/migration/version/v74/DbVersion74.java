@@ -43,6 +43,7 @@ public class DbVersion74 implements DbVersion {
       .add(2320, "Finalize CE_ACTIVITY.MAIN_LAST_KEY 3/3", FinalizeMainLastKeyColumnsToCeActivity.class)
       .add(2321, "Increase organization key and name length", IncreaseOrganizationsKeeAndNameLength.class)
       .add(2322, "Create table CE_TASK_MESSAGE", CreateCeTaskMessage.class)
+      .add(2323, "Clean orphans from deleted branches and PRs in CE_* tables", CleanOrphanRowsInCeTables.class)
     ;
   }
 }
