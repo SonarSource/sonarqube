@@ -34,6 +34,7 @@ env:
 build_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
+  timeout_in: 90m
   gke_container:
     image: gradle:4.10.1-jdk8
     cluster_name: cirrus-cluster
