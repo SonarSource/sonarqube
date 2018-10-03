@@ -162,4 +162,10 @@ public interface ComponentMapper {
   void updateTags(ComponentDto component);
 
   List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(@Param("mergeBranchUuid") String mergeBranchUuid);
+
+  List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(
+    @Param("ncloc") String ncloc,
+    @Param("organizationUuid") String organizationUuid,
+    @Param("branch") KeyType branchOrPullRequest,
+    @Param("branchType") BranchType branchType);
 }

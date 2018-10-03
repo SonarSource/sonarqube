@@ -2021,6 +2021,33 @@ public class ComponentDaoTest {
     assertThat(privateFlagOfUuid(uuids[4])).isFalse();
   }
 
+  @Test
+  public void selectPrivateProjectsWithNcloc() throws Exception {
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey("ncloc"));
+    OrganizationDto organizationDto = db.organizations().insert();
+
+    // project1, not the biggest branch - not returned
+    final ComponentDto project1 = db.components().insertMainBranch(organizationDto, b -> b.setName("foo"));
+    insertMeasure(20d, project1, metric);
+
+    // long branch of project1 - returned
+    insertMeasure(30d, db.components().insertProjectBranch(project1, b -> b.setBranchType(BranchType.LONG)), metric);
+
+    // project2 - returned
+    insertMeasure(10d, db.components().insertMainBranch(organizationDto, b -> b.setName("bar")), metric);
+
+    // public project - not returned
+    insertMeasure(10d, db.components().insertMainBranch(organizationDto, b -> b.setPrivate(false)), metric);
+
+    // different org - not returned
+    insertMeasure(10d, db.components().insertMainBranch(db.organizations().insert()), metric);
+
+    List<ProjectNclocDistributionDto> result = underTest.selectPrivateProjectsWithNcloc(db.getSession(), organizationDto.getUuid());
+
+    assertThat(result).extracting(ProjectNclocDistributionDto::getName).containsExactly("foo", "bar");
+    assertThat(result).extracting(ProjectNclocDistributionDto::getNcloc).containsExactly(30L, 10L);
+  }
+
   private boolean privateFlagOfUuid(String uuid) {
     return underTest.selectByUuid(db.getSession(), uuid).get().isPrivate();
   }
@@ -2030,6 +2057,10 @@ public class ComponentDaoTest {
       IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(i -> randomAlphabetic(9)),
       Arrays.stream(uuids))
       .collect(toSet());
+  }
+
+  private void insertMeasure(double value, ComponentDto componentDto, MetricDto metric) {
+    db.measures().insertLiveMeasure(componentDto, metric, m -> m.setValue(value));
   }
 
 }

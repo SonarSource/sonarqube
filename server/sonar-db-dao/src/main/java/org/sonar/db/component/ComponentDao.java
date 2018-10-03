@@ -45,6 +45,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
@@ -409,6 +410,10 @@ public class ComponentDao implements Dao {
     checkThatNotTooManyConditions(query.getComponentIds(), "Too many component ids in query");
     checkThatNotTooManyConditions(query.getComponentKeys(), "Too many component keys in query");
     checkThatNotTooManyConditions(query.getComponentUuids(), "Too many component UUIDs in query");
+  }
+
+  public List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectPrivateProjectsWithNcloc(NCLOC_KEY, organizationUuid, KeyType.BRANCH, BranchType.LONG);
   }
 
 }

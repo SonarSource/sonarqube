@@ -286,6 +286,12 @@ public class ComponentDbTester {
     return branch;
   }
 
+  @SafeVarargs
+  public final ComponentDto insertProjectBranch(OrganizationDto organization, Consumer<BranchDto>... dtoPopulators) {
+    ComponentDto project = newPrivateProjectDto(organization);
+    return insertProjectBranch(project, dtoPopulators);
+  }
+
   public final ComponentDto insertProjectBranch(ComponentDto project, BranchDto branchDto) {
     // MainBranchProjectUuid will be null if it's a main branch
     checkArgument(branchDto.getProjectUuid().equals(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid())));

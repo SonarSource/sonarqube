@@ -825,4 +825,36 @@
       AND i.status != 'CLOSED'
   </select>
 
+  <select id="selectPrivateProjectsWithNcloc" resultType="org.sonar.db.component.ProjectNclocDistributionDto">
+    SELECT
+      p.kee AS kee,
+      p.name AS name,
+      t.ncloc AS ncloc
+    FROM
+      projects p
+      INNER JOIN (
+        SELECT
+          b.project_uuid AS projectUuid,
+          max(lm.value) AS ncloc
+        FROM
+          live_measures lm
+        INNER JOIN metrics m ON m.id = lm.metric_id
+        INNER JOIN project_branches b ON b.uuid = lm.project_uuid
+        WHERE
+          m.name = #{ncloc, jdbcType=VARCHAR}
+          AND b.branch_type = #{branchType, jdbcType=VARCHAR}
+          AND b.key_type = #{branch, jdbcType=VARCHAR}
+        GROUP BY
+          projectUuid) t ON t.projectUuid = p.uuid
+      WHERE
+        p.enabled = ${_true}
+        AND p.private = ${_true}
+        AND p.scope = 'PRJ'
+        AND p.qualifier = 'TRK'
+        AND p.copy_component_uuid IS NULL
+        AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      ORDER BY
+        ncloc DESC
+  </select>
+
 </mapper>
