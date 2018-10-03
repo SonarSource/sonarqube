@@ -51,7 +51,7 @@ public class UserSessionInitializer {
   /**
    * Key of attribute to be used for displaying user login
    * in logs/access.log. The pattern to be configured
-   * in property sonar.web.accessLogs.pattern is "%reqAttribute{LOGIN}"
+   * in property sonar.web.accessLogs.pattern is "%responseHeader{LOGIN}"
    */
   private static final String ACCESS_LOG_LOGIN = "LOGIN";
 
@@ -135,7 +135,7 @@ public class UserSessionInitializer {
       session = userSessionFactory.createAnonymous();
     }
     threadLocalSession.set(session);
-    request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
+    response.addHeader(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
   }
 
   private void failIfAuthenticationIsRequired() {

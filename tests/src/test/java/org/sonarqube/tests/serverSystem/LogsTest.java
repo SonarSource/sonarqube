@@ -45,7 +45,7 @@ import static util.ItUtils.projectDir;
 
 public class LogsTest {
 
-  public static final String ACCESS_LOGS_PATTERN = "\"%reqAttribute{ID}\" \"%reqAttribute{LOGIN}\" \"%r\" %s";
+  public static final String ACCESS_LOGS_PATTERN = "\"%reqAttribute{ID}\" \"%responseHeader{LOGIN}\" \"%r\" %s";
   private static final String PATH = "/called/from/LogsTest";
 
   @ClassRule
