@@ -49,6 +49,7 @@ public class DbVersion74 implements DbVersion {
       .add(2326, "Create new creator permissions for applications and portfolios", CreateApplicationsAndPortfoliosCreatorPermissions.class)
       .add(2327, "Populate default template permissions on organizations", PopulateDefaultPermTemplateOnOrganizations.class)
       .add(2328, "Add portfolio and application creator permissions on sonar-administrators group", AddApplicationCreatorAndPortfolioCreatorToSonarAdministrator.class)
+      .add(2329, "Drop column DEFAULT_PERM_TEMPLATE_VIEW on organizations", DropDefaultPermTemplateViewFromOrganizations.class)
     ;
   }
 }

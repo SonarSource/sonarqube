@@ -17,24 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.db.migration.version.v74;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropDefaultPermTemplateViewFromOrganizationsTest {
 
-public class DbVersion74Test {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropDefaultPermTemplateViewFromOrganizationsTest.class, "organizations.sql");
 
-  private DbVersion74 underTest = new DbVersion74();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private DropDefaultPermTemplateViewFromOrganizations underTest = new DropDefaultPermTemplateViewFromOrganizations(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2300() {
-    verifyMinimumMigrationNumber(underTest, 2300);
+  public void column_is_removed_from_table() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist("organizations", "default_perm_template_view");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 23);
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
+
 }

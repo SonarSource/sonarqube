@@ -1221,7 +1221,8 @@ public class OrganizationDaoTest {
           "      kee," +
           "      name," +
           "      default_perm_template_project," +
-          "      default_perm_template_view," +
+          "      default_perm_template_app," +
+          "      default_perm_template_port," +
           "      new_project_private," +
           "      guarded," +
           "      default_quality_gate_uuid," +
@@ -1241,6 +1242,7 @@ public class OrganizationDaoTest {
           "      ?," +
           "      ?," +
           "      ?," +
+          "      ?," +
           "      ?" +
           "    )")) {
       preparedStatement.setString(1, organizationUuid);
@@ -1248,12 +1250,13 @@ public class OrganizationDaoTest {
       preparedStatement.setString(3, organizationUuid);
       preparedStatement.setString(4, project);
       preparedStatement.setString(5, view);
-      preparedStatement.setBoolean(6, false);
+      preparedStatement.setString(6, view);
       preparedStatement.setBoolean(7, false);
-      preparedStatement.setString(8, "1");
-      preparedStatement.setString(9, FREE.name());
-      preparedStatement.setLong(10, 1000L);
-      preparedStatement.setLong(11, 2000L);
+      preparedStatement.setBoolean(8, false);
+      preparedStatement.setString(9, "1");
+      preparedStatement.setString(10, FREE.name());
+      preparedStatement.setLong(11, 1000L);
+      preparedStatement.setLong(12, 2000L);
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new RuntimeException("dirty insert failed", e);
@@ -1302,7 +1305,6 @@ public class OrganizationDaoTest {
       " subscription as \"subscription\"," +
       " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
       " default_perm_template_project as \"projectDefaultPermTemplate\"," +
-      " default_perm_template_view as \"viewDefaultPermTemplate\"," +
       " default_quality_gate_uuid as \"defaultQualityGateUuid\" " +
       " from organizations");
     assertThat(rows).hasSize(1);

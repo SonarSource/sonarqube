@@ -19,22 +19,21 @@
  */
 package org.sonar.server.platform.db.migration.version.v74;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class DropDefaultPermTemplateViewFromOrganizations extends DdlChange {
 
-public class DbVersion74Test {
-
-  private DbVersion74 underTest = new DbVersion74();
-
-  @Test
-  public void migrationNumber_starts_at_2300() {
-    verifyMinimumMigrationNumber(underTest, 2300);
+  public DropDefaultPermTemplateViewFromOrganizations(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 23);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), "organizations", "default_perm_template_view").build());
   }
 }
