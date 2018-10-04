@@ -46,6 +46,9 @@ public class DbVersion74 implements DbVersion {
       .add(2323, "Clean orphans from deleted branches and PRs in CE_* tables", CleanOrphanRowsInCeTables.class)
       .add(2324, "Create new creator permissions for applications and portfolios", CreateApplicationsAndPortfoliosCreatorPermissions.class)
       .add(2325, "Add default templates for applications and portfolios", AddDefaultPermTemplateColumnsToOrganizations.class)
+      .add(2326, "Create new creator permissions for applications and portfolios", CreateApplicationsAndPortfoliosCreatorPermissions.class)
+      .add(2327, "Add default templates for applications and portfolios", AddDefaultPermTemplateColumnsToOrganizations.class)
+      .add(2328, "Populate default template permissions on organizations", PopulateDefaultPermTemplateOnOrganizations.class)
     ;
   }
 }
