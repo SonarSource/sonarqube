@@ -40,7 +40,7 @@ exports[`smoke test 1`] = `
         <input
           disabled={false}
           id="organization-name"
-          maxLength={64}
+          maxLength={300}
           name="name"
           onChange={[Function]}
           required={true}
@@ -176,7 +176,7 @@ exports[`smoke test 2`] = `
         <input
           disabled={false}
           id="organization-name"
-          maxLength={64}
+          maxLength={300}
           name="name"
           onChange={[Function]}
           required={true}
@@ -327,7 +327,7 @@ exports[`smoke test 3`] = `
         <input
           disabled={true}
           id="organization-name"
-          maxLength={64}
+          maxLength={300}
           name="name"
           onChange={[Function]}
           required={true}

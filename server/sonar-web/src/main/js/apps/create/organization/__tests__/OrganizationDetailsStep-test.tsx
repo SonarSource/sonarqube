@@ -74,7 +74,13 @@ it('should validate', () => {
   ).resolves.toEqual({});
 
   expect(
-    instance.handleValidate({ avatar: '', description: '', name: '', key: '', url: '' })
+    instance.handleValidate({
+      avatar: '',
+      description: '',
+      name: '',
+      key: 'x'.repeat(301),
+      url: ''
+    })
   ).rejects.toEqual({ key: 'onboarding.create_organization.organization_name.error' });
 
   expect(
@@ -82,14 +88,10 @@ it('should validate', () => {
   ).rejects.toEqual({ avatar: 'onboarding.create_organization.avatar.error' });
 
   expect(
-    instance.handleValidate({ avatar: '', description: '', name: 'x', key: 'foo', url: '' })
-  ).rejects.toEqual({ name: 'onboarding.create_organization.display_name.error' });
-
-  expect(
     instance.handleValidate({
       avatar: '',
       description: '',
-      name: 'x'.repeat(65),
+      name: 'x'.repeat(301),
       key: 'foo',
       url: ''
     })

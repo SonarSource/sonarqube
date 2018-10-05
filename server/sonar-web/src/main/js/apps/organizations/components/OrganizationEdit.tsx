@@ -119,7 +119,7 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
               <input
                 disabled={this.state.loading}
                 id="organization-name"
-                maxLength={64}
+                maxLength={300}
                 name="name"
                 onChange={e => this.setState({ name: e.target.value })}
                 required={true}

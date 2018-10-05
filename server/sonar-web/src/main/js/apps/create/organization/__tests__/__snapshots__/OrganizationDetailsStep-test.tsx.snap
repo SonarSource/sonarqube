@@ -177,7 +177,9 @@ exports[`should render result 1`] = `
     <AlertSuccessIcon
       className="spacer-right"
     />
-    <strong>
+    <strong
+      className="text-limited"
+    >
       org
     </strong>
   </div>
