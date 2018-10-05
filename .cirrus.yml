@@ -14,7 +14,7 @@ env:
   # download licenses for testing commercial editions
   GITHUB_TOKEN: ENCRYPTED[bd3d5f7fe5901d9d9f2564caebb52af285262177294eae67ba5f1a3a1df1316449ce6e09c5e1b68eeff37e024e2d167a]
   # notifications to burgr
-  BURGR_URL: ENCRYPTED[24fba83587c1e9ed372b6cfdf12e4739ebe3b6e5b5082f1a2a742e840dd2e4b61fd5e281bf2632b22b3ad346c650c05c]
+  BURGR_URL: ENCRYPTED[06b8fcc9aaa4b495043aa08bc4450b89588902ad9a60cc8525f53d14810aff84558812e4b7eb01131dd64f33916ac941]
   BURGR_USERNAME: ENCRYPTED[cf7bfb936025fb763013bbfef0ab5723c0d9b53f135d79af36f9defa933f4b5fc72842bd83a97ce9b614503c1b77e6da]
   BURGR_PASSWORD: ENCRYPTED[bc554fc6a06c9f14cc9924cefad0a69e962a905b6d1609fc9357d458b45fc52ac74c960ad9c7382a0691433fa9dcd483]
   # ops-jenkins credentials required to trigger docs deppoyment
