@@ -323,17 +323,32 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void organization_parameter_must_not_be_set_on_project_permissions() {
+  public void organization_parameter_must_be_the_organization_of_the_project() {
     ComponentDto project = db.components().insertPrivateProject();
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Organization must not be set when project is set.");
+    expectedException.expectMessage("Organization key is incorrect.");
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_ORGANIZATION, "an_org")
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void organization_parameter_and_project_is_working_when_it_s_the_organization_of_the_project() {
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(org);
+    addUserAsMemberOfOrganization(org);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
   }
