@@ -17,17 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { useRouterHistory } from 'react-router';
-import { createHistory } from 'history';
+import getHistory from './getHistory';
 
-let history;
-
-const ensureHistory = () => {
-  history = useRouterHistory(createHistory)({
-    basename: window.baseUrl + '/'
+export default function handleRequiredAuthentication() {
+  const history = getHistory();
+  const returnTo = window.location.pathname + window.location.search + window.location.hash;
+  history.replace({
+    pathname: '/sessions/new',
+    query: { return_to: returnTo } // eslint-disable-line camelcase
   });
-  return history;
-};
-
-export default () => (history ? history : ensureHistory());
+}

@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable react/jsx-sort-props */
-import React from 'react';
+import * as React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, IndexRoute, Redirect } from 'react-router';
+import { Router, Route, IndexRoute, Redirect, RouteProps, RouteConfig } from 'react-router';
 import { Provider } from 'react-redux';
 import { IntlProvider } from 'react-intl';
+import { Location } from 'history';
 import getStore from './getStore';
 import getHistory from './getHistory';
 import MigrationContainer from '../components/MigrationContainer';
@@ -68,8 +69,9 @@ import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
 import { lazyLoad } from '../../components/lazyLoad';
 import { isSonarCloud } from '../../helpers/system';
+import { CurrentUser, AppState } from '../types';
 
-function handleUpdate() {
+function handleUpdate(this: { state: { location: Location } }) {
   const { action } = this.state.location;
 
   if (action === 'PUSH') {
@@ -77,7 +79,16 @@ function handleUpdate() {
   }
 }
 
-const startReactApp = (lang, currentUser, appState) => {
+// this is not an official api
+const RouteWithChildRoutes = Route as React.ComponentClass<
+  RouteProps & { childRoutes: RouteConfig }
+>;
+
+export default function startReactApp(
+  lang: string,
+  currentUser?: CurrentUser,
+  appState?: AppState
+) {
   const el = document.getElementById('content');
 
   const history = getHistory();
@@ -96,7 +107,7 @@ const startReactApp = (lang, currentUser, appState) => {
 
           <Route
             path="/codingrules"
-            onEnter={(nextState, replace) => {
+            onEnter={(_, replace) => {
               replace('/coding_rules' + window.location.hash);
             }}
           />
@@ -110,7 +121,7 @@ const startReactApp = (lang, currentUser, appState) => {
 
           <Route
             path="/issues/search"
-            onEnter={(nextState, replace) => {
+            onEnter={(_, replace) => {
               replace('/issues' + window.location.hash);
             }}
           />
@@ -150,18 +161,18 @@ const startReactApp = (lang, currentUser, appState) => {
 
           <Route component={MigrationContainer}>
             <Route component={lazyLoad(() => import('../components/SimpleSessionsContainer'))}>
-              <Route path="/sessions" childRoutes={sessionsRoutes} />
+              <RouteWithChildRoutes path="/sessions" childRoutes={sessionsRoutes} />
             </Route>
 
             <Route path="/" component={App}>
               <IndexRoute component={lazyLoad(() => import('../components/Landing'))} />
-              <Route path="about" childRoutes={aboutRoutes} />
+              <RouteWithChildRoutes path="about" childRoutes={aboutRoutes} />
 
               <Route component={GlobalContainer}>
-                <Route path="account" childRoutes={accountRoutes} />
-                <Route path="coding_rules" childRoutes={codingRulesRoutes} />
-                <Route path="component" childRoutes={componentRoutes} />
-                <Route path="documentation" childRoutes={documentationRoutes} />
+                <RouteWithChildRoutes path="account" childRoutes={accountRoutes} />
+                <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
+                <RouteWithChildRoutes path="component" childRoutes={componentRoutes} />
+                <RouteWithChildRoutes path="documentation" childRoutes={documentationRoutes} />
                 <Route path="explore" component={Explore}>
                   <Route path="issues" component={ExploreIssues} />
                   <Route path="projects" component={ExploreProjects} />
@@ -171,7 +182,7 @@ const startReactApp = (lang, currentUser, appState) => {
                   component={lazyLoad(() => import('../components/extensions/GlobalPageExtension'))}
                 />
                 <Route path="issues" component={IssuesPageSelector} />
-                <Route path="onboarding" childRoutes={onboardingRoutes} />
+                <RouteWithChildRoutes path="onboarding" childRoutes={onboardingRoutes} />
                 {isSonarCloud() && (
                   <Route
                     path="create-organization"
@@ -180,22 +191,28 @@ const startReactApp = (lang, currentUser, appState) => {
                     )}
                   />
                 )}
-                <Route path="organizations" childRoutes={organizationsRoutes} />
-                <Route path="projects" childRoutes={projectsRoutes} />
-                <Route path="quality_gates" childRoutes={qualityGatesRoutes} />
+                <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />
+                <RouteWithChildRoutes path="projects" childRoutes={projectsRoutes} />
+                <RouteWithChildRoutes path="quality_gates" childRoutes={qualityGatesRoutes} />
                 <Route
                   path="portfolios"
                   component={lazyLoad(() => import('../components/extensions/PortfoliosPage'))}
                 />
-                <Route path="profiles" childRoutes={qualityProfilesRoutes} />
-                <Route path="web_api" childRoutes={webAPIRoutes} />
+                <RouteWithChildRoutes path="profiles" childRoutes={qualityProfilesRoutes} />
+                <RouteWithChildRoutes path="web_api" childRoutes={webAPIRoutes} />
 
                 <Route component={lazyLoad(() => import('../components/ComponentContainer'))}>
-                  <Route path="code" childRoutes={codeRoutes} />
-                  <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
-                  <Route path="dashboard" childRoutes={overviewRoutes} />
-                  <Route path="portfolio" childRoutes={portfolioRoutes} />
-                  <Route path="project/activity" childRoutes={projectActivityRoutes} />
+                  <RouteWithChildRoutes path="code" childRoutes={codeRoutes} />
+                  <RouteWithChildRoutes
+                    path="component_measures"
+                    childRoutes={componentMeasuresRoutes}
+                  />
+                  <RouteWithChildRoutes path="dashboard" childRoutes={overviewRoutes} />
+                  <RouteWithChildRoutes path="portfolio" childRoutes={portfolioRoutes} />
+                  <RouteWithChildRoutes
+                    path="project/activity"
+                    childRoutes={projectActivityRoutes}
+                  />
                   <Route
                     path="project/extension/:pluginKey/:extensionKey"
                     component={lazyLoad(() =>
@@ -207,24 +224,39 @@ const startReactApp = (lang, currentUser, appState) => {
                     path="project/security_reports/:type"
                     component={lazyLoad(() => import('../../apps/securityReports/components/App'))}
                   />
-                  <Route path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
-                  <Route
+                  <RouteWithChildRoutes
+                    path="project/quality_gate"
+                    childRoutes={projectQualityGateRoutes}
+                  />
+                  <RouteWithChildRoutes
                     path="project/quality_profiles"
                     childRoutes={projectQualityProfilesRoutes}
                   />
                   <Route component={lazyLoad(() => import('../components/ProjectAdminContainer'))}>
-                    <Route path="custom_measures" childRoutes={customMeasuresRoutes} />
+                    <RouteWithChildRoutes
+                      path="custom_measures"
+                      childRoutes={customMeasuresRoutes}
+                    />
                     <Route
                       path="project/admin/extension/:pluginKey/:extensionKey"
                       component={lazyLoad(() =>
                         import('../components/extensions/ProjectAdminPageExtension')
                       )}
                     />
-                    <Route path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
-                    <Route path="project/branches" childRoutes={projectBranchesRoutes} />
-                    <Route path="project/settings" childRoutes={settingsRoutes} />
-                    <Route path="project_roles" childRoutes={projectPermissionsRoutes} />
-                    <Route path="project/webhooks" childRoutes={webhooksRoutes} />
+                    <RouteWithChildRoutes
+                      path="project/background_tasks"
+                      childRoutes={backgroundTasksRoutes}
+                    />
+                    <RouteWithChildRoutes
+                      path="project/branches"
+                      childRoutes={projectBranchesRoutes}
+                    />
+                    <RouteWithChildRoutes path="project/settings" childRoutes={settingsRoutes} />
+                    <RouteWithChildRoutes
+                      path="project_roles"
+                      childRoutes={projectPermissionsRoutes}
+                    />
+                    <RouteWithChildRoutes path="project/webhooks" childRoutes={webhooksRoutes} />
                     <Route
                       path="project/deletion"
                       component={lazyLoad(() => import('../../apps/projectDeletion/App'))}
@@ -249,18 +281,27 @@ const startReactApp = (lang, currentUser, appState) => {
                       import('../components/extensions/GlobalAdminPageExtension')
                     )}
                   />
-                  <Route path="background_tasks" childRoutes={backgroundTasksRoutes} />
-                  <Route path="custom_metrics" childRoutes={customMetricsRoutes} />
-                  <Route path="groups" childRoutes={groupsRoutes} />
-                  <Route path="permission_templates" childRoutes={permissionTemplatesRoutes} />
-                  <Route path="roles/global" childRoutes={globalPermissionsRoutes} />
-                  <Route path="permissions" childRoutes={globalPermissionsRoutes} />
-                  <Route path="projects_management" childRoutes={projectsManagementRoutes} />
-                  <Route path="settings" childRoutes={settingsRoutes} />
-                  <Route path="system" childRoutes={systemRoutes} />
-                  <Route path="marketplace" childRoutes={marketplaceRoutes} />
-                  <Route path="users" childRoutes={usersRoutes} />
-                  <Route path="webhooks" childRoutes={webhooksRoutes} />
+                  <RouteWithChildRoutes
+                    path="background_tasks"
+                    childRoutes={backgroundTasksRoutes}
+                  />
+                  <RouteWithChildRoutes path="custom_metrics" childRoutes={customMetricsRoutes} />
+                  <RouteWithChildRoutes path="groups" childRoutes={groupsRoutes} />
+                  <RouteWithChildRoutes
+                    path="permission_templates"
+                    childRoutes={permissionTemplatesRoutes}
+                  />
+                  <RouteWithChildRoutes path="roles/global" childRoutes={globalPermissionsRoutes} />
+                  <RouteWithChildRoutes path="permissions" childRoutes={globalPermissionsRoutes} />
+                  <RouteWithChildRoutes
+                    path="projects_management"
+                    childRoutes={projectsManagementRoutes}
+                  />
+                  <RouteWithChildRoutes path="settings" childRoutes={settingsRoutes} />
+                  <RouteWithChildRoutes path="system" childRoutes={systemRoutes} />
+                  <RouteWithChildRoutes path="marketplace" childRoutes={marketplaceRoutes} />
+                  <RouteWithChildRoutes path="users" childRoutes={usersRoutes} />
+                  <RouteWithChildRoutes path="webhooks" childRoutes={webhooksRoutes} />
                 </Route>
               </Route>
               <Route
@@ -275,6 +316,4 @@ const startReactApp = (lang, currentUser, appState) => {
     </Provider>,
     el
   );
-};
-
-export default startReactApp;
+}

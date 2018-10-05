@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import getStore from './getStore';
-import getHistory from './getHistory';
-import { requireAuthorization } from '../../store/appState';
+import { useRouterHistory } from 'react-router';
+import { createHistory, History } from 'history';
 
-export default () => {
-  const store = getStore();
-  const history = getHistory();
+let history: History;
 
-  const returnTo = window.location.pathname + window.location.search + window.location.hash;
-
-  store.dispatch(requireAuthorization());
-  history.replace({
-    pathname: '/sessions/new',
-    query: { return_to: returnTo }
+function ensureHistory() {
+  history = useRouterHistory(createHistory)({
+    // do not use `getBaseUrl` from `helpers/urls` to no import this file with all its dependecies
+    basename: (window as any).baseUrl + '/'
   });
-};
+  return history;
+}
+
+export default function getHistory() {
+  return history ? history : ensureHistory();
+}
