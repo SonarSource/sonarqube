@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db.migration.version.v74;
 
 import java.sql.SQLException;
-import org.sonar.api.config.Configuration;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -30,21 +29,13 @@ import org.sonar.server.platform.db.migration.step.SqlStatement;
 
 @SupportsBlueGreen
 public class PopulateTmpColumnsToCeActivity extends DataChange {
-  private final Configuration configuration;
 
-  public PopulateTmpColumnsToCeActivity(Database db, Configuration configuration) {
+  public PopulateTmpColumnsToCeActivity(Database db) {
     super(db);
-    this.configuration = configuration;
   }
 
   @Override
   protected void execute(Context context) throws SQLException {
-    if (configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false)) {
-      // data migration will be done in background so that interruption of service
-      // is reduced during upgrade
-      return;
-    }
-
     // activity of long and short branches
     populateCeActivityTmpColumns(context, "Archived tasks of branches",
       "select" +

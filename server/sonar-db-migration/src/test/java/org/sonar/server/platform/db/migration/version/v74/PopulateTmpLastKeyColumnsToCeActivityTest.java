@@ -28,7 +28,6 @@ import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 
@@ -42,8 +41,7 @@ public class PopulateTmpLastKeyColumnsToCeActivityTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(PopulateTmpLastKeyColumnsToCeActivityTest.class, "ce_activity.sql");
 
-  private MapSettings settings = new MapSettings();
-  private PopulateTmpLastKeyColumnsToCeActivity underTest = new PopulateTmpLastKeyColumnsToCeActivity(db.database(), settings.asConfig());
+  private PopulateTmpLastKeyColumnsToCeActivity underTest = new PopulateTmpLastKeyColumnsToCeActivity(db.database());
 
   @Test
   public void execute_has_no_effect_on_empty_table() throws SQLException {

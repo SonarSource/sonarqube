@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.CoreDbTester;
 
 import static java.util.Arrays.stream;
@@ -46,20 +45,10 @@ public class PopulateTmpColumnsToCeActivityTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(PopulateTmpColumnsToCeActivityTest.class, "ce_activity.sql");
 
-  private MapSettings settings = new MapSettings();
-  private PopulateTmpColumnsToCeActivity underTest = new PopulateTmpColumnsToCeActivity(db.database(), settings.asConfig());
+  private PopulateTmpColumnsToCeActivity underTest = new PopulateTmpColumnsToCeActivity(db.database());
 
   @Test
   public void execute_has_no_effect_on_empty_table() throws SQLException {
-    underTest.execute();
-
-    assertThat(rowsInCeActivity()).isEmpty();
-  }
-
-  @Test
-  public void execute_has_no_effect_on_empty_table_on_sonarcloud() throws SQLException {
-    settings.setProperty("sonar.sonarcloud.enabled", true);
-
     underTest.execute();
 
     assertThat(rowsInCeActivity()).isEmpty();
