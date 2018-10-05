@@ -66,6 +66,8 @@ export default class DetailsContent extends React.PureComponent<Props> {
           ) : (
             <Projects
               canEdit={actions.associateProjects}
+              // pass unique key to re-mount the component when the quality gate changes
+              key={qualityGate.id}
               organization={organization}
               qualityGate={qualityGate}
             />
