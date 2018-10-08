@@ -67,6 +67,7 @@ validate_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
+  timeout_in: 90m
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-build:0.0.3
     cluster_name: cirrus-cluster
