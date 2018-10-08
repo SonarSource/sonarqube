@@ -27,7 +27,7 @@ import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
-import { isLoggedIn, CurrentUser, AppState } from '../../../types';
+import { isLoggedIn, CurrentUser, AppState, hasGlobalPermission } from '../../../types';
 import NavBar from '../../../../components/nav/NavBar';
 import { lazyLoad } from '../../../../components/lazyLoad';
 import { getCurrentUser, getAppState, Store } from '../../../../store/rootReducer';
@@ -52,6 +52,18 @@ type Props = StateProps & OwnProps;
 export class GlobalNav extends React.PureComponent<Props> {
   static contextTypes = { openProjectOnboarding: PropTypes.func };
 
+  shouldRenderNavPlus = () => {
+    const { currentUser } = this.props;
+    if (!isLoggedIn(currentUser)) {
+      return false;
+    }
+    return (
+      hasGlobalPermission(currentUser, 'provisioning') ||
+      hasGlobalPermission(currentUser, 'applicationcreator') ||
+      hasGlobalPermission(currentUser, 'portfoliocreator')
+    );
+  };
+
   render() {
     return (
       <NavBar className="navbar-global" height={theme.globalNavHeightRaw} id="global-navigation">
@@ -63,7 +75,7 @@ export class GlobalNav extends React.PureComponent<Props> {
           {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper suggestions={this.props.suggestions} />
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
-          {isLoggedIn(this.props.currentUser) && (
+          {this.shouldRenderNavPlus() && (
             <GlobalNavPlus
               appState={this.props.appState}
               currentUser={this.props.currentUser}
