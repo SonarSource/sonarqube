@@ -47,6 +47,7 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -207,7 +208,13 @@ public class ComponentDao implements Dao {
    * Please note that a project can only appear once in the list, it's not possible to ask for many branches on same project with this method.
    */
   public List<ComponentDto> selectByKeysAndBranches(DbSession session, Map<String, String> branchesByKey) {
-    List<String> dbKeys = branchesByKey.entrySet().stream().map(entry -> generateBranchKey(entry.getKey(), entry.getValue())).collect(toList());
+    Set<String> dbKeys = branchesByKey.entrySet().stream()
+      .map(entry -> generateBranchKey(entry.getKey(), entry.getValue()))
+      .collect(toSet());
+    return selectByDbKeys(session, dbKeys);
+  }
+
+  public List<ComponentDto> selectByDbKeys(DbSession session, Set<String> dbKeys) {
     return executeLargeInputs(dbKeys, subKeys -> mapper(session).selectByDbKeys(subKeys));
   }
 
