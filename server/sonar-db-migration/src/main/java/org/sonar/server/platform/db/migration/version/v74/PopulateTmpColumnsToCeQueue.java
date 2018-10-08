@@ -43,7 +43,7 @@ public class PopulateTmpColumnsToCeQueue extends DataChange {
         " inner join projects mp on mp.uuid = cq.component_uuid" +
         " inner join ce_task_characteristics ctc1 on ctc1.task_uuid = cq.uuid and ctc1.kee = 'branchType'" +
         " inner join ce_task_characteristics ctc2 on ctc2.task_uuid = cq.uuid and ctc2.kee = 'branch'" +
-        " inner join projects p on p.kee = concat(mp.kee, ':BRANCH:', ctc2.text_value)" +
+        " inner join projects p on p.kee = concat(mp.kee, concat(':BRANCH:', ctc2.text_value))" +
         " where" +
         "  cq.component_uuid is not null" +
         "  and (cq.tmp_component_uuid is null or cq.tmp_main_component_uuid is null)");
@@ -55,7 +55,7 @@ public class PopulateTmpColumnsToCeQueue extends DataChange {
         " from ce_queue cq" +
         " inner join projects mp on mp.uuid = cq.component_uuid " +
         " inner join ce_task_characteristics ctc1 on ctc1.task_uuid = cq.uuid and ctc1.kee = 'pullRequest'" +
-        " inner join projects p on p.kee = concat(mp.kee, ':PULL_REQUEST:', ctc1.text_value)" +
+        " inner join projects p on p.kee = concat(mp.kee, concat(':PULL_REQUEST:', ctc1.text_value))" +
         " where" +
         "  cq.component_uuid is not null" +
         "  and (cq.tmp_component_uuid is null or cq.tmp_main_component_uuid is null)");
@@ -71,7 +71,7 @@ public class PopulateTmpColumnsToCeQueue extends DataChange {
         " where" +
         "  cq.component_uuid is not null" +
         "  and (cq.tmp_component_uuid is null or cq.tmp_main_component_uuid is null)" +
-        "  and not exists (select 1 from projects p where p.kee = concat(mp.kee, ':BRANCH:', ctc2.text_value))");
+        "  and not exists (select 1 from projects p where p.kee = concat(mp.kee, concat(':BRANCH:', ctc2.text_value)))");
 
     // queued of pull request which have never been analyzed must be deleted
     deleteFromCeQueue(context, "queued tasks of never analyzed PRs",
@@ -83,7 +83,7 @@ public class PopulateTmpColumnsToCeQueue extends DataChange {
         " where" +
         "  cq.component_uuid is not null" +
         "  and (cq.tmp_component_uuid is null or cq.tmp_main_component_uuid is null)" +
-        "  and not exists (select 1 from projects p where p.kee = concat(mp.kee, ':PULL_REQUEST:', ctc1.text_value))");
+        "  and not exists (select 1 from projects p where p.kee = concat(mp.kee, concat(':PULL_REQUEST:', ctc1.text_value)))");
 
     // all queue which tmp columns are not populated yet (will include main and deprecated branches)
     // both tmp columns will be set to CE_QUEUE.COMPONENT_UUID

@@ -44,7 +44,7 @@ public class PopulateTmpColumnsToCeActivity extends DataChange {
         " inner join projects mp on mp.uuid = cea.component_uuid" +
         " inner join ce_task_characteristics ctc1 on ctc1.task_uuid = cea.uuid and ctc1.kee = 'branchType'" +
         " inner join ce_task_characteristics ctc2 on ctc2.task_uuid = cea.uuid and ctc2.kee = 'branch'" +
-        " inner join projects p on p.kee = concat(mp.kee, ':BRANCH:', ctc2.text_value)" +
+        " inner join projects p on p.kee = concat(mp.kee, concat(':BRANCH:', ctc2.text_value))" +
         " where" +
         "  cea.component_uuid is not null" +
         "  and (cea.tmp_component_uuid is null or cea.tmp_main_component_uuid is null)");
@@ -56,7 +56,7 @@ public class PopulateTmpColumnsToCeActivity extends DataChange {
         " from ce_activity cea" +
         " inner join projects mp on mp.uuid = cea.component_uuid " +
         " inner join ce_task_characteristics ctc1 on ctc1.task_uuid = cea.uuid and ctc1.kee = 'pullRequest'" +
-        " inner join projects p on p.kee = concat(mp.kee, ':PULL_REQUEST:', ctc1.text_value)" +
+        " inner join projects p on p.kee = concat(mp.kee, concat(':PULL_REQUEST:', ctc1.text_value))" +
         " where" +
         "  cea.component_uuid is not null" +
         "  and (cea.tmp_component_uuid is null or cea.tmp_main_component_uuid is null)");
