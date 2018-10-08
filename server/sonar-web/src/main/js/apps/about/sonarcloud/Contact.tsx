@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Location } from 'history';
-import SonarCloudPage from './SonarCloudPage';
+import SQPageContainer from './components/SQPageContainer';
 import Select from '../../../components/controls/Select';
 import { isLoggedIn, Organization } from '../../../app/types';
 import { Alert } from '../../../components/ui/Alert';
@@ -80,7 +80,7 @@ export default class Contact extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <SonarCloudPage>
+      <SQPageContainer>
         {({ currentUser, userOrganizations }) => (
           <div className="page page-limited sc-page sc-contact-page">
             <h1 className="sc-page-title">Contact us</h1>
@@ -205,7 +205,7 @@ export default class Contact extends React.PureComponent<Props, State> {
             </form>
           </div>
         )}
-      </SonarCloudPage>
+      </SQPageContainer>
     );
   }
 }

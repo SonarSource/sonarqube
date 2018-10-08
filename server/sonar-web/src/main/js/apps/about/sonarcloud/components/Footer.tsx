@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/urls';
+import './Footer.css';
 
 export default function Footer() {
   return (

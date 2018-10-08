@@ -21,9 +21,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import Footer from './Footer';
-import { getCurrentUser, getMyOrganizations, Store } from '../../../store/rootReducer';
-import { CurrentUser, Organization } from '../../../app/types';
-import GlobalContainer from '../../../app/components/GlobalContainer';
+import { getCurrentUser, getMyOrganizations, Store } from '../../../../store/rootReducer';
+import { CurrentUser, Organization } from '../../../../app/types';
+import GlobalContainer from '../../../../app/components/GlobalContainer';
 
 interface StateProps {
   currentUser: CurrentUser;
@@ -36,7 +36,7 @@ interface OwnProps {
 
 type Props = StateProps & WithRouterProps & OwnProps;
 
-class SonarCloudPage extends React.Component<Props> {
+class SQPageContainer extends React.Component<Props> {
   componentDidMount() {
     if (document.documentElement) {
       document.documentElement.classList.add('white-page');
@@ -66,4 +66,4 @@ const mapStateToProps = (state: Store) => ({
   userOrganizations: getMyOrganizations(state)
 });
 
-export default withRouter<OwnProps>(connect(mapStateToProps)(SonarCloudPage));
+export default withRouter<OwnProps>(connect(mapStateToProps)(SQPageContainer));

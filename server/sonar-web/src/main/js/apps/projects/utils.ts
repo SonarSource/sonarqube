@@ -248,7 +248,7 @@ function convertToQueryData(
   return data;
 }
 
-function fetchProjectMeasures(projects: Array<{ key: string }>, query: Query) {
+export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Query) {
   if (!projects.length) {
     return Promise.resolve([]);
   }
@@ -258,7 +258,7 @@ function fetchProjectMeasures(projects: Array<{ key: string }>, query: Query) {
   return getMeasuresForProjects(projectKeys, metrics);
 }
 
-function fetchProjectOrganizations(
+export function fetchProjectOrganizations(
   projects: Array<{ organization: string }>,
   organization: Organization | undefined
 ) {

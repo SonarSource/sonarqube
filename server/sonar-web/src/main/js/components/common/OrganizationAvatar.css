@@ -27,7 +27,7 @@
   border: 1px solid var(--barBorderColor);
 }
 
-.navbar-context-avatar.is-empty {
+.navbar-context-avatar.no-border {
   border: none;
 }
 

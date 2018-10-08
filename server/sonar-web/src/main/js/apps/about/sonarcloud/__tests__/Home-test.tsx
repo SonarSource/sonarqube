@@ -21,8 +21,14 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Home from '../Home';
 
-jest.mock('Docs/EmbedDocsSuggestions.json', () => ({}), { virtual: true });
-
 it('should render', () => {
-  expect(shallow(<Home />)).toBeDefined();
+  const wrapper = shallow(<Home />);
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('PageBackgroundHeader').dive()).toMatchSnapshot();
+  expect(wrapper.find('PageTitle').dive()).toMatchSnapshot();
+  expect(wrapper.find('EnhanceWorkflow').dive()).toMatchSnapshot();
+  expect(wrapper.find('Functionality').dive()).toMatchSnapshot();
+  expect(wrapper.find('Languages').dive()).toMatchSnapshot();
+  expect(wrapper.find('Stats').dive()).toMatchSnapshot();
+  expect(wrapper.find('Projects').dive()).toMatchSnapshot();
 });

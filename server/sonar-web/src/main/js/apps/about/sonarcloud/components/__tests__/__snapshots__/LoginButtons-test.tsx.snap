@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div>
+  <a
+    className="sc-login-button"
+    href="/sessions/init/github"
+  >
+    <img
+      alt=""
+      height="25"
+      src="/images/sonarcloud/github.svg"
+    />
+    GitHub
+  </a>
+  <a
+    className="sc-login-button"
+    href="/sessions/init/bitbucket"
+  >
+    <img
+      alt=""
+      height="25"
+      src="/images/sonarcloud/bitbucket.svg"
+    />
+    Bitbucket
+  </a>
+  <a
+    className="sc-login-button"
+    href="/sessions/init/microsoft"
+  >
+    <img
+      alt=""
+      height="25"
+      src="/images/sonarcloud/azure.svg"
+    />
+    Azure DevOps
+  </a>
+</div>
+`;

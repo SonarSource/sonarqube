@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="sc-stats"
+>
+  <StatisticCard
+    key="stat-icon"
+    statistic={
+      Object {
+        "icon": "stat-icon",
+        "text": "my stat",
+        "value": 26666,
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render StatisticCard 1`] = `
+<div
+  className="sc-stat-card"
+>
+  <div
+    className="sc-stat-icon"
+  >
+    <img
+      alt=""
+      height={32}
+      src="/images/sonarcloud/stat-icon.svg"
+    />
+  </div>
+  <div
+    className="sc-stat-content"
+  >
+    <span
+      className="sc-medium-weight"
+    >
+      my stat
+    </span>
+  </div>
+</div>
+`;

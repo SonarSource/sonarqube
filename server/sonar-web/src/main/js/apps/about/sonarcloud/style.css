@@ -27,38 +27,8 @@
   font-family: var(--systemFontFamily);
 }
 
-.sc-page *:focus,
-.sc-footer *:focus {
+.sc-page *:focus {
   box-shadow: 0 0 0 3px rgba(230, 92, 0, 0.25);
-}
-
-.sc-white-button {
-  display: inline-block;
-  background-color: var(--sonarcloudBlack100);
-  border: 1px solid var(--sonarcloudBlack300);
-  margin: 10px auto;
-  font-size: 18px;
-  font-weight: 500;
-  padding-right: 15px;
-  color: var(--sonarcloudBlack800);
-  border-radius: 4px;
-  height: 50px;
-  line-height: 50px;
-  padding-left: 15px;
-  transition: all 0.1s ease-in;
-  box-shadow: 0 1px 2px rgba(7, 7, 6, 0.1);
-}
-
-.sc-white-button img {
-  height: 25px;
-  padding-top: 12px;
-  margin-bottom: 5px;
-}
-
-.sc-white-button:hover {
-  box-shadow: 0 10px 20px rgba(7, 7, 6, 0.2);
-  transform: translate(0, -2px);
-  color: var(--sonarcloudBlack800);
 }
 
 .sc-black-button,
@@ -86,12 +56,12 @@
 }
 
 .sc-orange-button {
-  background-color: var(--sonarcloudOrange);
+  background-color: var(--sonarcloudOrange500);
 }
 
 .sc-orange-button:hover,
 .sc-orange-button:focus {
-  background-color: var(--sonarcloudOrangeDark);
+  background-color: var(--sonarcloudOrange700);
   color: #fff;
 }
 
@@ -149,14 +119,14 @@
 
 .sc-feature-link {
   margin-top: 16px;
-  color: var(--sonarcloudOrange) !important;
+  color: var(--sonarcloudOrange500) !important;
   font-size: 16px;
   font-weight: 400;
 }
 
 .sc-feature-link:hover,
 .sc-feature-link:focus {
-  color: var(--sonarcloudOrangeDark) !important;
+  color: var(--sonarcloudOrange700) !important;
 }
 
 .sc-narrow-container {
@@ -185,7 +155,7 @@
 .sc-pricing-title {
   line-height: 34px;
   margin-bottom: 20px;
-  color: var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange500);
   font-size: 24px;
   font-weight: 400;
 }
@@ -220,7 +190,7 @@
 }
 
 .sc-arrow-link:focus {
-  color: var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange500);
 }
 
 .sc-arrow-link:hover::after {
@@ -236,7 +206,7 @@
 
 .sc-start:hover,
 .sc-start:focus {
-  background-color: var(--sonarcloudOrangeDark);
+  background-color: var(--sonarcloudOrange700);
   color: #fff;
 }
 
@@ -247,9 +217,9 @@
   line-height: 33px;
   padding: 0 16px;
   border-radius: 5px;
-  border: 1px solid var(--sonarcloudOrange);
+  border: 1px solid var(--sonarcloudOrange500);
   box-sizing: border-box;
-  color: var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange500);
   font-size: 16px;
   font-weight: 700;
   transition: box-shadow 0.3s ease;
@@ -257,7 +227,7 @@
 
 .sc-browse:hover,
 .sc-browse:focus {
-  background-color: var(--sonarcloudOrange);
+  background-color: var(--sonarcloudOrange500);
   color: #fff;
 }
 
@@ -282,72 +252,8 @@
 
 .sc-news-link:hover,
 .sc-news-link:focus {
-  border-bottom-color: var(--sonarcloudOrange);
-  color: var(--sonarcloudOrange);
-}
-
-.sc-footer {
-  background-color: var(--sonarcloudBlack800);
-  color: var(--sonarcloudBlack300);
-  font-size: 12px;
-}
-
-.sc-footer-limited {
-  position: relative;
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.sc-footer-copy {
-  padding: 20px 0;
-  border-top: 1px solid var(--sonarcloudBlack700);
-  line-height: 16px;
-  font-size: 11px;
-  text-align: center;
-}
-
-.sc-footer-copy-link {
-  text-decoration: underline;
-}
-
-.sc-footer-nav {
-  display: flex;
-  padding: 30px 0;
-}
-
-.sc-footer-nav-column {
-  margin-right: 60px;
-}
-
-.sc-footer-nav-column-title {
-  line-height: 1;
-  margin-bottom: 16px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.sc-footer-link {
-  border: none;
-  color: inherit;
-}
-
-.sc-footer-link:hover {
-  color: #fff;
-}
-
-.sc-footer-link:focus {
-  color: var(--sonarcloudOrange);
-}
-
-.sc-footer-logo {
-  position: absolute;
-  top: 30px;
-  right: 20px;
+  border-bottom-color: var(--sonarcloudOrange500);
+  color: var(--sonarcloudOrange500);
 }
 
 .sc-sq-jumbotron {
@@ -359,7 +265,7 @@
 }
 
 .sc-sq-jumbotron-left {
-  min-width: 500px;
+  min-width: 540px;
 }
 
 .sc-sq-jumbotron-right {
@@ -382,22 +288,12 @@
 }
 
 .sc-sq-jumbotron-title-orange {
-  color: var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange500);
 }
 
 .sc-sq-jumbotron-login {
   line-height: 25px;
   font-size: 18px;
-}
-
-.sc-sq-login-button {
-  margin-top: 16px;
-  margin-right: 16px;
-}
-
-.sc-sq-login-button > img {
-  margin-right: 12px;
-  margin-bottom: 1px;
 }
 
 .sc-sq-header2 {
@@ -463,8 +359,8 @@
 
 .sc-bottom-note-link:hover,
 .sc-bottom-note-link:focus {
-  border-bottom-color: var(--sonarcloudOrange);
-  color: var(--sonarcloudOrange);
+  border-bottom-color: var(--sonarcloudOrange500);
+  color: var(--sonarcloudOrange500);
 }
 
 .sc-sq-page {
@@ -493,8 +389,8 @@
 
 a.sc-top-nav-link:hover,
 a.sc-top-nav-link:focus {
-  border-bottom-color: var(--sonarcloudOrange);
-  color: var(--sonarcloudOrange);
+  border-bottom-color: var(--sonarcloudOrange500);
+  color: var(--sonarcloudOrange500);
 }
 
 .sc-top-nav-active {
@@ -524,13 +420,13 @@ a.sc-top-nav-link:focus {
 
 .sc-child-lead-link {
   border-bottom-color: rgba(255, 102, 0, 0.2);
-  color: var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange500);
 }
 
 .sc-child-lead-link:hover,
 .sc-child-lead-link:focus {
-  border-bottom-color: var(--sonarcloudOrangeDark);
-  color: var(--sonarcloudOrangeDark);
+  border-bottom-color: var(--sonarcloudOrange700);
+  color: var(--sonarcloudOrange700);
 }
 
 .sc-child-feature {
@@ -712,8 +608,8 @@ a.sc-top-nav-link:focus {
 .sc-contact-page button {
   padding: 6px 12px;
   background: none;
-  color: var(--sonarcloudOrange);
-  border: 1px solid var(--sonarcloudOrange);
+  color: var(--sonarcloudOrange500);
+  border: 1px solid var(--sonarcloudOrange500);
   border-radius: 5px;
   font-size: 12px;
   font-weight: 400;
@@ -722,18 +618,18 @@ a.sc-top-nav-link:focus {
 
 .sc-contact-page button:hover {
   color: white;
-  background-color: var(--sonarcloudOrange);
+  background-color: var(--sonarcloudOrange500);
 }
 
 .sc-contact-page button:focus {
   color: white;
-  background-color: var(--sonarcloudOrange);
+  background-color: var(--sonarcloudOrange500);
   outline: none;
 }
 
 .sc-contact-page button:active {
   color: white;
-  background-color: var(--sonarcloudOrange);
+  background-color: var(--sonarcloudOrange500);
 }
 
 .sc-contact-page .form-group {
@@ -750,7 +646,7 @@ a.sc-top-nav-link:focus {
 }
 
 .sc-contact-page a {
-  color: var(--sonarcloudOrange) !important;
+  color: var(--sonarcloudOrange500) !important;
   border: none;
 }
 

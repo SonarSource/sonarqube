@@ -1,0 +1,102 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.navbar {
+  position: fixed;
+  background-color: #fff;
+  width: 100%;
+  display: block;
+  transition: top 0.3s;
+  height: 60px;
+  line-height: 60px;
+  z-index: 10;
+  border-bottom: 1px solid var(--sonarcloudBlack300);
+  top: -100px;
+}
+
+.top-navbar {
+  height: 60px;
+  line-height: 60px;
+}
+
+.top-navbar a,
+.navbar a {
+  border-bottom: none;
+}
+
+.top-navbar img,
+.navbar img {
+  height: 50px;
+  vertical-align: middle;
+}
+
+.top-navbar ul,
+.navbar ul {
+  float: right;
+}
+
+.top-navbar ul li,
+.navbar ul li {
+  display: inline-block;
+  margin: 0 0 0 30px;
+  line-height: 30px;
+}
+
+.top-navbar ul li a,
+.navbar ul li a {
+  font-family: var(--sonarcloudFontFamily);
+  color: var(--sonarcloudBlack800);
+  font-weight: 700;
+}
+
+.navbar ul li:hover {
+  border-bottom: 2px solid var(--sonarcloudOrange500);
+}
+
+.top-navbar ul li:hover {
+  border-bottom: 2px solid #fff;
+}
+
+.navbar ul li a:hover {
+  color: var(--sonarcloudOrange500);
+}
+
+.top-navbar ul li.outline:hover,
+.navbar ul li.outline:hover {
+  border-bottom: none;
+}
+
+.navbar ul li.outline:hover a {
+  border-color: var(--sonarcloudOrange500);
+}
+
+.top-navbar ul li.outline a,
+.navbar ul li.outline a {
+  border: 1px solid var(--sonarcloudBlack800);
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.top-navbar ul li a {
+  color: #fff;
+}
+
+.top-navbar ul li.outline a {
+  border: 1px solid #fff;
+}

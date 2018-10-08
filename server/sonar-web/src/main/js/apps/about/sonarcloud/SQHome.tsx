@@ -19,16 +19,17 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import SonarCloudPage from './SonarCloudPage';
-import Pricing from './Pricing';
-import StartUsing from './StartUsing';
+import LoginButtons from './components/LoginButtons';
+import Pricing from './components/Pricing';
+import SQPageContainer from './components/SQPageContainer';
+import StartUsing from './components/StartUsing';
 import { isLoggedIn } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 
 export default function SQHome() {
   return (
-    <SonarCloudPage>
+    <SQPageContainer>
       {({ currentUser }) => (
         <div className="page sc-page sc-sq-page">
           <Jumbotron />
@@ -43,7 +44,7 @@ export default function SQHome() {
           <BottomNote />
         </div>
       )}
-    </SonarCloudPage>
+    </SQPageContainer>
   );
 }
 
@@ -61,26 +62,7 @@ function Jumbotron() {
           <br />
           Log in or sign up with
         </div>
-        <div>
-          <a
-            className="sc-white-button sc-sq-login-button"
-            href={`${getBaseUrl()}/sessions/init/github`}>
-            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/github.svg`} />
-            GitHub
-          </a>
-          <a
-            className="sc-white-button sc-sq-login-button"
-            href={`${getBaseUrl()}/sessions/init/bitbucket`}>
-            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/bitbucket.svg`} />
-            Bitbucket
-          </a>
-          <a
-            className="sc-white-button sc-sq-login-button"
-            href={`${getBaseUrl()}/sessions/init/microsoft`}>
-            <img alt="" height="25" src={`${getBaseUrl()}/images/sonarcloud/windows.svg`} />
-            VSTS
-          </a>
-        </div>
+        <LoginButtons />
       </div>
       <div className="sc-sq-jumbotron-right">
         <img
@@ -162,7 +144,7 @@ function Languages() {
           <img
             alt="Java"
             height="60"
-            src={`${getBaseUrl()}/images/languages/java.svg`}
+            src={`${getBaseUrl()}/images/languages/black/java.svg`}
             width="60"
           />
         </li>
@@ -170,7 +152,7 @@ function Languages() {
           <img
             alt="JavaScript"
             height="60"
-            src={`${getBaseUrl()}/images/languages/js.svg`}
+            src={`${getBaseUrl()}/images/languages/black/js.svg`}
             width="60"
           />
         </li>
@@ -178,7 +160,7 @@ function Languages() {
           <img
             alt="TypeScript"
             height="60"
-            src={`${getBaseUrl()}/images/languages/ts.svg`}
+            src={`${getBaseUrl()}/images/languages/black/ts.svg`}
             width="60"
           />
         </li>
@@ -186,7 +168,7 @@ function Languages() {
           <img
             alt="C#"
             height="60"
-            src={`${getBaseUrl()}/images/languages/c-sharp.svg`}
+            src={`${getBaseUrl()}/images/languages/black/csharp.svg`}
             width="60"
           />
         </li>
@@ -194,34 +176,49 @@ function Languages() {
           <img
             alt="C++"
             height="60"
-            src={`${getBaseUrl()}/images/languages/c-plus.svg`}
+            src={`${getBaseUrl()}/images/languages/black/c-c-plus-plus.svg`}
             width="60"
           />
         </li>
         <li>
-          <img alt="Go" height="60" src={`${getBaseUrl()}/images/languages/go.svg`} width="60" />
+          <img
+            alt="Go"
+            height="60"
+            src={`${getBaseUrl()}/images/languages/black/go.svg`}
+            width="60"
+          />
         </li>
         <li>
           <img
             alt="Python"
             height="60"
-            src={`${getBaseUrl()}/images/languages/python.svg`}
+            src={`${getBaseUrl()}/images/languages/black/python.svg`}
             width="60"
           />
         </li>
         <li>
-          <img alt="PHP" height="60" src={`${getBaseUrl()}/images/languages/php.svg`} width="60" />
+          <img
+            alt="PHP"
+            height="60"
+            src={`${getBaseUrl()}/images/languages/black/php.svg`}
+            width="60"
+          />
         </li>
       </ul>
       <ul className="sc-languages-list">
         <li>
-          <img alt="VB" height="60" src={`${getBaseUrl()}/images/languages/vb.svg`} width="60" />
+          <img
+            alt="VB"
+            height="60"
+            src={`${getBaseUrl()}/images/languages/black/vb.svg`}
+            width="60"
+          />
         </li>
         <li>
           <img
             alt="Flex"
             height="60"
-            src={`${getBaseUrl()}/images/languages/flex.png`}
+            src={`${getBaseUrl()}/images/languages/black/flex@2x.png`}
             width="85"
           />
         </li>
@@ -229,7 +226,7 @@ function Languages() {
           <img
             alt="HTML"
             height="60"
-            src={`${getBaseUrl()}/images/languages/html5.svg`}
+            src={`${getBaseUrl()}/images/languages/black/html5.svg`}
             width="60"
           />
         </li>
@@ -237,7 +234,7 @@ function Languages() {
           <img
             alt="Swift"
             height="60"
-            src={`${getBaseUrl()}/images/languages/swift.svg`}
+            src={`${getBaseUrl()}/images/languages/black/swift.svg`}
             width="60"
           />
         </li>
@@ -245,7 +242,7 @@ function Languages() {
           <img
             alt="Objective-C"
             height="60"
-            src={`${getBaseUrl()}/images/languages/obj-c.svg`}
+            src={`${getBaseUrl()}/images/languages/black/obj-c.svg`}
             width="60"
           />
         </li>
@@ -253,7 +250,7 @@ function Languages() {
           <img
             alt="T-SQL"
             height="60"
-            src={`${getBaseUrl()}/images/languages/tsql.svg`}
+            src={`${getBaseUrl()}/images/languages/black/t-sql.svg`}
             width="60"
           />
         </li>
@@ -261,7 +258,7 @@ function Languages() {
           <img
             alt="PL/SQL"
             height="60"
-            src={`${getBaseUrl()}/images/languages/plsql.svg`}
+            src={`${getBaseUrl()}/images/languages/black/pl-sql.svg`}
             width="60"
           />
         </li>
@@ -269,12 +266,17 @@ function Languages() {
           <img
             alt="ABAP"
             height="60"
-            src={`${getBaseUrl()}/images/languages/abap.svg`}
+            src={`${getBaseUrl()}/images/languages/black/abap.svg`}
             width="60"
           />
         </li>
         <li>
-          <img alt="XML" height="60" src={`${getBaseUrl()}/images/languages/xml.svg`} width="60" />
+          <img
+            alt="XML"
+            height="60"
+            src={`${getBaseUrl()}/images/languages/black/xml.svg`}
+            width="60"
+          />
         </li>
       </ul>
     </div>

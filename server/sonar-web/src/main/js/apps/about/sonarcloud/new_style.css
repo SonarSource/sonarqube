@@ -1,0 +1,250 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+
+.sc-page,
+.sc-page span,
+.sc-page li,
+.sc-page p {
+  font-family: var(--baseFontFamily);
+  font-size: 15px;
+}
+
+.sc-page h1,
+.sc-page h2,
+.sc-page h3,
+.sc-page h4,
+.sc-page h5 {
+  font-family: var(--sonarcloudFontFamily);
+  color: var(--sonarcloudBlack800);
+  font-weight: 700;
+}
+
+.sc-page h1 {
+  line-height: 62px;
+  font-size: 60px;
+}
+
+.sc-page h2 {
+  line-height: 50px;
+  font-size: 44px;
+}
+
+.sc-page h3 {
+  line-height: 42px;
+  font-size: 36px;
+}
+
+.sc-page h4 {
+  line-height: 38px;
+  font-size: 32px;
+}
+
+.sc-page h5 {
+  line-height: 32px;
+  font-size: 26px;
+}
+
+.sc-page h6 {
+  line-height: 26px;
+  font-size: 21px;
+}
+
+.sc-section {
+  position: relative;
+  max-width: 1040px;
+  padding: 0px 20px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+}
+
+.sc-mention,
+.sc-mention span {
+  font-size: 12px;
+  font-style: italic;
+}
+
+.sc-light-weight {
+  font-weight: 300 !important;
+}
+
+.sc-regular-weight {
+  font-weight: 400 !important;
+}
+
+.sc-medium-weight {
+  font-weight: 500 !important;
+}
+
+.sc-bold-weight {
+  font-weight: 700 !important;
+}
+
+.sc-columns {
+  display: flex;
+  justify-content: space-around;
+  margin: 0 auto 80px;
+}
+
+.sc-column-half {
+  width: 50%;
+}
+
+.sc-column-min {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.sc-column-full {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.sc-column-small {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 38%;
+}
+
+.sc-column-big {
+  max-width: 52%;
+}
+
+.sc-spacer-bottom {
+  margin-bottom: 20px;
+}
+
+.sc-big-spacer-bottom {
+  margin-bottom: 50px;
+}
+
+.sc-title-orange {
+  color: var(--sonarcloudOrange500) !important;
+}
+
+.sc-separator {
+  margin: 20px 0;
+  width: 42px;
+  border-top: 1px solid var(--sonarcloudBlack300);
+}
+
+.sc-rounded-img {
+  border-radius: 3px;
+  box-shadow: 0 3px 40px rgba(0, 0, 0, 0.05);
+}
+
+.sc-header-background {
+  position: absolute;
+  width: 100%;
+  min-width: 1080px;
+  z-index: 0;
+}
+
+.sc-functionality-background {
+  position: relative;
+  width: 100%;
+  min-width: 1080px;
+  margin-top: -150px;
+  z-index: 0;
+}
+
+.sc-background-start {
+  position: absolute;
+  background-color: #fdc300;
+  height: 5px;
+  width: 50%;
+  left: 0;
+  z-index: 0;
+}
+
+.sc-background-end {
+  position: absolute;
+  background-color: var(--sonarcloudOrange500);
+  height: 5px;
+  width: 50%;
+  right: 0;
+  z-index: 0;
+}
+
+.sc-background-center {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sc-background-center img {
+  flex-grow: 0;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.sc-with-icon,
+.sc-with-inline-icon {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.sc-with-icon img {
+  height: 14px;
+}
+
+.sc-with-inline-icon img {
+  max-height: 18px;
+  padding: 0 4px;
+}
+
+.sc-functionality-container {
+  background-color: var(--sonarcloudBlack200);
+}
+
+.sc-languages-container {
+  padding: 90px 0 0;
+  background-color: var(--sonarcloudBlack800);
+  margin-bottom: 90px;
+}
+
+.sc-languages-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 40px;
+  margin-bottom: -40px;
+  transition: height 0.3s ease;
+}
+
+.sc-languages-list > li {
+  display: inline-block;
+  text-align: center;
+  margin: 0 0 45px 80px;
+  height: 60px;
+  width: 60px;
+}
+
+.sc-languages-list > li img {
+  height: 100%;
+  width: 100%;
+}
+
+.sc-languages-container h3,
+.sc-languages-container a {
+  color: #fff;
+}

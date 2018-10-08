@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import SonarCloudPage from './SonarCloudPage';
+import SQPageContainer from './components/SQPageContainer';
 import { isLoggedIn } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 
 export default function VSTS() {
   return (
-    <SonarCloudPage>
+    <SQPageContainer>
       {({ currentUser }) => (
         <div className="page page-limited sc-page">
           <ul className="sc-top-nav">
@@ -130,6 +130,6 @@ export default function VSTS() {
           </div>
         </div>
       )}
-    </SonarCloudPage>
+    </SQPageContainer>
   );
 }

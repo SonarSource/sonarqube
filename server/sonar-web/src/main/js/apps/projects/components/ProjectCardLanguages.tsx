@@ -24,11 +24,12 @@ import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../app/types';
 
 interface Props {
+  className?: string;
   distribution?: string;
   languages: Languages;
 }
 
-export default function ProjectCardLanguages({ distribution, languages }: Props) {
+export default function ProjectCardLanguages({ className, distribution, languages }: Props) {
   if (distribution === undefined) {
     return null;
   }
@@ -38,22 +39,25 @@ export default function ProjectCardLanguages({ distribution, languages }: Props)
     getLanguageName(languages, l[0])
   );
 
-  const tooltip = (
-    <span>
-      {finalLanguages.map(language => (
-        <span key={language}>
-          {language}
-          <br />
-        </span>
-      ))}
-    </span>
-  );
-
   const languagesText =
     finalLanguages.slice(0, 2).join(', ') + (finalLanguages.length > 2 ? ', ...' : '');
 
+  let tooltip;
+  if (finalLanguages.length > 2) {
+    tooltip = (
+      <span>
+        {finalLanguages.map(language => (
+          <span key={language}>
+            {language}
+            <br />
+          </span>
+        ))}
+      </span>
+    );
+  }
+
   return (
-    <div className="project-card-languages">
+    <div className={className}>
       <Tooltip overlay={tooltip}>
         <span>{languagesText}</span>
       </Tooltip>

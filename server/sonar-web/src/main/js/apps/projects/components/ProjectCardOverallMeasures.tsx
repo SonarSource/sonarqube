@@ -144,6 +144,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
             </div>
             <div className="project-card-measure-label">
               <ProjectCardLanguagesContainer
+                className="project-card-languages"
                 distribution={measures['ncloc_language_distribution']}
               />
             </div>

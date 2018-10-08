@@ -23,6 +23,7 @@ import GenericAvatar from '../ui/GenericAvatar';
 import './OrganizationAvatar.css';
 
 interface Props {
+  className?: string;
   organization: {
     avatar?: string;
     name: string;
@@ -30,13 +31,15 @@ interface Props {
   small?: boolean;
 }
 
-export default function OrganizationAvatar({ organization, small }: Props) {
+export default function OrganizationAvatar({ className, organization, small }: Props) {
   return (
     <div
-      className={classNames('navbar-context-avatar', 'rounded', {
-        'is-empty': !organization.avatar,
-        'is-small': small
-      })}>
+      className={classNames(
+        'navbar-context-avatar',
+        'rounded',
+        { 'no-border': !organization.avatar, 'is-small': small },
+        className
+      )}>
       {organization.avatar ? (
         <img alt={organization.name} className="rounded" src={organization.avatar} />
       ) : (

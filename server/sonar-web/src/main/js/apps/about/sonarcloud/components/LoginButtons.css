@@ -1,0 +1,48 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+.sc-login-button {
+  display: inline-block;
+  background-color: var(--sonarcloudBlack100);
+  border: 1px solid var(--sonarcloudBlack300);
+  color: var(--sonarcloudBlack800);
+  margin: 10px 12px auto auto;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 0 15px;
+  border-radius: 4px;
+  height: 44px;
+  line-height: 44px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(7, 7, 6, 0.1);
+}
+
+.sc-login-button > img {
+  height: 25px;
+  padding-top: 10px;
+  margin-right: 12px;
+  margin-bottom: 1px;
+}
+
+.sc-login-button:hover {
+  box-shadow: 0 10px 20px rgba(7, 7, 6, 0.2);
+  transform: translate(0, -2px);
+  color: var(--sonarcloudBlack800);
+}

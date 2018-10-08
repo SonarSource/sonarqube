@@ -1,0 +1,126 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+.sc-featured-projects {
+  position: relative;
+}
+
+.sc-featured-projects-container {
+  margin: 0 40px;
+  overflow: hidden;
+  padding: 10px 0 20px;
+  max-width: 985px;
+}
+
+.sc-featured-projects-inner {
+  display: flex;
+  order: 2;
+  position: relative;
+  left: -33.33333%;
+  transform: translateX(33.33333%);
+}
+
+.sc-featured-projects-inner.reversing {
+  transform: translateX(-33.33333%);
+}
+
+.sc-featured-projects-inner.ready {
+  transform: translateX(0);
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.sc-featured-projects-inner.loading {
+  left: 50%;
+}
+
+.sc-project-card-container {
+  flex-basis: 1 0 33.33333%;
+}
+
+.sc-project-card {
+  width: 255px;
+  display: inline-block;
+  margin: 0 10px;
+  padding: 25px;
+  border: 1px solid var(--sonarcloudBlack300);
+  border-radius: 5px;
+  box-shadow: 0 1px 1px rgba(7, 7, 6, 0.1);
+  transition: all 0.1s ease-in;
+  color: inherit;
+}
+
+.sc-project-card:hover,
+.sc-project-card:focus {
+  box-shadow: 0 10px 30px rgba(7, 7, 6, 0.2);
+  transform: translateY(-4px);
+  color: inherit;
+}
+
+.sc-project-card-header {
+  padding: 0 10px 30px;
+}
+
+.sc-project-card-limited {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-project-card-measures li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 6px 0 4px;
+  border-bottom: 1px solid var(--sonarcloudBlack300);
+}
+
+.sc-project-card-measures li:last-of-type {
+  border: none;
+}
+
+.sc-project-card-measures li div {
+  display: inline-flex;
+}
+
+.sc-project-button {
+  display: block;
+  position: absolute;
+  top: 50%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--sonarcloudBlack300);
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.sc-project-button:last-child {
+  right: 0;
+}
+
+.sc-project-button:hover,
+.sc-project-button:active,
+.sc-project-button:focus {
+  color: var(--sonarcloudBlack500);
+}

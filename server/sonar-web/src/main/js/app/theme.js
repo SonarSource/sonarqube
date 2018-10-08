@@ -135,8 +135,8 @@ module.exports = {
   popupZIndex: '5000',
 
   // sonarcloud
-  sonarcloudOrange: '#f60',
-  sonarcloudOrangeDark: '#e65c00',
+  sonarcloudOrange500: '#fd6a00',
+  sonarcloudOrange700: '#db5700',
   sonarcloudBlack100: '#ffffff',
   sonarcloudBlack200: '#f9f9fb',
   sonarcloudBlack300: '#cfd3d7',

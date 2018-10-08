@@ -1,0 +1,244 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render ProjectCard correctly 1`] = `
+<div
+  className="sc-project-card-container"
+  style={
+    Object {
+      "order": 1,
+    }
+  }
+>
+  <Link
+    className="sc-project-card"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/dashboard",
+        "query": Object {
+          "branch": undefined,
+          "id": "foo",
+        },
+      }
+    }
+  >
+    <div
+      className="sc-project-card-header"
+    >
+      <React.Fragment>
+        <OrganizationAvatar
+          className="no-border big-spacer-bottom"
+          organization={
+            Object {
+              "avatar": "",
+              "name": "Foo",
+            }
+          }
+        />
+        <p
+          className="sc-project-card-limited"
+          title="Foo"
+        >
+          Foo
+        </p>
+      </React.Fragment>
+      <h5
+        className="sc-project-card-limited spacer-bottom"
+        title="Foo"
+      >
+        Foo
+      </h5>
+      <Level />
+    </div>
+    <ul
+      className="sc-project-card-measures"
+    >
+      <ProjectIssues
+        measures={
+          Object {
+            "bar": "20",
+            "foo": "15",
+          }
+        }
+        metric="bugs"
+        ratingMetric="reliability_rating"
+        viewable={false}
+      />
+      <ProjectIssues
+        measures={
+          Object {
+            "bar": "20",
+            "foo": "15",
+          }
+        }
+        metric="vulnerabilities"
+        ratingMetric="security_rating"
+        viewable={false}
+      />
+      <ProjectIssues
+        measures={
+          Object {
+            "bar": "20",
+            "foo": "15",
+          }
+        }
+        metric="code_smells"
+        ratingMetric="sqale_rating"
+        viewable={false}
+      />
+      <li>
+        <span>
+          overview.metric.coverage
+        </span>
+        <div>
+          <CoverageRating />
+        </div>
+      </li>
+      <li>
+        <span>
+          overview.metric.duplications
+        </span>
+        <div>
+          <DuplicationsRating
+            value={NaN}
+          />
+        </div>
+      </li>
+    </ul>
+    <div
+      className="sc-mention text-left big-spacer-top"
+    >
+       lines of code /
+       
+      <Connect(ProjectCardLanguages)
+        className="display-inline-block"
+      />
+    </div>
+  </Link>
+</div>
+`;
+
+exports[`should render ProjectIssues correctly 1`] = `
+<li>
+  <span>
+    overview.metric.foo
+  </span>
+  <div>
+    <Rating
+      value="20"
+    />
+  </div>
+</li>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="sc-featured-projects sc-big-spacer-bottom"
+>
+  <button
+    className="js-prev sc-project-button"
+    onClick={[Function]}
+    type="button"
+  >
+    <ChevronLeftIcon
+      className="spacer-left"
+      size={32}
+    />
+  </button>
+  <div
+    className="sc-featured-projects-container"
+  >
+    <div
+      className="sc-featured-projects-inner ready"
+    >
+      <ProjectCard
+        key="foobar"
+        order={0}
+        project={
+          Object {
+            "key": "foobar",
+            "measures": Object {
+              "bar": "20",
+              "foo": "15",
+            },
+            "name": "Foobar",
+            "organization": Object {
+              "avatar": "",
+              "name": "Foobar",
+            },
+          }
+        }
+        viewable={false}
+      />
+      <ProjectCard
+        key="foo"
+        order={1}
+        project={
+          Object {
+            "key": "foo",
+            "measures": Object {
+              "coverage": "20",
+              "foo": "15",
+            },
+            "name": "Foo",
+            "organization": Object {
+              "avatar": "",
+              "name": "Foo",
+            },
+          }
+        }
+        viewable={false}
+      />
+      <ProjectCard
+        key="bar"
+        order={2}
+        project={
+          Object {
+            "key": "bar",
+            "measures": Object {
+              "bar": "20",
+              "foo": "15",
+            },
+            "name": "Bar",
+            "organization": Object {
+              "avatar": "",
+              "name": "Bar",
+            },
+          }
+        }
+        viewable={false}
+      />
+      <ProjectCard
+        key="baz"
+        order={3}
+        project={
+          Object {
+            "key": "baz",
+            "measures": Object {
+              "bar": "20",
+              "foo": "15",
+            },
+            "name": "Baz",
+            "organization": Object {
+              "avatar": "",
+              "name": "Baz",
+            },
+          }
+        }
+        viewable={false}
+      />
+    </div>
+  </div>
+  <button
+    className="js-next sc-project-button"
+    onClick={[Function]}
+    type="button"
+  >
+    <ChevronRightIcon
+      className="spacer-left"
+      size={32}
+    />
+  </button>
+</div>
+`;

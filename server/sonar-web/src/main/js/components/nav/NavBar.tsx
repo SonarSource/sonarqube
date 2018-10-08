@@ -26,6 +26,7 @@ interface Props {
   children?: any;
   className?: string;
   height: number;
+  top?: number;
   notif?: React.ReactNode;
   [prop: string]: any;
 }
@@ -58,9 +59,9 @@ export default class NavBar extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { children, className, height, notif, ...other } = this.props;
+    const { children, className, height, top, notif, ...other } = this.props;
     return (
-      <nav {...other} className={classNames('navbar', className)} style={{ height }}>
+      <nav {...other} className={classNames('navbar', className)} style={{ height, top }}>
         <div
           className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
           style={{ height, left: this.state.left }}>

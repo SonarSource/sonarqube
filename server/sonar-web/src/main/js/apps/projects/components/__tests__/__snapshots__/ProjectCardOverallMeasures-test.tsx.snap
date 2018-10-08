@@ -230,7 +230,9 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-label"
       >
-        <Connect(ProjectCardLanguages) />
+        <Connect(ProjectCardLanguages)
+          className="project-card-languages"
+        />
       </div>
     </div>
   </div>
@@ -272,7 +274,9 @@ exports[`should render ncloc correctly 1`] = `
     <div
       className="project-card-measure-label"
     >
-      <Connect(ProjectCardLanguages) />
+      <Connect(ProjectCardLanguages)
+        className="project-card-languages"
+      />
     </div>
   </div>
 </div>

@@ -17,25 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Link } from 'react-router';
-import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
+declare module 'react-countup' {
+  interface Props {
+    decimal?: string;
+    decimals?: number;
+    delay?: number;
+    duration?: number;
+    end: number;
+    suffix?: string;
+  }
 
-export default function StartUsing() {
-  return (
-    <div className="sc-narrow-container text-center">
-      <Link className="sc-orange-button sc-start" to="/sessions/new">
-        Start using SonarCloud <ChevronRightIcon className="spacer-left" />
-      </Link>
-      <div className="big-spacer-top">
-        <a
-          className="text-muted"
-          href="https://community.sonarsource.com/c/help/sc"
-          rel="noopener noreferrer"
-          target="_blank">
-          Need help?
-        </a>
-      </div>
-    </div>
-  );
+  export default function CountUp(props: Props): JSX.Element;
 }

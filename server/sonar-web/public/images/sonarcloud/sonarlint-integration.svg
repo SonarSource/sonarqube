@@ -1,34 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-276.765 -4280.348 36.674 37.341">
   <defs>
     <style>
-      .cls-1, .cls-4 {
-        fill: none;
-      }
-
-      .cls-1 {
-        stroke: #434447;
-        stroke-width: 1.5px;
-      }
-
-      .cls-2 {
-        fill: #fff;
-        stroke: #f60;
-        stroke-width: 2px;
-      }
-
-      .cls-3 {
-        stroke: none;
-      }
+      .cls-4{fill:none}.cls-3{stroke:none}
     </style>
   </defs>
-  <g id="Groupe_6131" data-name="Groupe 6131" transform="translate(-276.765 -4280.348)">
-    <g id="Rectangle_6142" data-name="Rectangle 6142" class="cls-1" transform="translate(0 6.181)">
-      <rect class="cls-3" width="31.16" height="31.16" rx="3"/>
-      <rect class="cls-4" x="0.75" y="0.75" width="29.66" height="29.66" rx="2.25"/>
-    </g>
-    <g id="Ellipse_72" data-name="Ellipse 72" class="cls-2" transform="translate(22.005 0)">
-      <circle class="cls-3" cx="7.335" cy="7.335" r="7.335"/>
-      <circle class="cls-4" cx="7.335" cy="7.335" r="6.335"/>
-    </g>
+  <g fill="none" stroke="#434447" stroke-width="1.5" transform="translate(-276.765 -4274.167)">
+    <rect width="31.16" height="31.16" class="cls-3" rx="3"/>
+    <rect width="29.66" height="29.66" x=".75" y=".75" class="cls-4" rx="2.25"/>
+  </g>
+  <g fill="#fff" stroke="#f60" stroke-width="2" transform="translate(-254.76 -4280.348)">
+    <circle cx="7.335" cy="7.335" r="7.335" class="cls-3"/>
+    <circle cx="7.335" cy="7.335" r="6.335" class="cls-4"/>
   </g>
 </svg>

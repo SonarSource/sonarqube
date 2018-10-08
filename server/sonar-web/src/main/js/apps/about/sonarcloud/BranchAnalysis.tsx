@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SonarCloudPage from './SonarCloudPage';
-import SQStartUsing from './SQStartUsing';
-import SQTopNav from './SQTopNav';
+import SQPageContainer from './components/SQPageContainer';
+import SQStartUsing from './components/SQStartUsing';
+import SQTopNav from './components/SQTopNav';
 import { isLoggedIn } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 
 export default function BranchAnalysis() {
   return (
-    <SonarCloudPage>
+    <SQPageContainer>
       {({ currentUser }) => (
         <div className="page page-limited sc-page">
           <SQTopNav />
@@ -115,6 +115,6 @@ export default function BranchAnalysis() {
           {!isLoggedIn(currentUser) && <SQStartUsing />}
         </div>
       )}
-    </SonarCloudPage>
+    </SQPageContainer>
   );
 }
