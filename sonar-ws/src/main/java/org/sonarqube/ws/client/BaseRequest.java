@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,6 +50,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
 
   private final DefaultParameters parameters = new DefaultParameters();
   private final DefaultHeaders headers = new DefaultHeaders();
+  private OptionalInt timeOutInMs = OptionalInt.empty();
 
   BaseRequest(String path) {
     this.path = path;
@@ -62,6 +64,16 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
   @Override
   public String getMediaType() {
     return mediaType;
+  }
+
+  @Override
+  public OptionalInt getTimeOutInMs() {
+    return timeOutInMs;
+  }
+
+  public SELF setTimeOutInMs(int timeOutInMs) {
+    this.timeOutInMs = OptionalInt.of(timeOutInMs);
+    return (SELF) this;
   }
 
   /**

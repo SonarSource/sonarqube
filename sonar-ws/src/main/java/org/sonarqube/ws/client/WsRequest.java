@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client;
 
 import java.util.Map;
+import java.util.OptionalInt;
 
 /**
  * @since 5.3
@@ -31,6 +32,8 @@ public interface WsRequest {
   String getPath();
 
   String getMediaType();
+
+  OptionalInt getTimeOutInMs();
 
   /**
    *

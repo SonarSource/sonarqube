@@ -22,6 +22,7 @@ package org.sonarqube.ws.client;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
@@ -121,7 +122,7 @@ public class HttpConnector implements WsConnector {
     completeUrlQueryParameters(getRequest, urlBuilder);
 
     Request.Builder okRequestBuilder = prepareOkRequestBuilder(getRequest, urlBuilder).get();
-    return new OkHttpResponse(doCall(okHttpClient, okRequestBuilder.build()));
+    return new OkHttpResponse(doCall(prepareOkHttpClient(okHttpClient, getRequest), okRequestBuilder.build()));
   }
 
   private WsResponse post(PostRequest postRequest) {
@@ -152,8 +153,8 @@ public class HttpConnector implements WsConnector {
       body = bodyBuilder.build();
     }
     Request.Builder okRequestBuilder = prepareOkRequestBuilder(postRequest, urlBuilder).post(body);
-    Response response = doCall(noRedirectOkHttpClient, okRequestBuilder.build());
-    response = checkRedirect(response);
+    Response response = doCall(prepareOkHttpClient(noRedirectOkHttpClient, postRequest), okRequestBuilder.build());
+    response = checkRedirect(response, postRequest);
     return new OkHttpResponse(response);
   }
 
@@ -162,6 +163,16 @@ public class HttpConnector implements WsConnector {
     return baseUrl
       .resolve(path.startsWith("/") ? path.replaceAll("^(/)+", "") : path)
       .newBuilder();
+  }
+
+  private static OkHttpClient prepareOkHttpClient(OkHttpClient okHttpClient, WsRequest wsRequest) {
+    if (!wsRequest.getTimeOutInMs().isPresent()) {
+      return okHttpClient;
+    }
+
+    return okHttpClient.newBuilder()
+      .readTimeout(wsRequest.getTimeOutInMs().getAsInt(), TimeUnit.MILLISECONDS)
+      .build();
   }
 
   private static void completeUrlQueryParameters(BaseRequest<?> request, HttpUrl.Builder urlBuilder) {
@@ -191,7 +202,7 @@ public class HttpConnector implements WsConnector {
     }
   }
 
-  private Response checkRedirect(Response response) {
+  private Response checkRedirect(Response response, PostRequest postRequest) {
     switch (response.code()) {
       case HTTP_MOVED_PERM:
       case HTTP_MOVED_TEMP:
@@ -202,13 +213,13 @@ public class HttpConnector implements WsConnector {
         // See:
         // https://github.com/square/okhttp/blob/07309c1c7d9e296014268ebd155ebf7ef8679f6c/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L316
         // https://github.com/square/okhttp/issues/936#issuecomment-266430151
-        return followPostRedirect(response);
+        return followPostRedirect(response, postRequest);
       default:
         return response;
     }
   }
 
-  private Response followPostRedirect(Response response) {
+  private Response followPostRedirect(Response response, PostRequest postRequest) {
     String location = response.header("Location");
     if (location == null) {
       throw new IllegalStateException(format("Missing HTTP header 'Location' in redirect of %s", response.request().url()));
@@ -223,7 +234,7 @@ public class HttpConnector implements WsConnector {
     Request.Builder redirectRequest = response.request().newBuilder();
     redirectRequest.post(response.request().body());
     response.body().close();
-    return doCall(noRedirectOkHttpClient, redirectRequest.url(url).build());
+    return doCall(prepareOkHttpClient(noRedirectOkHttpClient, postRequest), redirectRequest.url(url).build());
   }
 
   /**

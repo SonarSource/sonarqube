@@ -23,9 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLSocketFactory;
 import okhttp3.ConnectionSpec;
 import okhttp3.mockwebserver.MockResponse;
@@ -35,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -423,6 +426,43 @@ public class HttpConnectorTest {
 
     assertTlsAndClearTextSpecifications(underTest);
     assertThat(underTest.okHttpClient().sslSocketFactory()).isInstanceOf(SSLSocketFactory.getDefault().getClass());
+  }
+
+  @Test
+  public void override_timeout_on_get() {
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    server.enqueue(new MockResponse().setBodyDelay(100, TimeUnit.MILLISECONDS).setBody("Hello delayed"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectCause(IsInstanceOf.instanceOf(SocketTimeoutException.class));
+
+    WsResponse call = underTest.call(new GetRequest("/").setTimeOutInMs(5));
+    assertThat(call.content()).equals("Hello delayed");
+  }
+
+  @Test
+  public void override_timeout_on_post() {
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    // Headers are not affected by setBodyDelay, let's throttle the answer
+    server.enqueue(new MockResponse().throttleBody(1,100, TimeUnit.MILLISECONDS).setBody("Hello delayed"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectCause(IsInstanceOf.instanceOf(SocketTimeoutException.class));
+    WsResponse call = underTest.call(new PostRequest("/").setTimeOutInMs(5));
+    assertThat(call.content()).equals("Hello delayed");
+  }
+
+  @Test
+  public void override_timeout_on_post_with_redirect() {
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    server.enqueue(new MockResponse().setResponseCode(301).setHeader("Location:", "/redirect"));
+    // Headers are not affected by setBodyDelay, let's throttle the answer
+    server.enqueue(new MockResponse().throttleBody(1,100, TimeUnit.MILLISECONDS).setBody("Hello delayed"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectCause(IsInstanceOf.instanceOf(SocketTimeoutException.class));
+    WsResponse call = underTest.call(new PostRequest("/").setTimeOutInMs(5));
+    assertThat(call.content()).equals("Hello delayed");
   }
 
   private void assertTlsAndClearTextSpecifications(HttpConnector underTest) {
