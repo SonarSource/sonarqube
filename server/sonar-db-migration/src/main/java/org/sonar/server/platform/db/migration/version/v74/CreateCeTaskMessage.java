@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v74;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
@@ -32,6 +33,7 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SI
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
+@SupportsBlueGreen
 public class CreateCeTaskMessage extends DdlChange {
 
   public static final String TABLE_NAME = "ce_task_message";
