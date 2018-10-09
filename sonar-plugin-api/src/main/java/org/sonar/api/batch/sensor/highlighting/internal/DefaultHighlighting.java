@@ -48,7 +48,7 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
     return syntaxHighlightingRules;
   }
 
-  private void checkOverlappingBoudaries() {
+  private void checkOverlappingBoundaries() {
     if (syntaxHighlightingRules.size() > 1) {
       Iterator<SyntaxHighlightingRule> it = syntaxHighlightingRules.iterator();
       SyntaxHighlightingRule previous = it.next();
@@ -117,7 +117,7 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
       }
       return result;
     });
-    checkOverlappingBoudaries();
+    checkOverlappingBoundaries();
     storage.store(this);
   }
 
