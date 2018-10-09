@@ -78,7 +78,7 @@ it('should validate', () => {
       avatar: '',
       description: '',
       name: '',
-      key: 'x'.repeat(301),
+      key: 'x'.repeat(256),
       url: ''
     })
   ).rejects.toEqual({ key: 'onboarding.create_organization.organization_name.error' });
@@ -91,7 +91,7 @@ it('should validate', () => {
     instance.handleValidate({
       avatar: '',
       description: '',
-      name: 'x'.repeat(301),
+      name: 'x'.repeat(256),
       key: 'foo',
       url: ''
     })

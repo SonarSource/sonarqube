@@ -83,7 +83,7 @@ public class UpdateActionTest {
       .matches(param -> !param.isRequired())
       .matches(param -> "Foo Company".equals(param.exampleValue()))
       .matches(param -> param.minimumLength().equals(1))
-      .matches(param -> param.maximumLength().equals(300))
+      .matches(param -> param.maximumLength().equals(255))
       .matches(param -> param.description() != null);
     assertThat(action.param("description"))
       .matches(param -> !param.isRequired())

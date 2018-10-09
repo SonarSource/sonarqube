@@ -24,9 +24,9 @@ import javax.annotation.Nullable;
 
 public interface OrganizationValidation {
   int KEY_MIN_LENGTH = 1;
-  int KEY_MAX_LENGTH = 300;
+  int KEY_MAX_LENGTH = 255;
   int NAME_MIN_LENGTH = 1;
-  int NAME_MAX_LENGTH = 300;
+  int NAME_MAX_LENGTH = 255;
   int DESCRIPTION_MAX_LENGTH = 256;
   int URL_MAX_LENGTH = 256;
 

@@ -41,8 +41,8 @@ public class IncreaseOrganizationsKeeAndNameLengthTest {
   public void column_is_updated() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDefinition("organizations", "kee", VARCHAR, 300, false);
-    db.assertColumnDefinition("organizations", "name", VARCHAR, 300, false);
+    db.assertColumnDefinition("organizations", "kee", VARCHAR, 255, false);
+    db.assertColumnDefinition("organizations", "name", VARCHAR, 255, false);
   }
 
   @Test

@@ -41,14 +41,14 @@ public class IncreaseOrganizationsKeeAndNameLength extends DdlChange {
     context.execute(new AlterColumnsBuilder(getDialect(), ORGANIZATIONS_TABLE)
       .updateColumn(newVarcharColumnDefBuilder()
         .setColumnName("kee")
-        .setLimit(300)
+        .setLimit(255)
         .setIsNullable(false)
         .build())
       .build());
     context.execute(new AlterColumnsBuilder(getDialect(), ORGANIZATIONS_TABLE)
       .updateColumn(newVarcharColumnDefBuilder()
         .setColumnName("name")
-        .setLimit(300)
+        .setLimit(255)
         .setIsNullable(false)
         .build())
       .build());

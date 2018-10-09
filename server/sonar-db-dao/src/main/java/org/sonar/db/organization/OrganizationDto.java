@@ -53,7 +53,7 @@ public class OrganizationDto {
    * - When {@link UserIdentity#getLogin()} is not null, it's a slug of the login
    * - When {@link UserIdentity#getLogin()} is null, it's a slug of the name appended to a random number
    *
-   * Length is set to 300 (As login length is 255, the size must be higher than 255).
+   * Length is set to 255 (As login length is 255, the size must be at least 255).
    */
   private String key;
 

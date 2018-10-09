@@ -84,11 +84,11 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
       errors.avatar = translate('onboarding.create_organization.avatar.error');
     }
 
-    if (name.length > 300) {
+    if (name.length > 255) {
       errors.name = translate('onboarding.create_organization.display_name.error');
     }
 
-    if (key.length > 300 || !/^[a-z0-9][a-z0-9-]*[a-z0-9]?$/.test(key)) {
+    if (key.length > 255 || !/^[a-z0-9][a-z0-9-]*[a-z0-9]?$/.test(key)) {
       errors.key = translate('onboarding.create_organization.organization_name.error');
     }
 
@@ -134,7 +134,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
           required={true}
           touched={touched.key}
           value={values.key}>
-          {props => <input autoFocus={true} maxLength={300} {...props} />}
+          {props => <input autoFocus={true} maxLength={255} {...props} />}
         </OrganizationDetailsInput>
         <div className="big-spacer-top">
           <ResetButtonLink onClick={this.handleAdditionalClick}>

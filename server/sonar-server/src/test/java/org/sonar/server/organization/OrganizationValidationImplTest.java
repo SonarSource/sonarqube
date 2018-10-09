@@ -33,7 +33,7 @@ public class OrganizationValidationImplTest {
   private static final String STRING_64_CHARS = STRING_32_CHARS + STRING_32_CHARS;
   private static final String STRING_256_CHARS = STRING_64_CHARS + STRING_64_CHARS + STRING_64_CHARS + STRING_64_CHARS;
 
-  private static final String STRING_300_CHARS = Strings.repeat("a", 300);
+  private static final String STRING_255_CHARS = Strings.repeat("a", 255);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -65,9 +65,9 @@ public class OrganizationValidationImplTest {
   }
 
   @Test
-  public void checkValidKey_does_not_fail_if_arg_is_1_to_300_chars_long() {
+  public void checkValidKey_does_not_fail_if_arg_is_1_to_255_chars_long() {
     String str = "a";
-    for (int i = 0; i < 299; i++) {
+    for (int i = 0; i < 254; i++) {
       underTest.checkKey(str);
       str += "a";
     }
@@ -75,10 +75,10 @@ public class OrganizationValidationImplTest {
 
   @Test
   public void checkValidKey_throws_IAE_when_more_than_300_characters() {
-    String key = STRING_300_CHARS + "b";
+    String key = STRING_255_CHARS + "b";
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Key '" + key + "' must be at most 300 chars long");
+    expectedException.expectMessage("Key '" + key + "' must be at most 255 chars long");
 
     underTest.checkKey(key);
   }
@@ -115,20 +115,20 @@ public class OrganizationValidationImplTest {
   }
 
   @Test
-  public void checkValidName_does_not_fail_if_arg_is_1_to_300_chars_long() {
+  public void checkValidName_does_not_fail_if_arg_is_1_to_255_chars_long() {
     String str = "a";
-    for (int i = 0; i < 299; i++) {
+    for (int i = 0; i < 254; i++) {
       underTest.checkName(str);
       str += "a";
     }
   }
 
   @Test
-  public void checkValidName_throws_IAE_when_more_than_300_characters() {
-    String str = STRING_300_CHARS + "b";
+  public void checkValidName_throws_IAE_when_more_than_255_characters() {
+    String str = STRING_255_CHARS + "b";
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name '" + str + "' must be at most 300 chars long");
+    expectedException.expectMessage("Name '" + str + "' must be at most 255 chars long");
 
     underTest.checkName(str);
   }
