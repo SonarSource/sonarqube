@@ -38,10 +38,48 @@ interface Props {
   users: PermissionUser[];
 }
 
-export default class HoldersList extends React.PureComponent<Props> {
+interface State {
+  permissionsCount: { [key: string]: number };
+}
+
+export default class HoldersList extends React.PureComponent<Props, State> {
+  state: State = { permissionsCount: {} };
+
   isPermissionUser(item: PermissionGroup | PermissionUser): item is PermissionUser {
     return (item as PermissionUser).login !== undefined;
   }
+
+  handleGroupToggle = (group: PermissionGroup, permission: string) => {
+    const key = group.id || group.name;
+    if (this.state.permissionsCount[key] === undefined) {
+      this.setState(state => ({
+        permissionsCount: {
+          ...state.permissionsCount,
+          [key]: group.permissions.length
+        }
+      }));
+    }
+    return this.props.onToggleGroup(group, permission);
+  };
+
+  handleUserToggle = (user: PermissionUser, permission: string) => {
+    if (this.state.permissionsCount[user.login] === undefined) {
+      this.setState(state => ({
+        permissionsCount: {
+          ...state.permissionsCount,
+          [user.login]: user.permissions.length
+        }
+      }));
+    }
+    return this.props.onToggleUser(user, permission);
+  };
+
+  getItemInitialPermissionsCount = (item: PermissionGroup | PermissionUser) => {
+    const key = this.isPermissionUser(item) ? item.login : item.id || item.name;
+    return this.state.permissionsCount[key] !== undefined
+      ? this.state.permissionsCount[key]
+      : item.permissions.length;
+  };
 
   renderEmpty() {
     const columns = this.props.permissions.length + 1;
@@ -56,7 +94,7 @@ export default class HoldersList extends React.PureComponent<Props> {
     return this.isPermissionUser(item) ? (
       <UserHolder
         key={`user-${item.login}`}
-        onToggle={this.props.onToggleUser}
+        onToggle={this.handleUserToggle}
         permissions={permissions}
         selectedPermission={this.props.selectedPermission}
         user={item}
@@ -65,7 +103,7 @@ export default class HoldersList extends React.PureComponent<Props> {
       <GroupHolder
         group={item}
         key={`group-${item.id || item.name}`}
-        onToggle={this.props.onToggleGroup}
+        onToggle={this.handleGroupToggle}
         permissions={permissions}
         selectedPermission={this.props.selectedPermission}
       />
@@ -80,9 +118,8 @@ export default class HoldersList extends React.PureComponent<Props> {
       }
       return item.name;
     });
-    const [itemWithPermissions, itemWithoutPermissions] = partition(
-      items,
-      item => item.permissions.length > 0
+    const [itemWithPermissions, itemWithoutPermissions] = partition(items, item =>
+      this.getItemInitialPermissionsCount(item)
     );
     return (
       <div className="boxed-group boxed-group-inner">

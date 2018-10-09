@@ -51,7 +51,7 @@ exports[`should display users and groups 1`] = `
     <tbody>
       <UserHolder
         key="user-barbaz"
-        onToggle={[MockFunction]}
+        onToggle={[Function]}
         permissions={
           Array [
             Object {
@@ -98,7 +98,7 @@ exports[`should display users and groups 1`] = `
           }
         }
         key="group-barbaz"
-        onToggle={[MockFunction]}
+        onToggle={[Function]}
         permissions={
           Array [
             Object {
@@ -127,7 +127,7 @@ exports[`should display users and groups 1`] = `
       />
       <UserHolder
         key="user-foobar"
-        onToggle={[MockFunction]}
+        onToggle={[Function]}
         permissions={
           Array [
             Object {
@@ -174,7 +174,7 @@ exports[`should display users and groups 1`] = `
           }
         }
         key="group-foobar"
-        onToggle={[MockFunction]}
+        onToggle={[Function]}
         permissions={
           Array [
             Object {
@@ -219,7 +219,7 @@ exports[`should display users and groups 1`] = `
           }
         }
         key="group-abc"
-        onToggle={[MockFunction]}
+        onToggle={[Function]}
         permissions={
           Array [
             Object {
@@ -248,7 +248,7 @@ exports[`should display users and groups 1`] = `
       />
       <UserHolder
         key="user-bcd"
-        onToggle={[MockFunction]}
+        onToggle={[Function]}
         permissions={
           Array [
             Object {
