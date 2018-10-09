@@ -321,7 +321,18 @@ public class CeActivityDaoTest {
 
   private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> assertIsLastAndMainIsLastFieldsOf(String taskUuid) {
     return assertThat(db.select("select is_last as \"IS_LAST\", main_is_last as \"MAIN_IS_LAST\" from ce_activity where uuid='" + taskUuid + "'"))
-      .extracting(t -> (Boolean) t.get("IS_LAST"), t -> (Boolean) t.get("MAIN_IS_LAST"));
+      .extracting(t -> toBoolean(t.get("IS_LAST")), t -> toBoolean(t.get("MAIN_IS_LAST")));
+  }
+
+  private static boolean toBoolean(Object o) {
+    if (o instanceof Boolean) {
+      return (Boolean) o;
+    }
+    if (o instanceof Long) {
+      Long longBoolean = (Long) o;
+      return longBoolean.equals(1L);
+    }
+    throw new IllegalArgumentException("Unsupported object type returned for boolean: " + o.getClass());
   }
 
   @Test
