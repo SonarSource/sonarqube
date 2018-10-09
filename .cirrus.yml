@@ -119,9 +119,7 @@ qa_task:
       QA_CATEGORY: Category4
       QA_CATEGORY: Category5
       QA_CATEGORY: Category6
-      QA_CATEGORY: Developer
-      QA_CATEGORY: Plugins
-      QA_CATEGORY: Upgrade
+      QA_CATEGORY: Category7
       QA_CATEGORY: Governance
       QA_CATEGORY: Billing
       QA_CATEGORY: License
