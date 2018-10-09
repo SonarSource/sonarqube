@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
@@ -187,8 +188,22 @@ public class CeWorkerImpl implements CeWorker {
     }
     return profiler
       .addContext("id", task.getUuid())
-      .addContext("submitter", task.getSubmitterUuid())
+      .addContext("submitter", submitterOf(task))
       .startInfo("Execute task");
+  }
+
+  @CheckForNull
+  private static String submitterOf(CeTask task) {
+    CeTask.User submitter = task.getSubmitter();
+    if (submitter == null) {
+      return null;
+    }
+    String submitterLogin = submitter.getLogin();
+    if (submitterLogin != null) {
+      return submitterLogin;
+    } else {
+      return submitter.getUuid();
+    }
   }
 
   private static void stopLogProfiler(Profiler profiler, CeActivityDto.Status status) {

@@ -42,6 +42,8 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
@@ -77,10 +79,11 @@ public class CeQueueImplTest {
     String componentUuid = randomAlphabetic(3);
     String mainComponentUuid = randomAlphabetic(4);
     CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, new Component(componentUuid, mainComponentUuid), "submitter uuid");
+    UserDto userDto = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit.getSubmitterUuid());
 
     CeTask task = underTest.submit(taskSubmit);
 
-    verifyCeTask(taskSubmit, task, null);
+    verifyCeTask(taskSubmit, task, null, userDto);
     verifyCeQueueDtoForTaskSubmit(taskSubmit);
   }
 
@@ -91,7 +94,7 @@ public class CeQueueImplTest {
 
     CeTask task = underTest.submit(taskSubmit);
 
-    verifyCeTask(taskSubmit, task, componentDto);
+    verifyCeTask(taskSubmit, task, componentDto, null);
   }
 
   @Test
@@ -100,7 +103,17 @@ public class CeQueueImplTest {
 
     CeTask task = underTest.submit(taskSubmit);
 
-    verifyCeTask(taskSubmit, task, null);
+    verifyCeTask(taskSubmit, task, null, null);
+  }
+
+  @Test
+  public void submit_populates_submitter_login_of_CeTask_if_submitter_exists() {
+    UserDto userDto = insertUser(UserTesting.newUserDto());
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, null, userDto.getUuid());
+
+    CeTask task = underTest.submit(taskSubmit);
+
+    verifyCeTask(taskSubmit, task, null, userDto);
   }
 
   @Test
@@ -198,12 +211,14 @@ public class CeQueueImplTest {
     String mainComponentUuid = randomAlphabetic(10);
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, newComponent(mainComponentUuid), "submitter uuid");
     CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
+    UserDto userDto1 = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit1.getSubmitterUuid());
+
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 
     assertThat(tasks).hasSize(2);
-    verifyCeTask(taskSubmit1, tasks.get(0), null);
-    verifyCeTask(taskSubmit2, tasks.get(1), null);
+    verifyCeTask(taskSubmit1, tasks.get(0), null, userDto1);
+    verifyCeTask(taskSubmit2, tasks.get(1), null, null);
     verifyCeQueueDtoForTaskSubmit(taskSubmit1);
     verifyCeQueueDtoForTaskSubmit(taskSubmit2);
   }
@@ -217,8 +232,8 @@ public class CeQueueImplTest {
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 
     assertThat(tasks).hasSize(2);
-    verifyCeTask(taskSubmit1, tasks.get(0), componentDto1);
-    verifyCeTask(taskSubmit2, tasks.get(1), null);
+    verifyCeTask(taskSubmit1, tasks.get(0), componentDto1, null);
+    verifyCeTask(taskSubmit2, tasks.get(1), null, null);
   }
 
   @Test
@@ -232,8 +247,8 @@ public class CeQueueImplTest {
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 
     assertThat(tasks).hasSize(2);
-    verifyCeTask(taskSubmit1, tasks.get(0), branch1, project);
-    verifyCeTask(taskSubmit2, tasks.get(1), branch2, project);
+    verifyCeTask(taskSubmit1, tasks.get(0), branch1, project, null);
+    verifyCeTask(taskSubmit2, tasks.get(1), branch2, project, null);
   }
 
   @Test
@@ -461,11 +476,12 @@ public class CeQueueImplTest {
     assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
   }
 
-  private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto) {
-    verifyCeTask(taskSubmit, task, componentDto, componentDto);
+
+  private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto, UserDto userDto) {
+    verifyCeTask(taskSubmit, task, componentDto, componentDto, userDto);
   }
 
-  private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto, @Nullable ComponentDto mainComponentDto) {
+  private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto, @Nullable ComponentDto mainComponentDto, @Nullable UserDto userDto) {
     if (componentDto == null) {
       assertThat(task.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     } else {
@@ -493,7 +509,15 @@ public class CeQueueImplTest {
       assertThat(task.getMainComponent()).isEmpty();
     }
     assertThat(task.getType()).isEqualTo(taskSubmit.getType());
-    assertThat(task.getSubmitterUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
+    if (taskSubmit.getSubmitterUuid() != null) {
+      if (userDto == null) {
+        assertThat(task.getSubmitter().getUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
+        assertThat(task.getSubmitter().getLogin()).isNull();
+      } else {
+        assertThat(task.getSubmitter().getUuid()).isEqualTo(userDto.getUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
+        assertThat(task.getSubmitter().getLogin()).isEqualTo(userDto.getLogin());
+      }
+    }
   }
 
   private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
@@ -533,6 +557,12 @@ public class CeQueueImplTest {
     db.getDbClient().componentDao().insert(session, componentDto);
     session.commit();
     return componentDto;
+  }
+
+  private UserDto insertUser(UserDto userDto) {
+    db.getDbClient().userDao().insert(session, userDto);
+    session.commit();
+    return userDto;
   }
 
   private CeQueueDto insertPendingInQueue(@Nullable Component component) {

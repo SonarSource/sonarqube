@@ -95,7 +95,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
           .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
 
-        CeTask task = convertToTask(taskDto, characteristics,
+        CeTask task = convertToTask(dbSession, taskDto, characteristics,
           ofNullable(taskDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
           ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null));
         queueStatus.addInProgress();

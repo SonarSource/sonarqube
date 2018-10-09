@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
@@ -46,6 +47,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.DeleteIf;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.property.InternalProperties;
 
@@ -100,10 +102,10 @@ public class CeQueueImpl implements CeQueue {
 
       Map<String, ComponentDto> componentsByUuid = loadComponentDtos(dbSession, taskDto);
       if (componentsByUuid.isEmpty()) {
-        return of(convertToTask(taskDto, submission.getCharacteristics(), null, null));
+        return of(convertToTask(dbSession, taskDto, submission.getCharacteristics(), null, null));
       }
 
-      return of(convertToTask(taskDto, submission.getCharacteristics(),
+      return of(convertToTask(dbSession, taskDto, submission.getCharacteristics(),
         ofNullable(taskDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
         ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null)));
     }
@@ -227,7 +229,7 @@ public class CeQueueImpl implements CeQueue {
         .orElse(null);
       Map<String, String> characteristics = characteristicsByTaskUuid.get(dto.getUuid()).stream()
         .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
-      result.add(convertToTask(dto, characteristics, component, mainComponent));
+      result.add(convertToTask(dbSession, dto, characteristics, component, mainComponent));
     }
     return result;
   }
@@ -311,12 +313,13 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
-  CeTask convertToTask(CeQueueDto taskDto, Map<String, String> characteristics, @Nullable ComponentDto component, @Nullable ComponentDto mainComponent) {
+  CeTask convertToTask(DbSession dbSession, CeQueueDto taskDto, Map<String, String> characteristics, @Nullable ComponentDto component, @Nullable ComponentDto mainComponent) {
     CeTask.Builder builder = new CeTask.Builder()
       .setUuid(taskDto.getUuid())
       .setType(taskDto.getTaskType())
-      .setSubmitterUuid(taskDto.getSubmitterUuid())
-      .setCharacteristics(characteristics);
+      .setCharacteristics(characteristics)
+      .setSubmitter(resolveSubmitter(dbSession, taskDto.getSubmitterUuid()));
+
 
     String componentUuid = taskDto.getComponentUuid();
     if (component != null) {
@@ -339,6 +342,19 @@ public class CeQueueImpl implements CeQueue {
     }
 
     return builder.build();
+  }
+
+  @CheckForNull
+  private CeTask.User resolveSubmitter(DbSession dbSession, @Nullable String submitterUuid) {
+    if (submitterUuid == null) {
+      return null;
+    }
+    UserDto submitterDto = dbClient.userDao().selectByUuid(dbSession, submitterUuid);
+    if (submitterDto != null) {
+      return new CeTask.User(submitterUuid, submitterDto.getLogin());
+    } else {
+      return new CeTask.User(submitterUuid, null);
+    }
   }
 
 }

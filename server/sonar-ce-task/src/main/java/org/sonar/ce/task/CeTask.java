@@ -42,7 +42,7 @@ public class CeTask {
   private final String uuid;
   private final Component component;
   private final Component mainComponent;
-  private final String submitterUuid;
+  private final User submitter;
   private final Map<String, String> characteristics;
 
   private CeTask(Builder builder) {
@@ -53,11 +53,56 @@ public class CeTask {
       "None or both component and main component must be non null");
     this.component = builder.component;
     this.mainComponent = builder.mainComponent;
-    this.submitterUuid = emptyToNull(builder.submitterUuid);
+    this.submitter = builder.submitter;
     if (builder.characteristics == null) {
       this.characteristics = emptyMap();
     } else {
       this.characteristics = unmodifiableMap(new HashMap<>(builder.characteristics));
+    }
+  }
+
+  @Immutable
+  public static final class User {
+    private final String uuid;
+    private final String login;
+
+    public User(String uuid, @Nullable String login) {
+      this.uuid = requireNonNull(uuid);
+      this.login = emptyToNull(login);
+    }
+
+    public String getUuid() {
+      return uuid;
+    }
+
+    @CheckForNull
+    public String getLogin() {
+      return login;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      User other = (User) o;
+      return uuid.equals(other.uuid);
+    }
+
+    @Override
+    public String toString() {
+      return "User{" +
+              "uuid='" + uuid + '\'' +
+              ", login='" + login + '\'' +
+              '}';
+    }
+
+    @Override
+    public int hashCode() {
+      return uuid.hashCode();
     }
   }
 
@@ -82,8 +127,8 @@ public class CeTask {
   }
 
   @CheckForNull
-  public String getSubmitterUuid() {
-    return submitterUuid;
+  public User getSubmitter() {
+    return submitter;
   }
 
   public Map<String, String> getCharacteristics() {
@@ -98,7 +143,7 @@ public class CeTask {
       .add("uuid", uuid)
       .add("component", component)
       .add("mainComponent", mainComponent)
-      .add("submitterUuid", submitterUuid)
+      .add("submitter", submitter)
       .toString();
   }
 
@@ -125,7 +170,7 @@ public class CeTask {
     private String type;
     private Component component;
     private Component mainComponent;
-    private String submitterUuid;
+    private User submitter;
     private Map<String, String> characteristics;
 
     public Builder setOrganizationUuid(String organizationUuid) {
@@ -158,8 +203,8 @@ public class CeTask {
       return this;
     }
 
-    public Builder setSubmitterUuid(@Nullable String s) {
-      this.submitterUuid = s;
+    public Builder setSubmitter(@Nullable User s) {
+      this.submitter = s;
       return this;
     }
 

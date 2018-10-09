@@ -59,7 +59,7 @@ public class SubmitActionTest {
     .setType(CeTaskTypes.REPORT)
     .setComponent(COMPONENT)
     .setMainComponent(COMPONENT)
-    .setSubmitterUuid("robert")
+    .setSubmitter(new CeTask.User("UUID_1", "LOGIN_1"))
     .build();
 
   @Captor
