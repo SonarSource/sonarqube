@@ -31,8 +31,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
@@ -119,7 +117,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void added_event_if_one_new_qp() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
 
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
     mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
@@ -133,7 +131,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void added_event_uses_language_key_in_message_if_language_not_found() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
 
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
     mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
@@ -147,7 +145,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_more_used_event_if_qp_no_more_listed() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
 
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
@@ -161,7 +159,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_more_used_event_uses_language_key_in_message_if_language_not_found() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
 
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
@@ -175,7 +173,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_event_if_same_qp_with_same_date() {
-    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
 
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), arrayOf(qp));
 
@@ -205,23 +203,22 @@ public class QualityProfileEventsStepTest {
   @Test
   public void verify_detection_with_complex_mix_of_qps() {
     final Set<Event> events = new HashSet<>();
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocationOnMock) {
-        events.add((Event) invocationOnMock.getArguments()[1]);
-        return null;
-      }
+    doAnswer(invocationOnMock -> {
+      events.add((Event) invocationOnMock.getArguments()[1]);
+      return null;
     }).when(eventRepository).add(eq(treeRootHolder.getRoot()), any(Event.class));
 
+    Date date = new Date();
     mockMeasures(
-      treeRootHolder.getRoot(), arrayOf(
-        qp(QP_NAME_2, LANGUAGE_KEY_1),
-        qp(QP_NAME_2, LANGUAGE_KEY_2),
+      treeRootHolder.getRoot(),
+      arrayOf(
+        qp(QP_NAME_2, LANGUAGE_KEY_1, date),
+        qp(QP_NAME_2, LANGUAGE_KEY_2, date),
         qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"))),
       arrayOf(
         qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+0100")),
-        qp(QP_NAME_2, LANGUAGE_KEY_2),
-        qp(QP_NAME_2, LANGUAGE_KEY_3)));
+        qp(QP_NAME_2, LANGUAGE_KEY_2, date),
+        qp(QP_NAME_2, LANGUAGE_KEY_3, date)));
     mockNoLanguageInRepository();
 
     underTest.execute(new TestComputationStepContext());
@@ -262,10 +259,6 @@ public class QualityProfileEventsStepTest {
     assertThat(event.getData()).isEqualTo(expectedData);
     assertThat(event.getCategory()).isEqualTo(Event.Category.PROFILE);
     assertThat(event.getDescription()).isNull();
-  }
-
-  private static QualityProfile qp(String qpName, String languageKey) {
-    return qp(qpName, languageKey, new Date());
   }
 
   private static QualityProfile qp(String qpName, String languageKey, Date date) {
