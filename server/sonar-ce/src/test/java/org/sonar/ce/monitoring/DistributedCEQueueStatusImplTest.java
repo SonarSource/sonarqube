@@ -17,24 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.ce.monitoring;
 
-import org.sonar.ce.monitoring.CeTasksMBeanImpl;
-import org.sonar.ce.queue.CeQueueInitializer;
-import org.sonar.ce.queue.InternalCeQueueImpl;
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.db.DbClient;
 
-public class CeQueueModule extends Module {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
+public class DistributedCEQueueStatusImplTest extends CommonCEQueueStatusImplTest {
+  private DistributedCEQueueStatusImpl underTest = new DistributedCEQueueStatusImpl(getDbClient());
+
+  public DistributedCEQueueStatusImplTest() {
+    super(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS));
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
+  protected CEQueueStatusImpl getUnderTest() {
+    return underTest;
+  }
 
-      // queue monitoring
-      CeTasksMBeanImpl.class,
+  @Test
+  public void getPendingCount_returns_0_without_querying_database() {
+    assertThat(underTest.getPendingCount()).isZero();
 
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+    verifyZeroInteractions(getDbClient());
   }
 }

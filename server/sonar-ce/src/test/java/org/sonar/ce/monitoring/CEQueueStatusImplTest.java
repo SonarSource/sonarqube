@@ -19,15 +19,10 @@
  */
 package org.sonar.ce.monitoring;
 
-import java.util.Optional;
-import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.db.DbClient;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.server.property.InternalProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,121 +30,22 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CEQueueStatusImplTest {
-  private static final int SOME_RANDOM_MAX = 96535;
-  private static final int SOME_PROCESSING_TIME = 8723;
+public class CEQueueStatusImplTest extends CommonCEQueueStatusImplTest {
+  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(getDbClient());
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(dbClient);
-
-  @Test
-  public void verify_just_created_instance_metrics() {
-    assertThat(underTest.getInProgressCount()).isEqualTo(0);
-    assertThat(underTest.getErrorCount()).isEqualTo(0);
-    assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTime()).isEqualTo(0);
+  public CEQueueStatusImplTest() {
+    super(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS));
   }
 
-  @Test
-  public void addInProgress_increases_InProgress() {
-    underTest.addInProgress();
-
-    assertThat(underTest.getInProgressCount()).isEqualTo(1);
-    assertThat(underTest.getErrorCount()).isEqualTo(0);
-    assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTime()).isEqualTo(0);
-  }
-
-  @Test
-  public void addInProgress_any_number_of_call_change_by_1_per_call() {
-    int calls = new Random().nextInt(SOME_RANDOM_MAX);
-    for (int i = 0; i < calls; i++) {
-      underTest.addInProgress();
-    }
-
-    assertThat(underTest.getInProgressCount()).isEqualTo(calls);
-    assertThat(underTest.getProcessingTime()).isEqualTo(0);
-  }
-
-  @Test
-  public void addError_throws_IAE_if_time_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Processing time can not be < 0");
-
-    underTest.addError(-1);
-  }
-
-  @Test
-  public void addError_increases_Error_and_decreases_InProgress_by_1_without_check_on_InProgress() {
-    underTest.addError(SOME_PROCESSING_TIME);
-
-    assertThat(underTest.getInProgressCount()).isEqualTo(-1);
-    assertThat(underTest.getErrorCount()).isEqualTo(1);
-    assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
-  }
-
-  @Test
-  public void addError_any_number_of_call_change_by_1_per_call() {
-    int calls = new Random().nextInt(SOME_RANDOM_MAX);
-    for (int i = 0; i < calls; i++) {
-      underTest.addError(1);
-    }
-
-    assertThat(underTest.getErrorCount()).isEqualTo(calls);
-    assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
-    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
-  }
-
-  @Test
-  public void addSuccess_throws_IAE_if_time_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Processing time can not be < 0");
-
-    underTest.addSuccess(-1);
-  }
-
-  @Test
-  public void addSuccess_increases_Error_and_decreases_InProgress_by_1_without_check_on_InProgress() {
-    underTest.addSuccess(SOME_PROCESSING_TIME);
-
-    assertThat(underTest.getInProgressCount()).isEqualTo(-1);
-    assertThat(underTest.getErrorCount()).isEqualTo(0);
-    assertThat(underTest.getSuccessCount()).isEqualTo(1);
-    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
-  }
-
-  @Test
-  public void addSuccess_any_number_of_call_change_by_1_per_call() {
-    int calls = new Random().nextInt(SOME_RANDOM_MAX);
-    for (int i = 0; i < calls; i++) {
-      underTest.addSuccess(1);
-    }
-
-    assertThat(underTest.getSuccessCount()).isEqualTo(calls);
-    assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
-    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
+  @Override
+  protected CEQueueStatusImpl getUnderTest() {
+    return underTest;
   }
 
   @Test
   public void count_Pending_from_database() {
-    when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.PENDING))).thenReturn(42);
+    when(getDbClient().ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.PENDING))).thenReturn(42);
 
     assertThat(underTest.getPendingCount()).isEqualTo(42);
-  }
-
-  @Test
-  public void workers_pause_is_loaded_from_db() {
-    when(dbClient.internalPropertiesDao().selectByKey(any(), eq(InternalProperties.COMPUTE_ENGINE_PAUSE))).thenReturn(Optional.of("true"));
-
-    assertThat(underTest.areWorkersPaused()).isTrue();
-  }
-
-  @Test
-  public void workers_pause_is_false_by_default() {
-    assertThat(underTest.areWorkersPaused()).isFalse();
   }
 }

@@ -52,6 +52,8 @@ import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.logging.CeProcessLogging;
+import org.sonar.ce.monitoring.CEQueueStatusImpl;
+import org.sonar.ce.monitoring.DistributedCEQueueStatusImpl;
 import org.sonar.ce.platform.CECoreExtensionsInstaller;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.platform.DatabaseCompatibility;
@@ -464,9 +466,17 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
         // system info
         DbSection.class,
-        ProcessInfoProvider.class);
+        ProcessInfoProvider.class,
+
+        DistributedCEQueueStatusImpl.class
+
+      );
     } else {
-      container.add(StandaloneCeDistributedInformation.class);
+      container.add(
+        StandaloneCeDistributedInformation.class,
+        CEQueueStatusImpl.class
+
+      );
     }
   }
 

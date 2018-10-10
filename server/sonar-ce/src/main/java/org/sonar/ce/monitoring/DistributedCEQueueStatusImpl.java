@@ -17,24 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.ce.monitoring;
 
-import org.sonar.ce.monitoring.CeTasksMBeanImpl;
-import org.sonar.ce.queue.CeQueueInitializer;
-import org.sonar.ce.queue.InternalCeQueueImpl;
-import org.sonar.core.platform.Module;
+import org.sonar.db.DbClient;
 
-public class CeQueueModule extends Module {
+public class DistributedCEQueueStatusImpl extends CEQueueStatusImpl {
+  public DistributedCEQueueStatusImpl(DbClient dbClient) {
+    super(dbClient);
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
-
-      // queue monitoring
-      CeTasksMBeanImpl.class,
-
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+  public long getPendingCount() {
+    return 0;
   }
 }
