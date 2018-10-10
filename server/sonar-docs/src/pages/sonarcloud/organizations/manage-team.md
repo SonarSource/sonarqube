@@ -30,5 +30,4 @@ project level for instance.
 ## Future evolutions
 
 Future versions of SonarCloud will make this onboarding process easier thanks to better integrations with GitHub, 
-Bitbucket Cloud and VSTS: users won't have to sign up prior to joining an organization, and their permissions will 
-be retrieved at best from the ones existing on the other systems.
+Bitbucket Cloud and Azure DevOps: users won't have to sign up prior to joining an organization, and their permissions will be retrieved at best from the ones existing on the other systems.

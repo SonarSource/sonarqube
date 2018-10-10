@@ -122,14 +122,14 @@
   ],
   "projects_management": [
     {
-      "link": "/documentation/analyze-a-project/",
+      "link": "/documentation/analysis/overview/",
       "text": "Analyze a Project",
       "scope": "sonarcloud"
     }
   ],
   "projects": [
     {
-      "link": "/documentation/analyze-a-project/",
+      "link": "/documentation/analysis/overview/",
       "text": "Analyze a Project",
       "scope": "sonarcloud"
     }

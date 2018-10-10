@@ -14,7 +14,7 @@ It gives you a summary of:
 
 ## Security
 
-In addition to being able to change your password, if your instance is not using a 3rd party authentication mechanism such as LDAP or any OAuth provider (GitHub, Google Account, ...), you can manage your own authentication tokens.
+If <!-- sonarqube -->your instance is<!-- /sonarqube --> <!-- sonarcloud -->you are<!-- /sonarcloud --> not using a 3rd party authentication mechanism such as <!-- sonarqube -->LDAP or<!-- /sonarqube --> an OAuth provider (GitHub, Google Account, ...), you can change your password from here. Additionally, you can also manage your own authentication tokens.
 
-You can create as many Token as you want. Once a Token is created, you can use it to publish analysis to a project where you have the execute analysis permission.
+You can create as many Tokens as you want. Once a Token is created, you can use it to perform analysis on a project where you have the [Execute Analysis](/instance-administration/security/) permission.
 

@@ -13,7 +13,7 @@ _Branch analysis is available as part of [Developer Edition](https://redirect.so
 ## How long are branches retained?  
 Long-lived branches are retained until you delete them manually (**Administration > Branches**).
 Short-lived branches are deleted automatically after 30 days with no analysis.
-This can be updated in **Configuration > General > Number of days before purging inactive short living branches**.
+This can be updated in **Configuration > General > Number of days before purging inactive short living branches**. For more, see [Housekeeping](/instance-administration/housekeeping/).
 
 ## Does my project need to be stored in an SCM like Git or SVN?  
 No, you don't need to be connected to a SCM. But if you use Git or SVN we can better track the new files on short-lived branches and so better report new issues on the files that really changed during the life of the short-lived branch.

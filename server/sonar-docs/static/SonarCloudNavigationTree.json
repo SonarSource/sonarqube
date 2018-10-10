@@ -1,22 +1,22 @@
 [
-  "/privacy/",
-  "/security/",
-  "/sonarcloud-pricing/",
-  "/analyze-a-project/",
+  {
+    "title": "Get Started",
+    "children": [
+      "/integrations/github/", 
+      "/integrations/bitbucketcloud/",
+      "/integrations/vsts/"
+    ]
+  },
   {
     "title": "Analyzing Source Code",
     "children": [
       "/analysis/overview/",
+      "/analysis/analysis-parameters/",
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
-      "/analysis/pull-request/",
-      "/analysis/scm-integration/"
+      "/analysis/pull-request/"
     ]
-  },
-  {
-    "title": "Integrations",
-    "children": ["/integrations/bitbucketcloud/", "/integrations/github/", "/integrations/vsts/"]
   },
   {
     "title": "Branches",
@@ -31,24 +31,45 @@
     "title": "User Guide",
     "children": [
       "/user-guide/fixing-the-water-leak/",
-      "/user-guide/keyboard-shortcuts/",
+      "/user-guide/project-page/",
+      "/user-guide/issues/",
+      "/user-guide/rules/",
+      "/user-guide/security-rules/",
+      "/user-guide/built-in-rule-tags/",
       "/user-guide/quality-gates/",
       "/instance-administration/quality-profiles/",
       "/user-guide/metric-definitions/",
+      "/user-guide/concepts/",
+      "/user-guide/activity-history/",
+      "/user-guide/visualizations/",
+      "/user-guide/sonarlint-notifications/",
       "/user-guide/security-reports/",
-      "/user-guide/user-account/"
+      "/user-guide/user-token/",
+      "/user-guide/keyboard-shortcuts/"
     ]
   },
   {
-    "title": "Project Administration",
-    "children": ["/project-administration/webhooks/"]
+    "title": "Project Admin Guide",
+    "children": [
+      "/project-administration/webhooks/",
+      "/project-administration/narrowing-the-focus/"
+    ]
   },
   {
-    "title": "Organizations",
+    "title": "Organization Admin Guide",
     "children": [
       "/organizations/overview/",
       "/organizations/manage-team/",
       "/organizations/organization-visibility/"
+    ]
+  },
+  {
+    "title": "Appendices",
+    "children": [
+      "/sonarcloud-pricing/",
+      "/privacy/",
+      "/security/",
+      "/faq/"
     ]
   }
 ]

@@ -16,6 +16,9 @@ Security Hotspots are security-sensitive pieces of code that should be carefully
 The main goal of Security Hotspots is to help focus the efforts of the security auditors who manually review application source code. The second goal is to educate developers and to increase their security-awareness. 
 Having a Hotspot in your application does not mean there is a problem. What it does mean is that a human, preferably a security auditor/expert should look over the code to see if the sensitive piece of code is being used in the safest manner.
 
+## Why are some Hotspot and Vulnerability rules very similar?
+They are overlapping on purpose. The Hotspot rule is supposed to include all matches of the Vulnerability rules, and cases where the taint analysis engine is not able to detect vulnerabilities. For example, switching from one language to another (XML, JNI, etc...) or using some third party libraries will prevent the taint analysis from finding vulnerabilities. A Vulnerability rule highlights security threats only when it has a high level of confidence, which means that it will always miss some of them. Whereas a Hotspot rule guides secure code reviews by showing code where those issues might lurk, even if it could not detect any vulnerability.
+
 ## Why don't I see any Hotspots?
 They are three reasons you might not see any Hotspots:
 * it is possible you really have none of them because the code has been written without using any security-sensitive API. 

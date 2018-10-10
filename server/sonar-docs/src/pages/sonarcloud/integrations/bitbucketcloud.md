@@ -1,9 +1,7 @@
 ---
-title: Integration with Bitbucket Cloud
+title: Bitbucket Cloud
 url: /integrations/bitbucketcloud/
 ---
-
-## Authentication
 
 You can connect to SonarCloud using your Bitbucket Cloud account. On the [login page](/#sonarcloud#/sessions/new), just click on the "Log in with Bitbucket" button.
 
@@ -47,7 +45,7 @@ If you haven't configured the analysis with Pipelines (maybe because you are usi
 
 1.  Go to the repository where you want to display the widget. On the "Overview" page, you should see an empty SonarCloud widget. Click on the link inside the empty widget or just go directly to your repository's "Settings > SonarCloud Settings".
 
-2.  If you're not already logged in on SonarCloud, do it by using the options provided there. You can log in with Bitbucket Cloud by clicking on the blue button, or click on "More options" to log in with GitHub or VSTS.
+2.  If you're not already logged in on SonarCloud, do it by using the options provided there. You can log in with Bitbucket Cloud by clicking on the blue button.
 
 3.  Once you're logged in on SonarCloud, you should see a dropdown allowing you to choose one of the projects you administer. Just choose the one you want to link to this Bitbucket repository and click "Save".
 

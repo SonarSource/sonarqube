@@ -101,7 +101,7 @@ The Payload is a JSON document which includes:
 
 A basic authentication mechanism is supported by providing user/password in the URL of the Webhook such as `https://myLogin:myPassword@my_server/foo`.
 
-If you provide additional properties to your SonarQube Scanner using the pattern `sonar.analysis.*`, these properties will be automatically added to the section "properties" of the payload.
+If you provide additional properties to your SonarScanner using the pattern `sonar.analysis.*`, these properties will be automatically added to the section "properties" of the payload.
 
 For example these additional parameters:
 

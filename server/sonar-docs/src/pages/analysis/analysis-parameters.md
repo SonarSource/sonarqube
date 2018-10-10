@@ -1,0 +1,104 @@
+---
+title: Analysis Parameters
+url: /analysis/analysis-parameters/
+---
+
+## Table of Contents
+
+Parameters to configure project analysis can be set in multiple places. Here is the hierarchy of parameters:
+
+* Global analysis parameters, defined in the UI, apply to all the projects (From the top bar, go to **[Administration > Configuration > General Settings](/#sonarqube-admin#/admin/settings)**)
+* Project analysis parameters, defined in the UI, override global parameters (At a project level, go to Administration > General Settings)
+* Project analysis parameters, defined in a project analysis configuration file or an analyzer configuration file, override the ones defined in the UI
+* Analysis / Command line parameters, defined when launching an analysis, override project analysis parameters
+
+Note that only parameters set through the UI are stored in the database.
+For example, if you override the sonar.exclusions parameter via command line for a specific project, it will not be stored in the database. Local analyses in Eclipse, for example, would still be executed with the exclusions defined in the UI and therefore stored in the DB.
+
+Note that the list of parameters below is not exhaustive. Most of the property keys shown in the interface, at both global and project levels, can also be set as analysis parameters. However, exclusions/inclusions are far easier to manage in the UI. 
+
+## Mandatory Parameters
+
+### Server
+Key | Description | Default
+---|----|---
+`sonar.host.url`| the server URL | http://localhost:9000
+
+### Project Configuration
+Key | Description | Default
+---|----|---
+`sonar.projectKey`|The project's unique key. Allowed characters are: letters, numbers, `-`, `_`, `.` and `:`, with at least one non-digit. | For Maven projects, this is automatically set to `<groupId>:<artifactId>`
+`sonar.sources` | Comma-separated paths to directories containing source files. | Read from build system for Maven, Gradle, MSBuild projects 
+
+## Optional Parameters
+
+### Project Identity
+Key | Description | Default
+---|----|---
+`sonar.projectName`|Name of the project that will be displayed on the web interface.|`<name>` for Maven projects, otherwise project key. If there is already a name in the DB, it won't be overwritten
+`sonar.projectVersion` | The project version. | `<version>` for Maven projects, otherwise "not provided"
+
+
+### Authentication
+If the "Anyone" pseudo-group does not have permission to perform analyses, you'll need to supply the credentials of a user with Execute Analysis permission for the analysis to run under.
+
+
+Key | Description | Default
+---|----|---
+`sonar.login` | The login or authentication token of a {instance} user with Execute Analysis permission on the project. |
+`sonar.password` | The password that goes with the `sonar.login` username. This should be left blank if an authentication token is being used. |
+
+### Web Services
+Key | Description | Default
+---|----|---
+`sonar.ws.timeout` | Maximum time to wait for the response of a Web Service call (in seconds). Modifying this value from the default is useful only when you're experiencing timeouts during analysis while waiting for the server to respond to Web Service calls. |  60
+
+### Project Configuration
+Key | Description | Default
+---|----|---
+`sonar.projectDescription` | The project description. Not compatible with Maven. | `<description>` for Maven projects
+`sonar.links.homepage` | Project home page. Not compatible with Maven. | `<url>` for Maven projects
+`sonar.links.ci` | Continuous integration. Not compatible with Maven. | `<ciManagement><url>` for Maven projects  
+`sonar.links.issue` | Issue tracker. Not compatible with Maven. | `<issueManagement><url>` for Maven projects  
+`sonar.links.scm` | Project source repository. Not compatible with Maven. | `<scm><url>` for Maven projects
+`sonar.links.scm_dev` | Developer connection. Not compatible with Maven. | `<scm><developerConnection>` for Maven projects
+`sonar.tests` | Comma-separated paths to directories containing tests. Not compatible with Maven. | Default tests location for Java Maven projects.
+`sonar.sourceEncoding` | Encoding of the source files. Ex: `UTF-8`, `MacRoman`, `Shift_JIS`. This property can be replaced by the standard property `project.build.sourceEncoding` in Maven projects. The list of available encodings depends on your JVM. | System encoding
+`sonar.externalIssuesReportPaths` | Comma-delimited list of paths to Generic Issue reports. | 
+`sonar.projectDate` | Assign a date to the analysis. This parameter is only useful when you need to retroactively create the history of a not-analyzed-before project. The format is `yyyy-MM-dd`, for example: 2010-12-01. Since you cannot perform an analysis dated prior to the most recent one in the database, you must analyze recreate your project history in chronological order, oldest first. ![](/images/exclamation.svg) Note: You may need to adjust your housekeeping settings if you wish to create a long-running history. | Current date
+`sonar.projectBaseDir` | Use this property when you need analysis to take place in a directory other than the one from which it was launched. E.G. analysis begins from `jenkins/jobs/myjob/workspace` but the files to be analyzed are in `ftpdrop/cobol/project1`. The path may be relative or absolute. Specify not the the source directory, but some parent of the source directory. The value specified here becomes the new "analysis directory", and other paths are then specified as though the analysis were starting from the specified value of `sonar.projectBaseDir`. Note that the analysis process will need write permissions in this directory; it is where the `sonar.working.directory` will be created. |
+`sonar.working.directory` | Set the working directory for an analysis triggered with the SonarScanner or the SonarScanner for Ant (versions greater than 2.0). This property is not compatible with the SonarScanner for MSBuild. Path must be relative, and unique for each project. ![](/images/exclamation.svg) Beware: the specified folder is deleted before each analysis. | `.sonar`
+`sonar.scm.provider` | This property can be used to explicitly tell {instance} which SCM plugin should be used to grab SCM data on the project (in case auto-detection does not work). The value of this property is always lowercase and depends on the plugin (ex. "tfvc" for the TFVC plugin). Check the documentation page of each plugin for more. |  
+`sonar.scm.forceReloadAll` | By default, blame information is only retrieved for changed files. Set this property to `true` to load blame information for all files. This can be useful is you feel that some SCM data is outdated but {instance} does not get the latest information from the SCM engine. | 
+`sonar.coverage.jacoco.xmlReportPaths` | Import JaCoCo code coverage reports provided as XML files. This property accepts multiple, comma-delimited entries. The JaCoCo XML report must be generated prior to analysis. | `target/site/jacoco/jacoco.xml` `build/reports/jacoco/test/jacocoTestReport.xml` |
+
+
+### Duplications
+Key | Description | Default
+---|----|---
+`sonar.cpd.exclusions` | Comma-delimited list of file path patterns to be excluded from duplication detection |  
+`sonar.cpd.${language}.minimumtokens` | A piece of code is considered duplicated as soon as there are at least 100 duplicated tokens in a row (overide with `sonar.cpd.${language}.minimumTokens`) spread across at least 10 lines of code (override with `sonar.cpd.${language}.minimumLines`). For Java projects, a piece of code is considered duplicated when there is a series of at least 10 statements in a row, regardless of the number of tokens and lines. This threshold cannot be overridden.  | 100
+`sonar.cpd.${language}.minimumLines` | (see above) | 10
+
+
+### Analysis Logging
+Key | Description | Default
+---|----|---
+`sonar.log.level` | Control the quantity / level of logs produced during an analysis. `DEBUG`: Display `INFO` logs + more details at `DEBUG` level. Similar to `sonar.verbose=true`. `TRACE`: Display `DEBUG` logs + the timings of all ElasticSearch queries and Web API calls executed by the SonarScanner. | `INFO`
+`sonar.verbose` | Add more detail to both client and server-side analysis logs. Activates `DEBUG` mode for the scanner, and adds client-side environment variables and system properties to server-side log of analysis report processing. ![](/images/exclamation.svg)NOTE: There is the potential for this setting to expose sensitive information such as passwords if they are stored as server-side environment variables. | false
+`sonar.showProfiling` | Display logs to see where the analyzer spends time. This parameter generates a file containing these timing infos in `<workingDir>/profiling/<moduleKey>-profiler.xml` where `<workingDir>` is: `.sonar/profiling/` when analysis is run with SonarScanner, and `target/sonar/profiling/` when SonarScanner for Maven is used. | `false`
+`sonar.scanner.dumpToFile` | Outputs to the specified file the full list of properties passed to the scanner API as a means to debug analysis. |  
+`sonar.scanner.metadataFilePath` | Set the location where the scanner writes the `report-task.txt` file containing among other things the `ceTaskId`. | value of `sonar.working.directory`
+
+<!-- sonarqube -->
+### Deprecated
+[[danger]]
+| ![](/images/cross.svg) These parameters are listed for completeness, but are deprecated and should not be used in new analyses.
+Key | Description
+---|----|---
+`sonar.branch` **![](/images/cross.svg)Deprecated since SQ 6.7** | _The Developer Edition provides fuller-featured branch functionality._ Manage SCM branches. Two branches of the same project are considered to be different projects in SonarQube. As a consequence issues found in a project A in a branch B1 are not linked to issues found for this project A in a branch B2. There is no way to automatically resolve issues from B2 when they are resolved in B1 as again A-B1 & A-B2 are considered separated projects. 
+`sonar.language` **![](/images/cross.svg)Deprecated since SQ 4.5** | Set the language of the source code to analyze. Browse the Plugin Library page to get the list of all available languages. If not set, a multi-language analysis will be triggered. 
+`sonar.profile` **![](/images/cross.svg)Deprecated since SQ 4.5** | Override the profile to be used. This should be set on a per-langauge basis through the UI instead. 
+`sonar.analysis.mode` **![](/images/cross.svg)Deprecated since SQ 6.6** | This parameter is set to `preview` as part of non-Developer Edition PR decoration.
+
+<!-- /sonarqube -->

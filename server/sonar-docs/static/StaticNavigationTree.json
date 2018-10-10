@@ -1,16 +1,33 @@
 [
+  "/architecture/architecture-integration/",
   {
     "title": "Requirements",
-    "children": []
+    "children": [
+      "/requirements/requirements/",
+      "/requirements/benchmark/",
+      "/requirements/hardware-recommendations/"
+    ]
   },
   {
     "title": "Setup and Upgrade",
-    "children": []
+    "children": [
+      "/setup/overview/",
+      "/setup/get-started-2-minutes/",
+      "/setup/install-server/",
+      "/setup/operate-server/",
+      "/setup/install-plugin/",
+      "/setup/install-cluster/",
+      "/setup/operate-cluster/",
+      "/setup/upgrading/",
+      "/setup/upgrade-notes/",
+      "/setup/troubleshooting/"
+    ]
   },
   {
     "title": "Analyzing Source Code",
     "children": [
       "/analysis/overview/",
+      "/analysis/analysis-parameters/",
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
@@ -31,24 +48,65 @@
     "title": "User Guide",
     "children": [
       "/user-guide/fixing-the-water-leak/",
-      "/user-guide/keyboard-shortcuts/",
+      "/user-guide/project-page/",
+      "/user-guide/applications/",
+      "/user-guide/portfolios/",
+      "/user-guide/issues/",
+      "/user-guide/rules/",
+      "/user-guide/security-rules/",
+      "/user-guide/built-in-rule-tags/",
       "/user-guide/quality-gates/",
       "/user-guide/metric-definitions/",
+      "/user-guide/concepts/",
+      "/user-guide/activity-history/",
+      "/user-guide/visualizations/",
+      "/user-guide/sonarlint-notifications/",
       "/user-guide/security-reports/",
-      "/user-guide/user-account/"
+      "/user-guide/user-account/",
+      "/user-guide/user-token/",
+      "/user-guide/keyboard-shortcuts/"
     ]
   },
   {
     "title": "Project Administration",
-    "children": ["/project-administration/webhooks/"]
+    "children": [
+      "/project-administration/project-existence/",
+      "/project-administration/managing-project-history/",
+      "/project-administration/narrowing-the-focus/",
+      "/project-administration/configuring-portfolios-and-applications/",
+      "/project-administration/portfolio-pdf-configuration/",
+      "/project-administration/project-settings/",
+      "/project-administration/webhooks/"
+    ]
   },
   {
     "title": "Instance Administration",
     "children": [
-      "/instance-administration/custom-measures/",
-      "/instance-administration/housekeeping/",
+      "/instance-administration/quality-profiles/",
+      "/instance-administration/security/",
+      "/instance-administration/delegated-auth/",
       "/instance-administration/look-and-feel/",
-      "/instance-administration/quality-profiles/"
+      "/instance-administration/marketplace/",
+      "/instance-administration/housekeeping/",
+      "/instance-administration/notifications/",
+      "/instance-administration/system-info/",
+      "/instance-administration/monitoring/",
+      "/instance-administration/project-move/",
+      "/instance-administration/custom-measures/",
+      "/instance-administration/compute-engine-performance/",
+      "/instance-administration/db-copy/"
     ]
+  }, 
+  "/previous-versions/",
+  "/faq/",
+  {
+    "title": "Scanners",
+    "url": "https://docs.sonarqube.org/display/SCAN"
+  }, {
+    "title": "Plugins",
+    "url": "https://docs.sonarqube.org/display/PLUG"
+  }, {
+    "title": "Extension",
+    "url": "https://docs.sonarqube.org/display/DEV"
   }
 ]

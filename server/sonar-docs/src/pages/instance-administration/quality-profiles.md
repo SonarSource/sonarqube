@@ -5,7 +5,7 @@ url: /instance-administration/quality-profiles/
 
 ## Overview
 
-The Quality Profiles service is central to SonarQube, since it is where you define your requirements by defining sets of **rules** (ex: Methods should not have a Cognitive Complexity greater than 15).
+The Quality Profiles service is central to {instance}, since it is where you define your requirements by defining sets of **rules** (ex: Methods should not have a Cognitive Complexity greater than 15).
 
 Ideally, all projects will be measured with the same profile for any given language, but that's not always practical. For instance, you may find that:
 
@@ -15,7 +15,7 @@ Ideally, all projects will be measured with the same profile for any given langu
 
 Which is why you can define as many quality profiles as you wish even though it is recommended to have as few Quality Profiles as possible to ensure consistency across the projects in your company. To manage quality profiles, go to <!-- sonarqube -->[**Quality Profiles**](/#sonarqube#/profiles)<!-- /sonarqube --><!-- sonarcloud -->**Quality Profiles** page of your organization<!-- /sonarcloud -->, where you'll find profiles grouped by language.
 
-Each language plugin comes with a predefined, built-in profile (usually called "Sonar way") so that you can get started very quickly with SonarQube analyses. This is why as soon as you install a new language plugin, at least one quality profile will be available for you. Each language must have a default profile (marked with the Default tag). Projects that are not explicitly associated with a specific profile will be analyzed using the language's default profile.
+Each language plugin comes with a predefined, built-in profile (usually called "Sonar way") so that you can get started very quickly with {instance} analyses. This is why as soon as you install a new language plugin, at least one quality profile will be available for you. Each language must have a default profile (marked with the Default tag). Projects that are not explicitly associated with a specific profile will be analyzed using the language's default profile.
 
 When starting from a new installation, it's tempting to use Sonar way as your default profile because it contains all the rules that are generally applicable to most projects. But as a best practice, you should create a new profile (you can populate it by copying the contents of Sonar way) and use it instead. Why? First because Sonar way profiles aren't editable, so you won't be able to customize it to your needs. Also, that lets you treat Sonar way as a baseline against which you can track your own profile as you make changes to it (and you will). Plus, Sonar way is typically updated with each new version of the plugin to add rules and sometimes adjust rule severities. Any profile that inherits from the built-in Sonar Way will de-facto be automatically updated at the same time.
 
@@ -33,7 +33,7 @@ Many times people want to work from a profile that's based on a built-in profile
 
 ### Know what's changed in a profile?
 
-When SonarQube notices that an analysis was performed with a profile that is different in some way from the previous analysis, a Quality Profile event is added to the project's event log. To see the changes in a profile, navigate to the profile (**Quality Profiles > [ Profile Name ]**), and choose **Changelog**. This may help you understand how profile changes impact the issues raised in an analysis.
+When {instance} notices that an analysis was performed with a profile that is different in some way from the previous analysis, a Quality Profile event is added to the project's event log. To see the changes in a profile, navigate to the profile (**Quality Profiles > [ Profile Name ]**), and choose **Changelog**. This may help you understand how profile changes impact the issues raised in an analysis.
 
 Additionally, users with Quality Profile administration privileges are notified by email each time a built-in profile (one that is provided directly by an analyzer) is updated. These updates can only be caused by analyzer updates.
 

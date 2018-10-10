@@ -150,5 +150,12 @@ module.exports = ({ production = true }) => ({
   optimization: {
     splitChunks: { chunks: 'all' }
   },
-  performance: production ? { hints: 'error' } : undefined
+  performance: production
+    ? {
+        // ignore source maps and documentation chunk
+        assetFilter: assetFilename =>
+          !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs.'),
+        hints: 'error'
+      }
+    : undefined
 });

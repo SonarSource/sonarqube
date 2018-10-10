@@ -9,7 +9,7 @@ Imagine you come home one day to find a puddle of water on the kitchen floor. As
 
 Do you reach for the mop? Or do you try to find the source and fix it? The choice is obvious, right? You find the source of the leak!
 
-So why do anything different with code quality? When you analyze an application with <!-- sonarqube -->SonarQube<!-- /sonarqube --><!-- sonarcloud -->SonarCloud<!-- /sonarcloud --> and realize that it has a lot of technical debt, the knee-jerk reaction is generally to start remediating – either that or put together a remediation plan. This is like mopping the floor once a day while ignoring the source of the water.
+So why do anything different with code quality? When you analyze an application with {instance} and realize that it has a lot of technical debt, the knee-jerk reaction is generally to start remediating – either that or put together a remediation plan. This is like mopping the floor once a day while ignoring the source of the water.
 
 Typically in this traditional approach, just before release a periodic code quality audit result in findings the developers should act on before releasing. This approach might work in the short term, especially with strong management backing, but it consistently fails in the mid to long run, because:
 

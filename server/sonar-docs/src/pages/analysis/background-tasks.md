@@ -10,7 +10,7 @@ A Background Task can be:
 
 ## What happens after the scanner is done analyzing?
 
-Analysis is not complete until the relevant Background Task has been completed. Even though the SonarQube Scanner's log shows `EXECUTION SUCCESS`, the analysis results will not be visible in the SonarQube project until the Background Task has been completed. After a SonarQube Scanner has finished analyzing your code, the result of the analysis (Sources, Issues, Metrics) -  the Analysis Report - is sent to SonarQube Server for final processing by the Compute Engine. Analysis Reports are queued and processed serially.
+Analysis is not complete until the relevant Background Task has been completed. Even though the SonarScanner's log shows `EXECUTION SUCCESS`, the analysis results will not be visible in the {instance} project until the Background Task has been completed. After a SonarScanner has finished analyzing your code, the result of the analysis (Sources, Issues, Metrics) -  the Analysis Report - is sent to {instance} Server for final processing by the Compute Engine. Analysis Reports are queued and processed serially.
 
 At the Project level, when there is a pending Analysis Report waiting to be consumed, you have a "Pending" notification in the header, next to the date of the most recent completed analysis.
 

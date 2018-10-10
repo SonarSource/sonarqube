@@ -3,7 +3,7 @@ title: Housekeeping
 url: /instance-administration/housekeeping/
 ---
 
-When you run a new analysis of your project, some data that was previously available is cleaned out of the database. For example the source code of the previous analysis, measures at directory and file levels, and so on are automatically removed at the end of a new analysis. Additionally, some old analysis snapshots are also removed.
+When you run a new analysis of your project or its branches or pull requests(PRs), some data that was previously available is cleaned out of the database. For example the source code of the previous analysis, measures at directory and file levels, and so on are automatically removed at the end of a new analysis. Additionally, some old analysis snapshots, PR analyses, and branches are also removed.
 
 Why? Well, it's useful to analyze a project frequently to see how its quality evolves. It is also useful to be able to see the trends over weeks, months, years. But when you look back in time, you don't really need the same level of detail as you do for the project's current state. To save space and to improve overall performance, the Database Cleaner deletes some rows in the database. Here is its default configuration:
 

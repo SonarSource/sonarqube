@@ -1,9 +1,7 @@
 ---
-title: Integration with GitHub
+title: GitHub
 url: /integrations/github/
 ---
-
-## Authentication
 
 You can connect to SonarCloud using your GitHub account. On the [login page](/#sonarcloud#/sessions/new), just click on the "Log in with GitHub" button.
 

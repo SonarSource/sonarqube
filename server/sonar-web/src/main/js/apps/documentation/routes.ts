@@ -19,7 +19,7 @@
  */
 import { lazyLoad } from '../../components/lazyLoad';
 
-const App = lazyLoad(() => import('./components/App'));
+const App = lazyLoad(() => import(/* webpackChunkName: "docs" */ './components/App'));
 
 const routes = [{ indexRoute: { component: App } }, { path: '**', indexRoute: { component: App } }];
 

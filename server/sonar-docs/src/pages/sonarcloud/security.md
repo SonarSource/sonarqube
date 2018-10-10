@@ -1,5 +1,5 @@
 ---
-title: SonarCloud Security
+title: Security Statement
 url: /security/
 ---
 
@@ -52,7 +52,7 @@ SonarCloud performs webhook calls from the following list of IPs:
 
 ## Authentication
 
-Primary authentication on the system is available only through OAuth authentication with GitHub, Bitbucket Cloud and Microsoft VSTS. As a consequence, users don’t have a password on SonarCloud, and are as protected as what they expect (especially with 2FA activated on those systems). 
+Primary authentication on the system is available only through OAuth authentication with GitHub, Bitbucket Cloud and Microsoft Azure DevOps. As a consequence, users don’t have a password on SonarCloud, and are as protected as what they expect (especially with 2FA activated on those systems). 
  
 For WS API calls or source code analysis triggered from CI services, only revocable user tokens are accepted.
 
