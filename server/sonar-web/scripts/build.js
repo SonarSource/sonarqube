@@ -46,10 +46,10 @@ function build() {
     }
 
     const jsonStats = stats.toJson();
-    const withoutSourceMaps = jsonStats.assets.filter(asset => !asset.name.endsWith('.map'));
+    const onlyJS = jsonStats.assets.filter(asset => asset.name.endsWith('.js'));
 
-    console.log(`Biggest assets (${withoutSourceMaps.length} total):`);
-    sortBy(withoutSourceMaps, asset => -asset.size)
+    console.log(`Biggest js chunks (${onlyJS.length} total):`);
+    sortBy(onlyJS, asset => -asset.size)
       .slice(0, 5)
       .forEach(asset => {
         let sizeLabel = formatSize(asset.size);
