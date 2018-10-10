@@ -76,7 +76,7 @@ export default class Sidebar extends React.PureComponent {
   };
 
   renderCategories = tree => {
-    return tree.map(item => {
+    const items = tree.map(item => {
       if (typeof item === 'object') {
         if (item.children) {
           return (
@@ -103,6 +103,7 @@ export default class Sidebar extends React.PureComponent {
         />
       );
     });
+    return <nav>{items}</nav>;
   };
 
   renderResults = () => {

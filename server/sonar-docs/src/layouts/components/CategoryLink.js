@@ -44,18 +44,22 @@ export default class CategoryLink extends React.PureComponent {
     const isCurrentPage = location.pathname === prefix + url;
     return (
       <div>
-        <h2 className={isCurrentPage || open ? 'active' : ''}>
-          {node ? (
-            <Link to={url} title={node.frontmatter.title}>
-              {node.frontmatter.title}
-            </Link>
-          ) : (
-            <a href="#" onClick={this.toggle}>
-              {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
-              {title}
-            </a>
-          )}
-        </h2>
+        {node ? (
+          <Link
+            className={isCurrentPage || open ? 'page-indexes-link active' : 'page-indexes-link'}
+            to={url}
+            title={node.frontmatter.title}>
+            {node.frontmatter.title}
+          </Link>
+        ) : (
+          <a
+            className={isCurrentPage || open ? 'page-indexes-link active' : 'page-indexes-link'}
+            href="#"
+            onClick={this.toggle}>
+            {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            {title}
+          </a>
+        )}
         {isCurrentPage && <HeadingsLink headers={headers} />}
         {children &&
           open && (

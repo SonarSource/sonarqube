@@ -228,7 +228,7 @@ a.search-result .note {
   margin: 0 -4px 0 4px;
 }
 
-.page-indexes h2 {
+.page-indexes-link {
   color: #2d3032;
   font-size: 16px;
   font-weight: bold;
@@ -240,22 +240,22 @@ a.search-result .note {
   transition: all 0.2s ease;
 }
 
-.page-indexes h2:hover {
+.page-indexes-link:hover {
   background-color: #e8eff5;
 }
 
-.page-indexes h2.active {
+.page-indexes-link.active {
   color: #2679af;
 }
 
-.page-indexes h2 a,
-.page-indexes h3 a {
+.page-indexes-link,
+.sub-menu-link {
   color: inherit;
   text-decoration: inherit;
   display: block;
 }
 
-.page-indexes h2 svg {
+.page-indexes-link svg {
   float: right;
   transform: translateY(9px);
 }
@@ -264,14 +264,14 @@ a.search-result .note {
   padding: 0 0 10px 22px;
 }
 
-.sub-menu h3 {
+.sub-menu-link {
   font-size: 14px;
   line-height: 26px;
   margin: 0;
 }
 
-.sub-menu a:hover,
-.sub-menu a.active {
+.sub-menu-link:hover,
+.sub-menu-link.active {
   color: #2679af;
 }
 

@@ -24,11 +24,11 @@ import HeadingsLink from './HeadingsLink';
 export default function SubpageLink({ node, headers, displayHeading }) {
   return (
     <div>
-      <h3>
-        <Link className={displayHeading ? 'active' : ''} to={node.fields.slug}>
-          {node.frontmatter.title}
-        </Link>
-      </h3>
+      <Link
+        className={displayHeading ? 'sub-menu-link active' : 'sub-menu-link'}
+        to={node.fields.slug}>
+        {node.frontmatter.title}
+      </Link>
       {displayHeading && <HeadingsLink headers={headers} />}
     </div>
   );

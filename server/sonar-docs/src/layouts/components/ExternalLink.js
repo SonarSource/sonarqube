@@ -22,13 +22,9 @@ import DetachIcon from './icons/DetachIcon';
 
 export function ExternalLink({ external, title }) {
   return (
-    <div>
-      <h2>
-        <a href={external} target="_blank">
-          <DetachIcon />
-          {title}
-        </a>
-      </h2>
-    </div>
+    <a className="page-indexes-link" href={external} rel="noopener noreferrer" target="_blank">
+      <DetachIcon />
+      {title}
+    </a>
   );
 }
