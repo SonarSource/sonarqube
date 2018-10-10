@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { Location } from 'history';
 import SonarCloudPage from './SonarCloudPage';
 import Select from '../../../components/controls/Select';
 import { isLoggedIn, Organization } from '../../../app/types';
@@ -30,14 +31,28 @@ const CATEGORIES = [
   { label: 'Operations / Service / Infrastructure', value: 'operations' }
 ];
 
+interface Props {
+  location: Location;
+}
+
 interface State {
   category: string;
   organization: string;
+  question: string;
   subject: string;
 }
 
-export default class Contact extends React.PureComponent<{}, State> {
-  state: State = { category: '', organization: '', subject: '' };
+export default class Contact extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    const { query } = props.location;
+    this.state = {
+      category: query.category || '',
+      organization: query.organization || '',
+      question: query.question || '',
+      subject: query.subject || ''
+    };
+  }
 
   getOrganizations = (organizations?: Organization[]) => {
     return (organizations || []).map(org => ({
@@ -56,6 +71,10 @@ export default class Contact extends React.PureComponent<{}, State> {
 
   handleSubjectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ subject: event.currentTarget.value });
+  };
+
+  handleQuestionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ question: event.currentTarget.value });
   };
 
   render() {
@@ -164,9 +183,11 @@ export default class Contact extends React.PureComponent<{}, State> {
                   className="form-control"
                   id="contact-question"
                   name="question"
+                  onChange={this.handleQuestionChange}
                   placeholder="Please describe precisely what is your issue..."
                   required={true}
                   rows={8}
+                  value={this.state.question}
                 />
               </div>
               <div className="form-group">
