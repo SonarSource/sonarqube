@@ -31,11 +31,8 @@ class SvgFormatter {
 
   private static final String ZERO = "0";
 
-  private static final NumberFormat NUMERIC_FORMATTER = DecimalFormat.getInstance(Locale.ENGLISH);
   private static final String NUMERIC_SUFFIX_LIST = " kmbt";
   private static final String NUMERIC_REGEXP = "\\.[0-9]+";
-
-  private static final DecimalFormat PERCENT_FORMATTER = new DecimalFormat("#.#", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
   private static final String DURATION_MINUTES_FORMAT = "%smin";
   private static final String DURATION_HOURS_FORMAT = "%sh";
@@ -52,16 +49,18 @@ class SvgFormatter {
     if (value == 0) {
       return ZERO;
     }
-    NUMERIC_FORMATTER.setMaximumFractionDigits(1);
+    NumberFormat numericFormatter = DecimalFormat.getInstance(Locale.ENGLISH);
+    numericFormatter.setMaximumFractionDigits(1);
     int power = (int) StrictMath.log10(value);
     double valueToFormat = value / (Math.pow(10, Math.floorDiv(power, 3) * 3d));
-    String formattedNumber = NUMERIC_FORMATTER.format(valueToFormat);
+    String formattedNumber = numericFormatter.format(valueToFormat);
     formattedNumber = formattedNumber + NUMERIC_SUFFIX_LIST.charAt(power / 3);
     return formattedNumber.length() > 4 ? trim(formattedNumber.replaceAll(NUMERIC_REGEXP, "")) : trim(formattedNumber);
   }
 
   static String formatPercent(double value) {
-    return PERCENT_FORMATTER.format(value) + "%";
+    DecimalFormat percentFormatter = new DecimalFormat("#.#", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+    return percentFormatter.format(value) + "%";
   }
 
   static String formatDuration(long durationInMinutes) {
