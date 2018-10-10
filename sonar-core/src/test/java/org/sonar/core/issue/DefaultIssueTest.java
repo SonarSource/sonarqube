@@ -212,4 +212,13 @@ public class DefaultIssueTest {
 
     assertThat(issue.changes()).hasSize(1);
   }
+
+  @Test
+  public void adding_null_change_has_no_effect() {
+    DefaultIssue issue = new DefaultIssue();
+
+    issue.addChange(null);
+
+    assertThat(issue.changes()).hasSize(0);
+  }
 }

@@ -514,7 +514,10 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return currentChange;
   }
 
-  public DefaultIssue addChange(FieldDiffs change) {
+  public DefaultIssue addChange(@Nullable FieldDiffs change) {
+    if (change == null) {
+      return this;
+    }
     if (changes == null) {
       changes = new ArrayList<>();
     }
