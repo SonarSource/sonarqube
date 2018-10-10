@@ -16,10 +16,12 @@ exports[`should render correctly 1`] = `
   >
     1.2k
   </td>
-  <td
-    className="text-ellipsis overview-analysis-graph-tooltip-description"
-  >
-    Code Smells
+  <td>
+    <div
+      className="text-ellipsis overview-analysis-graph-tooltip-description"
+    >
+      Code Smells
+    </div>
   </td>
 </tr>
 `;
