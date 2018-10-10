@@ -24,7 +24,7 @@ import * as Docs from './documentation.directory-loader';
 import { separateFrontMatter, filterContent } from '../../helpers/markdown';
 
 export default function getPages(): DocumentationEntry[] {
-  return Docs.map((file: any) => {
+  return ((Docs as unknown) as Array<{ content: string; path: string }>).map(file => {
     const parsed = separateFrontMatter(file.content);
     const content = filterContent(parsed.content);
     const text = getText(content);

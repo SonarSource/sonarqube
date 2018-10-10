@@ -71,13 +71,17 @@ class AboutApp extends React.PureComponent<Props, State> {
     this.mounted = true;
     this.loadData();
     document.body.classList.add('white-page');
-    document.documentElement.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
+    }
   }
 
   componentWillUnmount() {
     this.mounted = false;
     document.body.classList.remove('white-page');
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
   }
 
   loadProjects() {

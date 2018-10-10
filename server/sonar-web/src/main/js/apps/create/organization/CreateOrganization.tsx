@@ -64,7 +64,9 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   componentDidMount() {
     this.mounted = true;
     document.body.classList.add('white-page');
-    document.documentElement.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
+    }
     this.fetchSubscriptionPlans();
   }
 

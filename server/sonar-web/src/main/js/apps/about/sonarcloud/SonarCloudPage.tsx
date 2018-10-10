@@ -38,12 +38,16 @@ type Props = StateProps & WithRouterProps & OwnProps;
 
 class SonarCloudPage extends React.Component<Props> {
   componentDidMount() {
-    document.documentElement.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
+    }
     document.body.classList.add('white-page');
   }
 
   componentWillUnmount() {
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
     document.body.classList.remove('white-page');
   }
 

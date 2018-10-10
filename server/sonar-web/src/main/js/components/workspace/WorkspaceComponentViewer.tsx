@@ -36,11 +36,15 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
   container?: HTMLElement | null;
 
   componentDidMount() {
-    document.documentElement.classList.add('with-workspace');
+    if (document.documentElement) {
+      document.documentElement.classList.add('with-workspace');
+    }
   }
 
   componentWillUnmount() {
-    document.documentElement.classList.remove('with-workspace');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('with-workspace');
+    }
   }
 
   handleClose = () => {

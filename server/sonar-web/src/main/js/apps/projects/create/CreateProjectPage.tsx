@@ -76,7 +76,9 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         this.fetchIdentityProviders();
       }
       document.body.classList.add('white-page');
-      document.documentElement.classList.add('white-page');
+      if (document.documentElement) {
+        document.documentElement.classList.add('white-page');
+      }
     } else {
       handleRequiredAuthentication();
     }
@@ -85,7 +87,9 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
     document.body.classList.remove('white-page');
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
   }
 
   handleProjectCreate = (projectKeys: string[]) => {

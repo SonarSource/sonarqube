@@ -126,7 +126,9 @@ export class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     document.body.classList.add('white-page');
-    document.documentElement.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
+    }
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.add('page-footer-with-sidebar');
@@ -162,10 +164,10 @@ export class App extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    // $FlowFixMe
     document.body.classList.remove('white-page');
-    // $FlowFixMe
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.remove('page-footer-with-sidebar');

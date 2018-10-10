@@ -52,7 +52,9 @@ export default class NavBar extends React.PureComponent<Props, State> {
   }
 
   followHorizontalScroll = () => {
-    this.setState({ left: -document.documentElement.scrollLeft });
+    if (document.documentElement) {
+      this.setState({ left: -document.documentElement.scrollLeft });
+    }
   };
 
   render() {

@@ -40,7 +40,7 @@ export default class RestartForm extends React.PureComponent<Props, State> {
     if (!this.state.restarting) {
       this.setState({ restarting: true });
       restartAndWait().then(
-        () => document.location.reload(),
+        () => document.location && document.location.reload(),
         () => this.setState({ restarting: false })
       );
     }

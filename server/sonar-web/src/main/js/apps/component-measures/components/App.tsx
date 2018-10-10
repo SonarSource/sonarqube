@@ -107,7 +107,9 @@ export default class App extends React.PureComponent<Props, State> {
   componentDidUpdate(_prevProps: Props, prevState: State) {
     if (prevState.measures.length === 0 && this.state.measures.length > 0) {
       document.body.classList.add('white-page');
-      document.documentElement.classList.add('white-page');
+      if (document.documentElement) {
+        document.documentElement.classList.add('white-page');
+      }
       const footer = document.getElementById('footer');
       if (footer) {
         footer.classList.add('page-footer-with-sidebar');
@@ -119,7 +121,9 @@ export default class App extends React.PureComponent<Props, State> {
     this.mounted = false;
 
     document.body.classList.remove('white-page');
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
 
     const footer = document.getElementById('footer');
     if (footer) {

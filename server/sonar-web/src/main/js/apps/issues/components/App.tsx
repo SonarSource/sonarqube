@@ -176,8 +176,9 @@ export default class App extends React.PureComponent<Props, State> {
     }
 
     document.body.classList.add('white-page');
-    // $FlowFixMe
-    document.documentElement.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
+    }
 
     const footer = document.getElementById('footer');
     if (footer) {
@@ -235,8 +236,9 @@ export default class App extends React.PureComponent<Props, State> {
     this.detachShortcuts();
 
     document.body.classList.remove('white-page');
-    // $FlowFixMe
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
 
     const footer = document.getElementById('footer');
     if (footer) {
