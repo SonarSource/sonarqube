@@ -239,7 +239,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsExactlyInAnyOrder("Fail to initialize authentication with provider 'failing'");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactlyInAnyOrder("Fail to initialize authentication with provider 'failing'");
     verifyDeleteAuthCookie();
   }
 
@@ -254,7 +254,7 @@ public class InitFilterTest {
   }
 
   private void assertError(String expectedError) throws Exception {
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains(expectedError);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expectedError);
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }

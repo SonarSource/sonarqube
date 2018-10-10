@@ -189,7 +189,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).containsExactlyInAnyOrder("Fail to callback authentication with 'failing'");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsExactlyInAnyOrder("Fail to callback authentication with 'failing'");
     verify(oAuthRedirection).delete(eq(request), eq(response));
   }
 
@@ -222,7 +222,7 @@ public class OAuth2CallbackFilterTest {
   }
 
   private void assertError(String expectedError) throws Exception {
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains(expectedError);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expectedError);
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }

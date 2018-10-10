@@ -39,12 +39,12 @@ final class AuthenticationError {
   }
 
   static void handleError(Exception e, HttpServletResponse response, String message) {
-    LOGGER.error(message, e);
+    LOGGER.warn(message, e);
     redirectToUnauthorized(response);
   }
 
   static void handleError(HttpServletResponse response, String message) {
-    LOGGER.error(message);
+    LOGGER.warn(message);
     redirectToUnauthorized(response);
   }
 
