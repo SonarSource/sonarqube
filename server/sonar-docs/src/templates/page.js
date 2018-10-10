@@ -101,7 +101,7 @@ export const query = graphql`
 `;
 
 function replaceInstanceTag(content) {
-  return content.replace('{instance}', 'SonarQube');
+  return content.replace(/{instance}/gi, 'SonarQube');
 }
 
 function replaceDynamicLinks(content) {

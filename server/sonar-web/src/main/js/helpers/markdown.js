@@ -73,7 +73,7 @@ function parseFrontMatter(lines) {
  */
 function filterContent(content) {
   const { isSonarCloud, getInstance } = require('./system');
-  const contentWithInstance = content.replace('{instance}', getInstance());
+  const contentWithInstance = content.replace(/{instance}/gi, getInstance());
   const contentWithoutStatic = cutConditionalContent(contentWithInstance, 'static');
   return isSonarCloud()
     ? cutConditionalContent(contentWithoutStatic, 'sonarqube')
