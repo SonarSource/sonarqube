@@ -19,14 +19,16 @@
  */
 import * as React from 'react';
 import { keyBy } from 'lodash';
+import { withAppState } from '../withAppState';
 import DeferredSpinner from '../common/DeferredSpinner';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import { getRuleDetails, getRulesApp } from '../../api/rules';
-import { RuleDetails } from '../../app/types';
+import { RuleDetails, AppState } from '../../app/types';
 import '../../apps/coding-rules/styles.css';
 
 interface Props {
+  appState: Pick<AppState, 'organizationsEnabled'>;
   onLoad: (details: { name: string }) => void;
   organizationKey: string | undefined;
   ruleKey: string;
@@ -38,7 +40,7 @@ interface State {
   ruleDetails?: RuleDetails;
 }
 
-export default class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
+export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true, referencedRepositories: {} };
 
@@ -88,6 +90,8 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
 
   render() {
     const { organizationKey } = this.props;
+    const { organizationsEnabled } = this.props.appState;
+    const organization = organizationsEnabled ? organizationKey : undefined;
 
     return (
       <DeferredSpinner loading={this.state.loading}>
@@ -98,14 +102,14 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
               hideSimilarRulesFilter={true}
               onFilterChange={this.noOp}
               onTagsChange={this.noOp}
-              organization={organizationKey}
+              organization={organization}
               referencedRepositories={this.state.referencedRepositories}
               ruleDetails={this.state.ruleDetails}
             />
             <RuleDetailsDescription
               canWrite={false}
               onChange={this.noOp}
-              organization={organizationKey}
+              organization={organization}
               ruleDetails={this.state.ruleDetails}
             />
           </>
@@ -114,3 +118,5 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
     );
   }
 }
+
+export default withAppState(WorkspaceRuleDetails);

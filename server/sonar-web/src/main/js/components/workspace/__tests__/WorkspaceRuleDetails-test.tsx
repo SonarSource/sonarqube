@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import WorkspaceRuleDetails from '../WorkspaceRuleDetails';
+import { WorkspaceRuleDetails } from '../WorkspaceRuleDetails';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/rules', () => ({
@@ -31,7 +31,12 @@ jest.mock('../../../api/rules', () => ({
 
 it('should render', async () => {
   const wrapper = shallow(
-    <WorkspaceRuleDetails onLoad={jest.fn()} organizationKey={undefined} ruleKey="foo" />
+    <WorkspaceRuleDetails
+      appState={{ organizationsEnabled: false }}
+      onLoad={jest.fn()}
+      organizationKey={undefined}
+      ruleKey="foo"
+    />
   );
   expect(wrapper).toMatchSnapshot();
 
@@ -42,7 +47,12 @@ it('should render', async () => {
 it('should call back on load', async () => {
   const onLoad = jest.fn();
   const wrapper = shallow(
-    <WorkspaceRuleDetails onLoad={onLoad} organizationKey={undefined} ruleKey="foo" />
+    <WorkspaceRuleDetails
+      appState={{ organizationsEnabled: false }}
+      onLoad={onLoad}
+      organizationKey={undefined}
+      ruleKey="foo"
+    />
   );
   await waitAndUpdate(wrapper);
   expect(onLoad).toBeCalledWith({ name: 'Foo' });

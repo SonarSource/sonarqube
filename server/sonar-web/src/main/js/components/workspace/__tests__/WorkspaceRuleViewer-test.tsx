@@ -35,7 +35,8 @@ it('should close', () => {
 it('should call back after load', () => {
   const onLoad = jest.fn();
   const wrapper = shallowRender({ onLoad });
-  wrapper.find('WorkspaceRuleDetails').prop<Function>('onLoad')({ name: 'Foo' });
+  const details = wrapper.findWhere(w => w.name().includes('WorkspaceRuleDetails'));
+  details.prop<Function>('onLoad')({ name: 'Foo' });
   expect(onLoad).toBeCalledWith({ key: 'foo', name: 'Foo' });
 });
 
