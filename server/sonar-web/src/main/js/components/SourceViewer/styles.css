@@ -72,6 +72,11 @@
   background-color: var(--leakColor) !important;
 }
 
+.source-line-filtered.source-line-highlighted .source-line-code,
+.source-line-filtered.source-line-highlighted:hover .source-line-code {
+  background-color: #cdd9c4 !important;
+}
+
 .source-line-filtered:hover .source-line-code {
   background-color: #f1e8cb !important;
 }
