@@ -86,13 +86,12 @@ public class BuildComponentTreeStep implements ComputationStep {
       String relativePathFromScmRoot = reportReader.readMetadata().getRelativePathFromScmRoot();
 
       Component reportTreeRoot = builder.buildProject(reportProject, relativePathFromScmRoot);
-      treeRootHolder.setReportTreeRoot(reportTreeRoot);
 
       if (analysisMetadataHolder.isShortLivingBranch() || analysisMetadataHolder.isPullRequest()) {
         Component changedComponentTreeRoot = builder.buildChangedComponentTreeRoot(reportTreeRoot);
-        treeRootHolder.setRoot(changedComponentTreeRoot);
+        treeRootHolder.setRoots(changedComponentTreeRoot, reportTreeRoot);
       } else {
-        treeRootHolder.setRoot(reportTreeRoot);
+        treeRootHolder.setRoots(reportTreeRoot, reportTreeRoot);
       }
 
       analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysis));

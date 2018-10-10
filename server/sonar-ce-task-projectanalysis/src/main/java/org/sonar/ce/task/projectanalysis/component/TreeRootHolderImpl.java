@@ -39,9 +39,15 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   private Component extendedTreeRoot;
 
   @Override
-  public MutableTreeRootHolder setRoot(Component root) {
+  public boolean isEmpty() {
+    return this.root == null;
+  }
+
+  @Override
+  public MutableTreeRootHolder setRoots(Component root, Component reportRoot) {
     checkState(this.root == null, "root can not be set twice in holder");
     this.root = requireNonNull(root, "root can not be null");
+    this.extendedTreeRoot = requireNonNull(reportRoot, "extended tree root can not be null");
     return this;
   }
 
@@ -49,13 +55,6 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   public Component getRoot() {
     checkInitialized();
     return this.root;
-  }
-
-  @Override
-  public MutableTreeRootHolder setReportTreeRoot(Component root) {
-    checkState(this.extendedTreeRoot == null, "extended tree root can not be set twice in holder");
-    this.extendedTreeRoot = requireNonNull(root, "extended tree root can not be null");
-    return this;
   }
 
   @Override

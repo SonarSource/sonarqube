@@ -27,13 +27,6 @@ public interface MutableTreeRootHolder extends TreeRootHolder {
    * @throws NullPointerException if {@code newRoot} is {@code null}
    * @throws IllegalStateException if root {@link Component} has already been set
    */
-  MutableTreeRootHolder setRoot(Component newRoot);
+  MutableTreeRootHolder setRoots(Component root, Component reportRoot);
 
-  /**
-   * Sets the root of the components that were in the scanner report in the TreeRootHolder.
-   *
-   * @throws NullPointerException if {@code newRoot} is {@code null}
-   * @throws IllegalStateException if extended tree root {@link Component} has already been set
-   */
-  MutableTreeRootHolder setReportTreeRoot(Component newRoot);
 }

@@ -30,11 +30,19 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
     this.delegate = null;
   }
 
-  public TreeRootHolderRule setRoot(Component newRoot) {
+  public TreeRootHolderRule setRoot(Component root) {
+    return setRoots(root, root);
+  }
+
+  public TreeRootHolderRule setRoots(Component root, Component reportRoot) {
     delegate = new TreeRootHolderImpl();
-    delegate.setRoot(newRoot);
-    delegate.setReportTreeRoot(newRoot);
+    delegate.setRoots(root, reportRoot);
     return this;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return delegate.isEmpty();
   }
 
   @Override
@@ -61,6 +69,5 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
   public int getSize() {
     return delegate.getSize();
   }
-
 
 }

@@ -26,6 +26,11 @@ import java.util.Optional;
  */
 public interface TreeRootHolder {
   /**
+   * @return true if the holder is empty
+   */
+  boolean isEmpty();
+
+  /**
    * The root of the tree, for example the project or the portfolio.
    * With branches, it will refer to the root component of the branch.
    *

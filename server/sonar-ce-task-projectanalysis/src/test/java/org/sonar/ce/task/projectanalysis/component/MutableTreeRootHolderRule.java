@@ -21,14 +21,8 @@ package org.sonar.ce.task.projectanalysis.component;
 
 public class MutableTreeRootHolderRule extends TreeRootHolderRule implements MutableTreeRootHolder {
   @Override
-  public MutableTreeRootHolderRule setRoot(Component newRoot) {
-    delegate.setRoot(newRoot);
-    return this;
-  }
-
-  @Override
-  public MutableTreeRootHolder setReportTreeRoot(Component newRoot) {
-    delegate.setReportTreeRoot(newRoot);
+  public MutableTreeRootHolderRule setRoots(Component root, Component reportRoot) {
+    delegate.setRoots(root, reportRoot);
     return this;
   }
 }
