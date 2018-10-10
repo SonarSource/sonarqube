@@ -44,11 +44,7 @@ it('opens onboarding', () => {
 });
 
 it('should display create new project link when user has permission only', () => {
-  expect(
-    getOverlayWrapper(getWrapper({}, []))
-      .find('.js-new-project')
-      .exists()
-  ).toBe(false);
+  expect(getWrapper({}, []).find('Dropdown').length).toEqual(0);
 });
 
 it('should display create new organization on SonarCloud only', () => {

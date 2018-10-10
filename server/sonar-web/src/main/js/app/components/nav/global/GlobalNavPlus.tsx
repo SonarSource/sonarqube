@@ -23,10 +23,11 @@ import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim
 import Dropdown from '../../../../components/controls/Dropdown';
 import PlusIcon from '../../../../components/icons-components/PlusIcon';
 import { AppState, hasGlobalPermission, CurrentUser } from '../../../types';
-import { getPortfolioAdminUrl } from '../../../../helpers/urls';
+import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
 import { getExtensionStart } from '../../extensions/utils';
 import { isSonarCloud } from '../../../../helpers/system';
 import { translate } from '../../../../helpers/l10n';
+import { getComponentNavigation } from '../../../../api/nav';
 
 interface Props {
   appState: Pick<AppState, 'qualifiers'>;
@@ -81,8 +82,20 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
   };
 
   handleCreatePortfolio = ({ key, qualifier }: { key: string; qualifier: string }) => {
-    this.closeCreatePortfolioForm();
-    this.props.router.push(getPortfolioAdminUrl(key, qualifier));
+    return getComponentNavigation({ componentKey: key }).then(data => {
+      if (
+        data.configuration &&
+        data.configuration.extensions &&
+        data.configuration.extensions.find(
+          (item: { key: string; name: string }) => item.key === 'governance/console'
+        )
+      ) {
+        this.props.router.push(getPortfolioAdminUrl(key, qualifier));
+      } else {
+        this.props.router.push(getPortfolioUrl(key));
+      }
+      this.closeCreatePortfolioForm();
+    });
   };
 
   renderCreateProject() {
@@ -132,8 +145,13 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
 
   render() {
     const { currentUser } = this.props;
+    const canCreateProject = hasGlobalPermission(currentUser, 'provisioning');
     const canCreateApplication = hasGlobalPermission(currentUser, 'applicationcreator');
     const canCreatePortfolio = hasGlobalPermission(currentUser, 'portfoliocreator');
+
+    if (!canCreateProject && !canCreateApplication && !canCreatePortfolio) {
+      return null;
+    }
 
     let defaultQualifier: string | undefined;
     if (!canCreateApplication) {

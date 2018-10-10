@@ -104,11 +104,13 @@ export class AllHoldersList extends React.PureComponent<Props> {
     return (
       <>
         <HoldersList
+          filter={this.props.filter}
           groups={this.props.groups}
           loading={this.props.loading}
           onToggleGroup={this.handleToggleGroup}
           onToggleUser={this.handleToggleUser}
           permissions={permissions}
+          query={this.props.query}
           users={this.props.users}>
           <SearchForm
             filter={this.props.filter}
