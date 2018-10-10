@@ -257,15 +257,17 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   fetchWarnings = (component: Component, branchLike?: BranchLike) => {
-    getAnalysisStatus({
-      component: component.key,
-      ...getBranchLikeQuery(branchLike)
-    }).then(
-      ({ component }) => {
-        this.setState({ warnings: component.warnings });
-      },
-      () => {}
-    );
+    if (component.qualifier === 'TRK') {
+      getAnalysisStatus({
+        component: component.key,
+        ...getBranchLikeQuery(branchLike)
+      }).then(
+        ({ component }) => {
+          this.setState({ warnings: component.warnings });
+        },
+        () => {}
+      );
+    }
   };
 
   getCurrentBranchLike = (branchLikes: BranchLike[]) => {
