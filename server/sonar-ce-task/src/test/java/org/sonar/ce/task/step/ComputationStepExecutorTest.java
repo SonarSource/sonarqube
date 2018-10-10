@@ -91,15 +91,46 @@ public class ComputationStepExecutorTest {
 
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO);
       ChangeLogLevel logLevel1 = new ChangeLogLevel(step1.getClass(), LoggerLevel.INFO);
-      ChangeLogLevel logLevel2 = new ChangeLogLevel(step1.getClass(), LoggerLevel.INFO);
-      ChangeLogLevel logLevel3 = new ChangeLogLevel(step2.getClass(), LoggerLevel.INFO)) {
+      ChangeLogLevel logLevel2 = new ChangeLogLevel(step2.getClass(), LoggerLevel.INFO);
+      ChangeLogLevel logLevel3 = new ChangeLogLevel(step3.getClass(), LoggerLevel.INFO)) {
       new ComputationStepExecutor(mockComputationSteps(step1, step2, step3)).execute();
 
       List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
       assertThat(infoLogs).hasSize(3);
-      assertThat(infoLogs.get(0)).contains("Step One | foo=100 | bar=20 | time=");
-      assertThat(infoLogs.get(1)).contains("Step Two | foo=50 | baz=10 | time=");
-      assertThat(infoLogs.get(2)).contains("Step Three | time=");
+      assertThat(infoLogs.get(0)).contains("Step One | foo=100 | bar=20 | status=SUCCESS | time=");
+      assertThat(infoLogs.get(1)).contains("Step Two | foo=50 | baz=10 | status=SUCCESS | time=");
+      assertThat(infoLogs.get(2)).contains("Step Three | status=SUCCESS | time=");
+    }
+  }
+
+  @Test
+  public void execute_logs_end_timing_and_statistics_for_each_ComputationStep_in_INFO_level_even_if_failed() {
+    RuntimeException expected = new RuntimeException("faking step failing with RuntimeException");
+    ComputationStep step1 = new StepWithStatistics("Step One", "foo", "100", "bar", "20");
+    ComputationStep step2 = new StepWithStatistics("Step Two", "foo", "50", "baz", "10");
+    ComputationStep step3 = new StepWithStatistics("Step Three", "donut", "crash") {
+      @Override
+      public void execute(Context context) {
+        super.execute(context);
+        throw expected;
+      }
+    } ;
+
+    try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO);
+      ChangeLogLevel logLevel1 = new ChangeLogLevel(step1.getClass(), LoggerLevel.INFO);
+      ChangeLogLevel logLevel2 = new ChangeLogLevel(step2.getClass(), LoggerLevel.INFO);
+      ChangeLogLevel logLevel3 = new ChangeLogLevel(step3.getClass(), LoggerLevel.INFO)) {
+
+      try {
+        new ComputationStepExecutor(mockComputationSteps(step1, step2, step3)).execute();
+        fail("a RuntimeException should have been thrown");
+      } catch (RuntimeException e) {
+        List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
+        assertThat(infoLogs).hasSize(3);
+        assertThat(infoLogs.get(0)).contains("Step One | foo=100 | bar=20 | status=SUCCESS | time=");
+        assertThat(infoLogs.get(1)).contains("Step Two | foo=50 | baz=10 | status=SUCCESS | time=");
+        assertThat(infoLogs.get(2)).contains("Step Three | donut=crash | status=FAILED | time=");
+      }
     }
   }
 

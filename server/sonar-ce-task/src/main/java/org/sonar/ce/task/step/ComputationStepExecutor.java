@@ -26,6 +26,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public final class ComputationStepExecutor {
@@ -65,8 +66,18 @@ public final class ComputationStepExecutor {
     StepStatisticsImpl statistics = new StepStatisticsImpl(stepProfiler);
     ComputationStep.Context context = new StepContextImpl(statistics);
     for (ComputationStep step : steps.instances()) {
-      stepProfiler.start();
+      executeStep(stepProfiler, context, step);
+    }
+  }
+
+  private static void executeStep(Profiler stepProfiler, ComputationStep.Context context, ComputationStep step) {
+    String status = "FAILED";
+    stepProfiler.start();
+    try {
       step.execute(context);
+      status = "SUCCESS";
+    } finally {
+      stepProfiler.addContext("status", status);
       stepProfiler.stopInfo(step.getDescription());
     }
   }
@@ -96,7 +107,7 @@ public final class ComputationStepExecutor {
     @Override
     public ComputationStep.Statistics add(String key, Object value) {
       requireNonNull(key, "Statistic has null key");
-      requireNonNull(value, () -> String.format("Statistic with key [%s] has null value", key));
+      requireNonNull(value, () -> format("Statistic with key [%s] has null value", key));
       checkArgument(!key.equalsIgnoreCase("time"), "Statistic with key [time] is not accepted");
       checkArgument(!profiler.hasContext(key), "Statistic with key [%s] is already present", key);
       profiler.addContext(key, value);
