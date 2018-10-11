@@ -21,18 +21,16 @@ package org.sonar.api.rules;
 
 import java.util.Collection;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 
 /**
+ * Used in {@link org.sonar.api.profiles.ProfileExporter} and {@link org.sonar.api.profiles.ProfileImporter}
+ * Use {@link ActiveRules} on scanner side.
  * @since 2.3
- * @deprecated since 5.1. Use {@link ActiveRules} on batch side.
  */
-@Deprecated
-@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public interface RuleFinder {

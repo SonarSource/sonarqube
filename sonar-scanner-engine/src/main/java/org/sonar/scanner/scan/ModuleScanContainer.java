@@ -50,7 +50,6 @@ import org.sonar.scanner.phases.SensorsExecutor;
 import org.sonar.scanner.postjob.DefaultPostJobContext;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.rule.QProfileVerifier;
-import org.sonar.scanner.rule.RuleFinderCompatibility;
 import org.sonar.scanner.rule.RulesProfileProvider;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ExclusionFilters;
@@ -105,7 +104,6 @@ public class ModuleScanContainer extends ComponentContainer {
     }
 
     add(
-      RuleFinderCompatibility.class,
       PostJobsExecutor.class,
       SensorsExecutor.class,
 

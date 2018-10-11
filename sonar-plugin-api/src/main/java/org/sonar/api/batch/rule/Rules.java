@@ -32,7 +32,9 @@ import java.util.Collection;
  * be extended by plugins.
  *
  * @since 4.2
+ * @deprecated since 7.4 we plan to stop loading rules on scanner side
  */
+@Deprecated
 @ScannerSide
 @Immutable
 public interface Rules {
