@@ -106,6 +106,7 @@ tt {
 svg,
 img {
   vertical-align: top;
+  overflow: visible;
 }
 
 hr {
