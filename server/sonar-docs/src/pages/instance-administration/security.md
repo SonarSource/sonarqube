@@ -27,6 +27,10 @@ The first question that should be answered when setting the security strategy fo
 
 To force user authentication, log in as a system administrator, go to **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security)**, and set the **Force user authentication** property to true. 
 
+[[info]]
+| SonarQube does not support sharing email addresses across multiple users.
+
+
 ### Authentication Mechanisms
 Authentication can be managed through a number of mechanisms:
 
