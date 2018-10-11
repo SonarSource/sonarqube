@@ -158,6 +158,13 @@
       "<rootDir>/node_modules",
       "<rootDir>/tests"
     ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": {
+          "ignoreCodes": [151001]
+        }
+      }
+    },
     "moduleFileExtensions": [
       "ts",
       "tsx",
