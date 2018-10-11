@@ -123,7 +123,7 @@ qa_task:
       QA_CATEGORY: Gov
       QA_CATEGORY: Billing
       QA_CATEGORY: License
-      #QA_CATEGORY: Branch
+      QA_CATEGORY: Branch
   gradle_cache:
     folder: ~/.gradle/caches
   script:
