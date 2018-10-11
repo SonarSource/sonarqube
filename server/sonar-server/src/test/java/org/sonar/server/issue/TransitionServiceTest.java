@@ -24,13 +24,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationTesting;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.Transition;
@@ -41,13 +41,15 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class TransitionServiceTest {
 
   @Rule
+  public DbTester db = DbTester.create();
+  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private IssueFieldsSetter updater = new IssueFieldsSetter();
   private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
@@ -61,8 +63,11 @@ public class TransitionServiceTest {
 
   @Test
   public void list_transitions() {
-    IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
-    userSession.logIn("john").addProjectPermission(ISSUE_ADMIN, ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), issue.getProjectUuid()));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
@@ -70,9 +75,25 @@ public class TransitionServiceTest {
   }
 
   @Test
+  public void list_transitions_returns_empty_list_on_external_issue() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
+    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
+
+    List<Transition> result = underTest.listTransitions(externalIssue.toDefaultIssue());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   public void list_transitions_returns_only_transitions_that_do_not_requires_issue_admin_permission() {
-    userSession.logIn("john");
-    IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn();
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
@@ -81,7 +102,10 @@ public class TransitionServiceTest {
 
   @Test
   public void list_transitions_returns_nothing_when_not_logged() {
-    IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
@@ -90,18 +114,29 @@ public class TransitionServiceTest {
 
   @Test
   public void do_transition() {
-    DefaultIssue issue = newIssue().setStatus(STATUS_OPEN).setResolution(null).toDefaultIssue();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
 
-    boolean result = underTest.doTransition(issue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm");
+    DefaultIssue defaultIssue = issue.toDefaultIssue();
+    boolean result = underTest.doTransition(defaultIssue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm");
 
     assertThat(result).isTrue();
-    assertThat(issue.status()).isEqualTo(STATUS_CONFIRMED);
+    assertThat(defaultIssue.status()).isEqualTo(STATUS_CONFIRMED);
   }
 
-  private IssueDto newIssue() {
-    RuleDto rule = newRuleDto().setId(10);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
-    ComponentDto file = (newFileDto(project));
-    return newDto(rule, file, project);
+  @Test
+  public void do_transition_fail_on_external_issue() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
+    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Transition is not allowed on issues imported from external rule engines");
+
+    underTest.doTransition(defaultIssue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm");
   }
 }

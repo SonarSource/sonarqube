@@ -108,19 +108,6 @@ public class TransitionActionTest {
   }
 
   @Test
-  public void do_not_allow_transitions_for_issues_from_external_rule_engine() {
-    loginAndAddProjectPermission("john", ISSUE_ADMIN);
-
-    context.issue()
-      .setIsFromExternalRuleEngine(true)
-      .setStatus(STATUS_CLOSED);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No transition allowed on issue from externally define rule");
-    action.execute(ImmutableMap.of("transition", "close"), context);
-  }
-
-  @Test
   public void should_support_all_issues() {
     assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isTrue();

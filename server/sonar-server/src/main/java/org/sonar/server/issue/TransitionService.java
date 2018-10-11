@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import java.util.Collections;
 import java.util.List;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -27,6 +28,7 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -45,6 +47,9 @@ public class TransitionService {
   }
 
   public List<Transition> listTransitions(DefaultIssue issue) {
+    if (issue.isFromExternalRuleEngine()){
+      return Collections.emptyList();
+    }
     String projectUuid = requireNonNull(issue.projectUuid());
     return workflow.outTransitions(issue)
       .stream()
@@ -54,6 +59,7 @@ public class TransitionService {
   }
 
   public boolean doTransition(DefaultIssue defaultIssue, IssueChangeContext issueChangeContext, String transitionKey) {
+    checkArgument(!defaultIssue.isFromExternalRuleEngine(), "Transition is not allowed on issues imported from external rule engines");
     return workflow.doManualTransition(defaultIssue, transitionKey, issueChangeContext);
   }
 

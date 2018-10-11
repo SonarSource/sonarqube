@@ -28,26 +28,22 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
@@ -67,26 +63,23 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRule;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class DoTransitionActionTest {
 
   private static final long NOW = 999_776_888L;
-  private System2 system2 = mock(System2.class);
+
+  private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester es = EsTester.create();
@@ -94,12 +87,8 @@ public class DoTransitionActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-
-  private RuleDbTester ruleDbTester = new RuleDbTester(dbTester);
-  private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
-  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+  private DbClient dbClient = db.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private IssueFieldsSetter updater = new IssueFieldsSetter();
   private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
@@ -110,8 +99,6 @@ public class DoTransitionActionTest {
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
     new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class),
     issueChangePostProcessor);
-  private ComponentDto project;
-  private ComponentDto file;
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);
@@ -119,29 +106,43 @@ public class DoTransitionActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = componentDbTester.insertPrivateProject();
-    file = componentDbTester.insertComponent(newFileDto(project));
     workflow.start();
   }
 
   @Test
   public void do_transition() {
-    when(system2.now()).thenReturn(NOW);
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectPermission(USER, project, file);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn().addProjectPermission(USER, project, file);
 
-    call(issueDto.getKey(), "confirm");
+    call(issue.getKey(), "confirm");
 
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
-    verifyContentOfPreloadedSearchResponseData(issueDto);
-    IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
+    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verifyContentOfPreloadedSearchResponseData(issue);
+    IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
     assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(file);
   }
 
   @Test
+  public void fail_if_external_issue() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
+    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn().addProjectPermission(USER, project, file);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Transition is not allowed on issues imported from external rule engines");
+
+    call(externalIssue.getKey(), "confirm");
+  }
+
+  @Test
   public void fail_if_issue_does_not_exist() {
-    userSession.logIn("john");
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
     call("UNKNOWN", "confirm");
@@ -149,7 +150,7 @@ public class DoTransitionActionTest {
 
   @Test
   public void fail_if_no_issue_param() {
-    userSession.logIn("john");
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     call(null, "confirm");
@@ -157,52 +158,48 @@ public class DoTransitionActionTest {
 
   @Test
   public void fail_if_no_transition_param() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectPermission(USER, project, file);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn().addProjectPermission(USER, project, file);
 
     expectedException.expect(IllegalArgumentException.class);
-    call(issueDto.getKey(), null);
+    call(issue.getKey(), null);
   }
 
   @Test
   public void fail_if_not_enough_permission_to_access_issue() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectPermission(CODEVIEWER, project, file);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
     expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey(), "confirm");
+
+    call(issue.getKey(), "confirm");
   }
 
   @Test
   public void fail_if_not_enough_permission_to_apply_transition() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectPermission(USER, project, file);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    userSession.logIn().addProjectPermission(USER, project, file);
 
     // False-positive transition is requiring issue admin permission
     expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey(), "falsepositive");
+
+    call(issue.getKey(), "falsepositive");
   }
 
   @Test
   public void fail_if_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
+
     call("ISSUE_KEY", "confirm");
-  }
-
-  @Test
-  public void fail_if_external_issue() {
-    expectedException.expect(BadRequestException.class);
-
-    RuleDefinitionDto rule = ruleDbTester.insert(newRule()
-      .setIsExternal(true));
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue()
-      .setStatus(STATUS_OPEN)
-      .setResolution(null)
-      .setRuleId(rule.getId())
-      .setRuleKey(rule.getRuleKey(), rule.getRepositoryKey()));
-    userSession.logIn("john").addProjectPermission(USER, project, file);
-
-    call(issueDto.getKey(), "confirm");
   }
 
   private TestResponse call(@Nullable String issueKey, @Nullable String transition) {
@@ -214,11 +211,6 @@ public class DoTransitionActionTest {
       request.setParam("transition", transition);
     }
     return request.execute();
-  }
-
-  private IssueDto newIssue() {
-    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    return newDto(rule, file, project);
   }
 
   private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {
