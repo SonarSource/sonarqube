@@ -47,7 +47,7 @@ public class AddApplicationCreatorAndPortfolioCreatorToSonarAdministrator extend
       return;
     }
 
-    Integer sonarAdmGroupId = context.prepareSelect("select ID from GROUPS where name=?")
+    Integer sonarAdmGroupId = context.prepareSelect("SELECT id FROM groups WHERE name=?")
       .setString(1, "sonar-administrators")
       .get(r -> r.getInt(1));
 
@@ -62,7 +62,7 @@ public class AddApplicationCreatorAndPortfolioCreatorToSonarAdministrator extend
 
   private void insertPermissionIfMissing(Context context, Integer sonarAdmGroupId, String role) throws SQLException {
     if (isPermissionMissing(context, sonarAdmGroupId, role)) {
-      context.prepareUpsert("insert into GROUP_ROLES(ORGANIZATION_UUID, GROUP_ID, ROLE) values(?, ?, ?)")
+      context.prepareUpsert("INSERT INTO group_roles(organization_uuid, group_id, role) VALUES(?, ?, ?)")
         .setString(1, defaultOrganizationUuidProvider.get(context))
         .setInt(2, sonarAdmGroupId)
         .setString(3, role)
@@ -72,7 +72,7 @@ public class AddApplicationCreatorAndPortfolioCreatorToSonarAdministrator extend
   }
 
   private static boolean isPermissionMissing(Context context, Integer sonarAdmGroupId, String role) throws SQLException {
-    Integer count = context.prepareSelect("select count(ID) from GROUP_ROLES where GROUP_ID=? and ROLE=?")
+    Integer count = context.prepareSelect("SELECT COUNT(id) FROM group_roles WHERE group_id=? AND role=?")
       .setInt(1, sonarAdmGroupId)
       .setString(2, role)
       .get(r -> r.getInt(1));
