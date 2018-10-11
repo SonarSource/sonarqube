@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -32,7 +31,6 @@ import org.sonar.api.server.ServerSide;
  *
  * @since 2.3
  */
-@ScannerSide
 @ServerSide
 @ExtensionPoint
 public abstract class ProfileExporter {
