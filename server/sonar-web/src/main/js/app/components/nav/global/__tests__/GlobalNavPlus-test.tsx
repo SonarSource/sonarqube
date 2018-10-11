@@ -52,6 +52,11 @@ it('should display create new organization on SonarCloud only', () => {
   expect(getOverlayWrapper(getWrapper())).toMatchSnapshot();
 });
 
+it('should display new organization and new project on SonarCloud', () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(true);
+  expect(getOverlayWrapper(getWrapper({}, []))).toMatchSnapshot();
+});
+
 it('should display create portfolio and application', () => {
   checkOpenCreatePortfolio(['applicationcreator', 'portfoliocreator'], undefined);
 });

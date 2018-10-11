@@ -98,9 +98,8 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
     });
   };
 
-  renderCreateProject() {
-    const { currentUser } = this.props;
-    if (!hasGlobalPermission(currentUser, 'provisioning')) {
+  renderCreateProject(canCreateProject: boolean) {
+    if (!canCreateProject) {
       return null;
     }
     return (
@@ -112,8 +111,8 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
     );
   }
 
-  renderCreateOrganization() {
-    if (!isSonarCloud()) {
+  renderCreateOrganization(canCreateOrg: boolean) {
+    if (!canCreateOrg) {
       return null;
     }
 
@@ -145,11 +144,12 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
 
   render() {
     const { currentUser } = this.props;
-    const canCreateProject = hasGlobalPermission(currentUser, 'provisioning');
     const canCreateApplication = hasGlobalPermission(currentUser, 'applicationcreator');
+    const canCreateOrg = isSonarCloud();
     const canCreatePortfolio = hasGlobalPermission(currentUser, 'portfoliocreator');
+    const canCreateProject = isSonarCloud() || hasGlobalPermission(currentUser, 'provisioning');
 
-    if (!canCreateProject && !canCreateApplication && !canCreatePortfolio) {
+    if (!canCreateProject && !canCreateApplication && !canCreatePortfolio && !canCreateOrg) {
       return null;
     }
 
@@ -165,8 +165,8 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
         <Dropdown
           overlay={
             <ul className="menu">
-              {this.renderCreateProject()}
-              {this.renderCreateOrganization()}
+              {this.renderCreateProject(canCreateProject)}
+              {this.renderCreateOrganization(canCreateOrg)}
               {this.renderCreatePortfolio(
                 canCreateApplication || canCreatePortfolio,
                 defaultQualifier

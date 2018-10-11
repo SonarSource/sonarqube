@@ -56,6 +56,21 @@ exports[`should render for SonarCloud 1`] = `
         }
       }
     />
+    <LazyLoader
+      appState={
+        Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
+          "qualifiers": Array [],
+        }
+      }
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+    />
     <Connect(GlobalNavUser)
       appState={
         Object {
@@ -116,6 +131,21 @@ exports[`should render for SonarQube 1`] = `
       suggestions={Array []}
     />
     <withRouter(Search)
+      appState={
+        Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
+          "qualifiers": Array [],
+        }
+      }
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+    />
+    <LazyLoader
       appState={
         Object {
           "canAdmin": false,

@@ -84,3 +84,29 @@ exports[`should display create portfolio and application 1`] = `
   my_account.create_new_portfolio_application
 </a>
 `;
+
+exports[`should display new organization and new project on SonarCloud 1`] = `
+<ul
+  className="menu"
+>
+  <li>
+    <a
+      className="js-new-project"
+      href="#"
+      onClick={[Function]}
+    >
+      provisioning.create_new_project
+    </a>
+  </li>
+  <li>
+    <Link
+      className="js-new-organization"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/create-organization"
+    >
+      my_account.create_new_organization
+    </Link>
+  </li>
+</ul>
+`;
