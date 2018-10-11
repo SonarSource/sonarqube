@@ -59,7 +59,6 @@ type YScale = any;
 interface State {
   maxXRange: number[];
   mouseOver?: boolean;
-  mouseOverlayPos?: ClientRect | DOMRect;
   selectedDate?: Date;
   selectedDateXPos?: number;
   selectedDateIdx?: number;
@@ -196,19 +195,10 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     return `M${half} 0 L${size} ${half} L ${half} ${size} L0 ${half} L${half} 0 L${size} ${half}`;
   };
 
-  getMouseOverlayPos = (target: SVGElement) => {
-    if (this.state.mouseOverlayPos) {
-      return this.state.mouseOverlayPos;
-    }
-    const pos = target.getBoundingClientRect();
-    this.setState({ mouseOverlayPos: pos });
-    return pos;
-  };
-
   handleWheel = (event: React.WheelEvent<SVGElement>) => {
     event.preventDefault();
     const { maxXRange, xScale } = this.state;
-    const parentBbox = this.getMouseOverlayPos(event.currentTarget);
+    const parentBbox = event.currentTarget.getBoundingClientRect();
     const mouseXPos = (event.pageX - parentBbox.left) / parentBbox.width;
     const xRange = xScale.range();
     const speed = event.deltaMode
@@ -228,7 +218,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   handleMouseMove = (event: React.MouseEvent<SVGElement>) => {
-    const parentBbox = this.getMouseOverlayPos(event.currentTarget);
+    const parentBbox = event.currentTarget.getBoundingClientRect();
     this.updateTooltipPos(event.pageX - parentBbox.left);
   };
 
