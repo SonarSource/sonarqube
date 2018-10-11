@@ -37,7 +37,7 @@ installJdk8() {
 #
 configureTravis() {
   mkdir -p ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v47 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v50 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
@@ -65,7 +65,12 @@ case "$TARGET" in
 
 BUILD)
   installJdk8
-  ./gradlew build --no-daemon --console plain
+  ./gradlew build sonarqube --no-daemon --console plain \
+  -PjacocoEnabled=true \
+  -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
+  -Dsonar.organization=sonarsource \
+  -Dsonar.host.url=https://sonarcloud.io \
+  -Dsonar.login=$SONAR_TOKEN
   ;;
 
 WEB_TESTS)
