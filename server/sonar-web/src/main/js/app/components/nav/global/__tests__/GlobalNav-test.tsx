@@ -30,7 +30,6 @@ const appState: GlobalNav['props']['appState'] = {
   organizationsEnabled: false,
   qualifiers: []
 };
-const currentUser = { isLoggedIn: false };
 const location = { pathname: '' };
 
 it('should render for SonarQube', () => {
@@ -43,14 +42,15 @@ it('should render for SonarCloud', () => {
 
 function runTest(mockedIsSonarCloud: boolean) {
   (isSonarCloud as jest.Mock).mockImplementation(() => mockedIsSonarCloud);
-  expect(
-    shallow(
-      <GlobalNav
-        appState={appState}
-        currentUser={currentUser}
-        location={location}
-        suggestions={[]}
-      />
-    )
-  ).toMatchSnapshot();
+  const wrapper = shallow(
+    <GlobalNav
+      appState={appState}
+      currentUser={{ isLoggedIn: false }}
+      location={location}
+      suggestions={[]}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setProps({ currentUser: { isLoggedIn: true } });
+  expect(wrapper.find('GlobalNavPlus').exists()).toBe(true);
 }

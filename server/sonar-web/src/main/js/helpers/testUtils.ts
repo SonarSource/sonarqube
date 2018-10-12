@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow, ShallowRendererProps, ShallowWrapper, ReactWrapper } from 'enzyme';
+import { InjectedRouter } from 'react-router';
 import { IntlProvider } from 'react-intl';
 
 export const mockEvent = {
@@ -127,5 +128,5 @@ export function mockRouter(overrides: { push?: Function; replace?: Function } = 
     replace: jest.fn(),
     setRouteLeaveHook: jest.fn(),
     ...overrides
-  };
+  } as InjectedRouter;
 }

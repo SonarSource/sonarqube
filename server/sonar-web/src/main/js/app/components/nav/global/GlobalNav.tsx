@@ -27,7 +27,7 @@ import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
-import { CurrentUser, AppState } from '../../../types';
+import { CurrentUser, AppState, isLoggedIn } from '../../../types';
 import NavBar from '../../../../components/nav/NavBar';
 import { lazyLoad } from '../../../../components/lazyLoad';
 import { getCurrentUser, getAppState, Store } from '../../../../store/rootReducer';
@@ -35,7 +35,7 @@ import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
 import { isSonarCloud } from '../../../../helpers/system';
 import './GlobalNav.css';
 
-const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'));
+const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
 
 interface StateProps {
   appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
@@ -53,6 +53,7 @@ export class GlobalNav extends React.PureComponent<Props> {
   static contextTypes = { openProjectOnboarding: PropTypes.func };
 
   render() {
+    const { appState, currentUser } = this.props;
     return (
       <NavBar className="navbar-global" height={theme.globalNavHeightRaw} id="global-navigation">
         {isSonarCloud() ? <SonarCloudNavBranding /> : <GlobalNavBranding />}
@@ -62,12 +63,14 @@ export class GlobalNav extends React.PureComponent<Props> {
         <ul className="global-navbar-menu global-navbar-menu-right">
           {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper suggestions={this.props.suggestions} />
-          <Search appState={this.props.appState} currentUser={this.props.currentUser} />
-          <GlobalNavPlus
-            appState={this.props.appState}
-            currentUser={this.props.currentUser}
-            openProjectOnboarding={this.context.openProjectOnboarding}
-          />
+          <Search appState={appState} currentUser={currentUser} />
+          {isLoggedIn(currentUser) && (
+            <GlobalNavPlus
+              appState={appState}
+              currentUser={currentUser}
+              openProjectOnboarding={this.context.openProjectOnboarding}
+            />
+          )}
           <GlobalNavUserContainer {...this.props} />
         </ul>
       </NavBar>

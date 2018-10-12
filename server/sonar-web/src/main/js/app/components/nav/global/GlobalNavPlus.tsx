@@ -22,7 +22,7 @@ import { Link, withRouter, WithRouterProps } from 'react-router';
 import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim';
 import Dropdown from '../../../../components/controls/Dropdown';
 import PlusIcon from '../../../../components/icons-components/PlusIcon';
-import { AppState, hasGlobalPermission, CurrentUser } from '../../../types';
+import { AppState, hasGlobalPermission, LoggedInUser } from '../../../types';
 import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
 import { getExtensionStart } from '../../extensions/utils';
 import { isSonarCloud } from '../../../../helpers/system';
@@ -31,7 +31,7 @@ import { getComponentNavigation } from '../../../../api/nav';
 
 interface Props {
   appState: Pick<AppState, 'qualifiers'>;
-  currentUser: CurrentUser;
+  currentUser: LoggedInUser;
   openProjectOnboarding: () => void;
 }
 

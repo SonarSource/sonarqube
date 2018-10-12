@@ -22,6 +22,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import { GlobalNavPlus } from '../GlobalNavPlus';
 import { isSonarCloud } from '../../../../../helpers/system';
 import { click, mockRouter } from '../../../../../helpers/testUtils';
+import { LoggedInUser } from '../../../../types';
 
 jest.mock('../../../../../helpers/system', () => ({
   isSonarCloud: jest.fn()
@@ -71,14 +72,16 @@ it('should display create application', () => {
 
 function getWrapper(props = {}, globalPermissions?: string[]) {
   return shallow(
+    // @ts-ignore avoid passing everything from WithRouterProps
     <GlobalNavPlus
       appState={{ qualifiers: [] }}
-      currentUser={{
-        isLoggedIn: true,
-        permissions: { global: globalPermissions || ['provisioning'] }
-      }}
+      currentUser={
+        {
+          isLoggedIn: true,
+          permissions: { global: globalPermissions || ['provisioning'] }
+        } as LoggedInUser
+      }
       openProjectOnboarding={jest.fn()}
-      // @ts-ignore avoid passing everything from WithRouterProps
       router={mockRouter()}
       {...props}
     />
