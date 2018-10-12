@@ -100,7 +100,7 @@ export function selectPreviousLocation(state: State) {
 
 export function selectFlow(nextIndex?: number) {
   return () => {
-    return { selectedFlowIndex: nextIndex, selectedLocationIndex: 0 };
+    return { locationsNavigator: true, selectedFlowIndex: nextIndex, selectedLocationIndex: 0 };
   };
 }
 
