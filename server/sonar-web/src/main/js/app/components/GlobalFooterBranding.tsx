@@ -17,18 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 
 export default function GlobalFooterBranding() {
-  return (
+  const { official } = window as any;
+  return official ? (
+    <div>
+      SonarQube&trade; technology is powered by{' '}
+      <a href="http://www.sonarsource.com" rel="noopener noreferrer" target="_blank">
+        SonarSource SA
+      </a>
+    </div>
+  ) : (
     <div>
       This application is based on{' '}
-      <a href="http://www.sonarqube.org/" title="SonarQube™">
+      <a
+        href="http://www.sonarqube.org/"
+        rel="noopener noreferrer"
+        target="_blank"
+        title="SonarQube™">
         SonarQube™
       </a>{' '}
       but is <strong>not</strong> an official version provided by{' '}
-      <a href="http://www.sonarsource.com" title="SonarSource SA">
+      <a
+        href="http://www.sonarsource.com"
+        rel="noopener noreferrer"
+        target="_blank"
+        title="SonarSource SA">
         SonarSource SA
       </a>
       .
