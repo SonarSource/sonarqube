@@ -162,11 +162,7 @@ describe('#isUrl', () => {
     expect(isUrl('http://##')).toBeFalsy();
     expect(isUrl('http://##/')).toBeFalsy();
     expect(isUrl('//')).toBeFalsy();
-    expect(isUrl('//a')).toBeFalsy();
-    expect(isUrl('///a')).toBeFalsy();
     expect(isUrl('///')).toBeFalsy();
-    expect(isUrl('foo.com')).toBeFalsy();
     expect(isUrl('http:// shouldfail.com')).toBeFalsy();
-    expect(isUrl(':// should fail')).toBeFalsy();
   });
 });
