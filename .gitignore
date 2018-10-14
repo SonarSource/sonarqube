@@ -1,6 +1,7 @@
 # ---- Gradle
-build/
 .gradle/
+.gradletasknamecache
+classes/
 out/
 
 # ---- Maven (in integration tests)
