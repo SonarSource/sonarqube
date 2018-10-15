@@ -15,8 +15,10 @@ def webappDir = "${buildDir}/webapp"
 
 task copyBranding(type: Copy) {
   into projectDir
-  from project(':private:branding').file('.')
-  includeEmptyDirs = false
+  if (findProject(':private:branding')) {
+    from project(':private:branding').file('.')
+    includeEmptyDirs = false
+  }
 }
 
 yarn_run {
