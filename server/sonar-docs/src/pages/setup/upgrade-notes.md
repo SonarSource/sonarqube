@@ -14,13 +14,17 @@ Analysis will fail if the New Code Period (see below) is not set to one of:
 For more, see [SONAR-10555](https://jira.sonarsource.com/browse/SONAR-10555)
 
 **New Create Portfolios and Create Applications permissions**  
-Two distinct new create permissions are added in this version. Users who have any creation permission will see a new "+" item giving access to these permissions in the top menu. For more, see the Global Permissions topic in [Security](/instance-administration/security/) 
+Two distinct new create permissions have been added. Users who have any creation permission will see a new "+" item in the top menu giving access to these permissions. For more, see the Global Permissions topic in [Security](/instance-administration/security/) 
 
 **Issues from third party Roslyn analyzers**  
-Starting with this version, analyzing a C# / VB.NET solution automatically imports issues found by attached Roslyn analyzers into SonarQube, and no longer suppresses them from the MSBuild output. The Quality Gate status of projects may be impacted.
+Analyzing a C# / VB.NET solution now automatically imports issues found by attached Roslyn analyzers into SonarQube, and no longer suppresses them from the MSBuild output. The Quality Gate status of projects may be impacted.
+
+**Analysis warnings in UI**
+Some `WARN` messages generated during analysis are now available via the UI ([MMF-1244](https://jira.sonarsource.com/browse/MMF-1244)). More messages will be available as new versions of language analyzers are released.
 
 **"Leak" replaced with "New Code"**  
 Wording has been updated throughout the interface to replace "Leak" and "Leak Period" with "New Code" and "New Code Period".
+
 
 ## Release 7.3 Upgrade Notes
 
