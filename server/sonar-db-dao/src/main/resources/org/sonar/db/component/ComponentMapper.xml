@@ -845,7 +845,7 @@
           AND b.branch_type = #{branchType, jdbcType=VARCHAR}
           AND b.key_type = #{branch, jdbcType=VARCHAR}
         GROUP BY
-          projectUuid) t ON t.projectUuid = p.uuid
+          b.project_uuid) t ON t.projectUuid = p.uuid
       WHERE
         p.enabled = ${_true}
         AND p.private = ${_true}
