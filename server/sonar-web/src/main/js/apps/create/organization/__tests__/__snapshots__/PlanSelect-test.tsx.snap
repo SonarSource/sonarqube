@@ -46,7 +46,7 @@ exports[`should render and select 1`] = `
                 onlyActiveOnIndex={false}
                 style={Object {}}
                 target="_blank"
-                to="/documentation/sonarcloud-pricing"
+                to="/documentation/sonarcloud-pricing/"
               >
                 learn_more
               </Link>
@@ -107,7 +107,7 @@ exports[`should render and select 2`] = `
                 onlyActiveOnIndex={false}
                 style={Object {}}
                 target="_blank"
-                to="/documentation/sonarcloud-pricing"
+                to="/documentation/sonarcloud-pricing/"
               >
                 learn_more
               </Link>

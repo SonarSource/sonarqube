@@ -164,7 +164,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
                     break: <br />,
                     price: formattedPrice,
                     more: (
-                      <Link target="_blank" to="/documentation/sonarcloud-pricing">
+                      <Link target="_blank" to="/documentation/sonarcloud-pricing/">
                         {translate('learn_more')}
                       </Link>
                     )

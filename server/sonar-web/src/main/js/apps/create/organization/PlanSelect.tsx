@@ -71,7 +71,7 @@ export default class PlanSelect extends React.PureComponent<Props> {
                 more: (
                   <>
                     {' '}
-                    <Link target="_blank" to="/documentation/sonarcloud-pricing">
+                    <Link target="_blank" to="/documentation/sonarcloud-pricing/">
                       {translate('learn_more')}
                     </Link>
                     <br />
