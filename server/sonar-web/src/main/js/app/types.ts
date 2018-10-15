@@ -23,6 +23,14 @@ export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 // Type ordered alphabetically to prevent merge conflicts
 
+export interface AlmApplication extends IdentityProvider {
+  installationUrl: string;
+}
+export interface AlmOrganization extends OrganizationBase {
+  key: string;
+  type: 'ORGANIZATION' | 'USER';
+}
+
 export interface AlmRepository {
   label: string;
   installationKey: string;
@@ -277,10 +285,6 @@ export interface IdentityProvider {
   name: string;
 }
 
-export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
-  return user.isLoggedIn;
-}
-
 export function hasGlobalPermission(user: CurrentUser, permission: string): boolean {
   if (!user.permissions) {
     return false;
@@ -476,6 +480,8 @@ export interface Notification {
 }
 
 export interface Organization extends OrganizationBase {
+  almId?: string;
+  almRepoUrl?: string;
   adminPages?: Extension[];
   canAdmin?: boolean;
   canDelete?: boolean;

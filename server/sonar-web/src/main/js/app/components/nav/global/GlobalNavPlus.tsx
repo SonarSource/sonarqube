@@ -22,12 +22,13 @@ import { Link, withRouter, WithRouterProps } from 'react-router';
 import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim';
 import Dropdown from '../../../../components/controls/Dropdown';
 import PlusIcon from '../../../../components/icons-components/PlusIcon';
-import { AppState, hasGlobalPermission, LoggedInUser } from '../../../types';
-import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
+import { AppState, LoggedInUser } from '../../../types';
 import { getExtensionStart } from '../../extensions/utils';
-import { isSonarCloud } from '../../../../helpers/system';
-import { translate } from '../../../../helpers/l10n';
 import { getComponentNavigation } from '../../../../api/nav';
+import { translate } from '../../../../helpers/l10n';
+import { isSonarCloud } from '../../../../helpers/system';
+import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
+import { hasGlobalPermission } from '../../../../helpers/users';
 
 interface Props {
   appState: Pick<AppState, 'qualifiers'>;

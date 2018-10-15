@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display a warning message 1`] = `
+<span
+  className="alert alert-warning markdown big-spacer-bottom width-60"
+>
+  onboarding.create_organization.import_org_not_found
+  <ul>
+    <li>
+      onboarding.create_organization.import_org_not_found.tips_1
+    </li>
+    <li>
+      onboarding.create_organization.import_org_not_found.tips_2
+    </li>
+  </ul>
+</span>
+`;
+
+exports[`should render 1`] = `
+<div
+  className="boxed-group onboarding-step is-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    1
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.create_organization.import_org_details
+    </h2>
+  </div>
+  <div
+    className=""
+  >
+    <div
+      className="boxed-group-inner"
+    >
+      <IdentityProviderLink
+        className="display-inline-block"
+        identityProvider={
+          Object {
+            "backgroundColor": "blue",
+            "iconPath": "icon/path",
+            "installationUrl": "https://alm.application.url",
+            "key": "github",
+            "name": "GitHub",
+          }
+        }
+        small={true}
+        url="https://alm.application.url"
+      >
+        onboarding.create_organization.choose_organization_button.github
+      </IdentityProviderLink>
+    </div>
+  </div>
+</div>
+`;

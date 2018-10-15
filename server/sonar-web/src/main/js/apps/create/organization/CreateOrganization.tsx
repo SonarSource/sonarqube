@@ -18,17 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { Link, withRouter, WithRouterProps } from 'react-router';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import OrganizationDetailsStep from './OrganizationDetailsStep';
-import PlanStep from './PlanStep';
-import { formatPrice } from './utils';
+import { formatPrice, parseQuery } from './utils';
 import { whenLoggedIn } from './whenLoggedIn';
+import AutoOrganizationCreate from './AutoOrganizationCreate';
+import ManualOrganizationCreate from './ManualOrganizationCreate';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import Tabs from '../../../components/controls/Tabs';
+import { getAlmAppInfo, getAlmOrganization } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
-import { OrganizationBase, Organization, SubscriptionPlan } from '../../../app/types';
+import {
+  LoggedInUser,
+  Organization,
+  SubscriptionPlan,
+  AlmApplication,
+  AlmOrganization,
+  OrganizationBase
+} from '../../../app/types';
+import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import * as api from '../../../api/organizations';
@@ -38,27 +50,26 @@ import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
   createOrganization: (organization: OrganizationBase) => Promise<Organization>;
+  currentUser: LoggedInUser;
   deleteOrganization: (key: string) => Promise<void>;
 }
 
-enum Step {
-  OrganizationDetails,
-  Plan
-}
-
 interface State {
+  almApplication?: AlmApplication;
+  almOrganization?: AlmOrganization;
   loading: boolean;
   organization?: Organization;
-  step: Step;
   subscriptionPlans?: SubscriptionPlan[];
+}
+
+interface LocationState {
+  paid?: boolean;
+  tab?: 'auto' | 'manual';
 }
 
 export class CreateOrganization extends React.PureComponent<Props & WithRouterProps, State> {
   mounted = false;
-  state: State = {
-    loading: true,
-    step: Step.OrganizationDetails
-  };
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -66,7 +77,16 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     if (document.documentElement) {
       document.documentElement.classList.add('white-page');
     }
-    this.fetchSubscriptionPlans();
+    const initRequests = [this.fetchSubscriptionPlans()];
+    if (hasAdvancedALMIntegration(this.props.currentUser)) {
+      initRequests.push(this.fetchAlmApplication());
+
+      const query = parseQuery(this.props.location.query);
+      if (query.almInstallId) {
+        initRequests.push(this.fetchAlmOrganization(query.almInstallId));
+      }
+    }
+    Promise.all(initRequests).then(this.stopLoading, this.stopLoading);
   }
 
   componentWillUnmount() {
@@ -74,79 +94,63 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     document.body.classList.remove('white-page');
   }
 
-  fetchSubscriptionPlans = () => {
-    getSubscriptionPlans().then(
-      subscriptionPlans => {
-        if (this.mounted) {
-          this.setState({ loading: false, subscriptionPlans });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+  fetchAlmApplication = () => {
+    return getAlmAppInfo().then(({ application }) => {
+      if (this.mounted) {
+        this.setState({ almApplication: application });
       }
-    );
+    });
   };
 
-  finishCreation = (key: string) => {
+  fetchAlmOrganization = (installationId: string) => {
+    return getAlmOrganization({ installationId }).then(almOrganization => {
+      if (this.mounted) {
+        this.setState({ almOrganization });
+      }
+    });
+  };
+
+  fetchSubscriptionPlans = () => {
+    return getSubscriptionPlans().then(subscriptionPlans => {
+      if (this.mounted) {
+        this.setState({ subscriptionPlans });
+      }
+    });
+  };
+
+  handleOrgCreated = (organization: string) => {
     this.props.router.push({
-      pathname: getOrganizationUrl(key),
+      pathname: getOrganizationUrl(organization),
       state: { justCreated: true }
     });
   };
 
-  handleOrganizationDetailsStepOpen = () => {
-    this.setState({ step: Step.OrganizationDetails });
+  onTabChange = (tab: 'auto' | 'manual') => {
+    this.updateUrl({ tab });
   };
 
-  handleOrganizationDetailsFinish = (organization: Required<OrganizationBase>) => {
-    this.setState({ organization, step: Step.Plan });
-    return Promise.resolve();
-  };
-
-  handlePaidPlanChoose = () => {
-    if (this.state.organization) {
-      this.finishCreation(this.state.organization.key);
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
     }
   };
 
-  handleFreePlanChoose = () => {
-    return this.createOrganization().then(key => {
-      this.finishCreation(key);
+  updateUrl = (state: Partial<LocationState> = {}) => {
+    this.props.router.replace({
+      pathname: this.props.location.pathname,
+      state: { ...(this.props.location.state || {}), ...state }
     });
-  };
-
-  createOrganization = () => {
-    const { organization } = this.state;
-    if (organization) {
-      return this.props
-        .createOrganization({
-          avatar: organization.avatar,
-          description: organization.description,
-          key: organization.key,
-          name: organization.name || organization.key,
-          url: organization.url
-        })
-        .then(({ key }) => key);
-    } else {
-      return Promise.reject();
-    }
-  };
-
-  deleteOrganization = () => {
-    const { organization } = this.state;
-    if (organization) {
-      this.props.deleteOrganization(organization.key).catch(() => {});
-    }
   };
 
   render() {
     const { location } = this.props;
-    const { loading, subscriptionPlans } = this.state;
+    const { almApplication, loading, subscriptionPlans } = this.state;
+    const state = (location.state || {}) as LocationState;
+    const query = parseQuery(location.query);
     const header = translate('onboarding.create_organization.page.header');
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     const formattedPrice = formatPrice(startedPrice);
+    const showManualTab = state.tab === 'manual' && !query.almInstallId;
 
     return (
       <>
@@ -174,27 +178,59 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
           </header>
 
           {loading ? (
-            <i className="spinner" />
+            <DeferredSpinner />
           ) : (
             <>
-              <OrganizationDetailsStep
-                finished={this.state.organization !== undefined}
-                onContinue={this.handleOrganizationDetailsFinish}
-                onOpen={this.handleOrganizationDetailsStepOpen}
-                open={this.state.step === Step.OrganizationDetails}
-                organization={this.state.organization}
-              />
+              {almApplication && (
+                <Tabs
+                  onChange={this.onTabChange}
+                  selected={showManualTab ? 'manual' : 'auto'}
+                  tabs={[
+                    {
+                      key: 'auto',
+                      node: (
+                        <>
+                          {translate(
+                            'onboarding.create_organization.import_organization',
+                            almApplication.key
+                          )}
+                          <span
+                            className={classNames(
+                              'rounded alert alert-small spacer-left display-inline-block',
+                              {
+                                'alert-info': !showManualTab,
+                                'alert-muted': showManualTab
+                              }
+                            )}>
+                            {translate('beta')}
+                          </span>
+                        </>
+                      )
+                    },
+                    {
+                      disabled: Boolean(query.almInstallId),
+                      key: 'manual',
+                      node: translate('onboarding.create_organization.create_manually')
+                    }
+                  ]}
+                />
+              )}
 
-              {subscriptionPlans !== undefined && (
-                <PlanStep
-                  createOrganization={this.createOrganization}
-                  deleteOrganization={this.deleteOrganization}
-                  onFreePlanChoose={this.handleFreePlanChoose}
-                  onPaidPlanChoose={this.handlePaidPlanChoose}
-                  onlyPaid={location.state && location.state.paid === true}
-                  open={this.state.step === Step.Plan}
-                  startingPrice={formattedPrice}
-                  subscriptionPlans={subscriptionPlans}
+              {showManualTab || !almApplication ? (
+                <ManualOrganizationCreate
+                  createOrganization={this.props.createOrganization}
+                  deleteOrganization={this.props.deleteOrganization}
+                  onOrgCreated={this.handleOrgCreated}
+                  onlyPaid={state.paid}
+                  subscriptionPlans={this.state.subscriptionPlans}
+                />
+              ) : (
+                <AutoOrganizationCreate
+                  almApplication={almApplication}
+                  almInstallId={query.almInstallId}
+                  almOrganization={this.state.almOrganization}
+                  createOrganization={this.props.createOrganization}
+                  onOrgCreated={this.handleOrgCreated}
                 />
               )}
             </>
@@ -205,7 +241,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   }
 }
 
-function createOrganization(organization: OrganizationBase) {
+function createOrganization(organization: OrganizationBase & { installId?: string }) {
   return (dispatch: Dispatch) => {
     return api.createOrganization(organization).then((organization: Organization) => {
       dispatch(actions.createOrganization(organization));
@@ -228,8 +264,10 @@ const mapDispatchToProps = {
 };
 
 export default whenLoggedIn(
-  connect(
-    null,
-    mapDispatchToProps
-  )(withRouter(CreateOrganization))
+  withRouter(
+    connect(
+      null,
+      mapDispatchToProps
+    )(CreateOrganization)
+  )
 );

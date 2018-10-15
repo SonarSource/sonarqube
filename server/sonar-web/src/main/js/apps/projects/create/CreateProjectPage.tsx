@@ -27,14 +27,17 @@ import AutoProjectCreate from './AutoProjectCreate';
 import ManualProjectCreate from './ManualProjectCreate';
 import { serializeQuery, Query, parseQuery } from './utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import Tabs from '../../../components/controls/Tabs';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
 import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
-import { CurrentUser, IdentityProvider, isLoggedIn, LoggedInUser } from '../../../app/types';
+import { CurrentUser, IdentityProvider, LoggedInUser } from '../../../app/types';
 import { skipOnboarding, getIdentityProviders } from '../../../api/users';
+import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
+import { isLoggedIn } from '../../../helpers/users';
 import '../../../app/styles/sonarcloud.css';
 
 interface OwnProps {
@@ -69,7 +72,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       if (query.error) {
         this.props.addGlobalErrorMessage(query.error);
       }
-      if (!this.canAutoCreate()) {
+      if (!hasAdvancedALMIntegration(this.props.currentUser)) {
         this.setState({ loading: false });
         this.updateQuery({ manual: true });
       } else {
@@ -102,10 +105,6 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     }
   };
 
-  canAutoCreate = ({ currentUser } = this.props) => {
-    return ['bitbucket', 'github'].includes((currentUser as LoggedInUser).externalProvider || '');
-  };
-
   fetchIdentityProviders = () => {
     getIdentityProviders().then(
       ({ identityProviders }) => {
@@ -127,14 +126,8 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     );
   };
 
-  showAuto = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.updateQuery({ manual: false });
-  };
-
-  showManual = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.updateQuery({ manual: true });
+  onTabChange = (tab: 'auto' | 'manual') => {
+    this.updateQuery({ manual: tab === 'manual' });
   };
 
   updateQuery = (changes: Partial<Query>) => {
@@ -152,49 +145,45 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     }
 
     const { identityProvider, loading } = this.state;
-    const displayManual = parseQuery(this.props.location.query).manual;
-    const header = translate('onboarding.create_project.header');
-    const hasAutoProvisioning = this.canAutoCreate() && identityProvider;
     const query = parseQuery(this.props.location.query);
+    const header = translate('onboarding.create_project.header');
+    const hasAutoProvisioning = hasAdvancedALMIntegration(currentUser) && identityProvider;
     return (
       <>
         <Helmet title={header} titleTemplate="%s" />
         <div className="sonarcloud page page-limited">
-          <div className="page-header">
+          <header className="page-header">
             <h1 className="page-title">{header}</h1>
-          </div>
+          </header>
           {loading ? (
             <DeferredSpinner />
           ) : (
             <>
               {hasAutoProvisioning && (
-                <ul className="flex-tabs">
-                  <li>
-                    <a
-                      className={classNames('js-auto', { selected: !displayManual })}
-                      href="#"
-                      onClick={this.showAuto}>
-                      {translate('onboarding.create_project.select_repositories')}
-                      <div
-                        className={classNames('beta-badge spacer-left', {
-                          'is-muted': displayManual
-                        })}>
-                        {translate('beta')}
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className={classNames('js-manual', { selected: displayManual })}
-                      href="#"
-                      onClick={this.showManual}>
-                      {translate('onboarding.create_project.create_manually')}
-                    </a>
-                  </li>
-                </ul>
+                <Tabs
+                  onChange={this.onTabChange}
+                  selected={query.manual ? 'manual' : 'auto'}
+                  tabs={[
+                    {
+                      key: 'auto',
+                      node: (
+                        <>
+                          {translate('onboarding.create_project.select_repositories')}
+                          <span
+                            className={classNames('beta-badge spacer-left', {
+                              'is-muted': query.manual
+                            })}>
+                            {translate('beta')}
+                          </span>
+                        </>
+                      )
+                    },
+                    { key: 'manual', node: translate('onboarding.create_project.create_manually') }
+                  ]}
+                />
               )}
 
-              {displayManual || !hasAutoProvisioning || !identityProvider ? (
+              {query.manual || !hasAutoProvisioning || !identityProvider ? (
                 <ManualProjectCreate
                   currentUser={currentUser}
                   onProjectCreate={this.handleProjectCreate}

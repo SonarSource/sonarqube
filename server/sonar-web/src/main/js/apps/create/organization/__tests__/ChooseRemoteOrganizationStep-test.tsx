@@ -18,29 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import AppContainer from './components/AppContainer';
-import { CurrentUser } from '../../app/types';
-import { RawQuery } from '../../helpers/query';
-import { getCurrentUser, Store } from '../../store/rootReducer';
-import { isSonarCloud } from '../../helpers/system';
-import { isLoggedIn } from '../../helpers/users';
+import { shallow } from 'enzyme';
+import ChooseRemoteOrganizationStep from '../ChooseRemoteOrganizationStep';
 
-interface StateProps {
-  currentUser: CurrentUser;
-}
-
-interface Props extends StateProps {
-  location: { pathname: string; query: RawQuery };
-}
-
-function IssuesPage({ currentUser, location }: Props) {
-  const myIssues = (isLoggedIn(currentUser) && isSonarCloud()) || undefined;
-  return <AppContainer location={location} myIssues={myIssues} />;
-}
-
-const stateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
+it('should render', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-export default connect(stateToProps)(IssuesPage);
+it('should display a warning message', () => {
+  expect(shallowRender({ almInstallId: 'foo' }).find('.alert-warning')).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {}) {
+  return shallow(
+    <ChooseRemoteOrganizationStep
+      almApplication={{
+        backgroundColor: 'blue',
+        iconPath: 'icon/path',
+        installationUrl: 'https://alm.application.url',
+        key: 'github',
+        name: 'GitHub'
+      }}
+      {...props}
+    />
+  ).dive();
+}

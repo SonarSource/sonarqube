@@ -39,12 +39,12 @@ export function getOrganization(key: string): Promise<Organization | undefined> 
 }
 
 interface GetOrganizationNavigation {
+  adminPages: Array<{ key: string; name: string }>;
   canAdmin: boolean;
   canDelete: boolean;
   canProvisionProjects: boolean;
   isDefault: boolean;
   pages: Array<{ key: string; name: string }>;
-  adminPages: Array<{ key: string; name: string }>;
 }
 
 export function getOrganizationNavigation(key: string): Promise<GetOrganizationNavigation> {
@@ -54,7 +54,9 @@ export function getOrganizationNavigation(key: string): Promise<GetOrganizationN
   );
 }
 
-export function createOrganization(data: OrganizationBase): Promise<Organization> {
+export function createOrganization(
+  data: OrganizationBase & { installId?: string }
+): Promise<Organization> {
   return postJSON('/api/organizations/create', data).then(r => r.organization, throwGlobalError);
 }
 

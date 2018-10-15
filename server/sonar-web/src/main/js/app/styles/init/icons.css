@@ -84,12 +84,12 @@ a[class*=' icon-'] {
 }
 
 .icon-checkbox-disabled:before {
-  border: 1px solid #bbb;
+  border: 1px solid var(--disableGrayText);
   cursor: not-allowed;
 }
 
 .icon-checkbox-disabled.icon-checkbox-checked:before {
-  background-color: #bbb;
+  background-color: var(--disableGrayText);
 }
 
 .icon-checkbox-invisible {

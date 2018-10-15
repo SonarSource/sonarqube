@@ -22,10 +22,11 @@ import * as classNames from 'classnames';
 import { connect } from 'react-redux';
 import Tooltip from './Tooltip';
 import HomeIcon from '../icons-components/HomeIcon';
-import { CurrentUser, isLoggedIn, HomePage, isSameHomePage } from '../../app/types';
+import { CurrentUser, HomePage, isSameHomePage } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 import { getCurrentUser, Store } from '../../store/rootReducer';
 import { setHomePage } from '../../store/users';
+import { isLoggedIn } from '../../helpers/users';
 
 interface StateProps {
   currentUser: CurrentUser;

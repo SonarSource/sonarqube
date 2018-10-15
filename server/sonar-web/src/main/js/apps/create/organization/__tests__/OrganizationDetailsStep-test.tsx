@@ -38,6 +38,7 @@ it('should render form', () => {
       onContinue={jest.fn()}
       onOpen={jest.fn()}
       open={true}
+      submitText="continue"
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -58,22 +59,29 @@ it('should render form', () => {
   ).toBe(false);
 });
 
-it('should validate', () => {
+it('should validate', async () => {
   const wrapper = shallow(
     <OrganizationDetailsStep
       finished={false}
       onContinue={jest.fn()}
       onOpen={jest.fn()}
       open={true}
+      submitText="continue"
     />
   );
   const instance = wrapper.instance() as OrganizationDetailsStep;
 
-  expect(
-    instance.handleValidate({ avatar: '', description: '', name: '', key: 'foo', url: '' })
+  await expect(
+    instance.handleValidate({
+      avatar: '',
+      description: '',
+      name: '',
+      key: 'foo',
+      url: ''
+    })
   ).resolves.toEqual({});
 
-  expect(
+  await expect(
     instance.handleValidate({
       avatar: '',
       description: '',
@@ -81,13 +89,21 @@ it('should validate', () => {
       key: 'x'.repeat(256),
       url: ''
     })
-  ).rejects.toEqual({ key: 'onboarding.create_organization.organization_name.error' });
+  ).rejects.toEqual({
+    key: 'onboarding.create_organization.organization_name.error'
+  });
 
-  expect(
-    instance.handleValidate({ avatar: 'bla', description: '', name: '', key: 'foo', url: '' })
+  await expect(
+    instance.handleValidate({
+      avatar: 'bla',
+      description: '',
+      name: '',
+      key: 'foo',
+      url: ''
+    })
   ).rejects.toEqual({ avatar: 'onboarding.create_organization.avatar.error' });
 
-  expect(
+  await expect(
     instance.handleValidate({
       avatar: '',
       description: '',
@@ -95,16 +111,34 @@ it('should validate', () => {
       key: 'foo',
       url: ''
     })
-  ).rejects.toEqual({ name: 'onboarding.create_organization.display_name.error' });
+  ).rejects.toEqual({
+    name: 'onboarding.create_organization.display_name.error'
+  });
 
-  expect(
-    instance.handleValidate({ avatar: '', description: '', name: '', key: 'foo', url: 'bla' })
-  ).rejects.toEqual({ url: 'onboarding.create_organization.url.error' });
+  await expect(
+    instance.handleValidate({
+      avatar: '',
+      description: '',
+      name: '',
+      key: 'foo',
+      url: 'bla'
+    })
+  ).rejects.toEqual({
+    url: 'onboarding.create_organization.url.error'
+  });
 
   (getOrganization as jest.Mock).mockResolvedValue({});
-  expect(
-    instance.handleValidate({ avatar: '', description: '', name: '', key: 'foo', url: '' })
-  ).rejects.toEqual({ key: 'onboarding.create_organization.organization_name.taken' });
+  await expect(
+    instance.handleValidate({
+      avatar: '',
+      description: '',
+      name: '',
+      key: 'foo',
+      url: ''
+    })
+  ).rejects.toEqual({
+    key: 'onboarding.create_organization.organization_name.taken'
+  });
 });
 
 it('should render result', () => {
@@ -115,6 +149,7 @@ it('should render result', () => {
       onOpen={jest.fn()}
       open={false}
       organization={{ avatar: '', description: '', key: 'org', name: 'Organization', url: '' }}
+      submitText="continue"
     />
   );
   expect(wrapper.dive()).toMatchSnapshot();

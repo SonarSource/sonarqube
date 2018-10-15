@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import { CurrentUser, isLoggedIn } from '../types';
+import { CurrentUser } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
 import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
@@ -32,6 +32,7 @@ import { save, get } from '../../helpers/storage';
 import { isSonarCloud } from '../../helpers/system';
 import { skipOnboarding } from '../../api/users';
 import { lazyLoad } from '../../components/lazyLoad';
+import { isLoggedIn } from '../../helpers/users';
 
 const OnboardingModal = lazyLoad(() => import('../../apps/tutorials/onboarding/OnboardingModal'));
 const LicensePromptModal = lazyLoad(

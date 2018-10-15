@@ -24,6 +24,8 @@ import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
+import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   organization: Organization;
@@ -55,6 +57,21 @@ export default function OrganizationNavigationHeader({ organization, organizatio
         </Dropdown>
       ) : (
         <span className="spacer-left">{organization.name}</span>
+      )}
+      {organization.almRepoUrl && (
+        <a
+          className="link-no-underline"
+          href={organization.almRepoUrl}
+          rel="noopener noreferrer"
+          target="_blank">
+          <img
+            alt={sanitizeAlmId(organization.almId)}
+            className="text-text-top spacer-left"
+            height={16}
+            src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(organization.almId)}.svg`}
+            width={16}
+          />
+        </a>
       )}
       {organization.description != null && (
         <div className="navbar-context-description">

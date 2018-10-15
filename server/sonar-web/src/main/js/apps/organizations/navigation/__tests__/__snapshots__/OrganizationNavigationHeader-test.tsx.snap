@@ -62,3 +62,40 @@ exports[`renders dropdown 1`] = `
   </a>
 </Dropdown>
 `;
+
+exports[`renders with alm integration 1`] = `
+<header
+  className="navbar-context-header"
+>
+  <OrganizationAvatar
+    organization={
+      Object {
+        "almId": "github",
+        "almRepoUrl": "https://github.com/foo",
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+  <span
+    className="spacer-left"
+  >
+    Foo
+  </span>
+  <a
+    className="link-no-underline"
+    href="https://github.com/foo"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <img
+      alt="github"
+      className="text-text-top spacer-left"
+      height={16}
+      src="/images/sonarcloud/github.svg"
+      width={16}
+    />
+  </a>
+</header>
+`;

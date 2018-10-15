@@ -38,6 +38,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public abstract class AbstractUserSession implements UserSession {
   private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER);
@@ -45,26 +46,15 @@ public abstract class AbstractUserSession implements UserSession {
   private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
 
   protected static Identity computeIdentity(UserDto userDto) {
-    switch (userDto.getExternalIdentityProvider()) {
-      case "github":
-        return new Identity(IdentityProvider.GITHUB, externalIdentityOf(userDto));
-      case "bitbucket":
-        return new Identity(IdentityProvider.BITBUCKET, externalIdentityOf(userDto));
-      case "sonarqube":
-        return new Identity(IdentityProvider.SONARQUBE, null);
-      default:
-        return new Identity(IdentityProvider.OTHER, externalIdentityOf(userDto));
-    }
+    IdentityProvider identityProvider = IdentityProvider.getFromKey(userDto.getExternalIdentityProvider());
+    ExternalIdentity externalIdentity = identityProvider == SONARQUBE ? null : externalIdentityOf(userDto);
+    return new Identity(identityProvider, externalIdentity);
   }
 
-  @CheckForNull
   private static ExternalIdentity externalIdentityOf(UserDto userDto) {
     String externalId = userDto.getExternalId();
     String externalLogin = userDto.getExternalLogin();
-    if (externalId == null && externalLogin == null) {
-      return null;
-    }
-    return new ExternalIdentity(externalId == null ? externalLogin : externalId, externalLogin);
+    return new ExternalIdentity(externalId, externalLogin);
   }
 
   protected static final class Identity {

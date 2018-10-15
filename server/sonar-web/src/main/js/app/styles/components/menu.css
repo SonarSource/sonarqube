@@ -72,7 +72,7 @@
 }
 
 .menu > li > a.disabled {
-  color: #bbb !important;
+  color: var(--disableGrayText) !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
 }

@@ -249,8 +249,8 @@ label[for] {
 }
 
 .radio-toggle input[type='radio']:disabled + label {
-  color: #bbb;
-  border-color: #ddd;
-  background: #ebebeb;
+  color: var(--disableGrayText);
+  border-color: var(--disableGrayBorder);
+  background: var(--disableGrayBg);
   cursor: not-allowed;
 }

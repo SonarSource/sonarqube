@@ -72,7 +72,6 @@ public class AlmAppInstallDaoTest {
     assertThat(underTest.selectByOwner(dbSession, BITBUCKETCLOUD, A_OWNER)).isEmpty();
   }
 
-
   @Test
   public void selectByOwner_throws_NPE_when_alm_is_null() {
     expectAlmNPE();
@@ -92,6 +91,16 @@ public class AlmAppInstallDaoTest {
     expectOwnerIdNullOrEmptyIAE();
 
     underTest.selectByOwner(dbSession, GITHUB, EMPTY_STRING);
+  }
+
+  @Test
+  public void getOwnerId() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
+
+    assertThat(underTest.getOwerId(dbSession, GITHUB, AN_INSTALL)).contains(A_OWNER);
+    assertThat(underTest.getOwerId(dbSession, GITHUB, "unknown")).isEmpty();
+    assertThat(underTest.getOwerId(dbSession, BITBUCKETCLOUD, AN_INSTALL)).isEmpty();
   }
 
   @Test
@@ -170,7 +179,7 @@ public class AlmAppInstallDaoTest {
     underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
 
     when(system2.now()).thenReturn(DATE_LATER);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, OTHER_INSTALL);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER,true,  OTHER_INSTALL);
 
     assertThatAlmAppInstall(GITHUB, A_OWNER)
       .hasInstallId(OTHER_INSTALL)

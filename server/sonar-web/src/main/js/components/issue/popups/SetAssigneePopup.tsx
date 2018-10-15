@@ -29,8 +29,9 @@ import { searchUsers } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import { Issue, CurrentUser, isLoggedIn, OrganizationMember } from '../../../app/types';
+import { Issue, CurrentUser, OrganizationMember } from '../../../app/types';
 import { isSonarCloud } from '../../../helpers/system';
+import { isLoggedIn } from '../../../helpers/users';
 
 interface User {
   avatar?: string;

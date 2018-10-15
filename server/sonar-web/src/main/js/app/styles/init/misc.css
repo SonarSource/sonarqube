@@ -299,6 +299,11 @@ td.big-spacer-top {
   align-items: center;
 }
 
+.display-inline-flex-baseline {
+  display: inline-flex !important;
+  align-items: baseline;
+}
+
 .display-inline-flex-center {
   display: inline-flex !important;
   align-items: center;

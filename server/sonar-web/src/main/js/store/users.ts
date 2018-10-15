@@ -21,14 +21,22 @@ import { uniq } from 'lodash';
 import { Dispatch, combineReducers } from 'redux';
 import { ActionType } from './utils/actions';
 import * as api from '../api/users';
-import { CurrentUser, HomePage, isLoggedIn, LoggedInUser } from '../app/types';
+import { CurrentUser, HomePage, LoggedInUser } from '../app/types';
+import { isLoggedIn } from '../helpers/users';
 
 export function receiveCurrentUser(user: CurrentUser) {
   return { type: 'RECEIVE_CURRENT_USER', user };
 }
 
-export function skipOnboarding() {
+function skipOnboardingAction() {
   return { type: 'SKIP_ONBOARDING' };
+}
+
+export function skipOnboarding() {
+  return (dispatch: Dispatch) =>
+    api
+      .skipOnboarding()
+      .then(() => dispatch(skipOnboardingAction()), () => dispatch(skipOnboardingAction()));
 }
 
 function setHomePageAction(homepage: HomePage) {
@@ -48,7 +56,7 @@ export function setHomePage(homepage: HomePage) {
 
 type Action =
   | ActionType<typeof receiveCurrentUser, 'RECEIVE_CURRENT_USER'>
-  | ActionType<typeof skipOnboarding, 'SKIP_ONBOARDING'>
+  | ActionType<typeof skipOnboardingAction, 'SKIP_ONBOARDING'>
   | ActionType<typeof setHomePageAction, 'SET_HOMEPAGE'>;
 
 export interface State {

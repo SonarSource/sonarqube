@@ -26,10 +26,11 @@ import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import Visualizations from '../visualizations/Visualizations';
-import { CurrentUser, isLoggedIn, Organization } from '../../../app/types';
+import { CurrentUser, Organization } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { translate } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
@@ -37,9 +38,9 @@ import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query, hasFilterParams, hasVisualizationParams } from '../query';
 import { isSonarCloud } from '../../../helpers/system';
+import { isLoggedIn } from '../../../helpers/users';
 import '../../../components/search-navigator.css';
 import '../styles.css';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 export interface Props {
   currentUser: CurrentUser;

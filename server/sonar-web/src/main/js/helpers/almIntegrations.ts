@@ -17,6 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isLoggedIn } from './users';
+import { CurrentUser } from '../app/types';
+
+export function hasAdvancedALMIntegration(user: CurrentUser) {
+  return (
+    isLoggedIn(user) && (isBitbucket(user.externalProvider) || isGithub(user.externalProvider))
+  );
+}
 
 export function isBitbucket(almId?: string) {
   return almId && almId.startsWith('bitbucket');

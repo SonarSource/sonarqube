@@ -52,6 +52,11 @@ public class AlmAppInstallDao implements Dao {
     return Optional.ofNullable(mapper.selectByOwner(alm.getId(), ownerId));
   }
 
+  public Optional<String> getOwerId(DbSession dbSession, ALM alm, String installationId) {
+    AlmAppInstallMapper mapper = getMapper(dbSession);
+    return Optional.ofNullable(mapper.selectOwnerId(alm.getId(), installationId));
+  }
+
   public List<AlmAppInstallDto> findAllWithNoOwnerType(DbSession dbSession) {
     return getMapper(dbSession).selectAllWithNoOwnerType();
   }

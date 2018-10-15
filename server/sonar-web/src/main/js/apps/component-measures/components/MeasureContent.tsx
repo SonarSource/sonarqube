@@ -41,13 +41,13 @@ import {
   ComponentMeasure,
   ComponentMeasureEnhanced,
   CurrentUser,
-  isLoggedIn,
   Metric,
   Paging,
   MeasureEnhanced,
   Period
 } from '../../../app/types';
 import { RequestData } from '../../../helpers/request';
+import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
   branchLike?: BranchLike;

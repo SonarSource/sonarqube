@@ -24,7 +24,6 @@ import {
   BranchLike,
   Component,
   CurrentUser,
-  isLoggedIn,
   HomePageType,
   HomePage,
   Measure
@@ -43,6 +42,7 @@ import {
   isPullRequest
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
+import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
 
 interface StateProps {

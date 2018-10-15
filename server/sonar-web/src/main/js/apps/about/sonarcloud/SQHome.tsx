@@ -24,7 +24,7 @@ import LoginButtons from './components/LoginButtons';
 import Pricing from './components/Pricing';
 import SQPageContainer from './components/SQPageContainer';
 import StartUsing from './components/StartUsing';
-import { isLoggedIn } from '../../../app/types';
+import { isLoggedIn } from '../../../helpers/users';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 

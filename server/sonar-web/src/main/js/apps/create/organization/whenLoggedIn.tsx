@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { withRouter, WithRouterProps } from 'react-router';
 import { withCurrentUser } from './withCurrentUser';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { CurrentUser } from '../../../app/types';
+import { isLoggedIn } from '../../../helpers/users';
 
 export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
   const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';

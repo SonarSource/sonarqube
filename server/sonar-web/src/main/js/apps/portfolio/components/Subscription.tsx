@@ -22,7 +22,8 @@ import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessI
 import { ReportStatus, subscribe, unsubscribe } from '../../../api/report';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Button } from '../../../components/ui/buttons';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { CurrentUser } from '../../../app/types';
+import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
   component: string;

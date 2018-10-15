@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
   <div
     className="sonarcloud page page-limited"
   >
-    <div
+    <header
       className="page-header"
     >
       <h1
@@ -19,7 +19,7 @@ exports[`should render correctly 1`] = `
       >
         onboarding.create_project.header
       </h1>
-    </div>
+    </header>
     <DeferredSpinner
       timeout={100}
     />
@@ -38,7 +38,7 @@ exports[`should render correctly 2`] = `
   <div
     className="sonarcloud page page-limited"
   >
-    <div
+    <header
       className="page-header"
     >
       <h1
@@ -46,34 +46,30 @@ exports[`should render correctly 2`] = `
       >
         onboarding.create_project.header
       </h1>
-    </div>
-    <ul
-      className="flex-tabs"
-    >
-      <li>
-        <a
-          className="js-auto selected"
-          href="#"
-          onClick={[Function]}
-        >
-          onboarding.create_project.select_repositories
-          <div
-            className="beta-badge spacer-left"
-          >
-            beta
-          </div>
-        </a>
-      </li>
-      <li>
-        <a
-          className="js-manual"
-          href="#"
-          onClick={[Function]}
-        >
-          onboarding.create_project.create_manually
-        </a>
-      </li>
-    </ul>
+    </header>
+    <Tabs
+      onChange={[Function]}
+      selected="auto"
+      tabs={
+        Array [
+          Object {
+            "key": "auto",
+            "node": <React.Fragment>
+              onboarding.create_project.select_repositories
+              <span
+                className="beta-badge spacer-left"
+              >
+                beta
+              </span>
+            </React.Fragment>,
+          },
+          Object {
+            "key": "manual",
+            "node": "onboarding.create_project.create_manually",
+          },
+        ]
+      }
+    />
     <AutoProjectCreate
       identityProvider={
         Object {
@@ -100,7 +96,7 @@ exports[`should render with Manual creation only 1`] = `
   <div
     className="sonarcloud page page-limited"
   >
-    <div
+    <header
       className="page-header"
     >
       <h1
@@ -108,7 +104,7 @@ exports[`should render with Manual creation only 1`] = `
       >
         onboarding.create_project.header
       </h1>
-    </div>
+    </header>
     <Connect(ManualProjectCreate)
       currentUser={
         Object {
@@ -137,7 +133,7 @@ exports[`should switch tabs 1`] = `
   <div
     className="sonarcloud page page-limited"
   >
-    <div
+    <header
       className="page-header"
     >
       <h1
@@ -145,34 +141,30 @@ exports[`should switch tabs 1`] = `
       >
         onboarding.create_project.header
       </h1>
-    </div>
-    <ul
-      className="flex-tabs"
-    >
-      <li>
-        <a
-          className="js-auto selected"
-          href="#"
-          onClick={[Function]}
-        >
-          onboarding.create_project.select_repositories
-          <div
-            className="beta-badge spacer-left"
-          >
-            beta
-          </div>
-        </a>
-      </li>
-      <li>
-        <a
-          className="js-manual"
-          href="#"
-          onClick={[Function]}
-        >
-          onboarding.create_project.create_manually
-        </a>
-      </li>
-    </ul>
+    </header>
+    <Tabs
+      onChange={[Function]}
+      selected="auto"
+      tabs={
+        Array [
+          Object {
+            "key": "auto",
+            "node": <React.Fragment>
+              onboarding.create_project.select_repositories
+              <span
+                className="beta-badge spacer-left"
+              >
+                beta
+              </span>
+            </React.Fragment>,
+          },
+          Object {
+            "key": "manual",
+            "node": "onboarding.create_project.create_manually",
+          },
+        ]
+      }
+    />
     <AutoProjectCreate
       identityProvider={
         Object {

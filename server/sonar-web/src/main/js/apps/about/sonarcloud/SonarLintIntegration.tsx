@@ -22,7 +22,7 @@ import Helmet from 'react-helmet';
 import SQPageContainer from './components/SQPageContainer';
 import SQStartUsing from './components/SQStartUsing';
 import SQTopNav from './components/SQTopNav';
-import { isLoggedIn } from '../../../app/types';
+import { isLoggedIn } from '../../../helpers/users';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 

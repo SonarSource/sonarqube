@@ -17,34 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-/* EXTENDS components/pages.css */
-.sonarcloud.page-limited {
-  padding-top: 50px;
-  padding-bottom: 50px;
+.flex-tabs {
+  display: flex;
+  clear: left;
+  margin-bottom: calc(3 * var(--gridSize));
+  border-bottom: 1px solid var(--barBorderColor);
+  font-size: var(--mediumFontSize);
 }
 
-.sonarcloud .page-header {
-  margin-bottom: 40px;
+.flex-tabs > li > a {
+  position: relative;
+  display: block;
+  top: 1px;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--secondFontColor);
+  font-weight: 600;
+  cursor: pointer;
+  padding-bottom: calc(1.5 * var(--gridSize));
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s ease;
 }
 
-.sonarcloud .page-title {
-  font-size: var(--hugeFontSize);
-  font-weight: bold;
+.flex-tabs > li ~ li {
+  margin-left: calc(4 * var(--gridSize));
 }
 
-.beta-badge {
-  display: inline-block;
-  padding: 2px 4px;
-  border: 1px solid var(--alertBorderInfo);
-  border-radius: 2px;
-  background-color: var(--alertBackgroundInfo);
-  color: var(--alertTextInfo);
-  font-size: 10px;
+.flex-tabs > li > a:hover {
+  color: var(--baseFontColor);
 }
 
-.beta-badge.is-muted {
-  border-color: var(--disableGrayBorder);
-  background-color: var(--disableGrayBg);
-  color: var(--disableGrayText);
+.flex-tabs > li > a.selected {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+.flex-tabs > li > a.disabled {
+  color: var(--disableGrayText) !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
 }

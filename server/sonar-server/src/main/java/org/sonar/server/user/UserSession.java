@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -72,7 +73,24 @@ public interface UserSession {
    * This enum supports by name only the few providers for which specific code exists.
    */
   enum IdentityProvider {
-    SONARQUBE, GITHUB, BITBUCKET, OTHER
+    SONARQUBE("sonarqube"), GITHUB("github"), BITBUCKET("bitbucket"), OTHER("other");
+
+    String key;
+
+    IdentityProvider(String key) {
+      this.key = key;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public static IdentityProvider getFromKey(String key) {
+      return Arrays.stream(IdentityProvider.values())
+        .filter(i -> i.getKey().equals(key))
+        .findAny()
+        .orElse(OTHER);
+    }
   }
 
   /**

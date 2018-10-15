@@ -26,7 +26,20 @@ it('renders', () => {
   expect(
     shallow(
       <OrganizationNavigationHeader
+        organization={{ key: 'foo', name: 'Foo', projectVisibility: Visibility.Public }}
+        organizations={[]}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders with alm integration', () => {
+  expect(
+    shallow(
+      <OrganizationNavigationHeader
         organization={{
+          almId: 'github',
+          almRepoUrl: 'https://github.com/foo',
           key: 'foo',
           name: 'Foo',
           projectVisibility: Visibility.Public

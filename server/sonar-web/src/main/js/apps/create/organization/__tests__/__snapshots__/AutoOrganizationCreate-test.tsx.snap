@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render prefilled and create org 1`] = `
+<OrganizationDetailsStep
+  description={
+    <p
+      className="huge-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.create_organization.import_organization_x"
+        id="onboarding.create_organization.import_organization_x"
+        values={
+          Object {
+            "avatar": <img
+              alt="BitBucket"
+              className="little-spacer-left"
+              src="/images/sonarcloud/bitbucket.svg"
+              width={16}
+            />,
+            "name": <strong>
+              name-foo
+            </strong>,
+          }
+        }
+      />
+    </p>
+  }
+  finished={false}
+  onContinue={[Function]}
+  onOpen={[Function]}
+  open={true}
+  organization={
+    Object {
+      "avatar": "http://example.com/avatar",
+      "description": "description-foo",
+      "key": "key-foo",
+      "name": "name-foo",
+      "type": "ORGANIZATION",
+      "url": "http://example.com/foo",
+    }
+  }
+  submitText="my_account.create_organization"
+/>
+`;
+
+exports[`should render with import org button 1`] = `
+<ChooseRemoteOrganizationStep
+  almApplication={
+    Object {
+      "backgroundColor": "#0052CC",
+      "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
+      "installationUrl": "https://bitbucket.org/install/app",
+      "key": "bitbucket",
+      "name": "BitBucket",
+    }
+  }
+/>
+`;

@@ -26,8 +26,9 @@ import OnboardingProjectIcon from '../../../components/icons-components/Onboardi
 import OnboardingTeamIcon from '../../../components/icons-components/OnboardingTeamIcon';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { CurrentUser } from '../../../app/types';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { isLoggedIn } from '../../../helpers/users';
 import '../styles.css';
 
 interface OwnProps {

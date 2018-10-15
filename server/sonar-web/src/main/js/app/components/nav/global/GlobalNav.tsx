@@ -27,12 +27,13 @@ import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
-import { CurrentUser, AppState, isLoggedIn } from '../../../types';
+import { CurrentUser, AppState } from '../../../types';
 import NavBar from '../../../../components/nav/NavBar';
 import { lazyLoad } from '../../../../components/lazyLoad';
 import { getCurrentUser, getAppState, Store } from '../../../../store/rootReducer';
 import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
 import { isSonarCloud } from '../../../../helpers/system';
+import { isLoggedIn } from '../../../../helpers/users';
 import './GlobalNav.css';
 
 const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'), 'GlobalNavPlus');

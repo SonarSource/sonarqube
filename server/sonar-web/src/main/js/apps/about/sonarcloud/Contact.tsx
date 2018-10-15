@@ -23,8 +23,9 @@ import { Link } from 'react-router';
 import { Location } from 'history';
 import SQPageContainer from './components/SQPageContainer';
 import Select from '../../../components/controls/Select';
-import { isLoggedIn, Organization } from '../../../app/types';
 import { Alert } from '../../../components/ui/Alert';
+import { Organization } from '../../../app/types';
+import { isLoggedIn } from '../../../helpers/users';
 import './style.css';
 
 const CATEGORIES = [

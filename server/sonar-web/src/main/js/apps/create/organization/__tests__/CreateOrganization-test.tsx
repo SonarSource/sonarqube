@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Location } from 'history';
 import { shallow } from 'enzyme';
 import { CreateOrganization } from '../CreateOrganization';
 import { mockRouter, waitAndUpdate } from '../../../../helpers/testUtils';
+import { LoggedInUser } from '../../../../app/types';
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest
@@ -28,73 +30,93 @@ jest.mock('../../../../api/billing', () => ({
     .mockResolvedValue([{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }])
 }));
 
-const organization = {
-  avatar: 'http://example.com/avatar',
-  description: 'description-foo',
-  key: 'key-foo',
-  name: 'name-foo',
-  url: 'http://example.com/foo'
+jest.mock('../../../../api/alm-integration', () => ({
+  getAlmAppInfo: jest.fn().mockResolvedValue({
+    application: {
+      installationUrl: 'https://alm.installation.url',
+      backgroundColor: 'blue',
+      iconPath: 'icon/path',
+      key: 'github',
+      name: 'GitHub'
+    }
+  }),
+  getAlmOrganization: jest.fn().mockResolvedValue({
+    key: 'sonarsource',
+    name: 'SonarSource',
+    description: 'Continuous Code Quality',
+    url: 'https://www.sonarsource.com',
+    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+    type: 'ORGANIZATION'
+  })
+}));
+
+const user: LoggedInUser = {
+  groups: [],
+  isLoggedIn: true,
+  login: 'luke',
+  name: 'Skywalker',
+  scmAccounts: [],
+  showOnboardingTutorial: false
 };
 
-it('should render and create organization', async () => {
-  const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
-  const router = mockRouter();
-  const wrapper = shallow(
-    // @ts-ignore avoid passing everything from WithRouterProps
-    <CreateOrganization createOrganization={createOrganization} location={{}} router={router} />
-  );
+it('should render with manual tab displayed', async () => {
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('PlanStep').prop<Function>('onFreePlanChoose')();
-  await waitAndUpdate(wrapper);
-  expect(createOrganization).toBeCalledWith(organization);
-  expect(router.push).toBeCalledWith({
-    pathname: '/organizations/foo',
-    state: { justCreated: true }
-  });
 });
 
-it('should preselect paid plan', async () => {
-  const router = mockRouter();
+it('should preselect paid plan on manual creation', async () => {
   const location = { state: { paid: true } };
-  const wrapper = shallow(
-    // @ts-ignore avoid passing everything from WithRouterProps
-    <CreateOrganization createOrganization={jest.fn()} location={location} router={router} />
-  );
+  // @ts-ignore avoid passing everything from WithRouterProps
+  const wrapper = shallowRender({ location });
   await waitAndUpdate(wrapper);
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.find('PlanStep').prop('onlyPaid')).toBe(true);
+  expect(wrapper.find('ManualOrganizationCreate').prop('onlyPaid')).toBe(true);
 });
 
-it('should roll back after upgrade failure', async () => {
-  const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
-  const deleteOrganization = jest.fn().mockResolvedValue(undefined);
-  const router = mockRouter();
-  const wrapper = shallow(
+it('should render with auto tab displayed', async () => {
+  const wrapper = shallowRender({ currentUser: { ...user, externalProvider: 'github' } });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render with auto tab selected and manual disabled', async () => {
+  const wrapper = shallowRender({
+    currentUser: { ...user, externalProvider: 'github' },
+    location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should switch tabs', async () => {
+  const replace = jest.fn();
+  const wrapper = shallowRender({
+    currentUser: { ...user, externalProvider: 'github' },
+    router: mockRouter({ replace })
+  });
+
+  replace.mockImplementation(location => {
+    wrapper.setProps({ location }).update();
+  });
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+
+  (wrapper.find('Tabs').prop('onChange') as Function)('manual');
+  expect(wrapper.find('ManualOrganizationCreate').exists()).toBeTruthy();
+  (wrapper.find('Tabs').prop('onChange') as Function)('auto');
+  expect(wrapper.find('AutoOrganizationCreate').exists()).toBeTruthy();
+});
+
+function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
+  return shallow(
     <CreateOrganization
-      createOrganization={createOrganization}
-      deleteOrganization={deleteOrganization}
+      currentUser={user}
+      {...props}
       // @ts-ignore avoid passing everything from WithRouterProps
       location={{}}
-      // @ts-ignore avoid passing everything from WithRouterProps
-      router={router}
+      router={mockRouter()}
+      {...props}
     />
   );
-  await waitAndUpdate(wrapper);
-
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
-  await waitAndUpdate(wrapper);
-
-  wrapper.find('PlanStep').prop<Function>('createOrganization')();
-  expect(createOrganization).toBeCalledWith(organization);
-
-  wrapper.find('PlanStep').prop<Function>('deleteOrganization')();
-  expect(deleteOrganization).toBeCalledWith(organization.key);
-});
+}

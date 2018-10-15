@@ -22,6 +22,16 @@
       and owner_id = #{ownerId, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectOwnerId" parameterType="Map" resultType="String">
+    select
+    owner_id as ownerId
+    from
+    alm_app_installs
+    where
+    alm_id = #{almId, jdbcType=VARCHAR}
+    and install_id = #{installId, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectAllWithNoOwnerType" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select <include refid="sqlColumns" />
     from

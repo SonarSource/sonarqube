@@ -22,12 +22,13 @@ import { sortBy } from 'lodash';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import * as theme from '../../../theme';
-import { CurrentUser, LoggedInUser, isLoggedIn, Organization } from '../../../types';
+import { CurrentUser, LoggedInUser, Organization } from '../../../types';
 import Avatar from '../../../../components/ui/Avatar';
 import OrganizationListItem from '../../../../components/ui/OrganizationListItem';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/urls';
 import Dropdown from '../../../../components/controls/Dropdown';
+import { isLoggedIn } from '../../../../helpers/users';
 
 interface Props {
   appState: { organizationsEnabled?: boolean };

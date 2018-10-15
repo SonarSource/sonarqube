@@ -29,6 +29,7 @@ interface Props {
   error: string | undefined;
   id: string;
   isSubmitting: boolean;
+  isValidating: boolean;
   label: React.ReactNode;
   name: string;
   onBlur: React.FocusEventHandler;
@@ -39,12 +40,12 @@ interface Props {
 }
 
 export default function OrganizationDetailsInput(props: Props) {
-  const hasError = props.dirty && props.touched && props.error !== undefined;
+  const hasError = props.dirty && props.touched && !props.isValidating && props.error !== undefined;
   const isValid = props.dirty && props.touched && props.error === undefined;
   return (
     <div>
       <label htmlFor={props.id}>
-        {props.label}
+        <strong>{props.label}</strong>
         {props.required && <em className="mandatory">*</em>}
       </label>
       <div className="little-spacer-top spacer-bottom">

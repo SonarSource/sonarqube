@@ -27,11 +27,12 @@ import OrganizationStep from '../components/OrganizationStep';
 import TokenStep from '../components/TokenStep';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { CurrentUser } from '../../../app/types';
 import { ResetButtonLink } from '../../../components/ui/buttons';
 import { getProjectUrl } from '../../../helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
+import { isLoggedIn } from '../../../helpers/users';
 import '../styles.css';
 
 interface OwnProps {

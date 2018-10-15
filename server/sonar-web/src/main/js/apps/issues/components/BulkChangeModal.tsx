@@ -21,7 +21,7 @@ import * as React from 'react';
 import { pickBy, sortBy } from 'lodash';
 import { searchAssignees } from '../utils';
 import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
-import { Component, CurrentUser, Issue, Paging, isLoggedIn, IssueType } from '../../../app/types';
+import { Component, CurrentUser, Issue, Paging, IssueType } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import SearchSelect from '../../../components/controls/SearchSelect';
@@ -35,6 +35,7 @@ import { SubmitButton } from '../../../components/ui/buttons';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Alert } from '../../../components/ui/Alert';
+import { isLoggedIn } from '../../../helpers/users';
 
 interface AssigneeOption {
   avatar?: string;

@@ -26,6 +26,7 @@ import { translate } from '../../../helpers/l10n';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import { getHostUrl } from '../../../helpers/urls';
 import { OrganizationBase } from '../../../app/types';
 import { getOrganization } from '../../../api/organizations';
 
@@ -40,11 +41,13 @@ const initialValues: Values = {
 };
 
 interface Props {
+  description?: React.ReactNode;
   finished: boolean;
   onContinue: (organization: Required<OrganizationBase>) => Promise<void>;
   onOpen: () => void;
   open: boolean;
   organization?: OrganizationBase & { key: string };
+  submitText: string;
 }
 
 interface State {
@@ -118,10 +121,17 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
       handleChange,
       isSubmitting,
       isValid,
+      isValidating,
       touched,
       values
     } = props;
-    const commonProps = { dirty, isSubmitting, onBlur: handleBlur, onChange: handleChange };
+    const commonProps = {
+      dirty,
+      isValidating,
+      isSubmitting,
+      onBlur: handleBlur,
+      onChange: handleChange
+    };
     return (
       <>
         <OrganizationDetailsInput
@@ -134,7 +144,14 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
           required={true}
           touched={touched.key}
           value={values.key}>
-          {props => <input autoFocus={true} maxLength={255} {...props} />}
+          {props => (
+            <div className="display-inline-flex-baseline">
+              <span className="little-spacer-right">
+                {getHostUrl().replace(/https*:\/\//, '') + '/organizations/'}
+              </span>
+              <input autoFocus={true} maxLength={255} {...props} />
+            </div>
+          )}
         </OrganizationDetailsInput>
         <div className="big-spacer-top">
           <ResetButtonLink onClick={this.handleAdditionalClick}>
@@ -170,7 +187,19 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
               name="avatar"
               touched={touched.avatar && values.avatar !== ''}
               value={values.avatar}>
-              {props => <input {...props} />}
+              {props => (
+                <>
+                  {values.avatar && (
+                    <img
+                      alt=""
+                      className="display-block spacer-bottom rounded"
+                      src={values.avatar}
+                      width={48}
+                    />
+                  )}
+                  <input {...props} />
+                </>
+              )}
             </OrganizationDetailsInput>
           </div>
           <div className="big-spacer-top">
@@ -199,7 +228,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
           </div>
         </div>
         <div className="big-spacer-top">
-          <SubmitButton disabled={isSubmitting || !isValid}>{translate('continue')}</SubmitButton>
+          <SubmitButton disabled={isSubmitting || !isValid}>{this.props.submitText}</SubmitButton>
         </div>
       </>
     );
@@ -208,6 +237,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
   renderForm = () => {
     return (
       <div className="boxed-group-inner">
+        {this.props.description}
         <ValidationForm<Values>
           initialValues={this.getInitialValues()}
           isInitialValid={this.props.organization !== undefined}

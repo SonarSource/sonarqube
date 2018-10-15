@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render and create organization 1`] = `
+exports[`should render with auto tab displayed 1`] = `
 <Fragment>
   <HelmetWrapper
     defer={true}
@@ -42,19 +42,183 @@ exports[`should render and create organization 1`] = `
         />
       </p>
     </header>
-    <OrganizationDetailsStep
-      finished={false}
-      onContinue={[Function]}
-      onOpen={[Function]}
-      open={true}
+    <Tabs
+      onChange={[Function]}
+      selected="auto"
+      tabs={
+        Array [
+          Object {
+            "key": "auto",
+            "node": <React.Fragment>
+              onboarding.create_organization.import_organization.github
+              <span
+                className="rounded alert alert-small spacer-left display-inline-block alert-info"
+              >
+                beta
+              </span>
+            </React.Fragment>,
+          },
+          Object {
+            "disabled": false,
+            "key": "manual",
+            "node": "onboarding.create_organization.create_manually",
+          },
+        ]
+      }
     />
-    <PlanStep
-      createOrganization={[Function]}
-      deleteOrganization={[Function]}
-      onFreePlanChoose={[Function]}
-      onPaidPlanChoose={[Function]}
-      open={false}
-      startingPrice="billing.price_format.10"
+    <AutoOrganizationCreate
+      almApplication={
+        Object {
+          "backgroundColor": "blue",
+          "iconPath": "icon/path",
+          "installationUrl": "https://alm.installation.url",
+          "key": "github",
+          "name": "GitHub",
+        }
+      }
+      onOrgCreated={[Function]}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render with auto tab selected and manual disabled 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.create_organization.page.header"
+    titleTemplate="%s"
+  />
+  <div
+    className="sonarcloud page page-limited"
+  >
+    <header
+      className="page-header"
+    >
+      <h1
+        className="page-title big-spacer-bottom"
+      >
+        onboarding.create_organization.page.header
+      </h1>
+      <p
+        className="page-description"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.create_organization.page.description"
+          id="onboarding.create_organization.page.description"
+          values={
+            Object {
+              "break": <br />,
+              "more": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/sonarcloud-pricing/"
+              >
+                learn_more
+              </Link>,
+              "price": "billing.price_format.10",
+            }
+          }
+        />
+      </p>
+    </header>
+    <Tabs
+      onChange={[Function]}
+      selected="auto"
+      tabs={
+        Array [
+          Object {
+            "key": "auto",
+            "node": <React.Fragment>
+              onboarding.create_organization.import_organization.github
+              <span
+                className="rounded alert alert-small spacer-left display-inline-block alert-info"
+              >
+                beta
+              </span>
+            </React.Fragment>,
+          },
+          Object {
+            "disabled": true,
+            "key": "manual",
+            "node": "onboarding.create_organization.create_manually",
+          },
+        ]
+      }
+    />
+    <AutoOrganizationCreate
+      almApplication={
+        Object {
+          "backgroundColor": "blue",
+          "iconPath": "icon/path",
+          "installationUrl": "https://alm.installation.url",
+          "key": "github",
+          "name": "GitHub",
+        }
+      }
+      almInstallId="foo"
+      almOrganization={
+        Object {
+          "avatar": "https://avatars3.githubusercontent.com/u/37629810?v=4",
+          "description": "Continuous Code Quality",
+          "key": "sonarsource",
+          "name": "SonarSource",
+          "type": "ORGANIZATION",
+          "url": "https://www.sonarsource.com",
+        }
+      }
+      onOrgCreated={[Function]}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render with manual tab displayed 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.create_organization.page.header"
+    titleTemplate="%s"
+  />
+  <div
+    className="sonarcloud page page-limited"
+  >
+    <header
+      className="page-header"
+    >
+      <h1
+        className="page-title big-spacer-bottom"
+      >
+        onboarding.create_organization.page.header
+      </h1>
+      <p
+        className="page-description"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.create_organization.page.description"
+          id="onboarding.create_organization.page.description"
+          values={
+            Object {
+              "break": <br />,
+              "more": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/sonarcloud-pricing/"
+              >
+                learn_more
+              </Link>,
+              "price": "billing.price_format.10",
+            }
+          }
+        />
+      </p>
+    </header>
+    <ManualOrganizationCreate
+      onOrgCreated={[Function]}
       subscriptionPlans={
         Array [
           Object {
@@ -72,7 +236,7 @@ exports[`should render and create organization 1`] = `
 </Fragment>
 `;
 
-exports[`should render and create organization 2`] = `
+exports[`should switch tabs 1`] = `
 <Fragment>
   <HelmetWrapper
     defer={true}
@@ -114,40 +278,41 @@ exports[`should render and create organization 2`] = `
         />
       </p>
     </header>
-    <OrganizationDetailsStep
-      finished={true}
-      onContinue={[Function]}
-      onOpen={[Function]}
-      open={false}
-      organization={
-        Object {
-          "avatar": "http://example.com/avatar",
-          "description": "description-foo",
-          "key": "key-foo",
-          "name": "name-foo",
-          "url": "http://example.com/foo",
-        }
-      }
-    />
-    <PlanStep
-      createOrganization={[Function]}
-      deleteOrganization={[Function]}
-      onFreePlanChoose={[Function]}
-      onPaidPlanChoose={[Function]}
-      open={true}
-      startingPrice="billing.price_format.10"
-      subscriptionPlans={
+    <Tabs
+      onChange={[Function]}
+      selected="auto"
+      tabs={
         Array [
           Object {
-            "maxNcloc": 100000,
-            "price": 10,
+            "key": "auto",
+            "node": <React.Fragment>
+              onboarding.create_organization.import_organization.github
+              <span
+                className="rounded alert alert-small spacer-left display-inline-block alert-info"
+              >
+                beta
+              </span>
+            </React.Fragment>,
           },
           Object {
-            "maxNcloc": 250000,
-            "price": 75,
+            "disabled": false,
+            "key": "manual",
+            "node": "onboarding.create_organization.create_manually",
           },
         ]
       }
+    />
+    <AutoOrganizationCreate
+      almApplication={
+        Object {
+          "backgroundColor": "blue",
+          "iconPath": "icon/path",
+          "installationUrl": "https://alm.installation.url",
+          "key": "github",
+          "name": "GitHub",
+        }
+      }
+      onOrgCreated={[Function]}
     />
   </div>
 </Fragment>

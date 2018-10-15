@@ -23,12 +23,13 @@ import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
 import Tooltip from '../../../components/controls/Tooltip';
-import { CurrentUser, isLoggedIn, HomePageType } from '../../../app/types';
+import { CurrentUser, HomePageType } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { Project } from '../types';
 import { isSonarCloud } from '../../../helpers/system';
+import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
   currentUser: CurrentUser;

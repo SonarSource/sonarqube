@@ -20,13 +20,14 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import { isLoggedIn, CurrentUser, AppState, Extension } from '../../../types';
+import { CurrentUser, AppState, Extension } from '../../../types';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
 import Dropdown from '../../../../components/controls/Dropdown';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
+import { isLoggedIn } from '../../../../helpers/users';
 
 interface Props {
   appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;

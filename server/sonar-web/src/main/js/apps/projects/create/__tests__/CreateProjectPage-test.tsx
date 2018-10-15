@@ -23,7 +23,7 @@ import { Location } from 'history';
 import { CreateProjectPage } from '../CreateProjectPage';
 import { getIdentityProviders } from '../../../../api/users';
 import { LoggedInUser } from '../../../../app/types';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/users', () => ({
   getIdentityProviders: jest.fn().mockResolvedValue({
@@ -70,12 +70,11 @@ it('should switch tabs', async () => {
   });
 
   await waitAndUpdate(wrapper);
-
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('.js-manual'));
+  wrapper.find('Tabs').prop<Function>('onChange')('manual');
   expect(wrapper.find('Connect(ManualProjectCreate)').exists()).toBeTruthy();
-  click(wrapper.find('.js-auto'));
+  wrapper.find('Tabs').prop<Function>('onChange')('auto');
   expect(wrapper.find('AutoProjectCreate').exists()).toBeTruthy();
 });
 

@@ -17,34 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CurrentUser, LoggedInUser } from '../app/types';
 
-/* EXTENDS components/pages.css */
-.sonarcloud.page-limited {
-  padding-top: 50px;
-  padding-bottom: 50px;
+export function hasGlobalPermission(user: CurrentUser, permission: string): boolean {
+  if (!user.permissions) {
+    return false;
+  }
+  return user.permissions.global.includes(permission);
 }
 
-.sonarcloud .page-header {
-  margin-bottom: 40px;
-}
-
-.sonarcloud .page-title {
-  font-size: var(--hugeFontSize);
-  font-weight: bold;
-}
-
-.beta-badge {
-  display: inline-block;
-  padding: 2px 4px;
-  border: 1px solid var(--alertBorderInfo);
-  border-radius: 2px;
-  background-color: var(--alertBackgroundInfo);
-  color: var(--alertTextInfo);
-  font-size: 10px;
-}
-
-.beta-badge.is-muted {
-  border-color: var(--disableGrayBorder);
-  background-color: var(--disableGrayBg);
-  color: var(--disableGrayText);
+export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
+  return user.isLoggedIn;
 }

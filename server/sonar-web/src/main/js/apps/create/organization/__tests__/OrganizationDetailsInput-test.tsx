@@ -30,6 +30,7 @@ it('should render', () => {
         error="This field is bad!"
         id="field"
         isSubmitting={true}
+        isValidating={false}
         label="Label"
         name="field"
         onBlur={jest.fn()}

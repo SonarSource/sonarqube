@@ -5,7 +5,9 @@ exports[`should render 1`] = `
   <label
     htmlFor="field"
   >
-    Label
+    <strong>
+      Label
+    </strong>
     <em
       className="mandatory"
     >

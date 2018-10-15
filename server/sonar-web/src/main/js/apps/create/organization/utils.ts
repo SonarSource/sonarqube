@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { memoize } from 'lodash';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { RawQuery, parseAsOptionalString } from '../../../helpers/query';
 
 export function formatPrice(price?: number, noSign?: boolean) {
   const priceFormatted = formatMeasure(price, 'FLOAT')
@@ -26,3 +28,17 @@ export function formatPrice(price?: number, noSign?: boolean) {
     .replace(/([.|,]\d)$/, '$10');
   return noSign ? priceFormatted : translateWithParameters('billing.price_format', priceFormatted);
 }
+
+export interface Query {
+  almInstallId?: string;
+}
+
+export const parseQuery = memoize(
+  (urlQuery: RawQuery = {}): Query => {
+    return {
+      almInstallId:
+        parseAsOptionalString(urlQuery['installation_id']) ||
+        parseAsOptionalString(urlQuery['clientKey'])
+    };
+  }
+);

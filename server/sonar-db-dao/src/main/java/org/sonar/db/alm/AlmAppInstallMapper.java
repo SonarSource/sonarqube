@@ -29,6 +29,9 @@ public interface AlmAppInstallMapper {
   @CheckForNull
   AlmAppInstallDto selectByOwner(@Param("almId") String almId, @Param("ownerId") String ownerId);
 
+  @CheckForNull
+  String selectOwnerId(@Param("almId") String almId, @Param("installId") String installId);
+
   List<AlmAppInstallDto> selectAllWithNoOwnerType();
 
   void insert(@Param("uuid") String uuid, @Param("almId") String almId, @Param("ownerId") String ownerId,
