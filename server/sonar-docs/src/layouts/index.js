@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import Sidebar from './components/Sidebar';
-import DownloadIcon from './components/icons/DownloadIcon';
 import Footer from './components/Footer';
 import HeaderListProvider from './components/HeaderListProvider';
 
@@ -44,29 +43,6 @@ export default function Layout(props) {
               />
             </div>
             <div className="page-main">
-              <div className="useful-links-block">
-                <div className="useful-link-title">Download</div>
-                <a href="https://www.sonarqube.org/" rel="noopener noreferrer" target="_blank">
-                  <DownloadIcon /> SonarQube
-                </a>
-                <div className="useful-link-title">Get Help</div>
-                <a
-                  href="https://community.sonarsource.com/"
-                  rel="noopener noreferrer"
-                  target="_blank">
-                  <img src="/images/community-icon.svg" alt="Community" /> Community
-                </a>
-                <div className="useful-link-title">Stay Connected</div>
-                <a href="https://twitter.com/SonarQube" rel="noopener noreferrer" target="_blank">
-                  <img src="/images/tw-icon-small.svg" alt="Twitter" /> Twitter
-                </a>
-                <a
-                  href="https://www.sonarsource.com/resources/product-news/"
-                  rel="noopener noreferrer"
-                  target="_blank">
-                  <img src="/images/sq-icon-small.svg" alt="Product News" /> Product News
-                </a>
-              </div>
               <div className="page-container">{props.children()}</div>
               <Footer />
             </div>

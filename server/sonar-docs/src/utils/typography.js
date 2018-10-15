@@ -27,7 +27,7 @@ const typography = new Typography({
   baseFontSize: '15px',
   bodyWeight: '400',
   headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,700'] }],
+  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
   overrideStyles: () => ({
     a: {
       color: '#439ccd'

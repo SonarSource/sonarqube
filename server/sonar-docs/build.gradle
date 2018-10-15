@@ -9,6 +9,8 @@ sonarqube {
 group = 'com.sonarsource.sonarqube'
 
 yarn_run {
+  environment = [ GATSBY_DOCS_VERSION: version ]
+  inputs.property('version', version)
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
   ['gatsby-config.js', 'gatsby-node.js', 'package.json'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
@@ -27,7 +29,7 @@ task "yarn_lint-report"() {
 }
 
 task zip(type: Zip) {
-  def archiveDir = "sonarqube-docs-$version"
+  def archiveDir = "$version"
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   baseName "sonar-docs"
 

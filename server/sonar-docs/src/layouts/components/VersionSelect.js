@@ -37,12 +37,16 @@ export default class VersionSelect extends React.PureComponent {
   render() {
     const { versions } = this.props;
     const hasVersions = versions.length > 1;
+    const currentVersion = versions.find(v => v.current);
+    const versionLabel =
+      this.props.version === 'latest' && currentVersion ? currentVersion.value : this.props.version;
     const isOnCurrentVersion =
-      !hasVersions || versions.find(v => v.value === this.props.version) !== undefined;
+      !hasVersions || (currentVersion && versionLabel === currentVersion.value);
+
     return (
       <div className="version-select">
         <button onClick={this.handleClick}>
-          Docs <span className={isOnCurrentVersion ? 'current' : ''}>{this.props.version}</span>
+          Docs <span className={isOnCurrentVersion ? 'current' : ''}>{versionLabel}</span>
           {hasVersions && !this.state.open && <ChevronDownIcon size={10} />}
           {hasVersions && this.state.open && <ChevronUpIcon size={10} />}
         </button>

@@ -25,6 +25,7 @@ import Search from './Search';
 import SearchEntryResult from './SearchEntryResult';
 import NavigationTree from '../../../static/StaticNavigationTree.json';
 import { ExternalLink } from './ExternalLink';
+import DownloadIcon from './icons/DownloadIcon';
 
 export default class Sidebar extends React.PureComponent {
   constructor(props) {
@@ -129,6 +130,7 @@ export default class Sidebar extends React.PureComponent {
 
   render() {
     const isOnCurrentVersion =
+      this.props.version === 'latest' ||
       this.state.versions.find(v => v.value === this.props.version) !== undefined;
     return (
       <div className="page-sidebar">
@@ -137,7 +139,7 @@ export default class Sidebar extends React.PureComponent {
             <img
               alt="Continuous Code Quality"
               css={{ verticalAlign: 'top', margin: 0 }}
-              src="/images/SonarQubeIcon.svg"
+              src={`/${this.props.version}/images/SonarQubeIcon.svg`}
               title="Continuous Code Quality"
               width="160"
             />
@@ -165,6 +167,29 @@ export default class Sidebar extends React.PureComponent {
           />
           {this.state.query !== '' && this.renderResults()}
           {this.state.query === '' && this.renderCategories(NavigationTree)}
+        </div>
+        <div className="sidebar-footer">
+          <a href="https://www.sonarqube.org/" rel="noopener noreferrer" target="_blank">
+            <DownloadIcon /> SonarQube
+          </a>
+          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+            <img src={`/${this.props.version}/images/community.svg`} alt="Community" /> Community
+          </a>
+          <a
+            className="icon-only"
+            href="https://twitter.com/SonarQube"
+            rel="noopener noreferrer"
+            target="_blank">
+            <img src={`/${this.props.version}/images/twitter.svg`} alt="Twitter" />
+          </a>
+          <a
+            className="icon-only"
+            href="https://www.sonarsource.com/resources/product-news/"
+            rel="noopener noreferrer"
+            target="_blank">
+            <img src={`/${this.props.version}/images/newspaper.svg`} alt="Product News" />
+            <span className="tooltip">Product News</span>
+          </a>
         </div>
       </div>
     );

@@ -22,6 +22,8 @@ import Helmet from 'react-helmet';
 import HeaderList from '../layouts/components/HeaderList';
 import './page.css';
 
+const version = process.env.GATSBY_DOCS_VERSION || '1.0';
+
 export default class Page extends React.PureComponent {
   componentDidMount() {
     const collaspables = document.getElementsByClassName('collapse');
@@ -51,12 +53,17 @@ export default class Page extends React.PureComponent {
     htmlWithInclusions = removeTableOfContents(htmlWithInclusions);
     htmlWithInclusions = createAnchorForHeadings(htmlWithInclusions, realHeadingsList);
     htmlWithInclusions = replaceDynamicLinks(htmlWithInclusions);
+    htmlWithInclusions = replaceImageLinks(htmlWithInclusions);
     htmlWithInclusions = replaceInstanceTag(htmlWithInclusions);
+
+    const version = process.env.GATSBY_DOCS_VERSION || '';
 
     return (
       <div css={{ paddingTop: 24, paddingBottom: 24 }}>
         <Helmet title={page.frontmatter.title || 'Documentation'}>
           <html lang="en" />
+          <link rel="icon" href={`/${version}/favicon.ico`} />
+          <link rel="canonical" href={this.props.location.pathname.replace('latest', version)} />
         </Helmet>
         <HeaderList headers={realHeadingsList} />
         <h1>{page.frontmatter.title}</h1>
@@ -104,10 +111,17 @@ function replaceInstanceTag(content) {
   return content.replace(/{instance}/gi, 'SonarQube');
 }
 
+function replaceImageLinks(content) {
+  const version = process.env.GATSBY_DOCS_VERSION || '';
+  if (version !== '') {
+    content = content.replace(/\<img src="\/images\/(.*)"/gim, `<img src="/${version}/images/$1"`);
+  }
+  return content;
+}
+
 function replaceDynamicLinks(content) {
   const version = process.env.GATSBY_DOCS_VERSION || '';
-  const usePrefix = process.env.GATSBY_USE_PREFIX === '1';
-  if (usePrefix && version !== '') {
+  if (version !== '') {
     content = content.replace(
       /\<a href="(?!#)(?!http)(.*)"\>(.*)\<\/a\>/gim,
       `<a href="/${version}$1">$2</a>`

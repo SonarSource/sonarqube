@@ -19,10 +19,7 @@
  */
 const DOCS_VERSION = process.env.GATSBY_DOCS_VERSION || '1.0';
 
-const prefix =
-  process.env.GATSBY_USE_PREFIX === '1'
-    ? { pathPrefix: '/' + process.env.GATSBY_DOCS_VERSION }
-    : {};
+const prefix = { pathPrefix: '/' + DOCS_VERSION }
 
 module.exports = {
   ...prefix,
