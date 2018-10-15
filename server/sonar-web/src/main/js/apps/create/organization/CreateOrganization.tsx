@@ -186,19 +186,18 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
                 organization={this.state.organization}
               />
 
-              {subscriptionPlans !== undefined &&
-                this.state.organization && (
-                  <PlanStep
-                    createOrganization={this.createOrganization}
-                    deleteOrganization={this.deleteOrganization}
-                    onFreePlanChoose={this.handleFreePlanChoose}
-                    onPaidPlanChoose={this.handlePaidPlanChoose}
-                    onlyPaid={location.state && location.state.paid === true}
-                    open={this.state.step === Step.Plan}
-                    startingPrice={formattedPrice}
-                    subscriptionPlans={subscriptionPlans}
-                  />
-                )}
+              {subscriptionPlans !== undefined && (
+                <PlanStep
+                  createOrganization={this.createOrganization}
+                  deleteOrganization={this.deleteOrganization}
+                  onFreePlanChoose={this.handleFreePlanChoose}
+                  onPaidPlanChoose={this.handlePaidPlanChoose}
+                  onlyPaid={location.state && location.state.paid === true}
+                  open={this.state.step === Step.Plan}
+                  startingPrice={formattedPrice}
+                  subscriptionPlans={subscriptionPlans}
+                />
+              )}
             </>
           )}
         </div>

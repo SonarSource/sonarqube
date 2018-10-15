@@ -49,6 +49,26 @@ exports[`should render and create organization 1`] = `
         onOpen={[Function]}
         open={true}
       />
+      <PlanStep
+        createOrganization={[Function]}
+        deleteOrganization={[Function]}
+        onFreePlanChoose={[Function]}
+        onPaidPlanChoose={[Function]}
+        open={false}
+        startingPrice="billing.price_format.10"
+        subscriptionPlans={
+          Array [
+            Object {
+              "maxNcloc": 100000,
+              "price": 10,
+            },
+            Object {
+              "maxNcloc": 250000,
+              "price": 75,
+            },
+          ]
+        }
+      />
     </React.Fragment>
   </div>
 </React.Fragment>
