@@ -46,7 +46,7 @@ import static java.lang.String.format;
  */
 public class RootFilter implements Filter {
 
-  public static final org.sonar.api.utils.log.Logger Logger = Loggers.get("http");
+  private static final org.sonar.api.utils.log.Logger LOGGER = Loggers.get(RootFilter.class);
 
   @Override
   public void init(FilterConfig filterConfig) {
@@ -61,10 +61,13 @@ public class RootFilter implements Filter {
       try {
         chain.doFilter(new ServletRequestWrapper(httpRequest), httpResponse);
       } catch (Throwable e) {
-        Loggers.get(RootFilter.class).error(format("Processing of request %s failed", toUrl(httpRequest)), e);
-        if (!response.isCommitted()) {
-          httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (httpResponse.isCommitted()) {
+          // Request has been aborted by the client, nothing can been done as Tomcat has committed the response
+          LOGGER.debug(format("Processing of request %s failed", toUrl(httpRequest)), e);
+          return;
         }
+        LOGGER.error(format("Processing of request %s failed", toUrl(httpRequest)), e);
+        httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
     } else {
       // Not an HTTP request, not profiled

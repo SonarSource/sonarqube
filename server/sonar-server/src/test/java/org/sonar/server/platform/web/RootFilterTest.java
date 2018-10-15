@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.web;
 
+import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -31,6 +32,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,6 +47,8 @@ public class RootFilterTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private FilterChain chain = mock(FilterChain.class);
   private RootFilter underTest;
@@ -75,6 +80,18 @@ public class RootFilterTest {
 
     verify(response, never()).sendError(500);
   }
+
+  @Test
+  public void throwable_in_doFilter_is_logged_in_debug_if_response_is_already_committed() throws Exception {
+    doThrow(new RuntimeException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+    HttpServletResponse response = mockHttpResponse(true);
+    underTest.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
+
+    List<String> debugLogs = logTester.logs(LoggerLevel.DEBUG);
+    assertThat(debugLogs.size()).isEqualTo(1);
+    assertThat(debugLogs.get(0)).contains("Processing of request", "failed");
+  }
+
 
   @Test
   public void request_used_in_chain_do_filter_is_a_servlet_wrapper_when_static_resource() throws Exception {
