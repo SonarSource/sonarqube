@@ -34,6 +34,10 @@ const routes = [
             component: lazyLoad(() => import('./sonarcloud/Contact'))
           },
           {
+            path: 'pricing',
+            component: lazyLoad(() => import('./sonarcloud/Pricing'))
+          },
+          {
             path: 'sq',
             childRoutes: [
               { indexRoute: { component: lazyLoad(() => import('./sonarcloud/SQHome')) } },

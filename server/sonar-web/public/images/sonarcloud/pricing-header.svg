@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4545.467 562.628">
-  <defs>
-    <linearGradient id="a" x1=".5" x2=".5" y1=".119" y2=".948" gradientUnits="objectBoundingBox">
-      <stop offset="0" stop-color="#fd6a00"/>
-      <stop offset="1" stop-color="#fdc300"/>
-    </linearGradient>
-  </defs>
-  <path fill="url(#a)" d="M10512.121 9278.787c-757.575 69.7-566.679 69.7-996.97-151.515s-651.5-6.061-906.06-45.455-360.607-239.394-360.607-239.394l4545.467-9.1s-309.127 736.363-1057.588 524.254-466.663-148.486-1224.242-78.79z" transform="translate(-8248.484 -8833.321)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4546 562.936"><defs><linearGradient id="a" x1=".5" y1=".119" x2=".5" y2=".948" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#fd6a00"/><stop offset="1" stop-color="#fdc300"/></linearGradient></defs><path data-name="Tracé 11995" d="M10512.121 9278.787c-593.871 86.795-566.679 69.7-996.97-151.515s-651.5-6.061-906.06-45.455S8247 8833 8247 8833h4546s-308.176 736.685-1056.637 524.575-630.371-165.583-1224.242-78.788z" transform="translate(-8247 -8833)" fill="url(#a)"/></svg>

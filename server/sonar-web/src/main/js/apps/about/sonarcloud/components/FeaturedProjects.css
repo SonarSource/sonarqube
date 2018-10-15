@@ -25,7 +25,7 @@
 .sc-featured-projects-container {
   margin: 0 40px;
   overflow: hidden;
-  padding: 10px 0 20px;
+  padding: 10px 8px 20px;
   max-width: 985px;
 }
 
@@ -33,12 +33,12 @@
   display: flex;
   order: 2;
   position: relative;
-  left: -33.33333%;
-  transform: translateX(33.33333%);
+  left: calc(100% / -3);
+  transform: translateX(calc(100% / 3));
 }
 
 .sc-featured-projects-inner.reversing {
-  transform: translateX(-33.33333%);
+  transform: translateX(calc(100% / -3));
 }
 
 .sc-featured-projects-inner.ready {
@@ -51,7 +51,7 @@
 }
 
 .sc-project-card-container {
-  flex-basis: 1 0 33.33333%;
+  flex: 1 0 calc(100% / 3);
 }
 
 .sc-project-card {

@@ -125,12 +125,23 @@
   max-width: 38%;
 }
 
+.sc-column-medium {
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  max-width: 44%;
+}
+
 .sc-column-big {
   max-width: 52%;
 }
 
 .sc-spacer-bottom {
   margin-bottom: 20px;
+}
+
+.sc-big-spacer-top {
+  margin-top: 50px;
 }
 
 .sc-big-spacer-bottom {
@@ -247,4 +258,118 @@
 .sc-languages-container h3,
 .sc-languages-container a {
   color: #fff;
+}
+
+.sc-page .white {
+  color: #fff !important;
+}
+
+.sc-page h4 span {
+  font-family: var(--sonarcloudFontFamily);
+  font-size: 32px;
+}
+
+.sc-pricing-free {
+  font-family: var(--sonarcloudFontFamily);
+  box-sizing: border-box;
+  position: relative;
+  background: white;
+  border-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 10px 40px;
+  margin: 40px;
+  padding: 40px 50px;
+  width: 880px;
+}
+
+.sc-pricing-free ul {
+  width: 530px;
+}
+
+.sc-pricing-free ul li {
+  font-family: var(--sonarcloudFontFamily);
+  background: url(/images/sonarcloud/check.svg) no-repeat 0 19px;
+  background-size: 18px;
+  font-size: 21px;
+  line-height: 30px;
+  padding: 10px 10px 10px 32px;
+}
+
+.sc-pricing-free ul li em {
+  font-weight: 700;
+  font-style: normal;
+}
+
+.sc-pricing-privacy {
+  box-sizing: border-box;
+  position: absolute;
+  border-radius: 7px;
+  background: linear-gradient(214deg, var(--sonarcloudBlack700) 0%, var(--sonarcloudBlack800) 100%);
+  color: #fff;
+  width: 350px;
+  right: -70px;
+  top: -20px;
+  padding: 50px 40px;
+}
+
+.sc-pricing-privacy ul li,
+.sc-pricing-privacy em {
+  color: #fff;
+}
+
+.sc-pricing-privacy ul {
+  width: 100%;
+}
+
+.sc-pricing-privacy a {
+  color: #fff;
+  border-bottom: 1px solid #fff;
+}
+
+.sc-pricing-privacy .starts-at {
+  font-family: var(--sonarcloudFontFamily);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 40px;
+}
+
+a.sc-orange-button {
+  display: inline-block;
+  background-color: var(--sonarcloudOrange500);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 0 15px;
+  border-radius: 4px;
+  height: 44px;
+  line-height: 44px;
+}
+
+a.sc-orange-button:hover {
+  color: #fff;
+  background-color: var(--sonarcloudOrange700);
+}
+
+.pricing-section .faq-title {
+  font-family: var(--sonarcloudFontFamily);
+  font-size: 21px;
+  padding-bottom: 18px;
+}
+
+.pricing-section p {
+  font-size: 15px;
+}
+
+table.loc-price th {
+  padding: 0 30px 20px 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+table.loc-price td {
+  line-height: 30px;
+  border-bottom: 1px solid var(--sonarcloudBlack300);
+}
+
+table.loc-price tr td:first-child {
+  font-weight: 700;
 }

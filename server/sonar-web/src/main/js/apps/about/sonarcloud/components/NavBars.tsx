@@ -59,25 +59,36 @@ export class FixedNavBar extends React.PureComponent<{}, State> {
   }
 }
 
-export function TopNavBar() {
+interface TopNavBarProps {
+  whiteLogo?: boolean;
+}
+
+export function TopNavBar({ whiteLogo }: TopNavBarProps) {
   return (
     <div className="top-navbar">
       <div className="navbar-limited">
-        <NavBarLinks />
+        <NavBarLinks whiteLogo={whiteLogo} />
       </div>
     </div>
   );
 }
 
-function NavBarLinks() {
+interface NavBarLinksProps {
+  whiteLogo?: boolean;
+}
+
+function NavBarLinks({ whiteLogo }: NavBarLinksProps) {
   return (
     <>
       <a href={`${getBaseUrl()}/`}>
-        <img alt="SonarCloud" src={`${getBaseUrl()}/images/sonarcloud-logo-black.svg`} />
+        <img
+          alt="SonarCloud"
+          src={`${getBaseUrl()}/images/sonarcloud-logo-${whiteLogo ? 'white' : 'black'}.svg`}
+        />
       </a>
       <ul>
         <li>
-          <a href="/">Pricing</a>
+          <a href={`${getBaseUrl()}/about/pricing`}>Pricing</a>
         </li>
         <li>
           <a href={`${getBaseUrl()}/explore/projects`}>Explore</a>

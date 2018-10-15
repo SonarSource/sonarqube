@@ -90,6 +90,8 @@ it('should render correctly', async () => {
 
 it('should cycle through projects', async () => {
   const wrapper = shallow(<FeaturedProjects />);
+  expect(wrapper.find('DeferredSpinner')).toHaveLength(1);
+
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().slides.map((slide: any) => slide.order)).toEqual([0, 1, 2, 3]);

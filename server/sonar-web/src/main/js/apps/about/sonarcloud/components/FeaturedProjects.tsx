@@ -63,15 +63,17 @@ export default class FeaturedProjects extends React.PureComponent<{}, State> {
       translate: 0,
       viewable: false
     };
-    this.fetchProjects();
     this.handleScroll = throttle(this.handleScroll, 10);
   }
 
   componentDidMount() {
+    this.mounted = true;
     document.addEventListener('scroll', this.handleScroll, true);
+    this.fetchProjects();
   }
 
   componentWillUnmount() {
+    this.mounted = false;
     document.removeEventListener('scroll', this.handleScroll, true);
   }
 
@@ -114,7 +116,9 @@ export default class FeaturedProjects extends React.PureComponent<{}, State> {
       })
     }));
     setTimeout(() => {
-      this.setState({ sliding: false });
+      if (this.mounted) {
+        this.setState({ sliding: false });
+      }
     }, 50);
   };
 
