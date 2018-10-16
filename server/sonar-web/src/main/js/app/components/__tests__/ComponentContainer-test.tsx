@@ -57,7 +57,7 @@ jest.mock('../../../api/measures', () => ({
     .fn()
     .mockResolvedValue([
       { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
-      { metric: 'coverage', value: '99.3' }
+      { metric: 'new_duplicated_lines_density', periods: [{ index: 1, value: '3.5' }] }
     ])
 }));
 
@@ -187,7 +187,7 @@ it('updates the branch measures', async () => {
   await new Promise(setImmediate);
   expect(getMeasures).toBeCalledWith({
     componentKey: 'foo',
-    metricKeys: 'coverage,new_coverage',
+    metricKeys: 'new_coverage,new_duplicated_lines_density',
     branch: 'feature'
   });
 });

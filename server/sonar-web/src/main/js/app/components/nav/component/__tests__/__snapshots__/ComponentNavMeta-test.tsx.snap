@@ -120,8 +120,13 @@ exports[`renders status of short-living branch 1`] = `
             "value": "0",
           },
           Object {
-            "metric": "coverage",
-            "value": "99.3",
+            "metric": "new_duplicated_lines_density",
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "3.5",
+              },
+            ],
           },
         ]
       }

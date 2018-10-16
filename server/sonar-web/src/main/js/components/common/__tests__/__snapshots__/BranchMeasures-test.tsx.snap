@@ -5,27 +5,7 @@ exports[`BranchCoverage should render correctly 1`] = `
   className="display-inline-flex-center"
 >
   <CoverageRating
-    size="xs"
-    value="99.3"
-  />
-  <span
-    className="little-spacer-left"
-  >
-    99.3%
-  </span>
-  <HelpTooltip
-    className="little-spacer-left"
-    overlay="branches.measures.coverage.help"
-  />
-</div>
-`;
-
-exports[`BranchCoverage should render leak measure correctly 1`] = `
-<div
-  className="display-inline-flex-center rounded leak-box"
->
-  <CoverageRating
-    size="xs"
+    size="small"
     value="95.9943"
   />
   <span
@@ -40,42 +20,52 @@ exports[`BranchCoverage should render leak measure correctly 1`] = `
 </div>
 `;
 
-exports[`BranchMeasures should render correctly when a coverage measure is missing 1`] = `
+exports[`BranchDuplications should render correctly 1`] = `
 <div
   className="display-inline-flex-center"
 >
-  <BranchCoverage
+  <DuplicationsRating
+    size="small"
+    value={3.5}
+  />
+  <span
+    className="little-spacer-left"
+  >
+    3.5%
+  </span>
+  <HelpTooltip
+    className="little-spacer-left"
+    overlay="branches.measures.new_duplicated_lines_density.help"
+  />
+</div>
+`;
+
+exports[`BranchMeasures should render correctly when coverage is missing 1`] = `
+<div
+  className="display-inline-flex-center"
+>
+  <BranchDuplications
     className=""
     measure={
       Object {
-        "metric": "new_coverage",
+        "metric": "new_duplicated_lines_density",
         "periods": Array [
           Object {
             "index": 1,
-            "value": "95.9943",
+            "value": "3.5",
           },
         ],
-        "value": "0",
       }
     }
   />
 </div>
 `;
 
-exports[`BranchMeasures should render coverage measures 1`] = `
+exports[`BranchMeasures should render coverage and duplications 1`] = `
 <div
   className="display-inline-flex-center"
 >
   <BranchCoverage
-    measure={
-      Object {
-        "metric": "coverage",
-        "value": "99.3",
-      }
-    }
-  />
-  <BranchCoverage
-    className="big-spacer-left"
     measure={
       Object {
         "metric": "new_coverage",
@@ -86,6 +76,20 @@ exports[`BranchMeasures should render coverage measures 1`] = `
           },
         ],
         "value": "0",
+      }
+    }
+  />
+  <BranchDuplications
+    className="big-spacer-left"
+    measure={
+      Object {
+        "metric": "new_duplicated_lines_density",
+        "periods": Array [
+          Object {
+            "index": 1,
+            "value": "3.5",
+          },
+        ],
       }
     }
   />

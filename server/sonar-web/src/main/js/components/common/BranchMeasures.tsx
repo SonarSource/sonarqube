@@ -22,28 +22,31 @@ import * as classNames from 'classnames';
 import { Measure } from '../../app/types';
 import { getLeakValue } from '../measure/utils';
 import CoverageRating from '../ui/CoverageRating';
-import { formatMeasure, isDiffMetric } from '../../helpers/measures';
+import { formatMeasure } from '../../helpers/measures';
 import HelpTooltip from '../controls/HelpTooltip';
 import { translate } from '../../helpers/l10n';
+import DuplicationsRating from '../ui/DuplicationsRating';
 
 interface Props {
   measures: Measure[];
 }
 
 export default function BranchMeasures({ measures }: Props) {
-  const coverage = measures.find(measure => measure.metric === 'coverage');
   const newCoverage = measures.find(measure => measure.metric === 'new_coverage');
-  if (!coverage && !newCoverage) {
+  const newDuplications = measures.find(
+    measure => measure.metric === 'new_duplicated_lines_density'
+  );
+  if (!newCoverage && !newDuplications) {
     return null;
   }
 
   return (
     <div className="display-inline-flex-center">
-      {coverage && <BranchCoverage measure={coverage} />}
-      {newCoverage && (
-        <BranchCoverage
-          className={classNames({ 'big-spacer-left': Boolean(coverage) })}
-          measure={newCoverage}
+      {newCoverage && <BranchCoverage measure={newCoverage} />}
+      {newDuplications && (
+        <BranchDuplications
+          className={classNames({ 'big-spacer-left': Boolean(newCoverage) })}
+          measure={newDuplications}
         />
       )}
     </div>
@@ -56,16 +59,10 @@ interface MeasureProps {
 }
 
 export function BranchCoverage({ className, measure }: MeasureProps) {
-  const isDiff = isDiffMetric(measure.metric);
-  const value = isDiff ? getLeakValue(measure) : measure.value;
+  const value = getLeakValue(measure);
   return (
-    <div
-      className={classNames(
-        'display-inline-flex-center',
-        { 'rounded leak-box': isDiff },
-        className
-      )}>
-      <CoverageRating size="xs" value={value} />
+    <div className={classNames('display-inline-flex-center', className)}>
+      <CoverageRating size="small" value={value} />
       <span className="little-spacer-left">{formatMeasure(value, 'PERCENT')}</span>
       <HelpTooltip
         className="little-spacer-left"
@@ -73,4 +70,18 @@ export function BranchCoverage({ className, measure }: MeasureProps) {
       />
     </div>
   );
+}
+
+export function BranchDuplications({ className, measure }: MeasureProps) {
+  const value = getLeakValue(measure);
+  return value !== undefined ? (
+    <div className={classNames('display-inline-flex-center', className)}>
+      <DuplicationsRating size="small" value={Number(value)} />
+      <span className="little-spacer-left">{formatMeasure(value, 'PERCENT')}</span>
+      <HelpTooltip
+        className="little-spacer-left"
+        overlay={translate('branches.measures', measure.metric, 'help')}
+      />
+    </div>
+  ) : null;
 }

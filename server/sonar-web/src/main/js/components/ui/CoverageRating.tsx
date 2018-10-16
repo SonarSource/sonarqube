@@ -23,13 +23,13 @@ import * as theme from '../../app/theme';
 
 const DonutChart = lazyLoad(() => import('../charts/DonutChart'));
 
-const SIZE_TO_WIDTH_MAPPING = { xs: 12, small: 16, normal: 24, big: 40, huge: 60 };
+const SIZE_TO_WIDTH_MAPPING = { small: 16, normal: 24, big: 40, huge: 60 };
 
-const SIZE_TO_THICKNESS_MAPPING = { xs: 2, small: 2, normal: 3, big: 3, huge: 4 };
+const SIZE_TO_THICKNESS_MAPPING = { small: 2, normal: 3, big: 3, huge: 4 };
 
 interface Props {
   muted?: boolean;
-  size?: 'xs' | 'small' | 'normal' | 'big' | 'huge';
+  size?: 'small' | 'normal' | 'big' | 'huge';
   value: number | string | null | undefined;
 }
 

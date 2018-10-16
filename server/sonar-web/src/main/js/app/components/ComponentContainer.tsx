@@ -194,7 +194,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     if (project && (isShortLivingBranch(branchLike) || isPullRequest(branchLike))) {
       return getMeasures({
         componentKey: project.key,
-        metricKeys: 'coverage,new_coverage',
+        metricKeys: 'new_coverage,new_duplicated_lines_density',
         ...getBranchLikeQuery(branchLike)
       }).then(measures => {
         return { branchLike, branchLikes, branchMeasures: measures, component };

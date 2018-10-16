@@ -34,7 +34,7 @@ const COMPONENT = {
 
 const MEASURES = [
   { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
-  { metric: 'coverage', value: '99.3' }
+  { metric: 'new_duplicated_lines_density', periods: [{ index: 1, value: '3.5' }] }
 ];
 
 it('renders status of short-living branch', () => {

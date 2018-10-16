@@ -19,20 +19,20 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import BranchMeasures, { BranchCoverage } from '../BranchMeasures';
+import BranchMeasures, { BranchCoverage, BranchDuplications } from '../BranchMeasures';
 
 const MEASURES = [
   { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
-  { metric: 'coverage', value: '99.3' }
+  { metric: 'new_duplicated_lines_density', periods: [{ index: 1, value: '3.5' }] }
 ];
 
 describe('BranchMeasures', () => {
-  it('should render coverage measures', () => {
+  it('should render coverage and duplications', () => {
     expect(shallow(<BranchMeasures measures={MEASURES} />)).toMatchSnapshot();
   });
 
-  it('should render correctly when a coverage measure is missing', () => {
-    expect(shallow(<BranchMeasures measures={[MEASURES[0]]} />)).toMatchSnapshot();
+  it('should render correctly when coverage is missing', () => {
+    expect(shallow(<BranchMeasures measures={[MEASURES[1]]} />)).toMatchSnapshot();
   });
 
   it('should not render anything', () => {
@@ -42,10 +42,12 @@ describe('BranchMeasures', () => {
 
 describe('BranchCoverage', () => {
   it('should render correctly', () => {
-    expect(shallow(<BranchCoverage measure={MEASURES[1]} />)).toMatchSnapshot();
-  });
-
-  it('should render leak measure correctly', () => {
     expect(shallow(<BranchCoverage measure={MEASURES[0]} />)).toMatchSnapshot();
+  });
+});
+
+describe('BranchDuplications', () => {
+  it('should render correctly', () => {
+    expect(shallow(<BranchDuplications measure={MEASURES[1]} />)).toMatchSnapshot();
   });
 });
