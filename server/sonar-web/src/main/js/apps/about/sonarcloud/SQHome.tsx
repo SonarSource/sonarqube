@@ -224,9 +224,25 @@ function Languages() {
         </li>
         <li>
           <img
+            alt="CSS"
+            height="60"
+            src={`${getBaseUrl()}/images/languages/black/css.svg`}
+            width="60"
+          />
+        </li>
+        <li>
+          <img
             alt="HTML"
             height="60"
             src={`${getBaseUrl()}/images/languages/black/html5.svg`}
+            width="60"
+          />
+        </li>
+        <li>
+          <img
+            alt="Scala"
+            height="60"
+            src={`${getBaseUrl()}/images/languages/black/scala.svg`}
             width="60"
           />
         </li>

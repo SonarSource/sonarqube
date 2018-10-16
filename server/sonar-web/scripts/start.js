@@ -20,6 +20,7 @@
 /* eslint-disable no-console */
 process.env.NODE_ENV = 'development';
 
+const fs = require('fs');
 const chalk = require('chalk');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');

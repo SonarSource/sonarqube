@@ -20,80 +20,120 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import FeaturedProjects, { ProjectCard, ProjectIssues } from '../FeaturedProjects';
-import { requestFeaturedProjects } from '../../utils';
-import { click, waitAndUpdate } from '../../../../../helpers/testUtils';
+import { click } from '../../../../../helpers/testUtils';
 
-jest.mock('../../utils', () => ({
-  requestFeaturedProjects: jest.fn(() =>
-    Promise.resolve([
-      {
-        key: 'foo',
-        measures: { coverage: '20', foo: '15' },
-        name: 'Foo',
-        organization: { name: 'Foo', avatar: '' }
-      },
-      {
-        key: 'bar',
-        measures: { bar: '20', foo: '15' },
-        name: 'Bar',
-        organization: { name: 'Bar', avatar: '' }
-      },
-      {
-        key: 'baz',
-        measures: { bar: '20', foo: '15' },
-        name: 'Baz',
-        organization: { name: 'Baz', avatar: '' }
-      },
-      {
-        key: 'foobar',
-        measures: { bar: '20', foo: '15' },
-        name: 'Foobar',
-        organization: { name: 'Foobar', avatar: '' }
-      }
-    ])
-  )
-}));
-
-const PROJECT = {
-  key: 'foo',
-  measures: { bar: '20', foo: '15' },
-  name: 'Foo',
-  organization: { name: 'Foo', avatar: '' }
-};
-
-beforeEach(() => {
-  (requestFeaturedProjects as jest.Mock<any>).mockClear();
-});
+const PROJECTS = [
+  {
+    key: 'sonarsource-jfrog.simple-js-php-project',
+    avatarUrl: null,
+    organizationKey: 'sonarsource-jfrog',
+    organizationName: 'SonarSource & JFrog',
+    name: 'Simple JS & PHP project',
+    bugs: 0,
+    codeSmells: 7,
+    coverage: 9.7,
+    duplications: 56.2,
+    gateStatus: 'OK',
+    languages: ['js', 'php'],
+    maintainabilityRating: 1,
+    ncloc: 324,
+    reliabilityRating: 1,
+    securityRating: 1,
+    vulnerabilities: 0
+  },
+  {
+    key: 'example-js',
+    avatarUrl: null,
+    organizationKey: 'autoscan',
+    organizationName: 'AutoScan',
+    name: 'example-js',
+    bugs: 13,
+    codeSmells: 5,
+    coverage: 0,
+    duplications: 0,
+    gateStatus: 'OK',
+    languages: ['go', 'js', 'php', 'py'],
+    maintainabilityRating: 1,
+    ncloc: 80,
+    reliabilityRating: 1,
+    securityRating: 1,
+    vulnerabilities: 0
+  },
+  {
+    key: 'example-js-2',
+    avatarUrl: null,
+    organizationKey: 'autoscan',
+    organizationName: 'AutoScan',
+    name: 'example-js',
+    bugs: 13,
+    codeSmells: 5,
+    coverage: 0,
+    duplications: 0,
+    gateStatus: 'OK',
+    languages: ['go', 'js', 'php', 'py'],
+    maintainabilityRating: 1,
+    ncloc: 80,
+    reliabilityRating: 1,
+    securityRating: 1,
+    vulnerabilities: 0
+  },
+  {
+    key: 'example-js-3',
+    avatarUrl: null,
+    organizationKey: 'autoscan',
+    organizationName: 'AutoScan',
+    name: 'example-js',
+    bugs: 13,
+    codeSmells: 5,
+    coverage: 0,
+    duplications: 0,
+    gateStatus: 'OK',
+    languages: ['go', 'js', 'php', 'py'],
+    maintainabilityRating: 1,
+    ncloc: 80,
+    reliabilityRating: 1,
+    securityRating: 1,
+    vulnerabilities: 0
+  },
+  {
+    key: 'example-js-4',
+    avatarUrl: null,
+    organizationKey: 'autoscan',
+    organizationName: 'AutoScan',
+    name: 'example-js',
+    bugs: 13,
+    codeSmells: 5,
+    coverage: 0,
+    duplications: 0,
+    gateStatus: 'OK',
+    languages: ['go', 'js', 'php', 'py'],
+    maintainabilityRating: 1,
+    ncloc: 80,
+    reliabilityRating: 1,
+    securityRating: 1,
+    vulnerabilities: 0
+  }
+];
 
 it('should render ProjectIssues correctly', () => {
   expect(
-    shallow(
-      <ProjectIssues
-        measures={{ bar: '20', foo: '15' }}
-        metric="foo"
-        ratingMetric="bar"
-        viewable={false}
-      />
-    )
+    shallow(<ProjectIssues metric={15} metricKey="foo" ratingMetric={20} viewable={false} />)
   ).toMatchSnapshot();
 });
 
 it('should render ProjectCard correctly', () => {
-  expect(shallow(<ProjectCard order={1} project={PROJECT} viewable={false} />)).toMatchSnapshot();
+  expect(
+    shallow(<ProjectCard order={1} project={PROJECTS[0]} viewable={false} />)
+  ).toMatchSnapshot();
 });
 
-it('should render correctly', async () => {
-  const wrapper = shallow(<FeaturedProjects />);
-  await waitAndUpdate(wrapper);
+it('should render correctly', () => {
+  const wrapper = shallow(<FeaturedProjects projects={PROJECTS} />);
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should cycle through projects', async () => {
-  const wrapper = shallow(<FeaturedProjects />);
-  expect(wrapper.find('DeferredSpinner')).toHaveLength(1);
-
-  await waitAndUpdate(wrapper);
-
+it('should cycle through projects', () => {
+  const wrapper = shallow<FeaturedProjects>(<FeaturedProjects projects={PROJECTS} />);
   expect(wrapper.state().slides.map((slide: any) => slide.order)).toEqual([0, 1, 2, 3]);
 
   click(wrapper.find('.js-next'));

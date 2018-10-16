@@ -122,6 +122,7 @@ subprojects {
         entry 'jackson-databind'
         entry 'jackson-annotations'
       }
+      dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
       dependency 'com.github.kevinsawicki:http-request:5.4.1'
       dependency 'com.googlecode.java-diff-utils:diffutils:1.2'
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
@@ -144,6 +145,7 @@ subprojects {
         entry 'mockwebserver'
       }
       dependency 'com.tngtech.java:junit-dataprovider:1.9.2'
+      dependency 'info.picocli:picocli:3.6.1'
       dependency 'io.jsonwebtoken:jjwt:0.9.0'
       dependency 'javax.servlet:javax.servlet-api:3.0.1'
       dependency 'javax.xml.bind:jaxb-api:2.3.0'
@@ -417,12 +419,6 @@ artifactory {
       "com.sonarsource.sonarqube:sonarqube-developer:zip," +
       "com.sonarsource.sonarqube:sonarqube-datacenter:zip," +
       "com.sonarsource.sonarqube:sonarqube-enterprise:zip")
-  clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_DOWNLOAD',
-      'com.sonarsource.sonarqube:sonarcloud:zip,' +
-      'com.sonarsource.sonarqube:sonarqube-developer:yguard,' +
-      'com.sonarsource.sonarqube:sonarqube-datacenter:yguard,' +
-      'com.sonarsource.sonarqube:sonarqube-enterprise:yguard,' +
-      'com.sonarsource.sonarqube:sonar-docs:zip')
   // The name of this variable is important because it's used by the delivery process when extracting version from Artifactory build info.
   clientConfig.info.addEnvironmentProperty('PROJECT_VERSION', "${version}")
 }

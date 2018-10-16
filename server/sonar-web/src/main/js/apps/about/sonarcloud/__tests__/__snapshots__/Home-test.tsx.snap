@@ -10,6 +10,16 @@ exports[`should render 1`] = `
     <div
       className="page-container sc-page"
     >
+      <HelmetWrapper
+        defer={true}
+        encodeSpecialCharacters={true}
+        title="SonarCloud | Clean Code, Rockstar Status"
+      >
+        <meta
+          content="Enhance your workflow with continuous code quality, SonarCloud automatically analyzes and decorates pull requests on GitHub, Bitbucket and Azure DevOps on major languages."
+          name="description"
+        />
+      </HelmetWrapper>
       <FixedNavBar />
       <PageBackgroundHeader />
       <TopNavBar />
@@ -17,8 +27,66 @@ exports[`should render 1`] = `
       <EnhanceWorkflow />
       <Functionality />
       <Languages />
-      <Stats />
-      <Projects />
+      <Stats
+        data={
+          Object {
+            "featuredProjects": Array [
+              Object {
+                "avatarUrl": null,
+                "bugs": 0,
+                "codeSmells": 7,
+                "coverage": 9.7,
+                "duplications": 56.2,
+                "gateStatus": "OK",
+                "key": "sonarsource-jfrog.simple-js-php-project",
+                "languages": Array [
+                  "js",
+                  "php",
+                ],
+                "maintainabilityRating": 1,
+                "name": "Simple JS & PHP project",
+                "ncloc": 123456,
+                "organizationKey": "sonarsource-jfrog",
+                "organizationName": "SonarSource & JFrog",
+                "reliabilityRating": 1,
+                "securityRating": 1,
+                "vulnerabilities": 654321,
+              },
+            ],
+            "publicLoc": 12345,
+            "publicProjects": 236,
+            "pullRequests": 123456,
+            "rules": 1234,
+          }
+        }
+      />
+      <Projects
+        featuredProjects={
+          Array [
+            Object {
+              "avatarUrl": null,
+              "bugs": 0,
+              "codeSmells": 7,
+              "coverage": 9.7,
+              "duplications": 56.2,
+              "gateStatus": "OK",
+              "key": "sonarsource-jfrog.simple-js-php-project",
+              "languages": Array [
+                "js",
+                "php",
+              ],
+              "maintainabilityRating": 1,
+              "name": "Simple JS & PHP project",
+              "ncloc": 123456,
+              "organizationKey": "sonarsource-jfrog",
+              "organizationName": "SonarSource & JFrog",
+              "reliabilityRating": 1,
+              "securityRating": 1,
+              "vulnerabilities": 654321,
+            },
+          ]
+        }
+      />
     </div>
   </div>
   <Footer />
@@ -49,14 +117,14 @@ exports[`should render 2`] = `
 
 exports[`should render 3`] = `
 <div
-  className="sc-section sc-columns"
+  className="sc-section sc-columns big-spacer-top"
 >
   <div
     className="sc-column sc-column-half display-flex-center"
   >
     <div>
       <h1
-        className="sc-title-orange"
+        className="sc-title-orange big-spacer-top"
       >
         Clean Code
       </h1>
@@ -68,9 +136,9 @@ exports[`should render 3`] = `
       <h5
         className="sc-big-spacer-bottom sc-regular-weight"
       >
-        Eliminate bugs and vulnerabilities,
+        Eliminate bugs and vulnerabilities.
         <br />
-        champion quality code in your projects.
+        Champion quality code in your projects.
       </h5>
       <div>
         <h6>
@@ -80,18 +148,18 @@ exports[`should render 3`] = `
         <p
           className="sc-mention sc-regular-weight big-spacer-top"
         >
-          Free for Open Source Projects
+          Free for Open-Source Projects
         </p>
       </div>
     </div>
   </div>
   <div
-    className="sc-column sc-column-half text-center"
+    className="sc-column sc-column-half text-right"
   >
     <img
       alt=""
       src="/images/sonarcloud/home-header-people.png"
-      width="480px"
+      width="430px"
     />
   </div>
 </div>
@@ -120,12 +188,12 @@ exports[`should render 4`] = `
     <h5
       className="spacer-bottom"
     >
-      Maximize your throughput, only release clean code
+      Maximize your throughput and only release clean code
     </h5>
     <h6
-      className="sc-regular-weight"
+      className="sc-big-spacer-bottom sc-regular-weight"
     >
-      Sonarcloud automatically analyzes branches and decorates pull requests
+      SonarCloud automatically analyzes branches and decorates pull requests
     </h6>
   </div>
 </div>
@@ -165,7 +233,7 @@ exports[`should render 5`] = `
         className="sc-columns"
       >
         <div
-          className="sc-column sc-column-small"
+          className="sc-column sc-column-small big-spacer-top"
         >
           <h6
             className="sc-regular-weight spacer-bottom"
@@ -183,7 +251,7 @@ exports[`should render 5`] = `
           >
             <img
               alt=""
-              className="spacer-right"
+              className="big-spacer-right"
               src="/images/sonarcloud/scale.svg"
             />
              
@@ -194,7 +262,7 @@ exports[`should render 5`] = `
           >
             <img
               alt=""
-              className="spacer-right"
+              className="big-spacer-right"
               src="/images/sonarcloud/stop.svg"
             />
              
@@ -202,7 +270,7 @@ exports[`should render 5`] = `
           </span>
         </div>
         <div
-          className="sc-column sc-column-big"
+          className="sc-column sc-column-big big-spacer-top"
         >
           <img
             alt=""
@@ -232,15 +300,15 @@ exports[`should render 5`] = `
             <h6
               className="sc-regular-weight spacer-bottom"
             >
-              Open and transparent
+              Open and Transparent
             </h6>
             <p
               className="big-spacer-bottom"
             >
-              Project dashboards keep teams and stakeholders informed on code quality and releasability
+              Project dashboards keep teams and stakeholders informed on code quality and releasability.
             </p>
             <p>
-              Display project badges and show your communities you’re all about awesome
+              Display project badges and show your communities you’re all about awesome.
             </p>
             <img
               alt=""
@@ -255,7 +323,7 @@ exports[`should render 5`] = `
         className="sc-columns"
       >
         <div
-          className="sc-column sc-column-full"
+          className="sc-column sc-column-full big-spacer-bottom"
         >
           <div>
             <h6
@@ -275,7 +343,7 @@ exports[`should render 5`] = `
             </p>
             <br />
             <p
-              className="sc-with-inline-icon huge-spacer-bottom"
+              className="sc-with-inline-icon"
             >
               Connect with
               <img
@@ -284,10 +352,12 @@ exports[`should render 5`] = `
               />
               and get real-time notifications in your IDE as you work.
             </p>
-            <div>
+            <div
+              className="big-spacer-top"
+            >
               <img
                 alt=""
-                className="huge-spacer-bottom"
+                className="big-spacer-top huge-spacer-bottom"
                 src="/images/sonarcloud/ide.svg"
                 width="216px"
               />
@@ -348,6 +418,11 @@ exports[`should render 6`] = `
           <img
             alt="Java"
             src="/images/languages/java.svg"
+            style={
+              Object {
+                "width": "39px",
+              }
+            }
           />
         </li>
         <li
@@ -356,6 +431,11 @@ exports[`should render 6`] = `
           <img
             alt="JavaScript"
             src="/images/languages/js.svg"
+            style={
+              Object {
+                "width": "60px",
+              }
+            }
           />
         </li>
         <li
@@ -364,6 +444,11 @@ exports[`should render 6`] = `
           <img
             alt="TypeScript"
             src="/images/languages/ts.svg"
+            style={
+              Object {
+                "width": "100px",
+              }
+            }
           />
         </li>
         <li
@@ -372,6 +457,11 @@ exports[`should render 6`] = `
           <img
             alt="C#"
             src="/images/languages/csharp.svg"
+            style={
+              Object {
+                "width": "60px",
+              }
+            }
           />
         </li>
         <li
@@ -380,6 +470,11 @@ exports[`should render 6`] = `
           <img
             alt="Python"
             src="/images/languages/python.svg"
+            style={
+              Object {
+                "width": "42px",
+              }
+            }
           />
         </li>
         <li
@@ -388,6 +483,11 @@ exports[`should render 6`] = `
           <img
             alt="C++"
             src="/images/languages/c-c-plus-plus.svg"
+            style={
+              Object {
+                "width": "53px",
+              }
+            }
           />
         </li>
         <li
@@ -396,6 +496,11 @@ exports[`should render 6`] = `
           <img
             alt="Go"
             src="/images/languages/go.svg"
+            style={
+              Object {
+                "width": "91px",
+              }
+            }
           />
         </li>
         <li
@@ -404,6 +509,11 @@ exports[`should render 6`] = `
           <img
             alt="Kotlin"
             src="/images/languages/kotlin.svg"
+            style={
+              Object {
+                "width": "42px",
+              }
+            }
           />
         </li>
         <li
@@ -412,12 +522,21 @@ exports[`should render 6`] = `
           <img
             alt="Ruby"
             src="/images/languages/ruby.svg"
+            style={
+              Object {
+                "width": "43px",
+              }
+            }
           />
         </li>
         <li>
-          <h3>
+          <a
+            className="show-more"
+            href="#"
+            onClick={[Function]}
+          >
             …
-          </h3>
+          </a>
         </li>
       </ul>
     </div>
@@ -432,35 +551,33 @@ exports[`should render 7`] = `
   <div
     className="sc-column sc-column-full"
   >
-    <h5
-      className="sc-big-spacer-bottom"
-    >
-      Over 3,000 projects
+    <h3>
+      Over 3,000 Projects
       <br />
-      continuously analyzed
-    </h5>
+      Continuously Analyzed
+    </h3>
     <Statistics
       statistics={
         Array [
           Object {
             "icon": "rules",
             "text": "Static analysis rules checked",
-            "value": 9675,
+            "value": 1234,
           },
           Object {
             "icon": "locs",
             "text": "Lines of code analyzed",
-            "value": 20000000,
+            "value": 12345,
           },
           Object {
             "icon": "pull-request",
-            "text": "Pull Requests decorated",
-            "value": 100675,
+            "text": "Pull Requests decorated/week",
+            "value": undefined,
           },
           Object {
             "icon": "open-source",
-            "text": "Open source projects inspected",
-            "value": 99675,
+            "text": "Open-source projects inspected",
+            "value": 236,
           },
         ]
       }
@@ -483,21 +600,45 @@ exports[`should render 8`] = `
       <br />
       and that’s why the trend is growing.
     </h6>
-    <p
-      className="sc-big-spacer-bottom"
-    >
-      Check out these open source projects showing users
+    <p>
+      Check out these open-source projects showing users
       <br />
       their commitment to quality.
     </p>
-    <FeaturedProjects />
+    <FeaturedProjects
+      projects={
+        Array [
+          Object {
+            "avatarUrl": null,
+            "bugs": 0,
+            "codeSmells": 7,
+            "coverage": 9.7,
+            "duplications": 56.2,
+            "gateStatus": "OK",
+            "key": "sonarsource-jfrog.simple-js-php-project",
+            "languages": Array [
+              "js",
+              "php",
+            ],
+            "maintainabilityRating": 1,
+            "name": "Simple JS & PHP project",
+            "ncloc": 123456,
+            "organizationKey": "sonarsource-jfrog",
+            "organizationName": "SonarSource & JFrog",
+            "reliabilityRating": 1,
+            "securityRating": 1,
+            "vulnerabilities": 654321,
+          },
+        ]
+      }
+    />
     <h6
       className="spacer-bottom"
     >
-      Come join the fun, it’s entirely free for open source projects !
+      Come join the fun, it’s entirely free for open-source projects!
     </h6>
     <div
-      className="big-spacer-bottom"
+      className="sc-big-spacer-bottom"
     >
       <LoginButtons />
     </div>

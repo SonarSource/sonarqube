@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900');
 
 .sc-page,
 .sc-page span,
@@ -40,6 +40,7 @@
 .sc-page h1 {
   line-height: 62px;
   font-size: 60px;
+  font-weight: 900;
 }
 
 .sc-page h2 {
@@ -65,6 +66,18 @@
 .sc-page h6 {
   line-height: 26px;
   font-size: 21px;
+}
+
+.sc-page p {
+  line-height: 21px;
+}
+
+.sc-page a {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sc-page a:hover {
+  border-bottom: 1px solid #fff;
 }
 
 .sc-section {
@@ -216,12 +229,12 @@
 }
 
 .sc-with-icon img {
-  height: 14px;
+  height: 16px;
 }
 
 .sc-with-inline-icon img {
-  max-height: 18px;
-  padding: 0 4px;
+  max-height: 21px;
+  padding: 0 6px;
 }
 
 .sc-functionality-container {
@@ -229,30 +242,30 @@
 }
 
 .sc-languages-container {
-  padding: 90px 0 0;
+  padding: 130px 0 0;
   background-color: var(--sonarcloudBlack800);
   margin-bottom: 90px;
+  box-sizing: border-box;
 }
 
 .sc-languages-list {
   display: flex;
   flex-wrap: wrap;
-  margin-left: 40px;
-  margin-bottom: -40px;
+  margin-left: 120px;
   transition: height 0.3s ease;
+  margin-bottom: 10px;
 }
 
 .sc-languages-list > li {
   display: inline-block;
   text-align: center;
-  margin: 0 0 45px 80px;
-  height: 60px;
-  width: 60px;
+  margin: 0 0 45px 0;
+  line-height: 60px;
+  width: 140px;
 }
 
 .sc-languages-list > li img {
-  height: 100%;
-  width: 100%;
+  vertical-align: middle;
 }
 
 .sc-languages-container h3,
@@ -267,6 +280,23 @@
 .sc-page h4 span {
   font-family: var(--sonarcloudFontFamily);
   font-size: 32px;
+}
+
+.sc-page a.show-more {
+  display: inline-block;
+  font-family: var(--sonarcloudFontFamily);
+  color: #fff;
+  font-weight: 700;
+  line-height: 33px;
+  font-size: 36px;
+  border: none;
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+}
+
+.sc-page a.show-more:hover {
+  background: var(--sonarcloudBlack700);
 }
 
 .sc-pricing-free {
@@ -294,6 +324,11 @@
   padding: 10px 10px 10px 32px;
 }
 
+.sc-pricing-privacy ul li,
+.sc-pricing-privacy em {
+  color: #fff;
+}
+
 .sc-pricing-free ul li em {
   font-weight: 700;
   font-style: normal;
@@ -308,12 +343,7 @@
   width: 350px;
   right: -70px;
   top: -20px;
-  padding: 50px 40px;
-}
-
-.sc-pricing-privacy ul li,
-.sc-pricing-privacy em {
-  color: #fff;
+  padding: 60px 40px 40px;
 }
 
 .sc-pricing-privacy ul {
@@ -322,7 +352,6 @@
 
 .sc-pricing-privacy a {
   color: #fff;
-  border-bottom: 1px solid #fff;
 }
 
 .sc-pricing-privacy .starts-at {
@@ -342,6 +371,7 @@ a.sc-orange-button {
   border-radius: 4px;
   height: 44px;
   line-height: 44px;
+  box-shadow: none;
 }
 
 a.sc-orange-button:hover {
@@ -352,11 +382,22 @@ a.sc-orange-button:hover {
 .pricing-section .faq-title {
   font-family: var(--sonarcloudFontFamily);
   font-size: 21px;
-  padding-bottom: 18px;
+  padding-bottom: 10px;
 }
 
 .pricing-section p {
   font-size: 15px;
+  margin-bottom: 35px;
+}
+
+.pricing-section p a {
+  color: var(--sonarcloudOrange500);
+  border-bottom: 1px solid rgba(253, 106, 0, 0.3);
+}
+
+.pricing-section p a:hover {
+  color: var(--sonarcloudOrange700);
+  border-bottom: 1px solid var(--sonarcloudOrange700);
 }
 
 table.loc-price th {

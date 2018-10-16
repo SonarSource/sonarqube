@@ -40,4 +40,6 @@ public interface BranchMapper {
   List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
   long countNonMainBranches();
+
+  long countByTypeAndCreationDate(@Param("branchType")String branchType, @Param("sinceDate") long sinceDate);
 }

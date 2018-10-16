@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Helmet from 'react-helmet';
 import Footer from './components/Footer';
 import { TopNavBar, FixedNavBar } from './components/NavBars';
 import { getBaseUrl } from '../../../helpers/urls';
@@ -28,12 +29,16 @@ export default class Pricing extends React.PureComponent {
   container?: HTMLElement | null;
 
   componentDidMount() {
-    document.documentElement.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
+    }
     document.body.classList.add('white-page');
   }
 
   componentWillUnmount() {
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
     document.body.classList.remove('white-page');
   }
 
@@ -54,9 +59,15 @@ export default class Pricing extends React.PureComponent {
       <div className="global-container">
         <div className="page-wrapper">
           <div className="page-container sc-page">
-            <FixedNavBar />
+            <Helmet title="SonarCloud | Plans and Pricing">
+              <meta
+                content="Get all the SonarCloud features and functionality for free on your open-source projects. If you need privacy for your code, we have a pricing plan to fit your needs."
+                name="description"
+              />
+            </Helmet>
+            <FixedNavBar onPricingPage={true} />
             <PageBackgroundHeader />
-            <TopNavBar whiteLogo={true} />
+            <TopNavBar onPricingPage={true} whiteLogo={true} />
             <ForEveryoneBlock onClick={this.handleClick} />
             <LoginCTA />
             <PricingFAQ getReference={this.getReference} />
@@ -84,7 +95,7 @@ interface ForEveryoneBlockProps {
 
 function ForEveryoneBlock({ onClick }: ForEveryoneBlockProps) {
   return (
-    <div className="sc-section">
+    <div className="sc-section big-spacer-top">
       <h2 className="white text-center sc-big-spacer-top sc-big-spacer-bottom">
         SonarCloud is for everyone
       </h2>
@@ -92,7 +103,7 @@ function ForEveryoneBlock({ onClick }: ForEveryoneBlockProps) {
         <h4>
           Free for <span className="sc-title-orange">public projects</span>
         </h4>
-        <ul className="spacer-top big-spacer-bottom">
+        <ul className="big-spacer-top big-spacer-bottom">
           <li>
             <em>Unlimited lines of code</em>
           </li>
@@ -106,14 +117,14 @@ function ForEveryoneBlock({ onClick }: ForEveryoneBlockProps) {
             <em>Choose members of your team</em> who can work on your projects
           </li>
         </ul>
-        <em>Loved by Open Source Developers</em>
+        <em>Loved by Open-Source Developers</em>
         <div className="sc-pricing-privacy">
           <h4 className="white">
             Need <span className="sc-title-orange">privacy?</span>
           </h4>
-          <ul className="spacer-top big-spacer-bottom">
+          <ul className="big-spacer-top big-spacer-bottom">
             <li>
-              <em>Create private projects,</em> priced perlines of code.{' '}
+              <em>Create private projects,</em> priced per lines of code.{' '}
               <a href="#" onClick={onClick}>
                 See price list
               </a>
@@ -152,14 +163,14 @@ interface PricingFAQProps {
 function PricingFAQ({ getReference }: PricingFAQProps) {
   return (
     <div className="sc-section pricing-section big-spacer-top sc-big-spacer-bottom">
-      <h5 className="text-center sc-big-spacer-top big-spacer-bottom">Pricing FAQ</h5>
+      <h5 className="text-center sc-big-spacer-top sc-big-spacer-bottom">Pricing FAQ</h5>
       <div className="sc-columns">
         <div className="sc-column sc-column-medium display-flex-center">
           <div>
             <div className="faq-title" ref={getReference}>
-              How does pricing works for private projects ?
+              How does pricing work for private projects?
             </div>
-            <p className="sc-big-spacer-bottom">
+            <p className="big-spacer-bottom">
               Subscribing to a paid plan on SonarCloud allows you to create a private organization
               containing private projects. You pay up front for a maximum number of private lines of
               code to be analyzed in your organization.
@@ -210,14 +221,14 @@ function PricingFAQ({ getReference }: PricingFAQProps) {
               </tbody>
             </table>
             <div className="faq-title">What payment options are available ?</div>
-            <p className="sc-big-spacer-bottom">
+            <p>
               Payment is done online by credit card and will happen automatically every month, based
               on the plan you choose. We also accept to receive a purchase order and a wire transfer
               payment, if ordering a yearly subscription for more than 1M LOCs. In this case, you
               need to contact us through the Contact form.
             </p>
             <div className="faq-title">Can I try a private project on SonarCloud for free?</div>
-            <p className="sc-big-spacer-bottom">
+            <p>
               Your first 14 days are on us. You just have to upgrade your organization to a paid
               plan, and fill your credit card information to get started. After your trial, if you
               love it you can continue using SonarCloud and you will be charged for the plan you
@@ -228,13 +239,13 @@ function PricingFAQ({ getReference }: PricingFAQProps) {
         <div className="sc-column sc-column-medium display-flex-center">
           <div>
             <div className="faq-title">What is a Line of Code (LOC) on SonarCloud?</div>
-            <p className="sc-big-spacer-bottom">
+            <p>
               LOCs are computed by summing up the LOCs of each project analyzed in SonarCloud. The
               LOCs used for a project are the LOCs found during the most recent analysis of this
               project.
             </p>
             <div className="faq-title">How are Lines of Code (LOCs) counted towards billing?</div>
-            <p className="sc-big-spacer-bottom">
+            <p>
               Only LOC from your private projects are counted toward your maximum number of LOCs. If
               your project contains branches, the counted LOCs are the ones of the biggest branch.
               The count is not related to how frequently the source code is analyzed. If your
@@ -243,19 +254,19 @@ function PricingFAQ({ getReference }: PricingFAQProps) {
               notified to either upgrade your plan or reduce the number of LOCs in your projects.
             </p>
             <div className="faq-title">When will I be invoiced?</div>
-            <p className="sc-big-spacer-bottom">
+            <p>
               You will be invoiced once a month, the day of the month after your trial ends. For
               example if you start your free trial on January 1st, it will last till January 14th
-              and you will be first billed on January 15th for your upcoming month, aka January 15th
-              to February 15th.
+              and you will be first billed on January 15th for your upcoming month, e.g. January
+              15th to February 15th.
             </p>
             <div className="faq-title">Can I stop using the service?</div>
-            <p className="sc-big-spacer-bottom">
+            <p>
               Yes, you can stop using SonarCloud anytime you want. You simply need to downgrade your
               organization to the free plan.
             </p>
             <div className="faq-title">Still have more questions?</div>
-            <p className="sc-big-spacer-bottom">
+            <p>
               Contact us <a href={`${getBaseUrl()}/about/contact`}>here</a>.
             </p>
           </div>

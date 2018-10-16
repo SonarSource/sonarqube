@@ -95,4 +95,12 @@
     pb.uuid &lt;&gt; pb.project_uuid
   </select>
 
+  <select id="countByTypeAndCreationDate" parameterType="map" resultType="long">
+    select count(pb.uuid)
+    from project_branches pb
+    where
+      pb.branch_type = #{branchType, jdbcType=VARCHAR}
+      and pb.created_at &gt;= #{sinceDate, jdbcType=BIGINT}
+  </select>
+
 </mapper>

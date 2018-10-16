@@ -335,6 +335,25 @@
     group by kee
   </select>
 
+  <select id="countPublicNcloc" resultType="long">
+    select coalesce(sum(locs), 0)
+    from (
+      select b.project_uuid, max(lm.value) as locs
+      from live_measures lm
+      inner join metrics m on m.id = lm.metric_id
+      inner join projects p on p.uuid = lm.component_uuid
+      inner join project_branches b on b.uuid = p.uuid
+      where m.name = 'ncloc'
+        and p.enabled = ${_true}
+        and p.scope = 'PRJ'
+        and p.qualifier = 'TRK'
+        and p.copy_component_uuid is null
+        and b.branch_type = 'LONG'
+        and b.key_type = 'BRANCH'
+        group by b.project_uuid
+    ) projectLocs
+  </select>
+
   <select id="selectByQuery" resultType="Component">
     select
       <include refid="componentColumns"/>

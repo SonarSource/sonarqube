@@ -22,11 +22,8 @@ import * as classNames from 'classnames';
 import CountUp from 'react-countup';
 import { throttle } from 'lodash';
 import { Link } from 'react-router';
-import { Project, requestFeaturedProjects } from '../utils';
-import ChevronLeftIcon from '../../../../components/icons-components/ChevronLeftIcon';
-import ChevronRightIcon from '../../../../components/icons-components/ChevronRightcon';
+import { FeaturedProject } from '../utils';
 import CoverageRating from '../../../../components/ui/CoverageRating';
-import DeferredSpinner from '../../../../components/common/DeferredSpinner';
 import DuplicationsRating from '../../../../components/ui/DuplicationsRating';
 import Level from '../../../../components/ui/Level';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
@@ -34,31 +31,33 @@ import ProjectCardLanguagesContainer from '../../../projects/components/ProjectC
 import Rating from '../../../../components/ui/Rating';
 import { formatMeasure } from '../../../../helpers/measures';
 import { getMetricName } from '../../../overview/utils';
-import { getProjectUrl } from '../../../../helpers/urls';
+import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
 import './FeaturedProjects.css';
 
+interface Props {
+  projects: FeaturedProject[];
+}
+
 interface State {
-  loading: boolean;
   reversing: boolean;
   slides: Array<{
     order: number;
-    project: Project;
+    project: FeaturedProject;
   }>;
   sliding: boolean;
   translate: number;
   viewable: boolean;
 }
 
-export default class FeaturedProjects extends React.PureComponent<{}, State> {
+export default class FeaturedProjects extends React.PureComponent<Props, State> {
   container?: HTMLElement | null;
   mounted = false;
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props);
     this.state = {
-      loading: true,
       reversing: false,
-      slides: [],
+      slides: this.orderProjectsFromProps(),
       sliding: false,
       translate: 0,
       viewable: false
@@ -69,7 +68,12 @@ export default class FeaturedProjects extends React.PureComponent<{}, State> {
   componentDidMount() {
     this.mounted = true;
     document.addEventListener('scroll', this.handleScroll, true);
-    this.fetchProjects();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.projects !== this.props.projects) {
+      this.setState({ slides: this.orderProjectsFromProps() });
+    }
   }
 
   componentWillUnmount() {
@@ -80,30 +84,24 @@ export default class FeaturedProjects extends React.PureComponent<{}, State> {
   handleScroll = () => {
     if (this.container) {
       const rect = this.container.getBoundingClientRect();
-      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const windowHeight =
+        window.innerHeight ||
+        (document.documentElement ? document.documentElement.clientHeight : 0);
       if (rect.top <= windowHeight && rect.top + rect.height >= 0) {
         this.setState({ viewable: true });
       }
     }
   };
 
-  fetchProjects = () => {
-    requestFeaturedProjects()
-      .then(projects =>
-        // Move the last element at the begining to properly display the carousel animations
-        this.setState({
-          loading: false,
-          slides: [projects.pop(), ...projects].map((project: Project, id) => {
-            return {
-              order: id,
-              project
-            };
-          })
-        })
-      )
-      .catch(() => {
-        /* Fail silently */
-      });
+  orderProjectsFromProps = () => {
+    const { projects } = this.props;
+    // Last element should be put at the begining for proper carousel animation
+    return [projects.pop(), ...projects].map((project: FeaturedProject, id) => {
+      return {
+        order: id,
+        project
+      };
+    });
   };
 
   handlePrevClick = () => {
@@ -137,46 +135,35 @@ export default class FeaturedProjects extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const { loading, reversing, sliding, viewable } = this.state;
+    const { reversing, sliding, viewable } = this.state;
     return (
       <div
         className="sc-featured-projects sc-big-spacer-bottom"
         ref={node => (this.container = node)}>
-        {!loading && (
-          <button
-            className="js-prev sc-project-button"
-            onClick={this.handlePrevClick}
-            type="button">
-            <ChevronLeftIcon className="spacer-left" size={32} />
-          </button>
-        )}
+        <button className="js-prev sc-project-button" onClick={this.handlePrevClick} type="button">
+          <img alt="" src={`${getBaseUrl()}/images/sonarcloud/chevron-left.svg`} />
+        </button>
+
         <div className="sc-featured-projects-container">
           <div
             className={classNames('sc-featured-projects-inner', {
               reversing,
-              ready: !sliding,
-              loading
+              ready: !sliding
             })}>
-            {loading && <DeferredSpinner />}
-            {!loading &&
-              this.state.slides.map(slide => (
-                <ProjectCard
-                  key={slide.project.key}
-                  order={slide.order}
-                  project={slide.project}
-                  viewable={viewable}
-                />
-              ))}
+            {this.state.slides.map(slide => (
+              <ProjectCard
+                key={slide.project.key}
+                order={slide.order}
+                project={slide.project}
+                viewable={viewable}
+              />
+            ))}
           </div>
         </div>
-        {!loading && (
-          <button
-            className="js-next sc-project-button"
-            onClick={this.handleNextClick}
-            type="button">
-            <ChevronRightIcon className="spacer-left" size={32} />
-          </button>
-        )}
+
+        <button className="js-next sc-project-button" onClick={this.handleNextClick} type="button">
+          <img alt="" src={`${getBaseUrl()}/images/sonarcloud/chevron-right.svg`} />
+        </button>
       </div>
     );
   }
@@ -184,7 +171,7 @@ export default class FeaturedProjects extends React.PureComponent<{}, State> {
 
 interface ProjectCardProps {
   order: number;
-  project: Project;
+  project: FeaturedProject;
   viewable: boolean;
 }
 
@@ -193,39 +180,38 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
     <div className="sc-project-card-container" style={{ order }}>
       <Link className="sc-project-card" to={getProjectUrl(project.key)}>
         <div className="sc-project-card-header">
-          {project.organization && (
-            <>
-              <OrganizationAvatar
-                className="no-border big-spacer-bottom"
-                organization={project.organization}
-              />
-              <p className="sc-project-card-limited" title={project.organization.name}>
-                {project.organization.name}
-              </p>
-            </>
-          )}
-          <h5 className="sc-project-card-limited spacer-bottom" title={project.name}>
+          <OrganizationAvatar
+            className="no-border spacer-bottom"
+            organization={{
+              name: project.organizationName,
+              avatar: project.avatarUrl || undefined
+            }}
+          />
+          <p className="sc-project-card-limited" title={project.organizationName}>
+            {project.organizationName}
+          </p>
+          <h5 className="sc-project-card-limited big-spacer-bottom" title={project.name}>
             {project.name}
           </h5>
-          <Level level={project.measures['alert_status']} />
+          <Level level={project.gateStatus} />
         </div>
         <ul className="sc-project-card-measures">
           <ProjectIssues
-            measures={project.measures}
-            metric="bugs"
-            ratingMetric="reliability_rating"
+            metric={project.bugs}
+            metricKey="bugs"
+            ratingMetric={project.reliabilityRating}
             viewable={viewable}
           />
           <ProjectIssues
-            measures={project.measures}
-            metric="vulnerabilities"
-            ratingMetric="security_rating"
+            metric={project.vulnerabilities}
+            metricKey="vulnerabilities"
+            ratingMetric={project.securityRating}
             viewable={viewable}
           />
           <ProjectIssues
-            measures={project.measures}
-            metric="code_smells"
-            ratingMetric="sqale_rating"
+            metric={project.codeSmells}
+            metricKey="code_smells"
+            ratingMetric={project.maintainabilityRating}
             viewable={viewable}
           />
           <li>
@@ -237,7 +223,7 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
                   decimals={1}
                   delay={0}
                   duration={4}
-                  end={parseFloat(project.measures['coverage'])}
+                  end={project.coverage}
                   suffix="%">
                   {(data: { countUpRef?: React.RefObject<HTMLHeadingElement> }) => (
                     <h6 className="display-inline-block big-spacer-right" ref={data.countUpRef}>
@@ -246,7 +232,7 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
                   )}
                 </CountUp>
               )}
-              <CoverageRating value={project.measures['coverage']} />
+              <CoverageRating value={project.coverage} />
             </div>
           </li>
           <li>
@@ -258,7 +244,7 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
                   decimals={1}
                   delay={0}
                   duration={4}
-                  end={parseFloat(project.measures['duplicated_lines_density'])}
+                  end={project.duplications}
                   suffix="%">
                   {(data: { countUpRef?: React.RefObject<HTMLHeadingElement> }) => (
                     <h6 className="display-inline-block big-spacer-right" ref={data.countUpRef}>
@@ -267,15 +253,15 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
                   )}
                 </CountUp>
               )}
-              <DuplicationsRating value={Number(project.measures['duplicated_lines_density'])} />
+              <DuplicationsRating value={project.duplications} />
             </div>
           </li>
         </ul>
         <div className="sc-mention text-left big-spacer-top">
-          {formatMeasure(project.measures['ncloc'], 'SHORT_INT')} lines of code /{' '}
+          {formatMeasure(project.ncloc, 'SHORT_INT')} lines of code /{' '}
           <ProjectCardLanguagesContainer
             className="display-inline-block"
-            distribution={project.measures['ncloc_language_distribution']}
+            distribution={project.languages.join(';')}
           />
         </div>
       </Link>
@@ -284,20 +270,22 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
 }
 
 interface ProjectIssues {
-  measures: { [key: string]: string };
-  metric: string;
-  ratingMetric: string;
+  metricKey: string;
+  metric: number;
+  ratingMetric: number;
   viewable: boolean;
 }
 
-export function ProjectIssues({ measures, metric, ratingMetric, viewable }: ProjectIssues) {
-  const value = parseFloat(formatMeasure(measures[metric], 'SHORT_INT'));
+export function ProjectIssues({ metric, metricKey, ratingMetric, viewable }: ProjectIssues) {
+  const formattedString = formatMeasure(metric, 'SHORT_INT');
+  const value = parseFloat(formattedString.slice(0, -1));
+  const suffix = formattedString.substr(-1);
   return (
     <li>
-      <span>{getMetricName(metric)}</span>
+      <span>{getMetricName(metricKey)}</span>
       <div>
         {viewable && (
-          <CountUp delay={0} duration={4} end={value}>
+          <CountUp delay={0} duration={4} end={value} suffix={suffix}>
             {(data: { countUpRef?: React.RefObject<HTMLHeadingElement> }) => (
               <h6 className="display-inline-block big-spacer-right" ref={data.countUpRef}>
                 0
@@ -305,7 +293,7 @@ export function ProjectIssues({ measures, metric, ratingMetric, viewable }: Proj
             )}
           </CountUp>
         )}
-        <Rating value={measures[ratingMetric]} />
+        <Rating value={ratingMetric} />
       </div>
     </li>
   );

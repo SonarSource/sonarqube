@@ -24,7 +24,7 @@ import { isLoggedIn } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 
-export default function VSTS() {
+export default function AzureDevOps() {
   return (
     <SQPageContainer>
       {({ currentUser }) => (

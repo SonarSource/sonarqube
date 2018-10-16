@@ -55,7 +55,7 @@ const routes = [
               },
               {
                 path: 'vsts',
-                component: lazyLoad(() => import('./sonarcloud/VSTS'))
+                component: lazyLoad(() => import('./sonarcloud/AzureDevOps'))
               }
             ]
           }

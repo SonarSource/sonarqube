@@ -24,7 +24,7 @@
 }
 
 .sc-stat-card {
-  flex: 0 0 240px;
+  flex: 0 0 244px;
   display: flex;
   align-items: center;
   border: 1px solid var(--sonarcloudBlack300);
@@ -33,10 +33,15 @@
 
 .sc-stat-icon {
   background-color: var(--sonarcloudBlack200);
-  padding: 32px 16px;
+  padding: 32px 20px;
 }
 
 .sc-stat-content {
-  padding: 0 16px;
+  padding: 0 20px;
   text-align: left;
+}
+
+.sc-page .sc-stat-content span {
+  font-family: var(--sonarcloudFontFamily);
+  font-weight: 500;
 }

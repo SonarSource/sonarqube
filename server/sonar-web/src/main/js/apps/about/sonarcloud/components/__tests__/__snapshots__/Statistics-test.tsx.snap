@@ -19,23 +19,21 @@ exports[`should render 1`] = `
 
 exports[`should render StatisticCard 1`] = `
 <div
-  className="sc-stat-card"
+  className="sc-stat-card sc-big-spacer-top"
 >
   <div
     className="sc-stat-icon"
   >
     <img
       alt=""
-      height={32}
+      height={28}
       src="/images/sonarcloud/stat-icon.svg"
     />
   </div>
   <div
     className="sc-stat-content"
   >
-    <span
-      className="sc-medium-weight"
-    >
+    <span>
       my stat
     </span>
   </div>

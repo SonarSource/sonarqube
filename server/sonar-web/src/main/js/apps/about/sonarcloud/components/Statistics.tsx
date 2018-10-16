@@ -72,7 +72,9 @@ export class StatisticCard extends React.PureComponent<StatisticCardProps, Stati
   handleScroll = () => {
     if (this.container) {
       const rect = this.container.getBoundingClientRect();
-      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const windowHeight =
+        window.innerHeight ||
+        (document.documentElement ? document.documentElement.clientHeight : 0);
       if (rect.top <= windowHeight && rect.top + rect.height >= 0) {
         this.setState({ viewable: true });
       }
@@ -85,9 +87,9 @@ export class StatisticCard extends React.PureComponent<StatisticCardProps, Stati
     const value = parseFloat(formattedString.slice(0, -1));
     const suffix = formattedString.substr(-1);
     return (
-      <div className="sc-stat-card" ref={node => (this.container = node)}>
+      <div className="sc-stat-card sc-big-spacer-top" ref={node => (this.container = node)}>
         <div className="sc-stat-icon">
-          <img alt="" height={32} src={`${getBaseUrl()}/images/sonarcloud/${statistic.icon}.svg`} />
+          <img alt="" height={28} src={`${getBaseUrl()}/images/sonarcloud/${statistic.icon}.svg`} />
         </div>
         <div className="sc-stat-content">
           {this.state.viewable && (
@@ -97,7 +99,7 @@ export class StatisticCard extends React.PureComponent<StatisticCardProps, Stati
               )}
             </CountUp>
           )}
-          <span className="sc-medium-weight">{statistic.text}</span>
+          <span>{statistic.text}</span>
         </div>
       </div>
     );

@@ -18,117 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export interface Project {
+export interface FeaturedProject {
   key: string;
-  measures: { [key: string]: string };
+  avatarUrl: string | null;
+  organizationKey: string;
+  organizationName: string;
   name: string;
-  organization?: { avatar: string; name: string };
+  bugs: number;
+  codeSmells: number;
+  coverage: number;
+  duplications: number;
+  gateStatus: string;
+  languages: string[];
+  maintainabilityRating: number;
+  ncloc: number;
+  reliabilityRating: number;
+  securityRating: number;
+  vulnerabilities: number;
 }
 
-// TODO Get this from an external source
-const PROJECTS = [
-  {
-    key: 'org.hibernate.search.v6poc:hibernate-search-parent',
-    name: 'Hibernate Search 6 POC Parent POM',
-    measures: {
-      bugs: '39',
-      reliability_rating: '1',
-      vulnerabilities: '5',
-      security_rating: '2',
-      code_smells: '1',
-      sqale_rating: '1.0',
-      coverage: '89.9',
-      duplicated_lines_density: '1.1',
-      ncloc: '336726',
-      ncloc_language_distribution: 'java=175123;js=26382'
-    },
-    organization: {
-      avatar: '',
-      name: 'Hibernate'
-    }
-  },
-  {
-    key: 'com.github.sdorra:web-resources',
-    name: 'Web Resources',
-    measures: {
-      bugs: '39',
-      reliability_rating: '1',
-      vulnerabilities: '5',
-      security_rating: '2',
-      code_smells: '1',
-      sqale_rating: '1.0',
-      coverage: '89.9',
-      duplicated_lines_density: '1.1',
-      ncloc: '336726',
-      ncloc_language_distribution: 'java=175123;js=26382'
-    },
-    organization: {
-      avatar: '',
-      name: 'sdorra-github'
-    }
-  },
-  {
-    key: 'vyos:vyos-1x',
-    name: 'vyos-1x',
-    measures: {
-      bugs: '39',
-      reliability_rating: '1',
-      vulnerabilities: '5',
-      security_rating: '2',
-      code_smells: '1',
-      sqale_rating: '1.0',
-      coverage: '89.9',
-      duplicated_lines_density: '1.1',
-      ncloc: '336726',
-      ncloc_language_distribution: 'java=175123;js=26382'
-    },
-    organization: {
-      avatar: '',
-      name: 'vyos'
-    }
-  },
-  {
-    key: 'sonarlint-visualstudio',
-    name: 'SonarLint for Visual Studio',
-    measures: {
-      bugs: '39',
-      reliability_rating: '1',
-      vulnerabilities: '5',
-      security_rating: '2',
-      code_smells: '1',
-      sqale_rating: '1.0',
-      coverage: '89.9',
-      duplicated_lines_density: '1.1',
-      ncloc: '336726',
-      ncloc_language_distribution: 'java=175123;js=26382'
-    },
-    organization: {
-      avatar: '',
-      name: 'sonarsource'
-    }
-  },
-  {
-    key: 'sample-1',
-    name: 'Dummy project',
-    measures: {
-      bugs: '39',
-      reliability_rating: '1',
-      vulnerabilities: '5',
-      security_rating: '2',
-      code_smells: '1',
-      sqale_rating: '1.0',
-      coverage: '89.9',
-      duplicated_lines_density: '1.1',
-      ncloc: '336726',
-      ncloc_language_distribution: 'java=175123;js=26382'
-    },
-    organization: {
-      avatar: '',
-      name: 'sonarsource'
-    }
-  }
-];
+export interface HomepageData {
+  generatedAt: string;
+  publicProjects: number;
+  publicLoc: number;
+  rules: number;
+  featuredProjects: FeaturedProject[];
+  newPullRequests7d: number;
+}
 
-export function requestFeaturedProjects(): Promise<Project[]> {
-  return Promise.resolve(PROJECTS);
+export function requestHomepageData(): Promise<HomepageData> {
+  return fetch('/json/homepage.json').then(response => response.json());
 }

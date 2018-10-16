@@ -23,12 +23,16 @@ import { getBaseUrl } from '../../../../helpers/urls';
 import NavBar from '../../../../components/nav/NavBar';
 import './NavBars.css';
 
+interface Props {
+  onPricingPage?: boolean;
+}
+
 interface State {
   top: number;
 }
 
-export class FixedNavBar extends React.PureComponent<{}, State> {
-  constructor(props: {}) {
+export class FixedNavBar extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { top: -100 };
     this.handleScroll = throttle(this.handleScroll, 10);
@@ -43,7 +47,10 @@ export class FixedNavBar extends React.PureComponent<{}, State> {
   }
 
   handleScroll = () => {
-    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+    const scrollTop =
+      document.body.scrollTop ||
+      (document.documentElement ? document.documentElement.scrollTop : 0);
+    if (scrollTop > 100) {
       this.setState({ top: 0 });
     } else {
       this.setState({ top: -100 });
@@ -53,31 +60,33 @@ export class FixedNavBar extends React.PureComponent<{}, State> {
   render() {
     return (
       <NavBar height={60} top={this.state.top}>
-        <NavBarLinks />
+        <NavBarLinks onPricingPage={this.props.onPricingPage} />
       </NavBar>
     );
   }
 }
 
 interface TopNavBarProps {
+  onPricingPage?: boolean;
   whiteLogo?: boolean;
 }
 
-export function TopNavBar({ whiteLogo }: TopNavBarProps) {
+export function TopNavBar({ onPricingPage, whiteLogo }: TopNavBarProps) {
   return (
     <div className="top-navbar">
       <div className="navbar-limited">
-        <NavBarLinks whiteLogo={whiteLogo} />
+        <NavBarLinks onPricingPage={onPricingPage} whiteLogo={whiteLogo} />
       </div>
     </div>
   );
 }
 
 interface NavBarLinksProps {
+  onPricingPage?: boolean;
   whiteLogo?: boolean;
 }
 
-function NavBarLinks({ whiteLogo }: NavBarLinksProps) {
+function NavBarLinks({ onPricingPage, whiteLogo }: NavBarLinksProps) {
   return (
     <>
       <a href={`${getBaseUrl()}/`}>
@@ -88,10 +97,9 @@ function NavBarLinks({ whiteLogo }: NavBarLinksProps) {
       </a>
       <ul>
         <li>
-          <a href={`${getBaseUrl()}/about/pricing`}>Pricing</a>
-        </li>
-        <li>
-          <a href={`${getBaseUrl()}/explore/projects`}>Explore</a>
+          <a className={onPricingPage ? 'active' : ''} href={`${getBaseUrl()}/about/pricing`}>
+            Pricing
+          </a>
         </li>
         <li className="outline">
           <a href={`${getBaseUrl()}/sessions/new`}>Log in</a>

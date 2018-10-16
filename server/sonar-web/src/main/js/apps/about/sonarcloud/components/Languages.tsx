@@ -26,25 +26,27 @@ interface State {
 }
 
 const LANGUAGES = [
-  { name: 'Java', file: 'java.svg' },
-  { name: 'JavaScript', file: 'js.svg' },
-  { name: 'TypeScript', file: 'ts.svg' },
-  { name: 'C#', file: 'csharp.svg' },
-  { name: 'Python', file: 'python.svg' },
-  { name: 'C++', file: 'c-c-plus-plus.svg' },
-  { name: 'Go', file: 'go.svg' },
-  { name: 'Kotlin', file: 'kotlin.svg' },
-  { name: 'Ruby', file: 'ruby.svg' },
-  { name: 'ABAP', file: 'abap.svg' },
-  { name: 'Flex', file: 'flex.svg' },
-  { name: 'HTML', file: 'html5.svg' },
-  { name: 'Objective-C', file: 'obj-c.svg' },
-  { name: 'PHP', file: 'php.svg' },
-  { name: 'Swift', file: 'swift.svg' },
-  { name: 'T-SQL', file: 't-sql.svg' },
-  { name: 'PL/SQL', file: 'pl-sql.svg' },
-  { name: 'VB', file: 'vb.svg' },
-  { name: 'XML', file: 'xml.svg' }
+  { name: 'Java', file: 'java.svg', width: 39 },
+  { name: 'JavaScript', file: 'js.svg', width: 60 },
+  { name: 'TypeScript', file: 'ts.svg', width: 100 },
+  { name: 'C#', file: 'csharp.svg', width: 60 },
+  { name: 'Python', file: 'python.svg', width: 42 },
+  { name: 'C++', file: 'c-c-plus-plus.svg', width: 53 },
+  { name: 'Go', file: 'go.svg', width: 91 },
+  { name: 'Kotlin', file: 'kotlin.svg', width: 42 },
+  { name: 'Ruby', file: 'ruby.svg', width: 43 },
+  { name: 'ABAP', file: 'abap.svg', width: 52 },
+  { name: 'Flex', file: 'flex.svg', width: 40 },
+  { name: 'CSS', file: 'css.svg', width: 40 },
+  { name: 'HTML', file: 'html5.svg', width: 40 },
+  { name: 'Objective-C', file: 'obj-c.svg', width: 60 },
+  { name: 'PHP', file: 'php.svg', width: 57 },
+  { name: 'Scala', file: 'scala.svg', width: 30 },
+  { name: 'Swift', file: 'swift.svg', width: 40 },
+  { name: 'T-SQL', file: 't-sql.svg', width: 53 },
+  { name: 'PL/SQL', file: 'pl-sql.svg', width: 65 },
+  { name: 'VB', file: 'vb.svg', width: 55 },
+  { name: 'XML', file: 'xml.svg', width: 67 }
 ];
 
 export class Languages extends React.PureComponent<{}, State> {
@@ -94,12 +96,15 @@ export class Languages extends React.PureComponent<{}, State> {
                   <img
                     alt={language.name}
                     src={`${getBaseUrl()}/images/languages/${language.file}`}
+                    style={{ width: language.width + 'px' }}
                   />
                 </li>
               ))}
               {!open && (
                 <li>
-                  <h3>…</h3>
+                  <a className="show-more" href="#" onClick={this.handleOpenClick}>
+                    …
+                  </a>
                 </li>
               )}
             </ul>

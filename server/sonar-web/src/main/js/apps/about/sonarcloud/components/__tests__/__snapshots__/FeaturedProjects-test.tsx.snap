@@ -18,7 +18,7 @@ exports[`should render ProjectCard correctly 1`] = `
         "pathname": "/dashboard",
         "query": Object {
           "branch": undefined,
-          "id": "foo",
+          "id": "sonarsource-jfrog.simple-js-php-project",
         },
       }
     }
@@ -26,65 +26,50 @@ exports[`should render ProjectCard correctly 1`] = `
     <div
       className="sc-project-card-header"
     >
-      <React.Fragment>
-        <OrganizationAvatar
-          className="no-border big-spacer-bottom"
-          organization={
-            Object {
-              "avatar": "",
-              "name": "Foo",
-            }
+      <OrganizationAvatar
+        className="no-border spacer-bottom"
+        organization={
+          Object {
+            "avatar": undefined,
+            "name": "SonarSource & JFrog",
           }
-        />
-        <p
-          className="sc-project-card-limited"
-          title="Foo"
-        >
-          Foo
-        </p>
-      </React.Fragment>
-      <h5
-        className="sc-project-card-limited spacer-bottom"
-        title="Foo"
+        }
+      />
+      <p
+        className="sc-project-card-limited"
+        title="SonarSource & JFrog"
       >
-        Foo
+        SonarSource & JFrog
+      </p>
+      <h5
+        className="sc-project-card-limited big-spacer-bottom"
+        title="Simple JS & PHP project"
+      >
+        Simple JS & PHP project
       </h5>
-      <Level />
+      <Level
+        level="OK"
+      />
     </div>
     <ul
       className="sc-project-card-measures"
     >
       <ProjectIssues
-        measures={
-          Object {
-            "bar": "20",
-            "foo": "15",
-          }
-        }
-        metric="bugs"
-        ratingMetric="reliability_rating"
+        metric={0}
+        metricKey="bugs"
+        ratingMetric={1}
         viewable={false}
       />
       <ProjectIssues
-        measures={
-          Object {
-            "bar": "20",
-            "foo": "15",
-          }
-        }
-        metric="vulnerabilities"
-        ratingMetric="security_rating"
+        metric={0}
+        metricKey="vulnerabilities"
+        ratingMetric={1}
         viewable={false}
       />
       <ProjectIssues
-        measures={
-          Object {
-            "bar": "20",
-            "foo": "15",
-          }
-        }
-        metric="code_smells"
-        ratingMetric="sqale_rating"
+        metric={7}
+        metricKey="code_smells"
+        ratingMetric={1}
         viewable={false}
       />
       <li>
@@ -92,7 +77,9 @@ exports[`should render ProjectCard correctly 1`] = `
           overview.metric.coverage
         </span>
         <div>
-          <CoverageRating />
+          <CoverageRating
+            value={9.7}
+          />
         </div>
       </li>
       <li>
@@ -101,7 +88,7 @@ exports[`should render ProjectCard correctly 1`] = `
         </span>
         <div>
           <DuplicationsRating
-            value={NaN}
+            value={56.2}
           />
         </div>
       </li>
@@ -109,10 +96,12 @@ exports[`should render ProjectCard correctly 1`] = `
     <div
       className="sc-mention text-left big-spacer-top"
     >
+      324
        lines of code /
        
       <Connect(ProjectCardLanguages)
         className="display-inline-block"
+        distribution="js;php"
       />
     </div>
   </Link>
@@ -126,7 +115,7 @@ exports[`should render ProjectIssues correctly 1`] = `
   </span>
   <div>
     <Rating
-      value="20"
+      value={20}
     />
   </div>
 </li>
@@ -141,9 +130,9 @@ exports[`should render correctly 1`] = `
     onClick={[Function]}
     type="button"
   >
-    <ChevronLeftIcon
-      className="spacer-left"
-      size={32}
+    <img
+      alt=""
+      src="/images/sonarcloud/chevron-left.svg"
     />
   </button>
   <div
@@ -153,77 +142,149 @@ exports[`should render correctly 1`] = `
       className="sc-featured-projects-inner ready"
     >
       <ProjectCard
-        key="foobar"
+        key="example-js-4"
         order={0}
         project={
           Object {
-            "key": "foobar",
-            "measures": Object {
-              "bar": "20",
-              "foo": "15",
-            },
-            "name": "Foobar",
-            "organization": Object {
-              "avatar": "",
-              "name": "Foobar",
-            },
+            "avatarUrl": null,
+            "bugs": 13,
+            "codeSmells": 5,
+            "coverage": 0,
+            "duplications": 0,
+            "gateStatus": "OK",
+            "key": "example-js-4",
+            "languages": Array [
+              "go",
+              "js",
+              "php",
+              "py",
+            ],
+            "maintainabilityRating": 1,
+            "name": "example-js",
+            "ncloc": 80,
+            "organizationKey": "autoscan",
+            "organizationName": "AutoScan",
+            "reliabilityRating": 1,
+            "securityRating": 1,
+            "vulnerabilities": 0,
           }
         }
         viewable={false}
       />
       <ProjectCard
-        key="foo"
+        key="sonarsource-jfrog.simple-js-php-project"
         order={1}
         project={
           Object {
-            "key": "foo",
-            "measures": Object {
-              "coverage": "20",
-              "foo": "15",
-            },
-            "name": "Foo",
-            "organization": Object {
-              "avatar": "",
-              "name": "Foo",
-            },
+            "avatarUrl": null,
+            "bugs": 0,
+            "codeSmells": 7,
+            "coverage": 9.7,
+            "duplications": 56.2,
+            "gateStatus": "OK",
+            "key": "sonarsource-jfrog.simple-js-php-project",
+            "languages": Array [
+              "js",
+              "php",
+            ],
+            "maintainabilityRating": 1,
+            "name": "Simple JS & PHP project",
+            "ncloc": 324,
+            "organizationKey": "sonarsource-jfrog",
+            "organizationName": "SonarSource & JFrog",
+            "reliabilityRating": 1,
+            "securityRating": 1,
+            "vulnerabilities": 0,
           }
         }
         viewable={false}
       />
       <ProjectCard
-        key="bar"
+        key="example-js"
         order={2}
         project={
           Object {
-            "key": "bar",
-            "measures": Object {
-              "bar": "20",
-              "foo": "15",
-            },
-            "name": "Bar",
-            "organization": Object {
-              "avatar": "",
-              "name": "Bar",
-            },
+            "avatarUrl": null,
+            "bugs": 13,
+            "codeSmells": 5,
+            "coverage": 0,
+            "duplications": 0,
+            "gateStatus": "OK",
+            "key": "example-js",
+            "languages": Array [
+              "go",
+              "js",
+              "php",
+              "py",
+            ],
+            "maintainabilityRating": 1,
+            "name": "example-js",
+            "ncloc": 80,
+            "organizationKey": "autoscan",
+            "organizationName": "AutoScan",
+            "reliabilityRating": 1,
+            "securityRating": 1,
+            "vulnerabilities": 0,
           }
         }
         viewable={false}
       />
       <ProjectCard
-        key="baz"
+        key="example-js-2"
         order={3}
         project={
           Object {
-            "key": "baz",
-            "measures": Object {
-              "bar": "20",
-              "foo": "15",
-            },
-            "name": "Baz",
-            "organization": Object {
-              "avatar": "",
-              "name": "Baz",
-            },
+            "avatarUrl": null,
+            "bugs": 13,
+            "codeSmells": 5,
+            "coverage": 0,
+            "duplications": 0,
+            "gateStatus": "OK",
+            "key": "example-js-2",
+            "languages": Array [
+              "go",
+              "js",
+              "php",
+              "py",
+            ],
+            "maintainabilityRating": 1,
+            "name": "example-js",
+            "ncloc": 80,
+            "organizationKey": "autoscan",
+            "organizationName": "AutoScan",
+            "reliabilityRating": 1,
+            "securityRating": 1,
+            "vulnerabilities": 0,
+          }
+        }
+        viewable={false}
+      />
+      <ProjectCard
+        key="example-js-3"
+        order={4}
+        project={
+          Object {
+            "avatarUrl": null,
+            "bugs": 13,
+            "codeSmells": 5,
+            "coverage": 0,
+            "duplications": 0,
+            "gateStatus": "OK",
+            "key": "example-js-3",
+            "languages": Array [
+              "go",
+              "js",
+              "php",
+              "py",
+            ],
+            "maintainabilityRating": 1,
+            "name": "example-js",
+            "ncloc": 80,
+            "organizationKey": "autoscan",
+            "organizationName": "AutoScan",
+            "reliabilityRating": 1,
+            "securityRating": 1,
+            "vulnerabilities": 0,
           }
         }
         viewable={false}
@@ -235,9 +296,9 @@ exports[`should render correctly 1`] = `
     onClick={[Function]}
     type="button"
   >
-    <ChevronRightIcon
-      className="spacer-left"
-      size={32}
+    <img
+      alt=""
+      src="/images/sonarcloud/chevron-right.svg"
     />
   </button>
 </div>

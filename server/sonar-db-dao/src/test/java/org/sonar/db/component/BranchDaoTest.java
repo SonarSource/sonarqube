@@ -399,4 +399,20 @@ public class BranchDaoTest {
     ComponentDto branch2 = db.components().insertProjectBranch(project);
     assertThat(underTest.hasNonMainBranches(dbSession)).isTrue();
   }
+
+  @Test
+  public void countByTypeAndCreationDate() {
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, 0L)).isEqualTo(0);
+
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto longBranch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto longBranch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
+    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, 0L)).isEqualTo(2);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, NOW)).isEqualTo(2);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.LONG, NOW + 100)).isEqualTo(0);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, 0L)).isEqualTo(1);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW)).isEqualTo(1);
+    assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW + 100)).isEqualTo(0);
+  }
 }

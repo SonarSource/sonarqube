@@ -142,6 +142,10 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).countByNclocRanges();
   }
 
+  public long countPublicNcloc(DbSession dbSession) {
+    return mapper(dbSession).countPublicNcloc();
+  }
+
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> uuids) {
     if (uuids.isEmpty()) {
       return emptyList();

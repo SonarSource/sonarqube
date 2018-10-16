@@ -95,6 +95,10 @@ public class BranchDao implements Dao {
     return mapper(dbSession).countNonMainBranches() > 0L;
   }
 
+  public long countByTypeAndCreationDate(DbSession dbSession, BranchType branchType, long sinceDate) {
+    return mapper(dbSession).countByTypeAndCreationDate(branchType.name(), sinceDate);
+  }
+
   private static BranchMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(BranchMapper.class);
   }

@@ -78,6 +78,8 @@ public interface ComponentMapper {
 
   List<KeyLongValue> countByNclocRanges();
 
+  long countPublicNcloc();
+
   List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
 
   /**

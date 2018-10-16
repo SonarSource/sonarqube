@@ -21,7 +21,7 @@
 .sc-login-button {
   display: inline-block;
   background-color: var(--sonarcloudBlack100);
-  border: 1px solid var(--sonarcloudBlack300);
+  border: 1px solid var(--sonarcloudBlack300) !important;
   color: var(--sonarcloudBlack800);
   margin: 10px 12px auto auto;
   font-size: 18px;

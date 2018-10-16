@@ -19,10 +19,8 @@
  */
 package org.sonar.api.web;
 
-import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.junit.Rule;
@@ -239,6 +237,7 @@ public class ServletFilterTest {
       "*.js",
       "*.js.map",
       "*.pdf",
+      "/json/*",
       "/static/*",
       "/robots.txt",
       "/favicon.ico",
@@ -265,10 +264,10 @@ public class ServletFilterTest {
       return UrlPattern.create("/fake");
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
     }
 
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
     }
 
     public void destroy() {
@@ -276,10 +275,10 @@ public class ServletFilterTest {
   }
 
   private static class DefaultFilter extends ServletFilter {
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
     }
 
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
     }
 
     public void destroy() {

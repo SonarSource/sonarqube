@@ -1220,6 +1220,42 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void countPublicNcloc_on_zero_projects() {
+    db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+
+    assertThat(underTest.countPublicNcloc(dbSession)).isEqualTo(0L);
+  }
+
+  @Test
+  public void countPublicNcloc() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+
+    // public project with highest ncloc in non-main branch
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project1 = db.components().insertMainBranch(org);
+    ComponentDto project1Branch = db.components().insertProjectBranch(project1);
+    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(100.0));
+    db.measures().insertLiveMeasure(project1Branch, ncloc, m -> m.setValue(90_000.0));
+
+    // public project with only main branch
+    ComponentDto project2 = db.components().insertMainBranch(org);
+    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(50.0));
+
+    // public project with highest ncloc in main branch
+    ComponentDto project3 = db.components().insertMainBranch(org);
+    ComponentDto project3Branch = db.components().insertProjectBranch(project3);
+    db.measures().insertLiveMeasure(project3, ncloc, m -> m.setValue(80_000.0));
+    db.measures().insertLiveMeasure(project3Branch, ncloc, m -> m.setValue(25_000.0));
+
+    // private project is excluded
+    ComponentDto privateProject = db.components().insertPrivateProject(org);
+    db.measures().insertLiveMeasure(privateProject, ncloc, m -> m.setValue(1_000.0));
+
+    assertThat(underTest.countPublicNcloc(dbSession))
+      .isEqualTo(90_000L + 50 + 80_000);
+  }
+
+  @Test
   public void select_ghost_projects() {
     OrganizationDto organization = db.organizations().insert();
 

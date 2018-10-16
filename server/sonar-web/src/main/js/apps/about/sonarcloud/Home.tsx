@@ -18,39 +18,58 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Helmet from 'react-helmet';
 import { FixedNavBar, TopNavBar } from './components/NavBars';
 import FeaturedProjects from './components/FeaturedProjects';
 import Footer from './components/Footer';
 import Statistics from './components/Statistics';
 import { Languages } from './components/Languages';
 import LoginButtons from './components/LoginButtons';
+import { requestHomepageData, HomepageData, FeaturedProject } from './utils';
 import { getBaseUrl } from '../../../helpers/urls';
 import './new_style.css';
 
-// TODO Get this from an external source
-const STATISTICS = [
-  { icon: 'rules', text: 'Static analysis rules checked', value: 9675 },
-  { icon: 'locs', text: 'Lines of code analyzed', value: 20000000 },
-  { icon: 'pull-request', text: 'Pull Requests decorated', value: 100675 },
-  { icon: 'open-source', text: 'Open source projects inspected', value: 99675 }
-];
+interface State {
+  data?: HomepageData;
+}
 
-export default class Home extends React.PureComponent {
+export default class Home extends React.PureComponent<{}, State> {
+  state: State = {};
+
   componentDidMount() {
-    document.documentElement.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
+    }
     document.body.classList.add('white-page');
+    this.fetchData();
   }
 
   componentWillUnmount() {
-    document.documentElement.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
     document.body.classList.remove('white-page');
   }
+
+  fetchData = () => {
+    requestHomepageData()
+      .then(data => this.setState({ data }))
+      .catch(() => {
+        /* Fail silently */
+      });
+  };
 
   render() {
     return (
       <div className="global-container">
         <div className="page-wrapper">
           <div className="page-container sc-page">
+            <Helmet title="SonarCloud | Clean Code, Rockstar Status">
+              <meta
+                content="Enhance your workflow with continuous code quality, SonarCloud automatically analyzes and decorates pull requests on GitHub, Bitbucket and Azure DevOps on major languages."
+                name="description"
+              />
+            </Helmet>
             <FixedNavBar />
             <PageBackgroundHeader />
             <TopNavBar />
@@ -58,8 +77,10 @@ export default class Home extends React.PureComponent {
             <EnhanceWorkflow />
             <Functionality />
             <Languages />
-            <Stats />
-            <Projects />
+            <Stats data={this.state.data} />
+            <Projects
+              featuredProjects={this.state.data ? this.state.data.featuredProjects : undefined}
+            />
           </div>
         </div>
         <Footer />
@@ -82,30 +103,30 @@ function PageBackgroundHeader() {
 
 function PageTitle() {
   return (
-    <div className="sc-section sc-columns">
+    <div className="sc-section sc-columns big-spacer-top">
       <div className="sc-column sc-column-half display-flex-center">
         <div>
-          <h1 className="sc-title-orange">Clean Code</h1>
+          <h1 className="sc-title-orange big-spacer-top">Clean Code</h1>
           <h1 className="sc-spacer-bottom">Rockstar Status</h1>
           <h5 className="sc-big-spacer-bottom sc-regular-weight">
-            Eliminate bugs and vulnerabilities,
+            Eliminate bugs and vulnerabilities.
             <br />
-            champion quality code in your projects.
+            Champion quality code in your projects.
           </h5>
           <div>
             <h6>Go ahead! Analyze your repo:</h6>
             <LoginButtons />
             <p className="sc-mention sc-regular-weight big-spacer-top">
-              Free for Open Source Projects
+              Free for Open-Source Projects
             </p>
           </div>
         </div>
       </div>
-      <div className="sc-column sc-column-half text-center">
+      <div className="sc-column sc-column-half text-right">
         <img
           alt=""
           src={`${getBaseUrl()}/images/sonarcloud/home-header-people.png`}
-          width="480px"
+          width="430px"
         />
       </div>
     </div>
@@ -127,9 +148,9 @@ function EnhanceWorkflow() {
           src={`${getBaseUrl()}/images/sonarcloud/home-branch.png`}
           srcSet={`${getBaseUrl()}/images/sonarcloud/home-branch.png 1x, ${getBaseUrl()}/images/sonarcloud/home-branch@2x.png 2x`}
         />
-        <h5 className="spacer-bottom">Maximize your throughput, only release clean code</h5>
-        <h6 className="sc-regular-weight">
-          Sonarcloud automatically analyzes branches and decorates pull requests
+        <h5 className="spacer-bottom">Maximize your throughput and only release clean code</h5>
+        <h6 className="sc-big-spacer-bottom sc-regular-weight">
+          SonarCloud automatically analyzes branches and decorates pull requests
         </h6>
       </div>
     </div>
@@ -156,7 +177,7 @@ function Functionality() {
             that Fits Your Projects
           </h3>
           <div className="sc-columns">
-            <div className="sc-column sc-column-small">
+            <div className="sc-column sc-column-small big-spacer-top">
               <h6 className="sc-regular-weight spacer-bottom">Easy to Use</h6>
               <p>
                 With just a few clicks you’re up and running right where your code lives. Immediate
@@ -166,7 +187,7 @@ function Functionality() {
               <span className="big-spacer-bottom sc-with-icon">
                 <img
                   alt=""
-                  className="spacer-right"
+                  className="big-spacer-right"
                   src={`${getBaseUrl()}/images/sonarcloud/scale.svg`}
                 />{' '}
                 Scale on-demand as your projects grow.
@@ -174,13 +195,13 @@ function Functionality() {
               <span className="sc-with-icon">
                 <img
                   alt=""
-                  className="spacer-right"
+                  className="big-spacer-right"
                   src={`${getBaseUrl()}/images/sonarcloud/stop.svg`}
                 />{' '}
                 No contracts, stop/start anytime.
               </span>
             </div>
-            <div className="sc-column sc-column-big">
+            <div className="sc-column sc-column-big big-spacer-top">
               <img
                 alt=""
                 className="sc-rounded-img"
@@ -200,12 +221,12 @@ function Functionality() {
             </div>
             <div className="sc-column sc-column-small">
               <div>
-                <h6 className="sc-regular-weight spacer-bottom">Open and transparent</h6>
+                <h6 className="sc-regular-weight spacer-bottom">Open and Transparent</h6>
                 <p className="big-spacer-bottom">
                   Project dashboards keep teams and stakeholders informed on code quality and
-                  releasability
+                  releasability.
                 </p>
-                <p>Display project badges and show your communities you’re all about awesome</p>
+                <p>Display project badges and show your communities you’re all about awesome.</p>
                 <img
                   alt=""
                   className="big-spacer-top"
@@ -216,7 +237,7 @@ function Functionality() {
             </div>
           </div>
           <div className="sc-columns">
-            <div className="sc-column sc-column-full">
+            <div className="sc-column sc-column-full big-spacer-bottom">
               <div>
                 <h6 className="sc-regular-weight spacer-bottom">Effective Collaboration</h6>
 
@@ -229,7 +250,7 @@ function Functionality() {
                   with your team, share best practices and have fun writing quality code!
                 </p>
                 <br />
-                <p className="sc-with-inline-icon huge-spacer-bottom">
+                <p className="sc-with-inline-icon">
                   Connect with
                   <img
                     alt="SonarCloud"
@@ -237,10 +258,10 @@ function Functionality() {
                   />
                   and get real-time notifications in your IDE as you work.
                 </p>
-                <div>
+                <div className="big-spacer-top">
                   <img
                     alt=""
-                    className="huge-spacer-bottom"
+                    className="big-spacer-top huge-spacer-bottom"
                     src={`${getBaseUrl()}/images/sonarcloud/ide.svg`}
                     width="216px"
                   />
@@ -255,40 +276,69 @@ function Functionality() {
   );
 }
 
-function Stats() {
+interface StatsProps {
+  data?: HomepageData;
+}
+
+function Stats({ data }: StatsProps) {
   return (
     <div className="sc-section sc-columns">
       <div className="sc-column sc-column-full">
-        <h5 className="sc-big-spacer-bottom">
-          Over 3,000 projects
+        <h3>
+          Over 3,000 Projects
           <br />
-          continuously analyzed
-        </h5>
-        <Statistics statistics={STATISTICS} />
+          Continuously Analyzed
+        </h3>
+        {data && (
+          <Statistics
+            statistics={[
+              { icon: 'rules', text: 'Static analysis rules checked', value: data.rules },
+              { icon: 'locs', text: 'Lines of code analyzed', value: data.publicLoc },
+              {
+                icon: 'pull-request',
+                text: 'Pull Requests decorated/week',
+                value: data.newPullRequests7d
+              },
+              {
+                icon: 'open-source',
+                text: 'Open-source projects inspected',
+                value: data.publicProjects
+              }
+            ]}
+          />
+        )}
       </div>
     </div>
   );
 }
 
-function Projects() {
+interface ProjectsProps {
+  featuredProjects?: FeaturedProject[];
+}
+
+function Projects({ featuredProjects }: ProjectsProps) {
   return (
     <div className="sc-section sc-columns">
       <div className="sc-column sc-column-full">
-        <h6 className="big-spacer-bottom">
-          Transparency makes sense
-          <br />
-          and that’s why the trend is growing.
-        </h6>
-        <p className="sc-big-spacer-bottom">
-          Check out these open source projects showing users
-          <br />
-          their commitment to quality.
-        </p>
-        <FeaturedProjects />
+        {featuredProjects && (
+          <>
+            <h6 className="big-spacer-bottom">
+              Transparency makes sense
+              <br />
+              and that’s why the trend is growing.
+            </h6>
+            <p>
+              Check out these open-source projects showing users
+              <br />
+              their commitment to quality.
+            </p>
+            <FeaturedProjects projects={featuredProjects} />
+          </>
+        )}
         <h6 className="spacer-bottom">
-          Come join the fun, it’s entirely free for open source projects !
+          Come join the fun, it’s entirely free for open-source projects!
         </h6>
-        <div className="big-spacer-bottom">
+        <div className="sc-spacer-bottom">
           <LoginButtons />
         </div>
       </div>
