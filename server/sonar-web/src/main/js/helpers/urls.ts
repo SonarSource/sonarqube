@@ -252,15 +252,3 @@ export function getHomePageUrl(homepage: HomePage) {
   // should never happen, but just in case...
   return '/projects';
 }
-
-export function isUrl(url: string) {
-  try {
-    const elem = document.createElement('a');
-    elem.href = url;
-    return !!(elem.host && elem.hostname && elem.protocol);
-  } catch (error) {
-    // both IE11 & Edge throw an exception when a url contains credentials
-    // is this case let's just pretend the url is fine and pass it to the server for the validation
-    return true;
-  }
-}

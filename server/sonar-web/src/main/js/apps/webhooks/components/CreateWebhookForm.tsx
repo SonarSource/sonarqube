@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { FormikProps } from 'formik';
+import { isWebUri } from 'valid-url';
 import ValidationModal from '../../../components/controls/ValidationModal';
 import InputValidationField from '../../../components/controls/InputValidationField';
 import { Webhook } from '../../../app/types';
-import { isUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -53,7 +53,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
       errors.url = translate('webhooks.url.required');
     } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
       errors.url = translate('webhooks.url.bad_protocol');
-    } else if (!isUrl(url)) {
+    } else if (!isWebUri(url)) {
       errors.url = translate('webhooks.url.bad_format');
     }
     return errors;

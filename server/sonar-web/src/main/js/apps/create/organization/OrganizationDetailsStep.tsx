@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { isWebUri } from 'valid-url';
 import OrganizationDetailsInput from './OrganizationDetailsInput';
 import Step from '../../tutorials/components/Step';
 import ValidationForm, { ChildrenProps } from '../../../components/controls/ValidationForm';
@@ -25,7 +26,6 @@ import { translate } from '../../../helpers/l10n';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import { isUrl } from '../../../helpers/urls';
 import { OrganizationBase } from '../../../app/types';
 import { getOrganization } from '../../../api/organizations';
 
@@ -80,7 +80,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
   handleValidate = ({ avatar, name, key, url }: Values) => {
     const errors: { [P in keyof Values]?: string } = {};
 
-    if (avatar.length > 0 && !isUrl(avatar)) {
+    if (avatar.length > 0 && !isWebUri(avatar)) {
       errors.avatar = translate('onboarding.create_organization.avatar.error');
     }
 
@@ -92,7 +92,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
       errors.key = translate('onboarding.create_organization.organization_name.error');
     }
 
-    if (url.length > 0 && !isUrl(url)) {
+    if (url.length > 0 && !isWebUri(url)) {
       errors.url = translate('onboarding.create_organization.url.error');
     }
 
