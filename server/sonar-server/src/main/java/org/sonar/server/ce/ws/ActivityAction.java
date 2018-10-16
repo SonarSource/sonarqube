@@ -73,7 +73,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
-  private static final String[] POSSIBLE_QUALIFIERS = new String[] {Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW, "DEV", Qualifiers.MODULE};
+  private static final String[] POSSIBLE_QUALIFIERS = new String[] {Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
 
   private final UserSession userSession;
   private final DbClient dbClient;
