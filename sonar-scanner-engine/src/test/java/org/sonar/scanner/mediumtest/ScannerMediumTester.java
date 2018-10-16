@@ -52,11 +52,9 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
-import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.MetricsRepository;
 import org.sonar.scanner.repository.MetricsRepositoryLoader;
@@ -397,7 +395,7 @@ public class ScannerMediumTester extends ExternalResource {
     private BranchType branchType = BranchType.LONG;
     private String branchName = null;
     private String branchTarget = null;
-    private String branchBase = null;
+    private String longLivingSonarReferenceBranch = null;
 
     @Override
     public BranchType branchType() {
@@ -412,14 +410,14 @@ public class ScannerMediumTester extends ExternalResource {
 
     @CheckForNull
     @Override
-    public String branchTarget() {
+    public String targetScmBranch() {
       return branchTarget;
     }
 
     @CheckForNull
     @Override
-    public String branchBase() {
-      return branchBase;
+    public String longLivingSonarReferenceBranch() {
+      return longLivingSonarReferenceBranch;
     }
 
     @Override
@@ -440,6 +438,11 @@ public class ScannerMediumTester extends ExternalResource {
 
   public ScannerMediumTester setBranchTarget(String branchTarget) {
     this.branchConfiguration.branchTarget = branchTarget;
+    return this;
+  }
+
+  public ScannerMediumTester setLongLivingSonarReferenceBranch(String longLivingSonarReferenceBranch) {
+    this.branchConfiguration.longLivingSonarReferenceBranch = longLivingSonarReferenceBranch;
     return this;
   }
 

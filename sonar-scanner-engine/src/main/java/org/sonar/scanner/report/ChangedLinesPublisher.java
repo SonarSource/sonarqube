@@ -56,7 +56,8 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   }
 
   @Override public void publish(ScannerReportWriter writer) {
-    if (scmConfiguration.isDisabled() || !branchConfiguration.isShortOrPullRequest() || branchConfiguration.branchTarget() == null) {
+    String targetScmBranch = branchConfiguration.targetScmBranch();
+    if (scmConfiguration.isDisabled() || !branchConfiguration.isShortOrPullRequest() || targetScmBranch == null) {
       return;
     }
 
@@ -66,22 +67,18 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
     }
 
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    int count = writeChangedLines(provider, writer);
+    int count = writeChangedLines(provider, writer, targetScmBranch);
     LOG.debug("SCM reported changed lines for {} {} in the branch", count, ScannerUtils.pluralize("file", count));
     profiler.stopInfo();
   }
 
-  private int writeChangedLines(ScmProvider provider, ScannerReportWriter writer) {
-    String targetBranchName = branchConfiguration.branchTarget();
-    if (targetBranchName == null) {
-      return 0;
-    }
+  private int writeChangedLines(ScmProvider provider, ScannerReportWriter writer, String targetScmBranch) {
 
     Path rootBaseDir = inputModuleHierarchy.root().getBaseDir();
     Map<Path, DefaultInputFile> changedFiles = StreamSupport.stream(inputComponentStore.allChangedFilesToPublish().spliterator(), false)
       .collect(Collectors.toMap(DefaultInputFile::path, f -> f));
 
-    Map<Path, Set<Integer>> pathSetMap = provider.branchChangedLines(targetBranchName, rootBaseDir, changedFiles.keySet());
+    Map<Path, Set<Integer>> pathSetMap = provider.branchChangedLines(targetScmBranch, rootBaseDir, changedFiles.keySet());
     int count = 0;
 
     if (pathSetMap == null) {

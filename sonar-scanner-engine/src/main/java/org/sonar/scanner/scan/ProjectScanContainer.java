@@ -279,7 +279,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
     BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
     if (branchConfig.branchType() == BranchType.PULL_REQUEST) {
-      LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.branchBase()), branchConfig.branchName());
+      LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.targetScmBranch()), branchConfig.branchName());
     } else if (branchConfig.branchName() != null) {
       LOG.info("Branch name: {}, type: {}", branchConfig.branchName(), branchTypeToDisplayName(branchConfig.branchType()));
     }

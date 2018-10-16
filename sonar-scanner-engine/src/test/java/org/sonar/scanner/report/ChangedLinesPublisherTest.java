@@ -68,7 +68,7 @@ public class ChangedLinesPublisherTest {
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     when(scmConfiguration.isDisabled()).thenReturn(false);
     when(scmConfiguration.provider()).thenReturn(provider);
-    when(branchConfiguration.branchTarget()).thenReturn(TARGET_BRANCH);
+    when(branchConfiguration.targetScmBranch()).thenReturn(TARGET_BRANCH);
     DefaultInputModule root = mock(DefaultInputModule.class);
     when(root.getBaseDir()).thenReturn(BASE_DIR);
     when(inputModuleHierarchy.root()).thenReturn(root);
@@ -92,7 +92,7 @@ public class ChangedLinesPublisherTest {
 
   @Test
   public void skip_if_target_branch_is_null() {
-    when(branchConfiguration.branchTarget()).thenReturn(null);
+    when(branchConfiguration.targetScmBranch()).thenReturn(null);
     publisher.publish(writer);
     verifyZeroInteractions(inputComponentStore, inputModuleHierarchy, provider);
     assertNotPublished();

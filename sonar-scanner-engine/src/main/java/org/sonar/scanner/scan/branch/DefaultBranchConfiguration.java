@@ -37,13 +37,13 @@ public class DefaultBranchConfiguration implements BranchConfiguration {
 
   @CheckForNull
   @Override
-  public String branchTarget() {
+  public String targetScmBranch() {
     return null;
   }
 
   @CheckForNull
   @Override
-  public String branchBase() {
+  public String longLivingSonarReferenceBranch() {
     return null;
   }
 

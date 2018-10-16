@@ -41,27 +41,32 @@ public interface BranchConfiguration {
   }
 
   /**
-   * The name of the branch.
+   * For long/short living branches, this is the value of sonar.branch.name, and fallback on the default branch name configured in SQ
+   * For PR: the name of the branch containing PR changes (sonar.pullrequest.branch)
+   * Only @null if the branch feature is not available.
    */
   @CheckForNull
   String branchName();
 
   /**
-   * The name of the target branch to merge into.
+   * The long living server branch from which we should load project settings/quality profiles/compare changed files/...
+   * For long living branches, this is the sonar.branch.target (default to default branch) in case of first analysis,
+   * otherwise it's the branch itself.
+   * For short living branches, we look at sonar.branch.target (default to default branch). If it exists but is a short living branch or PR, we will
+   * transitively use its own target.
+   * For PR, we look at sonar.pullrequest.base (default to default branch). If it exists but is a short living branch or PR, we will
+   * transitively use its own target.
+   * Only @null if the branch feature is not available.
    */
   @CheckForNull
-  String branchTarget();
+  String longLivingSonarReferenceBranch();
 
   /**
-   * The name of the base branch to determine project repository and changed files.
-   *
-   * Note: this is important for the scanner during the analysis of long living branches.
-   * For short living branches, branchBase is always the same as branchTarget.
-   * For long living branches, branchBase is the target in case of first analysis,
-   * otherwise it's the branch itself.
+   * Raw value of sonar.branch.target or sonar.pullrequest.base (fallback to the default branch), will be used by the SCM to compute changed files and changed lines.
+   * @null for long living branches and if the branch feature is not available
    */
   @CheckForNull
-  String branchBase();
+  String targetScmBranch();
 
   /**
    * The key of the pull request.
@@ -69,4 +74,5 @@ public interface BranchConfiguration {
    * @throws IllegalStateException if this branch configuration is not a pull request.
    */
   String pullRequestKey();
+
 }

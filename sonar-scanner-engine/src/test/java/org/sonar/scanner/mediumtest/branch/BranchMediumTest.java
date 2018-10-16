@@ -95,6 +95,7 @@ public class BranchMediumTest {
     TaskResult result = getResult(tester
       .setBranchName(branchName)
       .setBranchTarget(branchTarget)
+      .setLongLivingSonarReferenceBranch(branchTarget)
       .setBranchType(BranchType.SHORT));
 
     ScannerReport.Metadata metadata = result.getReportReader().readMetadata();

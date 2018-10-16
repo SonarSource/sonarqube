@@ -36,7 +36,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
     if (project == null) {
       boolean isIssuesMode = mode.isIssues();
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(projectKey.get(), isIssuesMode, branchConfig.branchBase());
+      project = loader.load(projectKey.get(), isIssuesMode, branchConfig.longLivingSonarReferenceBranch());
       checkProject(isIssuesMode);
       profiler.stopInfo();
     }

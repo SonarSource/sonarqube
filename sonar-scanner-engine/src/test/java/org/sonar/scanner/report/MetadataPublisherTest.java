@@ -36,8 +36,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
@@ -187,7 +185,7 @@ public class MetadataPublisherTest {
     String branchName = "feature";
     String branchTarget = "short-lived";
     when(branches.branchName()).thenReturn(branchName);
-    when(branches.branchTarget()).thenReturn(branchTarget);
+    when(branches.longLivingSonarReferenceBranch()).thenReturn(branchTarget);
 
     File outputDir = temp.newFolder();
     underTest.publish(new ScannerReportWriter(outputDir));

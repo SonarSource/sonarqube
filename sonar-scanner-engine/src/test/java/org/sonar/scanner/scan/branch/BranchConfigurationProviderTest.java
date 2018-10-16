@@ -98,7 +98,7 @@ public class BranchConfigurationProviderTest {
   public void should_return_default_if_no_loader() {
     BranchConfiguration result = provider.provide(null, globalConfiguration, reactor, settingsLoader, branches, pullRequests);
 
-    assertThat(result.branchTarget()).isNull();
+    assertThat(result.targetScmBranch()).isNull();
     assertThat(result.branchType()).isEqualTo(BranchType.LONG);
   }
 }

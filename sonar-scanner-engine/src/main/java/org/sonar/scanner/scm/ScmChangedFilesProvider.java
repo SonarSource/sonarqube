@@ -63,11 +63,11 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
 
   @CheckForNull
   private static Collection<Path> loadChangedFilesIfNeeded(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, Path rootBaseDir) {
-    if (branchConfiguration.isShortOrPullRequest() && branchConfiguration.branchTarget() != null) {
+    if (branchConfiguration.isShortOrPullRequest() && branchConfiguration.targetScmBranch() != null) {
       ScmProvider scmProvider = scmConfiguration.provider();
       if (scmProvider != null) {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        Collection<Path> changedFiles = scmProvider.branchChangedFiles(branchConfiguration.branchTarget(), rootBaseDir);
+        Collection<Path> changedFiles = scmProvider.branchChangedFiles(branchConfiguration.targetScmBranch(), rootBaseDir);
         profiler.stopInfo();
         if (changedFiles != null) {
           LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), ScannerUtils.pluralize("file", changedFiles.size()));
