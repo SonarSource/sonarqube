@@ -38,8 +38,7 @@ export default class CategoryLink extends React.PureComponent {
 
   render() {
     const { node, location, headers, children, title, open } = this.props;
-    const prefix =
-      process.env.GATSBY_USE_PREFIX === '1' ? '/' + process.env.GATSBY_DOCS_VERSION : '';
+    const prefix = '/' + process.env.GATSBY_DOCS_VERSION;
     const url = node ? node.frontmatter.url || node.fields.slug : '';
     const isCurrentPage = location.pathname === prefix + url;
     return (
