@@ -49,7 +49,14 @@ const PORTFOLIO_METRICS = [
   'ncloc'
 ];
 
-const LEAK_METRICS = ['new_lines', 'bugs', 'vulnerabilities', 'code_smells', 'new_coverage'];
+const LEAK_METRICS = [
+  'new_lines',
+  'bugs',
+  'vulnerabilities',
+  'code_smells',
+  'new_coverage',
+  'new_duplicated_lines_density'
+];
 
 const PAGE_SIZE = 100;
 

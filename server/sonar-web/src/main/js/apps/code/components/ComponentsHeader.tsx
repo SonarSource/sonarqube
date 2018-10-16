@@ -29,7 +29,12 @@ interface Props {
   rootComponent: ComponentMeasure;
 }
 
-const SHORT_NAME_METRICS = ['duplicated_lines_density', 'new_lines', 'new_coverage'];
+const SHORT_NAME_METRICS = [
+  'duplicated_lines_density',
+  'new_lines',
+  'new_coverage',
+  'new_duplicated_lines_density'
+];
 
 export default function ComponentsHeader({ baseComponent, isLeak, metrics, rootComponent }: Props) {
   const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);

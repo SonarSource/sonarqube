@@ -194,6 +194,7 @@ exports[`renders correctly for leak 1`] = `
         "vulnerabilities",
         "code_smells",
         "new_coverage",
+        "new_duplicated_lines_density",
       ]
     }
     rootComponent={
