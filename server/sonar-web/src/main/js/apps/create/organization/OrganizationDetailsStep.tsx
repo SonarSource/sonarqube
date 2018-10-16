@@ -182,7 +182,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
               name="description"
               touched={touched.description && values.description !== ''}
               value={values.description}>
-              {props => <textarea {...props} rows={3} />}
+              {props => <textarea {...props} maxLength={256} rows={3} />}
             </OrganizationDetailsInput>
           </div>
           <div className="big-spacer-top">
