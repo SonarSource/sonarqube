@@ -279,7 +279,7 @@ export default class App extends React.PureComponent<Props, State> {
             {this.renderContent(displayOverview, query, metric)}
           </div>
         ) : (
-          <MeasuresEmpty branchLike={branchLike} />
+          <MeasuresEmpty />
         )}
       </div>
     );

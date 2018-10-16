@@ -169,7 +169,11 @@ export function getMeasuresPageMetricKeys(metrics: { [key: string]: Metric }, br
       'new_line_coverage',
       'new_conditions_to_cover',
       'new_uncovered_conditions',
-      'new_branch_coverage'
+      'new_branch_coverage',
+
+      'new_duplicated_lines_density',
+      'new_duplicated_lines',
+      'new_duplicated_blocks'
     ];
   }
 
