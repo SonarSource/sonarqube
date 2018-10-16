@@ -120,14 +120,6 @@ function replaceImageLinks(content) {
 }
 
 function replaceDynamicLinks(content) {
-  const version = process.env.GATSBY_DOCS_VERSION || '';
-  if (version !== '') {
-    content = content.replace(
-      /\<a href="(?!#)(?!http)(.*)"\>(.*)\<\/a\>/gim,
-      `<a href="/${version}$1">$2</a>`
-    );
-  }
-
   // Make outside link open in a new tab
   content = content.replace(
     /\<a href="http(.*)"\>(.*)\<\/a\>/gim,

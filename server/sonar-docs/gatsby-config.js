@@ -19,10 +19,8 @@
  */
 const DOCS_VERSION = process.env.GATSBY_DOCS_VERSION || '1.0';
 
-const prefix = { pathPrefix: '/' + DOCS_VERSION }
-
 module.exports = {
-  ...prefix,
+  pathPrefix: '/' + DOCS_VERSION,
   siteMetadata: {
     title: 'SonarQube Documentation'
   },
