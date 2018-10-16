@@ -87,7 +87,7 @@ public class JavaCpdBlockIndexerSensor implements Sensor {
 
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
-      String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
+      String resourceEffectiveKey = inputFile.key();
 
       List<Statement> statements;
 

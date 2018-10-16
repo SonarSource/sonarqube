@@ -179,7 +179,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    if (analysisMode.isIssues() || branchConfiguration.isShortOrPullRequest()) {
+    if (analysisMode.isIssues()) {
       return NO_OP_NEW_CPD_TOKENS;
     }
     return new DefaultCpdTokens(config, sensorStorage);

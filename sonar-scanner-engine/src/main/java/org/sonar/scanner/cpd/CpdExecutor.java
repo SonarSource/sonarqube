@@ -46,7 +46,6 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.report.ReportPublisher;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
@@ -67,25 +66,18 @@ public class CpdExecutor {
   private final InputComponentStore componentStore;
   private final ProgressReport progressReport;
   private final CpdSettings settings;
-  private final BranchConfiguration branchConfiguration;
   private int count;
   private int total;
 
-  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache,
-    BranchConfiguration branchConfiguration) {
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
     this.componentStore = inputComponentCache;
-    this.branchConfiguration = branchConfiguration;
     this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
   }
 
   public void execute() {
-    if (branchConfiguration.isShortOrPullRequest()) {
-      LOG.info("Skipping CPD calculation for short living branch and pull request");
-      return;
-    }
     execute(TIMEOUT);
   }
 
@@ -128,6 +120,10 @@ public class CpdExecutor {
     }
 
     InputFile inputFile = (InputFile) component;
+    if (inputFile.status() == InputFile.Status.SAME) {
+      return;
+    }
+
     LOG.debug("Detection of duplications for {}", inputFile.absolutePath());
     progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile.absolutePath()));
 
@@ -136,7 +132,7 @@ public class CpdExecutor {
     try {
       duplications = futureResult.get(timeout, TimeUnit.MILLISECONDS);
     } catch (TimeoutException e) {
-      LOG.warn("Timeout during detection of duplications for " + inputFile.absolutePath());
+      LOG.warn("Timeout during detection of duplications for {}", inputFile.absolutePath());
       futureResult.cancel(true);
       return;
     } catch (Exception e) {
@@ -159,8 +155,7 @@ public class CpdExecutor {
 
   @VisibleForTesting final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
     if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
-      LOG.warn("Too many duplication groups on file " + component + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE +
-        " groups.");
+      LOG.warn("Too many duplication groups on file {}. Keep only the first {} groups.", component, MAX_CLONE_GROUP_PER_FILE);
     }
     Iterable<ScannerReport.Duplication> reportDuplications = duplications.stream()
       .limit(MAX_CLONE_GROUP_PER_FILE)
