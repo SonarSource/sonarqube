@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow } from 'enzyme';
 import OrganizationDetailsStep from '../OrganizationDetailsStep';
-import { click } from '../../../../helpers/testUtils';
+import { click, submit } from '../../../../helpers/testUtils';
 import { getOrganization } from '../../../../api/organizations';
 
 jest.mock('../../../../api/organizations', () => ({
@@ -43,23 +43,24 @@ it('should render form', () => {
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.dive()).toMatchSnapshot();
-  expect(getForm(wrapper)).toMatchSnapshot();
   expect(
-    getForm(wrapper)
+    wrapper
+      .dive()
       .find('.js-additional-info')
       .prop('hidden')
   ).toBe(true);
 
-  click(getForm(wrapper).find('ResetButtonLink'));
+  click(wrapper.dive().find('ResetButtonLink'));
   wrapper.update();
   expect(
-    getForm(wrapper)
+    wrapper
+      .dive()
       .find('.js-additional-info')
       .prop('hidden')
   ).toBe(false);
 });
 
-it('should validate', async () => {
+it('should validate before submit', () => {
   const wrapper = shallow(
     <OrganizationDetailsStep
       finished={false}
@@ -71,77 +72,48 @@ it('should validate', async () => {
   );
   const instance = wrapper.instance() as OrganizationDetailsStep;
 
-  await expect(
-    instance.handleValidate({
+  expect(
+    instance.canSubmit({
+      additional: false,
       avatar: '',
       description: '',
       name: '',
       key: 'foo',
+      submitting: false,
       url: ''
     })
-  ).resolves.toEqual({});
+  ).toBe(true);
 
-  await expect(
-    instance.handleValidate({
+  expect(
+    instance.canSubmit({
+      additional: false,
       avatar: '',
       description: '',
       name: '',
-      key: 'x'.repeat(256),
+      key: undefined,
+      submitting: false,
       url: ''
     })
-  ).rejects.toEqual({
-    key: 'onboarding.create_organization.organization_name.error'
-  });
+  ).toBe(false);
 
-  await expect(
-    instance.handleValidate({
-      avatar: 'bla',
+  expect(
+    instance.canSubmit({
+      additional: false,
+      avatar: undefined,
       description: '',
       name: '',
       key: 'foo',
+      submitting: false,
       url: ''
     })
-  ).rejects.toEqual({ avatar: 'onboarding.create_organization.avatar.error' });
+  ).toBe(false);
 
-  await expect(
-    instance.handleValidate({
-      avatar: '',
-      description: '',
-      name: 'x'.repeat(256),
-      key: 'foo',
-      url: ''
-    })
-  ).rejects.toEqual({
-    name: 'onboarding.create_organization.display_name.error'
-  });
-
-  await expect(
-    instance.handleValidate({
-      avatar: '',
-      description: '',
-      name: '',
-      key: 'foo',
-      url: 'bla'
-    })
-  ).rejects.toEqual({
-    url: 'onboarding.create_organization.url.error'
-  });
-
-  (getOrganization as jest.Mock).mockResolvedValue({});
-  await expect(
-    instance.handleValidate({
-      avatar: '',
-      description: '',
-      name: '',
-      key: 'foo',
-      url: ''
-    })
-  ).rejects.toEqual({
-    key: 'onboarding.create_organization.organization_name.taken'
-  });
+  instance.canSubmit = jest.fn() as any;
+  submit(wrapper.dive().find('form'));
+  expect(instance.canSubmit).toHaveBeenCalled();
 });
 
-it('should render result', () => {
+it.only('should render result', () => {
   const wrapper = shallow(
     <OrganizationDetailsStep
       finished={true}
@@ -152,14 +124,11 @@ it('should render result', () => {
       submitText="continue"
     />
   );
-  expect(wrapper.dive()).toMatchSnapshot();
+  expect(wrapper.dive().find('.boxed-group-actions')).toMatchSnapshot();
+  expect(
+    wrapper
+      .dive()
+      .find('.hidden')
+      .exists()
+  ).toBe(true);
 });
-
-function getForm(wrapper: ShallowWrapper) {
-  return wrapper
-    .dive()
-    .find('ValidationForm')
-    .dive()
-    .dive()
-    .children();
-}

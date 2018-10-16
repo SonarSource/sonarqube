@@ -19,27 +19,21 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ChooseRemoteOrganizationStep from '../ChooseRemoteOrganizationStep';
+import OrganizationDescriptionInput from '../OrganizationDescriptionInput';
 
-it('should render', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('should render correctly', () => {
+  const wrapper = shallow(
+    <OrganizationDescriptionInput initialValue="My description" onChange={jest.fn()} />
+  );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({ touched: true });
+  expect(wrapper.find('ValidationInput').prop('isValid')).toMatchSnapshot();
 });
 
-it('should display a warning message', () => {
-  expect(shallowRender({ almInstallId: 'foo' }).find('Alert')).toMatchSnapshot();
+it('should have an error when description is too long', () => {
+  expect(
+    shallow(<OrganizationDescriptionInput initialValue={'x'.repeat(260)} onChange={jest.fn()} />)
+      .find('ValidationInput')
+      .prop('isInvalid')
+  ).toBe(true);
 });
-
-function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {}) {
-  return shallow(
-    <ChooseRemoteOrganizationStep
-      almApplication={{
-        backgroundColor: 'blue',
-        iconPath: 'icon/path',
-        installationUrl: 'https://alm.application.url',
-        key: 'github',
-        name: 'GitHub'
-      }}
-      {...props}
-    />
-  ).dive();
-}

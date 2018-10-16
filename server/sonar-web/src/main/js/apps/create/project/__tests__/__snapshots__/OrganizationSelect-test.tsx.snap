@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="form-field spacer-bottom"
+>
+  <label
+    htmlFor="select-organization"
+  >
+    onboarding.create_project.organization
+    <em
+      className="mandatory"
+    >
+      *
+    </em>
+  </label>
+  <Select
+    autoFocus={true}
+    className="input-super-large"
+    clearable={false}
+    id="select-organization"
+    labelKey="name"
+    onChange={[MockFunction]}
+    optionRenderer={[Function]}
+    options={
+      Array [
+        Object {
+          "almId": "github",
+          "key": "bar",
+          "name": "Bar",
+        },
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        },
+      ]
+    }
+    required={true}
+    value="bar"
+    valueKey="key"
+    valueRenderer={[Function]}
+  />
+  <Link
+    className="big-spacer-left js-new-org"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/create-organization"
+  >
+    onboarding.create_project.create_new_org
+  </Link>
+</div>
+`;
+
+exports[`should render options correctly 1`] = `
+<span>
+  Foo
+  <span
+    className="note little-spacer-left"
+  >
+    foo
+  </span>
+</span>
+`;
+
+exports[`should render options correctly 2`] = `
+<span>
+  <img
+    alt="github"
+    className="spacer-right"
+    height={14}
+    src="/images/sonarcloud/github.svg"
+  />
+  Bar
+  <span
+    className="note little-spacer-left"
+  >
+    bar
+  </span>
+</span>
+`;

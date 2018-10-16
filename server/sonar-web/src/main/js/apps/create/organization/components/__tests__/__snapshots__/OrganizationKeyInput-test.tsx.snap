@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ValidationInput
+  id="organization-key"
+  isInvalid={false}
+  isValid={false}
+  label="onboarding.create_organization.organization_name"
+  required={true}
+>
+  <div
+    className="display-inline-flex-baseline"
+  >
+    <span
+      className="little-spacer-right"
+    >
+      localhost/organizations/
+    </span>
+    <input
+      autoFocus={true}
+      className="input-super-large text-middle"
+      id="organization-key"
+      maxLength={255}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onFocus={[Function]}
+      type="text"
+      value="key"
+    />
+  </div>
+</ValidationInput>
+`;
+
+exports[`should render correctly 2`] = `true`;

@@ -21,13 +21,13 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import './Tabs.css';
 
-interface Props {
-  onChange: (tab: string) => void;
-  selected?: string;
-  tabs: Array<{ disabled?: boolean; key: string; node: React.ReactNode }>;
+interface Props<T extends string> {
+  onChange: (tab: T) => void;
+  selected?: T;
+  tabs: Array<{ disabled?: boolean; key: T; node: React.ReactNode }>;
 }
 
-export default function Tabs({ onChange, selected, tabs }: Props) {
+export default function Tabs<T extends string>({ onChange, selected, tabs }: Props<T>) {
   return (
     <ul className="flex-tabs">
       {tabs.map(tab => (
@@ -44,15 +44,15 @@ export default function Tabs({ onChange, selected, tabs }: Props) {
   );
 }
 
-interface TabProps {
+interface TabProps<T> {
   children: React.ReactNode;
   disabled?: boolean;
-  name: string;
-  onSelect: (tab: string) => void;
+  name: T;
+  onSelect: (tab: T) => void;
   selected: boolean;
 }
 
-export class Tab extends React.PureComponent<TabProps> {
+export class Tab<T> extends React.PureComponent<TabProps<T>> {
   handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();

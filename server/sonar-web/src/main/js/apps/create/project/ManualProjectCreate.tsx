@@ -18,33 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { sortBy } from 'lodash';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
-import Select from '../../../components/controls/Select';
+import OrganizationSelect from './OrganizationSelect';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { LoggedInUser, Organization } from '../../../app/types';
-import { fetchMyOrganizations } from '../../account/organizations/actions';
-import { getMyOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { createProject } from '../../../api/components';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
-interface StateProps {
-  userOrganizations: Organization[];
-}
-
-interface DispatchProps {
-  fetchMyOrganizations: () => Promise<void>;
-}
-
-interface OwnProps {
+interface Props {
   currentUser: LoggedInUser;
   onProjectCreate: (projectKeys: string[]) => void;
   organization?: string;
+  userOrganizations: Organization[];
 }
-
-type Props = OwnProps & StateProps & DispatchProps;
 
 interface State {
   projectName: string;
@@ -53,7 +39,7 @@ interface State {
   submitting: boolean;
 }
 
-export class ManualProjectCreate extends React.PureComponent<Props, State> {
+export default class ManualProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -105,8 +91,8 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
     }
   };
 
-  handleOrganizationSelect = ({ value }: { value: string }) => {
-    this.setState({ selectedOrganization: value });
+  handleOrganizationSelect = ({ key }: Organization) => {
+    this.setState({ selectedOrganization: key });
   };
 
   handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,30 +113,11 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
     return (
       <>
         <form onSubmit={this.handleFormSubmit}>
-          <div className="form-field">
-            <label htmlFor="select-organization">
-              {translate('onboarding.create_project.organization')}
-              <em className="mandatory">*</em>
-            </label>
-            <Select
-              autoFocus={true}
-              className="input-super-large"
-              clearable={false}
-              id="select-organization"
-              onChange={this.handleOrganizationSelect}
-              options={sortBy(this.props.userOrganizations, o => o.name.toLowerCase()).map(
-                organization => ({
-                  label: organization.name,
-                  value: organization.key
-                })
-              )}
-              required={true}
-              value={this.state.selectedOrganization}
-            />
-            <Link className="big-spacer-left js-new-org" to="/create-organization">
-              {translate('onboarding.create_project.create_new_org')}
-            </Link>
-          </div>
+          <OrganizationSelect
+            onChange={this.handleOrganizationSelect}
+            organization={this.state.selectedOrganization}
+            organizations={this.props.userOrganizations}
+          />
           <div className="form-field">
             <label htmlFor="project-name">
               {translate('onboarding.create_project.project_name')}
@@ -192,17 +159,3 @@ export class ManualProjectCreate extends React.PureComponent<Props, State> {
     );
   }
 }
-
-const mapDispatchToProps = ({
-  fetchMyOrganizations
-} as any) as DispatchProps;
-
-const mapStateToProps = (state: Store): StateProps => {
-  return {
-    userOrganizations: getMyOrganizations(state)
-  };
-};
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ManualProjectCreate);

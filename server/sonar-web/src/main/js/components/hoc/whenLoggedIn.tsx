@@ -18,26 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { CurrentUser } from '../../../app/types';
-import { Store, getCurrentUser } from '../../../store/rootReducer';
+import { withRouter, WithRouterProps } from 'react-router';
+import { withCurrentUser } from './withCurrentUser';
+import { CurrentUser } from '../../app/types';
+import { isLoggedIn } from '../../helpers/users';
+import handleRequiredAuthentication from '../../app/utils/handleRequiredAuthentication';
 
-export function withCurrentUser<P>(
-  WrappedComponent: React.ComponentClass<P & { currentUser: CurrentUser }>
-) {
+export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
   const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
 
-  class Wrapper extends React.Component<P & { currentUser: CurrentUser }> {
-    static displayName = `withCurrentUser(${wrappedDisplayName})`;
+  class Wrapper extends React.Component<P & { currentUser: CurrentUser } & WithRouterProps> {
+    static displayName = `whenLoggedIn(${wrappedDisplayName})`;
+
+    componentDidMount() {
+      if (!isLoggedIn(this.props.currentUser)) {
+        handleRequiredAuthentication();
+      }
+    }
 
     render() {
-      return <WrappedComponent {...this.props} />;
+      if (isLoggedIn(this.props.currentUser)) {
+        return <WrappedComponent {...this.props} />;
+      } else {
+        return null;
+      }
     }
   }
 
-  function mapStateToProps(state: Store) {
-    return { currentUser: getCurrentUser(state) };
-  }
-
-  return connect(mapStateToProps)(Wrapper);
+  return withCurrentUser(withRouter(Wrapper));
 }

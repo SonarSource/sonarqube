@@ -18,32 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isWebUri } from 'valid-url';
-import OrganizationDetailsInput from './OrganizationDetailsInput';
+import OrganizationAvatarInput from './components/OrganizationAvatarInput';
+import OrganizationDescriptionInput from './components/OrganizationDescriptionInput';
+import OrganizationKeyInput from './components/OrganizationKeyInput';
+import OrganizationNameInput from './components/OrganizationNameInput';
+import OrganizationUrlInput from './components/OrganizationUrlInput';
 import Step from '../../tutorials/components/Step';
-import ValidationForm, { ChildrenProps } from '../../../components/controls/ValidationForm';
 import { translate } from '../../../helpers/l10n';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import { getHostUrl } from '../../../helpers/urls';
 import { OrganizationBase } from '../../../app/types';
-import { getOrganization } from '../../../api/organizations';
 
-type Values = Required<OrganizationBase>;
-
-const initialValues: Values = {
-  avatar: '',
-  description: '',
-  name: '',
-  key: '',
-  url: ''
-};
+type RequiredOrganization = Required<OrganizationBase>;
 
 interface Props {
   description?: React.ReactNode;
   finished: boolean;
-  onContinue: (organization: Required<OrganizationBase>) => Promise<void>;
+  onContinue: (organization: RequiredOrganization) => Promise<void>;
   onOpen: () => void;
   open: boolean;
   organization?: OrganizationBase & { key: string };
@@ -52,199 +44,143 @@ interface Props {
 
 interface State {
   additional: boolean;
+  avatar?: string;
+  description?: string;
+  key?: string;
+  name?: string;
+  submitting: boolean;
+  url?: string;
 }
 
-export default class OrganizationDetailsStep extends React.PureComponent<Props, State> {
-  state: State = { additional: false };
+type ValidState = Pick<State, Exclude<keyof State, RequiredOrganization>> & RequiredOrganization;
 
-  getInitialValues = (): Values => {
-    const { organization } = this.props;
-    if (organization) {
-      return {
-        avatar: organization.avatar || '',
-        description: organization.description || '',
-        name: organization.name,
-        key: organization.key,
-        url: organization.url || ''
-      };
-    } else {
-      return initialValues;
-    }
-  };
+export default class OrganizationDetailsStep extends React.PureComponent<Props, State> {
+  mounted = false;
+
+  constructor(props: Props) {
+    super(props);
+    const { organization } = props;
+    this.state = {
+      additional: false,
+      avatar: (organization && organization.avatar) || '',
+      description: (organization && organization.description) || '',
+      key: (organization && organization.key) || undefined,
+      name: (organization && organization.name) || '',
+      submitting: false,
+      url: (organization && organization.url) || ''
+    };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  canSubmit(state: State): state is ValidState {
+    return Boolean(
+      state.key !== undefined &&
+        state.name !== undefined &&
+        state.description !== undefined &&
+        state.avatar !== undefined &&
+        state.url !== undefined
+    );
+  }
 
   handleAdditionalClick = () => {
     this.setState(state => ({ additional: !state.additional }));
   };
 
-  checkFreeKey = (key: string) => {
-    return getOrganization(key).then(organization => organization === undefined, () => true);
+  handleKeyUpdate = (key: string | undefined) => {
+    this.setState({ key });
   };
 
-  handleValidate = ({ avatar, name, key, url }: Values) => {
-    const errors: { [P in keyof Values]?: string } = {};
-
-    if (avatar.length > 0 && !isWebUri(avatar)) {
-      errors.avatar = translate('onboarding.create_organization.avatar.error');
-    }
-
-    if (name.length > 255) {
-      errors.name = translate('onboarding.create_organization.display_name.error');
-    }
-
-    if (key.length > 255 || !/^[a-z0-9][a-z0-9-]*[a-z0-9]?$/.test(key)) {
-      errors.key = translate('onboarding.create_organization.organization_name.error');
-    }
-
-    if (url.length > 0 && !isWebUri(url)) {
-      errors.url = translate('onboarding.create_organization.url.error');
-    }
-
-    // don't try to check if the organization key is already taken if the key is invalid
-    if (errors.key) {
-      return Promise.reject(errors);
-    }
-
-    // TODO debounce
-    return this.checkFreeKey(key).then(free => {
-      if (!free) {
-        errors.key = translate('onboarding.create_organization.organization_name.taken');
-      }
-      return Object.keys(errors).length ? Promise.reject(errors) : Promise.resolve(errors);
-    });
+  handleNameUpdate = (name: string | undefined) => {
+    this.setState({ name });
   };
 
-  renderInnerForm = (props: ChildrenProps<Values>) => {
-    const {
-      dirty,
-      errors,
-      handleBlur,
-      handleChange,
-      isSubmitting,
-      isValid,
-      isValidating,
-      touched,
-      values
-    } = props;
-    const commonProps = {
-      dirty,
-      isValidating,
-      isSubmitting,
-      onBlur: handleBlur,
-      onChange: handleChange
-    };
-    return (
-      <>
-        <OrganizationDetailsInput
-          {...commonProps}
-          description={translate('onboarding.create_organization.organization_name.description')}
-          error={errors.key}
-          id="organization-key"
-          label={translate('onboarding.create_organization.organization_name')}
-          name="key"
-          required={true}
-          touched={touched.key}
-          value={values.key}>
-          {props => (
-            <div className="display-inline-flex-baseline">
-              <span className="little-spacer-right">
-                {getHostUrl().replace(/https*:\/\//, '') + '/organizations/'}
-              </span>
-              <input autoFocus={true} maxLength={255} {...props} />
-            </div>
-          )}
-        </OrganizationDetailsInput>
-        <div className="big-spacer-top">
-          <ResetButtonLink onClick={this.handleAdditionalClick}>
-            {translate(
-              this.state.additional
-                ? 'onboarding.create_organization.hide_additional_info'
-                : 'onboarding.create_organization.add_additional_info'
-            )}
-            <DropdownIcon className="little-spacer-left" turned={this.state.additional} />
-          </ResetButtonLink>
-        </div>
-        <div className="js-additional-info" hidden={!this.state.additional}>
-          <div className="big-spacer-top">
-            <OrganizationDetailsInput
-              {...commonProps}
-              description={translate('onboarding.create_organization.display_name.description')}
-              error={errors.name}
-              id="organization-display-name"
-              label={translate('onboarding.create_organization.display_name')}
-              name="name"
-              touched={touched.name && values.name !== ''}
-              value={values.name}>
-              {props => <input {...props} />}
-            </OrganizationDetailsInput>
-          </div>
-          <div className="big-spacer-top">
-            <OrganizationDetailsInput
-              {...commonProps}
-              description={translate('onboarding.create_organization.avatar.description')}
-              error={errors.avatar}
-              id="organization-avatar"
-              label={translate('onboarding.create_organization.avatar')}
-              name="avatar"
-              touched={touched.avatar && values.avatar !== ''}
-              value={values.avatar}>
-              {props => (
-                <>
-                  {values.avatar && (
-                    <img
-                      alt=""
-                      className="display-block spacer-bottom rounded"
-                      src={values.avatar}
-                      width={48}
-                    />
-                  )}
-                  <input {...props} />
-                </>
-              )}
-            </OrganizationDetailsInput>
-          </div>
-          <div className="big-spacer-top">
-            <OrganizationDetailsInput
-              {...commonProps}
-              error={errors.description}
-              id="organization-description"
-              label={translate('description')}
-              name="description"
-              touched={touched.description && values.description !== ''}
-              value={values.description}>
-              {props => <textarea {...props} maxLength={256} rows={3} />}
-            </OrganizationDetailsInput>
-          </div>
-          <div className="big-spacer-top">
-            <OrganizationDetailsInput
-              {...commonProps}
-              error={errors.url}
-              id="organization-url"
-              label={translate('onboarding.create_organization.url')}
-              name="url"
-              touched={touched.url && values.url !== ''}
-              value={values.url}>
-              {props => <input {...props} />}
-            </OrganizationDetailsInput>
-          </div>
-        </div>
-        <div className="big-spacer-top">
-          <SubmitButton disabled={isSubmitting || !isValid}>{this.props.submitText}</SubmitButton>
-        </div>
-      </>
-    );
+  handleDescriptionUpdate = (description: string | undefined) => {
+    this.setState({ description });
+  };
+
+  handleAvatarUpdate = (avatar: string | undefined) => {
+    this.setState({ avatar });
+  };
+
+  handleUrlUpdate = (url: string | undefined) => {
+    this.setState({ url });
+  };
+
+  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const { state } = this;
+    if (this.canSubmit(state)) {
+      this.setState({ submitting: true });
+      this.props
+        .onContinue({
+          avatar: state.avatar,
+          description: state.description,
+          key: state.key,
+          name: state.name,
+          url: state.url
+        })
+        .then(this.stopSubmitting, this.stopSubmitting);
+    }
+  };
+
+  stopSubmitting = () => {
+    if (this.mounted) {
+      this.setState({ submitting: false });
+    }
   };
 
   renderForm = () => {
     return (
       <div className="boxed-group-inner">
-        {this.props.description}
-        <ValidationForm<Values>
-          initialValues={this.getInitialValues()}
-          isInitialValid={this.props.organization !== undefined}
-          onSubmit={this.props.onContinue}
-          validate={this.handleValidate}>
-          {this.renderInnerForm}
-        </ValidationForm>
+        <form id="organization-form" onSubmit={this.handleSubmit}>
+          {this.props.description}
+          <OrganizationKeyInput initialValue={this.state.key} onChange={this.handleKeyUpdate} />
+          <div className="big-spacer-top">
+            <ResetButtonLink onClick={this.handleAdditionalClick}>
+              {translate(
+                this.state.additional
+                  ? 'onboarding.create_organization.hide_additional_info'
+                  : 'onboarding.create_organization.add_additional_info'
+              )}
+              <DropdownIcon className="little-spacer-left" turned={this.state.additional} />
+            </ResetButtonLink>
+          </div>
+          <div className="js-additional-info" hidden={!this.state.additional}>
+            <div className="big-spacer-top">
+              <OrganizationNameInput
+                initialValue={this.state.name}
+                onChange={this.handleNameUpdate}
+              />
+            </div>
+            <div className="big-spacer-top">
+              <OrganizationAvatarInput
+                initialValue={this.state.avatar}
+                onChange={this.handleDescriptionUpdate}
+              />
+            </div>
+            <div className="big-spacer-top">
+              <OrganizationDescriptionInput
+                initialValue={this.state.description}
+                onChange={this.handleAvatarUpdate}
+              />
+            </div>
+            <div className="big-spacer-top">
+              <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />
+            </div>
+          </div>
+          <div className="big-spacer-top">
+            <SubmitButton disabled={this.state.submitting || !this.canSubmit(this.state)}>
+              {this.props.submitText}
+            </SubmitButton>
+          </div>
+        </form>
       </div>
     );
   };

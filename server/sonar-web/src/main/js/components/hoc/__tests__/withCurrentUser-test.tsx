@@ -18,37 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow } from 'enzyme';
 import { createStore } from 'redux';
-import { whenLoggedIn } from '../whenLoggedIn';
-import { mockRouter } from '../../../../helpers/testUtils';
+import { CurrentUser } from '../../../app/types';
+import { withCurrentUser } from '../withCurrentUser';
 
-class X extends React.Component {
+class X extends React.Component<{ currentUser: CurrentUser }> {
   render() {
     return <div />;
   }
 }
 
-const UnderTest = whenLoggedIn(X);
+const UnderTest = withCurrentUser(X);
 
-it('should render for logged in user', () => {
-  const store = createStore(state => state, { users: { currentUser: { isLoggedIn: true } } });
+it('should pass logged in user', () => {
+  const currentUser = { isLoggedIn: false };
+  const store = createStore(state => state, { users: { currentUser } });
   const wrapper = shallow(<UnderTest />, { context: { store } });
-  expect(getRenderedType(wrapper)).toBe(X);
+  expect(wrapper.dive().type()).toBe(X);
+  expect(wrapper.dive().prop('currentUser')).toBe(currentUser);
 });
-
-it('should not render for anonymous user', () => {
-  const store = createStore(state => state, { users: { currentUser: { isLoggedIn: false } } });
-  const router = mockRouter({ replace: jest.fn() });
-  const wrapper = shallow(<UnderTest />, { context: { store, router } });
-  expect(getRenderedType(wrapper)).toBe(null);
-  expect(router.replace).toBeCalledWith(expect.objectContaining({ pathname: '/sessions/new' }));
-});
-
-function getRenderedType(wrapper: ShallowWrapper) {
-  return wrapper
-    .dive()
-    .dive()
-    .dive()
-    .type();
-}

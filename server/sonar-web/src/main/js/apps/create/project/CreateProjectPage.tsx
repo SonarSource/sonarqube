@@ -20,70 +20,64 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { connect } from 'react-redux';
-import { InjectedRouter } from 'react-router';
-import { Location } from 'history';
+import { WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
 import AutoProjectCreate from './AutoProjectCreate';
 import ManualProjectCreate from './ManualProjectCreate';
-import { serializeQuery, Query, parseQuery } from './utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { addGlobalErrorMessage } from '../../../store/globalMessages';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import { fetchMyOrganizations } from '../../account/organizations/actions';
+import { getMyOrganizations, Store } from '../../../store/rootReducer';
 import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
-import { CurrentUser, IdentityProvider, LoggedInUser } from '../../../app/types';
-import { skipOnboarding, getIdentityProviders } from '../../../api/users';
+import { LoggedInUser, AlmApplication, Organization } from '../../../app/types';
+import { getAlmAppInfo } from '../../../api/alm-integration';
+import { skipOnboarding } from '../../../api/users';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
-import { isLoggedIn } from '../../../helpers/users';
 import '../../../app/styles/sonarcloud.css';
 
-interface OwnProps {
-  location: Location;
-  router: Pick<InjectedRouter, 'push' | 'replace'>;
-}
-
 interface StateProps {
-  currentUser: CurrentUser;
+  userOrganizations: Organization[];
 }
 
-interface DispatchProps {
-  addGlobalErrorMessage: (message: string) => void;
+interface Props {
+  currentUser: LoggedInUser;
+  fetchMyOrganizations: () => Promise<void>;
   skipOnboardingAction: () => void;
 }
 
-type Props = StateProps & DispatchProps & OwnProps;
-
 interface State {
-  identityProvider?: IdentityProvider;
+  almApplication?: AlmApplication;
   loading: boolean;
 }
 
-export class CreateProjectPage extends React.PureComponent<Props, State> {
+type TabKeys = 'auto' | 'manual';
+
+interface LocationState {
+  organization?: string;
+  tab?: TabKeys;
+}
+
+export class CreateProjectPage extends React.PureComponent<
+  Props & StateProps & WithRouterProps,
+  State
+> {
   mounted = false;
   state: State = { loading: true };
 
   componentDidMount() {
-    if (isLoggedIn(this.props.currentUser)) {
-      this.mounted = true;
-      const query = parseQuery(this.props.location.query);
-      if (query.error) {
-        this.props.addGlobalErrorMessage(query.error);
-      }
-      if (!hasAdvancedALMIntegration(this.props.currentUser)) {
-        this.setState({ loading: false });
-        this.updateQuery({ manual: true });
-      } else {
-        this.fetchIdentityProviders();
-      }
-      document.body.classList.add('white-page');
-      if (document.documentElement) {
-        document.documentElement.classList.add('white-page');
-      }
+    this.mounted = true;
+    this.props.fetchMyOrganizations();
+    if (hasAdvancedALMIntegration(this.props.currentUser)) {
+      this.fetchAlmApplication();
     } else {
-      handleRequiredAuthentication();
+      this.setState({ loading: false });
+    }
+    document.body.classList.add('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.add('white-page');
     }
   }
 
@@ -105,17 +99,11 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchIdentityProviders = () => {
-    getIdentityProviders().then(
-      ({ identityProviders }) => {
+  fetchAlmApplication = () => {
+    return getAlmAppInfo().then(
+      ({ application }) => {
         if (this.mounted) {
-          this.setState({
-            identityProvider: identityProviders.find(
-              identityProvider =>
-                identityProvider.key === (this.props.currentUser as LoggedInUser).externalProvider
-            ),
-            loading: false
-          });
+          this.setState({ almApplication: application, loading: false });
         }
       },
       () => {
@@ -126,28 +114,25 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     );
   };
 
-  onTabChange = (tab: 'auto' | 'manual') => {
-    this.updateQuery({ manual: tab === 'manual' });
+  onTabChange = (tab: TabKeys) => {
+    this.updateUrl({ tab });
   };
 
-  updateQuery = (changes: Partial<Query>) => {
+  updateUrl = (state: Partial<LocationState> = {}) => {
     this.props.router.replace({
       pathname: this.props.location.pathname,
-      query: serializeQuery({ ...parseQuery(this.props.location.query), ...changes })
+      query: this.props.location.query,
+      state: { ...(this.props.location.state || {}), ...state }
     });
   };
 
   render() {
-    const { currentUser } = this.props;
-
-    if (!isLoggedIn(currentUser)) {
-      return null;
-    }
-
-    const { identityProvider, loading } = this.state;
-    const query = parseQuery(this.props.location.query);
+    const { currentUser, location, userOrganizations } = this.props;
+    const { almApplication, loading } = this.state;
+    const state: LocationState = location.state || {};
     const header = translate('onboarding.create_project.header');
-    const hasAutoProvisioning = hasAdvancedALMIntegration(currentUser) && identityProvider;
+    const showManualTab = state.tab === 'manual';
+
     return (
       <>
         <Helmet title={header} titleTemplate="%s" />
@@ -159,10 +144,10 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
             <DeferredSpinner />
           ) : (
             <>
-              {hasAutoProvisioning && (
-                <Tabs
+              {almApplication && (
+                <Tabs<TabKeys>
                   onChange={this.onTabChange}
-                  selected={query.manual ? 'manual' : 'auto'}
+                  selected={state.tab || 'auto'}
                   tabs={[
                     {
                       key: 'auto',
@@ -171,7 +156,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
                           {translate('onboarding.create_project.select_repositories')}
                           <span
                             className={classNames('beta-badge spacer-left', {
-                              'is-muted': query.manual
+                              'is-muted': showManualTab
                             })}>
                             {translate('beta')}
                           </span>
@@ -183,16 +168,19 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
                 />
               )}
 
-              {query.manual || !hasAutoProvisioning || !identityProvider ? (
+              {showManualTab || !almApplication ? (
                 <ManualProjectCreate
                   currentUser={currentUser}
                   onProjectCreate={this.handleProjectCreate}
-                  organization={query.organization}
+                  organization={state.organization}
+                  userOrganizations={userOrganizations}
                 />
               ) : (
                 <AutoProjectCreate
-                  identityProvider={identityProvider}
+                  almApplication={almApplication}
+                  boundOrganizations={userOrganizations.filter(o => o.almId)}
                   onProjectCreate={this.handleProjectCreate}
+                  organization={state.organization}
                 />
               )}
             </>
@@ -203,13 +191,20 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  currentUser: getCurrentUser(state)
-});
+const mapDispatchToProps = {
+  fetchMyOrganizations,
+  skipOnboardingAction
+};
 
-const mapDispatchToProps: DispatchProps = { addGlobalErrorMessage, skipOnboardingAction };
+const mapStateToProps = (state: Store) => {
+  return {
+    userOrganizations: getMyOrganizations(state)
+  };
+};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateProjectPage);
+export default whenLoggedIn(
+  connect<StateProps>(
+    mapStateToProps,
+    mapDispatchToProps
+  )(CreateProjectPage)
+);

@@ -20,7 +20,6 @@
 package org.sonar.db.alm;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
@@ -43,6 +42,11 @@ public class AlmAppInstallDao implements Dao {
   public AlmAppInstallDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
+  }
+
+  public Optional<AlmAppInstallDto> selectByUuid(DbSession dbSession, String uuid) {
+    AlmAppInstallMapper mapper = getMapper(dbSession);
+    return Optional.ofNullable(mapper.selectByUuid(uuid));
   }
 
   public Optional<AlmAppInstallDto> selectByOwnerId(DbSession dbSession, ALM alm, String ownerId) {

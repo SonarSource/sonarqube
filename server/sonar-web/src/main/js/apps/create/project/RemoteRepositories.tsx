@@ -20,39 +20,41 @@
 import * as React from 'react';
 import AlmRepositoryItem from './AlmRepositoryItem';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import { getRepositories, provisionProject } from '../../../api/alm-integration';
-import { IdentityProvider, AlmRepository } from '../../../app/types';
+import { AlmApplication, AlmRepository } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
-import { Alert } from '../../../components/ui/Alert';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  identityProvider: IdentityProvider;
+  almApplication: AlmApplication;
   onProjectCreate: (projectKeys: string[]) => void;
+  organization: string;
 }
 
+type SelectedRepositories = { [key: string]: AlmRepository | undefined };
+
 interface State {
-  installationUrl?: string;
-  installed?: boolean;
   loading: boolean;
   repositories: AlmRepository[];
-  selectedRepositories: { [key: string]: AlmRepository | undefined };
+  selectedRepositories: SelectedRepositories;
   submitting: boolean;
 }
 
-export default class AutoProjectCreate extends React.PureComponent<Props, State> {
+export default class RemoteRepositories extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {
-    loading: true,
-    repositories: [],
-    selectedRepositories: {},
-    submitting: false
-  };
+  state: State = { loading: true, repositories: [], selectedRepositories: {}, submitting: false };
 
   componentDidMount() {
     this.mounted = true;
     this.fetchRepositories();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { organization } = this.props;
+    if (prevProps.organization !== organization) {
+      this.setState({ loading: true });
+      this.fetchRepositories();
+    }
   }
 
   componentWillUnmount() {
@@ -60,10 +62,13 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
   }
 
   fetchRepositories = () => {
-    getRepositories().then(
-      ({ almIntegration, repositories }) => {
+    const { organization } = this.props;
+    return getRepositories({
+      organization
+    }).then(
+      ({ repositories }) => {
         if (this.mounted) {
-          this.setState({ ...almIntegration, loading: false, repositories });
+          this.setState({ loading: false, repositories });
         }
       },
       () => {
@@ -83,17 +88,30 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
       provisionProject({
         installationKeys: Object.keys(selectedRepositories).filter(key =>
           Boolean(selectedRepositories[key])
-        )
+        ),
+        organization: this.props.organization
       }).then(
         ({ projects }) => this.props.onProjectCreate(projects.map(project => project.projectKey)),
-        () => {
-          if (this.mounted) {
-            this.setState({ loading: true, submitting: false });
-            this.fetchRepositories();
-          }
-        }
+        this.handleProvisionFail
       );
     }
+  };
+
+  handleProvisionFail = () => {
+    return this.fetchRepositories().then(() => {
+      if (this.mounted) {
+        this.setState(({ repositories, selectedRepositories }) => {
+          const updateSelectedRepositories: SelectedRepositories = {};
+          Object.keys(selectedRepositories).forEach(installationKey => {
+            const newRepository = repositories.find(r => r.installationKey === installationKey);
+            if (newRepository && !newRepository.linkedProjectKey) {
+              updateSelectedRepositories[newRepository.installationKey] = newRepository;
+            }
+          });
+          return { selectedRepositories: updateSelectedRepositories, submitting: false };
+        });
+      }
+    });
   };
 
   isValid = () => {
@@ -113,68 +131,32 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
     }));
   };
 
-  renderContent = () => {
-    const { identityProvider } = this.props;
-    const { selectedRepositories, submitting } = this.state;
-
-    if (this.state.installed) {
-      return (
+  render() {
+    const { loading, selectedRepositories, submitting } = this.state;
+    const { almApplication } = this.props;
+    return (
+      <DeferredSpinner loading={loading}>
         <form onSubmit={this.handleFormSubmit}>
-          <ul>
-            {this.state.repositories.map(repo => (
-              <li className="big-spacer-bottom" key={repo.installationKey}>
-                <AlmRepositoryItem
-                  identityProvider={identityProvider}
-                  repository={repo}
-                  selected={Boolean(selectedRepositories[repo.installationKey])}
-                  toggleRepository={this.toggleRepository}
-                />
-              </li>
-            ))}
-          </ul>
+          <div className="form-field">
+            <ul>
+              {this.state.repositories.map(repo => (
+                <li className="big-spacer-bottom" key={repo.installationKey}>
+                  <AlmRepositoryItem
+                    identityProvider={almApplication}
+                    repository={repo}
+                    selected={Boolean(selectedRepositories[repo.installationKey])}
+                    toggleRepository={this.toggleRepository}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
           <SubmitButton disabled={!this.isValid() || submitting}>
             {translate('create')}
           </SubmitButton>
           <DeferredSpinner className="spacer-left" loading={submitting} />
         </form>
-      );
-    }
-    return (
-      <div>
-        <p className="spacer-bottom">
-          {translateWithParameters(
-            'onboarding.create_project.install_app_x',
-            identityProvider.name
-          )}
-        </p>
-        <IdentityProviderLink
-          className="display-inline-block"
-          identityProvider={identityProvider}
-          small={true}
-          url={this.state.installationUrl}>
-          {translateWithParameters(
-            'onboarding.create_project.install_app_x.button',
-            identityProvider.name
-          )}
-        </IdentityProviderLink>
-      </div>
-    );
-  };
-
-  render() {
-    const { identityProvider } = this.props;
-    const { loading } = this.state;
-
-    return (
-      <>
-        <Alert className="width-60 big-spacer-bottom" variant="info">
-          {translateWithParameters(
-            'onboarding.create_project.beta_feature_x',
-            identityProvider.name
-          )}
-        </Alert>
-        {loading ? <DeferredSpinner /> : this.renderContent()}
-      </>
+      </DeferredSpinner>
     );
   }
 }

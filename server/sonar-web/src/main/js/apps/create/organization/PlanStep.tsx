@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import BillingFormShim from './BillingFormShim';
-import { withCurrentUser } from './withCurrentUser';
 import PlanSelect, { Plan } from './PlanSelect';
 import Step from '../../tutorials/components/Step';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { translate } from '../../../helpers/l10n';
 import { getExtensionStart } from '../../../app/components/extensions/utils';
 import { SubscriptionPlan } from '../../../app/types';

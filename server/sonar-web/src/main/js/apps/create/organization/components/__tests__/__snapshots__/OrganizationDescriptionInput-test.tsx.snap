@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ValidationInput
+  id="organization-display-name"
+  isInvalid={false}
+  isValid={false}
+  label="onboarding.create_organization.description"
+>
+  <textarea
+    className="input-super-large text-middle"
+    id="organization-description"
+    maxLength={256}
+    onBlur={[Function]}
+    onChange={[Function]}
+    onFocus={[Function]}
+    rows={3}
+    value="My description"
+  />
+</ValidationInput>
+`;
+
+exports[`should render correctly 2`] = `true`;

@@ -37,7 +37,7 @@ const routes = [
   { path: 'favorite', component: FavoriteProjectsContainer },
   isSonarCloud() && {
     path: 'create',
-    component: lazyLoad(() => import('./create/CreateProjectPage'))
+    component: lazyLoad(() => import('../create/project/CreateProjectPage'))
   }
 ].filter(Boolean);
 

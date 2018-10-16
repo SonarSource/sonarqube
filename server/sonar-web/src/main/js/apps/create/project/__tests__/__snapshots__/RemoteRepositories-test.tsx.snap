@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly create a project 1`] = `
+<SubmitButton
+  disabled={false}
+>
+  create
+</SubmitButton>
+`;
+
+exports[`should display the list of repositories 1`] = `
+<DeferredSpinner
+  loading={true}
+  timeout={100}
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <ul />
+    </div>
+    <SubmitButton
+      disabled={true}
+    >
+      create
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+      timeout={100}
+    />
+  </form>
+</DeferredSpinner>
+`;
+
+exports[`should display the list of repositories 2`] = `
+<DeferredSpinner
+  loading={false}
+  timeout={100}
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="form-field"
+    >
+      <ul>
+        <li
+          className="big-spacer-bottom"
+          key="github/cool"
+        >
+          <AlmRepositoryItem
+            identityProvider={
+              Object {
+                "backgroundColor": "blue",
+                "iconPath": "icon/path",
+                "installationUrl": "https://alm.installation.url",
+                "key": "github",
+                "name": "GitHub",
+              }
+            }
+            repository={
+              Object {
+                "installationKey": "github/cool",
+                "label": "Cool Project",
+                "linkedProjectKey": "proj_cool",
+                "linkedProjectName": "Proj Cool",
+              }
+            }
+            selected={false}
+            toggleRepository={[Function]}
+          />
+        </li>
+        <li
+          className="big-spacer-bottom"
+          key="github/awesome"
+        >
+          <AlmRepositoryItem
+            identityProvider={
+              Object {
+                "backgroundColor": "blue",
+                "iconPath": "icon/path",
+                "installationUrl": "https://alm.installation.url",
+                "key": "github",
+                "name": "GitHub",
+              }
+            }
+            repository={
+              Object {
+                "installationKey": "github/awesome",
+                "label": "Awesome Project",
+              }
+            }
+            selected={false}
+            toggleRepository={[Function]}
+          />
+        </li>
+      </ul>
+    </div>
+    <SubmitButton
+      disabled={true}
+    >
+      create
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+      timeout={100}
+    />
+  </form>
+</DeferredSpinner>
+`;

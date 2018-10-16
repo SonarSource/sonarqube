@@ -19,22 +19,20 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Location } from 'history';
 import { CreateProjectPage } from '../CreateProjectPage';
-import { getIdentityProviders } from '../../../../api/users';
 import { LoggedInUser } from '../../../../app/types';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
+import { getAlmAppInfo } from '../../../../api/alm-integration';
 
-jest.mock('../../../../api/users', () => ({
-  getIdentityProviders: jest.fn().mockResolvedValue({
-    identityProviders: [
-      {
-        backgroundColor: 'blue',
-        iconPath: 'icon/path',
-        key: 'github',
-        name: 'GitHub'
-      }
-    ]
+jest.mock('../../../../api/alm-integration', () => ({
+  getAlmAppInfo: jest.fn().mockResolvedValue({
+    application: {
+      backgroundColor: 'blue',
+      iconPath: 'icon/path',
+      installationUrl: 'https://alm.installation.url',
+      key: 'github',
+      name: 'GitHub'
+    }
   })
 }));
 
@@ -48,7 +46,7 @@ const user: LoggedInUser = {
 };
 
 beforeEach(() => {
-  (getIdentityProviders as jest.Mock<any>).mockClear();
+  (getAlmAppInfo as jest.Mock<any>).mockClear();
 });
 
 it('should render correctly', async () => {
@@ -73,18 +71,9 @@ it('should switch tabs', async () => {
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('Tabs').prop<Function>('onChange')('manual');
-  expect(wrapper.find('Connect(ManualProjectCreate)').exists()).toBeTruthy();
+  expect(wrapper.find('ManualProjectCreate').exists()).toBeTruthy();
   wrapper.find('Tabs').prop<Function>('onChange')('auto');
   expect(wrapper.find('AutoProjectCreate').exists()).toBeTruthy();
-});
-
-it('should display an error message on load', () => {
-  const addGlobalErrorMessage = jest.fn();
-  getWrapper({
-    addGlobalErrorMessage,
-    location: { pathname: 'foo', query: { error: 'Foo error' } }
-  });
-  expect(addGlobalErrorMessage).toHaveBeenCalledWith('Foo error');
 });
 
 function getWrapper(props = {}) {
@@ -92,9 +81,15 @@ function getWrapper(props = {}) {
     <CreateProjectPage
       addGlobalErrorMessage={jest.fn()}
       currentUser={user}
-      location={{ pathname: 'foo', query: { manual: 'false' } } as Location}
-      router={{ push: jest.fn(), replace: jest.fn() }}
+      fetchMyOrganizations={jest.fn()}
+      // @ts-ignore avoid passing everything from WithRouterProps
+      location={{}}
+      router={mockRouter()}
       skipOnboardingAction={jest.fn()}
+      userOrganizations={[
+        { key: 'foo', name: 'Foo' },
+        { almId: 'github', key: 'bar', name: 'Bar' }
+      ]}
       {...props}
     />
   );

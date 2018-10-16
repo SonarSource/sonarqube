@@ -19,37 +19,21 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import OrganizationDetailsInput from '../OrganizationDetailsInput';
+import OrganizationUrlInput from '../OrganizationUrlInput';
 
-it('should render', () => {
-  const render = jest.fn().mockReturnValue(<div />);
-  expect(
-    shallow(
-      <OrganizationDetailsInput
-        dirty={true}
-        error="This field is bad!"
-        id="field"
-        isSubmitting={true}
-        isValidating={false}
-        label="Label"
-        name="field"
-        onBlur={jest.fn()}
-        onChange={jest.fn()}
-        required={true}
-        touched={true}
-        value="foo">
-        {render}
-      </OrganizationDetailsInput>
-    )
-  ).toMatchSnapshot();
-  expect(render).toBeCalledWith(
-    expect.objectContaining({
-      className: 'input-super-large text-middle is-invalid',
-      disabled: true,
-      id: 'field',
-      name: 'field',
-      type: 'text',
-      value: 'foo'
-    })
+it('should render correctly', () => {
+  const wrapper = shallow(
+    <OrganizationUrlInput initialValue="http://my.website" onChange={jest.fn()} />
   );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({ touched: true });
+  expect(wrapper.find('ValidationInput').prop('isValid')).toMatchSnapshot();
+});
+
+it('should have an error when the url is invalid', () => {
+  expect(
+    shallow(<OrganizationUrlInput initialValue="whatever" onChange={jest.fn()} />)
+      .find('ValidationInput')
+      .prop('isInvalid')
+  ).toBe(true);
 });

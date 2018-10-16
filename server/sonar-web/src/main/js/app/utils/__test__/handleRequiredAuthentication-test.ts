@@ -17,36 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { memoize } from 'lodash';
-import {
-  cleanQuery,
-  RawQuery,
-  parseAsBoolean,
-  serializeOptionalBoolean,
-  parseAsOptionalString,
-  serializeString
-} from '../../../helpers/query';
+import handleRequiredAuthentication from '../handleRequiredAuthentication';
+import getHistory from '../getHistory';
 
-export interface Query {
-  error?: string;
-  manual: boolean;
-  organization?: string;
-}
+jest.mock('../getHistory', () => ({
+  default: jest.fn()
+}));
 
-export const parseQuery = memoize(
-  (urlQuery: RawQuery): Query => {
-    return {
-      error: parseAsOptionalString(urlQuery['error']),
-      manual: parseAsBoolean(urlQuery['manual'], false),
-      organization: parseAsOptionalString(urlQuery['organization'])
-    };
-  }
-);
-
-export const serializeQuery = memoize(
-  (query: Query): RawQuery =>
-    cleanQuery({
-      manual: serializeOptionalBoolean(query.manual || undefined),
-      organization: serializeString(query.organization)
-    })
-);
+it('should not render for anonymous user', () => {
+  const replace = jest.fn();
+  (getHistory as jest.Mock<any>).mockReturnValue({ replace });
+  handleRequiredAuthentication();
+  expect(replace).toBeCalledWith(expect.objectContaining({ pathname: '/sessions/new' }));
+});

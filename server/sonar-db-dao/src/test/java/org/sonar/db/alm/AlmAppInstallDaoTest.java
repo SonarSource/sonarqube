@@ -60,6 +60,20 @@ public class AlmAppInstallDaoTest {
   private AlmAppInstallDao underTest = new AlmAppInstallDao(system2, uuidFactory);
 
   @Test
+  public void selectByUuid() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(DATE);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
+
+    assertThat(underTest.selectByUuid(dbSession, A_UUID).get())
+      .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId,
+        AlmAppInstallDto::getCreatedAt, AlmAppInstallDto::getUpdatedAt)
+      .contains(A_UUID, GITHUB, A_OWNER, AN_INSTALL, DATE, DATE);
+
+    assertThat(underTest.selectByUuid(dbSession, "foo")).isNotPresent();
+  }
+
+  @Test
   public void selectByOwnerId() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);

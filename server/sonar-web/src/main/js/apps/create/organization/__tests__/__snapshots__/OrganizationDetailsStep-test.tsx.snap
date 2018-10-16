@@ -34,6 +34,7 @@ exports[`should render form 2`] = `
     <div
       className="boxed-group-inner"
     >
+<<<<<<< HEAD
       <ValidationForm
         initialValues={
           Object {
@@ -172,65 +173,91 @@ exports[`should render form 3`] = `
     </SubmitButton>
   </div>
 </form>
+=======
+      <form
+        id="organization-form"
+        onSubmit={[Function]}
+      >
+        <OrganizationKeyInput
+          onChange={[Function]}
+        />
+        <div
+          className="big-spacer-top"
+        >
+          <ResetButtonLink
+            onClick={[Function]}
+          >
+            onboarding.create_organization.add_additional_info
+            <DropdownIcon
+              className="little-spacer-left"
+              turned={false}
+            />
+          </ResetButtonLink>
+        </div>
+        <div
+          className="js-additional-info"
+          hidden={true}
+        >
+          <div
+            className="big-spacer-top"
+          >
+            <OrganizationNameInput
+              initialOrgName=""
+              onChange={[Function]}
+            />
+          </div>
+          <div
+            className="big-spacer-top"
+          >
+            <OrganizationAvatarInput
+              initialOrgAvatar=""
+              onChange={[Function]}
+            />
+          </div>
+          <div
+            className="big-spacer-top"
+          >
+            <OrganizationDescriptionInput
+              initialOrgDescription=""
+              onChange={[Function]}
+            />
+          </div>
+          <div
+            className="big-spacer-top"
+          >
+            <OrganizationUrlInput
+              initialOrgUrl=""
+              onChange={[Function]}
+            />
+          </div>
+        </div>
+        <div
+          className="big-spacer-top"
+        >
+          <SubmitButton
+            disabled={true}
+          >
+            continue
+          </SubmitButton>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+>>>>>>> 116a4ec872... SONAR-11322 Import repos from bound organizations
 `;
 
 exports[`should render result 1`] = `
 <div
-  className="boxed-group onboarding-step is-finished"
-  onClick={[Function]}
-  role="button"
-  tabIndex={0}
+  className="boxed-group-actions display-flex-center"
 >
-  <div
-    className="onboarding-step-number"
-  >
-    1
-  </div>
-  <div
-    className="boxed-group-actions display-flex-center"
-  >
-    <AlertSuccessIcon
-      className="spacer-right"
-    />
-    <strong
-      className="text-limited"
-    >
-      org
-    </strong>
-  </div>
-  <div
-    className="boxed-group-header"
-  >
-    <h2>
-      onboarding.create_organization.enter_org_details
-    </h2>
-  </div>
-  <div
-    className="boxed-group-inner"
+  <AlertSuccessIcon
+    className="spacer-right"
   />
-  <div
-    className="hidden"
+  <strong
+    className="text-limited"
   >
-    <div
-      className="boxed-group-inner"
-    >
-      <ValidationForm
-        initialValues={
-          Object {
-            "avatar": "",
-            "description": "",
-            "key": "org",
-            "name": "Organization",
-            "url": "",
-          }
-        }
-        isInitialValid={true}
-        onSubmit={[MockFunction]}
-        validate={[Function]}
-      >
-        <Component />
-      </ValidationForm>
-    </div>
-  </div>
+    org
+  </strong>
 </div>
 `;

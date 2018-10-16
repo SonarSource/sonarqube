@@ -19,27 +19,31 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ChooseRemoteOrganizationStep from '../ChooseRemoteOrganizationStep';
+import OrganizationSelect, { optionRenderer } from '../OrganizationSelect';
 
-it('should render', () => {
-  expect(shallowRender()).toMatchSnapshot();
+const organizations = [{ key: 'foo', name: 'Foo' }, { almId: 'github', key: 'bar', name: 'Bar' }];
+
+it('should render correctly', () => {
+  expect(
+    shallow(
+      <OrganizationSelect onChange={jest.fn()} organization="bar" organizations={organizations} />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <OrganizationSelect
+        autoImport={true}
+        onChange={jest.fn()}
+        organization="bar"
+        organizations={organizations}
+      />
+    )
+      .find('.js-new-org')
+      .contains('onboarding.create_project.import_new_org')
+  ).toBe(true);
 });
 
-it('should display a warning message', () => {
-  expect(shallowRender({ almInstallId: 'foo' }).find('Alert')).toMatchSnapshot();
+it('should render options correctly', () => {
+  expect(shallow(optionRenderer(organizations[0]))).toMatchSnapshot();
+  expect(shallow(optionRenderer(organizations[1]))).toMatchSnapshot();
 });
-
-function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {}) {
-  return shallow(
-    <ChooseRemoteOrganizationStep
-      almApplication={{
-        backgroundColor: 'blue',
-        iconPath: 'icon/path',
-        installationUrl: 'https://alm.application.url',
-        key: 'github',
-        name: 'GitHub'
-      }}
-      {...props}
-    />
-  ).dive();
-}

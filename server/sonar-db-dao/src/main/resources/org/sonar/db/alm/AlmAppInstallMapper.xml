@@ -23,8 +23,7 @@
   </select>
 
   <select id="selectByInstallationId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
-    select
-    <include refid="sqlColumns"/>
+    select <include refid="sqlColumns"/>
     from
       alm_app_installs
     where
@@ -32,12 +31,20 @@
       and install_id = #{installId, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByUuid" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
+    select <include refid="sqlColumns"/>
+    from
+      alm_app_installs
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectAllWithNoOwnerType" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select <include refid="sqlColumns" />
     from
-    alm_app_installs
+      alm_app_installs
     where
-    is_owner_user is null
+      is_owner_user is null
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">

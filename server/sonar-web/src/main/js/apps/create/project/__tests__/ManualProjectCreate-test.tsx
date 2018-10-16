@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ManualProjectCreate } from '../ManualProjectCreate';
+import ManualProjectCreate from '../ManualProjectCreate';
 import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { createProject } from '../../../../api/components';
 
@@ -38,7 +38,7 @@ it('should render correctly', () => {
 it('should correctly create a project', async () => {
   const onProjectCreate = jest.fn();
   const wrapper = getWrapper({ onProjectCreate });
-  wrapper.find('Select').prop<Function>('onChange')({ value: 'foo' });
+  wrapper.find('OrganizationSelect').prop<Function>('onChange')({ key: 'foo' });
   change(wrapper.find('#project-name'), 'Bar');
   expect(wrapper.find('SubmitButton')).toMatchSnapshot();
 
@@ -56,7 +56,6 @@ function getWrapper(props = {}) {
   return shallow(
     <ManualProjectCreate
       currentUser={{ groups: [], isLoggedIn: true, login: 'foo', name: 'Foo', scmAccounts: [] }}
-      fetchMyOrganizations={jest.fn()}
       onProjectCreate={jest.fn()}
       userOrganizations={[{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]}
       {...props}

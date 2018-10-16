@@ -19,22 +19,35 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { createStore } from 'redux';
-import { withCurrentUser } from '../withCurrentUser';
-import { CurrentUser } from '../../../../app/types';
+import AutoProjectCreate from '../AutoProjectCreate';
 
-class X extends React.Component<{ currentUser: CurrentUser }> {
-  render() {
-    return <div />;
-  }
-}
+const almApplication = {
+  backgroundColor: 'blue',
+  iconPath: 'icon/path',
+  installationUrl: 'https://alm.installation.url',
+  key: 'github',
+  name: 'GitHub'
+};
 
-const UnderTest = withCurrentUser(X);
-
-it('should pass logged in user', () => {
-  const currentUser = { isLoggedIn: false };
-  const store = createStore(state => state, { users: { currentUser } });
-  const wrapper = shallow(<UnderTest />, { context: { store } });
-  expect(wrapper.dive().type()).toBe(X);
-  expect(wrapper.dive().prop('currentUser')).toBe(currentUser);
+it('should display the provider app install button', () => {
+  expect(shallowRender({ boundOrganizations: [] })).toMatchSnapshot();
 });
+
+it('should display the bounded organizations dropdown with the list of repositories', () => {
+  expect(shallowRender({ organization: 'foo' })).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<AutoProjectCreate['props']> = {}) {
+  return shallow(
+    <AutoProjectCreate
+      almApplication={almApplication}
+      boundOrganizations={[
+        { almId: 'github', key: 'foo', name: 'Foo' },
+        { almId: 'github', key: 'bar', name: 'Bar' }
+      ]}
+      onProjectCreate={jest.fn()}
+      organization=""
+      {...props}
+    />
+  );
+}

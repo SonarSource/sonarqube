@@ -35,18 +35,15 @@ export function getAlmOrganization(data: { installationId: string }): Promise<Al
   );
 }
 
-export function getRepositories(): Promise<{
-  almIntegration: {
-    installed: boolean;
-    installationUrl: string;
-  };
-  repositories: AlmRepository[];
-}> {
-  return getJSON('/api/alm_integration/list_repositories').catch(throwGlobalError);
+export function getRepositories(data: {
+  organization: string;
+}): Promise<{ repositories: AlmRepository[] }> {
+  return getJSON('/api/alm_integration/list_repositories', data).catch(throwGlobalError);
 }
 
 export function provisionProject(data: {
   installationKeys: string[];
+  organization: string;
 }): Promise<{ projects: Array<{ projectKey: string }> }> {
   return postJSON('/api/alm_integration/provision_projects', {
     ...data,

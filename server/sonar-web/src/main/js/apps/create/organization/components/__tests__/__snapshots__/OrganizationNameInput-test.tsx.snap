@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ValidationInput
+  description="onboarding.create_organization.display_name.description"
+  id="organization-display-name"
+  isInvalid={false}
+  isValid={false}
+  label="onboarding.create_organization.display_name"
+>
+  <input
+    className="input-super-large text-middle"
+    id="organization-display-name"
+    maxLength={255}
+    onBlur={[Function]}
+    onChange={[Function]}
+    onFocus={[Function]}
+    type="text"
+    value="Org Name"
+  />
+</ValidationInput>
+`;
+
+exports[`should render correctly 2`] = `true`;

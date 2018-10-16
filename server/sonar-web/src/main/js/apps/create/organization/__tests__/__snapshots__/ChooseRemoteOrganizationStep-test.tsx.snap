@@ -1,8 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display a warning message 1`] = `
-<span
-  className="alert alert-warning markdown big-spacer-bottom width-60"
+<Alert
+  className="markdown big-spacer-bottom width-60"
+  variant="warning"
 >
   onboarding.create_organization.import_org_not_found
   <ul>
@@ -13,7 +14,7 @@ exports[`should display a warning message 1`] = `
       onboarding.create_organization.import_org_not_found.tips_2
     </li>
   </ul>
-</span>
+</Alert>
 `;
 
 exports[`should render 1`] = `

@@ -22,6 +22,7 @@ import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import Step from '../../tutorials/components/Step';
 import { translate } from '../../../helpers/l10n';
 import { AlmApplication } from '../../../app/types';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   almApplication: AlmApplication;
@@ -34,13 +35,13 @@ export default class ChooseRemoteOrganizationStep extends React.PureComponent<Pr
     return (
       <div className="boxed-group-inner">
         {almInstallId && (
-          <span className="alert alert-warning markdown big-spacer-bottom width-60">
+          <Alert className="markdown big-spacer-bottom width-60" variant="warning">
             {translate('onboarding.create_organization.import_org_not_found')}
             <ul>
               <li>{translate('onboarding.create_organization.import_org_not_found.tips_1')}</li>
               <li>{translate('onboarding.create_organization.import_org_not_found.tips_2')}</li>
             </ul>
-          </span>
+          </Alert>
         )}
         <IdentityProviderLink
           className="display-inline-block"

@@ -25,11 +25,11 @@ import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { Link, withRouter, WithRouterProps } from 'react-router';
 import { formatPrice, parseQuery } from './utils';
-import { whenLoggedIn } from './whenLoggedIn';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { getAlmAppInfo, getAlmOrganization } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
 import {
@@ -62,9 +62,11 @@ interface State {
   subscriptionPlans?: SubscriptionPlan[];
 }
 
+type TabKeys = 'auto' | 'manual';
+
 interface LocationState {
   paid?: boolean;
-  tab?: 'auto' | 'manual';
+  tab?: TabKeys;
 }
 
 export class CreateOrganization extends React.PureComponent<Props & WithRouterProps, State> {
@@ -125,7 +127,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     });
   };
 
-  onTabChange = (tab: 'auto' | 'manual') => {
+  onTabChange = (tab: TabKeys) => {
     this.updateUrl({ tab });
   };
 
@@ -138,6 +140,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   updateUrl = (state: Partial<LocationState> = {}) => {
     this.props.router.replace({
       pathname: this.props.location.pathname,
+      query: this.props.location.query,
       state: { ...(this.props.location.state || {}), ...state }
     });
   };
@@ -182,7 +185,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
           ) : (
             <>
               {almApplication && (
-                <Tabs
+                <Tabs<TabKeys>
                   onChange={this.onTabChange}
                   selected={showManualTab ? 'manual' : 'auto'}
                   tabs={[
@@ -195,13 +198,9 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
                             almApplication.key
                           )}
                           <span
-                            className={classNames(
-                              'rounded alert alert-small spacer-left display-inline-block',
-                              {
-                                'alert-info': !showManualTab,
-                                'alert-muted': showManualTab
-                              }
-                            )}>
+                            className={classNames('beta-badge spacer-left', {
+                              'is-muted': showManualTab
+                            })}>
                             {translate('beta')}
                           </span>
                         </>

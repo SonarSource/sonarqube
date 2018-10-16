@@ -52,7 +52,7 @@ exports[`should render with auto tab displayed 1`] = `
             "node": <React.Fragment>
               onboarding.create_organization.import_organization.github
               <span
-                className="rounded alert alert-small spacer-left display-inline-block alert-info"
+                className="beta-badge spacer-left"
               >
                 beta
               </span>
@@ -134,7 +134,7 @@ exports[`should render with auto tab selected and manual disabled 1`] = `
             "node": <React.Fragment>
               onboarding.create_organization.import_organization.github
               <span
-                className="rounded alert alert-small spacer-left display-inline-block alert-info"
+                className="beta-badge spacer-left"
               >
                 beta
               </span>
@@ -288,7 +288,7 @@ exports[`should switch tabs 1`] = `
             "node": <React.Fragment>
               onboarding.create_organization.import_organization.github
               <span
-                className="rounded alert alert-small spacer-left display-inline-block alert-info"
+                className="beta-badge spacer-left"
               >
                 beta
               </span>

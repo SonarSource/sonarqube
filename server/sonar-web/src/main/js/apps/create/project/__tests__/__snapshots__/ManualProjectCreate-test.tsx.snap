@@ -21,49 +21,22 @@ exports[`should render correctly 1`] = `
   <form
     onSubmit={[Function]}
   >
-    <div
-      className="form-field"
-    >
-      <label
-        htmlFor="select-organization"
-      >
-        onboarding.create_project.organization
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
-      </label>
-      <Select
-        autoFocus={true}
-        className="input-super-large"
-        clearable={false}
-        id="select-organization"
-        onChange={[Function]}
-        options={
-          Array [
-            Object {
-              "label": "Bar",
-              "value": "bar",
-            },
-            Object {
-              "label": "Foo",
-              "value": "foo",
-            },
-          ]
-        }
-        required={true}
-        value=""
-      />
-      <Link
-        className="big-spacer-left js-new-org"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/create-organization"
-      >
-        onboarding.create_project.create_new_org
-      </Link>
-    </div>
+    <OrganizationSelect
+      onChange={[Function]}
+      organization=""
+      organizations={
+        Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          },
+          Object {
+            "key": "bar",
+            "name": "Bar",
+          },
+        ]
+      }
+    />
     <div
       className="form-field"
     >
