@@ -72,10 +72,10 @@ export default function BranchAnalysis() {
             </li>
             <li className="sc-feature sc-branch-feature">
               <div>
-                <h3 className="sc-feature-title">Decorate PRs on VSTS and GitHub</h3>
+                <h3 className="sc-feature-title">Decorate PRs on Azure DevOps and GitHub</h3>
                 <p className="sc-feature-description">
-                  Pull requests get decorated directly on VSTS and GitHub. The result of the PR
-                  analysis is available directly in the pull request itself, complementing nicely
+                  Pull requests get decorated directly on Azure DevOps and GitHub. The result of the
+                  PR analysis is available directly in the pull request itself, complementing nicely
                   manual reviews made by peers and enabling to make a more educated decision for
                   merging.
                 </p>

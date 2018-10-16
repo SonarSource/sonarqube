@@ -37,15 +37,16 @@ export default function VSTS() {
             </li>
           </ul>
           <div className="sc-child-header">
-            <h1 className="sc-child-title">Get the full experience in VSTS</h1>
+            <h1 className="sc-child-title">Get the full experience in Azure DevOps</h1>
           </div>
 
           <ul className="sc-features-list">
             <li className="sc-feature sc-child-feature">
               <h3 className="sc-feature-title">Native extension</h3>
               <p className="sc-feature-description">
-                Using your existing VSTS account and the SonarCloud VSTS build tasks, adding and
-                configuring SonarCloud analysis to an existing build is a matter of minutes.
+                Using your existing Azure DevOps account and the SonarCloud Azure DevOps build
+                tasks, adding and configuring SonarCloud analysis to an existing build is a matter
+                of minutes.
               </p>
             </li>
             <li className="sc-feature sc-child-feature">
@@ -66,8 +67,8 @@ export default function VSTS() {
             <li className="sc-feature sc-child-feature">
               <h3 className="sc-feature-title">Dedicated widget</h3>
               <p className="sc-feature-description">
-                Once a project is in SonarCloud, a configurable widget can be added to the VSTS
-                dashboard in order to add code quality to KPIs already used on the project.
+                Once a project is in SonarCloud, a configurable widget can be added to the Azure
+                DevOps dashboard in order to add code quality to KPIs already used on the project.
               </p>
             </li>
           </ul>
@@ -89,11 +90,11 @@ export default function VSTS() {
               )}
               <div className="sc-vsts-start-box">
                 <img
-                  alt="VSTS Extension"
+                  alt="Azure DevOps Extension"
                   height="38"
                   src={`${getBaseUrl()}/images/sonarcloud/windows.svg`}
                 />
-                <h3 className="sc-vsts-start-title">Install VSTS Extension</h3>
+                <h3 className="sc-vsts-start-title">Install Azure DevOps Extension</h3>
                 <a
                   className="sc-black-button"
                   href="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarcloud"

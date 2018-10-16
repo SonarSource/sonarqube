@@ -298,12 +298,12 @@ function Integrations() {
           />
         </li>
         <li>
-          <h3 className="sc-feature-title">VSTS</h3>
+          <h3 className="sc-feature-title">Azure DevOps</h3>
           <img
-            alt="VSTS"
+            alt="Azure DevOps"
             className="big-spacer-top"
             height="60"
-            src={`${getBaseUrl()}/images/sonarcloud/vsts-big.svg`}
+            src={`${getBaseUrl()}/images/sonarcloud/azure.svg`}
           />
           <div className="big-spacer-top">
             <Link className="sc-arrow-link sc-feature-link" to="/about/sq/vsts">
