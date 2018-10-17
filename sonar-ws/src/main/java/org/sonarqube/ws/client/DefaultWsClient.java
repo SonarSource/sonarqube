@@ -59,6 +59,7 @@ import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
 import org.sonarqube.ws.client.resources.ResourcesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
+import org.sonarqube.ws.client.securityreports.SecurityReportsService;
 import org.sonarqube.ws.client.server.ServerService;
 import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.sources.SourcesService;
@@ -140,6 +141,7 @@ class DefaultWsClient implements WsClient {
   private final WebhooksService webhooksService;
   private final WebservicesService webservicesService;
   private final BatchService batchService;
+  private final SecurityReportsService securityReportsService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -198,6 +200,7 @@ class DefaultWsClient implements WsClient {
     this.webhooksService = new WebhooksService(wsConnector);
     this.webservicesService = new WebservicesService(wsConnector);
     this.batchService = new BatchService(wsConnector);
+    this.securityReportsService = new SecurityReportsService(wsConnector);
   }
 
   @Override
@@ -474,6 +477,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public BatchService batch() {
     return batchService;
+  }
+
+  @Override
+  public SecurityReportsService securityReports() {
+    return securityReportsService;
   }
 
 }
