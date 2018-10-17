@@ -90,9 +90,9 @@ public class DuplicationsParser {
     if (component == null) {
       Optional<ComponentDto> componentDtoOptional;
       if (branch != null) {
-        componentDtoOptional = Optional.ofNullable(componentDao.selectByKeyAndBranch(session, componentKey, branch).orElseGet(null));
+        componentDtoOptional = componentDao.selectByKeyAndBranch(session, componentKey, branch);
       } else if (pullRequest != null) {
-        componentDtoOptional = Optional.ofNullable(componentDao.selectByKeyAndPullRequest(session, componentKey, pullRequest).orElseGet(null));
+        componentDtoOptional = componentDao.selectByKeyAndPullRequest(session, componentKey, pullRequest);
       } else {
         componentDtoOptional = componentDao.selectByKey(session, componentKey);
       }
