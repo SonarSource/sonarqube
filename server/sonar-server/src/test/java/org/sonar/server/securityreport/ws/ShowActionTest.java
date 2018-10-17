@@ -37,7 +37,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
@@ -327,17 +326,6 @@ public class ShowActionTest {
   private void insertQPLiveMeasure(ComponentDto project) {
     QualityProfile qp = new QualityProfile(qualityProfile.getKee(), qualityProfile.getName(), qualityProfile.getLanguage(), new Date());
     db.measures().insertLiveMeasure(project, qpMetric, lm -> lm.setData(QPMeasureData.toJson(new QPMeasureData(singletonList(qp)))));
-  }
-
-  private void grantPermissionToAnyone(ComponentDto project, String permission) {
-    dbClient.groupPermissionDao().insert(session,
-      new GroupPermissionDto()
-        .setOrganizationUuid(project.getOrganizationUuid())
-        .setGroupId(null)
-        .setResourceId(project.getId())
-        .setRole(permission));
-    session.commit();
-    userSessionRule.logIn().addProjectPermission(permission, project);
   }
 
   private ComponentDto insertComponent(ComponentDto component) {
