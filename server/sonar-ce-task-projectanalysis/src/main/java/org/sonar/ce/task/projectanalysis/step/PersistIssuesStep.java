@@ -92,7 +92,7 @@ public class PersistIssuesStep implements ComputationStep {
   }
 
   private void persistNewIssue(IssueMapper mapper, DefaultIssue issue) {
-    Integer ruleId = ruleRepository.getByKey(issue.ruleKey()).getId();
+    int ruleId = ruleRepository.getByKey(issue.ruleKey()).getId();
     IssueDto dto = IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now());
     mapper.insert(dto);
   }

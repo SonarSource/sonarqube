@@ -46,9 +46,6 @@ public class DuplicationDao implements Dao {
     session.getMapper(DuplicationMapper.class).batchInsert(dto);
   }
   
-  /**
-   * @param componentUUid uuid of the component
-   */
   public List<DuplicationUnitDto> selectComponent(DbSession session, String componentUuid, String analysisUuid) {
     return session.getMapper(DuplicationMapper.class).selectComponent(componentUuid, analysisUuid);
   }

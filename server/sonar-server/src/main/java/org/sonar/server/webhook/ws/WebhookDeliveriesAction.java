@@ -84,7 +84,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
     action.createParam(PARAM_WEBHOOK)
       .setSince("7.1")
-      .setDescription("Key of the webhook that triggered those deliveries," +
+      .setDescription("Key of the webhook that triggered those deliveries, " +
         "auto-generated value that can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(UUID_EXAMPLE_02);
 

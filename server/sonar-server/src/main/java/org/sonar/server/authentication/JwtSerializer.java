@@ -128,7 +128,7 @@ public class JwtSerializer implements Startable {
     for (Map.Entry<String, Object> entry : token.entrySet()) {
       jwtBuilder.claim(entry.getKey(), entry.getValue());
     }
-    jwtBuilder.setExpiration(new Date(now + expirationTimeInSeconds * 1000))
+    jwtBuilder.setExpiration(new Date(now + expirationTimeInSeconds * 1_000L))
       .signWith(SIGNATURE_ALGORITHM, secretKey);
     return jwtBuilder.compact();
   }

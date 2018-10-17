@@ -70,7 +70,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
     List<LoadedActiveRule> ruleList = new LinkedList<>();
     int page = 1;
     int pageSize = 500;
-    int loaded = 0;
+    long loaded = 0;
 
     while (true) {
       GetRequest getRequest = new GetRequest(getUrl(qualityProfileKey, page, pageSize));

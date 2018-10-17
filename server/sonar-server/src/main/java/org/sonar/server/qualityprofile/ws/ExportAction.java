@@ -87,8 +87,7 @@ public class ExportAction implements QProfileWsAction {
       .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_QUALITY_PROFILE)
-      .setDescription("Quality profile name to export. If left empty, the default profile for the language is exported.",
-        PARAM_QUALITY_PROFILE)
+      .setDescription("Quality profile name to export. If left empty, the default profile for the language is exported.")
       .setDeprecatedKey("name", "6.6")
       .setExampleValue("My Sonar way");
 

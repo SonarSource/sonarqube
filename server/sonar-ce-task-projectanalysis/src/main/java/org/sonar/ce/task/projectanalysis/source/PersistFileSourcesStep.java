@@ -136,7 +136,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
         String revision = computeRevision(latestChangeWithRevision);
         boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
-        boolean lineHashesVersionUpdated = !previousDto.getLineHashesVersion().equals(lineHashesVersion);
+        boolean lineHashesVersionUpdated = previousDto.getLineHashesVersion() != lineHashesVersion;
         if (binaryDataUpdated || srcHashUpdated || revisionUpdated || lineHashesVersionUpdated) {
           previousDto
             .setBinaryData(binaryData)

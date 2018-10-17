@@ -71,9 +71,10 @@ public class FileSourceDto {
   private String dataType;
   private String dataHash;
   private String revision;
+  @Nullable
   private Integer lineHashesVersion;
 
-  public Integer getLineHashesVersion() {
+  public int getLineHashesVersion() {
     return lineHashesVersion != null ? lineHashesVersion : LineHashVersion.WITHOUT_SIGNIFICANT_CODE.getDbValue();
   }
 

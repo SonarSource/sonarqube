@@ -170,29 +170,6 @@ public class DatabaseUtils {
   }
 
   /**
-   * Partition by 1000 elements a list of input and execute a consumer on each part.
-   *
-   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
-   * and with MsSQL when there's more than 2000 parameters in a query
-   *
-   * @param inputs the whole list of elements to be partitioned
-   * @param sqlCaller a {@link Function} which calls the SQL update/delete and returns the number of updated/deleted rows.
-   * @param partitionSizeManipulations the function that computes the number of usages of a partition, for example
-   *                                   {@code partitionSize -> partitionSize / 2} when the partition of elements
-   *                                   in used twice in the SQL request.
-   * @return the total number of updated/deleted rows (computed as the sum of the values returned by {@code sqlCaller}).
-   */
-  public static <INPUT extends Comparable<INPUT>> int executeLargeUpdates(Collection<INPUT> inputs, Function<List<INPUT>, Integer> sqlCaller,
-    IntFunction<Integer> partitionSizeManipulations) {
-    Iterable<List<INPUT>> partitions = toUniqueAndSortedPartitions(inputs, partitionSizeManipulations);
-    Integer res = 0;
-    for (List<INPUT> partition : partitions) {
-      res += sqlCaller.apply(partition);
-    }
-    return res;
-  }
-
-  /**
    * Ensure values {@code inputs} are unique (which avoids useless arguments) and sorted before creating the partition.
    */
   public static <INPUT extends Comparable<INPUT>> Iterable<List<INPUT>> toUniqueAndSortedPartitions(Collection<INPUT> inputs) {

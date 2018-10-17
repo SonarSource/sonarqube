@@ -101,6 +101,6 @@ public class EsStateSection implements SystemInfoSection {
   }
 
   private static String formatPercent(long amount) {
-    return format(Locale.ENGLISH, "%.1f%%", 100 * amount * 1.0D / 100L);
+    return format(Locale.ENGLISH, "%.1f%%", 100.0 * amount * 1.0 / 100.0);
   }
 }

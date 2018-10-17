@@ -33,7 +33,7 @@ import org.apache.commons.lang.reflect.FieldUtils;
 public class ProgrammaticLogbackValve extends LogbackValve {
 
   @Override
-  public void startInternal() throws LifecycleException {
+  public synchronized void startInternal() throws LifecycleException {
     try {
       // direct coupling with LogbackValve implementation
       FieldUtils.writeField(this, "scheduledExecutorService", ExecutorServiceUtil.newScheduledExecutorService(), true);

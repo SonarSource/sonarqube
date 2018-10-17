@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -592,11 +593,11 @@ public class IssueIndex {
     boolean startInclusive;
     PeriodStart createdAfter = query.createdAfter();
     if (createdAfter == null) {
-      Optional<Long> minDate = getMinCreatedAt(filters, esQuery);
+      OptionalLong minDate = getMinCreatedAt(filters, esQuery);
       if (!minDate.isPresent()) {
         return Optional.empty();
       }
-      startTime = minDate.get();
+      startTime = minDate.getAsLong();
       startInclusive = true;
     } else {
       startTime = createdAfter.date().getTime();
@@ -627,7 +628,7 @@ public class IssueIndex {
     return Optional.of(dateHistogram);
   }
 
-  private Optional<Long> getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
+  private OptionalLong getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String facetNameAndField = CREATED_AT.getFieldName();
     SearchRequestBuilder esRequest = client
       .prepareSearch(INDEX_TYPE_ISSUE)
@@ -642,11 +643,11 @@ public class IssueIndex {
     esRequest.addAggregation(AggregationBuilders.min(facetNameAndField).field(facetNameAndField));
     Min minValue = esRequest.get().getAggregations().get(facetNameAndField);
 
-    Double actualValue = minValue.getValue();
-    if (actualValue.isInfinite()) {
-      return Optional.empty();
+    double actualValue = minValue.getValue();
+    if (Double.isInfinite(actualValue)) {
+      return OptionalLong.empty();
     }
-    return Optional.of(actualValue.longValue());
+    return OptionalLong.of((long)actualValue);
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {

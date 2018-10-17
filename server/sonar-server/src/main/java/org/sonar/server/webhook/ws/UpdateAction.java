@@ -69,7 +69,7 @@ public class UpdateAction implements WebhooksWsAction {
     action.createParam(KEY_PARAM)
       .setRequired(true)
       .setMaximumLength(KEY_PARAM_MAXIMUN_LENGTH)
-      .setDescription("The key of the webhook to be updated,"+
+      .setDescription("The key of the webhook to be updated, "+
         "auto-generated value can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 

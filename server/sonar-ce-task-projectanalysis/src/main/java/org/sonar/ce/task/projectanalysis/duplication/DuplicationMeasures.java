@@ -19,25 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.isEmpty;
-import static java.util.Objects.requireNonNull;
-import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS_KEY;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_FILES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -51,8 +38,16 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Iterables.isEmpty;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS_KEY;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_FILES_KEY;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 
 public class DuplicationMeasures {
   protected final ImmutableList<Formula> formulas;
@@ -129,7 +124,7 @@ public class DuplicationMeasures {
 
       // use a set to count lines only once
       Set<Integer> duplicatedLineNumbers = new HashSet<>();
-      long blocks = 0;
+      int blocks = 0;
       for (Duplication duplication : duplications) {
         blocks++;
         addLines(duplication.getOriginal(), duplicatedLineNumbers);

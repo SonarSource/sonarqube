@@ -69,7 +69,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("list_definitions")
       .setDescription("List settings definitions.<br>" +
-        "Requires 'Browse' permission when a component is specified<br/>",
+        "Requires 'Browse' permission when a component is specified<br/>" +
         "To access licensed settings, authentication is required<br/>" +
           "To access secured settings, one of the following permissions is required: " +
           "<ul>" +

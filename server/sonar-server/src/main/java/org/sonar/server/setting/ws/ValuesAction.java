@@ -92,7 +92,7 @@ public class ValuesAction implements SettingsWsAction {
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "The settings from conf/sonar.properties are excluded from results.<br>" +
-        "Requires 'Browse' or 'Execute Analysis' permission when a component is specified<br/>",
+        "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>" +
         "To access licensed settings, authentication is required<br/>" +
           "To access secured settings, one of the following permissions is required: " +
           "<ul>" +
