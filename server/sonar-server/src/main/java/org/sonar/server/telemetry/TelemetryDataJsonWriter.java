@@ -34,6 +34,7 @@ public class TelemetryDataJsonWriter {
     json.prop("id", statistics.getServerId());
     json.prop("version", statistics.getVersion());
     statistics.getEdition().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
+    statistics.getLicenseType().ifPresent(e -> json.prop("licenseType", e));
     json.name("database");
     json.beginObject();
     json.prop("name", statistics.getDatabase().getName());

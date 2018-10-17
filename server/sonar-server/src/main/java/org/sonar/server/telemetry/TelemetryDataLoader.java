@@ -23,6 +23,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.function.Function;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -40,6 +42,8 @@ import org.sonar.server.telemetry.TelemetryData.Database;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
 
+import static java.util.Optional.ofNullable;
+
 @ServerSide
 public class TelemetryDataLoader {
   private final Server server;
@@ -49,9 +53,16 @@ public class TelemetryDataLoader {
   private final ProjectMeasuresIndex projectMeasuresIndex;
   private final PlatformEditionProvider editionProvider;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  @CheckForNull
+  private final LicenseReader licenseReader;
 
   public TelemetryDataLoader(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
     PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, defaultOrganizationProvider, null);
+  }
+
+  public TelemetryDataLoader(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
+    PlatformEditionProvider editionProvider, DefaultOrganizationProvider defaultOrganizationProvider, @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -59,6 +70,7 @@ public class TelemetryDataLoader {
     this.projectMeasuresIndex = projectMeasuresIndex;
     this.editionProvider = editionProvider;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.licenseReader = licenseReader;
   }
 
   public TelemetryData load() {
@@ -67,6 +79,9 @@ public class TelemetryDataLoader {
     data.setServerId(server.getId());
     data.setVersion(server.getVersion());
     data.setEdition(editionProvider.get());
+    ofNullable(licenseReader)
+      .flatMap(reader -> licenseReader.read())
+      .ifPresent(license -> data.setLicenseType(license.getType()));
     Function<PluginInfo, String> getVersion = plugin -> plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
     Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey, getVersion));
     data.setPlugins(plugins);

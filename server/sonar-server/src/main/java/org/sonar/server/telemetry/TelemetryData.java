@@ -21,6 +21,7 @@ package org.sonar.server.telemetry;
 
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
 
@@ -38,6 +39,7 @@ public class TelemetryData {
   private final Map<String, Long> projectCountByLanguage;
   private final Map<String, Long> nclocByLanguage;
   private final Optional<EditionProvider.Edition> edition;
+  private final String licenseType;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -51,6 +53,7 @@ public class TelemetryData {
     projectCountByLanguage = builder.projectMeasuresStatistics.getProjectCountByLanguage();
     nclocByLanguage = builder.projectMeasuresStatistics.getNclocByLanguage();
     edition = builder.edition;
+    licenseType = builder.licenseType;
   }
 
   public String getServerId() {
@@ -97,6 +100,10 @@ public class TelemetryData {
     return edition;
   }
 
+  public Optional<String> getLicenseType() {
+    return Optional.ofNullable(licenseType);
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -111,6 +118,7 @@ public class TelemetryData {
     private Long ncloc;
     private Boolean usingBranches;
     private Optional<EditionProvider.Edition> edition;
+    private String licenseType;
 
     private Builder() {
       // enforce static factory method
@@ -158,6 +166,11 @@ public class TelemetryData {
 
     public Builder setEdition(Optional<EditionProvider.Edition> edition) {
       this.edition = edition;
+      return this;
+    }
+
+    public Builder setLicenseType(@Nullable String licenseType) {
+      this.licenseType = licenseType;
       return this;
     }
 

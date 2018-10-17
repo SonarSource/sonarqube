@@ -29,7 +29,6 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
@@ -55,6 +54,7 @@ import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -81,7 +81,6 @@ public class TelemetryDaemonTest {
 
   private static final long ONE_HOUR = 60 * 60 * 1_000L;
   private static final long ONE_DAY = 24 * ONE_HOUR;
-  private static final Configuration emptyConfig = new MapSettings().asConfig();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -102,13 +101,18 @@ public class TelemetryDaemonTest {
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
-  private final TelemetryDataLoader dataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()));
-  private TelemetryDaemon underTest = new TelemetryDaemon(dataLoader, client, settings.asConfig(), internalProperties, system2);
+  private final TelemetryDataLoader communityDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), null);
+  private TelemetryDaemon communityUnderTest = new TelemetryDaemon(communityDataLoader, client, settings.asConfig(), internalProperties, system2);
+
+  private final LicenseReader licenseReader = mock(LicenseReader.class);
+  private final TelemetryDataLoader commercialDataLoader = new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, new DefaultOrganizationProviderImpl(db.getDbClient()), licenseReader);
+  private TelemetryDaemon commercialUnderTest = new TelemetryDaemon(commercialDataLoader, client, settings.asConfig(), internalProperties, system2);
 
   @After
   public void tearDown() {
-    underTest.stop();
+    communityUnderTest.stop();
   }
 
   @Test
@@ -144,7 +148,7 @@ public class TelemetryDaemonTest {
     db.measures().insertLiveMeasure(project2, nclocDistrib, m -> m.setValue(null).setData("java=300;kotlin=2500"));
     projectMeasuresIndexer.indexOnStartup(emptySet());
 
-    underTest.start();
+    communityUnderTest.start();
 
     ArgumentCaptor<String> jsonCaptor = captureJson();
     String json = jsonCaptor.getValue();
@@ -182,7 +186,7 @@ public class TelemetryDaemonTest {
     db.measures().insertLiveMeasure(shortBranch, ncloc, m -> m.setValue(30d));
     projectMeasuresIndexer.indexOnStartup(emptySet());
 
-    underTest.start();
+    communityUnderTest.start();
 
     ArgumentCaptor<String> jsonCaptor = captureJson();
     assertJson(jsonCaptor.getValue()).isSimilarTo("{\n" +
@@ -194,9 +198,49 @@ public class TelemetryDaemonTest {
   public void send_data_via_client_at_startup_after_initial_delay() throws IOException {
     initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
-    underTest.start();
+    communityUnderTest.start();
 
     verify(client, timeout(2_000).atLeastOnce()).upload(anyString());
+  }
+
+  @Test
+  public void data_contains_no_license_type_on_community_edition() throws IOException {
+    initTelemetrySettingsToDefaultValues();
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+
+    communityUnderTest.start();
+
+    ArgumentCaptor<String> jsonCaptor = captureJson();
+    assertThat(jsonCaptor.getValue()).doesNotContain("licenseType");
+  }
+
+  @Test
+  public void data_contains_no_license_type_on_commercial_edition_if_no_license() throws IOException {
+    initTelemetrySettingsToDefaultValues();
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    when(licenseReader.read()).thenReturn(Optional.empty());
+
+    commercialUnderTest.start();
+
+    ArgumentCaptor<String> jsonCaptor = captureJson();
+    assertThat(jsonCaptor.getValue()).doesNotContain("licenseType");
+  }
+
+  @Test
+  public void data_has_license_type_on_commercial_edition_if_no_license() throws IOException {
+    String licenseType = randomAlphabetic(12);
+    initTelemetrySettingsToDefaultValues();
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    LicenseReader.License license = mock(LicenseReader.License.class);
+    when(license.getType()).thenReturn(licenseType);
+    when(licenseReader.read()).thenReturn(Optional.of(license));
+
+    commercialUnderTest.start();
+
+    ArgumentCaptor<String> jsonCaptor = captureJson();
+    assertJson(jsonCaptor.getValue()).isSimilarTo("{\n" +
+      "  \"licenseType\": \"" + licenseType + "\"\n" +
+      "}\n");
   }
 
   @Test
@@ -207,7 +251,7 @@ public class TelemetryDaemonTest {
     long sevenDaysAgo = now - (ONE_DAY * 7L);
     internalProperties.write("telemetry.lastPing", String.valueOf(sixDaysAgo));
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
-    underTest.start();
+    communityUnderTest.start();
     verify(client, after(2_000).never()).upload(anyString());
     internalProperties.write("telemetry.lastPing", String.valueOf(sevenDaysAgo));
 
@@ -222,7 +266,7 @@ public class TelemetryDaemonTest {
     String version = randomAlphanumeric(10);
     server.setId(id);
     server.setVersion(version);
-    underTest.start();
+    communityUnderTest.start();
 
     ArgumentCaptor<String> json = captureJson();
     assertThat(json.getValue()).contains(id, version);
@@ -236,7 +280,7 @@ public class TelemetryDaemonTest {
     long sixDaysAgo = now - (ONE_DAY * 6L);
 
     internalProperties.write("telemetry.lastPing", String.valueOf(sixDaysAgo));
-    underTest.start();
+    communityUnderTest.start();
 
     verify(client, after(2_000).never()).upload(anyString());
   }
@@ -251,7 +295,7 @@ public class TelemetryDaemonTest {
     internalProperties.write("telemetry.lastPing", String.valueOf(sevenDaysAgo));
     reset(internalProperties);
 
-    underTest.start();
+    communityUnderTest.start();
 
     verify(internalProperties, timeout(4_000)).write("telemetry.lastPing", String.valueOf(today));
     verify(client).upload(anyString());
@@ -262,8 +306,8 @@ public class TelemetryDaemonTest {
     initTelemetrySettingsToDefaultValues();
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
     settings.setProperty("sonar.telemetry.enable", "false");
-    underTest.start();
-    underTest.start();
+    communityUnderTest.start();
+    communityUnderTest.start();
 
     verify(client, after(2_000).never()).upload(anyString());
     verify(client, timeout(2_000).times(1)).optOut(anyString());
