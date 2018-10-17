@@ -82,6 +82,11 @@ it('should render without overview', () => {
   ).toBe(false);
 });
 
+it('should use "estimated" label for overall measures ', () => {
+  const wrapper = shallow(<DomainFacet {...PROPS} hasOverview={false} />);
+  expect(wrapper.find('.facet-name').map(w => w.text())).toMatchSnapshot();
+});
+
 it('should not display subtitles of new measures if there is none', () => {
   const domain = {
     name: 'Reliability',

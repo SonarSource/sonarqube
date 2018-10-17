@@ -96,7 +96,9 @@ export default class DomainFacet extends React.PureComponent<Props> {
         typeof item === 'string' ? (
           <span className="facet search-navigator-facet facet-category" key={item}>
             <span className="facet-name">
-              {translate('component_measures.facet_category', item)}
+              {!this.props.hasOverview && item === 'overall_category'
+                ? translate('component_measures.facet_category', item, 'estimated')
+                : translate('component_measures.facet_category', item)}
             </span>
           </span>
         ) : (

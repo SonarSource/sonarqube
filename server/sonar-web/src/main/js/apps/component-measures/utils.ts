@@ -163,6 +163,7 @@ export function hasFullMeasures(branch?: BranchLike) {
 export function getMeasuresPageMetricKeys(metrics: { [key: string]: Metric }, branch?: BranchLike) {
   if (!hasFullMeasures(branch)) {
     return [
+      'coverage',
       'new_coverage',
       'new_lines_to_cover',
       'new_uncovered_lines',

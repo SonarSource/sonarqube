@@ -441,3 +441,10 @@ exports[`should not display subtitles of new measures if there is none, even on 
   </FacetItemsList>
 </FacetBox>
 `;
+
+exports[`should use "estimated" label for overall measures  1`] = `
+Array [
+  "component_measures.facet_category.new_code_category",
+  "component_measures.facet_category.overall_category.estimated",
+]
+`;
