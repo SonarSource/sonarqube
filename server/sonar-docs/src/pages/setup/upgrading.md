@@ -4,7 +4,7 @@ url: /setup/upgrading/
 ---
 
 <!-- sonarqube -->
-Upgrading across multiple versions is handled automatically. However, if in your migration path you have an LTS version, you must first migrate to this LTS and then migrate to your target version.
+Upgrading across multiple, non-LTS versions is handled automatically. However, if in your migration path you have an LTS version, you must first migrate to this LTS and then migrate to your target version.
 
 Example 1 : 5.1 -> 7.0, migration path is 5.1 -> 5.6.7 LTS -> 6.7.x LTS -> 7.0
 Example 2 : 6.2 -> 6.7, migration path is 6.2 -> 6.7.x LTS (where x is the latest patch available for 6.7 - you don't need to install all the intermediary patches, just take the latest)
