@@ -26,6 +26,10 @@ configurations {
   }
 }
 
+ext {
+  slangVersion = '1.2.1.2009'
+}
+
 dependencies {
   // please keep list ordered
 
@@ -47,19 +51,21 @@ dependencies {
   jdbc_mysql 'mysql:mysql-connector-java'
   jdbc_postgresql 'org.postgresql:postgresql'
 
-  bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.0.1.508@jar'
-  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.3.2.6129@jar'
+  bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.0.2.611@jar'
+  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.7.0.7192@jar'
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.0.1612@jar'
-  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.6.1.15064@jar'
-  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:4.2.0.6476@jar'
-  bundledPlugin 'org.sonarsource.slang:sonar-kotlin-plugin:1.0.1.965@jar'
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.8.0.15699@jar'
+  bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.1.143@jar'
+  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.0.0.6962@jar'
+  bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}@jar"
+  bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}@jar"
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
   bundledPlugin 'org.sonarsource.php:sonar-php-plugin:2.14.0.3569@jar'
   bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.10.0.2131@jar'
   bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.6.0.1349@jar'
   bundledPlugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295@jar'
-  bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin:1.7.0.2893@jar'
+  bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin:1.8.0.3332@jar'
   bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin:1.5.1.1452@jar'
 
   testCompile 'junit:junit'
@@ -134,8 +140,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 150000000
-  def maxLength = 165000000
+  def minLength = 170000000
+  def maxLength = 175000000
   def length = new File(distsDir, archiveName).length()
   if (length < minLength)
     throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
