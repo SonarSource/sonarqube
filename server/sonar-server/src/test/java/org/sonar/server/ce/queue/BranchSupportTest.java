@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.ce.queue.BranchSupport.ComponentKey;
@@ -63,10 +64,9 @@ public class BranchSupportTest {
       .isEqualTo(underTestWithBranch.createComponentKey(projectKey, null, NO_CHARACTERISTICS));
     assertThat(componentKey.getKey()).isEqualTo(projectKey);
     assertThat(componentKey.getDbKey()).isEqualTo(projectKey);
-    assertThat(componentKey.isMainBranch()).isTrue();
     assertThat(componentKey.isDeprecatedBranch()).isFalse();
     assertThat(componentKey.getMainBranchComponentKey()).isSameAs(componentKey);
-    assertThat(componentKey.getBranchName()).isEmpty();
+    assertThat(componentKey.getBranch()).isEmpty();
     assertThat(componentKey.getPullRequestKey()).isEmpty();
   }
 
@@ -81,10 +81,9 @@ public class BranchSupportTest {
       .isEqualTo(underTestWithBranch.createComponentKey(projectKey, deprecatedBranchName, NO_CHARACTERISTICS));
     assertThat(componentKey.getKey()).isEqualTo(projectKey);
     assertThat(componentKey.getDbKey()).isEqualTo(projectKey + ":" + deprecatedBranchName);
-    assertThat(componentKey.isMainBranch()).isFalse();
     assertThat(componentKey.isDeprecatedBranch()).isTrue();
     assertThat(componentKey.getMainBranchComponentKey()).isSameAs(componentKey);
-    assertThat(componentKey.getBranchName()).isEmpty();
+    assertThat(componentKey.getBranch()).isEmpty();
     assertThat(componentKey.getPullRequestKey()).isEmpty();
   }
 
@@ -130,11 +129,12 @@ public class BranchSupportTest {
     ComponentKey componentKey = mock(ComponentKey.class);
     OrganizationDto organization = new OrganizationDto();
     ComponentDto mainComponentDto = new ComponentDto();
+    BranchDto mainComponentBranchDto = new BranchDto();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Current edition does not support branch feature");
     
-    underTestNoBranch.createBranchComponent(dbSession, componentKey, organization, mainComponentDto);
+    underTestNoBranch.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
   }
 
   @Test
@@ -144,10 +144,11 @@ public class BranchSupportTest {
     OrganizationDto organization = new OrganizationDto();
     ComponentDto mainComponentDto = new ComponentDto();
     ComponentDto expected = new ComponentDto();
-    when(branchSupportDelegate.createBranchComponent(dbSession, componentKey, organization, mainComponentDto))
+    BranchDto mainComponentBranchDto = new BranchDto();
+    when(branchSupportDelegate.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto))
       .thenReturn(expected);
 
-    ComponentDto dto = underTestWithBranch.createBranchComponent(dbSession, componentKey, organization, mainComponentDto);
+    ComponentDto dto = underTestWithBranch.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
 
     assertThat(dto).isSameAs(expected);
   }

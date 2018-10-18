@@ -24,14 +24,18 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Branch code for {@link ReportSubmitter}.
@@ -66,36 +70,83 @@ public class BranchSupport {
     return delegate.createComponentKey(projectKey, characteristics);
   }
 
-  ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey, OrganizationDto organization, ComponentDto mainComponentDto) {
+  ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey, OrganizationDto organization,
+    ComponentDto mainComponentDto, BranchDto mainComponentBranchDto) {
     checkState(delegate != null, "Current edition does not support branch feature");
 
-    return delegate.createBranchComponent(dbSession, componentKey, organization, mainComponentDto);
+    return delegate.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
   }
 
-  public interface ComponentKey {
-    String getKey();
+  public abstract static class ComponentKey {
+    public abstract String getKey();
 
-    String getDbKey();
+    public abstract String getDbKey();
 
-    Optional<String> getDeprecatedBranchName();
+    public abstract Optional<String> getDeprecatedBranchName();
 
-    Optional<String> getBranchName();
+    public abstract Optional<Branch> getBranch();
 
-    Optional<String> getPullRequestKey();
+    public abstract Optional<String> getPullRequestKey();
 
-    boolean isMainBranch();
+    public final boolean isDeprecatedBranch() {
+      return getDeprecatedBranchName().isPresent();
+    }
 
-    boolean isDeprecatedBranch();
+    public final boolean isMainBranch() {
+      return !getBranch().isPresent() && !getPullRequestKey().isPresent();
+    }
 
     /**
      * @return the {@link ComponentKey} of the main branch for this component.
-     *         If this component is the main branch (ie. {@link #isMainBranch()} returns true), this method returns
-     *         {@code this}.
      */
-    ComponentKey getMainBranchComponentKey();
+    public abstract ComponentKey getMainBranchComponentKey();
   }
 
-  private static final class ComponentKeyImpl implements ComponentKey {
+  @Immutable
+  public static final class Branch {
+    private final String name;
+    private final BranchType type;
+
+    public Branch(String name, BranchType type) {
+      this.name = requireNonNull(name, "name can't be null");
+      this.type = requireNonNull(type, "type can't be null");
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public BranchType getType() {
+      return type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Branch branch = (Branch) o;
+      return name.equals(branch.name) && type == branch.type;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(name, type);
+    }
+
+    @Override
+    public String toString() {
+      return "Branch{" +
+        "name='" + name + '\'' +
+        ", type=" + type +
+        '}';
+    }
+  }
+
+  private static final class ComponentKeyImpl extends ComponentKey {
     private final String key;
     private final String dbKey;
     @CheckForNull
@@ -123,23 +174,13 @@ public class BranchSupport {
     }
 
     @Override
-    public Optional<String> getBranchName() {
+    public Optional<Branch> getBranch() {
       return Optional.empty();
     }
 
     @Override
     public Optional<String> getPullRequestKey() {
       return Optional.empty();
-    }
-
-    @Override
-    public boolean isMainBranch() {
-      return key.equals(dbKey);
-    }
-
-    @Override
-    public boolean isDeprecatedBranch() {
-      return deprecatedBranchName != null;
     }
 
     @Override

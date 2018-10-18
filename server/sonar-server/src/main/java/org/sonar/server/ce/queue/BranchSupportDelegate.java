@@ -23,6 +23,7 @@ import java.util.Map;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.ce.queue.BranchSupport.ComponentKey;
@@ -51,5 +52,5 @@ public interface BranchSupportDelegate {
    *         key as {@code componentKey.getKey()}, ...)
    */
   ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey,
-    OrganizationDto organization, ComponentDto mainComponentDto);
+    OrganizationDto organization, ComponentDto mainComponentDto, BranchDto mainComponentBranchDto);
 }

@@ -34,6 +34,7 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
@@ -146,7 +147,9 @@ public class ReportSubmitter {
     Optional<ComponentDto> existingMainComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getKey());
     ComponentDto mainComponentDto = existingMainComponent
       .orElseGet(() -> createProject(dbSession, organization, componentKey.getMainBranchComponentKey(), projectName));
-    ComponentDto branchComponent = branchSupport.createBranchComponent(dbSession, componentKey, organization, mainComponentDto);
+    BranchDto mainComponentBranchDto = dbClient.branchDao().selectByUuid(dbSession, mainComponentDto.uuid())
+      .orElseThrow(() -> new IllegalStateException("Branch of main component does not exist"));
+    ComponentDto branchComponent = branchSupport.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
     if (existingMainComponent.isPresent()) {
       dbSession.commit();
     } else {
