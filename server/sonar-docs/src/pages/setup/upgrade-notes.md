@@ -25,6 +25,8 @@ Some `WARN` messages generated during analysis are now available via the UI ([MM
 **"Leak" replaced with "New Code"**  
 Wording has been updated throughout the interface to replace "Leak" and "Leak Period" with "New Code" and "New Code Period".
 
+[Full release notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14549)
+
 
 ## Release 7.3 Upgrade Notes
 
@@ -40,6 +42,7 @@ SonarQube 7.3+ only supports PostgreSQL 9.3 to 10. SonarQube will not start if y
 **Some 3rd-party Plugins Incompatible**  
 APIs deprecated before SonarQube 5.6 are dropped in this version, making some third-party plugins incompatible. It is always advised to check plugin compatibility in the Plugin Version Matrix with each new upgrade, and more so for this version. 
 
+[Full release notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14464)
 
 ## Release 7.2 Upgrade Notes
 
@@ -57,7 +60,7 @@ SonarSource Commercial Editions are now distributed individually, so you directl
 **Deprecated Features**  
 SonarQube 7.2 is the last version supporting PostgreSQL < 9.3. Starting from SonarQube 7.3 the minimal supported version of PostgreSQL will be 9.3: SONAR-10668
 
-
+[Full release notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14213)
 
 ## Release 7.1 Upgrade Notes
 
@@ -74,6 +77,7 @@ Support for MySQL is deprecated for all editions below Data Center Edition (see 
 - Support for MySQL in Data Center Edition.
 - The "accessors" metric, which was deprecated in SonarQube 5.0.
 
+[Full release notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14178)
 
 ## Release 7.0 Upgrade Notes
 
@@ -88,6 +92,8 @@ In order to make clear the default, minimum and recommended criteria Quality Gat
 
 **Dropped Features**  
 It's no longer possible to unset the default Quality Gate. 
+
+[Full release notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14041)
 
 
 ## Release 6.7.5 Upgrade Notes
@@ -104,8 +110,12 @@ Analyzers provided as part of a commercial package will be disabled in old versi
 **Multi-Version Upgrade**  
 Don't forget to read all the intermediate upgrade notes if you're upgrading more than a single version.
 
+[Full release notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14467)
+
 
 ## Release 6.7 Upgrade Notes
 
 **Drop of Issues Report**  
 The deprecated Issues Report feature has been removed.
+
+[Full release notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=13972)
