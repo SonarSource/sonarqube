@@ -28,6 +28,7 @@ configurations {
 
 ext {
   slangVersion = '1.2.1.2009'
+  dotnetVersion = '7.7.0.7192'
 }
 
 dependencies {
@@ -52,7 +53,8 @@ dependencies {
   jdbc_postgresql 'org.postgresql:postgresql'
 
   bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.0.2.611@jar'
-  bundledPlugin 'org.sonarsource.dotnet:sonar-csharp-plugin:7.7.0.7192@jar'
+  bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin:${dotnetVersion}@jar"
+  bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin:${dotnetVersion}@jar"
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.0.1612@jar'
   bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.8.0.15699@jar'
