@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@andrew-codes/gatsby-plugin-elasticlunr-search": "1.0.4",
+    "babel-polyfill": "6.26.0",
     "fs-extra": "^5.0.0",
     "gatsby": "^1.9.247",
     "gatsby-link": "^1.6.40",
