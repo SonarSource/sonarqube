@@ -436,6 +436,96 @@ public class RuleDaoTest {
   }
 
   @Test
+  public void selectByTypeAndLanguages() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+
+    RuleDefinitionDto rule1 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S001"))
+            .setConfigKey("S1")
+            .setType(RuleType.VULNERABILITY)
+            .setLanguage("java"));
+    db.rules().insertOrUpdateMetadata(rule1, organization);
+
+    RuleDefinitionDto rule2 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("js", "S002"))
+            .setType(RuleType.SECURITY_HOTSPOT)
+            .setLanguage("js"));
+    db.rules().insertOrUpdateMetadata(rule2, organization);
+
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization.getUuid(), rule1.getId(), "java", RuleType.VULNERABILITY.getDbConstant()));
+
+    // Rule available also on organization2
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization2.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization2.getUuid(), rule1.getId(), "java", RuleType.VULNERABILITY.getDbConstant()));
+
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("js")))
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization.getUuid(), rule2.getId(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
+
+    // Rule available also on organization2
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization2.getUuid(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("js")))
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization2.getUuid(), rule2.getId(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
+
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("java")))
+      .isEmpty();
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("js")))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectByTypeAndLanguages_return_nothing_when_no_rule_on_languages() {
+    OrganizationDto organization = db.organizations().insert();
+
+    RuleDefinitionDto rule1 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S001"))
+        .setConfigKey("S1")
+        .setType(RuleType.VULNERABILITY)
+        .setLanguage("java"));
+    db.rules().insertOrUpdateMetadata(rule1, organization);
+
+    RuleDefinitionDto rule2 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("js", "S002"))
+        .setType(RuleType.VULNERABILITY)
+        .setLanguage("js"));
+    db.rules().insertOrUpdateMetadata(rule2, organization);
+
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("cpp")))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectByTypeAndLanguages_return_nothing_when_no_rule_with_type() {
+    OrganizationDto organization = db.organizations().insert();
+
+    RuleDefinitionDto rule1 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S001"))
+        .setConfigKey("S1")
+        .setType(RuleType.VULNERABILITY)
+        .setLanguage("java"));
+    db.rules().insertOrUpdateMetadata(rule1, organization);
+
+    RuleDefinitionDto rule2 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S002"))
+        .setType(RuleType.SECURITY_HOTSPOT)
+        .setLanguage("java"));
+    db.rules().insertOrUpdateMetadata(rule2, organization);
+
+    RuleDefinitionDto rule3 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S003"))
+        .setType(RuleType.CODE_SMELL)
+        .setLanguage("java"));
+    db.rules().insertOrUpdateMetadata(rule3, organization);
+
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.BUG.getDbConstant()), singletonList("java")))
+      .isEmpty();
+  }
+
+  @Test
   public void select_by_query() {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setKey(RuleKey.of("java", "S001")).setConfigKey("S1"));

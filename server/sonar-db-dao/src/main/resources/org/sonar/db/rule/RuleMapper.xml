@@ -296,6 +296,18 @@
       r.updated_at desc
   </select>
 
+  <select id="selectByTypeAndLanguages" parameterType="map" resultType="Rule">
+    select
+    <include refid="selectJoinedTablesColumns"/>
+    from
+    rules r
+    <include refid="outerJoinRulesMetadata"/>
+    where
+      r.status != 'REMOVED'
+      and r.rule_type in <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
+      and r.language in <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
+  </select>
+
   <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules (
       plugin_key,

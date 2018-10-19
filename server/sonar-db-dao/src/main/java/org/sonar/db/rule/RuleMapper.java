@@ -63,6 +63,8 @@ public interface RuleMapper {
 
   List<RuleDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") RuleQuery ruleQuery);
 
+  List<RuleDto> selectByTypeAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("types") List<Integer> types, @Param("languages") List<String> languages);
+
   void insertDefinition(RuleDefinitionDto ruleDefinitionDto);
 
   void updateDefinition(RuleDefinitionDto ruleDefinitionDto);

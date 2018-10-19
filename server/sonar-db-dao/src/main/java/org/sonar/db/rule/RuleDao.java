@@ -141,6 +141,11 @@ public class RuleDao implements Dao {
     return mapper(session).selectAllDefinitions();
   }
 
+  public List<RuleDto> selectByTypeAndLanguages(DbSession session, String organizationUuid, List<Integer> types, List<String> languages) {
+    return ensureOrganizationIsSet(organizationUuid,
+      executeLargeInputs(languages, chunk -> mapper(session).selectByTypeAndLanguages(organizationUuid, types, chunk)));
+  }
+
   public List<RuleDto> selectByQuery(DbSession session, String organizationUuid, RuleQuery ruleQuery) {
     return ensureOrganizationIsSet(organizationUuid, mapper(session).selectByQuery(organizationUuid, ruleQuery));
   }
