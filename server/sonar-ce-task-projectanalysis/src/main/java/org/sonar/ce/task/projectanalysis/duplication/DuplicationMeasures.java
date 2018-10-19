@@ -76,7 +76,7 @@ public class DuplicationMeasures {
   public void execute() {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(formulas))
-        .visit(treeRootHolder.getRoot());
+      .visit(treeRootHolder.getRoot());
   }
 
   protected DuplicationCounter createCounter() {

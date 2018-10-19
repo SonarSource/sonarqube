@@ -506,9 +506,6 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(DefaultCpdTokens defaultCpdTokens) {
     DefaultInputFile inputFile = (DefaultInputFile) defaultCpdTokens.inputFile();
-    if (shouldSkipStorage(inputFile)) {
-      return;
-    }
     inputFile.setPublished(true);
     PmdBlockChunker blockChunker = new PmdBlockChunker(getCpdBlockSize(inputFile.language()));
     List<Block> blocks = blockChunker.chunk(inputFile.key(), defaultCpdTokens.getTokenLines());

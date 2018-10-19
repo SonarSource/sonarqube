@@ -20,9 +20,11 @@
 package org.sonar.scanner.cpd;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -66,15 +69,21 @@ public class CpdExecutor {
   private final InputComponentStore componentStore;
   private final ProgressReport progressReport;
   private final CpdSettings settings;
-  private int count;
+  private final ExecutorService executorService;
+  private int count = 0;
   private int total;
 
   public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
+    this(settings, index, publisher, inputComponentCache, Executors.newSingleThreadExecutor());
+  }
+
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache, ExecutorService executorService) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
     this.componentStore = inputComponentCache;
     this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
+    this.executorService = executorService;
   }
 
   public void execute() {
@@ -83,19 +92,28 @@ public class CpdExecutor {
 
   @VisibleForTesting
   void execute(long timeout) {
-    total = index.noResources();
-    int filesWithoutBlocks = index.noIndexedFiles() - total;
+    List<FileBlocks> components = new ArrayList<>(index.noResources());
+    Iterator<ResourceBlocks> it = index.iterator();
+
+    while (it.hasNext()) {
+      ResourceBlocks resourceBlocks = it.next();
+      Optional<FileBlocks> fileBlocks = toFileBlocks(resourceBlocks.resourceId(), resourceBlocks.blocks());
+      if (!fileBlocks.isPresent() || fileBlocks.get().getInputFile().status() == InputFile.Status.SAME) {
+        continue;
+      }
+      components.add(fileBlocks.get());
+    }
+
+    int filesWithoutBlocks = index.noIndexedFiles() - index.noResources();
     if (filesWithoutBlocks > 0) {
       LOG.info("{} {} had no CPD blocks", filesWithoutBlocks, pluralize(filesWithoutBlocks));
     }
-    progressReport.start(String.format("Calculating CPD for %d %s", total, pluralize(total)));
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-    try {
-      Iterator<ResourceBlocks> it = index.iterator();
 
-      while (it.hasNext()) {
-        ResourceBlocks resourceBlocks = it.next();
-        runCpdAnalysis(executorService, resourceBlocks.resourceId(), resourceBlocks.blocks(), timeout);
+    total = components.size();
+    progressReport.start(String.format("Calculating CPD for %d %s", total, pluralize(total)));
+    try {
+      for (FileBlocks fileBlocks : components) {
+        runCpdAnalysis(executorService, fileBlocks.getInputFile(), fileBlocks.getBlocks(), timeout);
         count++;
       }
       progressReport.stop("CPD calculation finished");
@@ -112,18 +130,7 @@ public class CpdExecutor {
   }
 
   @VisibleForTesting
-  void runCpdAnalysis(ExecutorService executorService, String componentKey, final Collection<Block> fileBlocks, long timeout) {
-    DefaultInputComponent component = (DefaultInputComponent) componentStore.getByKey(componentKey);
-    if (component == null) {
-      LOG.error("Resource not found in component store: {}. Skipping CPD computation for it", componentKey);
-      return;
-    }
-
-    InputFile inputFile = (InputFile) component;
-    if (inputFile.status() == InputFile.Status.SAME) {
-      return;
-    }
-
+  void runCpdAnalysis(ExecutorService executorService, DefaultInputFile inputFile, Collection<Block> fileBlocks, long timeout) {
     LOG.debug("Detection of duplications for {}", inputFile.absolutePath());
     progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile.absolutePath()));
 
@@ -150,7 +157,7 @@ public class CpdExecutor {
       filtered = duplications;
     }
 
-    saveDuplications(component, filtered);
+    saveDuplications(inputFile, filtered);
   }
 
   @VisibleForTesting final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
@@ -171,6 +178,15 @@ public class CpdExecutor {
 
         })::iterator;
     publisher.getWriter().writeComponentDuplications(component.batchId(), reportDuplications);
+  }
+
+  private Optional<FileBlocks> toFileBlocks(String componentKey, Collection<Block> fileBlocks) {
+    DefaultInputFile component = (DefaultInputFile) componentStore.getByKey(componentKey);
+    if (component == null) {
+      LOG.error("Resource not found in component store: {}. Skipping CPD computation for it", componentKey);
+      return Optional.empty();
+    }
+    return Optional.of(new FileBlocks(component, fileBlocks));
   }
 
   private Duplication toReportDuplication(InputComponent component, Duplication.Builder dupBuilder, Duplicate.Builder blockBuilder, CloneGroup input) {
@@ -206,5 +222,23 @@ public class CpdExecutor {
       }
     }
     return dupBuilder.build();
+  }
+
+  private static class FileBlocks {
+    public FileBlocks(DefaultInputFile inputFile, Collection<Block> blocks) {
+      this.inputFile = inputFile;
+      this.blocks = blocks;
+    }
+
+    private DefaultInputFile inputFile;
+    private Collection<Block> blocks;
+
+    public DefaultInputFile getInputFile() {
+      return inputFile;
+    }
+
+    public Collection<Block> getBlocks() {
+      return blocks;
+    }
   }
 }

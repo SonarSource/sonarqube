@@ -74,6 +74,14 @@ public interface TreeRootHolder {
   Optional<Component> getOptionalComponentByRef(int ref);
 
   /**
+   * Return a component from the report tree (see {@link #getReportTreeRoot()}, by its batch reference.
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   * @throws IllegalArgumentException if there's no {@link Component} with the specified reference
+   */
+  Component getReportTreeComponentByRef(int ref);
+
+  /**
    * Number of components, including root.
    *
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)

@@ -35,6 +35,9 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   @CheckForNull
   private Map<Integer, Component> componentsByRef;
 
+  @CheckForNull
+  private Map<Integer, Component> extendedComponentsByRef;
+
   private Component root;
   private Component extendedTreeRoot;
 
@@ -77,10 +80,37 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   }
 
   @Override
+  public Component getReportTreeComponentByRef(int ref) {
+    checkInitialized();
+    ensureExtendedComponentByRefIsPopulated();
+    Component c = extendedComponentsByRef.get(ref);
+    if (c == null) {
+      throw new IllegalArgumentException(String.format("Component with ref '%s' can't be found", ref));
+    }
+    return c;
+  }
+
+  @Override
   public int getSize() {
     checkInitialized();
     ensureComponentByRefIsPopulated();
     return componentsByRef.size();
+  }
+
+  private void ensureExtendedComponentByRefIsPopulated() {
+    if (extendedComponentsByRef != null) {
+      return;
+    }
+
+    final ImmutableMap.Builder<Integer, Component> builder = ImmutableMap.builder();
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
+        @Override
+        public void visitAny(Component component) {
+          builder.put(component.getReportAttributes().getRef(), component);
+        }
+      }).visit(this.extendedTreeRoot);
+    this.extendedComponentsByRef = builder.build();
   }
 
   private void ensureComponentByRefIsPopulated() {

@@ -63,7 +63,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     DuplicationVisitor visitor = new DuplicationVisitor();
-    new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
+    new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getReportTreeRoot());
     context.getStatistics().add("duplications", visitor.count);
   }
 
@@ -79,9 +79,8 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
     public Duplicate apply(@Nonnull ScannerReport.Duplicate input) {
       if (input.getOtherFileRef() != 0) {
         checkArgument(input.getOtherFileRef() != file.getReportAttributes().getRef(), "file and otherFile references can not be the same");
-        return new InProjectDuplicate(
-          treeRootHolder.getComponentByRef(input.getOtherFileRef()),
-          convert(input.getRange()));
+        Component otherComponent = treeRootHolder.getReportTreeComponentByRef(input.getOtherFileRef());
+        return new InProjectDuplicate(otherComponent, convert(input.getRange()));
       }
       return new InnerDuplicate(convert(input.getRange()));
     }
