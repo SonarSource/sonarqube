@@ -52,7 +52,6 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAdHocRule;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
@@ -80,10 +79,9 @@ public class DefaultSensorContext implements SensorContext {
   private final InputModule module;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
-  private final BranchConfiguration branchConfiguration;
 
   public DefaultSensorContext(InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration) {
+    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     this.module = module;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -92,7 +90,6 @@ public class DefaultSensorContext implements SensorContext {
     this.analysisMode = analysisMode;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
-    this.branchConfiguration = branchConfiguration;
   }
 
   @Override

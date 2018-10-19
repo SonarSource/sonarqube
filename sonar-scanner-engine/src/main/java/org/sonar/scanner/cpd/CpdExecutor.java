@@ -233,13 +233,13 @@ public class CpdExecutor {
   }
 
   private static class FileBlocks {
+    private final DefaultInputFile inputFile;
+    private final Collection<Block> blocks;
+
     public FileBlocks(DefaultInputFile inputFile, Collection<Block> blocks) {
       this.inputFile = inputFile;
       this.blocks = blocks;
     }
-
-    private DefaultInputFile inputFile;
-    private Collection<Block> blocks;
 
     public DefaultInputFile getInputFile() {
       return inputFile;
