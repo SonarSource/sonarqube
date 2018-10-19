@@ -27,10 +27,10 @@ import org.apache.ibatis.annotations.Param;
 public interface AlmAppInstallMapper {
 
   @CheckForNull
-  AlmAppInstallDto selectByOwner(@Param("almId") String almId, @Param("ownerId") String ownerId);
+  AlmAppInstallDto selectByOwnerId(@Param("almId") String almId, @Param("ownerId") String ownerId);
 
   @CheckForNull
-  String selectOwnerId(@Param("almId") String almId, @Param("installId") String installId);
+  AlmAppInstallDto selectByInstallationId(@Param("almId") String almId, @Param("installId") String installId);
 
   List<AlmAppInstallDto> selectAllWithNoOwnerType();
 

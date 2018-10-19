@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.alm.OrganizationAlmBindingMapper">
+
+  <sql id="columns">
+    uuid,
+    organization_uuid as organizationUuid,
+    alm_app_install_uuid as almAppInstallUuid,
+    alm_id as rawAlmId,
+    url,
+    user_uuid as userUuid,
+    created_at as createdAt
+  </sql>
+
+  <select id="selectByOrganizationUuid" parameterType="String" resultType="org.sonar.db.alm.OrganizationAlmBindingDto">
+    select
+      <include refid="columns"/>
+    from
+      organization_alm_bindings
+    where
+      organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByOrganizationUuids" parameterType="String" resultType="org.sonar.db.alm.OrganizationAlmBindingDto">
+    select
+    <include refid="columns"/>
+    from
+    organization_alm_bindings
+    where
+    organization_uuid in
+    <foreach collection="organizationUuids" open="(" close=")" item="organizationUuid" separator=",">
+      #{organizationUuid , jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO organization_alm_bindings
+    (
+      uuid,
+      organization_uuid,
+      alm_app_install_uuid,
+      alm_id,
+      url,
+      user_uuid,
+      created_at
+    )
+    VALUES (
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.organizationUuid, jdbcType=VARCHAR},
+      #{dto.almAppInstallUuid, jdbcType=VARCHAR},
+      #{dto.rawAlmId, jdbcType=VARCHAR},
+      #{dto.url, jdbcType=VARCHAR},
+      #{dto.userUuid, jdbcType=VARCHAR},
+      #{dto.createdAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteByOrganizationUuid" parameterType="String">
+    DELETE FROM organization_alm_bindings WHERE organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByAlmAppInstallUuid" parameterType="String">
+    DELETE FROM organization_alm_bindings WHERE alm_app_install_uuid = #{almAppInstallUuid, jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

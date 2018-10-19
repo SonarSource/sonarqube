@@ -22,6 +22,7 @@ package org.sonar.server.organization;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -90,6 +91,9 @@ public class OrganizationUpdaterImplTest {
 
   private System2 system2 = new TestSystem2().setNow(A_DATE);
 
+  private static Consumer<OrganizationDto> EMPTY_ORGANIZATION_CONSUMER = o -> {
+  };
+
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
@@ -122,7 +126,7 @@ public class OrganizationUpdaterImplTest {
     UserDto user = db.users().insertUser();
     db.qualityGates().insertBuiltInQualityGate();
 
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     assertThat(organization.getUuid()).isNotEmpty();
@@ -143,7 +147,7 @@ public class OrganizationUpdaterImplTest {
     builtInQProfileRepositoryRule.initialize();
     db.qualityGates().insertBuiltInQualityGate();
 
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
     verifyGroupOwners(user, FULL_POPULATED_NEW_ORGANIZATION.getKey(), FULL_POPULATED_NEW_ORGANIZATION.getName());
   }
@@ -154,7 +158,7 @@ public class OrganizationUpdaterImplTest {
     builtInQProfileRepositoryRule.initialize();
     db.qualityGates().insertBuiltInQualityGate();
 
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
     verifyMembersGroup(user, FULL_POPULATED_NEW_ORGANIZATION.getKey());
   }
@@ -168,7 +172,7 @@ public class OrganizationUpdaterImplTest {
     underTest.create(dbSession, user, newOrganizationBuilder()
       .setKey("key")
       .setName("name")
-      .build());
+      .build(), EMPTY_ORGANIZATION_CONSUMER);
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "key").get();
     assertThat(organization.getKey()).isEqualTo("key");
@@ -185,7 +189,7 @@ public class OrganizationUpdaterImplTest {
     UserDto user = db.users().insertUser();
     db.qualityGates().insertBuiltInQualityGate();
 
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
@@ -210,7 +214,7 @@ public class OrganizationUpdaterImplTest {
     builtInQProfileRepositoryRule.initialize();
     db.qualityGates().insertBuiltInQualityGate();
 
-    OrganizationDto result = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    OrganizationDto result = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
     assertThat(dbClient.organizationMemberDao().select(dbSession, result.getUuid(), user.getId())).isPresent();
     assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(result.getUuid()).setTextQuery(user.getLogin()).build(), new SearchOptions()).getTotal()).isEqualTo(1L);
@@ -226,7 +230,7 @@ public class OrganizationUpdaterImplTest {
     UserDto user = db.users().insertUser();
     db.qualityGates().insertBuiltInQualityGate();
 
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     List<QProfileDto> profiles = dbClient.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
@@ -252,10 +256,25 @@ public class OrganizationUpdaterImplTest {
     builtInQProfileRepositoryRule.initialize();
     UserDto user = db.users().insertUser();
 
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, o -> {
+    });
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(builtInQualityGate.getUuid());
+  }
+
+  @Test
+  public void create_calls_consumer() throws OrganizationUpdater.KeyConflictException {
+    UserDto user = db.users().insertUser();
+    builtInQProfileRepositoryRule.initialize();
+    db.qualityGates().insertBuiltInQualityGate();
+    Boolean[] isConsumerCalled = new Boolean[]{false};
+
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, o -> {
+      isConsumerCalled[0] = true;
+    });
+
+    assertThat(isConsumerCalled[0]).isEqualTo(true);
   }
 
   @Test
@@ -265,7 +284,7 @@ public class OrganizationUpdaterImplTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("newOrganization can't be null");
 
-    underTest.create(dbSession, user, null);
+    underTest.create(dbSession, user, null, EMPTY_ORGANIZATION_CONSUMER);
   }
 
   @Test
@@ -307,7 +326,7 @@ public class OrganizationUpdaterImplTest {
 
   private void createThrowsExceptionThrownByOrganizationValidation(UserDto user) throws OrganizationUpdater.KeyConflictException {
     try {
-      underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+      underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
       fail(exceptionThrownByOrganizationValidation + " should have been thrown");
     } catch (IllegalArgumentException e) {
       assertThat(e).isSameAs(exceptionThrownByOrganizationValidation);
@@ -322,7 +341,7 @@ public class OrganizationUpdaterImplTest {
     expectedException.expect(OrganizationUpdater.KeyConflictException.class);
     expectedException.expectMessage("Organization key '" + FULL_POPULATED_NEW_ORGANIZATION.getKey() + "' is already used");
 
-    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION);
+    underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
   }
 
   @Test

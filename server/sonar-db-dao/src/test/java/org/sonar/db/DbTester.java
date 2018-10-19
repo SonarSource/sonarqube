@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.db.alm.AlmDbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectLinkDbTester;
 import org.sonar.db.event.EventDbTester;
@@ -87,6 +88,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final PluginDbTester pluginDbTester;
   private final WebhookDbTester webhookDbTester;
   private final WebhookDeliveryDbTester webhookDeliveryDbTester;
+  private final AlmDbTester almDbTester;
 
   public DbTester(System2 system2, @Nullable String schemaPath) {
     super(TestDb.create(schemaPath));
@@ -112,6 +114,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     this.pluginDbTester = new PluginDbTester(this);
     this.webhookDbTester = new WebhookDbTester(this);
     this.webhookDeliveryDbTester = new WebhookDeliveryDbTester(this);
+    this.almDbTester = new AlmDbTester(this);
   }
 
   public static DbTester create() {
@@ -260,6 +263,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public WebhookDeliveryDbTester webhookDelivery() {
     return webhookDeliveryDbTester;
+  }
+
+  public AlmDbTester alm() {
+    return almDbTester;
   }
 
   @Override

@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.ALM.BITBUCKETCLOUD;
 import static org.sonar.db.alm.ALM.GITHUB;
 
-public class ProjectAlmBindingsDaoTest {
+public class ProjectAlmBindingDaoTest {
 
   private static final String A_UUID = "abcde1234";
   private static final String ANOTHER_UUID = "xyz789";
@@ -73,7 +73,7 @@ public class ProjectAlmBindingsDaoTest {
   private DbSession dbSession = dbTester.getSession();
 
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private ProjectAlmBindingsDao underTest = new ProjectAlmBindingsDao(system2, uuidFactory);
+  private ProjectAlmBindingDao underTest = new ProjectAlmBindingDao(system2, uuidFactory);
 
   @Test
   public void insert_throws_NPE_if_alm_is_null() {

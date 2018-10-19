@@ -120,6 +120,7 @@ public class DeleteAction implements OrganizationsWsAction {
       deleteGroups(dbSession, organization);
       deleteQualityProfiles(dbSession, organization);
       deleteQualityGates(dbSession, organization);
+      deleteOrganizationAlmBinding(dbSession, organization);
       deleteOrganization(dbSession, organization);
       billingValidations.onDelete(new BillingValidations.Organization(organization.getKey(), organization.getUuid()));
 
@@ -148,16 +149,12 @@ public class DeleteAction implements OrganizationsWsAction {
 
   private void deletePermissions(DbSession dbSession, OrganizationDto organization) {
     dbClient.permissionTemplateDao().deleteByOrganization(dbSession, organization.getUuid());
-    dbSession.commit();
     dbClient.userPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
-    dbSession.commit();
     dbClient.groupPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
-    dbSession.commit();
   }
 
   private void deleteGroups(DbSession dbSession, OrganizationDto organization) {
     dbClient.groupDao().deleteByOrganization(dbSession, organization.getUuid());
-    dbSession.commit();
   }
 
   private void deleteQualityProfiles(DbSession dbSession, OrganizationDto organization) {
@@ -172,6 +169,10 @@ public class DeleteAction implements OrganizationsWsAction {
       .map(QualityGateDto::getUuid)
       .collect(MoreCollectors.toList()));
     dbClient.qualityGateDao().deleteOrgQualityGatesByOrganization(dbSession, organization);
+  }
+
+  private void deleteOrganizationAlmBinding(DbSession dbSession, OrganizationDto organization){
+    dbClient.organizationAlmBindingDao().deleteByOrganization(dbSession, organization);
   }
 
   private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {

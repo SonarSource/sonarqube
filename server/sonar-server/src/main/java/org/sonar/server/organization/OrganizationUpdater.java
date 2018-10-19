@@ -20,6 +20,7 @@
 package org.sonar.server.organization;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
@@ -72,7 +73,7 @@ public interface OrganizationUpdater {
    * @throws KeyConflictException if an organization with the specified key already exists
    * @throws IllegalArgumentException if any field of {@code newOrganization} is invalid according to {@link OrganizationValidation}
    */
-  OrganizationDto create(DbSession dbSession, UserDto userCreator, NewOrganization newOrganization) throws KeyConflictException;
+  OrganizationDto create(DbSession dbSession, UserDto userCreator, NewOrganization newOrganization, Consumer<OrganizationDto> beforeCommit) throws KeyConflictException;
 
   /**
    * Create a new guarded organization which details are based on the login of the specified User.

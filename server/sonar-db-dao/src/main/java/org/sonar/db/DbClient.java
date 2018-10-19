@@ -21,7 +21,9 @@ package org.sonar.db;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import org.sonar.db.alm.ProjectAlmBindingsDao;
+import org.sonar.db.alm.AlmAppInstallDao;
+import org.sonar.db.alm.OrganizationAlmBindingDao;
+import org.sonar.db.alm.ProjectAlmBindingDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -39,7 +41,6 @@ import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.alm.AlmAppInstallDao;
 import org.sonar.db.mapping.ProjectMappingsDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
@@ -92,7 +93,7 @@ public class DbClient {
   private final QualityProfileDao qualityProfileDao;
   private final PropertiesDao propertiesDao;
   private final AlmAppInstallDao almAppInstallDao;
-  private final ProjectAlmBindingsDao projectAlmBindingsDao;
+  private final ProjectAlmBindingDao projectAlmBindingDao;
   private final InternalPropertiesDao internalPropertiesDao;
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
@@ -142,6 +143,7 @@ public class DbClient {
   private final WebhookDao webhookDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
   private final ProjectMappingsDao projectMappingsDao;
+  private final OrganizationAlmBindingDao organizationAlmBindingDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -153,7 +155,7 @@ public class DbClient {
       map.put(dao.getClass(), dao);
     }
     almAppInstallDao = getDao(map, AlmAppInstallDao.class);
-    projectAlmBindingsDao = getDao(map, ProjectAlmBindingsDao.class);
+    projectAlmBindingDao = getDao(map, ProjectAlmBindingDao.class);
     schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     organizationDao = getDao(map, OrganizationDao.class);
@@ -209,6 +211,7 @@ public class DbClient {
     webhookDao = getDao(map, WebhookDao.class);
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
     projectMappingsDao = getDao(map, ProjectMappingsDao.class);
+    organizationAlmBindingDao = getDao(map, OrganizationAlmBindingDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -223,8 +226,8 @@ public class DbClient {
     return almAppInstallDao;
   }
 
-  public ProjectAlmBindingsDao projectAlmBindingsDao() {
-    return projectAlmBindingsDao;
+  public ProjectAlmBindingDao projectAlmBindingsDao() {
+    return projectAlmBindingDao;
   }
 
   public SchemaMigrationDao schemaMigrationDao() {
@@ -455,5 +458,9 @@ public class DbClient {
 
   public ProjectMappingsDao projectMappingsDao() {
     return projectMappingsDao;
+  }
+
+  public OrganizationAlmBindingDao organizationAlmBindingDao() {
+    return organizationAlmBindingDao;
   }
 }

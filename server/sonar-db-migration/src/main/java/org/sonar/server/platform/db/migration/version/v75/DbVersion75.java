@@ -28,6 +28,7 @@ public class DbVersion75 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2400, "Add column IS_OWNER_USER in ALM_APP_INSTALLS", AddIsOwnerUserColumnInAlmAppInstall.class)
+      .add(2401, "Create ORGANIZATION_ALM_BINDINGS table", CreateOrganizationsAlmBindingsTable.class)
     ;
   }
 }

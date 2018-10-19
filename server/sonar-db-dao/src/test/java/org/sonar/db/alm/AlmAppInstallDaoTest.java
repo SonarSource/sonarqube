@@ -60,47 +60,54 @@ public class AlmAppInstallDaoTest {
   private AlmAppInstallDao underTest = new AlmAppInstallDao(system2, uuidFactory);
 
   @Test
-  public void selectByOwner() {
+  public void selectByOwnerId() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
     underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
 
-    assertThat(underTest.selectByOwner(dbSession, GITHUB, A_OWNER).get())
-      .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId, AlmAppInstallDto::getAlm, AlmAppInstallDto::getCreatedAt, AlmAppInstallDto::getUpdatedAt)
-      .containsExactlyInAnyOrder(A_UUID, AN_INSTALL, A_OWNER, ALM.GITHUB, DATE, DATE);
-    assertThat(underTest.selectByOwner(dbSession, GITHUB, "unknown")).isEmpty();
-    assertThat(underTest.selectByOwner(dbSession, BITBUCKETCLOUD, A_OWNER)).isEmpty();
+    assertThat(underTest.selectByOwnerId(dbSession, GITHUB, A_OWNER).get())
+      .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId,
+        AlmAppInstallDto::getCreatedAt, AlmAppInstallDto::getUpdatedAt)
+      .contains(A_UUID, GITHUB, A_OWNER, AN_INSTALL, DATE, DATE);
+
+    assertThat(underTest.selectByOwnerId(dbSession, BITBUCKETCLOUD, A_OWNER)).isNotPresent();
+    assertThat(underTest.selectByOwnerId(dbSession, GITHUB, "Unknown owner")).isNotPresent();
   }
 
   @Test
   public void selectByOwner_throws_NPE_when_alm_is_null() {
     expectAlmNPE();
 
-    underTest.selectByOwner(dbSession, null, A_OWNER);
+    underTest.selectByOwnerId(dbSession, null, A_OWNER);
   }
 
   @Test
   public void selectByOwner_throws_IAE_when_owner_id_is_null() {
     expectOwnerIdNullOrEmptyIAE();
 
-    underTest.selectByOwner(dbSession, GITHUB, null);
+    underTest.selectByOwnerId(dbSession, GITHUB, null);
   }
 
   @Test
   public void selectByOwner_throws_IAE_when_owner_id_is_empty() {
     expectOwnerIdNullOrEmptyIAE();
 
-    underTest.selectByOwner(dbSession, GITHUB, EMPTY_STRING);
+    underTest.selectByOwnerId(dbSession, GITHUB, EMPTY_STRING);
   }
 
   @Test
-  public void getOwnerId() {
+  public void selectByInstallationId() {
     when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(DATE);
     underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
 
-    assertThat(underTest.getOwerId(dbSession, GITHUB, AN_INSTALL)).contains(A_OWNER);
-    assertThat(underTest.getOwerId(dbSession, GITHUB, "unknown")).isEmpty();
-    assertThat(underTest.getOwerId(dbSession, BITBUCKETCLOUD, AN_INSTALL)).isEmpty();
+    assertThat(underTest.selectByInstallationId(dbSession, GITHUB, AN_INSTALL).get())
+      .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId,
+        AlmAppInstallDto::getCreatedAt, AlmAppInstallDto::getUpdatedAt)
+      .contains(A_UUID, GITHUB, A_OWNER, AN_INSTALL, DATE, DATE);
+
+    assertThat(underTest.selectByInstallationId(dbSession, GITHUB, "unknown installation")).isEmpty();
+    assertThat(underTest.selectByInstallationId(dbSession, BITBUCKETCLOUD, AN_INSTALL)).isEmpty();
   }
 
   @Test
@@ -166,7 +173,7 @@ public class AlmAppInstallDaoTest {
   }
 
   @Test
-  public void delete_doesn_t_fail() {
+  public void delete_does_not_fail() {
     assertThatAlmAppInstall(GITHUB, A_OWNER).doesNotExist();
 
     underTest.delete(dbSession, GITHUB, A_OWNER);
@@ -179,7 +186,7 @@ public class AlmAppInstallDaoTest {
     underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
 
     when(system2.now()).thenReturn(DATE_LATER);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER,true,  OTHER_INSTALL);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, OTHER_INSTALL);
 
     assertThatAlmAppInstall(GITHUB, A_OWNER)
       .hasInstallId(OTHER_INSTALL)
@@ -235,7 +242,7 @@ public class AlmAppInstallDaoTest {
     }
 
     private static AlmAppInstallDto asAlmAppInstall(DbTester db, DbSession dbSession, ALM alm, String ownerId) {
-      Optional<AlmAppInstallDto> almAppInstall = db.getDbClient().almAppInstallDao().selectByOwner(dbSession, alm, ownerId);
+      Optional<AlmAppInstallDto> almAppInstall = db.getDbClient().almAppInstallDao().selectByOwnerId(dbSession, alm, ownerId);
       return almAppInstall.orElse(null);
     }
 

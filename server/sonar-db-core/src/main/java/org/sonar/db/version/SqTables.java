@@ -77,6 +77,7 @@ public final class SqTables {
     "metrics",
     "notifications",
     "organizations",
+    "organization_alm_bindings",
     "organization_members",
     "org_qprofiles",
     "org_quality_gates",

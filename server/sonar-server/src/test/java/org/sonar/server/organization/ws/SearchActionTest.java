@@ -22,6 +22,7 @@ package org.sonar.server.organization.ws;
 import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -31,11 +32,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.AlmAppInstallDto;
+import org.sonar.db.alm.OrganizationAlmBindingDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -45,6 +47,8 @@ import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Organizations.SearchWsResponse;
 
 import static java.lang.String.valueOf;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -68,7 +72,7 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SearchAction underTest = new SearchAction(db.getDbClient(), userSession, new OrganizationsWsSupport(new OrganizationValidationImpl()));
+  private SearchAction underTest = new SearchAction(db.getDbClient(), userSession);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -210,6 +214,21 @@ public class SearchActionTest {
     assertThat(result.getOrganizationsList()).extracting(Organization::getKey)
       .containsExactlyInAnyOrder(organization.getKey())
       .doesNotContain(organizationWithoutMember.getKey());
+  }
+
+  @Test
+  public void return_alm_info() {
+    OrganizationDto organization = db.organizations().insert();
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
+    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationDto organizationNotBoundToAlm = db.organizations().insert();
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    Map<String, Organization> orgByKey = result.getOrganizationsList().stream().collect(toMap(Organization::getKey, identity()));
+    assertThat(orgByKey.get(organization.getKey()).getAlm().getKey()).isEqualTo(organizationAlmBinding.getAlm().getId());
+    assertThat(orgByKey.get(organization.getKey()).getAlm().getUrl()).isEqualTo(organizationAlmBinding.getUrl());
+    assertThat(orgByKey.get(organizationNotBoundToAlm.getKey()).hasAlm()).isEqualTo(false);
   }
 
   @Test

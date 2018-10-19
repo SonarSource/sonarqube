@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.organization.OrganizationAlmBinding;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.OrganizationValidation;
@@ -38,6 +39,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations.CreateWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.organization.OrganizationUpdater.NewOrganization.newOrganizationBuilder;
 import static org.sonar.server.organization.OrganizationValidation.KEY_MAX_LENGTH;
 import static org.sonar.server.organization.OrganizationValidation.KEY_MIN_LENGTH;
@@ -45,7 +47,9 @@ import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements OrganizationsWsAction {
+
   private static final String ACTION = "create";
+  private static final String PARAM_INSTALLATION_ID = "installationId";
 
   private final Configuration config;
   private final UserSession userSession;
@@ -54,9 +58,12 @@ public class CreateAction implements OrganizationsWsAction {
   private final OrganizationValidation organizationValidation;
   private final OrganizationUpdater organizationUpdater;
   private final OrganizationFlags organizationFlags;
+  @CheckForNull
+  private final OrganizationAlmBinding organizationAlmBinding;
 
   public CreateAction(Configuration config, UserSession userSession, DbClient dbClient, OrganizationsWsSupport wsSupport,
-                      OrganizationValidation organizationValidation, OrganizationUpdater organizationUpdater, OrganizationFlags organizationFlags) {
+    OrganizationValidation organizationValidation, OrganizationUpdater organizationUpdater, OrganizationFlags organizationFlags,
+    @Nullable OrganizationAlmBinding organizationAlmBinding) {
     this.config = config;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -64,6 +71,12 @@ public class CreateAction implements OrganizationsWsAction {
     this.organizationValidation = organizationValidation;
     this.organizationUpdater = organizationUpdater;
     this.organizationFlags = organizationFlags;
+    this.organizationAlmBinding = organizationAlmBinding;
+  }
+
+  public CreateAction(Configuration config, UserSession userSession, DbClient dbClient, OrganizationsWsSupport wsSupport,
+    OrganizationValidation organizationValidation, OrganizationUpdater organizationUpdater, OrganizationFlags organizationFlags) {
+    this(config, userSession, dbClient, wsSupport, organizationValidation, organizationUpdater, organizationFlags, null);
   }
 
   @Override
@@ -77,8 +90,7 @@ public class CreateAction implements OrganizationsWsAction {
       .setSince("6.2")
       .setChangelog(
         new Change("7.4", "Maximal number of character of name and key is 300 characters"),
-        new Change("7.2", "Minimal number of character of name and key is one character")
-      )
+        new Change("7.2", "Minimal number of character of name and key is one character"))
       .setHandler(this);
 
     action.createParam(PARAM_KEY)
@@ -90,6 +102,11 @@ public class CreateAction implements OrganizationsWsAction {
         "When not specified, the key is computed from the name. <br />" +
         "All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)")
       .setExampleValue("foo-company");
+    action.createParam(PARAM_INSTALLATION_ID)
+      .setRequired(false)
+      .setInternal(true)
+      .setDescription("Installation ID of the GitHub/Bitbucket application")
+      .setExampleValue("387133");
 
     wsSupport.addOrganizationDetailsParams(action, true);
   }
@@ -111,7 +128,7 @@ public class CreateAction implements OrganizationsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       organizationFlags.checkEnabled(dbSession);
-      UserDto currentUser = dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin());
+      UserDto currentUser = requireNonNull(dbClient.userDao().selectActiveUserByLogin(dbSession, requireNonNull(userSession.getLogin())));
       OrganizationDto organization = organizationUpdater.create(
         dbSession,
         currentUser,
@@ -121,13 +138,25 @@ public class CreateAction implements OrganizationsWsAction {
           .setDescription(description)
           .setUrl(url)
           .setAvatarUrl(avatar)
-          .build());
+          .build(),
+        o -> bindOrganization(request, dbSession, o));
 
       writeResponse(request, response, organization);
     } catch (OrganizationUpdater.KeyConflictException e) {
       checkArgument(requestKey == null, "Key '%s' is already used. Specify another one.", key);
       checkArgument(requestKey != null, "Key '%s' generated from name '%s' is already used. Specify one.", key, name);
     }
+  }
+
+  private void bindOrganization(Request request, DbSession dbSession, OrganizationDto organization) {
+    if (organizationAlmBinding == null) {
+      return;
+    }
+    String installationId = request.param(PARAM_INSTALLATION_ID);
+    if (installationId == null) {
+      return;
+    }
+    organizationAlmBinding.bindOrganization(dbSession, organization, installationId);
   }
 
   @CheckForNull

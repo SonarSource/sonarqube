@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.core.platform.Module;
-import org.sonar.db.alm.ProjectAlmBindingsDao;
+import org.sonar.db.alm.AlmAppInstallDao;
+import org.sonar.db.alm.OrganizationAlmBindingDao;
+import org.sonar.db.alm.ProjectAlmBindingDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
@@ -41,7 +43,6 @@ import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.alm.AlmAppInstallDao;
 import org.sonar.db.mapping.ProjectMappingsDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
@@ -108,7 +109,7 @@ public class DaoModule extends Module {
     GroupMembershipDao.class,
     GroupPermissionDao.class,
     AlmAppInstallDao.class,
-    ProjectAlmBindingsDao.class,
+    ProjectAlmBindingDao.class,
     InternalPropertiesDao.class,
     IssueChangeDao.class,
     IssueDao.class,
@@ -116,6 +117,7 @@ public class DaoModule extends Module {
     MeasureDao.class,
     MetricDao.class,
     NotificationQueueDao.class,
+    OrganizationAlmBindingDao.class,
     OrganizationDao.class,
     OrganizationMemberDao.class,
     PermissionTemplateCharacteristicDao.class,

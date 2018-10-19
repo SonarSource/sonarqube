@@ -606,7 +606,19 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(project.getDbKey(), "return_alm_infos_on_project.json");
+    String json = execute(project.getKey());
+
+    assertJson(json).isSimilarTo("{\n" +
+      "  \"organization\": \"my-org\",\n" +
+      "  \"key\": \"polop\",\n" +
+      "  \"id\": \"abcd\",\n" +
+      "  \"name\": \"Polop\",\n" +
+      "  \"description\": \"test project\",\n" +
+      "  \"alm\": {\n" +
+      "     \"key\": \"bitbucketcloud\",\n" +
+      "     \"url\": \"http://bitbucket.org/foo/bar\"\n" +
+      "  }\n" +
+      "}\n");
   }
 
   @Test
@@ -618,7 +630,18 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    executeAndVerify(module.getDbKey(), "return_alm_infos_on_module.json");
+    String json = execute(module.getKey());
+
+    assertJson(json).isSimilarTo("{\n" +
+      "  \"organization\": \"my-org\",\n" +
+      "  \"key\": \"palap\",\n" +
+      "  \"id\": \"bcde\",\n" +
+      "  \"name\": \"Palap\",\n" +
+      "  \"alm\": {\n" +
+      "     \"key\": \"bitbucketcloud\",\n" +
+      "     \"url\": \"http://bitbucket.org/foo/bar\"\n" +
+      "  }\n" +
+      "}\n");
   }
 
   @Test
@@ -630,11 +653,24 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    verify(ws.newRequest()
-      .setParam("componentKey", project.getDbKey())
+    String json = ws.newRequest()
+      .setParam("componentKey", project.getKey())
       .setParam("branch", branch.getBranch())
       .execute()
-      .getInput(), "return_alm_infos_on_branch.json");
+      .getInput();
+
+    assertJson(json).isSimilarTo("{\n" +
+      "  \"organization\": \"my-org\",\n" +
+      "  \"key\": \"polop\",\n" +
+      "  \"id\": \"xyz\",\n" +
+      "  \"branch\": \"feature1\"," +
+      "  \"name\": \"Polop\",\n" +
+      "  \"description\": \"test project\",\n" +
+      "  \"alm\": {\n" +
+      "     \"key\": \"bitbucketcloud\",\n" +
+      "     \"url\": \"http://bitbucket.org/foo/bar\"\n" +
+      "  }\n" +
+      "}\n");
   }
 
   private ComponentDto insertOrganizationAndProject() {

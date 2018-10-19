@@ -94,7 +94,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   }
 
   @Override
-  public OrganizationDto create(DbSession dbSession, UserDto userCreator, NewOrganization newOrganization) throws KeyConflictException {
+  public OrganizationDto create(DbSession dbSession, UserDto userCreator, NewOrganization newOrganization, Consumer<OrganizationDto> beforeCommit) throws KeyConflictException {
     validate(newOrganization);
     String key = newOrganization.getKey();
     if (organizationKeyIsUsed(dbSession, key)) {
@@ -103,16 +103,16 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
 
     QualityGateDto builtInQualityGate = dbClient.qualityGateDao().selectBuiltIn(dbSession);
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, builtInQualityGate);
+    beforeCommit.accept(organization);
     insertOrganizationMember(dbSession, organization, userCreator.getId());
     dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
     GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
     insertDefaultTemplateOnGroups(dbSession, organization, ownerGroup, defaultGroup);
+    addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getId());
+    addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getId());
     try (DbSession batchDbSession = dbClient.openSession(true)) {
       insertQualityProfiles(dbSession, batchDbSession, organization);
-      addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getId());
-      addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getId());
-
       batchDbSession.commit();
 
       // Elasticsearch is updated when DB session is committed

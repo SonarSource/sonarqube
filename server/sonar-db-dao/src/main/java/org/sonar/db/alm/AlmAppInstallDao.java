@@ -29,6 +29,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
@@ -44,17 +45,17 @@ public class AlmAppInstallDao implements Dao {
     this.uuidFactory = uuidFactory;
   }
 
-  public Optional<AlmAppInstallDto> selectByOwner(DbSession dbSession, ALM alm, String ownerId) {
+  public Optional<AlmAppInstallDto> selectByOwnerId(DbSession dbSession, ALM alm, String ownerId) {
     checkAlm(alm);
     checkOwnerId(ownerId);
 
     AlmAppInstallMapper mapper = getMapper(dbSession);
-    return Optional.ofNullable(mapper.selectByOwner(alm.getId(), ownerId));
+    return Optional.ofNullable(mapper.selectByOwnerId(alm.getId(), ownerId));
   }
 
-  public Optional<String> getOwerId(DbSession dbSession, ALM alm, String installationId) {
+  public Optional<AlmAppInstallDto> selectByInstallationId(DbSession dbSession, ALM alm, String installationId) {
     AlmAppInstallMapper mapper = getMapper(dbSession);
-    return Optional.ofNullable(mapper.selectOwnerId(alm.getId(), installationId));
+    return Optional.ofNullable(mapper.selectByInstallationId(alm.getId(), installationId));
   }
 
   public List<AlmAppInstallDto> findAllWithNoOwnerType(DbSession dbSession) {
@@ -88,7 +89,7 @@ public class AlmAppInstallDao implements Dao {
   }
 
   private static void checkAlm(@Nullable ALM alm) {
-    Objects.requireNonNull(alm, "alm can't be null");
+    requireNonNull(alm, "alm can't be null");
   }
 
   private static void checkOwnerId(@Nullable String ownerId) {

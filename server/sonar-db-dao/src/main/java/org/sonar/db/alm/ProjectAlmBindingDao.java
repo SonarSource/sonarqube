@@ -33,12 +33,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class ProjectAlmBindingsDao implements Dao {
+public class ProjectAlmBindingDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
-  public ProjectAlmBindingsDao(System2 system2, UuidFactory uuidFactory) {
+  public ProjectAlmBindingDao(System2 system2, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
   }
@@ -49,7 +49,7 @@ public class ProjectAlmBindingsDao implements Dao {
     checkArgument(isNotEmpty(projectUuid), "projectUuid can't be null nor empty");
     checkArgument(isNotEmpty(url), "url can't be null nor empty");
 
-    ProjectAlmBindingsMapper mapper = getMapper(dbSession);
+    ProjectAlmBindingMapper mapper = getMapper(dbSession);
     long now = system2.now();
 
     if (mapper.update(alm.getId(), repoId, projectUuid, githubSlug, url, now) == 0) {
@@ -78,7 +78,7 @@ public class ProjectAlmBindingsDao implements Dao {
     checkAlm(alm);
     checkRepoId(repoId);
 
-    ProjectAlmBindingsMapper mapper = getMapper(dbSession);
+    ProjectAlmBindingMapper mapper = getMapper(dbSession);
     return Optional.ofNullable(mapper.selectProjectKey(alm.getId(), repoId));
   }
 
@@ -90,8 +90,8 @@ public class ProjectAlmBindingsDao implements Dao {
     checkArgument(isNotEmpty(repoId), "repoId can't be null nor empty");
   }
 
-  private static ProjectAlmBindingsMapper getMapper(DbSession dbSession) {
-    return dbSession.getMapper(ProjectAlmBindingsMapper.class);
+  private static ProjectAlmBindingMapper getMapper(DbSession dbSession) {
+    return dbSession.getMapper(ProjectAlmBindingMapper.class);
   }
 
 }

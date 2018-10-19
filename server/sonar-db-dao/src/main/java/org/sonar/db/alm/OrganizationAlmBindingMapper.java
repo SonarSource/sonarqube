@@ -17,24 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v75;
+package org.sonar.db.alm;
 
-import org.junit.Test;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public interface OrganizationAlmBindingMapper {
 
-public class DbVersion75Test {
+  @CheckForNull
+  OrganizationAlmBindingDto selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
-  private DbVersion75 underTest = new DbVersion75();
+  List<OrganizationAlmBindingDto> selectByOrganizationUuids(@Param("organizationUuids") Collection<String> organizationUuids);
 
-  @Test
-  public void migrationNumber_starts_at_2400() {
-    verifyMinimumMigrationNumber(underTest, 2400);
-  }
+  void insert(@Param("dto") OrganizationAlmBindingDto dto);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 2);
-  }
+  void deleteByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
+
+  void deleteByAlmAppInstallUuid(@Param("almAppInstallUuid") String almAppInstallUuid);
 }

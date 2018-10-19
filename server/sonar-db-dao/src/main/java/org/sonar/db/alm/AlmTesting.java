@@ -17,24 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v75;
+package org.sonar.db.alm;
 
-import org.junit.Test;
+public class AlmTesting {
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion75Test {
-
-  private DbVersion75 underTest = new DbVersion75();
-
-  @Test
-  public void migrationNumber_starts_at_2400() {
-    verifyMinimumMigrationNumber(underTest, 2400);
+  private AlmTesting() {
+    // only statics
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 2);
-  }
+
 }

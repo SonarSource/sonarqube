@@ -13,7 +13,7 @@
     updated_at as updatedAt
   </sql>
 
-  <select id="selectByOwner" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
+  <select id="selectByOwnerId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select <include refid="sqlColumns" />
     from
       alm_app_installs
@@ -22,14 +22,14 @@
       and owner_id = #{ownerId, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectOwnerId" parameterType="Map" resultType="String">
+  <select id="selectByInstallationId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select
-    owner_id as ownerId
+    <include refid="sqlColumns"/>
     from
-    alm_app_installs
+      alm_app_installs
     where
-    alm_id = #{almId, jdbcType=VARCHAR}
-    and install_id = #{installId, jdbcType=VARCHAR}
+      alm_id = #{almId, jdbcType=VARCHAR}
+      and install_id = #{installId, jdbcType=VARCHAR}
   </select>
 
   <select id="selectAllWithNoOwnerType" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">

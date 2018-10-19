@@ -192,8 +192,10 @@ public class ComponentAction implements NavigationWsAction {
         .map(ALM::getId)
         .map(String::valueOf)
         .orElseThrow(() -> new IllegalStateException("Alm binding id DB has no ALM id"));
-      json.prop("almId", almId)
-        .prop("almRepoUrl", b.getUrl());
+      json.name("alm").beginObject()
+        .prop("key", almId)
+        .prop("url", b.getUrl())
+        .endObject();
     });
   }
 

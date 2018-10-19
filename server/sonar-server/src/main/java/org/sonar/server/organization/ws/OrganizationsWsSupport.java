@@ -42,7 +42,6 @@ public class OrganizationsWsSupport {
   static final String PARAM_DESCRIPTION = "description";
   static final String PARAM_URL = "url";
   static final String PARAM_AVATAR_URL = "avatar";
-
   static final String PARAM_LOGIN = "login";
 
   private final OrganizationValidation organizationValidation;
@@ -109,10 +108,7 @@ public class OrganizationsWsSupport {
   }
 
   Organization.Builder toOrganization(OrganizationDto dto) {
-    return toOrganization(Organization.newBuilder(), dto);
-  }
-
-  Organization.Builder toOrganization(Organization.Builder builder, OrganizationDto dto) {
+    Organization.Builder builder = Organization.newBuilder();
     builder
       .setName(dto.getName())
       .setKey(dto.getKey())

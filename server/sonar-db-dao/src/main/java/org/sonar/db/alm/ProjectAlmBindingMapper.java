@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
-public interface ProjectAlmBindingsMapper {
+public interface ProjectAlmBindingMapper {
 
   int bindingCount(@Param("almId") String almId, @Param("repoId") String repoId);
 

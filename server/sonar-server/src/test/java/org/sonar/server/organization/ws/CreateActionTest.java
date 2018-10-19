@@ -50,6 +50,7 @@ import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.OrganizationAlmBinding;
 import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.OrganizationUpdaterImpl;
 import org.sonar.server.organization.OrganizationValidation;
@@ -72,7 +73,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
@@ -107,11 +112,12 @@ public class CreateActionTest {
     userIndexer,
     mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient), permissionService);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
+  private OrganizationAlmBinding organizationAlmBinding = mock(OrganizationAlmBinding.class);
 
   private WsActionTester wsTester = new WsActionTester(
     new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation),
       organizationValidation,
-      organizationUpdater, organizationFlags));
+      organizationUpdater, organizationFlags, organizationAlmBinding));
 
   @Test
   public void create_organization() {
@@ -249,6 +255,47 @@ public class CreateActionTest {
     OrganizationDto organization = dbClient.organizationDao().selectByKey(db.getSession(), "a").get();
     assertThat(organization.getKey()).isEqualTo("a");
     assertThat(organization.getName()).isEqualTo("a");
+  }
+
+  @Test
+  public void bind_organization_when_installation_id_is_set() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    wsTester.newRequest()
+      .setParam(PARAM_NAME, "foo")
+      .setParam("installationId", "ABCD")
+      .execute();
+
+    verify(organizationAlmBinding).bindOrganization(any(DbSession.class), any(OrganizationDto.class), eq("ABCD"));
+  }
+
+  @Test
+  public void does_not_bind_organization_when_organizationAlmBinding_is_null() {
+    wsTester = new WsActionTester(
+      new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation),
+        organizationValidation, organizationUpdater, organizationFlags, null));
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    wsTester.newRequest()
+      .setParam(PARAM_NAME, "foo")
+      .setParam("installationId", "ABCD")
+      .execute();
+
+    verifyZeroInteractions(organizationAlmBinding);
+  }
+
+  @Test
+  public void does_not_bind_organization_when_installation_id_is_not_set() {
+    createUserAndLogInAsSystemAdministrator();
+    db.qualityGates().insertBuiltInQualityGate();
+
+    wsTester.newRequest()
+      .setParam(PARAM_NAME, "foo")
+      .execute();
+
+    verifyZeroInteractions(organizationAlmBinding);
   }
 
   @Test
@@ -520,7 +567,7 @@ public class CreateActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(6);
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("create-example.json"));
 
     assertThat(action.param("name"))
@@ -547,6 +594,9 @@ public class CreateActionTest {
       .matches(param -> !param.isRequired())
       .matches(param -> "https://www.foo.com/foo.png".equals(param.exampleValue()))
       .matches(param -> param.description() != null);
+    assertThat(action.param("installationId"))
+      .matches(param -> !param.isRequired())
+      .matches(param -> param.isInternal());
   }
 
   @Test
