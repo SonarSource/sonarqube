@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import com.hazelcast.map.impl.querycache.accumulator.Accumulator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -522,6 +523,40 @@ public class RuleDaoTest {
     db.rules().insertOrUpdateMetadata(rule3, organization);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.BUG.getDbConstant()), singletonList("java")))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectByTypeAndLanguages_ignores_external_rules() {
+    OrganizationDto organization = db.organizations().insert();
+
+    RuleDefinitionDto rule1 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S001"))
+        .setConfigKey("S1")
+        .setType(RuleType.VULNERABILITY)
+        .setIsExternal(true)
+        .setLanguage("java"));
+    db.rules().insertOrUpdateMetadata(rule1, organization);
+
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
+      .isEmpty();
+  }
+
+  @Test
+  public void selectByTypeAndLanguages_ignores_template_rules() {
+    OrganizationDto organization = db.organizations().insert();
+
+    RuleDefinitionDto rule1 = db.rules().insert(
+      r -> r.setKey(RuleKey.of("java", "S001"))
+        .setConfigKey("S1")
+        .setType(RuleType.VULNERABILITY)
+        .setIsTemplate(true)
+        .setLanguage("java"));
+    db.rules().insertOrUpdateMetadata(rule1, organization);
+
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
       .isEmpty();
   }
 

@@ -6,7 +6,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 1,
+      "totalRules": 1
     },
     {
       "category": "a2",
@@ -15,7 +17,9 @@
       "toReviewSecurityHotspots": 1,
       "openSecurityHotspots": 1,
       "wontFixSecurityHotspots": 1,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 1,
+      "totalRules": 1
     },
     {
       "category": "a3",
@@ -23,7 +27,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 1
     },
     {
       "category": "a4",
@@ -31,7 +37,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
     },
     {
       "category": "a5",
@@ -39,7 +47,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
     },
     {
       "category": "a6",
@@ -47,7 +57,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
     },
     {
       "category": "a7",
@@ -55,7 +67,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
     },
     {
       "category": "a8",
@@ -63,7 +77,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
     },
     {
       "category": "a9",
@@ -71,7 +87,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
     },
     {
       "category": "a10",
@@ -79,7 +97,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
     },
     {
       "category": "unknown",
@@ -87,7 +107,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 1
     }
   ]
 }

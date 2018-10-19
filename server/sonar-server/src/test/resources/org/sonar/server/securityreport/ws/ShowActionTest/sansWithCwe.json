@@ -6,7 +6,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 1
     },
     {
       "category": "risky-resource",
@@ -14,7 +16,9 @@
       "toReviewSecurityHotspots": 0,
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
-      "distribution": []
+      "distribution": [],
+      "activeRules": 1,
+      "totalRules": 1
     },
     {
       "category": "insecure-interaction",
@@ -30,7 +34,9 @@
           "vulnerabilityRating": 3,
           "toReviewSecurityHotspots": 1,
           "openSecurityHotspots": 1,
-          "wontFixSecurityHotspots": 1
+          "wontFixSecurityHotspots": 1,
+          "activeRules": 1,
+          "totalRules": 1
         },
         {
           "cwe": "123",
@@ -38,9 +44,13 @@
           "vulnerabilityRating": 3,
           "toReviewSecurityHotspots": 1,
           "openSecurityHotspots": 1,
-          "wontFixSecurityHotspots": 1
+          "wontFixSecurityHotspots": 1,
+          "activeRules": 1,
+          "totalRules": 1
         }
-      ]
+      ],
+      "activeRules": 1,
+      "totalRules": 1
     }
   ]
 }

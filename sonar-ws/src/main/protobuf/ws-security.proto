@@ -39,6 +39,8 @@ message SecurityStandardCategoryStatistics {
   optional int64 openSecurityHotspots = 5;
   optional int64 wontFixSecurityHotspots = 6;
   repeated CweStatistics distribution = 7;
+  optional int64 activeRules = 8;
+  optional int64 totalRules = 9;
 }
 
 message CweStatistics {
@@ -48,6 +50,8 @@ message CweStatistics {
   optional int64 toReviewSecurityHotspots = 4;
   optional int64 openSecurityHotspots = 5;
   optional int64 wontFixSecurityHotspots = 6;
+  optional int64 activeRules = 7;
+  optional int64 totalRules = 8;
 }
 
 

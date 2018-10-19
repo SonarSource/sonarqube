@@ -303,7 +303,7 @@
     rules r
     <include refid="outerJoinRulesMetadata"/>
     where
-      r.status != 'REMOVED'
+      r.status != 'REMOVED' and r.is_external is false and r.is_template is false
       and r.rule_type in <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
       and r.language in <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
   </select>
