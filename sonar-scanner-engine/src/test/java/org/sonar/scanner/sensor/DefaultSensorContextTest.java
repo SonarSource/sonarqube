@@ -111,8 +111,8 @@ public class DefaultSensorContextTest {
   }
 
   @Test
-  public void shouldSkipDupsOnShortBranchesAndPullRequests() {
-    when(branchConfig.isShortOrPullRequest()).thenReturn(true);
+  public void shouldSkipDupsOnIssuesMode() {
+    when(analysisMode.isIssues()).thenReturn(true);
     assertThat(adaptor.newCpdTokens()).isEqualTo(DefaultSensorContext.NO_OP_NEW_CPD_TOKENS);
   }
 }
