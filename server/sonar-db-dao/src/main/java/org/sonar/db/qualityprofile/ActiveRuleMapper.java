@@ -53,6 +53,8 @@ public interface ActiveRuleMapper {
 
   List<OrgActiveRuleDto> selectByProfileUuid(String uuid);
 
+  List<OrgActiveRuleDto> selectByTypeAndProfileUuids(@Param("types") List<Integer> types, @Param("profileUuids") List<String> uuids);
+
   List<ActiveRuleDto> selectByRuleProfileUuid(@Param("ruleProfileUuid") String uuid);
 
   List<ActiveRuleDto> selectByRuleIdsAndRuleProfileUuids(

@@ -21,6 +21,7 @@ package org.sonar.db.qualityprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -29,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
@@ -41,6 +43,7 @@ import org.sonar.db.rule.RuleParamDto;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -157,6 +160,50 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule);
 
     assertThat(underTest.selectByProfile(dbSession, profile1)).isEmpty();
+  }
+
+  @Test
+  public void selectByTypeAndProfileUuids() {
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+
+    underTest.insert(dbSession, activeRule1);
+
+    assertThat(underTest.selectByTypeAndProfileUuids(dbSession, singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(profile1.getKee())))
+      .extracting(OrgActiveRuleDto::getProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleId)
+      .contains(tuple(profile1.getKee(), profile1.getOrganizationUuid(), rule1.getId()));
+  }
+
+  @Test
+  public void selectByTypeAndProfileUuids_ignores_rules_in_other_profiles() {
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
+    ActiveRuleDto activeRule1 = createFor(profile2, rule1).setSeverity(BLOCKER);
+
+    underTest.insert(dbSession, activeRule1);
+
+    assertThat(underTest.selectByTypeAndProfileUuids(dbSession, singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(profile1.getKee())))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectByTypeAndProfileUuids_ignores_rules_with_another_rule_type() {
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY.getDbConstant()));
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+
+    underTest.insert(dbSession, activeRule1);
+
+    assertThat(
+      underTest.selectByTypeAndProfileUuids(dbSession,
+        singletonList(RuleType.VULNERABILITY.getDbConstant()),
+        singletonList(profile1.getKee())))
+      .extracting(OrgActiveRuleDto::getProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleId)
+      .contains(tuple(profile1.getKee(), profile1.getOrganizationUuid(), rule1.getId()));
+
+    assertThat(
+      underTest.selectByTypeAndProfileUuids(dbSession,
+        asList(RuleType.CODE_SMELL.getDbConstant(), RuleType.SECURITY_HOTSPOT.getDbConstant(), RuleType.BUG.getDbConstant()),
+        singletonList(profile1.getKee())))
+      .isEmpty();
   }
 
   @Test

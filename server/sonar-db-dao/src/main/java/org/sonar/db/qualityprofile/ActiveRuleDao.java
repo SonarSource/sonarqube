@@ -72,6 +72,10 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByProfileUuid(uuid);
   }
 
+  public List<OrgActiveRuleDto> selectByTypeAndProfileUuids(DbSession dbSession, List<Integer> types, List<String> uuids) {
+    return executeLargeInputs(uuids, chunk -> mapper(dbSession).selectByTypeAndProfileUuids(types, chunk));
+  }
+
   public List<OrgActiveRuleDto> selectByProfile(DbSession dbSession, QProfileDto profile) {
     return selectByProfileUuid(dbSession, profile.getKee());
   }

@@ -24,6 +24,7 @@
     a.inheritance as "inheritance",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
+    r.security_standards as "securityStandards",
     rp.kee as "ruleProfileUuid",
     a.created_at as "createdAt",
     a.updated_at as "updatedAt",
@@ -121,6 +122,18 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
     where oqp.uuid = #{id, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByTypeAndProfileUuids" parameterType="Map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+    select
+    <include refid="orgActiveRuleColumns"/>
+    from active_rules a
+    inner join rules_profiles rp on rp.id = a.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
+    where
+      r.rule_type in <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
+      and oqp.uuid in <foreach collection="profileUuids" item="uuid" separator="," open="(" close=")">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
 
   <select id="selectByRuleProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.ActiveRuleDto">

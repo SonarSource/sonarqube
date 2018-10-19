@@ -49,6 +49,7 @@ public class ActiveRuleDto {
   private String repository;
   private String ruleField;
   private String ruleProfileUuid;
+  private String securityStandards;
 
   public ActiveRuleDto setKey(ActiveRuleKey key) {
     this.repository = key.getRuleKey().repository();
@@ -143,6 +144,15 @@ public class ActiveRuleDto {
 
   public ActiveRuleDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
+    return this;
+  }
+
+  public String getSecurityStandards() {
+    return securityStandards;
+  }
+
+  public ActiveRuleDto setSecurityStandards(String securityStandards) {
+    this.securityStandards = securityStandards;
     return this;
   }
 
