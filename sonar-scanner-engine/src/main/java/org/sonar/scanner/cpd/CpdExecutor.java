@@ -49,6 +49,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
@@ -67,21 +68,24 @@ public class CpdExecutor {
   private final SonarCpdBlockIndex index;
   private final ReportPublisher publisher;
   private final InputComponentStore componentStore;
+  private final BranchConfiguration branchConfiguration;
   private final ProgressReport progressReport;
   private final CpdSettings settings;
   private final ExecutorService executorService;
   private int count = 0;
   private int total;
 
-  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
-    this(settings, index, publisher, inputComponentCache, Executors.newSingleThreadExecutor());
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache, BranchConfiguration branchConfiguration) {
+    this(settings, index, publisher, inputComponentCache, branchConfiguration, Executors.newSingleThreadExecutor());
   }
 
-  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache, ExecutorService executorService) {
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache,
+    BranchConfiguration branchConfiguration, ExecutorService executorService) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
     this.componentStore = inputComponentCache;
+    this.branchConfiguration = branchConfiguration;
     this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
     this.executorService = executorService;
   }
@@ -98,7 +102,7 @@ public class CpdExecutor {
     while (it.hasNext()) {
       ResourceBlocks resourceBlocks = it.next();
       Optional<FileBlocks> fileBlocks = toFileBlocks(resourceBlocks.resourceId(), resourceBlocks.blocks());
-      if (!fileBlocks.isPresent() || fileBlocks.get().getInputFile().status() == InputFile.Status.SAME) {
+      if (!fileBlocks.isPresent() || shouldSkip(fileBlocks.get().getInputFile())) {
         continue;
       }
       components.add(fileBlocks.get());
@@ -123,6 +127,10 @@ public class CpdExecutor {
     } finally {
       executorService.shutdown();
     }
+  }
+
+  private boolean shouldSkip(DefaultInputFile inputFile) {
+    return branchConfiguration.isShortOrPullRequest() && inputFile.status() == InputFile.Status.SAME;
   }
 
   private static String pluralize(int files) {

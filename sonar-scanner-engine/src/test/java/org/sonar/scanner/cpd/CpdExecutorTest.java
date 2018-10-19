@@ -77,6 +77,7 @@ public class CpdExecutorTest {
   private ExecutorService executorService = mock(ExecutorService.class);
   private CpdSettings settings = mock(CpdSettings.class);
   private ReportPublisher publisher = mock(ReportPublisher.class);
+  private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private SonarCpdBlockIndex index = new SonarCpdBlockIndex(publisher, settings);
   private ScannerReportReader reader;
   private DefaultInputFile batchComponent1;
@@ -94,7 +95,7 @@ public class CpdExecutorTest {
 
     DefaultInputModule inputModule = TestInputFileBuilder.newDefaultInputModule("foo", baseDir);
     componentStore = new InputComponentStore(inputModule, mock(BranchConfiguration.class));
-    executor = new CpdExecutor(settings, index, publisher, componentStore, executorService);
+    executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfiguration, executorService);
     reader = new ScannerReportReader(outputDir);
 
     batchComponent1 = createComponent("src/Foo.php", 5);
@@ -197,7 +198,11 @@ public class CpdExecutorTest {
 
   @Test
   public void should_ignore_unmodified_files_in_SLB() {
-    Block block = Block.builder().setBlockHash(new ByteArray("AAAABBBBCCCC")).build();
+    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
+    Block block = Block.builder()
+      .setBlockHash(new ByteArray("AAAABBBBCCCC"))
+      .setResourceId(batchComponent4.key())
+      .build();
     index.insert(batchComponent4, Collections.singletonList(block));
     executor.execute();
 
