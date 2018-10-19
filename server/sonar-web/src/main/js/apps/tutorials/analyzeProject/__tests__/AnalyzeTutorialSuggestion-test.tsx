@@ -22,17 +22,17 @@ import { shallow } from 'enzyme';
 import AnalyzeTutorialSuggestion from '../AnalyzeTutorialSuggestion';
 
 it('should not render', () => {
-  expect(shallow(<AnalyzeTutorialSuggestion almId={undefined} />).type()).toBeNull();
+  expect(shallow(<AnalyzeTutorialSuggestion almKey={undefined} />).type()).toBeNull();
 });
 
 it('renders bitbucket suggestions correctly', () => {
-  expect(shallow(<AnalyzeTutorialSuggestion almId="bitbucket" />)).toMatchSnapshot();
+  expect(shallow(<AnalyzeTutorialSuggestion almKey="bitbucket" />)).toMatchSnapshot();
 });
 
 it('renders github suggestions correctly', () => {
-  expect(shallow(<AnalyzeTutorialSuggestion almId="github" />)).toMatchSnapshot();
+  expect(shallow(<AnalyzeTutorialSuggestion almKey="github" />)).toMatchSnapshot();
 });
 
 it('renders vsts suggestions correctly', () => {
-  expect(shallow(<AnalyzeTutorialSuggestion almId="microsoft" />)).toMatchSnapshot();
+  expect(shallow(<AnalyzeTutorialSuggestion almKey="microsoft" />)).toMatchSnapshot();
 });

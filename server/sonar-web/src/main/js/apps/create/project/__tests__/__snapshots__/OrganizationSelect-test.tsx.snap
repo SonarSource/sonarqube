@@ -25,7 +25,10 @@ exports[`should render correctly 1`] = `
     options={
       Array [
         Object {
-          "almId": "github",
+          "alm": Object {
+            "key": "github",
+            "url": "",
+          },
           "key": "bar",
           "name": "Bar",
         },

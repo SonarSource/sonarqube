@@ -55,7 +55,7 @@ export function getOrganizationNavigation(key: string): Promise<GetOrganizationN
 }
 
 export function createOrganization(
-  data: OrganizationBase & { installId?: string }
+  data: OrganizationBase & { installationId?: string }
 ): Promise<Organization> {
   return postJSON('/api/organizations/create', data).then(r => r.organization, throwGlobalError);
 }

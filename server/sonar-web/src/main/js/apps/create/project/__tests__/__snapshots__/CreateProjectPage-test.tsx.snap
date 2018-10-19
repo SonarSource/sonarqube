@@ -83,7 +83,10 @@ exports[`should render correctly 2`] = `
       boundOrganizations={
         Array [
           Object {
-            "almId": "github",
+            "alm": Object {
+              "key": "github",
+              "url": "",
+            },
             "key": "bar",
             "name": "Bar",
           },
@@ -134,7 +137,10 @@ exports[`should render with Manual creation only 1`] = `
             "name": "Foo",
           },
           Object {
-            "almId": "github",
+            "alm": Object {
+              "key": "github",
+              "url": "",
+            },
             "key": "bar",
             "name": "Bar",
           },
@@ -201,7 +207,10 @@ exports[`should switch tabs 1`] = `
       boundOrganizations={
         Array [
           Object {
-            "almId": "github",
+            "alm": Object {
+              "key": "github",
+              "url": "",
+            },
             "key": "bar",
             "name": "Bar",
           },

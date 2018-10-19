@@ -81,14 +81,13 @@ function getWrapper(props = {}) {
     <CreateProjectPage
       addGlobalErrorMessage={jest.fn()}
       currentUser={user}
-      fetchMyOrganizations={jest.fn()}
       // @ts-ignore avoid passing everything from WithRouterProps
       location={{}}
       router={mockRouter()}
       skipOnboardingAction={jest.fn()}
       userOrganizations={[
         { key: 'foo', name: 'Foo' },
-        { almId: 'github', key: 'bar', name: 'Bar' }
+        { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
       ]}
       {...props}
     />

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isLoggedIn } from './users';
-import { CurrentUser } from '../app/types';
+import { CurrentUser, AlmOrganization } from '../app/types';
 
 export function hasAdvancedALMIntegration(user: CurrentUser) {
   return (
@@ -26,21 +26,25 @@ export function hasAdvancedALMIntegration(user: CurrentUser) {
   );
 }
 
-export function isBitbucket(almId?: string) {
-  return almId && almId.startsWith('bitbucket');
+export function isBitbucket(almKey?: string) {
+  return almKey && almKey.startsWith('bitbucket');
 }
 
-export function isGithub(almId?: string) {
-  return almId === 'github';
+export function isGithub(almKey?: string) {
+  return almKey === 'github';
 }
 
-export function isVSTS(almId?: string) {
-  return almId === 'microsoft';
+export function isVSTS(almKey?: string) {
+  return almKey === 'microsoft';
 }
 
-export function sanitizeAlmId(almId?: string) {
-  if (isBitbucket(almId)) {
+export function isPersonal(organization?: AlmOrganization) {
+  return Boolean(organization && organization.type === 'USER');
+}
+
+export function sanitizeAlmId(almKey?: string) {
+  if (isBitbucket(almKey)) {
     return 'bitbucket';
   }
-  return almId;
+  return almKey;
 }

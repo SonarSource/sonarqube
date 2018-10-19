@@ -30,45 +30,68 @@ import {
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 
 interface Props {
   almApplication: AlmApplication;
   almInstallId?: string;
   almOrganization?: AlmOrganization;
   createOrganization: (
-    organization: OrganizationBase & { installId?: string }
+    organization: OrganizationBase & { installationId?: string }
   ) => Promise<Organization>;
+  importPersonalOrg?: Organization;
   onOrgCreated: (organization: string) => void;
+  updateOrganization: (
+    organization: OrganizationBase & { installationId?: string }
+  ) => Promise<Organization>;
 }
 
 export default class AutoOrganizationCreate extends React.PureComponent<Props> {
   handleCreateOrganization = (organization: Required<OrganizationBase>) => {
     if (organization) {
-      return this.props
-        .createOrganization({
+      const { importPersonalOrg } = this.props;
+      let promise: Promise<Organization>;
+      if (importPersonalOrg) {
+        promise = this.props.updateOrganization({
           avatar: organization.avatar,
           description: organization.description,
-          installId: this.props.almInstallId,
+          installationId: this.props.almInstallId,
+          key: importPersonalOrg.key,
+          name: organization.name || organization.key,
+          url: organization.url
+        });
+      } else {
+        promise = this.props.createOrganization({
+          avatar: organization.avatar,
+          description: organization.description,
+          installationId: this.props.almInstallId,
           key: organization.key,
           name: organization.name || organization.key,
           url: organization.url
-        })
-        .then(({ key }) => this.props.onOrgCreated(key));
+        });
+      }
+      return promise.then(({ key }) => this.props.onOrgCreated(key));
     } else {
       return Promise.reject();
     }
   };
 
   render() {
-    const { almApplication, almInstallId, almOrganization } = this.props;
+    const { almApplication, almInstallId, almOrganization, importPersonalOrg } = this.props;
     if (almInstallId && almOrganization) {
+      const description = importPersonalOrg
+        ? translate('onboarding.import_personal_organization_x')
+        : translate('onboarding.import_organization_x');
+      const submitText = importPersonalOrg
+        ? translate('onboarding.import_organization.bind')
+        : translate('my_account.create_organization');
       return (
         <OrganizationDetailsStep
           description={
             <p className="huge-spacer-bottom">
               <FormattedMessage
-                defaultMessage={translate('onboarding.create_organization.import_organization_x')}
-                id="onboarding.create_organization.import_organization_x"
+                defaultMessage={description}
+                id={description}
                 values={{
                   avatar: (
                     <img
@@ -80,17 +103,22 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props> {
                       width={16}
                     />
                   ),
-                  name: <strong>{almOrganization.name}</strong>
+                  name: <strong>{almOrganization.name}</strong>,
+                  personalAvatar: importPersonalOrg && (
+                    <OrganizationAvatar organization={importPersonalOrg} small={true} />
+                  ),
+                  personalName: importPersonalOrg && <strong>{importPersonalOrg.name}</strong>
                 }}
               />
             </p>
           }
           finished={false}
+          keyReadOnly={Boolean(importPersonalOrg)}
           onContinue={this.handleCreateOrganization}
           onOpen={() => {}}
           open={true}
-          organization={almOrganization}
-          submitText={translate('my_account.create_organization')}
+          organization={importPersonalOrg || almOrganization}
+          submitText={submitText}
         />
       );
     }

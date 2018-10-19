@@ -42,8 +42,8 @@ function shallowRender(props: Partial<AutoProjectCreate['props']> = {}) {
     <AutoProjectCreate
       almApplication={almApplication}
       boundOrganizations={[
-        { almId: 'github', key: 'foo', name: 'Foo' },
-        { almId: 'github', key: 'bar', name: 'Bar' }
+        { alm: { key: 'github', url: '' }, key: 'foo', name: 'Foo' },
+        { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
       ]}
       onProjectCreate={jest.fn()}
       organization=""

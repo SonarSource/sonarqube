@@ -58,17 +58,17 @@ export default function OrganizationNavigationHeader({ organization, organizatio
       ) : (
         <span className="spacer-left">{organization.name}</span>
       )}
-      {organization.almRepoUrl && (
+      {organization.alm && (
         <a
           className="link-no-underline"
-          href={organization.almRepoUrl}
+          href={organization.alm.url}
           rel="noopener noreferrer"
           target="_blank">
           <img
-            alt={sanitizeAlmId(organization.almId)}
+            alt={sanitizeAlmId(organization.alm.key)}
             className="text-text-top spacer-left"
             height={16}
-            src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(organization.almId)}.svg`}
+            src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(organization.alm.key)}.svg`}
             width={16}
           />
         </a>

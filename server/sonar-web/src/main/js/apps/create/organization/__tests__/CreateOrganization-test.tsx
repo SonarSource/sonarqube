@@ -116,6 +116,10 @@ function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
       // @ts-ignore avoid passing everything from WithRouterProps
       location={{}}
       router={mockRouter()}
+      userOrganizations={[
+        { key: 'foo', name: 'Foo' },
+        { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
+      ]}
       {...props}
     />
   );

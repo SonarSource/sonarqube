@@ -27,8 +27,7 @@ import ManualProjectCreate from './ManualProjectCreate';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { fetchMyOrganizations } from '../../account/organizations/actions';
-import { getMyOrganizations, Store } from '../../../store/rootReducer';
+import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
 import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
 import { LoggedInUser, AlmApplication, Organization } from '../../../app/types';
 import { getAlmAppInfo } from '../../../api/alm-integration';
@@ -38,14 +37,10 @@ import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import '../../../app/styles/sonarcloud.css';
 
-interface StateProps {
-  userOrganizations: Organization[];
-}
-
 interface Props {
   currentUser: LoggedInUser;
-  fetchMyOrganizations: () => Promise<void>;
   skipOnboardingAction: () => void;
+  userOrganizations: Organization[];
 }
 
 interface State {
@@ -60,16 +55,12 @@ interface LocationState {
   tab?: TabKeys;
 }
 
-export class CreateProjectPage extends React.PureComponent<
-  Props & StateProps & WithRouterProps,
-  State
-> {
+export class CreateProjectPage extends React.PureComponent<Props & WithRouterProps, State> {
   mounted = false;
   state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchMyOrganizations();
     if (hasAdvancedALMIntegration(this.props.currentUser)) {
       this.fetchAlmApplication();
     } else {
@@ -178,7 +169,7 @@ export class CreateProjectPage extends React.PureComponent<
               ) : (
                 <AutoProjectCreate
                   almApplication={almApplication}
-                  boundOrganizations={userOrganizations.filter(o => o.almId)}
+                  boundOrganizations={userOrganizations.filter(o => o.alm)}
                   onProjectCreate={this.handleProjectCreate}
                   organization={state.organization}
                 />
@@ -191,20 +182,13 @@ export class CreateProjectPage extends React.PureComponent<
   }
 }
 
-const mapDispatchToProps = {
-  fetchMyOrganizations,
-  skipOnboardingAction
-};
-
-const mapStateToProps = (state: Store) => {
-  return {
-    userOrganizations: getMyOrganizations(state)
-  };
-};
+const mapDispatchToProps = { skipOnboardingAction };
 
 export default whenLoggedIn(
-  connect<StateProps>(
-    mapStateToProps,
-    mapDispatchToProps
-  )(CreateProjectPage)
+  withUserOrganizations(
+    connect(
+      null,
+      mapDispatchToProps
+    )(CreateProjectPage)
+  )
 );

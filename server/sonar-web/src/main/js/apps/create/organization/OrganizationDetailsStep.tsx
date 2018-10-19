@@ -35,6 +35,7 @@ type RequiredOrganization = Required<OrganizationBase>;
 interface Props {
   description?: React.ReactNode;
   finished: boolean;
+  keyReadOnly?: boolean;
   onContinue: (organization: RequiredOrganization) => Promise<void>;
   onOpen: () => void;
   open: boolean;
@@ -141,7 +142,11 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
       <div className="boxed-group-inner">
         <form id="organization-form" onSubmit={this.handleSubmit}>
           {this.props.description}
-          <OrganizationKeyInput initialValue={this.state.key} onChange={this.handleKeyUpdate} />
+          <OrganizationKeyInput
+            initialValue={this.state.key}
+            onChange={this.handleKeyUpdate}
+            readOnly={this.props.keyReadOnly}
+          />
           <div className="big-spacer-top">
             <ResetButtonLink onClick={this.handleAdditionalClick}>
               {translate(
@@ -162,6 +167,7 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props, 
             <div className="big-spacer-top">
               <OrganizationAvatarInput
                 initialValue={this.state.avatar}
+                name={this.state.name}
                 onChange={this.handleDescriptionUpdate}
               />
             </div>

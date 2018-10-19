@@ -21,7 +21,10 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationSelect, { optionRenderer } from '../OrganizationSelect';
 
-const organizations = [{ key: 'foo', name: 'Foo' }, { almId: 'github', key: 'bar', name: 'Bar' }];
+const organizations = [
+  { key: 'foo', name: 'Foo' },
+  { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
+];
 
 it('should render correctly', () => {
   expect(

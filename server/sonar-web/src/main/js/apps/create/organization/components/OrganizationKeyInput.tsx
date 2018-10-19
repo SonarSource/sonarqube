@@ -28,6 +28,7 @@ import { getHostUrl } from '../../../../helpers/urls';
 interface Props {
   initialValue?: string;
   onChange: (value: string | undefined) => void;
+  readOnly?: boolean;
 }
 
 interface State {
@@ -50,7 +51,9 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
     this.mounted = true;
     if (this.props.initialValue !== undefined) {
       this.setState({ value: this.props.initialValue });
-      this.validateKey(this.props.initialValue);
+      if (!this.props.readOnly) {
+        this.validateKey(this.props.initialValue);
+      }
     }
   }
 
@@ -118,25 +121,28 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
         isInvalid={isInvalid}
         isValid={isValid}
         label={translate('onboarding.create_organization.organization_name')}
-        required={true}>
+        required={!this.props.readOnly}>
         <div className="display-inline-flex-baseline">
           <span className="little-spacer-right">
             {getHostUrl().replace(/https*:\/\//, '') + '/organizations/'}
+            {this.props.readOnly && this.state.value}
           </span>
-          <input
-            autoFocus={true}
-            className={classNames('input-super-large', 'text-middle', {
-              'is-invalid': isInvalid,
-              'is-valid': isValid
-            })}
-            id="organization-key"
-            maxLength={255}
-            onBlur={this.handleBlur}
-            onChange={this.handleChange}
-            onFocus={this.handleFocus}
-            type="text"
-            value={this.state.value}
-          />
+          {!this.props.readOnly && (
+            <input
+              autoFocus={true}
+              className={classNames('input-super-large', 'text-middle', {
+                'is-invalid': isInvalid,
+                'is-valid': isValid
+              })}
+              id="organization-key"
+              maxLength={255}
+              onBlur={this.handleBlur}
+              onChange={this.handleChange}
+              onFocus={this.handleFocus}
+              type="text"
+              value={this.state.value}
+            />
+          )}
         </div>
       </ValidationInput>
     );

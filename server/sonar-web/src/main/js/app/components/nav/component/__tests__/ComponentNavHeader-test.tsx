@@ -77,8 +77,7 @@ it('should render alm links', () => {
         branchLikes={[]}
         component={{
           ...component,
-          almId: 'bitbucketcloud',
-          almRepoUrl: 'https://bitbucket.org/foo'
+          alm: { key: 'bitbucketcloud', url: 'https://bitbucket.org/foo' }
         }}
         currentBranchLike={undefined}
         organization={organization}

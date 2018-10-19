@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
 import { withCurrentUser } from './withCurrentUser';
 import { CurrentUser } from '../../app/types';
 import { isLoggedIn } from '../../helpers/users';
@@ -27,7 +26,7 @@ import handleRequiredAuthentication from '../../app/utils/handleRequiredAuthenti
 export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
   const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
 
-  class Wrapper extends React.Component<P & { currentUser: CurrentUser } & WithRouterProps> {
+  class Wrapper extends React.Component<P & { currentUser: CurrentUser }> {
     static displayName = `whenLoggedIn(${wrappedDisplayName})`;
 
     componentDidMount() {
@@ -45,5 +44,5 @@ export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
     }
   }
 
-  return withCurrentUser(withRouter(Wrapper));
+  return withCurrentUser(Wrapper);
 }

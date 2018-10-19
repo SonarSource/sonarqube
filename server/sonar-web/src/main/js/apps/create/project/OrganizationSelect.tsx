@@ -71,12 +71,12 @@ export default function OrganizationSelect({
 export function optionRenderer(organization: Organization) {
   return (
     <span>
-      {organization.almId && (
+      {organization.alm && (
         <img
-          alt={organization.almId}
+          alt={organization.alm.key}
           className="spacer-right"
           height={14}
-          src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(organization.almId)}.svg`}
+          src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(organization.alm.key)}.svg`}
         />
       )}
       {organization.name}

@@ -32,3 +32,24 @@ exports[`should render correctly 1`] = `
 `;
 
 exports[`should render correctly 2`] = `true`;
+
+exports[`should render correctly with readonly mode 1`] = `
+<ValidationInput
+  id="organization-key"
+  isInvalid={false}
+  isValid={false}
+  label="onboarding.create_organization.organization_name"
+  required={false}
+>
+  <div
+    className="display-inline-flex-baseline"
+  >
+    <span
+      className="little-spacer-right"
+    >
+      localhost/organizations/
+      key
+    </span>
+  </div>
+</ValidationInput>
+`;

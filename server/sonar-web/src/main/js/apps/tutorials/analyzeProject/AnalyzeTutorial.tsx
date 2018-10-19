@@ -56,7 +56,7 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
     const { component, currentUser } = this.props;
     const { step, token } = this.state;
 
-    const almId = component.almId || currentUser.externalProvider;
+    const almKey = (component.alm && component.alm.key) || currentUser.externalProvider;
     return (
       <>
         <div className="page-header big-spacer-bottom">
@@ -64,9 +64,9 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
           <p className="page-description">{translate('onboarding.project_analysis.description')}</p>
         </div>
 
-        <AnalyzeTutorialSuggestion almId={almId} />
+        <AnalyzeTutorialSuggestion almKey={almKey} />
 
-        {!isVSTS(almId) && (
+        {!isVSTS(almKey) && (
           <>
             <TokenStep
               currentUser={currentUser}

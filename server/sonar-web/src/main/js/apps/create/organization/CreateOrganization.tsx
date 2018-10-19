@@ -30,7 +30,12 @@ import ManualOrganizationCreate from './ManualOrganizationCreate';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { getAlmAppInfo, getAlmOrganization } from '../../../api/alm-integration';
+import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
+import {
+  getAlmAppInfo,
+  getAlmOrganization,
+  bindAlmOrganization
+} from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
 import {
   LoggedInUser,
@@ -40,7 +45,7 @@ import {
   AlmOrganization,
   OrganizationBase
 } from '../../../app/types';
-import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
+import { hasAdvancedALMIntegration, isPersonal } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import * as api from '../../../api/organizations';
@@ -49,9 +54,15 @@ import '../../../app/styles/sonarcloud.css';
 import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
-  createOrganization: (organization: OrganizationBase) => Promise<Organization>;
+  createOrganization: (
+    organization: OrganizationBase & { installationId?: string }
+  ) => Promise<Organization>;
   currentUser: LoggedInUser;
   deleteOrganization: (key: string) => Promise<void>;
+  updateOrganization: (
+    organization: OrganizationBase & { installationId?: string }
+  ) => Promise<Organization>;
+  userOrganizations: Organization[];
 }
 
 interface State {
@@ -146,11 +157,19 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   };
 
   render() {
-    const { location } = this.props;
-    const { almApplication, loading, subscriptionPlans } = this.state;
+    const { currentUser, location } = this.props;
+    const { almApplication, almOrganization, loading, subscriptionPlans } = this.state;
     const state = (location.state || {}) as LocationState;
     const query = parseQuery(location.query);
-    const header = translate('onboarding.create_organization.page.header');
+    const importPersonalOrg = isPersonal(almOrganization)
+      ? this.props.userOrganizations.find(o => o.key === currentUser.personalOrganization)
+      : undefined;
+    const header = importPersonalOrg
+      ? translate('onboarding.import_organization.personal.page.header')
+      : translate('onboarding.create_organization.page.header');
+    const description = importPersonalOrg
+      ? translate('onboarding.import_organization.personal.page.description')
+      : translate('onboarding.create_organization.page.description');
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     const formattedPrice = formatPrice(startedPrice);
     const showManualTab = state.tab === 'manual' && !query.almInstallId;
@@ -164,8 +183,8 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
             {startedPrice !== undefined && (
               <p className="page-description">
                 <FormattedMessage
-                  defaultMessage={translate('onboarding.create_organization.page.description')}
-                  id="onboarding.create_organization.page.description"
+                  defaultMessage={description}
+                  id={description}
                   values={{
                     break: <br />,
                     price: formattedPrice,
@@ -184,36 +203,34 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
             <DeferredSpinner />
           ) : (
             <>
-              {almApplication && (
-                <Tabs<TabKeys>
-                  onChange={this.onTabChange}
-                  selected={showManualTab ? 'manual' : 'auto'}
-                  tabs={[
-                    {
-                      key: 'auto',
-                      node: (
-                        <>
-                          {translate(
-                            'onboarding.create_organization.import_organization',
-                            almApplication.key
-                          )}
-                          <span
-                            className={classNames('beta-badge spacer-left', {
-                              'is-muted': showManualTab
-                            })}>
-                            {translate('beta')}
-                          </span>
-                        </>
-                      )
-                    },
-                    {
-                      disabled: Boolean(query.almInstallId),
-                      key: 'manual',
-                      node: translate('onboarding.create_organization.create_manually')
-                    }
-                  ]}
-                />
-              )}
+              {almApplication &&
+                !importPersonalOrg && (
+                  <Tabs<TabKeys>
+                    onChange={this.onTabChange}
+                    selected={showManualTab ? 'manual' : 'auto'}
+                    tabs={[
+                      {
+                        key: 'auto',
+                        node: (
+                          <>
+                            {translate('onboarding.import_organization', almApplication.key)}
+                            <span
+                              className={classNames('beta-badge spacer-left', {
+                                'is-muted': showManualTab
+                              })}>
+                              {translate('beta')}
+                            </span>
+                          </>
+                        )
+                      },
+                      {
+                        disabled: Boolean(query.almInstallId),
+                        key: 'manual',
+                        node: translate('onboarding.create_organization.create_manually')
+                      }
+                    ]}
+                  />
+                )}
 
               {showManualTab || !almApplication ? (
                 <ManualOrganizationCreate
@@ -227,9 +244,11 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
                 <AutoOrganizationCreate
                   almApplication={almApplication}
                   almInstallId={query.almInstallId}
-                  almOrganization={this.state.almOrganization}
+                  almOrganization={almOrganization}
                   createOrganization={this.props.createOrganization}
+                  importPersonalOrg={importPersonalOrg}
                   onOrgCreated={this.handleOrgCreated}
+                  updateOrganization={this.props.updateOrganization}
                 />
               )}
             </>
@@ -240,10 +259,26 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   }
 }
 
-function createOrganization(organization: OrganizationBase & { installId?: string }) {
+function createOrganization(organization: OrganizationBase & { installationId?: string }) {
   return (dispatch: Dispatch) => {
     return api.createOrganization(organization).then((organization: Organization) => {
       dispatch(actions.createOrganization(organization));
+      return organization;
+    });
+  };
+}
+
+function updateOrganization(
+  organization: OrganizationBase & { key: string; installationId?: string }
+) {
+  return (dispatch: Dispatch) => {
+    const { key, installationId, ...changes } = organization;
+    const promises = [api.updateOrganization(key, changes)];
+    if (installationId) {
+      promises.push(bindAlmOrganization({ organization: key, installationId }));
+    }
+    return Promise.all(promises).then(() => {
+      dispatch(actions.updateOrganization(key, changes));
       return organization;
     });
   };
@@ -259,14 +294,17 @@ function deleteOrganization(key: string) {
 
 const mapDispatchToProps = {
   createOrganization: createOrganization as any,
-  deleteOrganization: deleteOrganization as any
+  deleteOrganization: deleteOrganization as any,
+  updateOrganization: updateOrganization as any
 };
 
 export default whenLoggedIn(
-  withRouter(
-    connect(
-      null,
-      mapDispatchToProps
-    )(CreateOrganization)
+  withUserOrganizations(
+    withRouter(
+      connect(
+        null,
+        mapDispatchToProps
+      )(CreateOrganization)
+    )
   )
 );

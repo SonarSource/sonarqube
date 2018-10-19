@@ -89,8 +89,7 @@ export interface Breadcrumb {
 }
 
 export interface Component extends LightComponent {
-  almId?: string;
-  almRepoUrl?: string;
+  alm?: { key: string; url: string };
   analysisDate?: string;
   breadcrumbs: Breadcrumb[];
   configuration?: ComponentConfiguration;
@@ -412,6 +411,7 @@ export interface LoggedInUser extends CurrentUser {
   local?: boolean;
   login: string;
   name: string;
+  personalOrganization?: string;
   scmAccounts: string[];
 }
 
@@ -480,8 +480,7 @@ export interface Notification {
 }
 
 export interface Organization extends OrganizationBase {
-  almId?: string;
-  almRepoUrl?: string;
+  alm?: { key: string; url: string };
   adminPages?: Extension[];
   canAdmin?: boolean;
   canDelete?: boolean;

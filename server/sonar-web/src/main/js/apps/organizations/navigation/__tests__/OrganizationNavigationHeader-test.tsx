@@ -38,8 +38,7 @@ it('renders with alm integration', () => {
     shallow(
       <OrganizationNavigationHeader
         organization={{
-          almId: 'github',
-          almRepoUrl: 'https://github.com/foo',
+          alm: { key: 'github', url: 'https://github.com/foo' },
           key: 'foo',
           name: 'Foo',
           projectVisibility: Visibility.Public

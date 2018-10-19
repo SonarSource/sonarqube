@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render prefilled and create org 1`] = `
+exports[`should render for personal organizations 1`] = `
 <OrganizationDetailsStep
   description={
     <p
       className="huge-spacer-bottom"
     >
       <FormattedMessage
-        defaultMessage="onboarding.create_organization.import_organization_x"
-        id="onboarding.create_organization.import_organization_x"
+        defaultMessage="onboarding.import_personal_organization_x"
+        id="onboarding.import_personal_organization_x"
         values={
           Object {
             "avatar": <img
@@ -20,12 +20,67 @@ exports[`should render prefilled and create org 1`] = `
             "name": <strong>
               name-foo
             </strong>,
+            "personalAvatar": <OrganizationAvatar
+              organization={
+                Object {
+                  "key": "personal-org",
+                  "name": "personal-org",
+                }
+              }
+              small={true}
+            />,
+            "personalName": <strong>
+              personal-org
+            </strong>,
           }
         }
       />
     </p>
   }
   finished={false}
+  keyReadOnly={true}
+  onContinue={[Function]}
+  onOpen={[Function]}
+  open={true}
+  organization={
+    Object {
+      "key": "personal-org",
+      "name": "personal-org",
+    }
+  }
+  submitText="onboarding.import_organization.bind"
+/>
+`;
+
+exports[`should render prefilled and create org 1`] = `
+<OrganizationDetailsStep
+  description={
+    <p
+      className="huge-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.import_organization_x"
+        id="onboarding.import_organization_x"
+        values={
+          Object {
+            "avatar": <img
+              alt="BitBucket"
+              className="little-spacer-left"
+              src="/images/sonarcloud/bitbucket.svg"
+              width={16}
+            />,
+            "name": <strong>
+              name-foo
+            </strong>,
+            "personalAvatar": undefined,
+            "personalName": undefined,
+          }
+        }
+      />
+    </p>
+  }
+  finished={false}
+  keyReadOnly={false}
   onContinue={[Function]}
   onOpen={[Function]}
   open={true}

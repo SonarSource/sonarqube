@@ -73,17 +73,17 @@ export function ComponentNavHeader(props: Props) {
         )}
       {renderBreadcrumbs(component.breadcrumbs)}
       {isSonarCloud() &&
-        component.almRepoUrl && (
+        component.alm && (
           <a
             className="link-no-underline"
-            href={component.almRepoUrl}
+            href={component.alm.url}
             rel="noopener noreferrer"
             target="_blank">
             <img
-              alt={sanitizeAlmId(component.almId)}
+              alt={sanitizeAlmId(component.alm.key)}
               className="text-text-top spacer-left"
               height={16}
-              src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(component.almId)}.svg`}
+              src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(component.alm.key)}.svg`}
               width={16}
             />
           </a>

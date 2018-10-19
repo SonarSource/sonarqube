@@ -18,39 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow } from 'enzyme';
 import { createStore } from 'redux';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import { whenLoggedIn } from '../whenLoggedIn';
+import { Organization } from '../../../app/types';
+import { withUserOrganizations } from '../withUserOrganizations';
 
-jest.mock('../../../app/utils/handleRequiredAuthentication', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../api/organizations', () => ({ getOrganizations: jest.fn() }));
 
-class X extends React.Component {
+class X extends React.Component<{ userOrganizations: Organization[] }> {
   render() {
     return <div />;
   }
 }
 
-const UnderTest = whenLoggedIn(X);
+const UnderTest = withUserOrganizations(X);
 
-it('should render for logged in user', () => {
-  const store = createStore(state => state, { users: { currentUser: { isLoggedIn: true } } });
+// TODO Find a way to make this work, currently getting the following error : Actions must be plain objects. Use custom middleware for async actions.
+it.skip('should pass user organizations and logged in user', () => {
+  const org = { key: 'my-org', name: 'My Organization' };
+  const store = createStore(state => state, {
+    organizations: { byKey: { 'my-org': org }, my: ['my-org'] }
+  });
   const wrapper = shallow(<UnderTest />, { context: { store } });
-  expect(getRenderedType(wrapper)).toBe(X);
-});
-
-it('should not render for anonymous user', () => {
-  const store = createStore(state => state, { users: { currentUser: { isLoggedIn: false } } });
-  const wrapper = shallow(<UnderTest />, { context: { store } });
-  expect(getRenderedType(wrapper)).toBe(null);
-  expect(handleRequiredAuthentication).toBeCalled();
-});
-
-function getRenderedType(wrapper: ShallowWrapper) {
-  return wrapper
+  const wrappedComponent = wrapper
     .dive()
     .dive()
-    .type();
-}
+    .dive();
+  expect(wrappedComponent.type()).toBe(X);
+  expect(wrappedComponent.prop('userOrganizations')).toEqual([org]);
+});

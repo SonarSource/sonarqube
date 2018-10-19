@@ -52,8 +52,29 @@ it('should render prefilled and create org', async () => {
   wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
   await waitAndUpdate(wrapper);
 
-  expect(createOrganization).toBeCalledWith({ ...organization, installId: 'id-foo' });
+  expect(createOrganization).toBeCalledWith({ ...organization, installationId: 'id-foo' });
   expect(onOrgCreated).toBeCalledWith('foo');
+});
+
+it('should render for personal organizations', async () => {
+  const personalOrg = { key: 'personal-org', name: 'personal-org' };
+  const updateOrganization = jest.fn().mockResolvedValue({ key: personalOrg.key });
+  const onOrgCreated = jest.fn();
+  const wrapper = shallowRender({
+    almInstallId: 'id-foo',
+    almOrganization: { ...organization, type: 'USER' },
+    importPersonalOrg: personalOrg,
+    onOrgCreated,
+    updateOrganization
+  });
+
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(personalOrg);
+  await waitAndUpdate(wrapper);
+
+  expect(updateOrganization).toBeCalledWith({ ...personalOrg, installationId: 'id-foo' });
+  expect(onOrgCreated).toBeCalledWith(personalOrg.key);
 });
 
 function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
@@ -68,6 +89,7 @@ function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
       }}
       createOrganization={jest.fn()}
       onOrgCreated={jest.fn()}
+      updateOrganization={jest.fn()}
       {...props}
     />
   );

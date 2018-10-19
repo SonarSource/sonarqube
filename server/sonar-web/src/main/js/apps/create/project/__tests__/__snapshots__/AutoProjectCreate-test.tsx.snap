@@ -9,12 +9,18 @@ exports[`should display the bounded organizations dropdown with the list of repo
     organizations={
       Array [
         Object {
-          "almId": "github",
+          "alm": Object {
+            "key": "github",
+            "url": "",
+          },
           "key": "foo",
           "name": "Foo",
         },
         Object {
-          "almId": "github",
+          "alm": Object {
+            "key": "github",
+            "url": "",
+          },
           "key": "bar",
           "name": "Bar",
         },

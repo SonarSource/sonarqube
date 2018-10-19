@@ -24,8 +24,8 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 import { Alert } from '../../../components/ui/Alert';
 
-export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string }) {
-  if (isBitbucket(almId)) {
+export default function AnalyzeTutorialSuggestion({ almKey }: { almKey?: string }) {
+  if (isBitbucket(almKey)) {
     return (
       <Alert className="big-spacer-bottom" variant="info">
         <p>{translate('onboarding.project_analysis.commands_for_analysis')}</p>
@@ -49,7 +49,7 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
         />
       </Alert>
     );
-  } else if (isGithub(almId)) {
+  } else if (isGithub(almKey)) {
     return (
       <Alert className="big-spacer-bottom" variant="info">
         <p>{translate('onboarding.project_analysis.commands_for_analysis')} </p>
@@ -70,7 +70,7 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
         />
       </Alert>
     );
-  } else if (isVSTS(almId)) {
+  } else if (isVSTS(almKey)) {
     return (
       <Alert className="big-spacer-bottom" variant="info">
         <FormattedMessage

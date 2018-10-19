@@ -70,8 +70,10 @@ exports[`renders with alm integration 1`] = `
   <OrganizationAvatar
     organization={
       Object {
-        "almId": "github",
-        "almRepoUrl": "https://github.com/foo",
+        "alm": Object {
+          "key": "github",
+          "url": "https://github.com/foo",
+        },
         "key": "foo",
         "name": "Foo",
         "projectVisibility": "public",
