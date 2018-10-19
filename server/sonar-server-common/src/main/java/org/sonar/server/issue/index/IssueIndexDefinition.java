@@ -19,17 +19,12 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
-import static java.util.Arrays.asList;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
 import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
@@ -100,18 +95,6 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_OWASP_TOP_10 = "owaspTop10";
   public static final String FIELD_ISSUE_SANS_TOP_25 = "sansTop25";
   public static final String FIELD_ISSUE_CWE = "cwe";
-  public static final String UNKNOWN_STANDARD = "unknown";
-  public static final String SANS_TOP_25_INSECURE_INTERACTION = "insecure-interaction";
-  public static final String SANS_TOP_25_RISKY_RESOURCE = "risky-resource";
-  public static final String SANS_TOP_25_POROUS_DEFENSES = "porous-defenses";
-  // See https://www.sans.org/top25-software-errors
-  private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
-  private static final Set<String> RISKY_CWE = new HashSet<>(asList("120", "22", "494", "829", "676", "131", "134", "190"));
-  private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
-  static final Map<String, Set<String>> SANS_TOP_25_CWE_MAPPING = ImmutableMap.of(
-    SANS_TOP_25_INSECURE_INTERACTION, INSECURE_CWE,
-    SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
-    SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
   private final Configuration config;
   private final boolean enableSource;

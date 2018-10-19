@@ -32,6 +32,8 @@ public class SecurityStandardCategoryStatistics {
   private final long openSecurityHotspots;
   private final long wontFixSecurityHotspots;
   private final List<SecurityStandardCategoryStatistics> children;
+  private long activeRules;
+  private long totalRules;
 
   public SecurityStandardCategoryStatistics(String category, long vulnerabilities, OptionalInt vulnerabiliyRating, long toReviewSecurityHotspots, long openSecurityHotspots,
     long wontFixSecurityHotspots, @Nullable List<SecurityStandardCategoryStatistics> children) {
@@ -70,5 +72,23 @@ public class SecurityStandardCategoryStatistics {
 
   public List<SecurityStandardCategoryStatistics> getChildren() {
     return children;
+  }
+
+  public long getActiveRules() {
+    return activeRules;
+  }
+
+  public long getTotalRules() {
+    return totalRules;
+  }
+
+  public SecurityStandardCategoryStatistics setActiveRules(long activeRules) {
+    this.activeRules = activeRules;
+    return this;
+  }
+
+  public SecurityStandardCategoryStatistics setTotalRules(long totalRules) {
+    this.totalRules = totalRules;
+    return this;
   }
 }

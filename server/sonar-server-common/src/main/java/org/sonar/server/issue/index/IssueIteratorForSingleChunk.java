@@ -27,7 +27,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -42,11 +41,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
-import static org.sonar.server.issue.index.IssueIndexDefinition.SANS_TOP_25_CWE_MAPPING;
-import static org.sonar.server.issue.index.IssueIndexDefinition.UNKNOWN_STANDARD;
+import static org.sonar.server.issue.index.SecurityStandardHelper.getCwe;
+import static org.sonar.server.issue.index.SecurityStandardHelper.getOwaspTop10;
+import static org.sonar.server.issue.index.SecurityStandardHelper.getSansTop25;
+import static org.sonar.server.issue.index.SecurityStandardHelper.getSecurityStandards;
 
 /**
  * Scrolls over table ISSUES and reads documents to populate
@@ -94,10 +94,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   private static final String ISSUE_KEY_FILTER_SUFFIX = ")";
 
   static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
-  static final Splitter SECURITY_STANDARDS_SPLITTER = TAGS_SPLITTER;
   static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
-  private static final String OWASP_TOP10_PREFIX = "owaspTop10:";
-  private static final String CWE_PREFIX = "cwe:";
 
   private final DbSession session;
 
@@ -235,21 +232,12 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setType(RuleType.valueOf(rs.getInt(22)));
       String securityStandards = rs.getString(23);
 
-      List<String> standards = IssueIteratorForSingleChunk.SECURITY_STANDARDS_SPLITTER.splitToList(securityStandards == null ? "" : securityStandards);
-      List<String> owaspTop10 = standards.stream().filter(s -> s.startsWith(OWASP_TOP10_PREFIX)).map(s -> s.substring(OWASP_TOP10_PREFIX.length())).collect(toList());
-      doc.setOwaspTop10(owaspTop10.isEmpty() ? Collections.singletonList(UNKNOWN_STANDARD) : owaspTop10);
-      List<String> cwe = standards.stream().filter(s -> s.startsWith(CWE_PREFIX)).map(s -> s.substring(CWE_PREFIX.length())).collect(toList());
-      doc.setCwe(cwe.isEmpty() ? Collections.singletonList(UNKNOWN_STANDARD) : cwe);
+      List<String> standards = getSecurityStandards(securityStandards);
+      doc.setOwaspTop10(getOwaspTop10(standards));
+      List<String> cwe = getCwe(standards);
+      doc.setCwe(cwe);
       doc.setSansTop25(getSansTop25(cwe));
       return doc;
-    }
-
-    private static List<String> getSansTop25(List<String> cwe) {
-      return SANS_TOP_25_CWE_MAPPING
-        .keySet()
-        .stream()
-        .filter(k -> cwe.stream().anyMatch(SANS_TOP_25_CWE_MAPPING.get(k)::contains))
-        .collect(toList());
     }
 
     @CheckForNull
