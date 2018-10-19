@@ -55,6 +55,6 @@ In case you used the InstallNTService.bat to install SonarQube as a Windows Serv
 
 ## Release Upgrade Notes
 
-Usually SonarQube releases come with some specific recommendations for upgrading from the previous version. You should read the upgrade notes for each version between your current version and the target version. To upgrade from a version not listed in [Release Upgrade Notes](/setup/upgrade-notes/), see [Documentation for Previous Versions](https://docs.sonarqube.org/display/SONARNEXT/Documentation+for+previous+versions).
+Usually SonarQube releases come with some specific recommendations for upgrading from the previous version. You should read the upgrade notes for each version between your current version and the target version. To upgrade from a version not listed in [Release Upgrade Notes](/setup/upgrade-notes/), see [Documentation for Previous Versions](/previous-versions/).
 
 <!-- /sonarqube -->
