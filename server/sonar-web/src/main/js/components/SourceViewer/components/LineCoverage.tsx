@@ -58,25 +58,25 @@ export default class LineCoverage extends React.PureComponent<Props> {
     const hasPopup =
       line.coverageStatus === 'covered' || line.coverageStatus === 'partially-covered';
 
-    const cell = line.coverageStatus ? (
-      <Tooltip
-        overlay={popupOpen ? undefined : translate('source_viewer.tooltip', line.coverageStatus)}
-        placement="right">
-        <div className="source-line-bar" />
-      </Tooltip>
+    const bar = hasPopup ? (
+      <div className="source-line-bar" onClick={this.handleClick} role="button" tabIndex={0} />
     ) : (
       <div className="source-line-bar" />
     );
 
+    const cell = line.coverageStatus ? (
+      <Tooltip
+        overlay={popupOpen ? undefined : translate('source_viewer.tooltip', line.coverageStatus)}
+        placement="right">
+        {bar}
+      </Tooltip>
+    ) : (
+      bar
+    );
+
     if (hasPopup) {
       return (
-        <td
-          className={className}
-          data-line-number={line.line}
-          onClick={this.handleClick}
-          // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-          role="button"
-          tabIndex={0}>
+        <td className={className} data-line-number={line.line}>
           <Toggler
             onRequestClose={this.closePopup}
             open={popupOpen}

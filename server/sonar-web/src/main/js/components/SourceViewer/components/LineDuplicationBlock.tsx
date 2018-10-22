@@ -64,29 +64,27 @@ export default class LineDuplicationBlock extends React.PureComponent<Props> {
       'source-line-duplicated': duplicated
     });
 
-    const cell = <div className="source-line-bar" />;
-
     return duplicated ? (
-      <td
-        className={className}
-        data-index={index}
-        data-line-number={line.line}
-        onClick={this.handleClick}
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-        role="button"
-        tabIndex={0}>
+      <td className={className} data-index={index} data-line-number={line.line}>
         <Toggler
           onRequestClose={this.closePopup}
           open={popupOpen}
           overlay={this.props.renderDuplicationPopup(index, line.line)}>
-          <Tooltip overlay={translate('source_viewer.tooltip.duplicated_block')} placement="right">
-            {cell}
+          <Tooltip
+            overlay={popupOpen ? undefined : translate('source_viewer.tooltip.duplicated_block')}
+            placement="right">
+            <div
+              className="source-line-bar"
+              onClick={this.handleClick}
+              role="button"
+              tabIndex={0}
+            />
           </Tooltip>
         </Toggler>
       </td>
     ) : (
       <td className={className} data-index={index} data-line-number={line.line}>
-        {cell}
+        <div className="source-line-bar" />
       </td>
     );
   }

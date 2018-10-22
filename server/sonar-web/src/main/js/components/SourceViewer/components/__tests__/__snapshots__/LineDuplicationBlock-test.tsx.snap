@@ -5,9 +5,6 @@ exports[`render duplicated line 1`] = `
   className="source-meta source-line-duplications-extra source-line-duplicated"
   data-index={1}
   data-line-number={3}
-  onClick={[Function]}
-  role="button"
-  tabIndex={0}
 >
   <Toggler
     onRequestClose={[Function]}
@@ -19,6 +16,9 @@ exports[`render duplicated line 1`] = `
     >
       <div
         className="source-line-bar"
+        onClick={[Function]}
+        role="button"
+        tabIndex={0}
       />
     </Tooltip>
   </Toggler>

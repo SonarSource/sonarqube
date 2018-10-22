@@ -26,6 +26,7 @@ import { DropdownOverlay } from '../../controls/Dropdown';
 import QualifierIcon from '../../icons-components/QualifierIcon';
 import { PopupPlacement } from '../../ui/popups';
 import { WorkspaceContext } from '../../workspace/context';
+import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -48,6 +49,11 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     workspace: PropTypes.object.isRequired
   };
 
+  shouldLink() {
+    const { branchLike } = this.props;
+    return !isShortLivingBranch(branchLike) && !isPullRequest(branchLike);
+  }
+
   isDifferentComponent = (
     a: { project: string; subProject?: string },
     b: { project: string; subProject?: string }
@@ -59,7 +65,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     event.preventDefault();
     event.currentTarget.blur();
     const { key, line } = event.currentTarget.dataset;
-    if (key) {
+    if (this.shouldLink() && key) {
       this.context.workspace.openComponent({
         branchLike: this.props.branchLike,
         key,
@@ -68,6 +74,21 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     }
     this.props.onClose();
   };
+
+  renderDuplication(file: DuplicatedFile, children: React.ReactNode, line?: number) {
+    return this.shouldLink() ? (
+      <a
+        data-key={file.key}
+        data-line={line}
+        href="#"
+        onClick={this.handleFileClick}
+        title={file.name}>
+        {children}
+      </a>
+    ) : (
+      children
+    );
+  }
 
   render() {
     const { duplicatedFiles = {}, sourceViewerFile } = this.props;
@@ -129,17 +150,15 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
 
                     {duplication.file.key !== this.props.sourceViewerFile.key && (
                       <div className="component-name-path">
-                        <a
-                          className="link-action"
-                          data-key={duplication.file.key}
-                          href="#"
-                          onClick={this.handleFileClick}
-                          title={duplication.file.name}>
-                          <span>{collapsedDirFromPath(duplication.file.name)}</span>
-                          <span className="component-name-file">
-                            {fileFromPath(duplication.file.name)}
-                          </span>
-                        </a>
+                        {this.renderDuplication(
+                          duplication.file,
+                          <>
+                            <span>{collapsedDirFromPath(duplication.file.name)}</span>
+                            <span className="component-name-file">
+                              {fileFromPath(duplication.file.name)}
+                            </span>
+                          </>
+                        )}
                       </div>
                     )}
 
@@ -147,15 +166,15 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
                       {'Lines: '}
                       {duplication.blocks.map((block, index) => (
                         <React.Fragment key={index}>
-                          <a
-                            data-key={duplication.file.key}
-                            data-line={block.from}
-                            href="#"
-                            onClick={this.handleFileClick}>
-                            {block.from}
-                            {' – '}
-                            {block.from + block.size - 1}
-                          </a>
+                          {this.renderDuplication(
+                            duplication.file,
+                            <>
+                              {block.from}
+                              {' – '}
+                              {block.from + block.size - 1}
+                            </>,
+                            block.from
+                          )}
                           {index < duplication.blocks.length - 1 && ', '}
                         </React.Fragment>
                       ))}

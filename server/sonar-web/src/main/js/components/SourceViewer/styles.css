@@ -227,6 +227,14 @@
   height: 18px;
 }
 
+.source-line-bar[role='button'] {
+  cursor: pointer;
+}
+
+.source-line-bar:focus {
+  outline: none;
+}
+
 .source-line-covered {
   background-color: var(--green) !important;
 }
@@ -512,6 +520,7 @@
   font-family: var(--baseFontFamily);
   font-size: var(--baseFontSize);
   text-align: left;
+  user-select: text;
 }
 
 .issue-location {

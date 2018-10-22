@@ -26,7 +26,12 @@ import { DropdownOverlay } from '../../controls/Dropdown';
 import TestStatusIcon from '../../icons-components/TestStatusIcon';
 import { PopupPlacement } from '../../ui/popups';
 import { WorkspaceContext } from '../../workspace/context';
-import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import {
+  isSameBranchLike,
+  getBranchLikeQuery,
+  isShortLivingBranch,
+  isPullRequest
+} from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 
@@ -71,6 +76,11 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  shouldLink() {
+    const { branchLike } = this.props;
+    return !isShortLivingBranch(branchLike) && !isPullRequest(branchLike);
+  }
+
   fetchTests = () => {
     this.setState({ loading: true });
     getTests({
@@ -95,11 +105,21 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
     event.preventDefault();
     event.currentTarget.blur();
     const { key } = event.currentTarget.dataset;
-    if (key) {
+    if (this.shouldLink() && key) {
       this.context.workspace.openComponent({ branchLike: this.props.branchLike, key });
     }
     this.props.onClose();
   };
+
+  renderFile(file: { key: string; longName: string }) {
+    return this.shouldLink() ? (
+      <a data-key={file.key} href="#" onClick={this.handleTestClick} title={file.longName}>
+        <span>{collapsePath(file.longName)}</span>
+      </a>
+    ) : (
+      <span>{collapsePath(file.longName)}</span>
+    );
+  }
 
   render() {
     const { line } = this.props;
@@ -115,7 +135,7 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
 
     return (
       <DropdownOverlay placement={PopupPlacement.RightTop}>
-        <div className="abs-width-400">
+        <div className="source-viewer-bubble-popup abs-width-400">
           <h6 className="spacer-bottom">
             {translate('source_viewer.covered')}
             {!!line.conditions && (
@@ -136,13 +156,7 @@ export default class CoveragePopup extends React.PureComponent<Props, State> {
                 translate('source_viewer.tooltip.no_information_about_tests')}
               {testFiles.map(testFile => (
                 <div className="spacer-top text-ellipsis" key={testFile.file.key}>
-                  <a
-                    data-key={testFile.file.key}
-                    href="#"
-                    onClick={this.handleTestClick}
-                    title={testFile.file.longName}>
-                    <span>{collapsePath(testFile.file.longName)}</span>
-                  </a>
+                  {this.renderFile(testFile.file)}
                   <ul>
                     {testFile.tests.map(testCase => (
                       <li
