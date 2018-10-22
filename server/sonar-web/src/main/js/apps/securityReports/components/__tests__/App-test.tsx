@@ -60,6 +60,16 @@ jest.mock('../../../../api/security-reports', () => ({
           toReviewSecurityHotspots: 8,
           openSecurityHotspots: 100,
           wontFixSecurityHotspots: 10
+        },
+        {
+          activeRules: 0,
+          totalRules: 1,
+          category: 'a3',
+          vulnerabilities: 3,
+          vulnerabiliyRating: 3,
+          toReviewSecurityHotspots: 8,
+          openSecurityHotspots: 100,
+          wontFixSecurityHotspots: 10
         }
       ]
     });
@@ -94,10 +104,11 @@ it('renders error on wrong type parameters', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('renders owaspTop10', () => {
+it('renders owaspTop10', async () => {
   const wrapper = shallow(<App component={component} location={location} params={owaspParams} />, {
     context
   });
+  await waitAndUpdate(wrapper);
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',
     standard: 'owaspTop10',

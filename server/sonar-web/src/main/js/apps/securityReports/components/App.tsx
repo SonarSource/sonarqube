@@ -125,6 +125,44 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ showCWE: checked }, this.fetchSecurityHotspots);
   };
 
+  renderAdditionalRulesMessage = () => {
+    const { component } = this.props;
+    const { findings, type } = this.state;
+    if (findings.length === 0) {
+      return null;
+    }
+
+    const total = findings.map(f => f.totalRules).reduce((sum, count) => sum + count);
+    const active = findings.map(f => f.activeRules).reduce((sum, count) => sum + count);
+    if (active === total) {
+      return null;
+    }
+
+    const standard = translate('security_reports', type, 'page');
+    return (
+      <div className="alert alert-info spacer-top display-inline-block">
+        <FormattedMessage
+          defaultMessage={translate('security_reports.info')}
+          id="security_reports.info"
+          tagName="p"
+          values={{
+            link: (
+              <Link
+                to={getRulesUrl(
+                  { types: [RuleType.Vulnerability, RuleType.Hotspot].join() },
+                  isSonarCloud() ? component.organization : undefined
+                )}>
+                {translate('security_reports.info.link')}
+              </Link>
+            ),
+            standard,
+            total: total - active
+          }}
+        />
+      </div>
+    );
+  };
+
   render() {
     const { branchLike, component, params } = this.props;
     const { loading, findings, showCWE, type } = this.state;
@@ -145,24 +183,7 @@ export default class App extends React.PureComponent<Props, State> {
               to={{ pathname: '/documentation/user-guide/security-reports/' }}>
               {translate('learn_more')}
             </Link>
-            <div className="alert alert-info spacer-top display-inline-block">
-              <FormattedMessage
-                defaultMessage={translate('security_reports.info')}
-                id="security_reports.info"
-                tagName="p"
-                values={{
-                  link: (
-                    <Link
-                      to={getRulesUrl(
-                        { types: [RuleType.Vulnerability, RuleType.Hotspot].join() },
-                        isSonarCloud() ? component.organization : undefined
-                      )}>
-                      {translate('security_reports.info.link')}
-                    </Link>
-                  )
-                }}
-              />
-            </div>
+            {this.renderAdditionalRulesMessage()}
           </div>
         </header>
         <div className="display-inline-flex-center">
