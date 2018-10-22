@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display a warning message 1`] = `
+exports[`should display an alert message 1`] = `
 <Alert
   className="markdown big-spacer-bottom width-60"
-  variant="warning"
+  variant="error"
 >
   onboarding.create_organization.import_org_not_found
   <ul>

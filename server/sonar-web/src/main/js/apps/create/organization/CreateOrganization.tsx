@@ -25,6 +25,7 @@ import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { Link, withRouter, WithRouterProps } from 'react-router';
 import { formatPrice, parseQuery } from './utils';
+import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
@@ -68,6 +69,7 @@ interface Props {
 interface State {
   almApplication?: AlmApplication;
   almOrganization?: AlmOrganization;
+  almOrgLoading: boolean;
   loading: boolean;
   organization?: Organization;
   subscriptionPlans?: SubscriptionPlan[];
@@ -82,7 +84,7 @@ interface LocationState {
 
 export class CreateOrganization extends React.PureComponent<Props & WithRouterProps, State> {
   mounted = false;
-  state: State = { loading: true };
+  state: State = { almOrgLoading: false, loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -96,7 +98,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
       const query = parseQuery(this.props.location.query);
       if (query.almInstallId) {
-        initRequests.push(this.fetchAlmOrganization(query.almInstallId));
+        this.fetchAlmOrganization(query.almInstallId);
       }
     }
     Promise.all(initRequests).then(this.stopLoading, this.stopLoading);
@@ -116,11 +118,19 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   };
 
   fetchAlmOrganization = (installationId: string) => {
-    return getAlmOrganization({ installationId }).then(almOrganization => {
-      if (this.mounted) {
-        this.setState({ almOrganization });
+    this.setState({ almOrgLoading: true });
+    return getAlmOrganization({ installationId }).then(
+      almOrganization => {
+        if (this.mounted) {
+          this.setState({ almOrganization, almOrgLoading: false });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ almOrgLoading: false });
+        }
       }
-    });
+    );
   };
 
   fetchSubscriptionPlans = () => {
@@ -158,9 +168,14 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   render() {
     const { currentUser, location } = this.props;
-    const { almApplication, almOrganization, loading, subscriptionPlans } = this.state;
     const state = (location.state || {}) as LocationState;
     const query = parseQuery(location.query);
+
+    if (this.state.almOrgLoading) {
+      return <AlmApplicationInstalling almKey={query.almKey} />;
+    }
+
+    const { almApplication, almOrganization, subscriptionPlans } = this.state;
     const importPersonalOrg = isPersonal(almOrganization)
       ? this.props.userOrganizations.find(o => o.key === currentUser.personalOrganization)
       : undefined;
@@ -172,7 +187,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       : translate('onboarding.create_organization.page.description');
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     const formattedPrice = formatPrice(startedPrice);
-    const showManualTab = state.tab === 'manual' && !query.almInstallId;
+    const showManualTab = state.tab === 'manual' && !almOrganization;
 
     return (
       <>
@@ -198,8 +213,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
               </p>
             )}
           </header>
-
-          {loading ? (
+          {this.state.loading ? (
             <DeferredSpinner />
           ) : (
             <>
@@ -224,7 +238,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
                         )
                       },
                       {
-                        disabled: Boolean(query.almInstallId),
+                        disabled: Boolean(almOrganization),
                         key: 'manual',
                         node: translate('onboarding.create_organization.create_manually')
                       }

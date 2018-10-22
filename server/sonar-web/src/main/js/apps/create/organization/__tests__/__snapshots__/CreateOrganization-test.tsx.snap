@@ -83,6 +83,12 @@ exports[`should render with auto tab displayed 1`] = `
 `;
 
 exports[`should render with auto tab selected and manual disabled 1`] = `
+<AlmApplicationInstalling
+  almKey="github"
+/>
+`;
+
+exports[`should render with auto tab selected and manual disabled 2`] = `
 <Fragment>
   <HelmetWrapper
     defer={true}

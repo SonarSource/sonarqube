@@ -18,28 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import ChooseRemoteOrganizationStep from '../ChooseRemoteOrganizationStep';
+import { translate } from '../../../helpers/l10n';
 
-it('should render', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-it('should display an alert message', () => {
-  expect(shallowRender({ almInstallId: 'foo' }).find('Alert')).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {}) {
-  return shallow(
-    <ChooseRemoteOrganizationStep
-      almApplication={{
-        backgroundColor: 'blue',
-        iconPath: 'icon/path',
-        installationUrl: 'https://alm.application.url',
-        key: 'github',
-        name: 'GitHub'
-      }}
-      {...props}
-    />
-  ).dive();
+export default function AlmApplicationInstalling({ almKey }: { almKey?: string }) {
+  return (
+    <div className="sonarcloud page page-limited">
+      <div className="huge-spacer-top text-center">
+        <i className="spinner" />
+        <p className="big-spacer-top">
+          {almKey
+            ? translate('onboarding.import_organization.installing', almKey)
+            : translate('onboarding.import_organization.installing')}
+        </p>
+      </div>
+    </div>
+  );
 }

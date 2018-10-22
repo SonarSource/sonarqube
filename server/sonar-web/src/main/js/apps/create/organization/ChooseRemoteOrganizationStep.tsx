@@ -35,7 +35,7 @@ export default class ChooseRemoteOrganizationStep extends React.PureComponent<Pr
     return (
       <div className="boxed-group-inner">
         {almInstallId && (
-          <Alert className="markdown big-spacer-bottom width-60" variant="warning">
+          <Alert className="markdown big-spacer-bottom width-60" variant="error">
             {translate('onboarding.create_organization.import_org_not_found')}
             <ul>
               <li>{translate('onboarding.create_organization.import_org_not_found.tips_1')}</li>

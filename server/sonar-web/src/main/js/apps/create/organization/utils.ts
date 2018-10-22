@@ -31,6 +31,7 @@ export function formatPrice(price?: number, noSign?: boolean) {
 
 export interface Query {
   almInstallId?: string;
+  almKey?: string;
 }
 
 export const parseQuery = memoize(
@@ -38,7 +39,11 @@ export const parseQuery = memoize(
     return {
       almInstallId:
         parseAsOptionalString(urlQuery['installation_id']) ||
-        parseAsOptionalString(urlQuery['clientKey'])
+        parseAsOptionalString(urlQuery['clientKey']),
+      almKey:
+        (urlQuery['installation_id'] && 'github') ||
+        (urlQuery['clientKey'] && 'bitbucket') ||
+        undefined
     };
   }
 );

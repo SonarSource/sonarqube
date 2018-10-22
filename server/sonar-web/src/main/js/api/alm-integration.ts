@@ -29,14 +29,28 @@ export function getAlmAppInfo(): Promise<{ application: AlmApplication }> {
   return getJSON('/api/alm_integration/show_app_info').catch(throwGlobalError);
 }
 
-export function getAlmOrganization(data: { installationId: string }): Promise<AlmOrganization> {
-  return getJSON('/api/alm_integration/show_organization', data).then(
-    ({ organization }) => ({
-      ...organization,
-      name: organization.name || organization.key
-    }),
-    throwGlobalError
+function fetchAlmOrganization(data: { installationId: string }, remainingTries: number) {
+  return getJSON('/api/alm_integration/show_organization', data).catch(
+    (error: { response: Response }) => {
+      remainingTries--;
+      if (error.response.status === 404) {
+        if (remainingTries > 0) {
+          return new Promise(resolve => {
+            setTimeout(() => resolve(fetchAlmOrganization(data, remainingTries)), 500);
+          });
+        }
+        return Promise.reject();
+      }
+      return throwGlobalError(error);
+    }
   );
+}
+
+export function getAlmOrganization(data: { installationId: string }): Promise<AlmOrganization> {
+  return fetchAlmOrganization(data, 5).then(({ organization }) => ({
+    ...organization,
+    name: organization.name || organization.key
+  }));
 }
 
 export function getRepositories(data: {

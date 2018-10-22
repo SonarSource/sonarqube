@@ -84,6 +84,7 @@ it('should render with auto tab selected and manual disabled', async () => {
     currentUser: { ...user, externalProvider: 'github' },
     location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
   });
+  expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
