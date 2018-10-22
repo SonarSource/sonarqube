@@ -27,5 +27,15 @@ export function getSecurityHotspots(data: {
   includeDistribution?: boolean;
   branch?: string;
 }): Promise<{ categories: Array<SecurityHotspot> }> {
-  return getJSON('/api/security_reports/show', data).catch(throwGlobalError);
+  return getJSON('/api/security_reports/show', data)
+    .then(data => {
+      /* MOCK, must be removed after backend implementation */
+      data.categories = data.categories.map((v: SecurityHotspot, index: number) => {
+        v.activeRules = index;
+        v.totalRules = 200;
+        return v;
+      });
+      return data;
+    })
+    .catch(throwGlobalError);
 }

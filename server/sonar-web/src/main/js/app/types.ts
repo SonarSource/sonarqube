@@ -298,11 +298,13 @@ export function isSameHomePage(a: HomePage, b: HomePage) {
 }
 
 export interface SecurityHotspot {
+  activeRules: number;
   category?: string;
   cwe?: string;
   distribution?: Array<SecurityHotspot>;
   openSecurityHotspots: number;
   toReviewSecurityHotspots: number;
+  totalRules: number;
   vulnerabilities: number;
   vulnerabilityRating?: number;
   wontFixSecurityHotspots: number;

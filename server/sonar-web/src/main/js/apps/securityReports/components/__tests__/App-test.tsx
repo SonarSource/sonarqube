@@ -41,6 +41,8 @@ jest.mock('../../../../api/security-reports', () => ({
     return Promise.resolve({
       categories: [
         {
+          activeRules: 1,
+          totalRules: 1,
           category: 'a1',
           vulnerabilities: 2,
           vulnerabiliyRating: 5,
@@ -50,6 +52,8 @@ jest.mock('../../../../api/security-reports', () => ({
           distribution
         },
         {
+          activeRules: 1,
+          totalRules: 1,
           category: 'a2',
           vulnerabilities: 3,
           vulnerabiliyRating: 3,
