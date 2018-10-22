@@ -189,7 +189,7 @@ public class ShowActionTest {
   }
 
   @Test
-  public void owasp_with_cwe() {
+  public void owasp_with_cwe__matching_json_example() {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
     ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
@@ -221,7 +221,7 @@ public class ShowActionTest {
       .setParam("includeDistribution", "true")
       .execute().getInput())
       .withStrictArrayOrder()
-      .isSimilarTo(this.getClass().getResource("ShowActionTest/owaspWithCwe.json"));
+      .isSimilarTo(getClass().getResource("show-example.json"));
   }
 
   @Test

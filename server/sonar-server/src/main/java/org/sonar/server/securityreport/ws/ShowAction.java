@@ -82,6 +82,7 @@ public class ShowAction implements SecurityReportsWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("show")
+      .setResponseExample(getClass().getResource("show-example.json"))
       .setHandler(this)
       .setDescription("Return data used by security reports")
       .setSince("7.3")
