@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.duplication;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
@@ -28,8 +29,8 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
-import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_FILES;
@@ -38,10 +39,6 @@ import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINES;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
@@ -49,7 +46,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
-public class ReportDuplicationMeasuresTest {
+public class DuplicationMeasuresTest {
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 12;
   private static final int SUB_MODULE_1_REF = 123;
@@ -59,6 +56,11 @@ public class ReportDuplicationMeasuresTest {
   private static final int FILE_2_REF = 12342;
   private static final int FILE_3_REF = 1261;
   private static final int FILE_4_REF = 1262;
+  private static final FileAttributes FILE_1_ATTRS = mock(FileAttributes.class);
+  private static final FileAttributes FILE_2_ATTRS = mock(FileAttributes.class);
+  private static final FileAttributes FILE_3_ATTRS = mock(FileAttributes.class);
+  private static final FileAttributes FILE_4_ATTRS = mock(FileAttributes.class);
+
   private static final String SOME_FILE_KEY = "some file key";
 
   @Rule
@@ -72,22 +74,19 @@ public class ReportDuplicationMeasuresTest {
                 .addChildren(
                   builder(DIRECTORY, DIRECTORY_REF)
                     .addChildren(
-                      builder(FILE, FILE_1_REF).build(),
-                      builder(FILE, FILE_2_REF).build())
+                      builder(FILE, FILE_1_REF).setFileAttributes(FILE_1_ATTRS).build(),
+                      builder(FILE, FILE_2_REF).setFileAttributes(FILE_2_ATTRS).build())
                     .build())
                 .build(),
               builder(MODULE, SUB_MODULE_2_REF)
                 .addChildren(
-                  builder(FILE, FILE_3_REF).build(),
-                  builder(FILE, FILE_4_REF).build())
+                  builder(FILE, FILE_3_REF).setFileAttributes(FILE_3_ATTRS).build(),
+                  builder(FILE, FILE_4_REF).setFileAttributes(FILE_4_ATTRS).build())
                 .build())
             .build())
         .build());
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(LINES)
-    .add(NCLOC)
-    .add(COMMENT_LINES)
     .add(DUPLICATED_BLOCKS)
     .add(DUPLICATED_FILES)
     .add(DUPLICATED_LINES)
@@ -271,69 +270,8 @@ public class ReportDuplicationMeasuresTest {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_2_REF, 3);
 
-    addRawMeasure(FILE_1_REF, LINES_KEY, 10);
-    addRawMeasure(FILE_2_REF, LINES_KEY, 40);
-    addRawMeasure(DIRECTORY_REF, LINES_KEY, 50);
-    addRawMeasure(SUB_MODULE_1_REF, LINES_KEY, 50);
-    addRawMeasure(MODULE_REF, LINES_KEY, 50);
-    addRawMeasure(ROOT_REF, LINES_KEY, 50);
-
-    underTest.execute();
-
-    assertRawMeasureValue(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 20d);
-    assertRawMeasureValue(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY, 7.5d);
-    assertNoRawMeasure(FILE_3_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertNoRawMeasure(FILE_4_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertNoRawMeasure(SUB_MODULE_2_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-  }
-
-  @Test
-  public void compute_and_aggregate_duplicated_lines_density_using_nclocs_and_comment_lines() {
-    addDuplicatedBlock(FILE_1_REF, 2);
-    addDuplicatedBlock(FILE_2_REF, 3);
-
-    addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 2);
-    addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 10);
-    addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(SUB_MODULE_1_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 12);
-
-    addRawMeasure(FILE_1_REF, NCLOC_KEY, 8);
-    addRawMeasure(FILE_2_REF, NCLOC_KEY, 30);
-    addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 38);
-    addRawMeasure(SUB_MODULE_1_REF, NCLOC_KEY, 38);
-    addRawMeasure(MODULE_REF, NCLOC_KEY, 38);
-    addRawMeasure(ROOT_REF, NCLOC_KEY, 38);
-
-    underTest.execute();
-
-    assertRawMeasureValue(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 20d);
-    assertRawMeasureValue(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY, 7.5d);
-    assertNoRawMeasure(FILE_3_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertNoRawMeasure(FILE_4_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertNoRawMeasure(SUB_MODULE_2_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-  }
-
-  @Test
-  public void compute_duplicated_lines_density_using_only_nclocs() {
-    addDuplicatedBlock(FILE_1_REF, 2);
-    addDuplicatedBlock(FILE_2_REF, 3);
-
-    addRawMeasure(FILE_1_REF, NCLOC_KEY, 10);
-    addRawMeasure(FILE_2_REF, NCLOC_KEY, 40);
-    addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 50);
-    addRawMeasure(SUB_MODULE_1_REF, NCLOC_KEY, 50);
-    addRawMeasure(MODULE_REF, NCLOC_KEY, 50);
-    addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
+    when(FILE_1_ATTRS.getLines()).thenReturn(10);
+    when(FILE_2_ATTRS.getLines()).thenReturn(40);
 
     underTest.execute();
 
@@ -350,19 +288,8 @@ public class ReportDuplicationMeasuresTest {
 
   @Test
   public void compute_zero_percent_duplicated_lines_density_when_there_is_no_duplication() {
-    addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 2);
-    addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 10);
-    addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(SUB_MODULE_1_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 12);
-
-    addRawMeasure(FILE_1_REF, NCLOC_KEY, 8);
-    addRawMeasure(FILE_2_REF, NCLOC_KEY, 30);
-    addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 38);
-    addRawMeasure(SUB_MODULE_1_REF, NCLOC_KEY, 38);
-    addRawMeasure(MODULE_REF, NCLOC_KEY, 38);
-    addRawMeasure(ROOT_REF, NCLOC_KEY, 38);
+    when(FILE_1_ATTRS.getLines()).thenReturn(10);
+    when(FILE_2_ATTRS.getLines()).thenReturn(40);
 
     underTest.execute();
 
@@ -379,36 +306,9 @@ public class ReportDuplicationMeasuresTest {
 
   @Test
   public void not_compute_duplicated_lines_density_when_lines_is_zero() {
-    addRawMeasure(FILE_1_REF, LINES_KEY, 0);
-    addRawMeasure(FILE_2_REF, LINES_KEY, 0);
-    addRawMeasure(DIRECTORY_REF, LINES_KEY, 0);
-    addRawMeasure(SUB_MODULE_1_REF, LINES_KEY, 0);
-    addRawMeasure(MODULE_REF, LINES_KEY, 0);
-    addRawMeasure(ROOT_REF, LINES_KEY, 0);
-
+    when(FILE_1_ATTRS.getLines()).thenReturn(0);
+    when(FILE_2_ATTRS.getLines()).thenReturn(0);
     underTest.execute();
-
-    assertNoRawMeasures(DUPLICATED_LINES_DENSITY_KEY);
-  }
-
-  @Test
-  public void not_compute_duplicated_lines_density_when_ncloc_and_comment_are_zero() {
-    addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 0);
-    addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 0);
-    addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 0);
-    addRawMeasure(SUB_MODULE_1_REF, COMMENT_LINES_KEY, 0);
-    addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, 0);
-    addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 0);
-
-    addRawMeasure(FILE_1_REF, NCLOC_KEY, 0);
-    addRawMeasure(FILE_2_REF, NCLOC_KEY, 0);
-    addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 0);
-    addRawMeasure(SUB_MODULE_1_REF, NCLOC_KEY, 0);
-    addRawMeasure(MODULE_REF, NCLOC_KEY, 0);
-    addRawMeasure(ROOT_REF, NCLOC_KEY, 0);
-
-    underTest.execute();
-
     assertNoRawMeasures(DUPLICATED_LINES_DENSITY_KEY);
   }
 
@@ -417,12 +317,8 @@ public class ReportDuplicationMeasuresTest {
     addDuplicatedBlock(FILE_1_REF, 2);
     addDuplicatedBlock(FILE_2_REF, 3);
 
-    addRawMeasure(FILE_1_REF, LINES_KEY, 2);
-    addRawMeasure(FILE_2_REF, LINES_KEY, 3);
-    addRawMeasure(DIRECTORY_REF, LINES_KEY, 5);
-    addRawMeasure(SUB_MODULE_1_REF, LINES_KEY, 5);
-    addRawMeasure(MODULE_REF, LINES_KEY, 5);
-    addRawMeasure(ROOT_REF, LINES_KEY, 5);
+    when(FILE_1_ATTRS.getLines()).thenReturn(2);
+    when(FILE_2_ATTRS.getLines()).thenReturn(3);
 
     underTest.execute();
 
@@ -439,7 +335,6 @@ public class ReportDuplicationMeasuresTest {
 
   /**
    * Adds duplication blocks of a single line (each line is specific to its block).
-   *
    * This is a very simple use case, convenient for unit tests but more realistic and complex use cases must be tested separately.
    */
   private void addDuplicatedBlock(int fileRef, int blockCount) {

@@ -207,63 +207,13 @@ public class ViewsDuplicationMeasuresTest {
     addRawMeasure(PROJECT_VIEW_1_REF, LINES_KEY, 10);
     addRawMeasure(PROJECT_VIEW_2_REF, LINES_KEY, 40);
     addRawMeasure(PROJECT_VIEW_3_REF, LINES_KEY, 70);
-    addRawMeasure(SUB_SUBVIEW_REF, LINES_KEY, 50);
-    addRawMeasure(SUBVIEW_REF, LINES_KEY, 50);
-    addRawMeasure(ROOT_REF, LINES_KEY, 50);
 
     underTest.execute();
 
     assertNoNewRawMeasuresOnProjectViews();
     assertRawMeasureValue(SUB_SUBVIEW_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
     assertRawMeasureValue(SUBVIEW_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 18d);
-  }
-
-  @Test
-  public void compute_and_aggregate_duplicated_lines_density_using_nclocs_and_comment_lines() {
-    addRawMeasure(PROJECT_VIEW_1_REF, DUPLICATED_LINES_KEY, 2);
-    addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 3);
-    addRawMeasure(PROJECT_VIEW_3_REF, DUPLICATED_LINES_KEY, 4);
-
-    addRawMeasure(PROJECT_VIEW_1_REF, COMMENT_LINES_KEY, 2);
-    addRawMeasure(PROJECT_VIEW_2_REF, COMMENT_LINES_KEY, 10);
-    addRawMeasure(PROJECT_VIEW_3_REF, COMMENT_LINES_KEY, 20);
-    addRawMeasure(SUB_SUBVIEW_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(SUBVIEW_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 12);
-
-    addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 8);
-    addRawMeasure(PROJECT_VIEW_2_REF, NCLOC_KEY, 30);
-    addRawMeasure(PROJECT_VIEW_3_REF, NCLOC_KEY, 50);
-    addRawMeasure(SUB_SUBVIEW_REF, NCLOC_KEY, 38);
-    addRawMeasure(SUBVIEW_REF, NCLOC_KEY, 38);
-    addRawMeasure(ROOT_REF, NCLOC_KEY, 38);
-
-    underTest.execute();
-
-    assertNoNewRawMeasuresOnProjectViews();
-    assertRawMeasureValue(SUB_SUBVIEW_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(SUBVIEW_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 18d);
-  }
-
-  @Test
-  public void compute_duplicated_lines_density_using_only_nclocs() {
-    addRawMeasure(PROJECT_VIEW_1_REF, DUPLICATED_LINES_KEY, 2);
-    addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 3);
-
-    addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 10);
-    addRawMeasure(PROJECT_VIEW_2_REF, NCLOC_KEY, 40);
-    addRawMeasure(SUB_SUBVIEW_REF, NCLOC_KEY, 50);
-    addRawMeasure(SUBVIEW_REF, NCLOC_KEY, 50);
-    addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
-
-    underTest.execute();
-
-    assertNoNewRawMeasuresOnProjectViews();
-    assertRawMeasureValue(SUB_SUBVIEW_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(SUBVIEW_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
+    assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 7.5d);
   }
 
   @Test
@@ -272,17 +222,8 @@ public class ViewsDuplicationMeasuresTest {
     addRawMeasure(PROJECT_VIEW_2_REF, DUPLICATED_LINES_KEY, 0);
     // no raw measure for PROJECT_VIEW_3_REF
 
-    addRawMeasure(PROJECT_VIEW_1_REF, COMMENT_LINES_KEY, 2);
-    addRawMeasure(PROJECT_VIEW_2_REF, COMMENT_LINES_KEY, 10);
-    addRawMeasure(SUB_SUBVIEW_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(SUBVIEW_REF, COMMENT_LINES_KEY, 12);
-    addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 12);
-
-    addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 8);
-    addRawMeasure(PROJECT_VIEW_2_REF, NCLOC_KEY, 30);
-    addRawMeasure(SUB_SUBVIEW_REF, NCLOC_KEY, 38);
-    addRawMeasure(SUBVIEW_REF, NCLOC_KEY, 38);
-    addRawMeasure(ROOT_REF, NCLOC_KEY, 38);
+    addRawMeasure(PROJECT_VIEW_1_REF, LINES_KEY, 10);
+    addRawMeasure(PROJECT_VIEW_2_REF, LINES_KEY, 40);
 
     underTest.execute();
 

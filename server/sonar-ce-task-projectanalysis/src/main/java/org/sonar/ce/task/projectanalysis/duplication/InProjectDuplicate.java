@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class InProjectDuplicate extends AbstractDuplicate {
-  private final Component file;
+  protected final Component file;
 
   public InProjectDuplicate(Component file, TextBlock textBlock) {
     super(textBlock);

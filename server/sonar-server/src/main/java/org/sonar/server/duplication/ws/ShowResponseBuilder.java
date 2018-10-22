@@ -20,10 +20,13 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -32,62 +35,87 @@ import org.sonarqube.ws.Duplications;
 import org.sonarqube.ws.Duplications.Block;
 import org.sonarqube.ws.Duplications.ShowResponse;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.core.util.Protobuf.setNullable;
 
-// TODO Add UT on branch
 public class ShowResponseBuilder {
 
   private final ComponentDao componentDao;
+  private final Map<String, Reference> refByComponentKey = new HashMap<>();
 
   public ShowResponseBuilder(DbClient dbClient) {
     this.componentDao = dbClient.componentDao();
   }
 
-  @VisibleForTesting
-  ShowResponseBuilder(ComponentDao componentDao) {
+  @VisibleForTesting ShowResponseBuilder(ComponentDao componentDao) {
     this.componentDao = componentDao;
   }
 
   ShowResponse build(DbSession session, List<DuplicationsParser.Block> blocks, @Nullable String branch, @Nullable String pullRequest) {
     ShowResponse.Builder response = ShowResponse.newBuilder();
-    Map<String, String> refByComponentKey = newHashMap();
     blocks.stream()
-      .map(block -> toWsDuplication(block, refByComponentKey))
+      .map(this::toWsDuplication)
       .forEach(response::addDuplications);
 
-    writeFiles(session, response, refByComponentKey, branch, pullRequest);
-
+    writeFileRefs(session, response, branch, pullRequest);
     return response.build();
   }
 
-  private static Duplications.Duplication.Builder toWsDuplication(DuplicationsParser.Block block, Map<String, String> refByComponentKey) {
+  private Duplications.Duplication.Builder toWsDuplication(DuplicationsParser.Block block) {
     Duplications.Duplication.Builder wsDuplication = Duplications.Duplication.newBuilder();
     block.getDuplications().stream()
-      .map(d -> toWsBlock(refByComponentKey, d))
+      .map(this::toWsBlock)
       .forEach(wsDuplication::addBlocks);
 
     return wsDuplication;
   }
 
-  private static Block.Builder toWsBlock(Map<String, String> refByComponentKey, DuplicationsParser.Duplication duplication) {
-    String ref = null;
-    ComponentDto componentDto = duplication.file();
-    if (componentDto != null) {
-      String componentKey = componentDto.getDbKey();
-      ref = refByComponentKey.computeIfAbsent(componentKey, k -> Integer.toString(refByComponentKey.size() + 1));
+  private Block.Builder toWsBlock(Duplication duplication) {
+    Block.Builder block = Block.newBuilder();
+
+    if (!duplication.removed()) {
+      Reference ref = refByComponentKey.computeIfAbsent(duplication.componentDbKey(), k -> new Reference(
+        Integer.toString(refByComponentKey.size() + 1),
+        duplication.componentDto(),
+        duplication.componentDbKey()));
+      block.setRef(ref.id);
     }
 
-    Block.Builder block = Block.newBuilder();
     block.setFrom(duplication.from());
     block.setSize(duplication.size());
-    setNullable(ref, block::setRef);
 
     return block;
   }
 
-  private static Duplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject, @Nullable String branch,
-    @Nullable String pullRequest) {
+  private void writeFileRefs(DbSession session, ShowResponse.Builder response, @Nullable String branch, @Nullable String pullRequest) {
+    Map<String, ComponentDto> projectsByUuid = new HashMap<>();
+    Map<String, ComponentDto> parentModulesByUuid = new HashMap<>();
+
+    for (Map.Entry<String, Reference> entry : refByComponentKey.entrySet()) {
+      Reference ref = entry.getValue();
+      ComponentDto file = ref.dto();
+
+      if (file != null) {
+        ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
+        ComponentDto parentModule = getParentProject(file.getRootUuid(), parentModulesByUuid, session);
+        response.putFiles(ref.id(), toWsFile(file, project, parentModule, branch, pullRequest));
+      } else {
+        response.putFiles(ref.id(), toWsFile(ref.componentKey(), branch, pullRequest));
+      }
+    }
+  }
+
+  private static Duplications.File toWsFile(String componentKey, @Nullable String branch, @Nullable String pullRequest) {
+    Duplications.File.Builder wsFile = Duplications.File.newBuilder();
+    String keyWithoutBranch = ComponentDto.removeBranchAndPullRequestFromKey(componentKey);
+    wsFile.setKey(keyWithoutBranch);
+    wsFile.setName(StringUtils.substringAfterLast(keyWithoutBranch, ":"));
+    setNullable(branch, wsFile::setBranch);
+    setNullable(pullRequest, wsFile::setPullRequest);
+    return wsFile.build();
+  }
+
+  private static Duplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject,
+    @Nullable String branch, @Nullable String pullRequest) {
     Duplications.File.Builder wsFile = Duplications.File.newBuilder();
     wsFile.setKey(file.getKey());
     wsFile.setUuid(file.uuid());
@@ -108,25 +136,6 @@ public class ShowResponseBuilder {
       return wsFile;
     });
     return wsFile.build();
-  }
-
-  private void writeFiles(DbSession session, ShowResponse.Builder response, Map<String, String> refByComponentKey, @Nullable String branch, @Nullable String pullRequest) {
-    Map<String, ComponentDto> projectsByUuid = newHashMap();
-    Map<String, ComponentDto> parentModulesByUuid = newHashMap();
-    Map<String, Duplications.File> filesByRef = response.getMutableFiles();
-
-    for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
-      String componentKey = entry.getKey();
-      String ref = entry.getValue();
-      Optional<ComponentDto> fileOptional = componentDao.selectByKey(session, componentKey);
-      if (fileOptional.isPresent()) {
-        ComponentDto file = fileOptional.get();
-
-        ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
-        ComponentDto parentModule = getParentProject(file.getRootUuid(), parentModulesByUuid, session);
-        filesByRef.put(ref, toWsFile(file, project, parentModule, branch, pullRequest));
-      }
-    }
   }
 
   private ComponentDto getProject(String projectUuid, Map<String, ComponentDto> projectsByUuid, DbSession session) {
@@ -151,6 +160,32 @@ public class ShowResponseBuilder {
       }
     }
     return project;
+  }
+
+  private static class Reference {
+    private final String id;
+    private final ComponentDto dto;
+    private final String componentKey;
+
+    public Reference(String id, @Nullable ComponentDto dto, String componentKey) {
+      this.id = id;
+      this.dto = dto;
+      this.componentKey = componentKey;
+    }
+
+    public String id() {
+      return id;
+    }
+
+    @CheckForNull
+    public ComponentDto dto() {
+      return dto;
+    }
+
+    public String componentKey() {
+      return componentKey;
+    }
+
   }
 
 }

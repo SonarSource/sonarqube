@@ -29,6 +29,7 @@ import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.Duplicate;
 import org.sonar.ce.task.projectanalysis.duplication.Duplication;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepository;
+import org.sonar.ce.task.projectanalysis.duplication.InExtendedProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.InProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
@@ -89,14 +90,14 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
         Measure.newMeasureBuilder().create(duplicationXml));
     }
 
-    private String createXmlDuplications(String componentKey, Iterable<Duplication> duplications) {
+    private String createXmlDuplications(String componentDbKey, Iterable<Duplication> duplications) {
       StringBuilder xml = new StringBuilder();
       xml.append("<duplications>");
       for (Duplication duplication : duplications) {
         xml.append("<g>");
-        appendDuplication(xml, componentKey, duplication.getOriginal());
+        appendDuplication(xml, componentDbKey, duplication.getOriginal(), false);
         for (Duplicate duplicate : duplication.getDuplicates()) {
-          processDuplicationBlock(xml, duplicate, componentKey);
+          processDuplicationBlock(xml, duplicate, componentDbKey);
         }
         xml.append("</g>");
       }
@@ -104,15 +105,18 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
       return xml.toString();
     }
 
-    private void processDuplicationBlock(StringBuilder xml, Duplicate duplicate, String componentKey) {
+    private void processDuplicationBlock(StringBuilder xml, Duplicate duplicate, String componentDbKey) {
       if (duplicate instanceof InnerDuplicate) {
-        // Duplication is on a the same file
-        appendDuplication(xml, componentKey, duplicate);
+        // Duplication is on the same file
+        appendDuplication(xml, componentDbKey, duplicate);
+      } else if (duplicate instanceof InExtendedProjectDuplicate) {
+        // Duplication is on a different file that is not saved in the DB
+        appendDuplication(xml, ((InExtendedProjectDuplicate) duplicate).getFile().getDbKey(), duplicate.getTextBlock(), true);
       } else if (duplicate instanceof InProjectDuplicate) {
         // Duplication is on a different file
         appendDuplication(xml, ((InProjectDuplicate) duplicate).getFile().getDbKey(), duplicate);
       } else if (duplicate instanceof CrossProjectDuplicate) {
-        // componentKey is only set for cross project duplications
+        // Only componentKey is set for cross project duplications
         String crossProjectComponentKey = ((CrossProjectDuplicate) duplicate).getFileKey();
         appendDuplication(xml, crossProjectComponentKey, duplicate);
       } else {
@@ -120,15 +124,16 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
       }
     }
 
-    private void appendDuplication(StringBuilder xml, String componentKey, Duplicate duplicate) {
-      appendDuplication(xml, componentKey, duplicate.getTextBlock());
+    private void appendDuplication(StringBuilder xml, String componentDbKey, Duplicate duplicate) {
+      appendDuplication(xml, componentDbKey, duplicate.getTextBlock(), false);
     }
 
-    private void appendDuplication(StringBuilder xml, String componentKey, TextBlock textBlock) {
+    private void appendDuplication(StringBuilder xml, String componentDbKey, TextBlock textBlock, boolean onlyText) {
       int length = textBlock.getEnd() - textBlock.getStart() + 1;
       xml.append("<b s=\"").append(textBlock.getStart())
         .append("\" l=\"").append(length)
-        .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
+        .append("\" t=\"").append(onlyText)
+        .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentDbKey))
         .append("\"/>");
     }
   }

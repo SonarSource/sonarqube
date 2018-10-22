@@ -92,7 +92,8 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
-      "<duplications><g><b s=\"1\" l=\"5\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" r=\"" + FILE_1_KEY + "\"/></g></duplications>");
+      "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"false\" r=\""
+        + FILE_1_KEY + "\"/></g></duplications>");
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
   }
 
@@ -104,7 +105,8 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
-      "<duplications><g><b s=\"1\" l=\"5\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" r=\"" + FILE_2_KEY + "\"/></g></duplications>");
+      "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"false\" r=\""
+        + FILE_2_KEY + "\"/></g></duplications>");
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
   }
 
@@ -117,7 +119,8 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
 
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
-      "<duplications><g><b s=\"1\" l=\"5\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" r=\"" + fileKeyFromOtherProject + "\"/></g></duplications>");
+      "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"false\" r=\""
+        + fileKeyFromOtherProject + "\"/></g></duplications>");
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
   }
 

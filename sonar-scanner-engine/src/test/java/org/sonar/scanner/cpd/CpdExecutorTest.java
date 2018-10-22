@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatchers;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -76,13 +75,11 @@ public class CpdExecutorTest {
   private ExecutorService executorService = mock(ExecutorService.class);
   private CpdSettings settings = mock(CpdSettings.class);
   private ReportPublisher publisher = mock(ReportPublisher.class);
-  private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private SonarCpdBlockIndex index = new SonarCpdBlockIndex(publisher, settings);
   private ScannerReportReader reader;
   private DefaultInputFile batchComponent1;
   private DefaultInputFile batchComponent2;
   private DefaultInputFile batchComponent3;
-  private DefaultInputFile batchComponent4;
   private File baseDir;
   private InputComponentStore componentStore;
 
@@ -94,13 +91,12 @@ public class CpdExecutorTest {
 
     DefaultInputModule inputModule = TestInputFileBuilder.newDefaultInputModule("foo", baseDir);
     componentStore = new InputComponentStore(inputModule, mock(BranchConfiguration.class));
-    executor = new CpdExecutor(settings, index, publisher, componentStore, branchConfiguration, executorService);
+    executor = new CpdExecutor(settings, index, publisher, componentStore, executorService);
     reader = new ScannerReportReader(outputDir);
 
     batchComponent1 = createComponent("src/Foo.php", 5);
     batchComponent2 = createComponent("src/Foo2.php", 5);
     batchComponent3 = createComponent("src/Foo3.php", 5);
-    batchComponent4 = createComponent("src/Foo4.php", 5, f -> f.setStatus(InputFile.Status.SAME));
   }
 
   @Test
@@ -193,21 +189,6 @@ public class CpdExecutorTest {
     Duplication[] dups = readDuplications(2);
     assertDuplication(dups[0], 5, 204, batchComponent2.batchId(), 15, 214);
     assertDuplication(dups[1], 15, 214, batchComponent3.batchId(), 15, 214);
-  }
-
-  @Test
-  public void should_ignore_unmodified_files_in_SLB() {
-    when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
-    Block block = Block.builder()
-      .setBlockHash(new ByteArray("AAAABBBBCCCC"))
-      .setResourceId(batchComponent4.key())
-      .build();
-    index.insert(batchComponent4, Collections.singletonList(block));
-    executor.execute();
-
-    verify(executorService).shutdown();
-    verifyNoMoreInteractions(executorService);
-    readDuplications(batchComponent4, 0);
   }
 
   @Test

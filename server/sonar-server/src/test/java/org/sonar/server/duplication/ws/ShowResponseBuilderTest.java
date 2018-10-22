@@ -51,8 +51,8 @@ public class ShowResponseBuilderTest {
     ComponentDto file2 = db.components().insertComponent(newFileDto(module));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
-      new DuplicationsParser.Duplication(file1, 57, 12),
-      new DuplicationsParser.Duplication(file2, 73, 12))));
+      Duplication.newComponent(file1, 57, 12),
+      Duplication.newComponent(file2, 73, 12))));
 
     test(blocks, null, null,
       "{\n" +
@@ -96,8 +96,8 @@ public class ShowResponseBuilderTest {
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
-      new DuplicationsParser.Duplication(file1, 57, 12),
-      new DuplicationsParser.Duplication(file2, 73, 12))));
+      Duplication.newComponent(file1, 57, 12),
+      Duplication.newComponent(file2, 73, 12))));
 
     test(blocks, null, null,
       "{\n" +
@@ -136,9 +136,9 @@ public class ShowResponseBuilderTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
-      new DuplicationsParser.Duplication(file, 57, 12),
+      Duplication.newComponent(file, 57, 12),
       // Duplication on a removed file
-      new DuplicationsParser.Duplication(null, 73, 12))));
+      Duplication.newRemovedComponent("key", 73, 12))));
 
     test(blocks, null, null,
       "{\n" +
@@ -166,6 +166,45 @@ public class ShowResponseBuilderTest {
   }
 
   @Test
+  public void write_duplications_with_a_component_without_details() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    List<DuplicationsParser.Block> blocks = newArrayList();
+    blocks.add(new DuplicationsParser.Block(newArrayList(
+      Duplication.newComponent(file, 57, 12),
+      // Duplication on a file without details
+      Duplication.newTextComponent("project:path/to/file", 73, 12))));
+
+    test(blocks, null, null,
+      "{\n" +
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 57, \"size\": 12, \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 73, \"size\": 12\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }," +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"" + file.getKey() + "\",\n" +
+        "      \"name\": \"" + file.longName() + "\",\n" +
+        "      \"project\": \"" + project.getKey() + "\",\n" +
+        "      \"projectName\": \"" + project.longName() + "\",\n" +
+        "    }\n" +
+        "    \"2\": {\n" +
+        "      \"key\": \"project:path/to/file\",\n" +
+        "      \"name\": \"path/to/file\",\n" +
+        "    }\n" +
+        "  }" +
+        "}");
+  }
+
+  @Test
   public void write_duplications_on_branch() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
@@ -173,8 +212,8 @@ public class ShowResponseBuilderTest {
     ComponentDto file2 = db.components().insertComponent(newFileDto(branch));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
-      new DuplicationsParser.Duplication(file1, 57, 12),
-      new DuplicationsParser.Duplication(file2, 73, 12))));
+      Duplication.newComponent(file1, 57, 12),
+      Duplication.newComponent(file2, 73, 12))));
 
     test(blocks, branch.getBranch(), null,
       "{\n" +
@@ -217,8 +256,8 @@ public class ShowResponseBuilderTest {
     ComponentDto file2 = db.components().insertComponent(newFileDto(pullRequest));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
-      new DuplicationsParser.Duplication(file1, 57, 12),
-      new DuplicationsParser.Duplication(file2, 73, 12))));
+      Duplication.newComponent(file1, 57, 12),
+      Duplication.newComponent(file2, 73, 12))));
 
     test(blocks, null, pullRequest.getPullRequest(),
       "{\n" +
@@ -255,7 +294,7 @@ public class ShowResponseBuilderTest {
 
   @Test
   public void write_nothing_when_no_data() {
-    test(Collections.emptyList(), null, null,"{\"duplications\": [], \"files\": {}}");
+    test(Collections.emptyList(), null, null, "{\"duplications\": [], \"files\": {}}");
   }
 
   private void test(List<DuplicationsParser.Block> blocks, @Nullable String branch, @Nullable String pullRequest, String expected) {

@@ -19,20 +19,22 @@
  */
 package org.sonar.ce.task.projectanalysis.source.linereader;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Ordering;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.duplication.Duplicate;
 import org.sonar.ce.task.projectanalysis.duplication.Duplication;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -49,29 +51,27 @@ public class DuplicationLineReader implements LineReader {
   @Override
   public Optional<ReadError> read(DbFileSources.Line.Builder lineBuilder) {
     Predicate<Map.Entry<TextBlock, Integer>> containsLine = new TextBlockContainsLine(lineBuilder.getLine());
-    for (Integer textBlockIndex : from(duplicatedTextBlockIndexByTextBlock.entrySet())
+    // list is sorted to cope with the non-guaranteed order of Map entries which would trigger false detection of changes
+    // in {@link DbFileSources.Line#getDuplicationList()}
+    duplicatedTextBlockIndexByTextBlock.entrySet().stream()
       .filter(containsLine)
-      .transform(MapEntryToBlockId.INSTANCE)
-      // list is sorted to cope with the non-guaranteed order of Map entries which would trigger false detection of changes
-      // in {@link DbFileSources.Line#getDuplicationList()}
-      .toSortedList(Ordering.natural())) {
-      lineBuilder.addDuplication(textBlockIndex);
-    }
+      .map(MapEntryToBlockId.INSTANCE)
+      .sorted(Comparator.naturalOrder())
+      .forEach(lineBuilder::addDuplication);
+
     return Optional.empty();
   }
 
   /**
-   *
    * <p>
    * This method uses the natural order of TextBlocks to ensure that given the same set of TextBlocks, they get the same
    * index. It avoids false detections of changes in {@link DbFileSources.Line#getDuplicationList()}.
    * </p>
    */
   private static Map<TextBlock, Integer> createIndexOfDuplicatedTextBlocks(Iterable<Duplication> duplications) {
-    List<TextBlock> duplicatedTextBlocks = extractAllDuplicatedTextBlocks(duplications);
-    Collections.sort(duplicatedTextBlocks);
-    return from(duplicatedTextBlocks)
-      .toMap(new TextBlockIndexGenerator());
+    return extractAllDuplicatedTextBlocks(duplications)
+      .stream().sorted()
+      .collect(Collectors.toMap(e -> e, new TextBlockIndexGenerator(), MoreCollectors.mergeNotSupportedMerger(), LinkedHashMap::new));
   }
 
   /**
@@ -102,7 +102,7 @@ public class DuplicationLineReader implements LineReader {
     }
 
     @Override
-    public boolean apply(@Nonnull Map.Entry<TextBlock, Integer> input) {
+    public boolean test(@Nonnull Map.Entry<TextBlock, Integer> input) {
       return isLineInBlock(input.getKey(), line);
     }
 
