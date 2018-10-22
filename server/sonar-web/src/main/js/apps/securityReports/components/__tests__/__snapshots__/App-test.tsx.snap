@@ -38,7 +38,7 @@ exports[`handle checkbox for cwe display 1`] = `
       >
         learn_more
       </Link>
-      <p
+      <div
         className="alert alert-info spacer-top display-inline-block"
       >
         <FormattedMessage
@@ -64,7 +64,7 @@ exports[`handle checkbox for cwe display 1`] = `
             }
           }
         />
-      </p>
+      </div>
     </div>
   </header>
   <div
@@ -148,7 +148,7 @@ exports[`handle checkbox for cwe display 2`] = `
       >
         learn_more
       </Link>
-      <p
+      <div
         className="alert alert-info spacer-top display-inline-block"
       >
         <FormattedMessage
@@ -174,7 +174,7 @@ exports[`handle checkbox for cwe display 2`] = `
             }
           }
         />
-      </p>
+      </div>
     </div>
   </header>
   <div
@@ -305,7 +305,7 @@ exports[`renders owaspTop10 1`] = `
       >
         learn_more
       </Link>
-      <p
+      <div
         className="alert alert-info spacer-top display-inline-block"
       >
         <FormattedMessage
@@ -331,7 +331,7 @@ exports[`renders owaspTop10 1`] = `
             }
           }
         />
-      </p>
+      </div>
     </div>
   </header>
   <div
@@ -415,7 +415,7 @@ exports[`renders sansTop25 1`] = `
       >
         learn_more
       </Link>
-      <p
+      <div
         className="alert alert-info spacer-top display-inline-block"
       >
         <FormattedMessage
@@ -441,7 +441,7 @@ exports[`renders sansTop25 1`] = `
             }
           }
         />
-      </p>
+      </div>
     </div>
   </header>
   <div
@@ -525,7 +525,7 @@ exports[`renders with cwe 1`] = `
       >
         learn_more
       </Link>
-      <p
+      <div
         className="alert alert-info spacer-top display-inline-block"
       >
         <FormattedMessage
@@ -551,7 +551,7 @@ exports[`renders with cwe 1`] = `
             }
           }
         />
-      </p>
+      </div>
     </div>
   </header>
   <div

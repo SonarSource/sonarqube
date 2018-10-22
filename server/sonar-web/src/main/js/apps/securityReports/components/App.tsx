@@ -145,7 +145,7 @@ export default class App extends React.PureComponent<Props, State> {
               to={{ pathname: '/documentation/user-guide/security-reports/' }}>
               {translate('learn_more')}
             </Link>
-            <p className="alert alert-info spacer-top display-inline-block">
+            <div className="alert alert-info spacer-top display-inline-block">
               <FormattedMessage
                 defaultMessage={translate('security_reports.info')}
                 id="security_reports.info"
@@ -162,7 +162,7 @@ export default class App extends React.PureComponent<Props, State> {
                   )
                 }}
               />
-            </p>
+            </div>
           </div>
         </header>
         <div className="display-inline-flex-center">
