@@ -44,8 +44,8 @@ const METRICS = {
   new_bugs: { id: '4', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
 };
 
-const PROPS = {
-  branch: { isMain: true, name: 'master' },
+const PROPS: App['props'] = {
+  branchLike: { isMain: true, name: 'master' },
   component: COMPONENT,
   currentUser: { isLoggedIn: false },
   location: { pathname: '/component_measures', query: { metric: 'coverage' } },
@@ -81,6 +81,13 @@ it('should render a measure overview', async () => {
 it('should render a message when there are no measures', async () => {
   const fetchMeasures = jest.fn().mockResolvedValue({ component: COMPONENT, measures: [] });
   const wrapper = shallow(<App {...PROPS} fetchMeasures={fetchMeasures} />);
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should not render drilldown for estimated duplications', async () => {
+  const pullRequest = { base: 'master', branch: 'feature-x', key: '5', title: '' };
+  const wrapper = shallow(<App {...PROPS} branchLike={pullRequest} />);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });

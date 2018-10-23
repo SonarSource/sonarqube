@@ -1,5 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render drilldown for estimated duplications 1`] = `
+<div
+  id="component-measures"
+>
+  <Suggestions
+    suggestions="component_measures"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="Coverage"
+  />
+  <div
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    />
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="note"
+        >
+          component_measures.details_are_not_available
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`should render a message when there are no measures 1`] = `
 <div
   id="component-measures"
@@ -37,6 +72,12 @@ exports[`should render correctly 1`] = `
       <Component />
     </ScreenPositionHelper>
     <MeasureContentContainer
+      branchLike={
+        Object {
+          "isMain": true,
+          "name": "master",
+        }
+      }
       className="layout-page-main"
       currentUser={
         Object {
@@ -54,7 +95,10 @@ exports[`should render correctly 1`] = `
                 "duplicated_lines_density",
                 "new_bugs",
               ],
-              undefined,
+              Object {
+                "isMain": true,
+                "name": "master",
+              },
             ],
           ],
           "results": Array [

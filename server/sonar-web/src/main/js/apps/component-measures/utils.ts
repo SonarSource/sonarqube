@@ -172,6 +172,7 @@ export function getMeasuresPageMetricKeys(metrics: { [key: string]: Metric }, br
       'new_uncovered_conditions',
       'new_branch_coverage',
 
+      'duplicated_lines_density',
       'new_duplicated_lines_density',
       'new_duplicated_lines',
       'new_duplicated_blocks'

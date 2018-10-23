@@ -37,7 +37,12 @@ import {
   groupByDomains,
   sortMeasures
 } from '../utils';
-import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import {
+  isSameBranchLike,
+  getBranchLikeQuery,
+  isShortLivingBranch,
+  isPullRequest
+} from '../../../helpers/branches';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   getLocalizedMetricDomain,
@@ -222,6 +227,20 @@ export default class App extends React.PureComponent<Props, State> {
 
     if (!metric) {
       return <MeasuresEmpty />;
+    }
+
+    const hideDrilldown =
+      (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) &&
+      (metric.key === 'coverage' || metric.key === 'duplicated_lines_density');
+
+    if (hideDrilldown) {
+      return (
+        <div className="layout-page-main">
+          <div className="layout-page-main-inner">
+            <div className="note">{translate('component_measures.details_are_not_available')}</div>
+          </div>
+        </div>
+      );
     }
 
     return (
