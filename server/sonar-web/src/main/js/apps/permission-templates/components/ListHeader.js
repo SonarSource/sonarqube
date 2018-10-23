@@ -44,8 +44,10 @@ export default class ListHeader extends React.PureComponent {
   render() {
     const cells = this.props.permissions.map(permission => (
       <th className="permission-column" key={permission.key}>
-        <span className="text-middle">{translate('projects_role', permission.key)}</span>
-        <HelpTooltip className="spacer-left" overlay={this.renderTooltip(permission)} />
+        <div className="permission-column-inner">
+          <span className="text-middle">{translate('projects_role', permission.key)}</span>
+          <HelpTooltip className="spacer-left" overlay={this.renderTooltip(permission)} />
+        </div>
       </th>
     ));
 
