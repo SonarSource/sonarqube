@@ -75,7 +75,7 @@ After creation, Security Hotspot issues flow through a dedicated lifecycle, taki
 Security Hotspot issues are only ever closed if the code containing the Security Hotspot is deleted.  A Security Hotspot may also become Removed if the rule which identified the hotspot is removed from the project's Quality Profile.
 
 ## Understanding which Issues are "New"
-To determine the creation date of an issue, an algorithm is executed during each analysis to determine whether an issue is new or existed previously. This algorithm relies on line content hashes (excluding whitespace) the issue is reported on. For multi-line issues, the hash of the first line is used. For each file (after detection of file renaming), the algorithm takes the base list of issues from the previous analysis, and tries to match those issues with the raw issue list reported by the new analysis. The algorithm tries to first match using the strongest evidence, and then falls back to weaker heuristics.
+To determine the creation date of an issue, an algorithm is executed during each analysis to determine whether an issue is new or existed previously. This algorithm relies on content hashes (excluding whitespace) for the line the issue is reported on. For multi-line issues, the hash of the first line is used. For each file (after detection of file renaming), the algorithm takes the base list of issues from the previous analysis, and tries to match those issues with the raw issue list reported by the new analysis. The algorithm tries to first match using the strongest evidence, and then falls back to weaker heuristics.
 
 * if the issue is on the same rule, with the same line number and with the same line hash (but not necessarily with the same message) > MATCH
 * detect block move inside file, then if the issue is on the same (moved) line and on the same rule (but not necessarily with the same message) > MATCH
@@ -87,6 +87,17 @@ To determine the creation date of an issue, an algorithm is executed during each
 Unmatched "base" issues are closed as fixed.
 
 Unmatched "raw" issues are new.
+
+## Understanding Issue Backdating
+Once an issue has been determied to be "new", as described above, the next question is what date to give it. For instance, what if it has existed in code for a long time, but only found in the most recent analysis because new rules were added to the profile? Should this issue be given the date of the last change on its line, or the date of the analysis where it was first raised? That is, should it be backdated? If the date of the last change to the line is available (this requires [SCM integration](/analysis/scm-integration/)) then under certain circumstances, the issue will be backdated:
+
+* On first analysis of a project or branch
+* When the rule is new in the profile (a brand new rule activated or a rule that was deactivated and is now activated)
+* When the analyzer has just been upgraded (because rule implementations could be smarter now)
+* When the rule is external
+
+As a consequence, it is possible that backdating will keep newly raised issues out of the New Code Period.
+
 
 ## Automatic Issue Assignment
 ### For Bug, Vulnerability and Code Smell
