@@ -38,7 +38,7 @@ it('should render and create organization', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
+  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
@@ -52,7 +52,7 @@ it('should preselect paid plan', async () => {
   const wrapper = shallowRender({ onlyPaid: true });
 
   await waitAndUpdate(wrapper);
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
+  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
   await waitAndUpdate(wrapper);
   expect(wrapper.find('PlanStep').prop('onlyPaid')).toBe(true);
 });
@@ -63,7 +63,7 @@ it('should roll back after upgrade failure', async () => {
   const wrapper = shallowRender({ createOrganization, deleteOrganization });
   await waitAndUpdate(wrapper);
 
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
+  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
   await waitAndUpdate(wrapper);
 
   wrapper.find('PlanStep').prop<Function>('createOrganization')();

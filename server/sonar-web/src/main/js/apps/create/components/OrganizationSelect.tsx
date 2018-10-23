@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import { sortBy } from 'lodash';
 import Select from '../../../components/controls/Select';
 import { Organization } from '../../../app/types';
@@ -27,58 +26,43 @@ import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
-  autoImport?: boolean;
   onChange: (organization: Organization) => void;
   organization: string;
   organizations: Organization[];
 }
 
-export default function OrganizationSelect({
-  autoImport,
-  onChange,
-  organization,
-  organizations
-}: Props) {
+export default function OrganizationSelect({ onChange, organization, organizations }: Props) {
   return (
-    <div className="form-field spacer-bottom">
-      <label htmlFor="select-organization">
-        {translate('onboarding.create_project.organization')}
-        <em className="mandatory">*</em>
-      </label>
-      <Select
-        autoFocus={true}
-        className="input-super-large"
-        clearable={false}
-        id="select-organization"
-        labelKey="name"
-        onChange={onChange}
-        optionRenderer={optionRenderer}
-        options={sortBy(organizations, o => o.name.toLowerCase())}
-        required={true}
-        value={organization}
-        valueKey="key"
-        valueRenderer={optionRenderer}
-      />
-      <Link className="big-spacer-left js-new-org" to="/create-organization">
-        {autoImport
-          ? translate('onboarding.create_project.import_new_org')
-          : translate('onboarding.create_project.create_new_org')}
-      </Link>
-    </div>
+    <Select
+      autoFocus={true}
+      className="input-super-large"
+      clearable={false}
+      id="select-organization"
+      labelKey="name"
+      onChange={onChange}
+      optionRenderer={optionRenderer}
+      options={sortBy(organizations, o => o.name.toLowerCase())}
+      placeholder={translate('onboarding.import_organization.choose_organization')}
+      required={true}
+      value={organization}
+      valueKey="key"
+      valueRenderer={optionRenderer}
+    />
   );
 }
 
 export function optionRenderer(organization: Organization) {
+  const icon = organization.alm
+    ? `sonarcloud/${sanitizeAlmId(organization.alm.key)}`
+    : 'sonarcloud-square-logo';
   return (
     <span>
-      {organization.alm && (
-        <img
-          alt={organization.alm.key}
-          className="spacer-right"
-          height={14}
-          src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(organization.alm.key)}.svg`}
-        />
-      )}
+      <img
+        alt={organization.alm ? organization.alm.key : 'SonarCloud'}
+        className="spacer-right"
+        height={14}
+        src={`${getBaseUrl()}/images/${icon}.svg`}
+      />
       {organization.name}
       <span className="note little-spacer-left">{organization.key}</span>
     </span>

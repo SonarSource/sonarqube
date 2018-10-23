@@ -1,62 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render for personal organizations 1`] = `
+exports[`should display choice between import or creation 1`] = `
 <OrganizationDetailsStep
-  description={
-    <p
-      className="huge-spacer-bottom"
-    >
-      <FormattedMessage
-        defaultMessage="onboarding.import_personal_organization_x"
-        id="onboarding.import_personal_organization_x"
-        values={
-          Object {
-            "avatar": <img
-              alt="BitBucket"
-              className="little-spacer-left"
-              src="/images/sonarcloud/bitbucket.svg"
-              width={16}
-            />,
-            "name": <strong>
-              name-foo
-            </strong>,
-            "personalAvatar": <OrganizationAvatar
-              organization={
-                Object {
-                  "key": "personal-org",
-                  "name": "personal-org",
-                }
-              }
-              small={true}
-            />,
-            "personalName": <strong>
-              personal-org
-            </strong>,
-          }
-        }
-      />
-    </p>
-  }
   finished={false}
-  keyReadOnly={true}
-  onContinue={[Function]}
   onOpen={[Function]}
   open={true}
   organization={
     Object {
-      "key": "personal-org",
-      "name": "personal-org",
+      "avatar": "http://example.com/avatar",
+      "description": "description-foo",
+      "key": "key-foo",
+      "name": "name-foo",
+      "type": "ORGANIZATION",
+      "url": "http://example.com/foo",
     }
   }
-  submitText="onboarding.import_organization.bind"
-/>
-`;
-
-exports[`should render prefilled and create org 1`] = `
-<OrganizationDetailsStep
-  description={
+>
+  <div
+    className="huge-spacer-bottom"
+  >
     <p
-      className="huge-spacer-bottom"
+      className="big-spacer-bottom"
     >
       <FormattedMessage
         defaultMessage="onboarding.import_organization_x"
@@ -72,16 +36,35 @@ exports[`should render prefilled and create org 1`] = `
             "name": <strong>
               name-foo
             </strong>,
-            "personalAvatar": undefined,
-            "personalName": undefined,
           }
         }
       />
     </p>
-  }
+    <RadioToggle
+      disabled={false}
+      name="filter"
+      onCheck={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "onboarding.import_organization.create_new",
+            "value": "create",
+          },
+          Object {
+            "label": "onboarding.import_organization.bind_existing",
+            "value": "bind",
+          },
+        ]
+      }
+      value="none"
+    />
+  </div>
+</OrganizationDetailsStep>
+`;
+
+exports[`should render prefilled and create org 1`] = `
+<OrganizationDetailsStep
   finished={false}
-  keyReadOnly={false}
-  onContinue={[Function]}
   onOpen={[Function]}
   open={true}
   organization={
@@ -94,8 +77,47 @@ exports[`should render prefilled and create org 1`] = `
       "url": "http://example.com/foo",
     }
   }
-  submitText="my_account.create_organization"
-/>
+>
+  <div
+    className="huge-spacer-bottom"
+  >
+    <p
+      className="big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.import_organization_x"
+        id="onboarding.import_organization_x"
+        values={
+          Object {
+            "avatar": <img
+              alt="BitBucket"
+              className="little-spacer-left"
+              src="/images/sonarcloud/bitbucket.svg"
+              width={16}
+            />,
+            "name": <strong>
+              name-foo
+            </strong>,
+          }
+        }
+      />
+    </p>
+  </div>
+  <OrganizationDetailsForm
+    onContinue={[Function]}
+    organization={
+      Object {
+        "avatar": "http://example.com/avatar",
+        "description": "description-foo",
+        "key": "key-foo",
+        "name": "name-foo",
+        "type": "ORGANIZATION",
+        "url": "http://example.com/foo",
+      }
+    }
+    submitText="onboarding.import_organization.import"
+  />
+</OrganizationDetailsStep>
 `;
 
 exports[`should render with import org button 1`] = `

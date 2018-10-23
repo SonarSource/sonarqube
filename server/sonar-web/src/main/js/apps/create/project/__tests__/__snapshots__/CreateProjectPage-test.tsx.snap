@@ -54,14 +54,7 @@ exports[`should render correctly 2`] = `
         Array [
           Object {
             "key": "auto",
-            "node": <React.Fragment>
-              onboarding.create_project.select_repositories
-              <span
-                className="beta-badge spacer-left"
-              >
-                beta
-              </span>
-            </React.Fragment>,
+            "node": "onboarding.create_project.select_repositories",
           },
           Object {
             "key": "manual",
@@ -178,14 +171,7 @@ exports[`should switch tabs 1`] = `
         Array [
           Object {
             "key": "auto",
-            "node": <React.Fragment>
-              onboarding.create_project.select_repositories
-              <span
-                className="beta-badge spacer-left"
-              >
-                beta
-              </span>
-            </React.Fragment>,
+            "node": "onboarding.create_project.select_repositories",
           },
           Object {
             "key": "manual",

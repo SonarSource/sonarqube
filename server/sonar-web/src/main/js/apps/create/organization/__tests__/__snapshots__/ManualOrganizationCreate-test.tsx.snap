@@ -4,11 +4,14 @@ exports[`should render and create organization 1`] = `
 <Fragment>
   <OrganizationDetailsStep
     finished={false}
-    onContinue={[Function]}
     onOpen={[Function]}
     open={true}
-    submitText="continue"
-  />
+  >
+    <OrganizationDetailsForm
+      onContinue={[Function]}
+      submitText="continue"
+    />
+  </OrganizationDetailsStep>
   <PlanStep
     createOrganization={[Function]}
     deleteOrganization={[Function]}
@@ -36,7 +39,6 @@ exports[`should render and create organization 2`] = `
 <Fragment>
   <OrganizationDetailsStep
     finished={true}
-    onContinue={[Function]}
     onOpen={[Function]}
     open={false}
     organization={
@@ -48,8 +50,21 @@ exports[`should render and create organization 2`] = `
         "url": "http://example.com/foo",
       }
     }
-    submitText="continue"
-  />
+  >
+    <OrganizationDetailsForm
+      onContinue={[Function]}
+      organization={
+        Object {
+          "avatar": "http://example.com/avatar",
+          "description": "description-foo",
+          "key": "key-foo",
+          "name": "name-foo",
+          "url": "http://example.com/foo",
+        }
+      }
+      submitText="continue"
+    />
+  </OrganizationDetailsStep>
   <PlanStep
     createOrganization={[Function]}
     deleteOrganization={[Function]}

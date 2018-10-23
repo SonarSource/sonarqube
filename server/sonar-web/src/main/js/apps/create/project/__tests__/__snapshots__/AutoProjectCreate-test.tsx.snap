@@ -2,7 +2,7 @@
 
 exports[`should display the bounded organizations dropdown with the list of repositories 1`] = `
 <Fragment>
-  <OrganizationSelect
+  <OrganizationInput
     autoImport={true}
     onChange={[Function]}
     organization="foo"
@@ -59,7 +59,7 @@ exports[`should display the provider app install button 1`] = `
     small={true}
     url="https://alm.installation.url"
   >
-    onboarding.create_organization.choose_organization_button.github
+    onboarding.import_organization.choose_organization_button.github
   </IdentityProviderLink>
 </Fragment>
 `;

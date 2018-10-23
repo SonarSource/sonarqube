@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationKeyInput from '../OrganizationKeyInput';
-import { getOrganization } from '../../../../../api/organizations';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
+import { getOrganization } from '../../../../api/organizations';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-jest.mock('../../../../../api/organizations', () => ({
+jest.mock('../../../../api/organizations', () => ({
   getOrganization: jest.fn().mockResolvedValue(undefined)
 }));
 

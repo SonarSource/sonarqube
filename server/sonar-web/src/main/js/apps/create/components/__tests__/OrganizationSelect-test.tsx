@@ -32,18 +32,6 @@ it('should render correctly', () => {
       <OrganizationSelect onChange={jest.fn()} organization="bar" organizations={organizations} />
     )
   ).toMatchSnapshot();
-  expect(
-    shallow(
-      <OrganizationSelect
-        autoImport={true}
-        onChange={jest.fn()}
-        organization="bar"
-        organizations={organizations}
-      />
-    )
-      .find('.js-new-org')
-      .contains('onboarding.create_project.import_new_org')
-  ).toBe(true);
 });
 
 it('should render options correctly', () => {

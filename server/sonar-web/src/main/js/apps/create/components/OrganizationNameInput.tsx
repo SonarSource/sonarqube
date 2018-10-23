@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import ValidationInput from '../../../../components/controls/ValidationInput';
-import { translate } from '../../../../helpers/l10n';
+import ValidationInput from '../../../components/controls/ValidationInput';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   initialValue?: string;

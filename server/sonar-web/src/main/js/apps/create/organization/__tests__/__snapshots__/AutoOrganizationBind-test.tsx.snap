@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<form
+  id="bind-organization-form"
+  onSubmit={[Function]}
+>
+  <OrganizationSelect
+    onChange={[Function]}
+    organization="key-foo"
+    organizations={
+      Array [
+        Object {
+          "avatar": "http://example.com/avatar",
+          "description": "description-foo",
+          "key": "key-foo",
+          "name": "name-foo",
+          "url": "http://example.com/foo",
+        },
+      ]
+    }
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <SubmitButton
+      disabled={false}
+    >
+      onboarding.import_organization.bind
+    </SubmitButton>
+  </div>
+</form>
+`;

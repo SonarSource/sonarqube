@@ -1,5 +1,84 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render with auto personal organization bind page 1`] = `
+<AlmApplicationInstalling
+  almKey="github"
+/>
+`;
+
+exports[`should render with auto personal organization bind page 2`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="onboarding.import_organization.personal.page.header"
+    titleTemplate="%s"
+  />
+  <div
+    className="sonarcloud page page-limited"
+  >
+    <header
+      className="page-header"
+    >
+      <h1
+        className="page-title big-spacer-bottom"
+      >
+        onboarding.import_organization.personal.page.header
+      </h1>
+      <p
+        className="page-description"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.import_organization.personal.page.description"
+          id="onboarding.import_organization.personal.page.description"
+          values={
+            Object {
+              "break": <br />,
+              "more": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                target="_blank"
+                to="/documentation/sonarcloud-pricing/"
+              >
+                learn_more
+              </Link>,
+              "price": "billing.price_format.10",
+            }
+          }
+        />
+      </p>
+    </header>
+    <AutoPersonalOrganizationBind
+      almApplication={
+        Object {
+          "backgroundColor": "blue",
+          "iconPath": "icon/path",
+          "installationUrl": "https://alm.installation.url",
+          "key": "github",
+          "name": "GitHub",
+        }
+      }
+      almInstallId="foo"
+      almOrganization={
+        Object {
+          "avatar": "https://avatars3.githubusercontent.com/u/37629810?v=4",
+          "key": "foo",
+          "name": "Foo",
+          "type": "USER",
+        }
+      }
+      importPersonalOrg={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        }
+      }
+      onOrgCreated={[Function]}
+    />
+  </div>
+</Fragment>
+`;
+
 exports[`should render with auto tab displayed 1`] = `
 <Fragment>
   <HelmetWrapper
@@ -49,14 +128,7 @@ exports[`should render with auto tab displayed 1`] = `
         Array [
           Object {
             "key": "auto",
-            "node": <React.Fragment>
-              onboarding.import_organization.github
-              <span
-                className="beta-badge spacer-left"
-              >
-                beta
-              </span>
-            </React.Fragment>,
+            "node": "onboarding.import_organization.github",
           },
           Object {
             "disabled": false,
@@ -77,6 +149,14 @@ exports[`should render with auto tab displayed 1`] = `
         }
       }
       onOrgCreated={[Function]}
+      unboundOrganizations={
+        Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          },
+        ]
+      }
     />
   </div>
 </Fragment>
@@ -137,14 +217,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
         Array [
           Object {
             "key": "auto",
-            "node": <React.Fragment>
-              onboarding.import_organization.github
-              <span
-                className="beta-badge spacer-left"
-              >
-                beta
-              </span>
-            </React.Fragment>,
+            "node": "onboarding.import_organization.github",
           },
           Object {
             "disabled": true,
@@ -176,6 +249,14 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
         }
       }
       onOrgCreated={[Function]}
+      unboundOrganizations={
+        Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          },
+        ]
+      }
     />
   </div>
 </Fragment>
@@ -291,14 +372,7 @@ exports[`should switch tabs 1`] = `
         Array [
           Object {
             "key": "auto",
-            "node": <React.Fragment>
-              onboarding.import_organization.github
-              <span
-                className="beta-badge spacer-left"
-              >
-                beta
-              </span>
-            </React.Fragment>,
+            "node": "onboarding.import_organization.github",
           },
           Object {
             "disabled": false,
@@ -319,6 +393,14 @@ exports[`should switch tabs 1`] = `
         }
       }
       onOrgCreated={[Function]}
+      unboundOrganizations={
+        Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          },
+        ]
+      }
     />
   </div>
 </Fragment>

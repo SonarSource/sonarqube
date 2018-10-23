@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
   <form
     onSubmit={[Function]}
   >
-    <OrganizationSelect
+    <OrganizationInput
       onChange={[Function]}
       organization=""
       organizations={

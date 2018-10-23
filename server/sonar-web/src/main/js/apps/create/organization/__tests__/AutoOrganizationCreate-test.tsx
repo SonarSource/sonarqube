@@ -21,6 +21,11 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoOrganizationCreate from '../AutoOrganizationCreate';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { bindAlmOrganization } from '../../../../api/alm-integration';
+
+jest.mock('../../../../api/alm-integration', () => ({
+  bindAlmOrganization: jest.fn().mockResolvedValue({})
+}));
 
 const organization = {
   avatar: 'http://example.com/avatar',
@@ -39,42 +44,55 @@ it('should render prefilled and create org', async () => {
   const onOrgCreated = jest.fn();
   const wrapper = shallowRender({
     almInstallId: 'id-foo',
-    almOrganization: {
-      ...organization,
-      type: 'ORGANIZATION'
-    },
+    almOrganization: { ...organization, type: 'ORGANIZATION' },
     createOrganization,
     onOrgCreated
   });
 
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(organization);
+  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
   await waitAndUpdate(wrapper);
 
   expect(createOrganization).toBeCalledWith({ ...organization, installationId: 'id-foo' });
   expect(onOrgCreated).toBeCalledWith('foo');
 });
 
-it('should render for personal organizations', async () => {
-  const personalOrg = { key: 'personal-org', name: 'personal-org' };
-  const updateOrganization = jest.fn().mockResolvedValue({ key: personalOrg.key });
+it('should display choice between import or creation', () => {
+  const wrapper = shallowRender({
+    almInstallId: 'id-foo',
+    almOrganization: { ...organization, type: 'ORGANIZATION' },
+    unboundOrganizations: [organization]
+  });
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('RadioToggle').prop<Function>('onCheck')('create');
+  wrapper.update();
+  expect(wrapper.find('OrganizationDetailsForm').exists()).toBe(true);
+
+  wrapper.find('RadioToggle').prop<Function>('onCheck')('bind');
+  wrapper.update();
+  expect(wrapper.find('AutoOrganizationBind').exists()).toBe(true);
+});
+
+it('should bind existing organization', async () => {
   const onOrgCreated = jest.fn();
   const wrapper = shallowRender({
     almInstallId: 'id-foo',
-    almOrganization: { ...organization, type: 'USER' },
-    importPersonalOrg: personalOrg,
+    almOrganization: { ...organization, type: 'ORGANIZATION' },
     onOrgCreated,
-    updateOrganization
+    unboundOrganizations: [organization]
   });
 
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('OrganizationDetailsStep').prop<Function>('onContinue')(personalOrg);
+  wrapper.find('RadioToggle').prop<Function>('onCheck')('bind');
+  wrapper.update();
+  wrapper.find('AutoOrganizationBind').prop<Function>('onBindOrganization')('foo');
+  expect(bindAlmOrganization as jest.Mock<any>).toHaveBeenCalledWith({
+    installationId: 'id-foo',
+    organization: 'foo'
+  });
   await waitAndUpdate(wrapper);
-
-  expect(updateOrganization).toBeCalledWith({ ...personalOrg, installationId: 'id-foo' });
-  expect(onOrgCreated).toBeCalledWith(personalOrg.key);
+  expect(onOrgCreated).toHaveBeenCalledWith('foo', false);
 });
 
 function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
@@ -89,7 +107,7 @@ function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
       }}
       createOrganization={jest.fn()}
       onOrgCreated={jest.fn()}
-      updateOrganization={jest.fn()}
+      unboundOrganizations={[]}
       {...props}
     />
   );

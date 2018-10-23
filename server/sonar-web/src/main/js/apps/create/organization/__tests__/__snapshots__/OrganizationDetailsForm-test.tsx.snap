@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render form 1`] = `
+<form
+  id="organization-form"
+  onSubmit={[Function]}
+>
+  <OrganizationKeyInput
+    onChange={[Function]}
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <ResetButtonLink
+      onClick={[Function]}
+    >
+      onboarding.create_organization.add_additional_info
+      <DropdownIcon
+        className="little-spacer-left"
+        turned={false}
+      />
+    </ResetButtonLink>
+  </div>
+  <div
+    className="js-additional-info"
+    hidden={true}
+  >
+    <div
+      className="big-spacer-top"
+    >
+      <OrganizationNameInput
+        initialValue=""
+        onChange={[Function]}
+      />
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <OrganizationAvatarInput
+        initialValue=""
+        name=""
+        onChange={[Function]}
+      />
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <OrganizationDescriptionInput
+        initialValue=""
+        onChange={[Function]}
+      />
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <OrganizationUrlInput
+        initialValue=""
+        onChange={[Function]}
+      />
+    </div>
+  </div>
+  <div
+    className="big-spacer-top"
+  >
+    <SubmitButton
+      disabled={true}
+    >
+      continue
+    </SubmitButton>
+  </div>
+</form>
+`;

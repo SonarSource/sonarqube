@@ -38,7 +38,7 @@ it('should render correctly', () => {
 it('should correctly create a project', async () => {
   const onProjectCreate = jest.fn();
   const wrapper = getWrapper({ onProjectCreate });
-  wrapper.find('OrganizationSelect').prop<Function>('onChange')({ key: 'foo' });
+  wrapper.find('OrganizationInput').prop<Function>('onChange')({ key: 'foo' });
   change(wrapper.find('#project-name'), 'Bar');
   expect(wrapper.find('SubmitButton')).toMatchSnapshot();
 

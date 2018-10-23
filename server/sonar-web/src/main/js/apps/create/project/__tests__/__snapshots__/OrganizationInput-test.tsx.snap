@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="form-field spacer-bottom"
+>
+  <label
+    htmlFor="select-organization"
+  >
+    onboarding.create_project.organization
+    <em
+      className="mandatory"
+    >
+      *
+    </em>
+  </label>
+  <OrganizationSelect
+    onChange={[MockFunction]}
+    organization="bar"
+    organizations={
+      Array [
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        },
+        Object {
+          "alm": Object {
+            "key": "github",
+            "url": "",
+          },
+          "key": "bar",
+          "name": "Bar",
+        },
+      ]
+    }
+  />
+  <Link
+    className="big-spacer-left js-new-org"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/create-organization"
+  >
+    onboarding.create_project.create_new_org
+  </Link>
+</div>
+`;

@@ -23,6 +23,7 @@ import { shallow } from 'enzyme';
 import { CreateOrganization } from '../CreateOrganization';
 import { mockRouter, waitAndUpdate } from '../../../../helpers/testUtils';
 import { LoggedInUser } from '../../../../app/types';
+import { getAlmOrganization } from '../../../../api/alm-integration';
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest
@@ -82,6 +83,22 @@ it('should render with auto tab displayed', async () => {
 it('should render with auto tab selected and manual disabled', async () => {
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github' },
+    location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
+  });
+  expect(wrapper).toMatchSnapshot();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render with auto personal organization bind page', async () => {
+  (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
+    key: 'foo',
+    name: 'Foo',
+    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+    type: 'USER'
+  });
+  const wrapper = shallowRender({
+    currentUser: { ...user, externalProvider: 'github', personalOrganization: 'foo' },
     location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
   });
   expect(wrapper).toMatchSnapshot();

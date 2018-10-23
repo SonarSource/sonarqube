@@ -19,7 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import AutoOrganizationBind from './AutoOrganizationBind';
 import ChooseRemoteOrganizationStep from './ChooseRemoteOrganizationStep';
+import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import {
   AlmApplication,
@@ -27,10 +29,17 @@ import {
   OrganizationBase,
   Organization
 } from '../../../app/types';
+import { bindAlmOrganization } from '../../../api/alm-integration';
+import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
+import RadioToggle from '../../../components/controls/RadioToggle';
+
+export enum Filters {
+  Bind = 'bind',
+  Create = 'create',
+  None = 'none'
+}
 
 interface Props {
   almApplication: AlmApplication;
@@ -39,59 +48,68 @@ interface Props {
   createOrganization: (
     organization: OrganizationBase & { installationId?: string }
   ) => Promise<Organization>;
-  importPersonalOrg?: Organization;
-  onOrgCreated: (organization: string) => void;
-  updateOrganization: (
-    organization: OrganizationBase & { installationId?: string }
-  ) => Promise<Organization>;
+  onOrgCreated: (organization: string, justCreated?: boolean) => void;
+  unboundOrganizations: Organization[];
 }
 
-export default class AutoOrganizationCreate extends React.PureComponent<Props> {
+interface State {
+  filter: Filters;
+}
+
+export default class AutoOrganizationCreate extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      filter: props.unboundOrganizations.length === 0 ? Filters.Create : Filters.None
+    };
+  }
+
+  handleOptionChange = (filter: Filters) => {
+    this.setState({ filter });
+  };
+
   handleCreateOrganization = (organization: Required<OrganizationBase>) => {
     if (organization) {
-      const { importPersonalOrg } = this.props;
-      let promise: Promise<Organization>;
-      if (importPersonalOrg) {
-        promise = this.props.updateOrganization({
-          avatar: organization.avatar,
-          description: organization.description,
-          installationId: this.props.almInstallId,
-          key: importPersonalOrg.key,
-          name: organization.name || organization.key,
-          url: organization.url
-        });
-      } else {
-        promise = this.props.createOrganization({
+      return this.props
+        .createOrganization({
           avatar: organization.avatar,
           description: organization.description,
           installationId: this.props.almInstallId,
           key: organization.key,
           name: organization.name || organization.key,
           url: organization.url
-        });
-      }
-      return promise.then(({ key }) => this.props.onOrgCreated(key));
-    } else {
-      return Promise.reject();
+        })
+        .then(({ key }) => this.props.onOrgCreated(key));
     }
+    return Promise.reject();
+  };
+
+  handleBindOrganization = (organization: string) => {
+    if (this.props.almInstallId) {
+      return bindAlmOrganization({
+        organization,
+        installationId: this.props.almInstallId
+      }).then(() => this.props.onOrgCreated(organization, false));
+    }
+    return Promise.reject();
   };
 
   render() {
-    const { almApplication, almInstallId, almOrganization, importPersonalOrg } = this.props;
+    const { almApplication, almInstallId, almOrganization, unboundOrganizations } = this.props;
     if (almInstallId && almOrganization) {
-      const description = importPersonalOrg
-        ? translate('onboarding.import_personal_organization_x')
-        : translate('onboarding.import_organization_x');
-      const submitText = importPersonalOrg
-        ? translate('onboarding.import_organization.bind')
-        : translate('my_account.create_organization');
+      const { filter } = this.state;
+      const hasUnboundOrgs = unboundOrganizations.length > 0;
       return (
         <OrganizationDetailsStep
-          description={
-            <p className="huge-spacer-bottom">
+          finished={false}
+          onOpen={() => {}}
+          open={true}
+          organization={almOrganization}>
+          <div className="huge-spacer-bottom">
+            <p className="big-spacer-bottom">
               <FormattedMessage
-                defaultMessage={description}
-                id={description}
+                defaultMessage={translate('onboarding.import_organization_x')}
+                id="onboarding.import_organization_x"
                 values={{
                   avatar: (
                     <img
@@ -103,25 +121,47 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props> {
                       width={16}
                     />
                   ),
-                  name: <strong>{almOrganization.name}</strong>,
-                  personalAvatar: importPersonalOrg && (
-                    <OrganizationAvatar organization={importPersonalOrg} small={true} />
-                  ),
-                  personalName: importPersonalOrg && <strong>{importPersonalOrg.name}</strong>
+                  name: <strong>{almOrganization.name}</strong>
                 }}
               />
             </p>
-          }
-          finished={false}
-          keyReadOnly={Boolean(importPersonalOrg)}
-          onContinue={this.handleCreateOrganization}
-          onOpen={() => {}}
-          open={true}
-          organization={importPersonalOrg || almOrganization}
-          submitText={submitText}
-        />
+
+            {hasUnboundOrgs && (
+              <RadioToggle
+                name="filter"
+                onCheck={this.handleOptionChange}
+                options={[
+                  {
+                    label: translate('onboarding.import_organization.create_new'),
+                    value: Filters.Create
+                  },
+                  {
+                    label: translate('onboarding.import_organization.bind_existing'),
+                    value: Filters.Bind
+                  }
+                ]}
+                value={filter}
+              />
+            )}
+          </div>
+
+          {filter === Filters.Create && (
+            <OrganizationDetailsForm
+              onContinue={this.handleCreateOrganization}
+              organization={almOrganization}
+              submitText={translate('onboarding.import_organization.import')}
+            />
+          )}
+          {filter === Filters.Bind && (
+            <AutoOrganizationBind
+              onBindOrganization={this.handleBindOrganization}
+              unboundOrganizations={unboundOrganizations}
+            />
+          )}
+        </OrganizationDetailsStep>
       );
     }
+
     return (
       <ChooseRemoteOrganizationStep
         almApplication={this.props.almApplication}

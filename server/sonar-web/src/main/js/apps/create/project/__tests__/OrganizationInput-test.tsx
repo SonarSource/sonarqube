@@ -17,18 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import OrganizationInput from '../OrganizationInput';
 
-/* EXTENDS components/pages.css */
-.sonarcloud.page-limited {
-  padding-top: 50px;
-  padding-bottom: 50px;
-}
+const organizations = [
+  { key: 'foo', name: 'Foo' },
+  { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
+];
 
-.sonarcloud .page-header {
-  margin-bottom: 40px;
-}
-
-.sonarcloud .page-title {
-  font-size: var(--hugeFontSize);
-  font-weight: bold;
-}
+it('should render correctly', () => {
+  expect(
+    shallow(
+      <OrganizationInput onChange={jest.fn()} organization="bar" organizations={organizations} />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <OrganizationInput
+        autoImport={true}
+        onChange={jest.fn()}
+        organization="bar"
+        organizations={organizations}
+      />
+    )
+      .find('.js-new-org')
+      .contains('onboarding.create_project.import_new_org')
+  ).toBe(true);
+});

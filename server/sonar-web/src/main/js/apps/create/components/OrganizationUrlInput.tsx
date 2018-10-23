@@ -20,13 +20,11 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { isWebUri } from 'valid-url';
-import ValidationInput from '../../../../components/controls/ValidationInput';
-import { translate } from '../../../../helpers/l10n';
-import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
+import ValidationInput from '../../../components/controls/ValidationInput';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   initialValue?: string;
-  name?: string;
   onChange: (value: string | undefined) => void;
 }
 
@@ -37,7 +35,7 @@ interface State {
   value: string;
 }
 
-export default class OrganizationAvatarInput extends React.PureComponent<Props, State> {
+export default class OrganizationUrlInput extends React.PureComponent<Props, State> {
   state: State = { error: undefined, editing: false, touched: false, value: '' };
 
   componentDidMount() {
@@ -72,39 +70,26 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
 
   render() {
     const isInvalid = this.state.touched && !this.state.editing && this.state.error !== undefined;
-    const isValidUrl = this.state.error === undefined && this.state.value !== '';
-    const isValid = this.state.touched && isValidUrl;
+    const isValid = this.state.touched && this.state.error === undefined && this.state.value !== '';
     return (
       <ValidationInput
-        description={translate('onboarding.create_organization.avatar.description')}
         error={this.state.error}
-        id="organization-avatar"
+        id="organization-url"
         isInvalid={isInvalid}
         isValid={isValid}
-        label={translate('onboarding.create_organization.avatar')}>
-        <>
-          {(isValidUrl || this.props.name) && (
-            <OrganizationAvatar
-              className="display-block spacer-bottom"
-              organization={{
-                avatar: isValidUrl ? this.state.value : undefined,
-                name: this.props.name || ''
-              }}
-            />
-          )}
-          <input
-            className={classNames('input-super-large', 'text-middle', {
-              'is-invalid': isInvalid,
-              'is-valid': isValid
-            })}
-            id="organization-display-name"
-            onBlur={this.handleBlur}
-            onChange={this.handleChange}
-            onFocus={this.handleFocus}
-            type="text"
-            value={this.state.value}
-          />
-        </>
+        label={translate('onboarding.create_organization.url')}>
+        <input
+          className={classNames('input-super-large', 'text-middle', {
+            'is-invalid': isInvalid,
+            'is-valid': isValid
+          })}
+          id="organization-url"
+          onBlur={this.handleBlur}
+          onChange={this.handleChange}
+          onFocus={this.handleFocus}
+          type="text"
+          value={this.state.value}
+        />
       </ValidationInput>
     );
   }

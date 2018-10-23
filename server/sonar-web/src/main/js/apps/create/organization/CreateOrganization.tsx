@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Helmet } from 'react-helmet';
@@ -27,6 +26,7 @@ import { Link, withRouter, WithRouterProps } from 'react-router';
 import { formatPrice, parseQuery } from './utils';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
+import AutoPersonalOrganizationBind from './AutoPersonalOrganizationBind';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
@@ -141,10 +141,10 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     });
   };
 
-  handleOrgCreated = (organization: string) => {
+  handleOrgCreated = (organization: string, justCreated = true) => {
     this.props.router.push({
       pathname: getOrganizationUrl(organization),
-      state: { justCreated: true }
+      state: { justCreated }
     });
   };
 
@@ -166,16 +166,78 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     });
   };
 
+  renderContent = (almInstallId?: string, importPersonalOrg?: Organization) => {
+    const { currentUser, location } = this.props;
+    const { almApplication, almOrganization } = this.state;
+    const state = (location.state || {}) as LocationState;
+
+    if (importPersonalOrg && almOrganization && almApplication) {
+      return (
+        <AutoPersonalOrganizationBind
+          almApplication={almApplication}
+          almInstallId={almInstallId}
+          almOrganization={almOrganization}
+          importPersonalOrg={importPersonalOrg}
+          onOrgCreated={this.handleOrgCreated}
+          updateOrganization={this.props.updateOrganization}
+        />
+      );
+    }
+
+    const showManualTab = state.tab === 'manual' && !almOrganization;
+    return (
+      <>
+        {almApplication && (
+          <Tabs<TabKeys>
+            onChange={this.onTabChange}
+            selected={showManualTab ? 'manual' : 'auto'}
+            tabs={[
+              {
+                key: 'auto',
+                node: translate('onboarding.import_organization', almApplication.key)
+              },
+              {
+                disabled: Boolean(almOrganization),
+                key: 'manual',
+                node: translate('onboarding.create_organization.create_manually')
+              }
+            ]}
+          />
+        )}
+
+        {showManualTab || !almApplication ? (
+          <ManualOrganizationCreate
+            createOrganization={this.props.createOrganization}
+            deleteOrganization={this.props.deleteOrganization}
+            onOrgCreated={this.handleOrgCreated}
+            onlyPaid={state.paid}
+            subscriptionPlans={this.state.subscriptionPlans}
+          />
+        ) : (
+          <AutoOrganizationCreate
+            almApplication={almApplication}
+            almInstallId={almInstallId}
+            almOrganization={almOrganization}
+            createOrganization={this.props.createOrganization}
+            onOrgCreated={this.handleOrgCreated}
+            unboundOrganizations={this.props.userOrganizations.filter(
+              o => !o.alm && o.key !== currentUser.personalOrganization
+            )}
+          />
+        )}
+      </>
+    );
+  };
+
   render() {
     const { currentUser, location } = this.props;
-    const state = (location.state || {}) as LocationState;
     const query = parseQuery(location.query);
 
     if (this.state.almOrgLoading) {
       return <AlmApplicationInstalling almKey={query.almKey} />;
     }
 
-    const { almApplication, almOrganization, subscriptionPlans } = this.state;
+    const { almOrganization, subscriptionPlans } = this.state;
     const importPersonalOrg = isPersonal(almOrganization)
       ? this.props.userOrganizations.find(o => o.key === currentUser.personalOrganization)
       : undefined;
@@ -187,7 +249,6 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       : translate('onboarding.create_organization.page.description');
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     const formattedPrice = formatPrice(startedPrice);
-    const showManualTab = state.tab === 'manual' && !almOrganization;
 
     return (
       <>
@@ -216,56 +277,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
           {this.state.loading ? (
             <DeferredSpinner />
           ) : (
-            <>
-              {almApplication &&
-                !importPersonalOrg && (
-                  <Tabs<TabKeys>
-                    onChange={this.onTabChange}
-                    selected={showManualTab ? 'manual' : 'auto'}
-                    tabs={[
-                      {
-                        key: 'auto',
-                        node: (
-                          <>
-                            {translate('onboarding.import_organization', almApplication.key)}
-                            <span
-                              className={classNames('beta-badge spacer-left', {
-                                'is-muted': showManualTab
-                              })}>
-                              {translate('beta')}
-                            </span>
-                          </>
-                        )
-                      },
-                      {
-                        disabled: Boolean(almOrganization),
-                        key: 'manual',
-                        node: translate('onboarding.create_organization.create_manually')
-                      }
-                    ]}
-                  />
-                )}
-
-              {showManualTab || !almApplication ? (
-                <ManualOrganizationCreate
-                  createOrganization={this.props.createOrganization}
-                  deleteOrganization={this.props.deleteOrganization}
-                  onOrgCreated={this.handleOrgCreated}
-                  onlyPaid={state.paid}
-                  subscriptionPlans={this.state.subscriptionPlans}
-                />
-              ) : (
-                <AutoOrganizationCreate
-                  almApplication={almApplication}
-                  almInstallId={query.almInstallId}
-                  almOrganization={almOrganization}
-                  createOrganization={this.props.createOrganization}
-                  importPersonalOrg={importPersonalOrg}
-                  onOrgCreated={this.handleOrgCreated}
-                  updateOrganization={this.props.updateOrganization}
-                />
-              )}
-            </>
+            this.renderContent(query.almInstallId, importPersonalOrg)
           )}
         </div>
       </>

@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { isWebUri } from 'valid-url';
-import ValidationInput from '../../../../components/controls/ValidationInput';
-import { translate } from '../../../../helpers/l10n';
+import ValidationInput from '../../../components/controls/ValidationInput';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   initialValue?: string;
@@ -35,20 +34,19 @@ interface State {
   value: string;
 }
 
-export default class OrganizationUrlInput extends React.PureComponent<Props, State> {
+export default class OrganizationDescriptionInput extends React.PureComponent<Props, State> {
   state: State = { error: undefined, editing: false, touched: false, value: '' };
 
   componentDidMount() {
     if (this.props.initialValue) {
-      const value = this.props.initialValue;
-      const error = this.validateUrl(value);
-      this.setState({ error, touched: Boolean(error), value });
+      const error = this.validateDescription(this.props.initialValue);
+      this.setState({ error, touched: Boolean(error), value: this.props.initialValue });
     }
   }
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.currentTarget.value.trim();
-    const error = this.validateUrl(value);
+  handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = event.currentTarget;
+    const error = this.validateDescription(value);
     this.setState({ error, touched: true, value });
     this.props.onChange(error === undefined ? value : undefined);
   };
@@ -61,9 +59,9 @@ export default class OrganizationUrlInput extends React.PureComponent<Props, Sta
     this.setState({ editing: true });
   };
 
-  validateUrl(url: string) {
-    if (url.length > 0 && !isWebUri(url)) {
-      return translate('onboarding.create_organization.url.error');
+  validateDescription(description: string) {
+    if (description.length > 256) {
+      return translate('onboarding.create_organization.description.error');
     }
     return undefined;
   }
@@ -74,20 +72,21 @@ export default class OrganizationUrlInput extends React.PureComponent<Props, Sta
     return (
       <ValidationInput
         error={this.state.error}
-        id="organization-url"
+        id="organization-display-name"
         isInvalid={isInvalid}
         isValid={isValid}
-        label={translate('onboarding.create_organization.url')}>
-        <input
+        label={translate('onboarding.create_organization.description')}>
+        <textarea
           className={classNames('input-super-large', 'text-middle', {
             'is-invalid': isInvalid,
             'is-valid': isValid
           })}
-          id="organization-url"
+          id="organization-description"
+          maxLength={256}
           onBlur={this.handleBlur}
           onChange={this.handleChange}
           onFocus={this.handleFocus}
-          type="text"
+          rows={3}
           value={this.state.value}
         />
       </ValidationInput>

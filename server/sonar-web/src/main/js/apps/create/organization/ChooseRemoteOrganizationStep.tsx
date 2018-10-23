@@ -36,10 +36,10 @@ export default class ChooseRemoteOrganizationStep extends React.PureComponent<Pr
       <div className="boxed-group-inner">
         {almInstallId && (
           <Alert className="markdown big-spacer-bottom width-60" variant="error">
-            {translate('onboarding.create_organization.import_org_not_found')}
+            {translate('onboarding.import_organization.org_not_found')}
             <ul>
-              <li>{translate('onboarding.create_organization.import_org_not_found.tips_1')}</li>
-              <li>{translate('onboarding.create_organization.import_org_not_found.tips_2')}</li>
+              <li>{translate('onboarding.import_organization.org_not_found.tips_1')}</li>
+              <li>{translate('onboarding.import_organization.org_not_found.tips_2')}</li>
             </ul>
           </Alert>
         )}
@@ -49,7 +49,7 @@ export default class ChooseRemoteOrganizationStep extends React.PureComponent<Pr
           small={true}
           url={almApplication.installationUrl}>
           {translate(
-            'onboarding.create_organization.choose_organization_button',
+            'onboarding.import_organization.choose_organization_button',
             almApplication.key
           )}
         </IdentityProviderLink>
@@ -70,7 +70,7 @@ export default class ChooseRemoteOrganizationStep extends React.PureComponent<Pr
         renderForm={this.renderForm}
         renderResult={this.renderResult}
         stepNumber={1}
-        stepTitle={translate('onboarding.create_organization.import_org_details')}
+        stepTitle={translate('onboarding.import_organization.import_org_details')}
       />
     );
   }

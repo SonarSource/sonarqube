@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
 import { formatPrice } from './utils';
@@ -108,12 +109,15 @@ export default class ManualOrganizationCreate extends React.PureComponent<Props,
       <>
         <OrganizationDetailsStep
           finished={this.state.organization !== undefined}
-          onContinue={this.handleOrganizationDetailsFinish}
           onOpen={this.handleOrganizationDetailsStepOpen}
           open={this.state.step === Step.OrganizationDetails}
-          organization={this.state.organization}
-          submitText={translate('continue')}
-        />
+          organization={this.state.organization}>
+          <OrganizationDetailsForm
+            onContinue={this.handleOrganizationDetailsFinish}
+            organization={this.state.organization}
+            submitText={translate('continue')}
+          />
+        </OrganizationDetailsStep>
 
         {subscriptionPlans !== undefined && (
           <PlanStep

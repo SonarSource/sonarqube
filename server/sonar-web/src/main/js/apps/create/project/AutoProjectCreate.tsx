@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import RemoteRepositories from './RemoteRepositories';
-import OrganizationSelect from './OrganizationSelect';
+import OrganizationInput from './OrganizationInput';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import { AlmApplication, Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
@@ -69,7 +69,7 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
             small={true}
             url={almApplication.installationUrl}>
             {translate(
-              'onboarding.create_organization.choose_organization_button',
+              'onboarding.import_organization.choose_organization_button',
               almApplication.key
             )}
           </IdentityProviderLink>
@@ -80,7 +80,7 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
     const { selectedOrganization } = this.state;
     return (
       <>
-        <OrganizationSelect
+        <OrganizationInput
           autoImport={true}
           onChange={this.handleOrganizationSelect}
           organization={selectedOrganization}

@@ -20,109 +20,31 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationDetailsStep from '../OrganizationDetailsStep';
-import { click, submit } from '../../../../helpers/testUtils';
-import { getOrganization } from '../../../../api/organizations';
-
-jest.mock('../../../../api/organizations', () => ({
-  getOrganization: jest.fn()
-}));
-
-beforeEach(() => {
-  (getOrganization as jest.Mock).mockResolvedValue(undefined);
-});
 
 it('should render form', () => {
   const wrapper = shallow(
-    <OrganizationDetailsStep
-      finished={false}
-      onContinue={jest.fn()}
-      onOpen={jest.fn()}
-      open={true}
-      submitText="continue"
-    />
+    <OrganizationDetailsStep finished={false} onOpen={jest.fn()} open={true}>
+      <form />
+    </OrganizationDetailsStep>
   );
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.dive()).toMatchSnapshot();
   expect(
     wrapper
       .dive()
-      .find('.js-additional-info')
-      .prop('hidden')
+      .find('form')
+      .exists()
   ).toBe(true);
-
-  click(wrapper.dive().find('ResetButtonLink'));
-  wrapper.update();
-  expect(
-    wrapper
-      .dive()
-      .find('.js-additional-info')
-      .prop('hidden')
-  ).toBe(false);
 });
 
-it('should validate before submit', () => {
-  const wrapper = shallow(
-    <OrganizationDetailsStep
-      finished={false}
-      onContinue={jest.fn()}
-      onOpen={jest.fn()}
-      open={true}
-      submitText="continue"
-    />
-  );
-  const instance = wrapper.instance() as OrganizationDetailsStep;
-
-  expect(
-    instance.canSubmit({
-      additional: false,
-      avatar: '',
-      description: '',
-      name: '',
-      key: 'foo',
-      submitting: false,
-      url: ''
-    })
-  ).toBe(true);
-
-  expect(
-    instance.canSubmit({
-      additional: false,
-      avatar: '',
-      description: '',
-      name: '',
-      key: undefined,
-      submitting: false,
-      url: ''
-    })
-  ).toBe(false);
-
-  expect(
-    instance.canSubmit({
-      additional: false,
-      avatar: undefined,
-      description: '',
-      name: '',
-      key: 'foo',
-      submitting: false,
-      url: ''
-    })
-  ).toBe(false);
-
-  instance.canSubmit = jest.fn() as any;
-  submit(wrapper.dive().find('form'));
-  expect(instance.canSubmit).toHaveBeenCalled();
-});
-
-it.only('should render result', () => {
+it('should render result', () => {
   const wrapper = shallow(
     <OrganizationDetailsStep
       finished={true}
-      onContinue={jest.fn()}
       onOpen={jest.fn()}
       open={false}
-      organization={{ avatar: '', description: '', key: 'org', name: 'Organization', url: '' }}
-      submitText="continue"
-    />
+      organization={{ avatar: '', description: '', key: 'org', name: 'Organization', url: '' }}>
+      <div />
+    </OrganizationDetailsStep>
   );
   expect(wrapper.dive().find('.boxed-group-actions')).toMatchSnapshot();
   expect(

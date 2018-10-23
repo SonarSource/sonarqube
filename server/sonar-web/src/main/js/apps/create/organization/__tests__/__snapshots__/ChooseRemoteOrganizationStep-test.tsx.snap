@@ -5,13 +5,13 @@ exports[`should display an alert message 1`] = `
   className="markdown big-spacer-bottom width-60"
   variant="error"
 >
-  onboarding.create_organization.import_org_not_found
+  onboarding.import_organization.org_not_found
   <ul>
     <li>
-      onboarding.create_organization.import_org_not_found.tips_1
+      onboarding.import_organization.org_not_found.tips_1
     </li>
     <li>
-      onboarding.create_organization.import_org_not_found.tips_2
+      onboarding.import_organization.org_not_found.tips_2
     </li>
   </ul>
 </Alert>
@@ -30,7 +30,7 @@ exports[`should render 1`] = `
     className="boxed-group-header"
   >
     <h2>
-      onboarding.create_organization.import_org_details
+      onboarding.import_organization.import_org_details
     </h2>
   </div>
   <div
@@ -53,7 +53,7 @@ exports[`should render 1`] = `
         small={true}
         url="https://alm.application.url"
       >
-        onboarding.create_organization.choose_organization_button.github
+        onboarding.import_organization.choose_organization_button.github
       </IdentityProviderLink>
     </div>
   </div>

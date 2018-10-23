@@ -22,13 +22,12 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import OnboardingModal from './OnboardingModal';
-import { skipOnboarding } from '../../../api/users';
-import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
+import { skipOnboarding } from '../../../store/users';
 import TeamOnboardingModal from '../teamOnboarding/TeamOnboardingModal';
 import { Organization } from '../../../app/types';
 
 interface DispatchProps {
-  skipOnboardingAction: () => void;
+  skipOnboarding: () => void;
 }
 
 interface OwnProps {
@@ -52,8 +51,7 @@ export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps
   state: State = { modal: ModalKey.onboarding };
 
   closeOnboarding = () => {
-    skipOnboarding();
-    this.props.skipOnboardingAction();
+    this.props.skipOnboarding();
     this.props.router.replace('/');
   };
 
@@ -90,7 +88,7 @@ export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps
   }
 }
 
-const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
+const mapDispatchToProps: DispatchProps = { skipOnboarding };
 
 export default connect(
   null,

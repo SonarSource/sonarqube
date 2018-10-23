@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import OrganizationSelect from './OrganizationSelect';
+import OrganizationInput from './OrganizationInput';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { LoggedInUser, Organization } from '../../../app/types';
@@ -113,7 +113,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     return (
       <>
         <form onSubmit={this.handleFormSubmit}>
-          <OrganizationSelect
+          <OrganizationInput
             onChange={this.handleOrganizationSelect}
             organization={this.state.selectedOrganization}
             organizations={this.props.userOrganizations}

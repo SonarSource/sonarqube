@@ -20,10 +20,10 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { debounce } from 'lodash';
-import { getOrganization } from '../../../../api/organizations';
-import ValidationInput from '../../../../components/controls/ValidationInput';
-import { translate } from '../../../../helpers/l10n';
-import { getHostUrl } from '../../../../helpers/urls';
+import { getOrganization } from '../../../api/organizations';
+import ValidationInput from '../../../components/controls/ValidationInput';
+import { translate } from '../../../helpers/l10n';
+import { getHostUrl } from '../../../helpers/urls';
 
 interface Props {
   initialValue?: string;
@@ -64,25 +64,27 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
   checkFreeKey = (key: string) => {
     this.setState({ validating: true });
     return getOrganization(key)
-      .then(organization => organization === undefined, () => true)
-      .then(
-        free => {
-          if (this.mounted) {
-            if (!free) {
-              this.setState({
-                error: translate('onboarding.create_organization.organization_name.taken'),
-                touched: true,
-                validating: false
-              });
-              this.props.onChange(undefined);
-            } else {
-              this.setState({ error: undefined, validating: false });
-              this.props.onChange(key);
-            }
+      .then(organization => {
+        if (this.mounted) {
+          if (organization === undefined) {
+            this.setState({ error: undefined, validating: false });
+            this.props.onChange(key);
+          } else {
+            this.setState({
+              error: translate('onboarding.create_organization.organization_name.taken'),
+              touched: true,
+              validating: false
+            });
+            this.props.onChange(undefined);
           }
-        },
-        () => {}
-      );
+        }
+      })
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ error: undefined, validating: false });
+          this.props.onChange(key);
+        }
+      });
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +132,7 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
           {!this.props.readOnly && (
             <input
               autoFocus={true}
-              className={classNames('input-super-large', 'text-middle', {
+              className={classNames('input-super-large', {
                 'is-invalid': isInvalid,
                 'is-valid': isValid
               })}

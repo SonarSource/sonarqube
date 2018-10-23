@@ -18,7 +18,7 @@ exports[`should render correctly 1`] = `
     </span>
     <input
       autoFocus={true}
-      className="input-super-large text-middle"
+      className="input-super-large"
       id="organization-key"
       maxLength={255}
       onBlur={[Function]}

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
@@ -142,17 +141,7 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
                   tabs={[
                     {
                       key: 'auto',
-                      node: (
-                        <>
-                          {translate('onboarding.create_project.select_repositories')}
-                          <span
-                            className={classNames('beta-badge spacer-left', {
-                              'is-muted': showManualTab
-                            })}>
-                            {translate('beta')}
-                          </span>
-                        </>
-                      )
+                      node: translate('onboarding.create_project.select_repositories')
                     },
                     { key: 'manual', node: translate('onboarding.create_project.create_manually') }
                   ]}

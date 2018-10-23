@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Select
+  autoFocus={true}
+  className="input-super-large"
+  clearable={false}
+  id="select-organization"
+  labelKey="name"
+  onChange={[MockFunction]}
+  optionRenderer={[Function]}
+  options={
+    Array [
+      Object {
+        "alm": Object {
+          "key": "github",
+          "url": "",
+        },
+        "key": "bar",
+        "name": "Bar",
+      },
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      },
+    ]
+  }
+  placeholder="onboarding.import_organization.choose_organization"
+  required={true}
+  value="bar"
+  valueKey="key"
+  valueRenderer={[Function]}
+/>
+`;
+
+exports[`should render options correctly 1`] = `
+<span>
+  <img
+    alt="SonarCloud"
+    className="spacer-right"
+    height={14}
+    src="/images/sonarcloud-square-logo.svg"
+  />
+  Foo
+  <span
+    className="note little-spacer-left"
+  >
+    foo
+  </span>
+</span>
+`;
+
+exports[`should render options correctly 2`] = `
+<span>
+  <img
+    alt="github"
+    className="spacer-right"
+    height={14}
+    src="/images/sonarcloud/github.svg"
+  />
+  Bar
+  <span
+    className="note little-spacer-left"
+  >
+    bar
+  </span>
+</span>
+`;

@@ -18,24 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { shallow } from 'enzyme';
+import AutoOrganizationBind from '../AutoOrganizationBind';
+import { submit } from '../../../../helpers/testUtils';
 
-export default function AlmApplicationInstalling({ almKey }: { almKey?: string }) {
-  return (
-    <DeferredSpinner
-      customSpinner={
-        <div className="sonarcloud page page-limited">
-          <div className="huge-spacer-top text-center">
-            <i className="spinner" />
-            <p className="big-spacer-top">
-              {almKey
-                ? translate('onboarding.import_organization.installing', almKey)
-                : translate('onboarding.import_organization.installing')}
-            </p>
-          </div>
-        </div>
-      }
+const organization = {
+  avatar: 'http://example.com/avatar',
+  description: 'description-foo',
+  key: 'key-foo',
+  name: 'name-foo',
+  url: 'http://example.com/foo'
+};
+
+it('should render correctly', () => {
+  const onBindOrganization = jest.fn().mockResolvedValue({});
+  const wrapper = shallowRender({ onBindOrganization });
+  expect(wrapper).toMatchSnapshot();
+
+  submit(wrapper.find('form'));
+  expect(onBindOrganization).toHaveBeenCalled();
+});
+
+function shallowRender(props: Partial<AutoOrganizationBind['props']> = {}) {
+  return shallow(
+    <AutoOrganizationBind
+      onBindOrganization={jest.fn()}
+      unboundOrganizations={[organization]}
+      {...props}
     />
   );
 }
