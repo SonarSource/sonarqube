@@ -35,6 +35,7 @@ import { isLongLivingBranch } from '../../../helpers/branches';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { getRulesUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
+import { StandardType } from '../utils';
 import '../style.css';
 
 interface Props {
@@ -48,7 +49,7 @@ interface State {
   loading: boolean;
   findings: Array<SecurityHotspot>;
   hasVulnerabilities: boolean;
-  type: 'owaspTop10' | 'sansTop25' | 'cwe';
+  type: StandardType;
   showCWE: boolean;
 }
 
