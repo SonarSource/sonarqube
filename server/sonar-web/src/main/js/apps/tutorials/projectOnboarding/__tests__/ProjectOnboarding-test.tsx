@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { ProjectOnboarding } from '../ProjectOnboarding';
 import { click, doAsync } from '../../../../helpers/testUtils';
 import { getInstance, isSonarCloud } from '../../../../helpers/system';
@@ -72,7 +72,7 @@ it('finishes', () => {
   (getInstance as jest.Mock<any>).mockImplementation(() => 'SonarQube');
   (isSonarCloud as jest.Mock<any>).mockImplementation(() => false);
   const onFinish = jest.fn();
-  const wrapper = mount(
+  const wrapper = shallow(
     <ProjectOnboarding currentUser={currentUser} onFinish={onFinish} organizationsEnabled={false} />
   );
   click(wrapper.find('ResetButtonLink'));

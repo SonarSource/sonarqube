@@ -19,6 +19,8 @@
  */
 
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import Step from './Step';
 import { getTokens, generateToken, revokeToken } from '../../../api/user-tokens';
@@ -246,7 +248,19 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           </div>
         )}
 
-        <div className="note big-spacer-top width-50">{translate('onboarding.token.text')}</div>
+        <div className="note big-spacer-top width-50">
+          <FormattedMessage
+            defaultMessage={translate('onboarding.token.text')}
+            id="onboarding.token.text"
+            values={{
+              link: (
+                <Link target="_blank" to="/account/security">
+                  {translate('onboarding.token.text.user_account')}
+                </Link>
+              )
+            }}
+          />
+        </div>
 
         {this.canContinue() && (
           <div className="big-spacer-top">
