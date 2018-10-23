@@ -34,20 +34,20 @@ jest.mock('../../../../api/billing', () => ({
 jest.mock('../../../../api/alm-integration', () => ({
   getAlmAppInfo: jest.fn().mockResolvedValue({
     application: {
-      installationUrl: 'https://alm.installation.url',
       backgroundColor: 'blue',
       iconPath: 'icon/path',
+      installationUrl: 'https://alm.installation.url',
       key: 'github',
       name: 'GitHub'
     }
   }),
   getAlmOrganization: jest.fn().mockResolvedValue({
+    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+    description: 'Continuous Code Quality',
     key: 'sonarsource',
     name: 'SonarSource',
-    description: 'Continuous Code Quality',
-    url: 'https://www.sonarsource.com',
-    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
-    type: 'ORGANIZATION'
+    personal: false,
+    url: 'https://www.sonarsource.com'
   })
 }));
 
@@ -95,7 +95,7 @@ it('should render with auto personal organization bind page', async () => {
     key: 'foo',
     name: 'Foo',
     avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
-    type: 'USER'
+    personal: true
   });
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github', personalOrganization: 'foo' },

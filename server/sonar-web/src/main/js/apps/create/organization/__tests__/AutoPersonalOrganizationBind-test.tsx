@@ -57,7 +57,7 @@ function shallowRender(props: Partial<AutoPersonalOrganizationBind['props']> = {
         description: 'description-foo',
         key: 'key-foo',
         name: 'name-foo',
-        type: 'USER',
+        personal: true,
         url: 'http://example.com/foo'
       }}
       importPersonalOrg={{ key: 'personalorg', name: 'Personal Org' }}

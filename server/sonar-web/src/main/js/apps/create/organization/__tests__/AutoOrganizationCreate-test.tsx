@@ -44,7 +44,7 @@ it('should render prefilled and create org', async () => {
   const onOrgCreated = jest.fn();
   const wrapper = shallowRender({
     almInstallId: 'id-foo',
-    almOrganization: { ...organization, type: 'ORGANIZATION' },
+    almOrganization: { ...organization, personal: false },
     createOrganization,
     onOrgCreated
   });
@@ -61,7 +61,7 @@ it('should render prefilled and create org', async () => {
 it('should display choice between import or creation', () => {
   const wrapper = shallowRender({
     almInstallId: 'id-foo',
-    almOrganization: { ...organization, type: 'ORGANIZATION' },
+    almOrganization: { ...organization, personal: false },
     unboundOrganizations: [organization]
   });
   expect(wrapper).toMatchSnapshot();
@@ -79,7 +79,7 @@ it('should bind existing organization', async () => {
   const onOrgCreated = jest.fn();
   const wrapper = shallowRender({
     almInstallId: 'id-foo',
-    almOrganization: { ...organization, type: 'ORGANIZATION' },
+    almOrganization: { ...organization, personal: false },
     onOrgCreated,
     unboundOrganizations: [organization]
   });

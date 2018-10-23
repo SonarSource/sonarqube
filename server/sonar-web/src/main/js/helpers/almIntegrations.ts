@@ -39,7 +39,7 @@ export function isVSTS(almKey?: string) {
 }
 
 export function isPersonal(organization?: AlmOrganization) {
-  return Boolean(organization && organization.type === 'USER');
+  return Boolean(organization && organization.personal);
 }
 
 export function sanitizeAlmId(almKey?: string) {

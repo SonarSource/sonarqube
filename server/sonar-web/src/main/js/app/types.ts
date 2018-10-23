@@ -28,7 +28,7 @@ export interface AlmApplication extends IdentityProvider {
 }
 export interface AlmOrganization extends OrganizationBase {
   key: string;
-  type: 'ORGANIZATION' | 'USER';
+  personal: boolean;
 }
 
 export interface AlmRepository {

@@ -64,7 +64,7 @@ exports[`should render with auto personal organization bind page 2`] = `
           "avatar": "https://avatars3.githubusercontent.com/u/37629810?v=4",
           "key": "foo",
           "name": "Foo",
-          "type": "USER",
+          "personal": true,
         }
       }
       importPersonalOrg={
@@ -244,7 +244,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
           "description": "Continuous Code Quality",
           "key": "sonarsource",
           "name": "SonarSource",
-          "type": "ORGANIZATION",
+          "personal": false,
           "url": "https://www.sonarsource.com",
         }
       }

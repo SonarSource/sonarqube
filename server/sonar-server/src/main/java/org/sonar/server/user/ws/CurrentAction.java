@@ -41,6 +41,7 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -113,6 +114,7 @@ public class CurrentAction implements UsersWsAction {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     checkState(user != null, "User login '%s' cannot be found", userLogin);
     Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin);
+    Optional<OrganizationDto> personalOrganization = getPersonalOrganization(dbSession, user);
 
     CurrentWsResponse.Builder builder = newBuilder()
       .setIsLoggedIn(true)
@@ -128,6 +130,7 @@ public class CurrentAction implements UsersWsAction {
     setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
     setNullable(user.getExternalLogin(), builder::setExternalIdentity);
     setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
+    personalOrganization.ifPresent(org -> builder.setPersonalOrganization(org.getKey()));
     return builder.build();
   }
 
@@ -137,6 +140,15 @@ public class CurrentAction implements UsersWsAction {
       .filter(permission -> userSession.hasPermission(permission, defaultOrganizationUuid))
       .map(OrganizationPermission::getKey)
       .collect(toList());
+  }
+
+  private Optional<OrganizationDto> getPersonalOrganization(DbSession dbSession, UserDto user) {
+    String personalOrganizationUuid = user.getOrganizationUuid();
+    if (personalOrganizationUuid == null) {
+      return Optional.empty();
+    }
+    return Optional.of(dbClient.organizationDao().selectByUuid(dbSession, personalOrganizationUuid)
+      .orElseThrow(() -> new IllegalStateException(format("Organization uuid '%s' does not exist", personalOrganizationUuid))));
   }
 
   private CurrentWsResponse.Homepage buildHomepage(DbSession dbSession, UserDto user) {

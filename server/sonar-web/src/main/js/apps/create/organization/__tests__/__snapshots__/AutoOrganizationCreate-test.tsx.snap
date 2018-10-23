@@ -11,7 +11,7 @@ exports[`should display choice between import or creation 1`] = `
       "description": "description-foo",
       "key": "key-foo",
       "name": "name-foo",
-      "type": "ORGANIZATION",
+      "personal": false,
       "url": "http://example.com/foo",
     }
   }
@@ -73,7 +73,7 @@ exports[`should render prefilled and create org 1`] = `
       "description": "description-foo",
       "key": "key-foo",
       "name": "name-foo",
-      "type": "ORGANIZATION",
+      "personal": false,
       "url": "http://example.com/foo",
     }
   }
@@ -111,7 +111,7 @@ exports[`should render prefilled and create org 1`] = `
         "description": "description-foo",
         "key": "key-foo",
         "name": "name-foo",
-        "type": "ORGANIZATION",
+        "personal": false,
         "url": "http://example.com/foo",
       }
     }
