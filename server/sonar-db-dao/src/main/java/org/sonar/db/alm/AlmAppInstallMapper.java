@@ -19,17 +19,23 @@
  */
 package org.sonar.db.alm;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface AlmAppInstallMapper {
 
   @CheckForNull
-  String selectInstallId(@Param("almId") String almId, @Param("ownerId") String ownerId);
+  AlmAppInstallDto selectByOwner(@Param("almId") String almId, @Param("ownerId") String ownerId);
 
-  void insert(@Param("uuid") String uuid, @Param("almId") String almId, @Param("ownerId") String ownerId, @Param("installId") String installId, @Param("now") long now);
+  List<AlmAppInstallDto> selectAllWithNoOwnerType();
 
-  int update(@Param("almId") String almId, @Param("ownerId") String ownerId, @Param("installId") String installId, @Param("now") long now);
+  void insert(@Param("uuid") String uuid, @Param("almId") String almId, @Param("ownerId") String ownerId,
+              @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Param("now") long now);
+
+  int update(@Param("almId") String almId, @Param("ownerId") String ownerId,
+             @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Param("now") long now);
 
   void delete(@Param("almId") String almId, @Param("ownerId") String ownerId);
 }

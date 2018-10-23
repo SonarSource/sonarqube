@@ -3,14 +3,31 @@
 
 <mapper namespace="org.sonar.db.alm.AlmAppInstallMapper">
 
-  <select id="selectInstallId" parameterType="Map" resultType="String">
-    select
-      install_id as installId
+  <sql id="sqlColumns">
+    uuid,
+    alm_id as almId,
+    owner_id as ownerId,
+    is_owner_user as isOwnerUser,
+    install_id as installId,
+    created_at as createdAt,
+    updated_at as updatedAt
+  </sql>
+
+  <select id="selectByOwner" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
+    select <include refid="sqlColumns" />
     from
       alm_app_installs
     where
       alm_id = #{almId, jdbcType=VARCHAR}
       and owner_id = #{ownerId, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAllWithNoOwnerType" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
+    select <include refid="sqlColumns" />
+    from
+    alm_app_installs
+    where
+    is_owner_user is null
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
@@ -19,6 +36,7 @@
       uuid,
       alm_id,
       owner_id,
+      is_owner_user,
       install_id,
       created_at,
       updated_at
@@ -27,6 +45,7 @@
       #{uuid, jdbcType=VARCHAR},
       #{almId, jdbcType=VARCHAR},
       #{ownerId, jdbcType=VARCHAR},
+      #{isOwnerUser, jdbcType=BOOLEAN},
       #{installId, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
@@ -36,6 +55,7 @@
   <update id="update" parameterType="map">
     update alm_app_installs set
       install_id = #{installId, jdbcType=VARCHAR},
+      is_owner_user = #{isOwnerUser, jdbcType=BOOLEAN},
       updated_at = #{now, jdbcType=BIGINT}
     where
       alm_id = #{almId, jdbcType=VARCHAR}
