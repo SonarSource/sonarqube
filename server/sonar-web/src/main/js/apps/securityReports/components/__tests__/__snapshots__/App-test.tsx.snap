@@ -124,31 +124,7 @@ exports[`handle checkbox for cwe display 2`] = `
       <div
         className="alert alert-info spacer-top display-inline-block"
       >
-        <FormattedMessage
-          defaultMessage="security_reports.info"
-          id="security_reports.info"
-          tagName="p"
-          values={
-            Object {
-              "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/coding_rules",
-                    "query": Object {
-                      "types": "VULNERABILITY,SECURITY_HOTSPOT",
-                    },
-                  }
-                }
-              >
-                security_reports.info.link
-              </Link>,
-              "standard": "security_reports.owaspTop10.page",
-              "total": 1,
-            }
-          }
-        />
+        security_reports.more_rules
       </div>
     </div>
   </header>
@@ -293,31 +269,7 @@ exports[`renders owaspTop10 1`] = `
       <div
         className="alert alert-info spacer-top display-inline-block"
       >
-        <FormattedMessage
-          defaultMessage="security_reports.info"
-          id="security_reports.info"
-          tagName="p"
-          values={
-            Object {
-              "link": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/coding_rules",
-                    "query": Object {
-                      "types": "VULNERABILITY,SECURITY_HOTSPOT",
-                    },
-                  }
-                }
-              >
-                security_reports.info.link
-              </Link>,
-              "standard": "security_reports.owaspTop10.page",
-              "total": 1,
-            }
-          }
-        />
+        security_reports.more_rules
       </div>
     </div>
   </header>

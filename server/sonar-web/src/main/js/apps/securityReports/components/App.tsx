@@ -21,11 +21,10 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
-import { FormattedMessage } from 'react-intl';
 import VulnerabilityList from './VulnerabilityList';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { Component, BranchLike, SecurityHotspot, RuleType } from '../../../app/types';
+import { Component, BranchLike, SecurityHotspot } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Checkbox from '../../../components/controls/Checkbox';
 import { RawQuery } from '../../../helpers/query';
@@ -33,8 +32,6 @@ import NotFound from '../../../app/components/NotFound';
 import { getSecurityHotspots } from '../../../api/security-reports';
 import { isLongLivingBranch } from '../../../helpers/branches';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { getRulesUrl } from '../../../helpers/urls';
-import { isSonarCloud } from '../../../helpers/system';
 import { StandardType } from '../utils';
 import '../style.css';
 
@@ -127,39 +124,20 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   renderAdditionalRulesMessage = () => {
-    const { component } = this.props;
-    const { findings, type } = this.state;
+    const { findings } = this.state;
     if (findings.length === 0) {
       return null;
     }
 
     const total = findings.map(f => f.totalRules).reduce((sum, count) => sum + count);
     const active = findings.map(f => f.activeRules).reduce((sum, count) => sum + count);
-    if (active === total) {
+    if (active >= total) {
       return null;
     }
 
-    const standard = translate('security_reports', type, 'page');
     return (
       <div className="alert alert-info spacer-top display-inline-block">
-        <FormattedMessage
-          defaultMessage={translate('security_reports.info')}
-          id="security_reports.info"
-          tagName="p"
-          values={{
-            link: (
-              <Link
-                to={getRulesUrl(
-                  { types: [RuleType.Vulnerability, RuleType.Hotspot].join() },
-                  isSonarCloud() ? component.organization : undefined
-                )}>
-                {translate('security_reports.info.link')}
-              </Link>
-            ),
-            standard,
-            total: total - active
-          }}
-        />
+        {translate('security_reports.more_rules')}
       </div>
     );
   };
