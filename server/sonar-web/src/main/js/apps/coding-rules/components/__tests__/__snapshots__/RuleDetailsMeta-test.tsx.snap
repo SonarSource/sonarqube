@@ -163,7 +163,7 @@ exports[`should display right meta info 2`] = `
       <span
         className="note text-middle"
       >
-        external_xoo:OneExternalIssuePerLine
+        xoo:OneExternalIssuePerLine
       </span>
     </div>
     <h3
@@ -190,7 +190,7 @@ exports[`should display right meta info 3`] = `
       <span
         className="note text-middle"
       >
-        external_xoo:OneExternalIssueWithDetailsPerLine
+        xoo:OneExternalIssueWithDetailsPerLine
       </span>
     </div>
     <h3

@@ -232,6 +232,15 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     );
   };
 
+  renderKey() {
+    const EXTERNAL_PREFIX = 'external_';
+    const { ruleDetails } = this.props;
+    const displayedKey = ruleDetails.key.startsWith(EXTERNAL_PREFIX)
+      ? ruleDetails.key.substr(EXTERNAL_PREFIX.length)
+      : ruleDetails.key;
+    return <span className="note text-middle">{displayedKey}</span>;
+  }
+
   render() {
     const { ruleDetails } = this.props;
     const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
@@ -239,7 +248,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
       <div className="js-rule-meta">
         <header className="page-header">
           <div className="pull-right">
-            <span className="note text-middle">{ruleDetails.key}</span>
+            {this.renderKey()}
             {!ruleDetails.isExternal && (
               <Link
                 className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
