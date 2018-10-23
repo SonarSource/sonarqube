@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 import { Button } from '../../../components/ui/buttons';
-import { Organization, CurrentUser, isLoggedIn } from '../../../app/types';
+import { Organization, CurrentUser, isLoggedIn, hasGlobalPermission } from '../../../app/types';
 import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
@@ -44,7 +44,7 @@ export default class EmptyInstance extends React.PureComponent<Props> {
     const { currentUser, organization } = this.props;
     const showNewProjectButton = isSonarCloud()
       ? organization && organization.canProvisionProjects
-      : isLoggedIn(currentUser);
+      : isLoggedIn(currentUser) && hasGlobalPermission(currentUser, 'provisioning');
 
     return (
       <div className="projects-empty-list">

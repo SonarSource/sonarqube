@@ -32,7 +32,12 @@ it('renders correctly for SQ', () => {
     shallow(<EmptyInstance currentUser={{ isLoggedIn: false }} organization={undefined} />)
   ).toMatchSnapshot();
   expect(
-    shallow(<EmptyInstance currentUser={{ isLoggedIn: true }} organization={undefined} />)
+    shallow(
+      <EmptyInstance
+        currentUser={{ isLoggedIn: true, permissions: { global: ['provisioning'] } }}
+        organization={undefined}
+      />
+    )
   ).toMatchSnapshot();
 });
 
