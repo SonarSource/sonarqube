@@ -21,7 +21,49 @@ url: /setup/operate-server/
 %SONARQUBE_HOME%/bin/windows-x86-32/StopNTService.bat
 ```
 
-## Running SonarQube as a Service on Linux
+## Running SonarQube as a Service on Linux with SystemD
+
+On Unix system using SystemD, you can install SonarQube as a service.
+Let's suppose:
+
+* The user used to start the service is `sonarqube`
+* The group used to start the service is `sonarqube`
+* The Java Virtual Machine is installed in `/opt/java/`
+* SonarQube has been unzipped into `/opt/sonarqube/`
+
+Then create the file `/etc/systemd/system/sonarqube.service` _based on_ the following 
+
+```
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=sonarqube
+Group=sonarqube
+PermissionsStartOnly=true
+ExecStart=/bin/nohup /opt/java/bin/java -Xms32m -Xmx32m -Djava.net.preferIPv4Stack=true -jar /opt/sonarqube/lib/sonar-application-7.4.jar
+StandardOutput=syslog
+LimitNOFILE=65536
+LimitNPROC=8192
+TimeoutStartSec=5
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+**Note**
+* Because the sonar-application jar name ends with the version of SonarQube, you will need to adjust the `ExecStart` command accordingly on install and at each upgrade.
+* The SonarQube data directory, `/opt/sonarqube/data`, and the extensions directory, `/opt/sonarqube/extensions` should be owned by the `sonarqube` user. As a good practice, the rest should be owned by `root`
+
+Once your `sonarqube.service` file is created and properly configured, run
+```
+sudo systemctl enable sonarqube.service
+sudo systemctl start sonarqube.service
+```
+
+## Running SonarQube as a Service on Linux with initd
 
 The following has been tested on Ubuntu 8.10 and CentOS 6.2.
 
