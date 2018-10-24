@@ -21,6 +21,7 @@ import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DeleteButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
 
 interface Props {
   component?: unknown;
@@ -46,16 +47,28 @@ export default class Stats extends React.PureComponent<Props> {
       return (
         <span>
           <span className="js-pending-count emphasised-measure">{this.props.pendingCount}</span>
-          &nbsp;
-          {translate('background_tasks.pending')}
-          {this.props.isSystemAdmin && (
-            <Tooltip overlay={translate('background_tasks.cancel_all_tasks')}>
-              <DeleteButton
-                className="js-cancel-pending spacer-left"
-                onClick={this.props.onCancelAllPending}
-              />
-            </Tooltip>
-          )}
+          <span className="display-inline-flex-center little-spacer-left">
+            {translate('background_tasks.pending')}
+            {this.props.isSystemAdmin && (
+              <ConfirmButton
+                cancelButtonText={translate('close')}
+                confirmButtonText={translate('background_tasks.cancel_all_tasks.submit')}
+                data-test="cancel-pending"
+                isDestructive={true}
+                modalBody={translate('background_tasks.cancel_all_tasks.text')}
+                modalHeader={translate('background_tasks.cancel_all_tasks')}
+                onConfirm={this.props.onCancelAllPending}>
+                {({ onClick }) => (
+                  <Tooltip overlay={translate('background_tasks.cancel_all_tasks')}>
+                    <DeleteButton
+                      className="js-cancel-pending little-spacer-left"
+                      onClick={onClick}
+                    />
+                  </Tooltip>
+                )}
+              </ConfirmButton>
+            )}
+          </span>
         </span>
       );
     } else {
@@ -99,8 +112,7 @@ export default class Stats extends React.PureComponent<Props> {
           <Tooltip overlay={translate('background_tasks.failing_count')}>
             <span className="js-failures-count emphasised-measure">{this.props.failingCount}</span>
           </Tooltip>
-          &nbsp;
-          {translate('background_tasks.failures')}
+          <span className="little-spacer-left">{translate('background_tasks.failures')}</span>
         </span>
       );
     }

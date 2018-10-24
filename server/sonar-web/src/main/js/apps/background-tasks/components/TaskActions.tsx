@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { Task } from '../../../app/types';
 import { lazyLoad } from '../../../components/lazyLoad';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
 
 const AnalysisWarningsModal = lazyLoad(
   () => import('../../../components/common/AnalysisWarningsModal'),
@@ -33,12 +34,13 @@ const AnalysisWarningsModal = lazyLoad(
 
 interface Props {
   component?: unknown;
-  onCancelTask: (task: Task) => void;
+  onCancelTask: (task: Task) => Promise<void>;
   onFilterTask: (task: Task) => void;
   task: Task;
 }
 
 interface State {
+  cancelTaskOpen: boolean;
   scannerContextOpen: boolean;
   stacktraceOpen: boolean;
   warningsOpen: boolean;
@@ -46,6 +48,7 @@ interface State {
 
 export default class TaskActions extends React.PureComponent<Props, State> {
   state: State = {
+    cancelTaskOpen: false,
     scannerContextOpen: false,
     stacktraceOpen: false,
     warningsOpen: false
@@ -55,12 +58,20 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     this.props.onFilterTask(this.props.task);
   };
 
+  handleCancelTask = () => {
+    return this.props.onCancelTask(this.props.task);
+  };
+
   handleCancelClick = () => {
-    this.props.onCancelTask(this.props.task);
+    this.setState({ cancelTaskOpen: true });
   };
 
   handleShowScannerContextClick = () => {
     this.setState({ scannerContextOpen: true });
+  };
+
+  closeCancelTask = () => {
+    this.setState({ cancelTaskOpen: false });
   };
 
   closeScannerContext = () => {
@@ -139,6 +150,18 @@ export default class TaskActions extends React.PureComponent<Props, State> {
             </ActionsDropdownItem>
           )}
         </ActionsDropdown>
+
+        {this.state.cancelTaskOpen && (
+          <ConfirmModal
+            cancelButtonText={translate('close')}
+            confirmButtonText={translate('background_tasks.cancel_task')}
+            header={translate('background_tasks.cancel_task')}
+            isDestructive={true}
+            onClose={this.closeCancelTask}
+            onConfirm={this.handleCancelTask}>
+            {translate('background_tasks.cancel_task.text')}
+          </ConfirmModal>
+        )}
 
         {this.state.scannerContextOpen && (
           <ScannerContext onClose={this.closeScannerContext} task={task} />

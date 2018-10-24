@@ -27,7 +27,7 @@ interface Props {
   tasks: TaskType[];
   component?: unknown;
   loading: boolean;
-  onCancelTask: (task: TaskType) => void;
+  onCancelTask: (task: TaskType) => Promise<void>;
   onFilterTask: (task: TaskType) => void;
 }
 

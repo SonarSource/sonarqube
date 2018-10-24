@@ -25,6 +25,7 @@ import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 
 interface Props<T> {
   children: React.ReactNode;
+  cancelButtonText?: string;
   confirmButtonText: string;
   confirmData?: T;
   confirmDisable?: boolean;
@@ -57,6 +58,7 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
 
   renderModalContent = ({ onCloseClick, onFormSubmit, submitting }: ChildrenProps) => {
     const { children, confirmButtonText, confirmDisable, header, isDestructive } = this.props;
+    const { cancelButtonText = translate('cancel') } = this.props;
     return (
       <form onSubmit={onFormSubmit}>
         <header className="modal-head">
@@ -72,7 +74,7 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
             {confirmButtonText}
           </SubmitButton>
           <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-            {translate('cancel')}
+            {cancelButtonText}
           </ResetButtonLink>
         </footer>
       </form>

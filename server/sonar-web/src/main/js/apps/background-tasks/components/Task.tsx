@@ -30,7 +30,7 @@ import { Task as TaskType } from '../../../app/types';
 
 interface Props {
   component?: unknown;
-  onCancelTask: (task: TaskType) => void;
+  onCancelTask: (task: TaskType) => Promise<void>;
   onFilterTask: (task: TaskType) => void;
   task: TaskType;
   previousTask?: TaskType;

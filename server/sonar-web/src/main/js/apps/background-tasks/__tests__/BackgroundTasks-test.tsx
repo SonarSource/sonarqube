@@ -99,7 +99,7 @@ describe('Stats', () => {
       const result = shallow(
         <Stats onCancelAllPending={stub} onShowFailing={stub} pendingCount={0} />
       );
-      expect(result.find('.js-cancel-pending').length).toBe(0);
+      expect(result.find('[data-test="cancel-pending"]').length).toBe(0);
     });
 
     it('should show cancel pending button', () => {
@@ -111,7 +111,7 @@ describe('Stats', () => {
           pendingCount={5}
         />
       );
-      expect(result.find('.js-cancel-pending').length).toBe(1);
+      expect(result.find('[data-test="cancel-pending"]').length).toBe(1);
     });
 
     it('should trigger cancelling pending', () => {
@@ -125,7 +125,7 @@ describe('Stats', () => {
         />
       );
       expect(spy).not.toBeCalled();
-      click(result.find('.js-cancel-pending'));
+      result.find('[data-test="cancel-pending"]').prop<Function>('onConfirm')();
       expect(spy).toBeCalled();
     });
   });

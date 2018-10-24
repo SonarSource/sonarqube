@@ -25,6 +25,7 @@ export { ChildrenProps } from './ModalButton';
 
 interface Props {
   children: (props: ChildrenProps) => React.ReactNode;
+  cancelButtonText?: string;
   confirmButtonText: string;
   confirmData?: string;
   confirmDisable?: boolean;
@@ -42,6 +43,7 @@ export default class ConfirmButton extends React.PureComponent<Props, State> {
   renderConfirmModal = ({ onClose }: ModalProps) => {
     return (
       <ConfirmModal
+        cancelButtonText={this.props.cancelButtonText}
         confirmButtonText={this.props.confirmButtonText}
         confirmData={this.props.confirmData}
         confirmDisable={this.props.confirmDisable}

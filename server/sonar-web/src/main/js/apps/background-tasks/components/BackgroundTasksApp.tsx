@@ -174,7 +174,7 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
   handleCancelTask = (task: Task) => {
     this.setState({ loading: true });
 
-    cancelTaskAPI(task.id).then(nextTask => {
+    return cancelTaskAPI(task.id).then(nextTask => {
       if (this.mounted) {
         this.setState(state => ({
           tasks: updateTask(state.tasks, nextTask),
@@ -196,7 +196,7 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
     });
   }
 
-  handleCancelAllPending() {
+  handleCancelAllPending = () => {
     this.setState({ loading: true });
 
     cancelAllTasks().then(() => {
@@ -204,7 +204,7 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
         this.loadTasks();
       }
     }, this.stopLoading);
-  }
+  };
 
   render() {
     const { component } = this.props;
