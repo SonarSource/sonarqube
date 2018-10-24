@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -137,6 +138,33 @@ public class LiveMeasureDaoTest {
     List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList("_missing_"), singletonList(metric.getKey()));
 
     assertThat(selected).isEmpty();
+  }
+
+  @Test
+  public void selectByComponentUuidAndMetricKey() {
+    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    underTest.insert(db.getSession(), measure);
+
+    Optional<LiveMeasureDto> selected = underTest.selectByComponentUuidAndMetricKey(db.getSession(), measure.getComponentUuid(), metric.getKey());
+
+    assertThat(selected).isNotEmpty();
+    assertThat(selected.get()).isEqualToComparingFieldByField(measure);
+  }
+
+  @Test
+  public void selectByComponentUuidAndMetricKey_return_empty_if_component_does_not_match() {
+    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    underTest.insert(db.getSession(), measure);
+
+    assertThat(underTest.selectByComponentUuidAndMetricKey(db.getSession(), "_missing_", metric.getKey())).isEmpty();
+  }
+
+  @Test
+  public void selectByComponentUuidAndMetricKey_return_empty_if_metric_does_not_match() {
+    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    underTest.insert(db.getSession(), measure);
+
+    assertThat(underTest.selectByComponentUuidAndMetricKey(db.getSession(), measure.getComponentUuid(), "_missing_")).isEmpty();
   }
 
   @Test
