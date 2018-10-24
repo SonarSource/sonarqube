@@ -110,7 +110,7 @@ function shallowRender(
   onDelete: () => void = jest.fn(),
   onClose: () => void = jest.fn()
 ) {
-  const wrapper = shallow(
+  const wrapper = shallow<DeleteBranchModal>(
     <DeleteBranchModal
       branchLike={branchLike}
       component="foo"
@@ -118,7 +118,7 @@ function shallowRender(
       onDelete={onDelete}
     />
   );
-  (wrapper.instance() as any).mounted = true;
+  wrapper.instance().mounted = true;
   return wrapper;
 }
 

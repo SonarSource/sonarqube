@@ -34,16 +34,16 @@ const selectList = (
 );
 
 it('should display selected elements only by default', () => {
-  const wrapper = shallow(selectList);
+  const wrapper = shallow<SelectList>(selectList);
   expect(wrapper.state().filter).toBe(Filter.Selected);
 });
 
 it('should display a loader when searching', async () => {
-  const wrapper = shallow(selectList);
+  const wrapper = shallow<SelectList>(selectList);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.state().loading).toBe(false);
 
-  (wrapper.instance() as SelectList).handleQueryChange('');
+  wrapper.instance().handleQueryChange('');
   expect(wrapper.state().loading).toBe(true);
   expect(wrapper).toMatchSnapshot();
 
@@ -52,11 +52,11 @@ it('should display a loader when searching', async () => {
 });
 
 it('should display a loader when updating filter', async () => {
-  const wrapper = shallow(selectList);
+  const wrapper = shallow<SelectList>(selectList);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.state().loading).toBe(false);
 
-  (wrapper.instance() as SelectList).changeFilter(Filter.Unselected);
+  wrapper.instance().changeFilter(Filter.Unselected);
   expect(wrapper.state().loading).toBe(true);
   expect(wrapper).toMatchSnapshot();
 
@@ -66,7 +66,7 @@ it('should display a loader when updating filter', async () => {
 });
 
 it('should cancel filter selection when search is active', async () => {
-  const wrapper = shallow(selectList);
+  const wrapper = shallow<SelectList>(selectList);
 
   wrapper.setState({ filter: Filter.Selected });
   await waitAndUpdate(wrapper);

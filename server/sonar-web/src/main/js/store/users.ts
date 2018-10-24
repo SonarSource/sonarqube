@@ -19,7 +19,6 @@
  */
 import { uniq } from 'lodash';
 import { Dispatch, combineReducers } from 'redux';
-import { Store } from './rootReducer';
 import { ActionType } from './utils/actions';
 import * as api from '../api/users';
 import { CurrentUser, HomePage, isLoggedIn, LoggedInUser } from '../app/types';
@@ -37,7 +36,7 @@ function setHomePageAction(homepage: HomePage) {
 }
 
 export function setHomePage(homepage: HomePage) {
-  return (dispatch: Dispatch<Store>) => {
+  return (dispatch: Dispatch) => {
     api.setHomePage(homepage).then(
       () => {
         dispatch(setHomePageAction(homepage));

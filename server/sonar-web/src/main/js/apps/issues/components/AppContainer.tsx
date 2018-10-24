@@ -45,7 +45,7 @@ const mapStateToProps = (state: Store): StateProps => ({
   userOrganizations: getMyOrganizations(state)
 });
 
-const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispatch<Store>) => {
+const fetchIssueOrganizations = (organizationKeys: string[]) => (dispatch: Dispatch) => {
   if (!organizationKeys.length) {
     return Promise.resolve();
   }

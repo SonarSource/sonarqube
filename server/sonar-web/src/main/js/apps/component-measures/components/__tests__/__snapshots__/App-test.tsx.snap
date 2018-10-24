@@ -33,7 +33,9 @@ exports[`should render correctly 1`] = `
   >
     <ScreenPositionHelper
       className="layout-page-side-outer"
-    />
+    >
+      <Component />
+    </ScreenPositionHelper>
     <MeasureContentContainer
       className="layout-page-main"
       currentUser={

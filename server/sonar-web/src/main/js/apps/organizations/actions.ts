@@ -23,9 +23,8 @@ import * as actions from '../../store/organizations';
 import { addGlobalSuccessMessage } from '../../store/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Organization, OrganizationBase } from '../../app/types';
-import { Store } from '../../store/rootReducer';
 
-export const fetchOrganization = (key: string) => (dispatch: Dispatch<Store>) => {
+export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
   return Promise.all([api.getOrganization(key), api.getOrganizationNavigation(key)]).then(
     ([organization, navigation]) => {
       if (organization) {
@@ -36,9 +35,7 @@ export const fetchOrganization = (key: string) => (dispatch: Dispatch<Store>) =>
   );
 };
 
-export const createOrganization = (organization: OrganizationBase) => (
-  dispatch: Dispatch<Store>
-) => {
+export const createOrganization = (organization: OrganizationBase) => (dispatch: Dispatch<any>) => {
   return api.createOrganization(organization).then((organization: Organization) => {
     dispatch(actions.createOrganization(organization));
     dispatch(
@@ -49,7 +46,7 @@ export const createOrganization = (organization: OrganizationBase) => (
 };
 
 export const updateOrganization = (key: string, changes: OrganizationBase) => (
-  dispatch: Dispatch<Store>
+  dispatch: Dispatch<any>
 ) => {
   return api.updateOrganization(key, changes).then(() => {
     dispatch(actions.updateOrganization(key, changes));
@@ -57,7 +54,7 @@ export const updateOrganization = (key: string, changes: OrganizationBase) => (
   });
 };
 
-export const deleteOrganization = (key: string) => (dispatch: Dispatch<Store>) => {
+export const deleteOrganization = (key: string) => (dispatch: Dispatch<any>) => {
   return api.deleteOrganization(key).then(() => {
     dispatch(actions.deleteOrganization(key));
     dispatch(addGlobalSuccessMessage(translate('organization.deleted')));

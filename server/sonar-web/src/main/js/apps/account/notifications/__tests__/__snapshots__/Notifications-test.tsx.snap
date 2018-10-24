@@ -18,73 +18,71 @@ exports[`should fetch notifications and render 1`] = `
     loading={false}
     timeout={100}
   >
-    <React.Fragment>
-      <GlobalNotifications
-        addNotification={[Function]}
-        channels={
-          Array [
-            "channel1",
-            "channel2",
-          ]
-        }
-        notifications={
-          Array [
+    <GlobalNotifications
+      addNotification={[Function]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      notifications={
+        Array [
+          Object {
+            "channel": "channel1",
+            "type": "type-global",
+          },
+          Object {
+            "channel": "channel1",
+            "type": "type-common",
+          },
+        ]
+      }
+      removeNotification={[Function]}
+      types={
+        Array [
+          "type-global",
+          "type-common",
+        ]
+      }
+    />
+    <Projects
+      addNotification={[Function]}
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      notificationsByProject={
+        Object {
+          "foo": Array [
             Object {
-              "channel": "channel1",
-              "type": "type-global",
-            },
-            Object {
-              "channel": "channel1",
+              "channel": "channel2",
+              "organization": "org",
+              "project": "foo",
+              "projectName": "Foo",
               "type": "type-common",
             },
-          ]
+          ],
         }
-        removeNotification={[Function]}
-        types={
-          Array [
-            "type-global",
-            "type-common",
-          ]
-        }
-      />
-      <Projects
-        addNotification={[Function]}
-        channels={
-          Array [
-            "channel1",
-            "channel2",
-          ]
-        }
-        notificationsByProject={
+      }
+      projects={
+        Array [
           Object {
-            "foo": Array [
-              Object {
-                "channel": "channel2",
-                "organization": "org",
-                "project": "foo",
-                "projectName": "Foo",
-                "type": "type-common",
-              },
-            ],
-          }
-        }
-        projects={
-          Array [
-            Object {
-              "key": "foo",
-              "name": "Foo",
-              "organization": "org",
-            },
-          ]
-        }
-        removeNotification={[Function]}
-        types={
-          Array [
-            "type-common",
-          ]
-        }
-      />
-    </React.Fragment>
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+          },
+        ]
+      }
+      removeNotification={[Function]}
+      types={
+        Array [
+          "type-common",
+        ]
+      }
+    />
   </DeferredSpinner>
 </div>
 `;

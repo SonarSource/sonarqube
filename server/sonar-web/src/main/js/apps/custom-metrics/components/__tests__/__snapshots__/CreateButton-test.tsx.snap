@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should create new group 1`] = `
-<React.Fragment>
+<Fragment>
   <Button
     id="metrics-create"
     onClick={[Function]}
   >
     custom_metrics.create_metric
   </Button>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should create new group 2`] = `
-<React.Fragment>
+<Fragment>
   <Button
     id="metrics-create"
     onClick={[Function]}
@@ -37,5 +37,5 @@ exports[`should create new group 2`] = `
       ]
     }
   />
-</React.Fragment>
+</Fragment>
 `;

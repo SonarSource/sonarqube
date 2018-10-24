@@ -71,7 +71,7 @@ it('searches', () => {
 });
 
 it('selects next & previous', () => {
-  const wrapper = shallow(
+  const wrapper = shallow<ComponentNavBranchesMenu>(
     <ComponentNavBranchesMenu
       branchLikes={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
       component={component}

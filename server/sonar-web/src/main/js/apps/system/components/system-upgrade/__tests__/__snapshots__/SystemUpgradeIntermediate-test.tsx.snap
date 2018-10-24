@@ -36,7 +36,9 @@ exports[`should display correctly 2`] = `
     <DateFormatter
       date="2017-04-02"
       long={true}
-    />
+    >
+      <Component />
+    </DateFormatter>
     <p
       className="little-spacer-top"
     >
@@ -50,7 +52,9 @@ exports[`should display correctly 2`] = `
     <DateFormatter
       date="2017-03-01"
       long={true}
-    />
+    >
+      <Component />
+    </DateFormatter>
     <p
       className="little-spacer-top"
     >

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders with all permissions 1`] = `
-<React.Fragment>
+<Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
       id="quality-profile-activate-more-rules"
@@ -65,11 +65,11 @@ exports[`renders with all permissions 1`] = `
       delete
     </ActionsDropdownItem>
   </ActionsDropdown>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`renders with no permissions 1`] = `
-<React.Fragment>
+<Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
       download="foo.xml"
@@ -93,11 +93,11 @@ exports[`renders with no permissions 1`] = `
       compare
     </ActionsDropdownItem>
   </ActionsDropdown>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`renders with permission to edit only 1`] = `
-<React.Fragment>
+<Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
       id="quality-profile-activate-more-rules"
@@ -141,5 +141,5 @@ exports[`renders with permission to edit only 1`] = `
       rename
     </ActionsDropdownItem>
   </ActionsDropdown>
-</React.Fragment>
+</Fragment>
 `;

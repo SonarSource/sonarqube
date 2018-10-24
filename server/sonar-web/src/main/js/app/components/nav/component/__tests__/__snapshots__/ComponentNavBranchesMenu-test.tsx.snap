@@ -18,208 +18,184 @@ exports[`renders list 1`] = `
   <ul
     className="menu menu-vertically-limited"
   >
-    <React.Fragment
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": true,
+          "name": "master",
+        }
+      }
+      component={
+        Object {
+          "key": "component",
+        }
+      }
+      innerRef={[Function]}
       key="branch-master"
+      onSelect={[Function]}
+      selected={true}
+    />
+    <li
+      className="menu-header navbar-context-meta-branch-menu-title"
     >
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": true,
-            "name": "master",
-          }
+      branches.pull_requests
+    </li>
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "base": "master",
+          "branch": "feature",
+          "key": "1234",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 0,
+            "qualityGateStatus": "OK",
+            "vulnerabilities": 0,
+          },
+          "title": "qux",
         }
-        component={
-          Object {
-            "key": "component",
-          }
+      }
+      component={
+        Object {
+          "key": "component",
         }
-        innerRef={[Function]}
-        key="branch-master"
-        onSelect={[Function]}
-        selected={true}
-      />
-    </React.Fragment>
-    <React.Fragment
+      }
+      innerRef={[Function]}
       key="pull-request-1234"
+      onSelect={[Function]}
+      selected={false}
+    />
+    <li
+      className="divider"
+    />
+    <li
+      className="menu-header"
     >
-      <li
-        className="menu-header navbar-context-meta-branch-menu-title"
+      <div
+        className="display-inline-block text-middle"
       >
-        branches.pull_requests
-      </li>
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "base": "master",
-            "branch": "feature",
-            "key": "1234",
-            "status": Object {
-              "bugs": 0,
-              "codeSmells": 0,
-              "qualityGateStatus": "OK",
-              "vulnerabilities": 0,
-            },
-            "title": "qux",
-          }
-        }
-        component={
-          Object {
-            "key": "component",
-          }
-        }
-        innerRef={[Function]}
-        key="pull-request-1234"
-        onSelect={[Function]}
-        selected={false}
+        branches.orphan_branches
+      </div>
+      <HelpTooltip
+        className="spacer-left"
+        overlay="branches.orphan_branches.tooltip"
       />
-    </React.Fragment>
-    <React.Fragment
+    </li>
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": false,
+          "isOrphan": true,
+          "mergeBranch": "master",
+          "name": "baz",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 0,
+            "qualityGateStatus": "OK",
+            "vulnerabilities": 0,
+          },
+          "type": "SHORT",
+        }
+      }
+      component={
+        Object {
+          "key": "component",
+        }
+      }
+      innerRef={[Function]}
       key="branch-baz"
-    >
-      <li
-        className="divider"
-      />
-      <li
-        className="menu-header"
-      >
-        <div
-          className="display-inline-block text-middle"
-        >
-          branches.orphan_branches
-        </div>
-        <HelpTooltip
-          className="spacer-left"
-          overlay="branches.orphan_branches.tooltip"
-        />
-      </li>
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": false,
-            "isOrphan": true,
-            "mergeBranch": "master",
-            "name": "baz",
-            "status": Object {
-              "bugs": 0,
-              "codeSmells": 0,
-              "qualityGateStatus": "OK",
-              "vulnerabilities": 0,
-            },
-            "type": "SHORT",
-          }
+      onSelect={[Function]}
+      selected={false}
+    />
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": false,
+          "isOrphan": undefined,
+          "mergeBranch": "master",
+          "name": "foo",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 0,
+            "qualityGateStatus": "OK",
+            "vulnerabilities": 0,
+          },
+          "type": "SHORT",
         }
-        component={
-          Object {
-            "key": "component",
-          }
+      }
+      component={
+        Object {
+          "key": "component",
         }
-        innerRef={[Function]}
-        key="branch-baz"
-        onSelect={[Function]}
-        selected={false}
-      />
-    </React.Fragment>
-    <React.Fragment
+      }
+      innerRef={[Function]}
       key="branch-foo"
-    >
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": false,
-            "isOrphan": undefined,
-            "mergeBranch": "master",
-            "name": "foo",
-            "status": Object {
-              "bugs": 0,
-              "codeSmells": 0,
-              "qualityGateStatus": "OK",
-              "vulnerabilities": 0,
-            },
-            "type": "SHORT",
-          }
+      onSelect={[Function]}
+      selected={false}
+    />
+    <li
+      className="divider"
+    />
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": false,
+          "name": "bar",
+          "type": "LONG",
         }
-        component={
-          Object {
-            "key": "component",
-          }
+      }
+      component={
+        Object {
+          "key": "component",
         }
-        innerRef={[Function]}
-        key="branch-foo"
-        onSelect={[Function]}
-        selected={false}
-      />
-    </React.Fragment>
-    <React.Fragment
+      }
+      innerRef={[Function]}
       key="branch-bar"
+      onSelect={[Function]}
+      selected={false}
+    />
+    <li
+      className="divider"
+    />
+    <li
+      className="menu-header"
     >
-      <li
-        className="divider"
-      />
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": false,
-            "name": "bar",
-            "type": "LONG",
-          }
-        }
-        component={
-          Object {
-            "key": "component",
-          }
-        }
-        innerRef={[Function]}
-        key="branch-bar"
-        onSelect={[Function]}
-        selected={false}
-      />
-    </React.Fragment>
-    <React.Fragment
-      key="branch-baz"
-    >
-      <li
-        className="divider"
-      />
-      <li
-        className="menu-header"
+      <div
+        className="display-inline-block text-middle"
       >
-        <div
-          className="display-inline-block text-middle"
-        >
-          branches.orphan_branches
-        </div>
-        <HelpTooltip
-          className="spacer-left"
-          overlay="branches.orphan_branches.tooltip"
-        />
-      </li>
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": false,
-            "isOrphan": true,
-            "mergeBranch": "master",
-            "name": "baz",
-            "status": Object {
-              "bugs": 0,
-              "codeSmells": 0,
-              "qualityGateStatus": "OK",
-              "vulnerabilities": 0,
-            },
-            "type": "SHORT",
-          }
-        }
-        component={
-          Object {
-            "key": "component",
-          }
-        }
-        innerRef={[Function]}
-        key="branch-baz"
-        onSelect={[Function]}
-        selected={false}
+        branches.orphan_branches
+      </div>
+      <HelpTooltip
+        className="spacer-left"
+        overlay="branches.orphan_branches.tooltip"
       />
-    </React.Fragment>
+    </li>
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": false,
+          "isOrphan": true,
+          "mergeBranch": "master",
+          "name": "baz",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 0,
+            "qualityGateStatus": "OK",
+            "vulnerabilities": 0,
+          },
+          "type": "SHORT",
+        }
+      }
+      component={
+        Object {
+          "key": "component",
+        }
+      }
+      innerRef={[Function]}
+      key="branch-baz"
+      onSelect={[Function]}
+      selected={false}
+    />
   </ul>
 </DropdownOverlay>
 `;
@@ -242,91 +218,79 @@ exports[`searches 1`] = `
   <ul
     className="menu menu-vertically-limited"
   >
-    <React.Fragment
+    <li
+      className="menu-header navbar-context-meta-branch-menu-title"
+    >
+      branches.short_lived_branches
+    </li>
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": false,
+          "isOrphan": undefined,
+          "mergeBranch": "master",
+          "name": "foobar",
+          "status": Object {
+            "bugs": 0,
+            "codeSmells": 0,
+            "qualityGateStatus": "OK",
+            "vulnerabilities": 0,
+          },
+          "type": "SHORT",
+        }
+      }
+      component={
+        Object {
+          "key": "component",
+        }
+      }
+      innerRef={[Function]}
       key="branch-foobar"
-    >
-      <li
-        className="menu-header navbar-context-meta-branch-menu-title"
-      >
-        branches.short_lived_branches
-      </li>
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": false,
-            "isOrphan": undefined,
-            "mergeBranch": "master",
-            "name": "foobar",
-            "status": Object {
-              "bugs": 0,
-              "codeSmells": 0,
-              "qualityGateStatus": "OK",
-              "vulnerabilities": 0,
-            },
-            "type": "SHORT",
-          }
+      onSelect={[Function]}
+      selected={true}
+    />
+    <li
+      className="divider"
+    />
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": false,
+          "name": "BARBAZ",
+          "type": "LONG",
         }
-        component={
-          Object {
-            "key": "component",
-          }
+      }
+      component={
+        Object {
+          "key": "component",
         }
-        innerRef={[Function]}
-        key="branch-foobar"
-        onSelect={[Function]}
-        selected={true}
-      />
-    </React.Fragment>
-    <React.Fragment
+      }
+      innerRef={[Function]}
       key="branch-BARBAZ"
-    >
-      <li
-        className="divider"
-      />
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": false,
-            "name": "BARBAZ",
-            "type": "LONG",
-          }
+      onSelect={[Function]}
+      selected={false}
+    />
+    <li
+      className="divider"
+    />
+    <ComponentNavBranchesMenuItem
+      branchLike={
+        Object {
+          "isMain": false,
+          "name": "bar",
+          "type": "LONG",
         }
-        component={
-          Object {
-            "key": "component",
-          }
+      }
+      component={
+        Object {
+          "key": "component",
         }
-        innerRef={[Function]}
-        key="branch-BARBAZ"
-        onSelect={[Function]}
-        selected={false}
-      />
-    </React.Fragment>
-    <React.Fragment
+      }
+      innerRef={[Function]}
       key="branch-bar"
-    >
-      <li
-        className="divider"
-      />
-      <ComponentNavBranchesMenuItem
-        branchLike={
-          Object {
-            "isMain": false,
-            "name": "bar",
-            "type": "LONG",
-          }
-        }
-        component={
-          Object {
-            "key": "component",
-          }
-        }
-        innerRef={[Function]}
-        key="branch-bar"
-        onSelect={[Function]}
-        selected={false}
-      />
-    </React.Fragment>
+      onSelect={[Function]}
+      selected={false}
+    />
   </ul>
 </DropdownOverlay>
 `;

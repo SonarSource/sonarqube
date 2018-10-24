@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should show a info message for paying organization 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -43,13 +43,15 @@ exports[`should show a info message for paying organization 1`] = `
       }
       modalHeader="organization.delete"
       onConfirm={[Function]}
-    />
+    >
+      <Component />
+    </ConfirmButton>
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`smoke test 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -86,7 +88,9 @@ exports[`smoke test 1`] = `
       }
       modalHeader="organization.delete"
       onConfirm={[Function]}
-    />
+    >
+      <Component />
+    </ConfirmButton>
   </div>
-</React.Fragment>
+</Fragment>
 `;

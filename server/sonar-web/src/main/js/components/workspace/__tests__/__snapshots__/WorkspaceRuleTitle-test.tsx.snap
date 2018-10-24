@@ -1,21 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render loaded rule 1`] = `
-<React.Fragment>
+<Fragment>
   <LightBulbIcon
     className="little-spacer-right"
     fill="#4b9fd5"
   />
   Foo
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render rule 1`] = `
-<React.Fragment>
+<Fragment>
   <LightBulbIcon
     className="little-spacer-right"
     fill="#4b9fd5"
   />
   —
-</React.Fragment>
+</Fragment>
 `;

@@ -66,7 +66,7 @@ it('shows warning about short input', () => {
 });
 
 function shallowRender(props: Partial<Search['props']> = {}) {
-  return shallow(
+  return shallow<Search>(
     // @ts-ignore
     <Search
       appState={{ organizationsEnabled: false }}

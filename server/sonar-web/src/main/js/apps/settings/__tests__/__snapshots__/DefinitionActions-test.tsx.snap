@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`disables save button on error 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     className="settings-definition-changes nowrap"
   >
@@ -19,11 +19,11 @@ exports[`disables save button on error 1`] = `
       cancel
     </Button>
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`displays cancel button when value changed and has error 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     className="settings-definition-changes nowrap"
   >
@@ -41,11 +41,11 @@ exports[`displays cancel button when value changed and has error 1`] = `
       cancel
     </Button>
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`displays cancel button when value changed and no error 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     className="settings-definition-changes nowrap"
   >
@@ -63,11 +63,11 @@ exports[`displays cancel button when value changed and no error 1`] = `
       cancel
     </Button>
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`displays default message when value is default 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     className="spacer-top note"
     style={
@@ -95,11 +95,11 @@ exports[`displays default message when value is default 1`] = `
       settings.default.no_value
     </span>
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`displays reset button when empty and not default 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     className="settings-definition-changes nowrap"
   >
@@ -117,11 +117,11 @@ exports[`displays reset button when empty and not default 1`] = `
       settings.default.no_value
     </span>
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`displays save button when it can be saved 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     className="settings-definition-changes nowrap"
   >
@@ -139,5 +139,5 @@ exports[`displays save button when it can be saved 1`] = `
       cancel
     </Button>
   </div>
-</React.Fragment>
+</Fragment>
 `;

@@ -1,27 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should not render sonarcloud link on sonarcloud 1`] = `
-<React.Fragment>
+<Fragment>
   link text
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should not render sonarqube admin link on sonarcloud 1`] = `
-<React.Fragment>
+<Fragment>
   link text
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should not render sonarqube admin link on sonarqube for non-admin 1`] = `
-<React.Fragment>
+<Fragment>
   link text
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should not render sonarqube link on sonarcloud 1`] = `
-<React.Fragment>
+<Fragment>
   link text
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render documentation link 1`] = `
@@ -35,7 +35,7 @@ exports[`should render documentation link 1`] = `
 `;
 
 exports[`should render simple link 1`] = `
-<React.Fragment>
+<Fragment>
   <a
     href="http://sample.com"
     rel="noopener noreferrer"
@@ -47,7 +47,7 @@ exports[`should render simple link 1`] = `
     className="text-muted little-spacer-left little-spacer-right vertical-baseline"
     size={12}
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render sonarcloud link on sonarcloud 1`] = `

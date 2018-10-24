@@ -34,7 +34,7 @@ const listElement = (
 );
 
 it('should display a loader when checking', async () => {
-  const wrapper = shallow(listElement);
+  const wrapper = shallow<SelectListListElement>(listElement);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.state().loading).toBe(false);
 

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render 1`] = `
-<React.Fragment>
+<Fragment>
   <header
     className="page-header"
   >
@@ -26,5 +26,5 @@ exports[`should render 1`] = `
       project_links.page.description
     </div>
   </header>
-</React.Fragment>
+</Fragment>
 `;

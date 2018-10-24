@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should be in loading status 1`] = `
-<React.Fragment>
+<Fragment>
   <Suggestions
     suggestions="webhooks"
   />
@@ -23,11 +23,11 @@ exports[`should be in loading status 1`] = `
       />
     </PageHeader>
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should fetch webhooks and display them 1`] = `
-<React.Fragment>
+<Fragment>
   <Suggestions
     suggestions="webhooks"
   />
@@ -71,5 +71,5 @@ exports[`should fetch webhooks and display them 1`] = `
       />
     </div>
   </div>
-</React.Fragment>
+</Fragment>
 `;

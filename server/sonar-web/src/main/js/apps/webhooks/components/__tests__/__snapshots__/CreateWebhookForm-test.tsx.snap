@@ -14,7 +14,9 @@ exports[`should render correctly when creating a new webhook 1`] = `
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
   validate={[Function]}
-/>
+>
+  <Component />
+</ValidationModal>
 `;
 
 exports[`should render correctly when updating a webhook 1`] = `
@@ -31,5 +33,7 @@ exports[`should render correctly when updating a webhook 1`] = `
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
   validate={[Function]}
-/>
+>
+  <Component />
+</ValidationModal>
 `;

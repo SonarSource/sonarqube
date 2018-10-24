@@ -14,7 +14,9 @@ exports[`renders correctly 1`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.msbuild.execute.text"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     isOneLine={true}
     snippet={
@@ -64,7 +66,9 @@ exports[`renders correctly 2`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.msbuild.execute.text"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     isOneLine={true}
     snippet={

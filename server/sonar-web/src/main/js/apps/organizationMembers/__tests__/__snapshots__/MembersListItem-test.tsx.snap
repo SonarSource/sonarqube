@@ -28,26 +28,24 @@ exports[`should groups at 0 if the groupCount field is not defined (just added u
   >
     organization.members.x_groups.0
   </td>
-  <React.Fragment>
-    <td
-      className="nowrap text-middle text-right"
-    >
-      <ActionsDropdown>
-        <ActionsDropdownItem
-          onClick={[Function]}
-        >
-          organization.members.manage_groups
-        </ActionsDropdownItem>
-        <ActionsDropdownDivider />
-        <ActionsDropdownItem
-          destructive={true}
-          onClick={[Function]}
-        >
-          organization.members.remove
-        </ActionsDropdownItem>
-      </ActionsDropdown>
-    </td>
-  </React.Fragment>
+  <td
+    className="nowrap text-middle text-right"
+  >
+    <ActionsDropdown>
+      <ActionsDropdownItem
+        onClick={[Function]}
+      >
+        organization.members.manage_groups
+      </ActionsDropdownItem>
+      <ActionsDropdownDivider />
+      <ActionsDropdownItem
+        destructive={true}
+        onClick={[Function]}
+      >
+        organization.members.remove
+      </ActionsDropdownItem>
+    </ActionsDropdown>
+  </td>
 </tr>
 `;
 
@@ -105,25 +103,23 @@ exports[`should render actions and groups for admin 1`] = `
   >
     organization.members.x_groups.3
   </td>
-  <React.Fragment>
-    <td
-      className="nowrap text-middle text-right"
-    >
-      <ActionsDropdown>
-        <ActionsDropdownItem
-          onClick={[Function]}
-        >
-          organization.members.manage_groups
-        </ActionsDropdownItem>
-        <ActionsDropdownDivider />
-        <ActionsDropdownItem
-          destructive={true}
-          onClick={[Function]}
-        >
-          organization.members.remove
-        </ActionsDropdownItem>
-      </ActionsDropdown>
-    </td>
-  </React.Fragment>
+  <td
+    className="nowrap text-middle text-right"
+  >
+    <ActionsDropdown>
+      <ActionsDropdownItem
+        onClick={[Function]}
+      >
+        organization.members.manage_groups
+      </ActionsDropdownItem>
+      <ActionsDropdownDivider />
+      <ActionsDropdownItem
+        destructive={true}
+        onClick={[Function]}
+      >
+        organization.members.remove
+      </ActionsDropdownItem>
+    </ActionsDropdown>
+  </td>
 </tr>
 `;

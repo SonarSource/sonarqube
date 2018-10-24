@@ -20,11 +20,11 @@
 import { Store } from 'redux';
 import { AppState, CurrentUser } from '../types';
 import { setAppState } from '../../store/appState';
-import rootReducer from '../../store/rootReducer';
+import rootReducer, { Store as State } from '../../store/rootReducer';
 import { receiveCurrentUser } from '../../store/users';
 import configureStore from '../../store/utils/configureStore';
 
-let store: Store<any>;
+let store: Store<State, any>;
 
 const createStore = (currentUser?: CurrentUser, appState?: AppState) => {
   store = configureStore(rootReducer);

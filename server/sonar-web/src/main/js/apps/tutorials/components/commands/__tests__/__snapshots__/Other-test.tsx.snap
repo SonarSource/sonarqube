@@ -12,7 +12,9 @@ exports[`renders correctly 1`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.sq_scanner.execute.text"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     isOneLine={true}
     snippet={
@@ -49,7 +51,9 @@ exports[`renders correctly 2`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.sq_scanner.execute.text"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     isOneLine={false}
     snippet={
@@ -86,7 +90,9 @@ exports[`renders correctly 3`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.sq_scanner.execute.text"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     isOneLine={false}
     snippet={

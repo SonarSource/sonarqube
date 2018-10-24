@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display the list of repositories 1`] = `
-<React.Fragment>
+<Fragment>
   <p
     className="alert alert-info width-60 big-spacer-bottom"
   >
@@ -71,11 +71,11 @@ exports[`should display the list of repositories 1`] = `
       timeout={100}
     />
   </form>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should display the provider app install button 1`] = `
-<React.Fragment>
+<Fragment>
   <p
     className="alert alert-info width-60 big-spacer-bottom"
   >
@@ -84,11 +84,11 @@ exports[`should display the provider app install button 1`] = `
   <DeferredSpinner
     timeout={100}
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should display the provider app install button 2`] = `
-<React.Fragment>
+<Fragment>
   <p
     className="alert alert-info width-60 big-spacer-bottom"
   >
@@ -116,5 +116,5 @@ exports[`should display the provider app install button 2`] = `
       onboarding.create_project.install_app_x.button.Foo Provider
     </IdentityProviderLink>
   </div>
-</React.Fragment>
+</Fragment>
 `;

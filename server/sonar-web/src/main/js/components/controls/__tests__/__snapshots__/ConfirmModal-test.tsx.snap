@@ -29,7 +29,9 @@ exports[`should render correctly 1`] = `
   header="title"
   onClose={[MockFunction]}
   onSubmit={[Function]}
-/>
+>
+  <Component />
+</SimpleModal>
 `;
 
 exports[`should render correctly 2`] = `

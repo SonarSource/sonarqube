@@ -224,7 +224,7 @@ exports[`should display a loader when searching 2`] = `
     />
     <SearchBox
       autoFocus={true}
-      loading={false}
+      loading={true}
       onChange={[Function]}
       placeholder="search_verb"
       value=""
@@ -346,11 +346,11 @@ exports[`should display a loader when updating filter 2`] = `
           },
         ]
       }
-      value="selected"
+      value="deselected"
     />
     <SearchBox
       autoFocus={true}
-      loading={false}
+      loading={true}
       onChange={[Function]}
       placeholder="search_verb"
       value=""
@@ -365,7 +365,7 @@ exports[`should display a loader when updating filter 2`] = `
         "baz",
       ]
     }
-    filter="selected"
+    filter="deselected"
     onSelect={[MockFunction]}
     onUnselect={[MockFunction]}
     renderElement={[Function]}

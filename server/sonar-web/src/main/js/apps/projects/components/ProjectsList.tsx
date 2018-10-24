@@ -77,10 +77,10 @@ export default class ProjectsList extends React.PureComponent<Props> {
     const cardHeight = this.getCardHeight();
     return (
       <WindowScroller>
-        {({ height, isScrolling, registerChild, onChildScroll, scrollTop }) => (
+        {({ height, isScrolling, onChildScroll, scrollTop }) => (
           <AutoSizer disableHeight={true}>
             {({ width }) => (
-              <div ref={registerChild as any}>
+              <div>
                 <List
                   autoHeight={true}
                   height={height}

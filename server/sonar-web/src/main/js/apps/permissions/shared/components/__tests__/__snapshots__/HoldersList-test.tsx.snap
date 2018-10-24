@@ -201,15 +201,13 @@ exports[`should display users and groups 1`] = `
         }
         selectedPermission="bar"
       />
-      <React.Fragment>
-        <tr>
-          <td
-            className="divider"
-            colSpan={20}
-          />
-        </tr>
-        <tr />
-      </React.Fragment>
+      <tr>
+        <td
+          className="divider"
+          colSpan={20}
+        />
+      </tr>
+      <tr />
       <GroupHolder
         group={
           Object {

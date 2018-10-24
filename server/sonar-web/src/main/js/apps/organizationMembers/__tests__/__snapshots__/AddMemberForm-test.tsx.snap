@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render and open the modal 1`] = `
-<React.Fragment>
+<Fragment>
   <Button
     key="add-member-button"
     onClick={[Function]}
   >
     organization.members.add
   </Button>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render and open the modal 2`] = `
-<React.Fragment>
+<Fragment>
   <Button
     key="add-member-button"
     onClick={[Function]}
@@ -73,5 +73,5 @@ exports[`should render and open the modal 2`] = `
       </footer>
     </form>
   </Modal>
-</React.Fragment>
+</Fragment>
 `;

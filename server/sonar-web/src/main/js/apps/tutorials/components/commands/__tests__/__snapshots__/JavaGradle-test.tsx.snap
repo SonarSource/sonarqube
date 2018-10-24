@@ -9,7 +9,9 @@ exports[`renders correctly 1`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.java.gradle.text.1"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     snippet="plugins {
   id \\"org.sonarqube\\" version \\"2.6\\"
@@ -59,7 +61,9 @@ exports[`renders correctly 2`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.java.gradle.text.1"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     snippet="plugins {
   id \\"org.sonarqube\\" version \\"2.6\\"
@@ -109,7 +113,9 @@ exports[`renders with projectKey 1`] = `
   </h4>
   <InstanceMessage
     message="onboarding.analysis.java.gradle.text.1"
-  />
+  >
+    <Component />
+  </InstanceMessage>
   <CodeSnippet
     snippet="plugins {
   id \\"org.sonarqube\\" version \\"2.6\\"

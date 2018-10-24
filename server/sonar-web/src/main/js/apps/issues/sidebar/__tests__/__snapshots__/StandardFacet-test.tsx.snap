@@ -29,17 +29,15 @@ exports[`should render empty sub-facet 1`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <div
-      className="search-navigator-facet-empty little-spacer-top"
-    >
-      no_results
-    </div>
-    <MultipleSelectionHint
-      options={0}
-      values={0}
-    />
-  </React.Fragment>
+  <div
+    className="search-navigator-facet-empty little-spacer-top"
+  >
+    no_results
+  </div>
+  <MultipleSelectionHint
+    options={0}
+    values={0}
+  />
 </FacetBox>
 `;
 
@@ -60,141 +58,135 @@ exports[`should render sub-facets 1`] = `
       ]
     }
   />
-  <React.Fragment>
-    <FacetBox
-      className="is-inner"
-      property="owaspTop10"
-    >
-      <FacetHeader
-        name="issues.facet.owaspTop10"
-        onClick={[Function]}
-        open={true}
-        values={
-          Array [
-            "A3",
-          ]
-        }
-      />
-      <DeferredSpinner
-        loading={false}
-        timeout={100}
-      />
-      <React.Fragment>
-        <FacetItemsList>
-          <FacetItem
-            active={false}
-            disabled={false}
-            halfWidth={false}
-            key="a1"
-            loading={false}
-            name="A1 - a1 title"
-            onClick={[Function]}
-            stat="15"
-            tooltip="A1 - a1 title"
-            value="a1"
-          />
-          <FacetItem
-            active={true}
-            disabled={false}
-            halfWidth={false}
-            key="a3"
-            loading={false}
-            name="A3"
-            onClick={[Function]}
-            stat="5"
-            tooltip="A3"
-            value="a3"
-          />
-        </FacetItemsList>
-        <MultipleSelectionHint
-          options={2}
-          values={1}
-        />
-      </React.Fragment>
-    </FacetBox>
-    <FacetBox
-      className="is-inner"
-      property="sansTop25"
-    >
-      <FacetHeader
-        name="issues.facet.sansTop25"
-        onClick={[Function]}
-        open={true}
-        values={
-          Array [
-            "Risky Resource Management",
-          ]
-        }
-      />
-      <DeferredSpinner
-        loading={false}
-        timeout={100}
-      />
-      <React.Fragment>
-        <FacetItemsList>
-          <FacetItem
-            active={false}
-            disabled={false}
-            halfWidth={false}
-            key="foo"
-            loading={false}
-            name="foo"
-            onClick={[Function]}
-            stat="12"
-            tooltip="foo"
-            value="foo"
-          />
-          <FacetItem
-            active={true}
-            disabled={false}
-            halfWidth={false}
-            key="risky-resource"
-            loading={false}
-            name="Risky Resource Management"
-            onClick={[Function]}
-            stat="10"
-            tooltip="Risky Resource Management"
-            value="risky-resource"
-          />
-        </FacetItemsList>
-        <MultipleSelectionHint
-          options={2}
-          values={1}
-        />
-      </React.Fragment>
-    </FacetBox>
-    <ListStyleFacet
-      className="is-inner"
-      facetHeader="issues.facet.cwe"
-      fetching={false}
-      getFacetItemText={[Function]}
-      getSearchResultKey={[Function]}
-      getSearchResultText={[Function]}
-      loadSearchResultCount={[Function]}
-      maxInitialItems={15}
-      maxItems={100}
-      minSearchLength={2}
-      onChange={[MockFunction]}
-      onSearch={[Function]}
-      onToggle={[MockFunction]}
+  <FacetBox
+    className="is-inner"
+    property="owaspTop10"
+  >
+    <FacetHeader
+      name="issues.facet.owaspTop10"
+      onClick={[Function]}
       open={true}
-      property="cwe"
-      query={Object {}}
-      renderFacetItem={[Function]}
-      renderSearchResult={[Function]}
-      searchPlaceholder="search.search_for_cwe"
-      stats={
-        Object {
-          "173": 3,
-          "42": 5,
-        }
-      }
       values={
         Array [
-          "42",
+          "A3",
         ]
       }
     />
-  </React.Fragment>
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    />
+    <FacetItemsList>
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="a1"
+        loading={false}
+        name="A1 - a1 title"
+        onClick={[Function]}
+        stat="15"
+        tooltip="A1 - a1 title"
+        value="a1"
+      />
+      <FacetItem
+        active={true}
+        disabled={false}
+        halfWidth={false}
+        key="a3"
+        loading={false}
+        name="A3"
+        onClick={[Function]}
+        stat="5"
+        tooltip="A3"
+        value="a3"
+      />
+    </FacetItemsList>
+    <MultipleSelectionHint
+      options={2}
+      values={1}
+    />
+  </FacetBox>
+  <FacetBox
+    className="is-inner"
+    property="sansTop25"
+  >
+    <FacetHeader
+      name="issues.facet.sansTop25"
+      onClick={[Function]}
+      open={true}
+      values={
+        Array [
+          "Risky Resource Management",
+        ]
+      }
+    />
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    />
+    <FacetItemsList>
+      <FacetItem
+        active={false}
+        disabled={false}
+        halfWidth={false}
+        key="foo"
+        loading={false}
+        name="foo"
+        onClick={[Function]}
+        stat="12"
+        tooltip="foo"
+        value="foo"
+      />
+      <FacetItem
+        active={true}
+        disabled={false}
+        halfWidth={false}
+        key="risky-resource"
+        loading={false}
+        name="Risky Resource Management"
+        onClick={[Function]}
+        stat="10"
+        tooltip="Risky Resource Management"
+        value="risky-resource"
+      />
+    </FacetItemsList>
+    <MultipleSelectionHint
+      options={2}
+      values={1}
+    />
+  </FacetBox>
+  <ListStyleFacet
+    className="is-inner"
+    facetHeader="issues.facet.cwe"
+    fetching={false}
+    getFacetItemText={[Function]}
+    getSearchResultKey={[Function]}
+    getSearchResultText={[Function]}
+    loadSearchResultCount={[Function]}
+    maxInitialItems={15}
+    maxItems={100}
+    minSearchLength={2}
+    onChange={[MockFunction]}
+    onSearch={[Function]}
+    onToggle={[MockFunction]}
+    open={true}
+    property="cwe"
+    query={Object {}}
+    renderFacetItem={[Function]}
+    renderSearchResult={[Function]}
+    searchPlaceholder="search.search_for_cwe"
+    stats={
+      Object {
+        "173": 3,
+        "42": 5,
+      }
+    }
+    values={
+      Array [
+        "42",
+      ]
+    }
+  />
 </FacetBox>
 `;

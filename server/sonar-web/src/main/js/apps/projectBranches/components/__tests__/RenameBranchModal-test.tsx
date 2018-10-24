@@ -78,10 +78,10 @@ it('stops loading on WS error', async () => {
 
 function shallowRender(onRename: () => void = jest.fn(), onClose: () => void = jest.fn()) {
   const branch: MainBranch = { isMain: true, name: 'master' };
-  const wrapper = shallow(
+  const wrapper = shallow<RenameBranchModal>(
     <RenameBranchModal branch={branch} component="foo" onClose={onClose} onRename={onRename} />
   );
-  (wrapper.instance() as any).mounted = true;
+  wrapper.instance().mounted = true;
   return wrapper;
 }
 

@@ -7,5 +7,7 @@ exports[`should render correctly 1`] = `
   error="Bad formatting"
   label="Foo field"
   touched={true}
-/>
+>
+  <Component />
+</ModalValidationField>
 `;

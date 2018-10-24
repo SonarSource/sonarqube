@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`guides for on-premise 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -58,11 +58,11 @@ exports[`guides for on-premise 1`] = `
       tutorials.find_tutorial_back_in_help
     </span>
   </footer>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`guides for on-premise 2`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -120,11 +120,11 @@ exports[`guides for on-premise 2`] = `
       tutorials.find_tutorial_back_in_help
     </span>
   </footer>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`guides for sonarcloud 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -194,11 +194,11 @@ exports[`guides for sonarcloud 1`] = `
       tutorials.find_tutorial_back_in_plus
     </span>
   </footer>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`guides for sonarcloud 2`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -269,11 +269,11 @@ exports[`guides for sonarcloud 2`] = `
       tutorials.find_tutorial_back_in_plus
     </span>
   </footer>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`guides for sonarcloud 3`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -345,5 +345,5 @@ exports[`guides for sonarcloud 3`] = `
       tutorials.find_tutorial_back_in_plus
     </span>
   </footer>
-</React.Fragment>
+</Fragment>
 `;

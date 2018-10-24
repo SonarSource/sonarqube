@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import thunk, { ThunkMiddleware } from 'redux-thunk';
 
 type RootReducer = typeof import('../rootReducer').default;
 type State = import('../rootReducer').Store;
 
-const middlewares = [thunk];
+const middlewares = [thunk as ThunkMiddleware<State, any>];
 const composed = [];
 
 if (process.env.NODE_ENV === 'development') {

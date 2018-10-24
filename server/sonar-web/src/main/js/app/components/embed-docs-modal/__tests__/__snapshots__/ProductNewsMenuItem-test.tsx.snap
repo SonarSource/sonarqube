@@ -80,7 +80,9 @@ exports[`should load the product news 2`] = `
       </h4>
       <DateFormatter
         date="2018-04-06T12:07:19+0000"
-      />
+      >
+        <Component />
+      </DateFormatter>
     </div>
     <p
       className="little-spacer-bottom"

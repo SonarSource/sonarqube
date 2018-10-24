@@ -103,31 +103,29 @@ exports[`renders status of short-living branch 1`] = `
         }
       }
     />
-    <React.Fragment>
-      <span
-        className="vertical-separator"
-      />
-      <BranchMeasures
-        measures={
-          Array [
-            Object {
-              "metric": "new_coverage",
-              "periods": Array [
-                Object {
-                  "index": 1,
-                  "value": "95.9943",
-                },
-              ],
-              "value": "0",
-            },
-            Object {
-              "metric": "coverage",
-              "value": "99.3",
-            },
-          ]
-        }
-      />
-    </React.Fragment>
+    <span
+      className="vertical-separator"
+    />
+    <BranchMeasures
+      measures={
+        Array [
+          Object {
+            "metric": "new_coverage",
+            "periods": Array [
+              Object {
+                "index": 1,
+                "value": "95.9943",
+              },
+            ],
+            "value": "0",
+          },
+          Object {
+            "metric": "coverage",
+            "value": "99.3",
+          },
+        ]
+      }
+    />
   </div>
 </div>
 `;

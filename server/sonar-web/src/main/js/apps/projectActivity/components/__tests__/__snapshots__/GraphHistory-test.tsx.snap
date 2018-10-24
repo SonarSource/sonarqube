@@ -37,7 +37,9 @@ exports[`should correctly render a graph 1`] = `
       disableWidth={false}
       onResize={[Function]}
       style={Object {}}
-    />
+    >
+      <Component />
+    </AutoSizer>
   </div>
 </div>
 `;

@@ -31,7 +31,8 @@ import {
   PullRequest,
   BranchType,
   Visibility,
-  Task
+  Task,
+  Component
 } from '../../types';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
@@ -84,15 +85,15 @@ beforeEach(() => {
 });
 
 it('changes component', () => {
-  const wrapper = shallow(
+  const wrapper = shallow<ComponentContainer>(
     <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
   );
-  (wrapper.instance() as ComponentContainer).mounted = true;
+  wrapper.instance().mounted = true;
   wrapper.setState({
-    branches: [{ isMain: true }],
-    component: { qualifier: 'TRK', visibility: Visibility.Public },
+    branchLikes: [{ isMain: true, name: 'master' }],
+    component: { qualifier: 'TRK', visibility: Visibility.Public } as Component,
     loading: false
   });
 

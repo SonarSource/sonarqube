@@ -21,7 +21,7 @@ exports[`should render links with custom props 1`] = `
 `;
 
 exports[`should render simple link 1`] = `
-<React.Fragment>
+<Fragment>
   <a
     href="http://sample.com"
     rel="noopener noreferrer"
@@ -31,5 +31,5 @@ exports[`should render simple link 1`] = `
     className="little-spacer-left little-spacer-right vertical-baseline"
     size={12}
   />
-</React.Fragment>
+</Fragment>
 `;

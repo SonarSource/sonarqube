@@ -16,16 +16,14 @@ exports[`should render 1`] = `
     className="little-spacer-top spacer-bottom"
   >
     <div />
-    <React.Fragment>
-      <AlertErrorIcon
-        className="spacer-left text-middle"
-      />
-      <span
-        className="little-spacer-left text-danger text-middle"
-      >
-        This field is bad!
-      </span>
-    </React.Fragment>
+    <AlertErrorIcon
+      className="spacer-left text-middle"
+    />
+    <span
+      className="little-spacer-left text-danger text-middle"
+    >
+      This field is bad!
+    </span>
   </div>
 </div>
 `;

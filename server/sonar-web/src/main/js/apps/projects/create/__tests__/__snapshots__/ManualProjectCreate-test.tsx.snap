@@ -17,7 +17,7 @@ exports[`should correctly create a project 2`] = `
 `;
 
 exports[`should render correctly 1`] = `
-<React.Fragment>
+<Fragment>
   <form
     onSubmit={[Function]}
   >
@@ -123,5 +123,5 @@ exports[`should render correctly 1`] = `
       timeout={100}
     />
   </form>
-</React.Fragment>
+</Fragment>
 `;

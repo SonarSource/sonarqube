@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should work 1`] = `
-<React.Fragment>
+<Fragment>
   <Suggestions
     suggestions="custom_measures"
   />
@@ -18,11 +18,11 @@ exports[`should work 1`] = `
       onCreate={[Function]}
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should work 2`] = `
-<React.Fragment>
+<Fragment>
   <Suggestions
     suggestions="custom_measures"
   />
@@ -75,7 +75,7 @@ exports[`should work 2`] = `
       total={1}
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should work 3`] = `

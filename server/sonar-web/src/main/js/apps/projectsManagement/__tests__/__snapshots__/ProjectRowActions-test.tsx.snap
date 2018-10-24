@@ -18,7 +18,7 @@ exports[`applies permission template 1`] = `
 `;
 
 exports[`restores access 1`] = `
-<React.Fragment>
+<Fragment>
   <ActionsDropdown
     onOpen={[Function]}
   >
@@ -29,11 +29,11 @@ exports[`restores access 1`] = `
       projects_role.apply_template
     </ActionsDropdownItem>
   </ActionsDropdown>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`restores access 2`] = `
-<React.Fragment>
+<Fragment>
   <ActionsDropdown
     onOpen={[Function]}
   >
@@ -50,11 +50,11 @@ exports[`restores access 2`] = `
       projects_role.apply_template
     </ActionsDropdownItem>
   </ActionsDropdown>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`restores access 3`] = `
-<React.Fragment>
+<Fragment>
   <ActionsDropdown
     onOpen={[Function]}
   >
@@ -90,5 +90,5 @@ exports[`restores access 3`] = `
       }
     }
   />
-</React.Fragment>
+</Fragment>
 `;

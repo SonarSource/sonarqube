@@ -34,14 +34,14 @@ exports[`should preselect paid plan 2`] = `
     <div
       className="boxed-group-inner"
     >
-      <React.Fragment>
-        <Connect(withCurrentUser(BillingFormShim))
-          onCommit={[MockFunction]}
-          onFailToUpgrade={[MockFunction]}
-          organizationKey={[MockFunction]}
-          subscriptionPlans={Array []}
-        />
-      </React.Fragment>
+      <Connect(withCurrentUser(BillingFormShim))
+        onCommit={[MockFunction]}
+        onFailToUpgrade={[MockFunction]}
+        organizationKey={[MockFunction]}
+        subscriptionPlans={Array []}
+      >
+        <Component />
+      </Connect(withCurrentUser(BillingFormShim))>
     </div>
   </div>
 </div>
@@ -81,23 +81,21 @@ exports[`should render and use free plan 2`] = `
     <div
       className="boxed-group-inner"
     >
-      <React.Fragment>
-        <PlanSelect
-          onChange={[Function]}
-          plan="free"
-          startingPrice="10"
-        />
-        <div
-          className="display-flex-center big-spacer-top"
+      <PlanSelect
+        onChange={[Function]}
+        plan="free"
+        startingPrice="10"
+      />
+      <div
+        className="display-flex-center big-spacer-top"
+      >
+        <SubmitButton
+          disabled={false}
+          onClick={[Function]}
         >
-          <SubmitButton
-            disabled={false}
-            onClick={[Function]}
-          >
-            my_account.create_organization
-          </SubmitButton>
-        </div>
-      </React.Fragment>
+          my_account.create_organization
+        </SubmitButton>
+      </div>
     </div>
   </div>
 </div>
@@ -125,19 +123,19 @@ exports[`should upgrade 1`] = `
     <div
       className="boxed-group-inner"
     >
-      <React.Fragment>
-        <PlanSelect
-          onChange={[Function]}
-          plan="paid"
-          startingPrice="10"
-        />
-        <Connect(withCurrentUser(BillingFormShim))
-          onCommit={[MockFunction]}
-          onFailToUpgrade={[MockFunction]}
-          organizationKey={[MockFunction]}
-          subscriptionPlans={Array []}
-        />
-      </React.Fragment>
+      <PlanSelect
+        onChange={[Function]}
+        plan="paid"
+        startingPrice="10"
+      />
+      <Connect(withCurrentUser(BillingFormShim))
+        onCommit={[MockFunction]}
+        onFailToUpgrade={[MockFunction]}
+        organizationKey={[MockFunction]}
+        subscriptionPlans={Array []}
+      >
+        <Component />
+      </Connect(withCurrentUser(BillingFormShim))>
     </div>
   </div>
 </div>

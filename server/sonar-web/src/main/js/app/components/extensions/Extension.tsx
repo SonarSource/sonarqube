@@ -101,4 +101,4 @@ class Extension extends React.PureComponent<Props> {
   }
 }
 
-export default injectIntl<OwnProps>(withRouter<OwnProps & InjectedIntlProps>(Extension));
+export default injectIntl(withRouter(Extension));

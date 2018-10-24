@@ -22,15 +22,14 @@ import { getOrganizations } from '../../../api/organizations';
 import { receiveMyOrganizations } from '../../../store/organizations';
 import { getValues } from '../../../api/settings';
 import { receiveValues } from '../../settings/store/values/actions';
-import { Store } from '../../../store/rootReducer';
 
-export const fetchMyOrganizations = () => (dispatch: Dispatch<Store>) => {
+export const fetchMyOrganizations = () => (dispatch: Dispatch) => {
   return getOrganizations({ member: true }).then(({ organizations }) => {
     return dispatch(receiveMyOrganizations(organizations));
   });
 };
 
-export const fetchIfAnyoneCanCreateOrganizations = () => (dispatch: Dispatch<Store>) => {
+export const fetchIfAnyoneCanCreateOrganizations = () => (dispatch: Dispatch) => {
   return getValues({ keys: 'sonar.organizations.anyoneCanCreate' }).then(values => {
     dispatch(receiveValues(values, undefined));
   });

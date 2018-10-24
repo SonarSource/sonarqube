@@ -52,14 +52,14 @@ it('should render correctly', () => {
 });
 
 it('should disabled PermissionCell checkboxes when waiting for promise to return', async () => {
-  const wrapper = shallow(groupHolder);
+  const wrapper = shallow<GroupHolder>(groupHolder);
   expect(wrapper.state().loading).toEqual([]);
 
-  (wrapper.instance() as GroupHolder).handleCheck(true, 'baz');
+  wrapper.instance().handleCheck(true, 'baz');
   wrapper.update();
   expect(wrapper.state().loading).toEqual(['baz']);
 
-  (wrapper.instance() as GroupHolder).handleCheck(true, 'bar');
+  wrapper.instance().handleCheck(true, 'bar');
   wrapper.update();
   expect(wrapper.state().loading).toEqual(['baz', 'bar']);
 

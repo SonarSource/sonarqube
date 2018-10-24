@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly a failed delivery 1`] = `
-<React.Fragment>
+<Fragment>
   <AlertErrorIcon
     className="text-text-top"
   />
@@ -18,11 +18,11 @@ exports[`should render correctly a failed delivery 1`] = `
       <BulletListIcon />
     </ButtonIcon>
   </span>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render correctly a success delivery 1`] = `
-<React.Fragment>
+<Fragment>
   <AlertSuccessIcon
     className="text-text-top"
   />
@@ -39,7 +39,7 @@ exports[`should render correctly a success delivery 1`] = `
       <BulletListIcon />
     </ButtonIcon>
   </span>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render correctly when no latest delivery 1`] = `

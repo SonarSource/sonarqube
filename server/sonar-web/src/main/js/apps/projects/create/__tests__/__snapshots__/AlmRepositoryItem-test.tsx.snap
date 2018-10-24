@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<React.Fragment>
+<Fragment>
   <Checkbox
     checked={false}
     disabled={false}
@@ -26,11 +26,11 @@ exports[`should render correctly 1`] = `
       Awesome Project
     </span>
   </Checkbox>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render disabled 1`] = `
-<React.Fragment>
+<Fragment>
   <Checkbox
     checked={true}
     disabled={true}
@@ -78,11 +78,11 @@ exports[`should render disabled 1`] = `
       onboarding.create_project.already_imported
     </Link>
   </span>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render selected 1`] = `
-<React.Fragment>
+<Fragment>
   <Checkbox
     checked={true}
     disabled={false}
@@ -107,5 +107,5 @@ exports[`should render selected 1`] = `
       Awesome Project
     </span>
   </Checkbox>
-</React.Fragment>
+</Fragment>
 `;

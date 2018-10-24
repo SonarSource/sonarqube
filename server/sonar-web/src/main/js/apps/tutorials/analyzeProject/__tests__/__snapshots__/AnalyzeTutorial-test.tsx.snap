@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders correctly 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     className="page-header big-spacer-bottom"
   >
@@ -17,40 +17,38 @@ exports[`renders correctly 1`] = `
     </p>
   </div>
   <AnalyzeTutorialSuggestion />
-  <React.Fragment>
-    <TokenStep
-      currentUser={
-        Object {
-          "groups": Array [],
-          "isLoggedIn": true,
-          "login": "luke",
-          "name": "Skywalker",
-          "scmAccounts": Array [],
-        }
+  <TokenStep
+    currentUser={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
       }
-      finished={false}
-      onContinue={[Function]}
-      onOpen={[Function]}
-      open={true}
-      stepNumber={1}
-    />
-    <ProjectAnalysisStep
-      component={
-        Object {
-          "analysisDate": "2016-01-01",
-          "breadcrumbs": Array [],
-          "key": "foo",
-          "name": "Foo",
-          "organization": "org",
-          "qualifier": "TRK",
-          "version": "0.0.1",
-        }
+    }
+    finished={false}
+    onContinue={[Function]}
+    onOpen={[Function]}
+    open={true}
+    stepNumber={1}
+  />
+  <ProjectAnalysisStep
+    component={
+      Object {
+        "analysisDate": "2016-01-01",
+        "breadcrumbs": Array [],
+        "key": "foo",
+        "name": "Foo",
+        "organization": "org",
+        "qualifier": "TRK",
+        "version": "0.0.1",
       }
-      displayRowLayout={true}
-      open={false}
-      organization="org"
-      stepNumber={2}
-    />
-  </React.Fragment>
-</React.Fragment>
+    }
+    displayRowLayout={true}
+    open={false}
+    organization="org"
+    stepNumber={2}
+  />
+</Fragment>
 `;

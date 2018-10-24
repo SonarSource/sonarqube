@@ -47,19 +47,19 @@ exports[`renders 2`] = `
     issues.max_new_code_period
     :
      
-    <React.Fragment>
-      <DateFromNow
-        date="2017-01-01T11:39:03+0100"
-      />
-      <br />
-      <span
-        className="note"
-      >
-        from
-        :
-        Foo
-      </span>
-    </React.Fragment>
+    <DateFromNow
+      date="2017-01-01T11:39:03+0100"
+    >
+      <Component />
+    </DateFromNow>
+    <br />
+    <span
+      className="note"
+    >
+      from
+      :
+      Foo
+    </span>
   </div>
 </Tooltip>
 `;

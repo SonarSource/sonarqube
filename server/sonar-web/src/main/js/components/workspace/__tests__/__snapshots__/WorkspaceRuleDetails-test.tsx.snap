@@ -12,38 +12,36 @@ exports[`should render 2`] = `
   loading={false}
   timeout={100}
 >
-  <React.Fragment>
-    <RuleDetailsMeta
-      canWrite={false}
-      hideSimilarRulesFilter={true}
-      onFilterChange={[Function]}
-      onTagsChange={[Function]}
-      referencedRepositories={
-        Object {
-          "repo": Object {
-            "key": "repo",
-            "language": "xoo",
-            "name": "Xoo Repository",
-          },
-        }
+  <RuleDetailsMeta
+    canWrite={false}
+    hideSimilarRulesFilter={true}
+    onFilterChange={[Function]}
+    onTagsChange={[Function]}
+    referencedRepositories={
+      Object {
+        "repo": Object {
+          "key": "repo",
+          "language": "xoo",
+          "name": "Xoo Repository",
+        },
       }
-      ruleDetails={
-        Object {
-          "key": "foo",
-          "name": "Foo",
-        }
+    }
+    ruleDetails={
+      Object {
+        "key": "foo",
+        "name": "Foo",
       }
-    />
-    <RuleDetailsDescription
-      canWrite={false}
-      onChange={[Function]}
-      ruleDetails={
-        Object {
-          "key": "foo",
-          "name": "Foo",
-        }
+    }
+  />
+  <RuleDetailsDescription
+    canWrite={false}
+    onChange={[Function]}
+    ruleDetails={
+      Object {
+        "key": "foo",
+        "name": "Foo",
       }
-    />
-  </React.Fragment>
+    }
+  />
 </DeferredSpinner>
 `;

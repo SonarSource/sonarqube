@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ShallowWrapper } from 'enzyme';
 import App from '../App';
 import { shallowWithIntl, waitAndUpdate } from '../../../../helpers/testUtils';
 import { Issue } from '../../../../app/types';
@@ -66,7 +65,7 @@ const PROPS = {
 };
 
 it('should render a list of issue', async () => {
-  const wrapper: ShallowWrapper<App['props'], App['state']> = shallowWithIntl(<App {...PROPS} />, {
+  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
     context: { router: { replace } }
   });
 
@@ -77,14 +76,14 @@ it('should render a list of issue', async () => {
 });
 
 it('should be able to check/uncheck a group of issues with the Shift key', async () => {
-  const wrapper = shallowWithIntl(<App {...PROPS} />, {
+  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
     context: { router: { replace } }
   });
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
-  const instance = wrapper.instance() as App;
+  const instance = wrapper.instance();
   instance.handleIssueCheck('foo', eventNoShiftKey);
   expect(wrapper.state().checked.length).toBe(1);
 
@@ -99,14 +98,14 @@ it('should be able to check/uncheck a group of issues with the Shift key', async
 });
 
 it('should avoid non-existing keys', async () => {
-  const wrapper = shallowWithIntl(<App {...PROPS} />, {
+  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
     context: { router: { replace } }
   });
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
-  const instance = wrapper.instance() as App;
+  const instance = wrapper.instance();
   instance.handleIssueCheck('foo', eventNoShiftKey);
   expect(wrapper.state().checked.length).toBe(1);
 
@@ -115,14 +114,14 @@ it('should avoid non-existing keys', async () => {
 });
 
 it('should be able to uncheck all issue with global checkbox', async () => {
-  const wrapper = shallowWithIntl(<App {...PROPS} />, {
+  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
     context: { router: { replace } }
   });
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
-  const instance = wrapper.instance() as App;
+  const instance = wrapper.instance();
   instance.handleIssueCheck('foo', eventNoShiftKey);
   instance.handleIssueCheck('bar', eventNoShiftKey);
   expect(wrapper.state().checked.length).toBe(2);
@@ -132,13 +131,13 @@ it('should be able to uncheck all issue with global checkbox', async () => {
 });
 
 it('should be able to check all issue with global checkbox', async () => {
-  const wrapper = shallowWithIntl(<App {...PROPS} />, {
+  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
     context: { router: { replace } }
   });
 
   await waitAndUpdate(wrapper);
 
-  const instance = wrapper.instance() as App;
+  const instance = wrapper.instance();
   expect(wrapper.state().checked.length).toBe(0);
   instance.onCheckAll(true);
   expect(wrapper.state().checked.length).toBe(wrapper.state().issues.length);

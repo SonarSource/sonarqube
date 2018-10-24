@@ -103,25 +103,13 @@ exports[`SearchResultTitle should render with highlights 1`] = `
 `;
 
 exports[`SearchResultTokens should render 1`] = `
-<React.Fragment>
-  <React.Fragment
-    key="0"
-  >
-    Foobar is a 
-  </React.Fragment>
-  <React.Fragment
+<Fragment>
+  Foobar is a 
+  <mark
     key="1"
   >
-    <mark
-      key="1"
-    >
-      universal
-    </mark>
-  </React.Fragment>
-  <React.Fragment
-    key="2"
-  >
-     variable understood to represent whatever is being discussed.
-  </React.Fragment>
-</React.Fragment>
+    universal
+  </mark>
+   variable understood to represent whatever is being discussed.
+</Fragment>
 `;

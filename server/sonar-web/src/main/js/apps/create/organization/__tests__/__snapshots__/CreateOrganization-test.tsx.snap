@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render and create organization 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -42,40 +42,38 @@ exports[`should render and create organization 1`] = `
         />
       </p>
     </header>
-    <React.Fragment>
-      <OrganizationDetailsStep
-        finished={false}
-        onContinue={[Function]}
-        onOpen={[Function]}
-        open={true}
-      />
-      <PlanStep
-        createOrganization={[Function]}
-        deleteOrganization={[Function]}
-        onFreePlanChoose={[Function]}
-        onPaidPlanChoose={[Function]}
-        open={false}
-        startingPrice="billing.price_format.10"
-        subscriptionPlans={
-          Array [
-            Object {
-              "maxNcloc": 100000,
-              "price": 10,
-            },
-            Object {
-              "maxNcloc": 250000,
-              "price": 75,
-            },
-          ]
-        }
-      />
-    </React.Fragment>
+    <OrganizationDetailsStep
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+    />
+    <PlanStep
+      createOrganization={[Function]}
+      deleteOrganization={[Function]}
+      onFreePlanChoose={[Function]}
+      onPaidPlanChoose={[Function]}
+      open={false}
+      startingPrice="billing.price_format.10"
+      subscriptionPlans={
+        Array [
+          Object {
+            "maxNcloc": 100000,
+            "price": 10,
+          },
+          Object {
+            "maxNcloc": 250000,
+            "price": 75,
+          },
+        ]
+      }
+    />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render and create organization 2`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -116,43 +114,41 @@ exports[`should render and create organization 2`] = `
         />
       </p>
     </header>
-    <React.Fragment>
-      <OrganizationDetailsStep
-        finished={true}
-        onContinue={[Function]}
-        onOpen={[Function]}
-        open={false}
-        organization={
+    <OrganizationDetailsStep
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      organization={
+        Object {
+          "avatar": "http://example.com/avatar",
+          "description": "description-foo",
+          "key": "key-foo",
+          "name": "name-foo",
+          "url": "http://example.com/foo",
+        }
+      }
+    />
+    <PlanStep
+      createOrganization={[Function]}
+      deleteOrganization={[Function]}
+      onFreePlanChoose={[Function]}
+      onPaidPlanChoose={[Function]}
+      open={true}
+      startingPrice="billing.price_format.10"
+      subscriptionPlans={
+        Array [
           Object {
-            "avatar": "http://example.com/avatar",
-            "description": "description-foo",
-            "key": "key-foo",
-            "name": "name-foo",
-            "url": "http://example.com/foo",
-          }
-        }
-      />
-      <PlanStep
-        createOrganization={[Function]}
-        deleteOrganization={[Function]}
-        onFreePlanChoose={[Function]}
-        onPaidPlanChoose={[Function]}
-        open={true}
-        startingPrice="billing.price_format.10"
-        subscriptionPlans={
-          Array [
-            Object {
-              "maxNcloc": 100000,
-              "price": 10,
-            },
-            Object {
-              "maxNcloc": 250000,
-              "price": 75,
-            },
-          ]
-        }
-      />
-    </React.Fragment>
+            "maxNcloc": 100000,
+            "price": 10,
+          },
+          Object {
+            "maxNcloc": 250000,
+            "price": 75,
+          },
+        ]
+      }
+    />
   </div>
-</React.Fragment>
+</Fragment>
 `;

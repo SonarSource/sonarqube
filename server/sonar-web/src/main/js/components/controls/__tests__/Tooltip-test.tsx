@@ -22,6 +22,12 @@ import { shallow } from 'enzyme';
 import Tooltip, { TooltipInner } from '../Tooltip';
 
 jest.useFakeTimers();
+jest.mock('react-dom', () => {
+  const actual = require.requireActual('react-dom');
+  return Object.assign({}, actual, {
+    findDOMNode: () => undefined
+  });
+});
 
 it('should render', () => {
   expect(

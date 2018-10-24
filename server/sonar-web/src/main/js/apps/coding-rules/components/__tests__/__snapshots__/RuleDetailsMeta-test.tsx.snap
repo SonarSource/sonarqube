@@ -88,20 +88,18 @@ exports[`should display right meta info 1`] = `
         />
       </li>
     </Tooltip>
-    <React.Fragment>
-      <Tooltip
-        overlay="coding_rules.scope.title"
+    <Tooltip
+      overlay="coding_rules.scope.title"
+    >
+      <li
+        className="coding-rules-detail-property"
       >
-        <li
-          className="coding-rules-detail-property"
-        >
-          <RuleScopeIcon
-            className="little-spacer-right"
-          />
-          coding_rules.scope.MAIN
-        </li>
-      </Tooltip>
-    </React.Fragment>
+        <RuleScopeIcon
+          className="little-spacer-right"
+        />
+        coding_rules.scope.MAIN
+      </li>
+    </Tooltip>
     <li
       className="coding-rules-detail-property"
       data-meta="tags"
@@ -145,7 +143,6 @@ exports[`should display right meta info 1`] = `
         date="2013-07-26T09:40:51+0200"
       />
     </li>
-    <React.Fragment />
   </ul>
 </div>
 `;

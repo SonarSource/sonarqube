@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -24,11 +24,11 @@ exports[`should render correctly 1`] = `
       timeout={100}
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render correctly 2`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -47,52 +47,50 @@ exports[`should render correctly 2`] = `
         onboarding.create_project.header
       </h1>
     </div>
-    <React.Fragment>
-      <ul
-        className="flex-tabs"
-      >
-        <li>
-          <a
-            className="js-auto selected"
-            href="#"
-            onClick={[Function]}
+    <ul
+      className="flex-tabs"
+    >
+      <li>
+        <a
+          className="js-auto selected"
+          href="#"
+          onClick={[Function]}
+        >
+          onboarding.create_project.select_repositories
+          <span
+            className="rounded alert alert-small spacer-left display-inline-block alert-info"
           >
-            onboarding.create_project.select_repositories
-            <span
-              className="rounded alert alert-small spacer-left display-inline-block alert-info"
-            >
-              beta
-            </span>
-          </a>
-        </li>
-        <li>
-          <a
-            className="js-manual"
-            href="#"
-            onClick={[Function]}
-          >
-            onboarding.create_project.create_manually
-          </a>
-        </li>
-      </ul>
-      <AutoProjectCreate
-        identityProvider={
-          Object {
-            "backgroundColor": "blue",
-            "iconPath": "icon/path",
-            "key": "github",
-            "name": "GitHub",
-          }
+            beta
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          className="js-manual"
+          href="#"
+          onClick={[Function]}
+        >
+          onboarding.create_project.create_manually
+        </a>
+      </li>
+    </ul>
+    <AutoProjectCreate
+      identityProvider={
+        Object {
+          "backgroundColor": "blue",
+          "iconPath": "icon/path",
+          "key": "github",
+          "name": "GitHub",
         }
-        onProjectCreate={[Function]}
-      />
-    </React.Fragment>
+      }
+      onProjectCreate={[Function]}
+    />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render with Manual creation only 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -111,27 +109,25 @@ exports[`should render with Manual creation only 1`] = `
         onboarding.create_project.header
       </h1>
     </div>
-    <React.Fragment>
-      <Connect(ManualProjectCreate)
-        currentUser={
-          Object {
-            "externalProvider": "microsoft",
-            "groups": Array [],
-            "isLoggedIn": true,
-            "login": "foo",
-            "name": "Foo",
-            "scmAccounts": Array [],
-          }
+    <Connect(ManualProjectCreate)
+      currentUser={
+        Object {
+          "externalProvider": "microsoft",
+          "groups": Array [],
+          "isLoggedIn": true,
+          "login": "foo",
+          "name": "Foo",
+          "scmAccounts": Array [],
         }
-        onProjectCreate={[Function]}
-      />
-    </React.Fragment>
+      }
+      onProjectCreate={[Function]}
+    />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should switch tabs 1`] = `
-<React.Fragment>
+<Fragment>
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
@@ -150,46 +146,44 @@ exports[`should switch tabs 1`] = `
         onboarding.create_project.header
       </h1>
     </div>
-    <React.Fragment>
-      <ul
-        className="flex-tabs"
-      >
-        <li>
-          <a
-            className="js-auto selected"
-            href="#"
-            onClick={[Function]}
+    <ul
+      className="flex-tabs"
+    >
+      <li>
+        <a
+          className="js-auto selected"
+          href="#"
+          onClick={[Function]}
+        >
+          onboarding.create_project.select_repositories
+          <span
+            className="rounded alert alert-small spacer-left display-inline-block alert-info"
           >
-            onboarding.create_project.select_repositories
-            <span
-              className="rounded alert alert-small spacer-left display-inline-block alert-info"
-            >
-              beta
-            </span>
-          </a>
-        </li>
-        <li>
-          <a
-            className="js-manual"
-            href="#"
-            onClick={[Function]}
-          >
-            onboarding.create_project.create_manually
-          </a>
-        </li>
-      </ul>
-      <AutoProjectCreate
-        identityProvider={
-          Object {
-            "backgroundColor": "blue",
-            "iconPath": "icon/path",
-            "key": "github",
-            "name": "GitHub",
-          }
+            beta
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          className="js-manual"
+          href="#"
+          onClick={[Function]}
+        >
+          onboarding.create_project.create_manually
+        </a>
+      </li>
+    </ul>
+    <AutoProjectCreate
+      identityProvider={
+        Object {
+          "backgroundColor": "blue",
+          "iconPath": "icon/path",
+          "key": "github",
+          "name": "GitHub",
         }
-        onProjectCreate={[Function]}
-      />
-    </React.Fragment>
+      }
+      onProjectCreate={[Function]}
+    />
   </div>
-</React.Fragment>
+</Fragment>
 `;

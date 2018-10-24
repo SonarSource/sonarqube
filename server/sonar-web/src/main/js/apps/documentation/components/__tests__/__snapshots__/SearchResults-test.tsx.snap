@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should search 1`] = `
-<React.Fragment>
+<Fragment>
   <SearchResultEntry
     active={false}
     key="lorem/origin"
@@ -56,5 +56,5 @@ exports[`should search 1`] = `
       }
     }
   />
-</React.Fragment>
+</Fragment>
 `;

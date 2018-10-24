@@ -72,7 +72,7 @@ it('should display two facets', () => {
 });
 
 it('should correctly toggle facets', () => {
-  const wrapper = shallow(<Sidebar {...PROPS} />);
+  const wrapper = shallow<Sidebar>(<Sidebar {...PROPS} />);
   expect(wrapper.state('openFacets').bugs).toBeUndefined();
   (wrapper.instance() as Sidebar).toggleFacet('bugs');
   expect(wrapper.state('openFacets').bugs).toBeTruthy();

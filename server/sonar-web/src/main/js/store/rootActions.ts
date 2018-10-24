@@ -22,26 +22,25 @@ import { addGlobalErrorMessage } from './globalMessages';
 import { receiveLanguages } from './languages';
 import { receiveMetrics } from './metrics';
 import { receiveOrganizations } from './organizations';
-import { Store } from './rootReducer';
 import * as auth from '../api/auth';
 import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
 import { getOrganizations } from '../api/organizations';
 
 export function fetchLanguages() {
-  return (dispatch: Dispatch<Store>) => {
+  return (dispatch: Dispatch) => {
     getLanguages().then(languages => dispatch(receiveLanguages(languages)), () => {});
   };
 }
 
 export function fetchMetrics() {
-  return (dispatch: Dispatch<Store>) => {
+  return (dispatch: Dispatch) => {
     getAllMetrics().then(metrics => dispatch(receiveMetrics(metrics)), () => {});
   };
 }
 
 export function fetchOrganizations(organizations: string[]) {
-  return (dispatch: Dispatch<Store>) => {
+  return (dispatch: Dispatch) => {
     getOrganizations({ organizations: organizations && organizations.join() }).then(
       r => dispatch(receiveOrganizations(r.organizations)),
       () => {}
@@ -50,7 +49,7 @@ export function fetchOrganizations(organizations: string[]) {
 }
 
 export function doLogin(login: string, password: string) {
-  return (dispatch: Dispatch<Store>) =>
+  return (dispatch: Dispatch<any>) =>
     auth.login(login, password).then(
       () => {
         /* everything is fine */
@@ -63,7 +62,7 @@ export function doLogin(login: string, password: string) {
 }
 
 export function doLogout() {
-  return (dispatch: Dispatch<Store>) =>
+  return (dispatch: Dispatch<any>) =>
     auth.logout().then(
       () => {
         /* everything is fine */

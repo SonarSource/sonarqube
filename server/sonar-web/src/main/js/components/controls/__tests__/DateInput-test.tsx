@@ -112,7 +112,7 @@ it('should hightlightTo range', () => {
 });
 
 function shallowRender(props?: Partial<Props>) {
-  const wrapper = shallowWithIntl(
+  const wrapper = shallowWithIntl<DateInput>(
     <DateInput
       currentMonth={dateA}
       maxDate={dateB}
@@ -122,6 +122,6 @@ function shallowRender(props?: Partial<Props>) {
       {...props}
     />
   );
-  const instance = wrapper.instance() as DateInput;
+  const instance = wrapper.instance();
   return { wrapper, instance };
 }

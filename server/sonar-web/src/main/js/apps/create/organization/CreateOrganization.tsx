@@ -33,7 +33,6 @@ import { translate } from '../../../helpers/l10n';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
-import { Store } from '../../../store/rootReducer';
 import '../../../app/styles/sonarcloud.css';
 import '../../tutorials/styles.css'; // TODO remove me
 
@@ -207,7 +206,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 }
 
 function createOrganization(organization: OrganizationBase) {
-  return (dispatch: Dispatch<Store>) => {
+  return (dispatch: Dispatch) => {
     return api.createOrganization(organization).then((organization: Organization) => {
       dispatch(actions.createOrganization(organization));
       return organization;
@@ -216,7 +215,7 @@ function createOrganization(organization: OrganizationBase) {
 }
 
 function deleteOrganization(key: string) {
-  return (dispatch: Dispatch<Store>) => {
+  return (dispatch: Dispatch) => {
     return api.deleteOrganization(key).then(() => {
       dispatch(actions.deleteOrganization(key));
     });

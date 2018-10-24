@@ -7,7 +7,9 @@ exports[`should render 1`] = `
   modalBody="project_deletion.delete_resource_confirmation.Foo"
   modalHeader="qualifier.delete.TRK"
   onConfirm={[Function]}
-/>
+>
+  <Component />
+</ConfirmButton>
 `;
 
 exports[`should render 2`] = `

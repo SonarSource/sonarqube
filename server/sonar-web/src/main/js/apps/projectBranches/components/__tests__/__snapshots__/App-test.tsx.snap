@@ -32,24 +32,22 @@ exports[`renders sorted list of branches 1`] = `
           }
         }
       />
-      <React.Fragment>
-        <br />
-        <FormattedMessage
-          defaultMessage="project_branches.page.life_time.admin"
-          id="project_branches.page.life_time.admin"
-          values={
-            Object {
-              "settings": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to="/admin/settings"
-              >
-                settings.page
-              </Link>,
-            }
+      <br />
+      <FormattedMessage
+        defaultMessage="project_branches.page.life_time.admin"
+        id="project_branches.page.life_time.admin"
+        values={
+          Object {
+            "settings": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/admin/settings"
+            >
+              settings.page
+            </Link>,
           }
-        />
-      </React.Fragment>
+        }
+      />
     </p>
   </header>
   <div
@@ -81,102 +79,82 @@ exports[`renders sorted list of branches 1`] = `
         </tr>
       </thead>
       <tbody>
-        <React.Fragment
-          key="branch-master"
-        >
-          <BranchRow
-            branchLike={
-              Object {
-                "isMain": true,
-                "name": "master",
-              }
+        <BranchRow
+          branchLike={
+            Object {
+              "isMain": true,
+              "name": "master",
             }
-            component="foo"
-            isOrphan={false}
-            onChange={[MockFunction]}
-          />
-        </React.Fragment>
-        <React.Fragment
-          key="pull-request-1234"
-        >
-          <BranchRow
-            branchLike={
-              Object {
-                "base": "master",
-                "branch": "feature",
-                "key": "1234",
-                "title": "Feature PR",
-              }
+          }
+          component="foo"
+          isOrphan={false}
+          onChange={[MockFunction]}
+        />
+        <BranchRow
+          branchLike={
+            Object {
+              "base": "master",
+              "branch": "feature",
+              "key": "1234",
+              "title": "Feature PR",
             }
-            component="foo"
-            onChange={[MockFunction]}
-          />
-        </React.Fragment>
-        <React.Fragment
-          key="branch-feature"
-        >
-          <BranchRow
-            branchLike={
-              Object {
-                "isMain": false,
-                "mergeBranch": "master",
-                "name": "feature",
-                "type": "SHORT",
-              }
+          }
+          component="foo"
+          onChange={[MockFunction]}
+        />
+        <BranchRow
+          branchLike={
+            Object {
+              "isMain": false,
+              "mergeBranch": "master",
+              "name": "feature",
+              "type": "SHORT",
             }
-            component="foo"
-            onChange={[MockFunction]}
-          />
-        </React.Fragment>
-        <React.Fragment
-          key="branch-branch-1.0"
-        >
-          <BranchRow
-            branchLike={
-              Object {
-                "isMain": false,
-                "name": "branch-1.0",
-                "type": "LONG",
-              }
+          }
+          component="foo"
+          onChange={[MockFunction]}
+        />
+        <BranchRow
+          branchLike={
+            Object {
+              "isMain": false,
+              "name": "branch-1.0",
+              "type": "LONG",
             }
-            component="foo"
-            isOrphan={false}
-            onChange={[MockFunction]}
-          />
-        </React.Fragment>
-        <React.Fragment
-          key="branch-feature"
-        >
-          <tr>
-            <td
-              colSpan={4}
+          }
+          component="foo"
+          isOrphan={false}
+          onChange={[MockFunction]}
+        />
+        <tr>
+          <td
+            colSpan={4}
+          >
+            <div
+              className="display-inline-block text-middle"
             >
-              <div
-                className="display-inline-block text-middle"
-              >
-                branches.orphan_branches
-              </div>
-              <HelpTooltip
-                className="spacer-left"
-                overlay="branches.orphan_branches.tooltip"
-              />
-            </td>
-          </tr>
-          <BranchRow
-            branchLike={
-              Object {
-                "isMain": false,
-                "isOrphan": true,
-                "mergeBranch": "foobar",
-                "name": "feature",
-                "type": "SHORT",
-              }
+              branches.orphan_branches
+            </div>
+            <HelpTooltip
+              className="spacer-left"
+              overlay="branches.orphan_branches.tooltip"
+            />
+          </td>
+        </tr>
+        <BranchRow
+          branchLike={
+            Object {
+              "isMain": false,
+              "isOrphan": true,
+              "mergeBranch": "foobar",
+              "name": "feature",
+              "type": "SHORT",
             }
-            component="foo"
-            isOrphan={true}
-            onChange={[MockFunction]}
-          />
-        </React.Fragment>
+          }
+          component="foo"
+          isOrphan={true}
+          onChange={[MockFunction]}
+        />
       </tbody>
     </table>
   </div>

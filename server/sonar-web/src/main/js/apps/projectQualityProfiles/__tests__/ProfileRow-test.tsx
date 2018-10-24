@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProfileRow from '../ProfileRow';
-import { doAsync } from '../../../helpers/testUtils';
 
 it('renders', () => {
   expect(
@@ -34,9 +33,9 @@ it('renders', () => {
   ).toMatchSnapshot();
 });
 
-it('changes profile', () => {
+it('changes profile', async () => {
   const onChangeProfile = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(
+  const wrapper = shallow<ProfileRow>(
     <ProfileRow
       onChangeProfile={onChangeProfile}
       possibleProfiles={[randomProfile('bar'), randomProfile('baz')]}
@@ -47,9 +46,8 @@ it('changes profile', () => {
   wrapper.find('Select').prop<Function>('onChange')({ value: 'baz' });
   expect(onChangeProfile).toBeCalledWith('foo', 'baz');
   expect(wrapper.state().loading).toBeTruthy();
-  return doAsync().then(() => {
-    expect(wrapper.state().loading).toBeFalsy();
-  });
+  await new Promise(setImmediate);
+  expect(wrapper.state().loading).toBeFalsy();
 });
 
 function randomProfile(key: string) {

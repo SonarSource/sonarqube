@@ -13,17 +13,17 @@ exports[`should not render empty tooltips 2`] = `
 `;
 
 exports[`should render 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     id="tooltip"
     onMouseEnter={[Function]}
     onMouseLeave={[Function]}
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render 2`] = `
-<React.Fragment>
+<Fragment>
   <div
     id="tooltip"
     onMouseEnter={[Function]}
@@ -32,7 +32,9 @@ exports[`should render 2`] = `
   <TooltipPortal>
     <ScreenPositionFixer
       ready={false}
-    />
+    >
+      <Component />
+    </ScreenPositionFixer>
   </TooltipPortal>
-</React.Fragment>
+</Fragment>
 `;

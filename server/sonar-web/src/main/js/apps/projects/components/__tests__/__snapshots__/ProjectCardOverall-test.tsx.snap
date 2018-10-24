@@ -169,7 +169,9 @@ exports[`should display the overall measures and quality gate 1`] = `
     >
       <DateTimeFormatter
         date="2017-01-01"
-      />
+      >
+        <Component />
+      </DateTimeFormatter>
     </div>
   </div>
   <div

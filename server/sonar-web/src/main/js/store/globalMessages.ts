@@ -20,7 +20,6 @@
 import { uniqueId } from 'lodash';
 import { Dispatch } from 'redux';
 import { requireAuthorization } from './appState';
-import { Store } from './rootReducer';
 import { ActionType } from './utils/actions';
 
 enum MessageLevel {
@@ -53,7 +52,7 @@ type Action =
   | ActionType<typeof requireAuthorization, 'REQUIRE_AUTHORIZATION'>;
 
 function addGlobalMessage(message: string, level: MessageLevel) {
-  return (dispatch: Dispatch<Store>) => {
+  return (dispatch: Dispatch) => {
     const id = uniqueId('global-message-');
     dispatch(addGlobalMessageActionCreator(id, message, level));
     setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);

@@ -107,8 +107,11 @@ export function doAsync(fn?: Function): Promise<void> {
 // Create the IntlProvider to retrieve context for wrapping around.
 const intlProvider = new IntlProvider({ locale: 'en' }, {});
 const { intl } = intlProvider.getChildContext();
-export function shallowWithIntl(node: React.ReactElement<any>, options: ShallowRendererProps = {}) {
-  return shallow(node, { ...options, context: { intl, ...options.context } });
+export function shallowWithIntl<C extends React.Component>(
+  node: React.ReactElement<any>,
+  options: ShallowRendererProps = {}
+) {
+  return shallow<C>(node, { ...options, context: { intl, ...options.context } });
 }
 
 export async function waitAndUpdate(wrapper: ShallowWrapper<any, any> | ReactWrapper<any, any>) {

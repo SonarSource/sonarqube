@@ -30,6 +30,15 @@ const cssLoader = ({ production }) => ({
   }
 });
 
+const theme = require('../src/main/js/app/theme');
+
+const customProperties = {};
+Object.keys(theme).forEach(key => {
+  if (typeof theme[key] === 'string') {
+    customProperties[`--${key}`] = theme[key];
+  }
+});
+
 const postcssLoader = () => ({
   loader: 'postcss-loader',
   options: {
@@ -37,7 +46,8 @@ const postcssLoader = () => ({
     plugins: () => [
       require('autoprefixer'),
       require('postcss-custom-properties')({
-        variables: require('../src/main/js/app/theme')
+        importFrom: { customProperties },
+        preserve: false
       }),
       require('postcss-calc')
     ]

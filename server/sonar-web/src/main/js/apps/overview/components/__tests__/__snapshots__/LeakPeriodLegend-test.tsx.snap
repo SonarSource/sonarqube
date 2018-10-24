@@ -26,7 +26,9 @@ exports[`date 1`] = `
     <br />
     <DateFromNow
       date={2013-09-21T22:00:00.000Z}
-    />
+    >
+      <Component />
+    </DateFromNow>
   </div>
 </Tooltip>
 `;
@@ -39,7 +41,9 @@ exports[`previous_analysis 1`] = `
   <br />
   <DateFromNow
     date={2013-09-21T22:00:00.000Z}
-  />
+  >
+    <Component />
+  </DateFromNow>
 </div>
 `;
 
@@ -51,7 +55,9 @@ exports[`previous_version 1`] = `
   <br />
   <DateFromNow
     date={2013-09-21T22:00:00.000Z}
-  />
+  >
+    <Component />
+  </DateFromNow>
 </div>
 `;
 
@@ -72,7 +78,9 @@ exports[`should render a more precise date 1`] = `
     <br />
     <DateFromNow
       date={2018-08-16T22:00:00.000Z}
-    />
+    >
+      <Component />
+    </DateFromNow>
   </div>
 </Tooltip>
 `;
@@ -85,6 +93,8 @@ exports[`version 1`] = `
   <br />
   <DateFromNow
     date={2013-09-21T22:00:00.000Z}
-  />
+  >
+    <Component />
+  </DateFromNow>
 </div>
 `;

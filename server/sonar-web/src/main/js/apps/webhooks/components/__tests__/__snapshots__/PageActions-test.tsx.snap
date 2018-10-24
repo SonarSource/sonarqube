@@ -20,13 +20,11 @@ exports[`should render correctly 1`] = `
 <div
   className="page-actions"
 >
-  <React.Fragment>
-    <Button
-      className="js-webhook-create"
-      onClick={[Function]}
-    >
-      create
-    </Button>
-  </React.Fragment>
+  <Button
+    className="js-webhook-create"
+    onClick={[Function]}
+  >
+    create
+  </Button>
 </div>
 `;

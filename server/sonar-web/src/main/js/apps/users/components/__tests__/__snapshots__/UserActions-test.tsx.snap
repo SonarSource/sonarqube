@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<React.Fragment>
+<Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
       className="js-user-update"
@@ -18,5 +18,5 @@ exports[`should render correctly 1`] = `
       users.deactivate
     </ActionsDropdownItem>
   </ActionsDropdown>
-</React.Fragment>
+</Fragment>
 `;

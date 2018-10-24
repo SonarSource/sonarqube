@@ -44,7 +44,9 @@ exports[`should render custom link 1`] = `
       modalBody="project_links.are_you_sure_to_delete_x_link.foo"
       modalHeader="project_links.delete_project_link"
       onConfirm={[MockFunction]}
-    />
+    >
+      <Component />
+    </ConfirmButton>
   </td>
 </tr>
 `;

@@ -95,5 +95,7 @@ exports[`should work with extensions 1`] = `
     </ul>
   }
   tagName="li"
-/>
+>
+  <Component />
+</Dropdown>
 `;

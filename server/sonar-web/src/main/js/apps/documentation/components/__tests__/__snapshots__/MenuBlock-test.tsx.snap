@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render a closed menu block 1`] = `
-<React.Fragment>
+<Fragment>
   <a
     className="list-group-item"
     href="#"
@@ -17,11 +17,11 @@ exports[`should render a closed menu block 1`] = `
       Foobarbaz
     </h3>
   </a>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render an opened menu block 1`] = `
-<React.Fragment>
+<Fragment>
   <a
     className="list-group-item"
     href="#"
@@ -65,5 +65,5 @@ exports[`should render an opened menu block 1`] = `
     }
     splat="/foo/"
   />
-</React.Fragment>
+</Fragment>
 `;

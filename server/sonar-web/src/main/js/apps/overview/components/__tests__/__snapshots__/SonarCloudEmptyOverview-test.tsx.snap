@@ -10,28 +10,26 @@ exports[`renders correctly 1`] = `
     <div
       className="overview-main page-main sonarcloud"
     >
-      <React.Fragment>
-        <AnalyzeTutorial
-          component={
-            Object {
-              "analysisDate": "2016-01-01",
-              "breadcrumbs": Array [],
-              "key": "foo",
-              "name": "Foo",
-              "organization": "org",
-              "qualifier": "TRK",
-              "version": "0.0.1",
-            }
+      <AnalyzeTutorial
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
           }
-          currentUser={
-            Object {
-              "isLoggedIn": true,
-              "login": "luke",
-              "name": "Skywalker",
-            }
+        }
+        currentUser={
+          Object {
+            "isLoggedIn": true,
+            "login": "luke",
+            "name": "Skywalker",
           }
-        />
-      </React.Fragment>
+        }
+      />
     </div>
     <div
       className="overview-sidebar page-sidebar-fixed"
@@ -71,9 +69,7 @@ exports[`should not render the tutorial 1`] = `
   >
     <div
       className="overview-main page-main sonarcloud"
-    >
-      <React.Fragment />
-    </div>
+    />
     <div
       className="overview-sidebar page-sidebar-fixed"
     >
@@ -113,18 +109,16 @@ exports[`should render another message when there are branches 1`] = `
     <div
       className="overview-main page-main sonarcloud"
     >
-      <React.Fragment>
-        <WarningMessage
-          branchLike={
-            Object {
-              "isMain": true,
-              "name": "b",
-              "type": "LONG",
-            }
+      <WarningMessage
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
           }
-          message="provisioning.no_analysis_on_main_branch"
-        />
-      </React.Fragment>
+        }
+        message="provisioning.no_analysis_on_main_branch"
+      />
     </div>
     <div
       className="overview-sidebar page-sidebar-fixed"
@@ -165,18 +159,16 @@ exports[`should render another message when there are branches 2`] = `
     <div
       className="overview-main page-main sonarcloud"
     >
-      <React.Fragment>
-        <WarningMessage
-          branchLike={
-            Object {
-              "isMain": true,
-              "name": "b",
-              "type": "LONG",
-            }
+      <WarningMessage
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
           }
-          message="provisioning.no_analysis_on_main_branch.bad_configuration"
-        />
-      </React.Fragment>
+        }
+        message="provisioning.no_analysis_on_main_branch.bad_configuration"
+      />
     </div>
     <div
       className="overview-sidebar page-sidebar-fixed"

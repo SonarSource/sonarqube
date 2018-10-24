@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should not render click wrappers 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     id="toggle"
   />
   <div
     id="overlay"
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render children and overlay 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     id="toggle"
   />
@@ -23,19 +23,19 @@ exports[`should render children and overlay 1`] = `
       id="overlay"
     />
   </OutsideClickHandler>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render only children 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     id="toggle"
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`should render when closeOnClick=true 1`] = `
-<React.Fragment>
+<Fragment>
   <div
     id="toggle"
   />
@@ -46,5 +46,5 @@ exports[`should render when closeOnClick=true 1`] = `
       id="overlay"
     />
   </DocumentClickHandler>
-</React.Fragment>
+</Fragment>
 `;

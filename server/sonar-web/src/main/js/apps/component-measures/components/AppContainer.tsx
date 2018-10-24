@@ -76,7 +76,7 @@ function banQualityGate({ measures = [], qualifier }: ComponentMeasure): Measure
 }
 
 const fetchMeasures = (component: string, metricsKey: string[], branchLike?: BranchLike) => (
-  _dispatch: Dispatch<any>,
+  _dispatch: Dispatch,
   getState: () => any
 ) => {
   if (metricsKey.length <= 0) {

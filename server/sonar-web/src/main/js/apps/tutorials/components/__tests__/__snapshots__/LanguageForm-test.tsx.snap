@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`selects c# 1`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -35,11 +35,11 @@ exports[`selects c# 1`] = `
     onDelete={[Function]}
     onDone={[Function]}
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects c-family 1`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -100,11 +100,11 @@ exports[`selects c-family 1`] = `
       value={null}
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects c-family 2`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -169,11 +169,11 @@ exports[`selects c-family 2`] = `
     onDelete={[Function]}
     onDone={[Function]}
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects c-family 3`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -265,11 +265,11 @@ exports[`selects c-family 3`] = `
       value={null}
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects c-family 4`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -366,11 +366,11 @@ exports[`selects c-family 4`] = `
     onDone={[Function]}
     projectKey="project-foo"
   />
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects java 1`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -427,11 +427,11 @@ exports[`selects java 1`] = `
       value={null}
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects java 2`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -488,11 +488,11 @@ exports[`selects java 2`] = `
       value="maven"
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects java 3`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -549,11 +549,11 @@ exports[`selects java 3`] = `
       value="gradle"
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects other 1`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -614,11 +614,11 @@ exports[`selects other 1`] = `
       value={null}
     />
   </div>
-</React.Fragment>
+</Fragment>
 `;
 
 exports[`selects other 2`] = `
-<React.Fragment>
+<Fragment>
   <div>
     <h4
       className="spacer-bottom"
@@ -683,5 +683,5 @@ exports[`selects other 2`] = `
     onDelete={[Function]}
     onDone={[Function]}
   />
-</React.Fragment>
+</Fragment>
 `;

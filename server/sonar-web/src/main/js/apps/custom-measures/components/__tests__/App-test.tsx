@@ -53,7 +53,7 @@ jest.mock('../../../../api/measures', () => ({
 }));
 
 it('should work', async () => {
-  const wrapper = shallow(<App component={{ key: 'foo' }} />);
+  const wrapper = shallow<App>(<App component={{ key: 'foo' }} />);
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
@@ -67,7 +67,7 @@ it('should work', async () => {
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().measures).toMatchSnapshot();
-  expect(wrapper.state().paging.total).toBe(2);
+  expect(wrapper.state().paging!.total).toBe(2);
 
   // edit
   wrapper.find('List').prop<Function>('onEdit')({
@@ -77,11 +77,11 @@ it('should work', async () => {
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().measures).toMatchSnapshot();
-  expect(wrapper.state().paging.total).toBe(2);
+  expect(wrapper.state().paging!.total).toBe(2);
 
   // delete
   wrapper.find('List').prop<Function>('onDelete')('2');
   await waitAndUpdate(wrapper);
   expect(wrapper.state().measures).toMatchSnapshot();
-  expect(wrapper.state().paging.total).toBe(1);
+  expect(wrapper.state().paging!.total).toBe(1);
 });

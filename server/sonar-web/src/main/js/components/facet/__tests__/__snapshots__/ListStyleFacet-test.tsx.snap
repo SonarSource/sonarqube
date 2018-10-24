@@ -21,75 +21,69 @@ exports[`should display all selected items 1`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={false}
-      className="little-spacer-top spacer-bottom"
+  <SearchBox
+    autoFocus={false}
+    className="little-spacer-top spacer-bottom"
+    loading={false}
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search for foo..."
+    value=""
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={true}
+      disabled={false}
+      halfWidth={false}
+      key="a"
       loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search for foo..."
-      value=""
+      name="a"
+      onClick={[Function]}
+      stat="10"
+      tooltip="a"
+      value="a"
     />
-    <React.Fragment>
-      <FacetItemsList>
-        <FacetItem
-          active={true}
-          disabled={false}
-          halfWidth={false}
-          key="a"
-          loading={false}
-          name="a"
-          onClick={[Function]}
-          stat="10"
-          tooltip="a"
-          value="a"
-        />
-        <FacetItem
-          active={true}
-          disabled={false}
-          halfWidth={false}
-          key="b"
-          loading={false}
-          name="b"
-          onClick={[Function]}
-          stat="5"
-          tooltip="b"
-          value="b"
-        />
-      </FacetItemsList>
-      <React.Fragment>
-        <div
-          className="note spacer-bottom text-center"
-        >
-          ⋯
-        </div>
-        <FacetItemsList>
-          <FacetItem
-            active={true}
-            disabled={false}
-            halfWidth={false}
-            key="c"
-            loading={false}
-            name="c"
-            onClick={[Function]}
-            stat="3"
-            tooltip="c"
-            value="c"
-          />
-        </FacetItemsList>
-      </React.Fragment>
-      <ListStyleFacetFooter
-        count={3}
-        showMore={[Function]}
-        total={3}
-      />
-    </React.Fragment>
-    <MultipleSelectionHint
-      options={3}
-      values={3}
+    <FacetItem
+      active={true}
+      disabled={false}
+      halfWidth={false}
+      key="b"
+      loading={false}
+      name="b"
+      onClick={[Function]}
+      stat="5"
+      tooltip="b"
+      value="b"
     />
-  </React.Fragment>
+  </FacetItemsList>
+  <div
+    className="note spacer-bottom text-center"
+  >
+    ⋯
+  </div>
+  <FacetItemsList>
+    <FacetItem
+      active={true}
+      disabled={false}
+      halfWidth={false}
+      key="c"
+      loading={false}
+      name="c"
+      onClick={[Function]}
+      stat="3"
+      tooltip="c"
+      value="c"
+    />
+  </FacetItemsList>
+  <ListStyleFacetFooter
+    count={3}
+    showMore={[Function]}
+    total={3}
+  />
+  <MultipleSelectionHint
+    options={3}
+    values={3}
+  />
 </FacetBox>
 `;
 
@@ -108,66 +102,62 @@ exports[`should render 1`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={false}
-      className="little-spacer-top spacer-bottom"
+  <SearchBox
+    autoFocus={false}
+    className="little-spacer-top spacer-bottom"
+    loading={false}
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search for foo..."
+    value=""
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="a"
       loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search for foo..."
-      value=""
+      name="a"
+      onClick={[Function]}
+      stat="10"
+      tooltip="a"
+      value="a"
     />
-    <React.Fragment>
-      <FacetItemsList>
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="a"
-          loading={false}
-          name="a"
-          onClick={[Function]}
-          stat="10"
-          tooltip="a"
-          value="a"
-        />
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="b"
-          loading={false}
-          name="b"
-          onClick={[Function]}
-          stat="8"
-          tooltip="b"
-          value="b"
-        />
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="c"
-          loading={false}
-          name="c"
-          onClick={[Function]}
-          stat="1"
-          tooltip="c"
-          value="c"
-        />
-      </FacetItemsList>
-      <ListStyleFacetFooter
-        count={3}
-        showMore={[Function]}
-        total={3}
-      />
-    </React.Fragment>
-    <MultipleSelectionHint
-      options={3}
-      values={0}
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="b"
+      loading={false}
+      name="b"
+      onClick={[Function]}
+      stat="8"
+      tooltip="b"
+      value="b"
     />
-  </React.Fragment>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="c"
+      loading={false}
+      name="c"
+      onClick={[Function]}
+      stat="1"
+      tooltip="c"
+      value="c"
+    />
+  </FacetItemsList>
+  <ListStyleFacetFooter
+    count={3}
+    showMore={[Function]}
+    total={3}
+  />
+  <MultipleSelectionHint
+    options={3}
+    values={0}
+  />
 </FacetBox>
 `;
 
@@ -186,56 +176,52 @@ exports[`should search 1`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={false}
-      className="little-spacer-top spacer-bottom"
+  <SearchBox
+    autoFocus={false}
+    className="little-spacer-top spacer-bottom"
+    loading={false}
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search for foo..."
+    value="query"
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="d"
       loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search for foo..."
-      value="query"
+      name="d"
+      onClick={[Function]}
+      stat="7"
+      tooltip="d"
+      value="d"
     />
-    <React.Fragment>
-      <FacetItemsList>
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="d"
-          loading={false}
-          name="d"
-          onClick={[Function]}
-          stat="7"
-          tooltip="d"
-          value="d"
-        />
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="e"
-          loading={false}
-          name="e"
-          onClick={[Function]}
-          stat="3"
-          tooltip="e"
-          value="e"
-        />
-      </FacetItemsList>
-      <ListFooter
-        className="spacer-bottom"
-        count={2}
-        loadMore={[Function]}
-        ready={true}
-        total={3}
-      />
-    </React.Fragment>
-    <MultipleSelectionHint
-      options={3}
-      values={0}
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="e"
+      loading={false}
+      name="e"
+      onClick={[Function]}
+      stat="3"
+      tooltip="e"
+      value="e"
     />
-  </React.Fragment>
+  </FacetItemsList>
+  <ListFooter
+    className="spacer-bottom"
+    count={2}
+    loadMore={[Function]}
+    ready={true}
+    total={3}
+  />
+  <MultipleSelectionHint
+    options={3}
+    values={0}
+  />
 </FacetBox>
 `;
 
@@ -254,68 +240,64 @@ exports[`should search 2`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={false}
-      className="little-spacer-top spacer-bottom"
+  <SearchBox
+    autoFocus={false}
+    className="little-spacer-top spacer-bottom"
+    loading={false}
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search for foo..."
+    value="query"
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="d"
       loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search for foo..."
-      value="query"
+      name="d"
+      onClick={[Function]}
+      stat="7"
+      tooltip="d"
+      value="d"
     />
-    <React.Fragment>
-      <FacetItemsList>
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="d"
-          loading={false}
-          name="d"
-          onClick={[Function]}
-          stat="7"
-          tooltip="d"
-          value="d"
-        />
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="e"
-          loading={false}
-          name="e"
-          onClick={[Function]}
-          stat="3"
-          tooltip="e"
-          value="e"
-        />
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="f"
-          loading={false}
-          name="f"
-          onClick={[Function]}
-          stat="5"
-          tooltip="f"
-          value="f"
-        />
-      </FacetItemsList>
-      <ListFooter
-        className="spacer-bottom"
-        count={3}
-        loadMore={[Function]}
-        ready={true}
-        total={3}
-      />
-    </React.Fragment>
-    <MultipleSelectionHint
-      options={3}
-      values={0}
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="e"
+      loading={false}
+      name="e"
+      onClick={[Function]}
+      stat="3"
+      tooltip="e"
+      value="e"
     />
-  </React.Fragment>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="f"
+      loading={false}
+      name="f"
+      onClick={[Function]}
+      stat="5"
+      tooltip="f"
+      value="f"
+    />
+  </FacetItemsList>
+  <ListFooter
+    className="spacer-bottom"
+    count={3}
+    loadMore={[Function]}
+    ready={true}
+    total={3}
+  />
+  <MultipleSelectionHint
+    options={3}
+    values={0}
+  />
 </FacetBox>
 `;
 
@@ -334,66 +316,62 @@ exports[`should search 3`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={false}
-      className="little-spacer-top spacer-bottom"
+  <SearchBox
+    autoFocus={false}
+    className="little-spacer-top spacer-bottom"
+    loading={false}
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search for foo..."
+    value=""
+  />
+  <FacetItemsList>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="a"
       loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search for foo..."
-      value=""
+      name="a"
+      onClick={[Function]}
+      stat="10"
+      tooltip="a"
+      value="a"
     />
-    <React.Fragment>
-      <FacetItemsList>
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="a"
-          loading={false}
-          name="a"
-          onClick={[Function]}
-          stat="10"
-          tooltip="a"
-          value="a"
-        />
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="b"
-          loading={false}
-          name="b"
-          onClick={[Function]}
-          stat="8"
-          tooltip="b"
-          value="b"
-        />
-        <FacetItem
-          active={false}
-          disabled={false}
-          halfWidth={false}
-          key="c"
-          loading={false}
-          name="c"
-          onClick={[Function]}
-          stat="1"
-          tooltip="c"
-          value="c"
-        />
-      </FacetItemsList>
-      <ListStyleFacetFooter
-        count={3}
-        showMore={[Function]}
-        total={3}
-      />
-    </React.Fragment>
-    <MultipleSelectionHint
-      options={3}
-      values={0}
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="b"
+      loading={false}
+      name="b"
+      onClick={[Function]}
+      stat="8"
+      tooltip="b"
+      value="b"
     />
-  </React.Fragment>
+    <FacetItem
+      active={false}
+      disabled={false}
+      halfWidth={false}
+      key="c"
+      loading={false}
+      name="c"
+      onClick={[Function]}
+      stat="1"
+      tooltip="c"
+      value="c"
+    />
+  </FacetItemsList>
+  <ListStyleFacetFooter
+    count={3}
+    showMore={[Function]}
+    total={3}
+  />
+  <MultipleSelectionHint
+    options={3}
+    values={0}
+  />
 </FacetBox>
 `;
 
@@ -412,26 +390,24 @@ exports[`should search 4`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={false}
-      className="little-spacer-top spacer-bottom"
-      loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search for foo..."
-      value="blabla"
-    />
-    <div
-      className="note spacer-bottom"
-    >
-      no_results
-    </div>
-    <MultipleSelectionHint
-      options={3}
-      values={0}
-    />
-  </React.Fragment>
+  <SearchBox
+    autoFocus={false}
+    className="little-spacer-top spacer-bottom"
+    loading={false}
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search for foo..."
+    value="blabla"
+  />
+  <div
+    className="note spacer-bottom"
+  >
+    no_results
+  </div>
+  <MultipleSelectionHint
+    options={3}
+    values={0}
+  />
 </FacetBox>
 `;
 
@@ -450,25 +426,23 @@ exports[`should search 5`] = `
     loading={false}
     timeout={100}
   />
-  <React.Fragment>
-    <SearchBox
-      autoFocus={false}
-      className="little-spacer-top spacer-bottom"
-      loading={false}
-      minLength={2}
-      onChange={[Function]}
-      placeholder="search for foo..."
-      value="blabla"
-    />
-    <div
-      className="note spacer-bottom"
-    >
-      no_results
-    </div>
-    <MultipleSelectionHint
-      options={3}
-      values={0}
-    />
-  </React.Fragment>
+  <SearchBox
+    autoFocus={false}
+    className="little-spacer-top spacer-bottom"
+    loading={false}
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search for foo..."
+    value="blabla"
+  />
+  <div
+    className="note spacer-bottom"
+  >
+    no_results
+  </div>
+  <MultipleSelectionHint
+    options={3}
+    values={0}
+  />
 </FacetBox>
 `;
