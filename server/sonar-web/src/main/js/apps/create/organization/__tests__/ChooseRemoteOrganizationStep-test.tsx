@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ChooseRemoteOrganizationStep from '../ChooseRemoteOrganizationStep';
+import { ChooseRemoteOrganizationStep } from '../ChooseRemoteOrganizationStep';
+import { mockRouter, submit } from '../../../../helpers/testUtils';
 
 it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -29,8 +30,26 @@ it('should display an alert message', () => {
   expect(shallowRender({ almInstallId: 'foo' }).find('Alert')).toMatchSnapshot();
 });
 
+it('should display unbound installations', () => {
+  const installation = { installationId: '12345', name: 'Foo' };
+  const push = jest.fn();
+  const wrapper = shallowRender({
+    almUnboundApplications: [installation],
+    router: mockRouter({ push })
+  });
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('Select').prop<Function>('onChange')(installation);
+  submit(wrapper.find('form'));
+  expect(push).toHaveBeenCalledWith({
+    pathname: '/create-organization',
+    query: { installation_id: installation.installationId } // eslint-disable-line camelcase
+  });
+});
+
 function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {}) {
   return shallow(
+    // @ts-ignore avoid passing everything from WithRouterProps
     <ChooseRemoteOrganizationStep
       almApplication={{
         backgroundColor: 'blue',
@@ -39,6 +58,8 @@ function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {
         key: 'github',
         name: 'GitHub'
       }}
+      almUnboundApplications={[]}
+      router={mockRouter()}
       {...props}
     />
   ).dive();

@@ -115,7 +115,7 @@ export function ComponentNavMeta({
           {branchMeasures &&
             branchMeasures.length > 0 && (
               <>
-                <span className="vertical-separator" />
+                <span className="vertical-separator big-spacer-left big-spacer-right" />
                 <BranchMeasures
                   branchLike={branchLike}
                   componentKey={component.key}

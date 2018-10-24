@@ -105,6 +105,7 @@ function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
         key: 'bitbucket',
         name: 'BitBucket'
       }}
+      almUnboundApplications={[]}
       createOrganization={jest.fn()}
       onOrgCreated={jest.fn()}
       unboundOrganizations={[]}

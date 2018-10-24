@@ -27,8 +27,9 @@ import RadioToggle from '../../../components/controls/RadioToggle';
 import {
   AlmApplication,
   AlmOrganization,
-  OrganizationBase,
-  Organization
+  AlmUnboundApplication,
+  Organization,
+  OrganizationBase
 } from '../../../app/types';
 import { bindAlmOrganization } from '../../../api/alm-integration';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
@@ -45,6 +46,7 @@ interface Props {
   almApplication: AlmApplication;
   almInstallId?: string;
   almOrganization?: AlmOrganization;
+  almUnboundApplications: AlmUnboundApplication[];
   createOrganization: (
     organization: OrganizationBase & { installationId?: string }
   ) => Promise<Organization>;
@@ -166,6 +168,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
       <ChooseRemoteOrganizationStep
         almApplication={this.props.almApplication}
         almInstallId={almInstallId}
+        almUnboundApplications={this.props.almUnboundApplications}
       />
     );
   }

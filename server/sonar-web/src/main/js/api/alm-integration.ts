@@ -18,7 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, postJSON, post } from '../helpers/request';
-import { AlmRepository, AlmApplication, AlmOrganization } from '../app/types';
+import {
+  AlmApplication,
+  AlmOrganization,
+  AlmRepository,
+  AlmUnboundApplication
+} from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function bindAlmOrganization(data: { installationId: string; organization: string }) {
@@ -57,6 +62,10 @@ export function getRepositories(data: {
   organization: string;
 }): Promise<{ repositories: AlmRepository[] }> {
   return getJSON('/api/alm_integration/list_repositories', data).catch(throwGlobalError);
+}
+
+export function listUnboundApplications(): Promise<{ applications: AlmUnboundApplication[] }> {
+  return getJSON('/api/alm_integration/list_unbound_applications').catch(throwGlobalError);
 }
 
 export function provisionProject(data: {

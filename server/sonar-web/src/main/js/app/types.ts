@@ -26,6 +26,7 @@ export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export interface AlmApplication extends IdentityProvider {
   installationUrl: string;
 }
+
 export interface AlmOrganization extends OrganizationBase {
   key: string;
   personal: boolean;
@@ -36,6 +37,11 @@ export interface AlmRepository {
   installationKey: string;
   linkedProjectKey?: string;
   linkedProjectName?: string;
+}
+
+export interface AlmUnboundApplication {
+  installationId: string;
+  name: string;
 }
 
 export interface Analysis {

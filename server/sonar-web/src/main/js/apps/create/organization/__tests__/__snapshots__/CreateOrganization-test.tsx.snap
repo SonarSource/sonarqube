@@ -61,7 +61,7 @@ exports[`should render with auto personal organization bind page 2`] = `
       almInstallId="foo"
       almOrganization={
         Object {
-          "avatar": "https://avatars3.githubusercontent.com/u/37629810?v=4",
+          "avatar": "my-avatar",
           "key": "foo",
           "name": "Foo",
           "personal": true,
@@ -148,6 +148,7 @@ exports[`should render with auto tab displayed 1`] = `
           "name": "GitHub",
         }
       }
+      almUnboundApplications={Array []}
       onOrgCreated={[Function]}
       unboundOrganizations={
         Array [
@@ -240,7 +241,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
       almInstallId="foo"
       almOrganization={
         Object {
-          "avatar": "https://avatars3.githubusercontent.com/u/37629810?v=4",
+          "avatar": "my-avatar",
           "description": "Continuous Code Quality",
           "key": "sonarsource",
           "name": "SonarSource",
@@ -248,6 +249,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
           "url": "https://www.sonarsource.com",
         }
       }
+      almUnboundApplications={Array []}
       onOrgCreated={[Function]}
       unboundOrganizations={
         Array [
@@ -392,6 +394,7 @@ exports[`should switch tabs 1`] = `
           "name": "GitHub",
         }
       }
+      almUnboundApplications={Array []}
       onOrgCreated={[Function]}
       unboundOrganizations={
         Array [

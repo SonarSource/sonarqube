@@ -299,6 +299,11 @@ td.big-spacer-top {
   align-items: center;
 }
 
+.display-flex-stretch {
+  display: flex !important;
+  align-items: stretch;
+}
+
 .display-inline-flex-baseline {
   display: inline-flex !important;
   align-items: baseline;
@@ -354,13 +359,20 @@ td.big-spacer-top {
 }
 
 .vertical-separator {
-  margin-left: calc(2 * var(--gridSize));
-  margin-right: calc(2 * var(--gridSize));
+  width: 1px;
+  min-height: 16px;
+  flex-grow: 1;
+  background-color: var(--barBorderColor);
 }
 
-.vertical-separator:after {
-  content: '|';
-  color: var(--barBorderColor);
+.vertical-pipe-separator {
+  display: flex;
+  flex-direction: column;
+  margin-right: 60px;
+}
+
+.vertical-pipe-separator > .vertical-separator {
+  margin: 4px auto;
 }
 
 .capitalize {

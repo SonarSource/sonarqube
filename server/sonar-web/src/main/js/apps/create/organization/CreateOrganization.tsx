@@ -34,18 +34,20 @@ import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
 import {
+  bindAlmOrganization,
   getAlmAppInfo,
   getAlmOrganization,
-  bindAlmOrganization
+  listUnboundApplications
 } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
 import {
-  LoggedInUser,
-  Organization,
-  SubscriptionPlan,
   AlmApplication,
   AlmOrganization,
-  OrganizationBase
+  AlmUnboundApplication,
+  LoggedInUser,
+  Organization,
+  OrganizationBase,
+  SubscriptionPlan
 } from '../../../app/types';
 import { hasAdvancedALMIntegration, isPersonal } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
@@ -72,6 +74,7 @@ interface State {
   almApplication?: AlmApplication;
   almOrganization?: AlmOrganization;
   almOrgLoading: boolean;
+  almUnboundApplications: AlmUnboundApplication[];
   loading: boolean;
   organization?: Organization;
   subscriptionPlans?: SubscriptionPlan[];
@@ -86,7 +89,7 @@ interface LocationState {
 
 export class CreateOrganization extends React.PureComponent<Props & WithRouterProps, State> {
   mounted = false;
-  state: State = { almOrgLoading: false, loading: true };
+  state: State = { almOrgLoading: false, almUnboundApplications: [], loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -101,9 +104,24 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       const query = parseQuery(this.props.location.query);
       if (query.almInstallId) {
         this.fetchAlmOrganization(query.almInstallId);
+      } else {
+        initRequests.push(this.fetchAlmUnboundApplications());
       }
     }
     Promise.all(initRequests).then(this.stopLoading, this.stopLoading);
+  }
+
+  componentDidUpdate(prevProps: WithRouterProps) {
+    const prevQuery = parseQuery(prevProps.location.query);
+    const query = parseQuery(this.props.location.query);
+    if (this.state.almApplication && prevQuery.almInstallId !== query.almInstallId) {
+      if (query.almInstallId) {
+        this.fetchAlmOrganization(query.almInstallId);
+      } else {
+        this.setState({ almOrganization: undefined, loading: true });
+        this.fetchAlmUnboundApplications().then(this.stopLoading, this.stopLoading);
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -115,6 +133,14 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     return getAlmAppInfo().then(({ application }) => {
       if (this.mounted) {
         this.setState({ almApplication: application });
+      }
+    });
+  };
+
+  fetchAlmUnboundApplications = () => {
+    return listUnboundApplications().then(({ applications }) => {
+      if (this.mounted) {
+        this.setState({ almUnboundApplications: applications });
       }
     });
   };
@@ -237,6 +263,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
             almApplication={almApplication}
             almInstallId={almInstallId}
             almOrganization={almOrganization}
+            almUnboundApplications={this.state.almUnboundApplications}
             createOrganization={this.props.createOrganization}
             onOrgCreated={this.handleOrgCreated}
             unboundOrganizations={this.props.userOrganizations.filter(

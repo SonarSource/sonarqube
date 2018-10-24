@@ -56,7 +56,7 @@ exports[`should display choice between import or creation 1`] = `
           },
         ]
       }
-      value="none"
+      value={null}
     />
   </div>
 </OrganizationDetailsStep>
@@ -121,7 +121,7 @@ exports[`should render prefilled and create org 1`] = `
 `;
 
 exports[`should render with import org button 1`] = `
-<ChooseRemoteOrganizationStep
+<withRouter(ChooseRemoteOrganizationStep)
   almApplication={
     Object {
       "backgroundColor": "#0052CC",
@@ -131,5 +131,6 @@ exports[`should render with import org button 1`] = `
       "name": "BitBucket",
     }
   }
+  almUnboundApplications={Array []}
 />
 `;

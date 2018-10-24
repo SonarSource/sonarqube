@@ -18,12 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { times } from 'lodash';
 import { Location } from 'history';
 import { shallow } from 'enzyme';
 import { CreateOrganization } from '../CreateOrganization';
 import { mockRouter, waitAndUpdate } from '../../../../helpers/testUtils';
 import { LoggedInUser } from '../../../../app/types';
-import { getAlmOrganization } from '../../../../api/alm-integration';
+import {
+  getAlmAppInfo,
+  getAlmOrganization,
+  listUnboundApplications
+} from '../../../../api/alm-integration';
+import { getSubscriptionPlans } from '../../../../api/billing';
+import { getOrganizations } from '../../../../api/organizations';
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest
@@ -42,17 +49,18 @@ jest.mock('../../../../api/alm-integration', () => ({
     }
   }),
   getAlmOrganization: jest.fn().mockResolvedValue({
-    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+    avatar: 'my-avatar',
     description: 'Continuous Code Quality',
     key: 'sonarsource',
     name: 'SonarSource',
     personal: false,
     url: 'https://www.sonarsource.com'
-  })
+  }),
+  listUnboundApplications: jest.fn().mockResolvedValue({ applications: [] })
 }));
 
 jest.mock('../../../../api/organizations', () => ({
-  getOrganization: jest.fn().mockResolvedValue(undefined)
+  getOrganizations: jest.fn().mockResolvedValue({ organizations: [] })
 }));
 
 const user: LoggedInUser = {
@@ -64,10 +72,20 @@ const user: LoggedInUser = {
   showOnboardingTutorial: false
 };
 
+beforeEach(() => {
+  (getAlmAppInfo as jest.Mock<any>).mockClear();
+  (getAlmOrganization as jest.Mock<any>).mockClear();
+  (listUnboundApplications as jest.Mock<any>).mockClear();
+  (getSubscriptionPlans as jest.Mock<any>).mockClear();
+  (getOrganizations as jest.Mock<any>).mockClear();
+});
+
 it('should render with manual tab displayed', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+  expect(getSubscriptionPlans).toHaveBeenCalled();
+  expect(getAlmAppInfo).not.toHaveBeenCalled();
 });
 
 it('should preselect paid plan on manual creation', async () => {
@@ -82,6 +100,8 @@ it('should render with auto tab displayed', async () => {
   const wrapper = shallowRender({ currentUser: { ...user, externalProvider: 'github' } });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+  expect(getAlmAppInfo).toHaveBeenCalled();
+  expect(listUnboundApplications).toHaveBeenCalled();
 });
 
 it('should render with auto tab selected and manual disabled', async () => {
@@ -92,13 +112,16 @@ it('should render with auto tab selected and manual disabled', async () => {
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+  expect(getAlmAppInfo).toHaveBeenCalled();
+  expect(getAlmOrganization).toHaveBeenCalled();
+  expect(getOrganizations).toHaveBeenCalled();
 });
 
 it('should render with auto personal organization bind page', async () => {
   (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
     key: 'foo',
     name: 'Foo',
-    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+    avatar: 'my-avatar',
     personal: true
   });
   const wrapper = shallowRender({
@@ -112,18 +135,24 @@ it('should render with auto personal organization bind page', async () => {
 
 it('should slugify and find a uniq organization key', async () => {
   (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
+    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
     key: 'Foo&Bar',
     name: 'Foo & Bar',
-    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
-    type: 'USER'
+    personal: true
+  });
+  (getOrganizations as jest.Mock<any>).mockResolvedValueOnce({
+    organizations: [{ key: 'foo-and-bar' }, { key: 'foo-and-bar-1' }]
   });
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github' },
     location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
   });
   await waitAndUpdate(wrapper);
+  expect(getOrganizations).toHaveBeenCalledWith({
+    organizations: ['foo-and-bar', ...times(9, i => `foo-and-bar-${i + 1}`)].join(',')
+  });
   expect(wrapper.find('AutoOrganizationCreate').prop('almOrganization')).toMatchObject({
-    key: 'foo-and-bar'
+    key: 'foo-and-bar-2'
   });
 });
 
@@ -145,6 +174,17 @@ it('should switch tabs', async () => {
   expect(wrapper.find('ManualOrganizationCreate').exists()).toBeTruthy();
   (wrapper.find('Tabs').prop('onChange') as Function)('auto');
   expect(wrapper.find('AutoOrganizationCreate').exists()).toBeTruthy();
+});
+
+it('should reload the alm organization when the url query changes', async () => {
+  const wrapper = shallowRender({ currentUser: { ...user, externalProvider: 'github' } });
+  await waitAndUpdate(wrapper);
+  expect(getAlmOrganization).not.toHaveBeenCalled();
+  wrapper.setProps({ location: { query: { installation_id: 'foo' } } }); // eslint-disable-line camelcase
+  expect(getAlmOrganization).toHaveBeenCalledWith({ installationId: 'foo' });
+  wrapper.setProps({ location: { query: {} } });
+  expect(wrapper.state('almOrganization')).toBeUndefined();
+  expect(listUnboundApplications).toHaveBeenCalledTimes(2);
 });
 
 function shallowRender(props: Partial<CreateOrganization['props']> = {}) {

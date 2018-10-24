@@ -104,7 +104,7 @@ exports[`renders status of short-living branch 1`] = `
       }
     />
     <span
-      className="vertical-separator"
+      className="vertical-separator big-spacer-left big-spacer-right"
     />
     <BranchMeasures
       branchLike={

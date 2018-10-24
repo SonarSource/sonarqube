@@ -20,7 +20,13 @@
 import { memoize } from 'lodash';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { RawQuery, parseAsOptionalString } from '../../../helpers/query';
+import {
+  RawQuery,
+  parseAsOptionalString,
+  cleanQuery,
+  serializeString
+} from '../../../helpers/query';
+import { isBitbucket, isGithub } from '../../../helpers/almIntegrations';
 
 export function formatPrice(price?: number, noSign?: boolean) {
   const priceFormatted = formatMeasure(price, 'FLOAT')
@@ -47,3 +53,10 @@ export const parseQuery = memoize(
     };
   }
 );
+
+export const serializeQuery = (query: Query): RawQuery =>
+  cleanQuery({
+    // eslint-disable-next-line camelcase
+    installation_id: isGithub(query.almKey) ? serializeString(query.almInstallId) : undefined,
+    clientKey: isBitbucket(query.almKey) ? serializeString(query.almInstallId) : undefined
+  });
