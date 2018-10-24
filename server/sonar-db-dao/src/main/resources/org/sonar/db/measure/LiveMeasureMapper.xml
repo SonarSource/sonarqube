@@ -34,6 +34,14 @@
     </foreach>
   </select>
 
+  <select id="selectByComponentUuidAndMetricKey" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
+    select <include refid="columns"/> from live_measures lm
+    inner join metrics m on m.id = lm.metric_id
+    where
+    m.name = #{metricKey, jdbcType=VARCHAR}
+    and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
+  </select>
+
   <select id="sumNclocOfBiggestLongLivingBranch" parameterType="map" resultType="long">
     select sum(sumncloc.maxncloc) from (
       select b.project_uuid as projectUuid, max(lm.value) as maxncloc

@@ -65,6 +65,11 @@ public class LiveMeasureDao implements Dao {
       componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricKeys(componentUuids, metricKeys));
   }
 
+  public Optional<LiveMeasureDto> selectByComponentUuidAndMetricKey(DbSession dbSession, String componentUuid, String metricKey) {
+    LiveMeasureDto liveMeasureDto = mapper(dbSession).selectByComponentUuidAndMetricKey(componentUuid, metricKey);
+    return Optional.ofNullable(liveMeasureDto);
+  }
+
   public Optional<LiveMeasureDto> selectMeasure(DbSession dbSession, String componentUuid, String metricKey) {
     List<LiveMeasureDto> measures = selectByComponentUuidsAndMetricKeys(dbSession, singletonList(componentUuid), singletonList(metricKey));
     // couple of columns [component_uuid, metric_id] is unique. List can't have more than 1 item.

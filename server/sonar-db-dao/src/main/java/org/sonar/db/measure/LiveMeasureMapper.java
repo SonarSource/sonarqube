@@ -37,6 +37,10 @@ public interface LiveMeasureMapper {
     @Param("componentUuids") List<String> componentUuids,
     @Param("metricKeys") Collection<String> metricKeys);
 
+  LiveMeasureDto selectByComponentUuidAndMetricKey(
+    @Param("componentUuid") String componentUuid,
+    @Param("metricKey") String metricKey);
+
   void selectTreeByQuery(
     @Param("query") MeasureTreeQuery measureQuery,
     @Param("baseUuid") String baseUuid,
