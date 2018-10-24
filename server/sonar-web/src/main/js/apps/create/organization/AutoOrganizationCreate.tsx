@@ -23,6 +23,7 @@ import AutoOrganizationBind from './AutoOrganizationBind';
 import ChooseRemoteOrganizationStep from './ChooseRemoteOrganizationStep';
 import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
+import RadioToggle from '../../../components/controls/RadioToggle';
 import {
   AlmApplication,
   AlmOrganization,
@@ -31,9 +32,8 @@ import {
 } from '../../../app/types';
 import { bindAlmOrganization } from '../../../api/alm-integration';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import RadioToggle from '../../../components/controls/RadioToggle';
+import { getBaseUrl } from '../../../helpers/urls';
 
 export enum Filters {
   Bind = 'bind',

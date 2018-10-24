@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { times } from 'lodash';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Helmet } from 'react-helmet';
@@ -48,6 +49,7 @@ import {
 } from '../../../app/types';
 import { hasAdvancedALMIntegration, isPersonal } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
+import { slugify } from '../../../helpers/strings';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
@@ -117,20 +119,37 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     });
   };
 
+  fetchValidOrgKey = (almOrganization: AlmOrganization) => {
+    const key = slugify(almOrganization.key);
+    const keys = [key, ...times(9, i => `${key}-${i + 1}`)];
+    return api
+      .getOrganizations({ organizations: keys.join(',') })
+      .then(
+        ({ organizations }) => {
+          const availableKey = keys.find(key => !organizations.find(o => o.key === key));
+          return availableKey || `${key}-${Math.ceil(Math.random() * 1000) + 10}`;
+        },
+        () => key
+      )
+      .then(key => {
+        return { ...almOrganization, key };
+      });
+  };
+
   fetchAlmOrganization = (installationId: string) => {
     this.setState({ almOrgLoading: true });
-    return getAlmOrganization({ installationId }).then(
-      almOrganization => {
+    return getAlmOrganization({ installationId })
+      .then(this.fetchValidOrgKey)
+      .then(almOrganization => {
         if (this.mounted) {
           this.setState({ almOrganization, almOrgLoading: false });
         }
-      },
-      () => {
+      })
+      .catch(() => {
         if (this.mounted) {
           this.setState({ almOrgLoading: false });
         }
-      }
-    );
+      });
   };
 
   fetchSubscriptionPlans = () => {

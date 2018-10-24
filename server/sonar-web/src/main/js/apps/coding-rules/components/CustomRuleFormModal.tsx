@@ -23,12 +23,12 @@ import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import { SEVERITIES, RULE_TYPES, RULE_STATUSES } from '../../../helpers/constants';
-import latinize from '../../../helpers/latinize';
 import Select from '../../../components/controls/Select';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { createRule, updateRule } from '../../../api/rules';
 import { csvEscape } from '../../../helpers/csv';
+import { latinize } from '../../../helpers/strings';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { Alert } from '../../../components/ui/Alert';
 

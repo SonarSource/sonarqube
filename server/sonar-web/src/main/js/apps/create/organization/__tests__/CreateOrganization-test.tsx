@@ -51,6 +51,10 @@ jest.mock('../../../../api/alm-integration', () => ({
   })
 }));
 
+jest.mock('../../../../api/organizations', () => ({
+  getOrganization: jest.fn().mockResolvedValue(undefined)
+}));
+
 const user: LoggedInUser = {
   groups: [],
   isLoggedIn: true,
@@ -104,6 +108,23 @@ it('should render with auto personal organization bind page', async () => {
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should slugify and find a uniq organization key', async () => {
+  (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
+    key: 'Foo&Bar',
+    name: 'Foo & Bar',
+    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+    type: 'USER'
+  });
+  const wrapper = shallowRender({
+    currentUser: { ...user, externalProvider: 'github' },
+    location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('AutoOrganizationCreate').prop('almOrganization')).toMatchObject({
+    key: 'foo-and-bar'
+  });
 });
 
 it('should switch tabs', async () => {

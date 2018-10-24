@@ -394,15 +394,26 @@ const defaultDiacriticsRemovalap = [
 ];
 
 const diacriticsMap: { [x: string]: string } = {};
-for (let i = 0; i < defaultDiacriticsRemovalap.length; i++) {
-  const letters = defaultDiacriticsRemovalap[i].letters.split('');
-  for (let j = 0; j < letters.length; j++) {
-    diacriticsMap[letters[j]] = defaultDiacriticsRemovalap[i].base;
-  }
-}
+defaultDiacriticsRemovalap.forEach(defaultDiacritic =>
+  defaultDiacritic.letters.split('').forEach(letter => {
+    diacriticsMap[letter] = defaultDiacritic.base;
+  })
+);
 
 // "what?" version ... http://jsperf.com/diacritics/12
-export default function removeDiacritics(str: string): string {
+export function latinize(str: string): string {
   // eslint-disable-next-line no-control-regex
   return str.replace(/[^\u0000-\u007E]/g, a => diacriticsMap[a] || a);
+}
+
+// Inspired from https://github.com/SonarSource/sonar-enterprise/blob/master/sonar-core/src/main/java/org/sonar/core/util/Slug.java
+export function slugify(text: string) {
+  return latinize(text.trim().toLowerCase())
+    .replace(/&/g, '-and-') // Replace & with 'and'
+    .replace(/[^\w-]+/g, '-') // Replace all non-word chars with dash
+    .replace(/\s+/g, '-') // Replace whitespaces with dash
+    .replace(/[·/_,:;]/g, '-') // Replace special chars with dash
+    .replace(/--+/g, '-') // Replace multiple dash with single dash
+    .replace(/^-+/, '') // Remove heading dash
+    .replace(/-+$/, ''); // Remove trailing dash
 }
