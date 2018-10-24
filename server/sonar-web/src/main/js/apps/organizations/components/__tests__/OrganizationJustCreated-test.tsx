@@ -37,7 +37,7 @@ it('should create new project', () => {
     context: { openProjectOnboarding }
   });
   click(wrapper.find('Button').first());
-  expect(openProjectOnboarding).toBeCalledWith('foo');
+  expect(openProjectOnboarding).toBeCalledWith({ key: 'foo', name: 'Foo' });
 });
 
 it('should add members', () => {

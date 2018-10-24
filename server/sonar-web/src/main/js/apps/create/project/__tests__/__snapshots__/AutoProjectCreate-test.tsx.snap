@@ -2,7 +2,7 @@
 
 exports[`should display the bounded organizations dropdown with the list of repositories 1`] = `
 <Fragment>
-  <OrganizationInput
+  <withRouter(OrganizationInput)
     autoImport={true}
     onChange={[Function]}
     organization="foo"

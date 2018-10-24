@@ -37,7 +37,7 @@ export class OrganizationJustCreated extends React.PureComponent<Props & WithRou
   };
 
   handleNewProjectClick = () => {
-    this.context.openProjectOnboarding(this.props.organization.key);
+    this.context.openProjectOnboarding(this.props.organization);
   };
 
   handleAddMembersClick = () => {

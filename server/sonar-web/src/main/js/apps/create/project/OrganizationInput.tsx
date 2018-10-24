@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
+import { WithRouterProps, withRouter } from 'react-router';
 import OrganizationSelect from '../components/OrganizationSelect';
 import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
@@ -30,28 +30,37 @@ interface Props {
   organizations: Organization[];
 }
 
-export default function OrganizationInput({
-  autoImport,
-  onChange,
-  organization,
-  organizations
-}: Props) {
-  return (
-    <div className="form-field spacer-bottom">
-      <label htmlFor="select-organization">
-        {translate('onboarding.create_project.organization')}
-        <em className="mandatory">*</em>
-      </label>
-      <OrganizationSelect
-        onChange={onChange}
-        organization={organization}
-        organizations={organizations}
-      />
-      <Link className="big-spacer-left js-new-org" to="/create-organization">
-        {autoImport
-          ? translate('onboarding.create_project.import_new_org')
-          : translate('onboarding.create_project.create_new_org')}
-      </Link>
-    </div>
-  );
+export class OrganizationInput extends React.PureComponent<Props & WithRouterProps> {
+  handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.props.router.push({
+      pathname: '/create-organization',
+      state: { tab: this.props.autoImport ? 'auto' : 'manual' }
+    });
+  };
+
+  render() {
+    const { autoImport, onChange, organization, organizations } = this.props;
+    return (
+      <div className="form-field spacer-bottom">
+        <label htmlFor="select-organization">
+          {translate('onboarding.create_project.organization')}
+          <em className="mandatory">*</em>
+        </label>
+        <OrganizationSelect
+          onChange={onChange}
+          organization={organization}
+          organizations={organizations}
+        />
+        <a className="big-spacer-left js-new-org" href="#" onClick={this.handleLinkClick}>
+          {autoImport
+            ? translate('onboarding.create_project.import_new_org')
+            : translate('onboarding.create_project.create_new_org')}
+        </a>
+      </div>
+    );
+  }
 }
+
+export default withRouter(OrganizationInput);

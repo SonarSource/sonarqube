@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import OrganizationInput from '../OrganizationInput';
+import { OrganizationInput } from '../OrganizationInput';
+import { mockRouter } from '../../../../helpers/testUtils';
 
 const organizations = [
   { key: 'foo', name: 'Foo' },
@@ -27,21 +28,23 @@ const organizations = [
 ];
 
 it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
   expect(
-    shallow(
-      <OrganizationInput onChange={jest.fn()} organization="bar" organizations={organizations} />
-    )
-  ).toMatchSnapshot();
-  expect(
-    shallow(
-      <OrganizationInput
-        autoImport={true}
-        onChange={jest.fn()}
-        organization="bar"
-        organizations={organizations}
-      />
-    )
+    shallowRender({ autoImport: true })
       .find('.js-new-org')
       .contains('onboarding.create_project.import_new_org')
   ).toBe(true);
 });
+
+function shallowRender(props: Partial<OrganizationInput['props']> = {}) {
+  return shallow(
+    // @ts-ignore avoid passing everything from WithRouterProps
+    <OrganizationInput
+      onChange={jest.fn()}
+      organization="bar"
+      organizations={organizations}
+      router={mockRouter()}
+      {...props}
+    />
+  );
+}

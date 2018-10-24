@@ -36,9 +36,7 @@ export default class EmptyInstance extends React.PureComponent<Props> {
   };
 
   analyzeNewProject = () => {
-    const { organization } = this.props;
-    const organizationKey = organization && organization.key;
-    this.context.openProjectOnboarding(organizationKey);
+    this.context.openProjectOnboarding(this.props.organization);
   };
 
   render() {

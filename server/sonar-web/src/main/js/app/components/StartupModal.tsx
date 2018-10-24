@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import { CurrentUser } from '../types';
+import { CurrentUser, Organization } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
 import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
@@ -121,10 +121,15 @@ export class StartupModal extends React.PureComponent<Props, State> {
     this.props.router.push({ pathname: '/create-organization', state: { paid: true } });
   };
 
-  openProjectOnboarding = (organization?: string) => {
+  openProjectOnboarding = (organization?: Organization) => {
     if (isSonarCloud()) {
       this.setState({ automatic: false, modal: undefined });
-      this.props.router.push({ pathname: `/projects/create`, state: { organization } });
+      const state: { organization?: string; tab?: string } = {};
+      if (organization) {
+        state.organization = organization.key;
+        state.tab = organization.alm ? 'auto' : 'manual';
+      }
+      this.props.router.push({ pathname: `/projects/create`, state });
     } else {
       this.setState({ modal: ModalKey.projectOnboarding });
     }

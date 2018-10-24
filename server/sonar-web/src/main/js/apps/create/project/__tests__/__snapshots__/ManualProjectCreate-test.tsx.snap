@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
   <form
     onSubmit={[Function]}
   >
-    <OrganizationInput
+    <withRouter(OrganizationInput)
       onChange={[Function]}
       organization=""
       organizations={

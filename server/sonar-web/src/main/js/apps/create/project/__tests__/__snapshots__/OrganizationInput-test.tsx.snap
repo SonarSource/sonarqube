@@ -34,13 +34,12 @@ exports[`should render correctly 1`] = `
       ]
     }
   />
-  <Link
+  <a
     className="big-spacer-left js-new-org"
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to="/create-organization"
+    href="#"
+    onClick={[Function]}
   >
     onboarding.create_project.create_new_org
-  </Link>
+  </a>
 </div>
 `;
