@@ -29,6 +29,7 @@ public class DbVersion75 implements DbVersion {
     registry
       .add(2400, "Add column IS_OWNER_USER in ALM_APP_INSTALLS", AddIsOwnerUserColumnInAlmAppInstall.class)
       .add(2401, "Create ORGANIZATION_ALM_BINDINGS table", CreateOrganizationsAlmBindingsTable.class)
+      .add(2402, "Add column USER_EXTERNAL_ID in ALM_APP_INSTALLS", AddUserExternalIdColumnInAlmAppInstall.class)
     ;
   }
 }

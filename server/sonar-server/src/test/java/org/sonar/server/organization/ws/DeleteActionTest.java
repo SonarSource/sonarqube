@@ -37,8 +37,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.alm.ALM;
-import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
@@ -78,8 +76,6 @@ import org.sonar.server.ws.WsActionTester;
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -549,11 +545,7 @@ public class DeleteActionTest {
   @Test
   public void delete_organization_alm_binding() {
     OrganizationDto organization = db.organizations().insert();
-    String installationId = randomAlphanumeric(10);
-    db.getDbClient().almAppInstallDao().insertOrUpdate(db.getSession(), ALM.GITHUB, randomAlphabetic(13), false, installationId);
-    AlmAppInstallDto almAppInstall = db.getDbClient().almAppInstallDao().selectByInstallationId(db.getSession(), ALM.GITHUB, installationId).get();
-    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, almAppInstall, randomAlphabetic(10), db.users().insertUser().getUuid());
-    db.commit();
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
     logInAsAdministrator(organization);
 
     sendRequest(organization);

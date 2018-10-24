@@ -27,9 +27,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,12 +67,13 @@ public class AlmAppInstallDaoTest {
   public void selectByUuid() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
+    String userUuid = Uuids.createFast();
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL, userUuid);
 
     assertThat(underTest.selectByUuid(dbSession, A_UUID).get())
-      .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId,
+      .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId, AlmAppInstallDto::getUserExternalId,
         AlmAppInstallDto::getCreatedAt, AlmAppInstallDto::getUpdatedAt)
-      .contains(A_UUID, GITHUB, A_OWNER, AN_INSTALL, DATE, DATE);
+      .contains(A_UUID, GITHUB, A_OWNER, AN_INSTALL, userUuid, DATE, DATE);
 
     assertThat(underTest.selectByUuid(dbSession, "foo")).isNotPresent();
   }
@@ -77,7 +82,7 @@ public class AlmAppInstallDaoTest {
   public void selectByOwnerId() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL, null);
 
     assertThat(underTest.selectByOwnerId(dbSession, GITHUB, A_OWNER).get())
       .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId,
@@ -113,7 +118,7 @@ public class AlmAppInstallDaoTest {
   public void selectByInstallationId() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL, Uuids.createFast());
 
     assertThat(underTest.selectByInstallationId(dbSession, GITHUB, AN_INSTALL).get())
       .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOwnerId,
@@ -125,48 +130,70 @@ public class AlmAppInstallDaoTest {
   }
 
   @Test
+  public void selectUnboundByUserExternalId() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(DATE);
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    AlmAppInstallDto almAppInstall1 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user1.getExternalId()));
+    AlmAppInstallDto almAppInstall2 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user1.getExternalId()));
+    AlmAppInstallDto almAppInstall3 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user2.getExternalId()));
+    db.alm().insertOrganizationAlmBinding(organization1, almAppInstall1);
+    db.alm().insertOrganizationAlmBinding(organization2, almAppInstall3);
+
+    assertThat(underTest.selectUnboundByUserExternalId(dbSession, user1.getExternalId()))
+      .extracting(AlmAppInstallDto::getUuid)
+      .containsExactlyInAnyOrder(almAppInstall2.getUuid());
+    assertThat(underTest.selectUnboundByUserExternalId(dbSession, user2.getExternalId())).isEmpty();
+  }
+
+  @Test
   public void insert_throws_NPE_if_alm_is_null() {
     expectAlmNPE();
 
-    underTest.insertOrUpdate(dbSession, null, A_OWNER, true, AN_INSTALL);
+    underTest.insertOrUpdate(dbSession, null, A_OWNER, true, AN_INSTALL, null);
   }
 
   @Test
   public void insert_throws_IAE_if_owner_id_is_null() {
     expectOwnerIdNullOrEmptyIAE();
 
-    underTest.insertOrUpdate(dbSession, GITHUB, null, true, AN_INSTALL);
+    underTest.insertOrUpdate(dbSession, GITHUB, null, true, AN_INSTALL, null);
   }
 
   @Test
   public void insert_throws_IAE_if_owner_id_is_empty() {
     expectOwnerIdNullOrEmptyIAE();
 
-    underTest.insertOrUpdate(dbSession, GITHUB, EMPTY_STRING, true, AN_INSTALL);
+    underTest.insertOrUpdate(dbSession, GITHUB, EMPTY_STRING, true, AN_INSTALL, null);
   }
 
   @Test
   public void insert_throws_IAE_if_install_id_is_null() {
     expectInstallIdNullOrEmptyIAE();
 
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, null);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, null, null);
   }
 
   @Test
   public void insert_throws_IAE_if_install_id_is_empty() {
     expectInstallIdNullOrEmptyIAE();
 
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, EMPTY_STRING);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, EMPTY_STRING, null);
   }
 
   @Test
   public void insert() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
+    String userUuid = Uuids.createFast();
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL, userUuid);
 
     assertThatAlmAppInstall(GITHUB, A_OWNER)
       .hasInstallId(AN_INSTALL)
+      .hasUserExternalId(userUuid)
       .hasCreatedAt(DATE)
       .hasUpdatedAt(DATE);
   }
@@ -175,14 +202,10 @@ public class AlmAppInstallDaoTest {
   public void delete() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
-
-    assertThatAlmAppInstall(GITHUB, A_OWNER)
-      .hasInstallId(AN_INSTALL)
-      .hasCreatedAt(DATE)
-      .hasUpdatedAt(DATE);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL, null);
 
     underTest.delete(dbSession, GITHUB, A_OWNER);
+
     assertThatAlmAppInstall(GITHUB, A_OWNER).doesNotExist();
   }
 
@@ -197,13 +220,16 @@ public class AlmAppInstallDaoTest {
   public void update() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(DATE);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
+    String userExternalId1 = randomAlphanumeric(10);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL, userExternalId1);
 
     when(system2.now()).thenReturn(DATE_LATER);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, OTHER_INSTALL);
+    String userExternalId2 = randomAlphanumeric(10);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, OTHER_INSTALL, userExternalId2);
 
     assertThatAlmAppInstall(GITHUB, A_OWNER)
       .hasInstallId(OTHER_INSTALL)
+      .hasUserExternalId(userExternalId2)
       .hasCreatedAt(DATE)
       .hasUpdatedAt(DATE_LATER);
   }
@@ -214,18 +240,22 @@ public class AlmAppInstallDaoTest {
     when(uuidFactory.create())
       .thenReturn(A_UUID)
       .thenReturn(A_UUID_2);
-    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL);
-    underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_OWNER, false, OTHER_INSTALL);
+    String userExternalId1 = randomAlphanumeric(10);
+    String userExternalId2 = randomAlphanumeric(10);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_OWNER, true, AN_INSTALL, userExternalId1);
+    underTest.insertOrUpdate(dbSession, GITHUB, ANOTHER_OWNER, false, OTHER_INSTALL, userExternalId2);
 
     assertThatAlmAppInstall(GITHUB, A_OWNER)
       .hasInstallId(AN_INSTALL)
       .hasOwnerUser(true)
+      .hasUserExternalId(userExternalId1)
       .hasCreatedAt(DATE)
       .hasUpdatedAt(DATE);
 
     assertThatAlmAppInstall(GITHUB, ANOTHER_OWNER)
       .hasInstallId(OTHER_INSTALL)
       .hasOwnerUser(false)
+      .hasUserExternalId(userExternalId2)
       .hasCreatedAt(DATE)
       .hasUpdatedAt(DATE);
   }
@@ -278,6 +308,15 @@ public class AlmAppInstallDaoTest {
 
       if (!Objects.equals(actual.isOwnerUser(), expected)) {
         failWithMessage("Expected ALM App Install to have column IS_OWNER_USER to be <%s> but was <%s>", expected, actual.isOwnerUser());
+      }
+      return this;
+    }
+
+    AlmAppInstallAssert hasUserExternalId(String expected) {
+      isNotNull();
+
+      if (!Objects.equals(actual.getUserExternalId(), expected)) {
+        failWithMessage("Expected ALM App Install to have column USER_EXTERNAL_ID to be <%s> but was <%s>", expected, actual.getUserExternalId());
       }
       return this;
     }

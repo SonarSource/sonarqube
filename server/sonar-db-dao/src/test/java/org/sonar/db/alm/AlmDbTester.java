@@ -20,6 +20,8 @@
 
 package org.sonar.db.alm;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
@@ -39,14 +41,22 @@ public class AlmDbTester {
   public OrganizationAlmBindingDto insertOrganizationAlmBinding(OrganizationDto organization, AlmAppInstallDto almAppInstall) {
     UserDto user = db.users().insertUser();
     db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, almAppInstall, randomAlphabetic(10), user.getUuid());
+    db.commit();
     return db.getDbClient().organizationAlmBindingDao().selectByOrganization(db.getSession(), organization).get();
   }
 
-  public AlmAppInstallDto insertAlmAppInstall() {
-    ALM alm = GITHUB;
-    String ownerId = randomAlphanumeric(10);
-    db.getDbClient().almAppInstallDao().insertOrUpdate(db.getSession(), alm, ownerId, false, randomAlphanumeric(10));
-    return db.getDbClient().almAppInstallDao().selectByOwnerId(db.getSession(), alm, ownerId).get();
+  @SafeVarargs
+  public final AlmAppInstallDto insertAlmAppInstall(Consumer<AlmAppInstallDto>... dtoPopulators) {
+    AlmAppInstallDto dto = new AlmAppInstallDto()
+      .setAlmId(GITHUB.getId())
+      .setInstallId(randomAlphanumeric(10))
+      .setOwnerId(randomAlphanumeric(10))
+      .setIsOwnerUser(false)
+      .setUserExternalId(randomAlphanumeric(10));
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));
+    db.getDbClient().almAppInstallDao().insertOrUpdate(db.getSession(), dto.getAlm(), dto.getOwnerId(), dto.isOwnerUser(), dto.getInstallId(), dto.getUserExternalId());
+    db.commit();
+    return db.getDbClient().almAppInstallDao().selectByOwnerId(db.getSession(), dto.getAlm(), dto.getOwnerId()).get();
   }
 
 }

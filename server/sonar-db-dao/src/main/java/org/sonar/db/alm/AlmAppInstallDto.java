@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class AlmAppInstallDto {
@@ -43,47 +44,21 @@ public class AlmAppInstallDto {
    * Is owner a user, can be null
    */
   private Boolean isOwnerUser;
+  /**
+   * The user ID provided by the ALM of the user who has installed the ALM installation. Can be null as some ALM doesn't provide this info. Max size is 255.
+   */
+  private String userExternalId;
 
   private long createdAt;
   private long updatedAt;
 
+  public String getUuid() {
+    return uuid;
+  }
+
   public AlmAppInstallDto setUuid(String uuid) {
     this.uuid = uuid;
     return this;
-  }
-
-  public AlmAppInstallDto setAlmId(String almId) {
-    this.almId = almId;
-    return this;
-  }
-
-  public AlmAppInstallDto setOwnerId(String ownerId) {
-    this.ownerId = ownerId;
-    return this;
-  }
-
-  public AlmAppInstallDto setInstallId(String installId) {
-    this.installId = installId;
-    return this;
-  }
-
-  public AlmAppInstallDto setIsOwnerUser(@Nullable Boolean isOwnerUser) {
-    this.isOwnerUser = isOwnerUser;
-    return this;
-  }
-
-  AlmAppInstallDto setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  AlmAppInstallDto setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
-  public String getUuid() {
-    return uuid;
   }
 
   public String getAlmId() {
@@ -94,12 +69,27 @@ public class AlmAppInstallDto {
     return ALM.fromId(almId);
   }
 
+  public AlmAppInstallDto setAlmId(String almId) {
+    this.almId = almId;
+    return this;
+  }
+
   public String getOwnerId() {
     return ownerId;
   }
 
+  public AlmAppInstallDto setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+    return this;
+  }
+
   public String getInstallId() {
     return installId;
+  }
+
+  public AlmAppInstallDto setInstallId(String installId) {
+    this.installId = installId;
+    return this;
   }
 
   @Nullable
@@ -107,11 +97,36 @@ public class AlmAppInstallDto {
     return isOwnerUser;
   }
 
+  public AlmAppInstallDto setIsOwnerUser(@Nullable Boolean isOwnerUser) {
+    this.isOwnerUser = isOwnerUser;
+    return this;
+  }
+
+  @CheckForNull
+  public String getUserExternalId() {
+    return userExternalId;
+  }
+
+  public AlmAppInstallDto setUserExternalId(@Nullable String userExternalId) {
+    this.userExternalId = userExternalId;
+    return this;
+  }
+
   public long getCreatedAt() {
     return createdAt;
   }
 
+  AlmAppInstallDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
   public long getUpdatedAt() {
     return updatedAt;
+  }
+
+  AlmAppInstallDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
   }
 }

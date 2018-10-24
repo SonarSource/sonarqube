@@ -37,11 +37,13 @@ public interface AlmAppInstallMapper {
 
   List<AlmAppInstallDto> selectAllWithNoOwnerType();
 
+  List<AlmAppInstallDto> selectUnboundByUserExternalId(@Param("userExternalId") String userExternalId);
+
   void insert(@Param("uuid") String uuid, @Param("almId") String almId, @Param("ownerId") String ownerId,
-              @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Param("now") long now);
+    @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Nullable @Param("userExternalId") String userExternalId, @Param("now") long now);
 
   int update(@Param("almId") String almId, @Param("ownerId") String ownerId,
-             @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Param("now") long now);
+    @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Nullable @Param("userExternalId") String userExternalId, @Param("now") long now);
 
   void delete(@Param("almId") String almId, @Param("ownerId") String ownerId);
 }

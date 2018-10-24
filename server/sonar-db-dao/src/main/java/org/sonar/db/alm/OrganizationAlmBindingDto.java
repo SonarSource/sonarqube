@@ -49,7 +49,7 @@ public class OrganizationAlmBindingDto {
    */
   private String url;
   /**
-   * The UUID of the user who has created the link between the organization and the ALN installation. Can't be null. Max size is 255.
+   * The UUID of the user who has created the link between the organization and the ALM installation. Can't be null. Max size is 255.
    */
   private String userUuid;
   /**

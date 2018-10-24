@@ -66,12 +66,16 @@ public class AlmAppInstallDao implements Dao {
     return getMapper(dbSession).selectAllWithNoOwnerType();
   }
 
+  public List<AlmAppInstallDto> selectUnboundByUserExternalId(DbSession dbSession, String userExternalId) {
+    return getMapper(dbSession).selectUnboundByUserExternalId(userExternalId);
+  }
+
   /**
    * @param alm Unique identifier of the ALM, like 'bitbucketcloud' or 'github', can't be null
    * @param ownerId ALM specific identifier of the owner of the app, like team or user uuid for Bitbucket Cloud or organization id for Github, can't be null
    * @param installId ALM specific identifier of the app installation, can't be null
    */
-  public void insertOrUpdate(DbSession dbSession, ALM alm, String ownerId, @Nullable Boolean isOwnerUser, String installId) {
+  public void insertOrUpdate(DbSession dbSession, ALM alm, String ownerId, @Nullable Boolean isOwnerUser, String installId, @Nullable String userExternalId) {
     checkAlm(alm);
     checkOwnerId(ownerId);
     checkArgument(isNotEmpty(installId), "installId can't be null nor empty");
@@ -79,8 +83,8 @@ public class AlmAppInstallDao implements Dao {
     AlmAppInstallMapper mapper = getMapper(dbSession);
     long now = system2.now();
 
-    if (mapper.update(alm.getId(), ownerId, isOwnerUser, installId, now) == 0) {
-      mapper.insert(uuidFactory.create(), alm.getId(), ownerId, isOwnerUser, installId, now);
+    if (mapper.update(alm.getId(), ownerId, isOwnerUser, installId, userExternalId, now) == 0) {
+      mapper.insert(uuidFactory.create(), alm.getId(), ownerId, isOwnerUser, installId, userExternalId, now);
     }
   }
 
