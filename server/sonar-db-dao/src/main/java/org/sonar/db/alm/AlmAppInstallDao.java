@@ -44,6 +44,18 @@ public class AlmAppInstallDao implements Dao {
     this.uuidFactory = uuidFactory;
   }
 
+  public Optional<AlmAppInstallDto> selectByOwner(DbSession dbSession, ALM alm, String ownerId) {
+    checkAlm(alm);
+    checkOwnerId(ownerId);
+
+    AlmAppInstallMapper mapper = getMapper(dbSession);
+    return Optional.ofNullable(mapper.selectByOwner(alm.getId(), ownerId));
+  }
+
+  public List<AlmAppInstallDto> findAllWithNoOwnerType(DbSession dbSession) {
+    return getMapper(dbSession).selectAllWithNoOwnerType();
+  }
+
   /**
    * @param alm Unique identifier of the ALM, like 'bitbucketcloud' or 'github', can't be null
    * @param ownerId ALM specific identifier of the owner of the app, like team or user uuid for Bitbucket Cloud or organization id for Github, can't be null
@@ -60,18 +72,6 @@ public class AlmAppInstallDao implements Dao {
     if (mapper.update(alm.getId(), ownerId, isOwnerUser, installId, now) == 0) {
       mapper.insert(uuidFactory.create(), alm.getId(), ownerId, isOwnerUser, installId, now);
     }
-  }
-
-  public List<AlmAppInstallDto> findAllWithNoOwnerType(DbSession dbSession) {
-    return getMapper(dbSession).selectAllWithNoOwnerType();
-  }
-
-  public Optional<AlmAppInstallDto> selectByOwner(DbSession dbSession, ALM alm, String ownerId) {
-    checkAlm(alm);
-    checkOwnerId(ownerId);
-
-    AlmAppInstallMapper mapper = getMapper(dbSession);
-    return Optional.ofNullable(mapper.selectByOwner(alm.getId(), ownerId));
   }
 
   public void delete(DbSession dbSession, ALM alm, String ownerId) {
