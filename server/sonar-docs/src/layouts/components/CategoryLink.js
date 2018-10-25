@@ -37,8 +37,8 @@ export default class CategoryLink extends React.PureComponent {
   };
 
   render() {
-    const { node, location, headers, children, title, open } = this.props;
-    const prefix = '/' + process.env.GATSBY_DOCS_VERSION;
+    const { node, location, children, title, open } = this.props;
+    const prefix = process.env.GATSBY_DOCS_VERSION ? '/' + process.env.GATSBY_DOCS_VERSION : '';
     const url = node ? node.frontmatter.url || node.fields.slug : '';
     const isCurrentPage = location.pathname === prefix + url;
     return (
@@ -59,19 +59,13 @@ export default class CategoryLink extends React.PureComponent {
             {title}
           </a>
         )}
-        {isCurrentPage && <HeadingsLink headers={headers} />}
         {children &&
           open && (
             <div className="sub-menu">
               {children.map(page => {
                 const url = page.frontmatter.url || page.fields.slug;
                 return (
-                  <SubpageLink
-                    displayHeading={location.pathname === prefix + url}
-                    headers={headers}
-                    key={url}
-                    node={page}
-                  />
+                  <SubpageLink active={location.pathname === prefix + url} key={url} node={page} />
                 );
               })}
             </div>

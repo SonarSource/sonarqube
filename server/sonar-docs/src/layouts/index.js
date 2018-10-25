@@ -22,6 +22,7 @@ import React from 'react';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import HeaderListProvider from './components/HeaderListProvider';
+import HeadingsLink from './components/HeadingsLink';
 
 const version = process.env.GATSBY_DOCS_VERSION || '1.0';
 
@@ -34,7 +35,6 @@ export default function Layout(props) {
           <div className="layout-page">
             <div className="page-sidebar-inner">
               <Sidebar
-                headers={headers}
                 location={props.location}
                 pages={props.data.allMarkdownRemark.edges
                   .map(e => e.node)
@@ -44,7 +44,10 @@ export default function Layout(props) {
               />
             </div>
             <div className="page-main">
-              <div className="page-container">{props.children()}</div>
+              <div className="page-container">
+                <HeadingsLink headers={headers} />
+                <div className="markdown-container">{props.children()}</div>
+              </div>
               <Footer />
             </div>
           </div>

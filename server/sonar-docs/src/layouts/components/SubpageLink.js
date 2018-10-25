@@ -21,15 +21,12 @@ import * as React from 'react';
 import Link from 'gatsby-link';
 import HeadingsLink from './HeadingsLink';
 
-export default function SubpageLink({ node, headers, displayHeading }) {
+export default function SubpageLink({ node, active }) {
   return (
     <div>
-      <Link
-        className={displayHeading ? 'sub-menu-link active' : 'sub-menu-link'}
-        to={node.fields.slug}>
+      <Link className={active ? 'sub-menu-link active' : 'sub-menu-link'} to={node.fields.slug}>
         {node.frontmatter.title}
       </Link>
-      {displayHeading && <HeadingsLink headers={headers} />}
     </div>
   );
 }

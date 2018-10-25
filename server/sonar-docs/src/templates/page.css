@@ -151,12 +151,6 @@ body > div,
   z-index: 50;
 }
 
-@media only screen and (max-width: 1100px) {
-  .page-container {
-    max-width: 100% !important;
-  }
-}
-
 .search-container {
   position: relative;
 }
@@ -307,65 +301,64 @@ a.search-result .note {
   font-weight: 700;
 }
 
-.headings-container {
-  background: #e8eff4;
-  margin: 4px -20px 8px -36px;
-  padding: 4px 0;
-}
-
-.headings-container:before {
-  border-bottom: 5px solid #e8eff4;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  content: '\A';
-  height: 0;
-  left: 50px;
-  margin-top: -8px;
-  position: absolute;
-  width: 0;
-}
-
-.headings-container ul {
-  margin: 0;
-  padding: 8px 6px 8px 18px;
-}
-
-.headings-container li {
-  color: #2679af;
-  list-style-position: inside;
-  list-style-type: circle;
-  margin: 0;
-  line-height: 16px;
-  padding: 4px 26px 4px 58px;
-}
-
-.sub-menu .headings-container li {
-  padding-left: 38px;
-}
-
-.headings-container a {
-  display: block;
-  margin-top: -15px;
-  font-size: 13px;
-  color: #2d3032;
-  text-decoration: inherit;
-  margin-left: -4px;
-  padding-left: 20px;
-}
-
-.headings-container a.active,
-.headings-container a:hover {
-  color: #2679af;
-}
-
 .page-container {
-  width: 900px;
-  max-width: calc(100% - 220px);
+  max-width: 900px;
   min-width: 320px;
   padding-left: 16px;
   padding-right: 16px;
   font-size: 15px;
   flex-grow: 1;
+  margin: 0 auto;
+}
+
+.page-container .headings-container {
+  float: right;
+  width: 200px;
+  border-left: 1px solid #cfd3d7;
+  padding-left: 26px;
+}
+
+.page-container .headings-container span {
+  font-weight: 700;
+}
+
+.page-container .headings-container ul {
+  margin: 10px 0 0 0;
+  padding: 0;
+}
+
+.page-container .headings-container li {
+  list-style: none;
+  margin: 0 0 8px;
+  line-height: 16px;
+}
+
+.page-container .headings-container a {
+  color: rgba(0, 0, 0, 0.8);
+  display: block;
+  font-size: 13px;
+  color: #2d3032;
+  text-decoration: inherit;
+  border-bottom: none !important;
+}
+
+.page-container .headings-container a.active,
+.page-container .headings-container a:hover {
+  color: #2679af;
+}
+
+.page-container .headings-container a.active {
+  font-weight: 700;
+}
+
+.markdown-container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.headings-container + .markdown-container {
+  max-width: 900px;
+  padding-right: 220px;
 }
 
 .page-container h1 {

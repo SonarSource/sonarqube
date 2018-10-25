@@ -83,7 +83,6 @@ export default class Sidebar extends React.PureComponent {
           return (
             <CategoryLink
               children={item.children.map(child => this.getNodeFromUrl(child))}
-              headers={this.props.headers}
               key={item.title}
               location={this.props.location}
               onToggle={this.handleToggle}
@@ -96,12 +95,7 @@ export default class Sidebar extends React.PureComponent {
         }
       }
       return (
-        <CategoryLink
-          headers={this.props.headers}
-          key={item}
-          location={this.props.location}
-          node={this.getNodeFromUrl(item)}
-        />
+        <CategoryLink key={item} location={this.props.location} node={this.getNodeFromUrl(item)} />
       );
     });
     return <nav>{items}</nav>;

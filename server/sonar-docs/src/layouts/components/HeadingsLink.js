@@ -20,6 +20,9 @@
 import * as React from 'react';
 import HeadingAnchor from './HeadingAnchor';
 
+const MINIMUM_TOP_MARGIN = 80;
+const HEADER_SCROLL_MARGIN = 100;
+
 export default class HeadingsLink extends React.Component {
   skipScrollingHandler = false;
 
@@ -29,7 +32,8 @@ export default class HeadingsLink extends React.Component {
       activeIndex: -1,
       headers: props.headers.filter(
         h => h.depth === 2 && h.value.toLowerCase() !== 'table of contents'
-      )
+      ),
+      marginTop: MINIMUM_TOP_MARGIN
     };
   }
 
@@ -52,12 +56,18 @@ export default class HeadingsLink extends React.Component {
   highlightHeading = scrollTop => {
     let headingIndex = 0;
     for (let i = 0; i < this.state.headers.length; i++) {
-      if (document.querySelector('#header-' + (i + 1)).offsetTop > scrollTop + 200) {
+      if (
+        document.querySelector('#header-' + (i + 1)).offsetTop >
+        scrollTop + HEADER_SCROLL_MARGIN
+      ) {
         break;
       }
       headingIndex = i;
     }
-    this.setState({ activeIndex: headingIndex });
+    this.setState({
+      activeIndex: headingIndex,
+      marginTop: Math.max(MINIMUM_TOP_MARGIN, scrollTop)
+    });
     this.markH2(headingIndex + 1, false);
   };
 
@@ -72,8 +82,8 @@ export default class HeadingsLink extends React.Component {
       node.classList.add('targetted-heading');
       if (scrollTo) {
         this.skipScrollingHandler = true;
-        window.scrollTo(0, node.offsetTop - 200);
-        this.highlightHeading(node.offsetTop - 200);
+        window.scrollTo(0, node.offsetTop - HEADER_SCROLL_MARGIN);
+        this.highlightHeading(node.offsetTop - HEADER_SCROLL_MARGIN);
       }
     }
   };
@@ -94,12 +104,13 @@ export default class HeadingsLink extends React.Component {
 
   render() {
     const { headers } = this.state;
-    if (headers.length < 1) {
+    if (headers.length < 2) {
       return null;
     }
 
     return (
-      <div className="headings-container">
+      <div className="headings-container" style={{ marginTop: this.state.marginTop + 'px' }}>
+        <span>On this page</span>
         <ul>
           {headers.map((header, index) => {
             return (
