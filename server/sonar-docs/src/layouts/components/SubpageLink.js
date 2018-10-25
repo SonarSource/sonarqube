@@ -22,10 +22,11 @@ import Link from 'gatsby-link';
 import HeadingsLink from './HeadingsLink';
 
 export default function SubpageLink({ node, active }) {
+  const linkTitle = node.frontmatter.nav || node.frontmatter.title;
   return (
     <div>
       <Link className={active ? 'sub-menu-link active' : 'sub-menu-link'} to={node.fields.slug}>
-        {node.frontmatter.title}
+        {linkTitle}
       </Link>
     </div>
   );

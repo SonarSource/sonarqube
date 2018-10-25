@@ -34,6 +34,7 @@ export interface DocsNavigationExternalLink {
 export interface DocumentationEntry {
   content: string;
   relativeName: string;
+  navTitle: string | undefined;
   text: string;
   title: string;
   url: string;

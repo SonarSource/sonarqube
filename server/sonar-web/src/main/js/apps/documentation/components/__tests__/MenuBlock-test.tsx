@@ -32,6 +32,7 @@ const pages = [
     relativeName: '/bar/',
     text: 'bar',
     title: 'Bar',
+    navTitle: undefined,
     url: '/bar/'
   },
   {
@@ -39,6 +40,7 @@ const pages = [
     relativeName: '/baz/',
     text: 'baz',
     title: 'baz',
+    navTitle: 'baznav',
     url: '/baz/'
   }
 ];

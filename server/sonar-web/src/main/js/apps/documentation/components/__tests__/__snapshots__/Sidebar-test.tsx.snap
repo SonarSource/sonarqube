@@ -31,6 +31,7 @@ exports[`should render menu 1`] = `
           Array [
             Object {
               "content": "",
+              "navTitle": undefined,
               "relativeName": "lorem/index",
               "text": "",
               "title": "Lorem Ipsum",
@@ -38,6 +39,7 @@ exports[`should render menu 1`] = `
             },
             Object {
               "content": "",
+              "navTitle": undefined,
               "relativeName": "foobar",
               "text": "",
               "title": "Where does Foobar come from?",
@@ -83,6 +85,7 @@ exports[`should search 1`] = `
           Array [
             Object {
               "content": "",
+              "navTitle": undefined,
               "relativeName": "lorem/index",
               "text": "",
               "title": "Lorem Ipsum",
@@ -90,6 +93,7 @@ exports[`should search 1`] = `
             },
             Object {
               "content": "",
+              "navTitle": undefined,
               "relativeName": "foobar",
               "text": "",
               "title": "Where does Foobar come from?",

@@ -30,7 +30,8 @@ const page = {
   relativeName: 'foo/bar',
   url: '/foo/bar',
   text: 'Foobar is a universal variable understood to represent whatever is being discussed.',
-  title: 'Foobar'
+  title: 'Foobar',
+  navTitle: undefined
 };
 
 describe('SearchResultEntry', () => {

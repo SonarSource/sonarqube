@@ -43,6 +43,7 @@ exports[`should render an opened menu block 1`] = `
     node={
       Object {
         "content": "bar",
+        "navTitle": undefined,
         "relativeName": "/bar/",
         "text": "bar",
         "title": "Bar",
@@ -57,6 +58,7 @@ exports[`should render an opened menu block 1`] = `
     node={
       Object {
         "content": "baz",
+        "navTitle": "baznav",
         "relativeName": "/baz/",
         "text": "baz",
         "title": "baz",

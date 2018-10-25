@@ -41,14 +41,15 @@ export default class CategoryLink extends React.PureComponent {
     const prefix = process.env.GATSBY_DOCS_VERSION ? '/' + process.env.GATSBY_DOCS_VERSION : '';
     const url = node ? node.frontmatter.url || node.fields.slug : '';
     const isCurrentPage = location.pathname === prefix + url;
+    const linkTitle = node ? node.frontmatter.nav || node.frontmatter.title : '';
     return (
       <div>
         {node ? (
           <Link
             className={isCurrentPage || open ? 'page-indexes-link active' : 'page-indexes-link'}
             to={url}
-            title={node.frontmatter.title}>
-            {node.frontmatter.title}
+            title={linkTitle}>
+            {linkTitle}
           </Link>
         ) : (
           <a

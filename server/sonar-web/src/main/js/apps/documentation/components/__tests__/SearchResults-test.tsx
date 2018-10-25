@@ -37,7 +37,7 @@ jest.mock('lunr', () => ({
 }));
 
 function createPage(title: string, relativeName: string, text = '') {
-  return { relativeName, url: '/' + relativeName, title, text, content: text };
+  return { relativeName, url: '/' + relativeName, title, navTitle: undefined, text, content: text };
 }
 
 const pages = [

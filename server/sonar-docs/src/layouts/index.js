@@ -69,6 +69,7 @@ export const query = graphql`
           }
           frontmatter {
             title
+            nav
             url
           }
           fields {

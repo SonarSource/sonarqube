@@ -33,6 +33,15 @@ beforeAll(async () => {
   });
 });
 
+it('should have at least one instance of all possible frontmatter fields', () => {
+  let pageWithTitle = parsedFiles.find(file => file.frontmatter.title !== undefined);
+  let pageWithNav = parsedFiles.find(file => file.frontmatter.nav !== undefined);
+  let pageWithUrl = parsedFiles.find(file => file.frontmatter.url !== undefined);
+  expect(pageWithTitle).toBeDefined();
+  expect(pageWithNav).toBeDefined();
+  expect(pageWithUrl).toBeDefined();
+});
+
 it('should have valid links in trees files', () => {
   const trees = [
     'SonarCloudNavigationTree.json',

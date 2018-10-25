@@ -40,7 +40,7 @@ export function MenuItem({ indent, node, splat }: Props) {
       key={node.url}
       style={{ paddingLeft: indent ? 31 : 10 }}
       to={'/documentation' + node.url}>
-      <h3 className="list-group-item-heading">{node.title}</h3>
+      <h3 className="list-group-item-heading">{node.navTitle || node.title}</h3>
     </Link>
   );
 }

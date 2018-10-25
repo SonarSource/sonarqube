@@ -33,6 +33,7 @@ export default function getPages(): DocumentationEntry[] {
       relativeName: file.path,
       url: parsed.frontmatter.url || `/${file.path}`,
       title: parsed.frontmatter.title,
+      navTitle: parsed.frontmatter.nav || undefined,
       order: Number(parsed.frontmatter.order || -1),
       scope: parsed.frontmatter.scope
         ? (parsed.frontmatter.scope.toLowerCase() as DocumentationEntryScope)

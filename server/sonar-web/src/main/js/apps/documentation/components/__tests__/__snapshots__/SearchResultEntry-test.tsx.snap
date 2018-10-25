@@ -14,6 +14,7 @@ exports[`SearchResultEntry should render 1`] = `
         "longestTerm": "",
         "page": Object {
           "content": "",
+          "navTitle": undefined,
           "relativeName": "foo/bar",
           "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
           "title": "Foobar",
@@ -29,6 +30,7 @@ exports[`SearchResultEntry should render 1`] = `
         "longestTerm": "",
         "page": Object {
           "content": "",
+          "navTitle": undefined,
           "relativeName": "foo/bar",
           "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
           "title": "Foobar",
