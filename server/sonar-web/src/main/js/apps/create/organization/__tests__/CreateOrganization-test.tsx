@@ -31,6 +31,7 @@ import {
 } from '../../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../../api/billing';
 import { getOrganizations } from '../../../../api/organizations';
+import { get, remove } from '../../../../helpers/storage';
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest
@@ -63,6 +64,11 @@ jest.mock('../../../../api/organizations', () => ({
   getOrganizations: jest.fn().mockResolvedValue({ organizations: [] })
 }));
 
+jest.mock('../../../../helpers/storage', () => ({
+  get: jest.fn().mockReturnValue(undefined),
+  remove: jest.fn()
+}));
+
 const user: LoggedInUser = {
   groups: [],
   isLoggedIn: true,
@@ -78,6 +84,8 @@ beforeEach(() => {
   (listUnboundApplications as jest.Mock<any>).mockClear();
   (getSubscriptionPlans as jest.Mock<any>).mockClear();
   (getOrganizations as jest.Mock<any>).mockClear();
+  (get as jest.Mock<any>).mockClear();
+  (remove as jest.Mock<any>).mockClear();
 });
 
 it('should render with manual tab displayed', async () => {
@@ -187,14 +195,59 @@ it('should reload the alm organization when the url query changes', async () => 
   expect(listUnboundApplications).toHaveBeenCalledTimes(2);
 });
 
+it('should redirect to organization page after creation', async () => {
+  const push = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+  await waitAndUpdate(wrapper);
+
+  wrapper.find('ManualOrganizationCreate').prop<Function>('onOrgCreated')('foo');
+  expect(push).toHaveBeenCalledWith({
+    pathname: '/organizations/foo',
+    state: { justCreated: true }
+  });
+
+  (get as jest.Mock<any>).mockReturnValueOnce('0');
+  wrapper.find('ManualOrganizationCreate').prop<Function>('onOrgCreated')('foo', false);
+  expect(push).toHaveBeenCalledWith({
+    pathname: '/organizations/foo',
+    state: { justCreated: false }
+  });
+});
+
+it('should redirect to projects creation page after creation', async () => {
+  const push = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+  await waitAndUpdate(wrapper);
+
+  (get as jest.Mock<any>).mockReturnValueOnce(Date.now().toString());
+  wrapper.find('ManualOrganizationCreate').prop<Function>('onOrgCreated')('foo');
+  expect(get).toHaveBeenCalled();
+  expect(remove).toHaveBeenCalled();
+  expect(push).toHaveBeenCalledWith({
+    pathname: '/projects/create',
+    state: { organization: 'foo', tab: 'manual' }
+  });
+
+  wrapper.setState({ almOrganization: { key: 'foo', name: 'Foo', avatar: 'my-avatar' } });
+  (get as jest.Mock<any>).mockReturnValueOnce(Date.now().toString());
+  wrapper.find('ManualOrganizationCreate').prop<Function>('onOrgCreated')('foo');
+  expect(push).toHaveBeenCalledWith({
+    pathname: '/projects/create',
+    state: { organization: 'foo', tab: 'auto' }
+  });
+});
+
 function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
   return shallow(
     <CreateOrganization
+      createOrganization={jest.fn()}
       currentUser={user}
-      {...props}
+      deleteOrganization={jest.fn()}
       // @ts-ignore avoid passing everything from WithRouterProps
       location={{}}
       router={mockRouter()}
+      skipOnboardingAction={jest.fn()}
+      updateOrganization={jest.fn()}
       userOrganizations={[
         { key: 'foo', name: 'Foo' },
         { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }

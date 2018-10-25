@@ -28,6 +28,7 @@ interface Props {
   children: React.ReactNode;
   className?: string;
   identityProvider: IdentityProvider;
+  onClick?: () => void;
   small?: boolean;
   url: string | undefined;
 }
@@ -36,6 +37,7 @@ export default function IdentityProviderLink({
   children,
   className,
   identityProvider,
+  onClick,
   small,
   url
 }: Props) {
@@ -49,6 +51,7 @@ export default function IdentityProviderLink({
         className
       )}
       href={url}
+      onClick={onClick}
       style={{ backgroundColor: identityProvider.backgroundColor }}>
       <img
         alt={identityProvider.name}

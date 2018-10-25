@@ -51,6 +51,10 @@ export class OnboardingModal extends React.PureComponent<Props> {
     }
   }
 
+  handleOpenProjectOnboarding = () => {
+    this.props.onOpenProjectOnboarding();
+  };
+
   render() {
     if (!isLoggedIn(this.props.currentUser)) {
       return null;
@@ -68,7 +72,7 @@ export class OnboardingModal extends React.PureComponent<Props> {
           <p className="spacer-top">{translate('onboarding.header.description')}</p>
         </div>
         <div className="modal-simple-body text-center onboarding-choices">
-          <Button className="onboarding-choice" onClick={this.props.onOpenProjectOnboarding}>
+          <Button className="onboarding-choice" onClick={this.handleOpenProjectOnboarding}>
             <OnboardingProjectIcon className="big-spacer-bottom" />
             <h6 className="onboarding-choice-name">
               {translate('onboarding.analyze_public_code')}

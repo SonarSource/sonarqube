@@ -24,7 +24,7 @@ exports[`renders correctly 1`] = `
   >
     <Button
       className="onboarding-choice"
-      onClick={[MockFunction]}
+      onClick={[Function]}
     >
       <OnboardingProjectIcon
         className="big-spacer-bottom"

@@ -74,6 +74,7 @@ exports[`should render with auto personal organization bind page 2`] = `
         }
       }
       onOrgCreated={[Function]}
+      updateOrganization={[MockFunction]}
     />
   </div>
 </Fragment>
@@ -149,6 +150,7 @@ exports[`should render with auto tab displayed 1`] = `
         }
       }
       almUnboundApplications={Array []}
+      createOrganization={[MockFunction]}
       onOrgCreated={[Function]}
       unboundOrganizations={
         Array [
@@ -250,6 +252,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
         }
       }
       almUnboundApplications={Array []}
+      createOrganization={[MockFunction]}
       onOrgCreated={[Function]}
       unboundOrganizations={
         Array [
@@ -307,6 +310,8 @@ exports[`should render with manual tab displayed 1`] = `
       </p>
     </header>
     <ManualOrganizationCreate
+      createOrganization={[MockFunction]}
+      deleteOrganization={[MockFunction]}
       onOrgCreated={[Function]}
       subscriptionPlans={
         Array [
@@ -395,6 +400,7 @@ exports[`should switch tabs 1`] = `
         }
       }
       almUnboundApplications={Array []}
+      createOrganization={[MockFunction]}
       onOrgCreated={[Function]}
       unboundOrganizations={
         Array [

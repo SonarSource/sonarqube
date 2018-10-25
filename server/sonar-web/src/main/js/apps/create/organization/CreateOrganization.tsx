@@ -18,13 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { differenceInMinutes } from 'date-fns';
 import { times } from 'lodash';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
 import { Link, withRouter, WithRouterProps } from 'react-router';
-import { formatPrice, parseQuery } from './utils';
+import {
+  formatPrice,
+  parseQuery,
+  ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP
+} from './utils';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
 import AutoPersonalOrganizationBind from './AutoPersonalOrganizationBind';
@@ -51,8 +56,11 @@ import {
 } from '../../../app/types';
 import { hasAdvancedALMIntegration, isPersonal } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
+import { get, remove } from '../../../helpers/storage';
 import { slugify } from '../../../helpers/strings';
 import { getOrganizationUrl } from '../../../helpers/urls';
+import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
+import { skipOnboarding } from '../../../api/users';
 import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
 import '../../../app/styles/sonarcloud.css';
@@ -68,6 +76,7 @@ interface Props {
     organization: OrganizationBase & { installationId?: string }
   ) => Promise<Organization>;
   userOrganizations: Organization[];
+  skipOnboardingAction: () => void;
 }
 
 interface State {
@@ -187,10 +196,24 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   };
 
   handleOrgCreated = (organization: string, justCreated = true) => {
-    this.props.router.push({
-      pathname: getOrganizationUrl(organization),
-      state: { justCreated }
-    });
+    skipOnboarding().catch(() => {});
+    this.props.skipOnboardingAction();
+    const redirectProjectTimestamp = get(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP);
+    remove(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP);
+    if (
+      redirectProjectTimestamp &&
+      differenceInMinutes(Date.now(), Number(redirectProjectTimestamp)) < 10
+    ) {
+      this.props.router.push({
+        pathname: '/projects/create',
+        state: { organization, tab: this.state.almOrganization ? 'auto' : 'manual' }
+      });
+    } else {
+      this.props.router.push({
+        pathname: getOrganizationUrl(organization),
+        state: { justCreated }
+      });
+    }
   };
 
   onTabChange = (tab: TabKeys) => {
@@ -367,7 +390,8 @@ function deleteOrganization(key: string) {
 const mapDispatchToProps = {
   createOrganization: createOrganization as any,
   deleteOrganization: deleteOrganization as any,
-  updateOrganization: updateOrganization as any
+  updateOrganization: updateOrganization as any,
+  skipOnboardingAction: skipOnboardingAction as any
 };
 
 export default whenLoggedIn(

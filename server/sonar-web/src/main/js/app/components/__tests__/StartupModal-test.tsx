@@ -145,7 +145,7 @@ function getWrapper(props = {}) {
       currentUser={LOGGED_IN_USER}
       location={{ pathname: 'foo/bar' } as Location}
       router={mockRouter() as InjectedRouter}
-      skipOnboardingAction={jest.fn()}
+      skipOnboarding={jest.fn()}
       {...props}>
       <div />
     </StartupModal>

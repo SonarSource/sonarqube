@@ -25,12 +25,11 @@ import { CurrentUser, Organization } from '../types';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { EditionKey } from '../../apps/marketplace/utils';
 import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
-import { skipOnboarding as skipOnboardingAction } from '../../store/users';
+import { skipOnboarding } from '../../store/users';
 import { showLicense } from '../../api/marketplace';
 import { hasMessage } from '../../helpers/l10n';
 import { save, get } from '../../helpers/storage';
 import { isSonarCloud } from '../../helpers/system';
-import { skipOnboarding } from '../../api/users';
 import { lazyLoad } from '../../components/lazyLoad';
 import { isLoggedIn } from '../../helpers/users';
 
@@ -54,7 +53,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  skipOnboardingAction: () => void;
+  skipOnboarding: () => void;
 }
 
 interface OwnProps {
@@ -95,8 +94,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   closeOnboarding = () => {
     this.setState(state => {
       if (state.modal !== ModalKey.license) {
-        skipOnboarding();
-        this.props.skipOnboardingAction();
+        this.props.skipOnboarding();
         return { automatic: false, modal: undefined };
       }
       return null;
@@ -165,8 +163,8 @@ export class StartupModal extends React.PureComponent<Props, State> {
     const { currentUser, location } = this.props;
     if (
       currentUser.showOnboardingTutorial &&
-      !['about', 'documentation', 'onboarding', 'projects/create'].some(path =>
-        location.pathname.startsWith(path)
+      !['about', 'documentation', 'onboarding', 'projects/create', 'create-organization'].some(
+        path => location.pathname.startsWith(path)
       )
     ) {
       this.setState({ automatic: true });
@@ -209,7 +207,7 @@ const mapStateToProps = (state: Store): StateProps => ({
   currentUser: getCurrentUser(state)
 });
 
-const mapDispatchToProps: DispatchProps = { skipOnboardingAction };
+const mapDispatchToProps: DispatchProps = { skipOnboarding };
 
 export default connect(
   mapStateToProps,

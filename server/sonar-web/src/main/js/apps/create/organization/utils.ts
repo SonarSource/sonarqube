@@ -28,6 +28,9 @@ import {
 } from '../../../helpers/query';
 import { isBitbucket, isGithub } from '../../../helpers/almIntegrations';
 
+export const ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP =
+  'sonarcloud.import_org.redirect_to_projects';
+
 export function formatPrice(price?: number, noSign?: boolean) {
   const priceFormatted = formatMeasure(price, 'FLOAT')
     .replace(/[.|,]0$/, '')

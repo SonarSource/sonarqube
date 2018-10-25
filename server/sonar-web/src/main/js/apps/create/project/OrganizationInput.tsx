@@ -20,8 +20,10 @@
 import * as React from 'react';
 import { WithRouterProps, withRouter } from 'react-router';
 import OrganizationSelect from '../components/OrganizationSelect';
+import { ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP } from '../organization/utils';
 import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
+import { save } from '../../../helpers/storage';
 
 interface Props {
   autoImport?: boolean;
@@ -34,6 +36,7 @@ export class OrganizationInput extends React.PureComponent<Props & WithRouterPro
   handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
+    save(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP, Date.now().toString(10));
     this.props.router.push({
       pathname: '/create-organization',
       state: { tab: this.props.autoImport ? 'auto' : 'manual' }
