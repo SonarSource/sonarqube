@@ -28,6 +28,7 @@ exports[`renders correctly 1`] = `
       }
     }
     finished={false}
+    initialTokenName="Analyze \\"Foo\\""
     onContinue={[Function]}
     onOpen={[Function]}
     open={true}

@@ -42,7 +42,7 @@ exports[`generates token 1`] = `
             >
               <input
                 autoFocus={true}
-                className="input-large spacer-right text-middle"
+                className="input-super-large spacer-right text-middle"
                 onChange={[Function]}
                 placeholder="onboarding.token.generate_token.placeholder"
                 required={true}
@@ -140,7 +140,7 @@ exports[`generates token 2`] = `
             >
               <input
                 autoFocus={true}
-                className="input-large spacer-right text-middle"
+                className="input-super-large spacer-right text-middle"
                 onChange={[Function]}
                 placeholder="onboarding.token.generate_token.placeholder"
                 required={true}
@@ -462,7 +462,7 @@ exports[`revokes token 3`] = `
             >
               <input
                 autoFocus={true}
-                className="input-large spacer-right text-middle"
+                className="input-super-large spacer-right text-middle"
                 onChange={[Function]}
                 placeholder="onboarding.token.generate_token.placeholder"
                 required={true}

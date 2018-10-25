@@ -23,7 +23,7 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import Step from './Step';
-import { getTokens, generateToken, revokeToken } from '../../../api/user-tokens';
+import { getTokens, generateToken, revokeToken, UserToken } from '../../../api/user-tokens';
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { DeleteButton, SubmitButton, Button } from '../../../components/ui/buttons';
@@ -32,6 +32,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   currentUser: { login: string };
   finished: boolean;
+  initialTokenName?: string;
   open: boolean;
   onContinue: (token: string) => void;
   onOpen: () => void;
@@ -39,30 +40,39 @@ interface Props {
 }
 
 interface State {
-  canUseExisting: boolean;
   existingToken: string;
   loading: boolean;
   selection: string;
   tokenName?: string;
   token?: string;
+  tokens?: UserToken[];
 }
 
 export default class TokenStep extends React.PureComponent<Props, State> {
   mounted = false;
 
-  state: State = {
-    canUseExisting: false,
-    existingToken: '',
-    loading: false,
-    selection: 'generate'
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      existingToken: '',
+      loading: false,
+      selection: 'generate',
+      tokenName: props.initialTokenName
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
     getTokens(this.props.currentUser.login).then(
       tokens => {
         if (this.mounted) {
-          this.setState({ canUseExisting: tokens.length > 0 });
+          this.setState({ tokens });
+          if (
+            this.props.initialTokenName !== undefined &&
+            this.props.initialTokenName === this.state.tokenName
+          ) {
+            this.setState({ tokenName: this.getUniqueTokenName(tokens) });
+          }
         }
       },
       () => {}
@@ -75,6 +85,21 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
   getToken = () =>
     this.state.selection === 'generate' ? this.state.token : this.state.existingToken;
+
+  getUniqueTokenName = (tokens: UserToken[]) => {
+    const { initialTokenName = '' } = this.props;
+    const hasToken = (name: string) => tokens.find(token => token.name === name) !== undefined;
+
+    if (!hasToken(initialTokenName)) {
+      return initialTokenName;
+    }
+
+    let i = 1;
+    while (hasToken(`${initialTokenName} ${i}`)) {
+      i++;
+    }
+    return `${initialTokenName} ${i}`;
+  };
 
   canContinue = () => {
     const { existingToken, selection, token } = this.state;
@@ -143,7 +168,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
   renderGenerateOption = () => (
     <div>
-      {this.state.canUseExisting ? (
+      {this.state.tokens !== undefined && this.state.tokens.length > 0 ? (
         <a
           className="js-new link-base-color link-no-underline"
           href="#"
@@ -163,7 +188,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           <form onSubmit={this.handleTokenGenerate}>
             <input
               autoFocus={true}
-              className="input-large spacer-right text-middle"
+              className="input-super-large spacer-right text-middle"
               onChange={this.handleTokenNameChange}
               placeholder={translate('onboarding.token.generate_token.placeholder')}
               required={true}
@@ -204,7 +229,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           <div className="big-spacer-top">
             <input
               autoFocus={true}
-              className="input-large spacer-right text-middle"
+              className="input-super-large spacer-right text-middle"
               onChange={this.handleExisingTokenChange}
               placeholder={translate('onboarding.token.use_existing_token.placeholder')}
               required={true}
@@ -224,7 +249,8 @@ export default class TokenStep extends React.PureComponent<Props, State> {
   };
 
   renderForm = () => {
-    const { canUseExisting, loading, token, tokenName } = this.state;
+    const { loading, token, tokenName, tokens } = this.state;
+    const canUseExisting = tokens !== undefined && tokens.length > 0;
 
     return (
       <div className="boxed-group-inner">

@@ -55,7 +55,6 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
   render() {
     const { component, currentUser } = this.props;
     const { step, token } = this.state;
-    let stepNumber = 1;
 
     const almId = component.almId || currentUser.externalProvider;
     return (
@@ -72,10 +71,12 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
             <TokenStep
               currentUser={currentUser}
               finished={Boolean(this.state.token)}
+              // put date to ensure uniqueness of the token name
+              initialTokenName={`Analyze "${component.name}"`}
               onContinue={this.handleTokenDone}
               onOpen={this.handleTokenOpen}
               open={step === Steps.TOKEN}
-              stepNumber={stepNumber++}
+              stepNumber={1}
             />
 
             <ProjectAnalysisStep
@@ -83,7 +84,7 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
               displayRowLayout={true}
               open={step === Steps.ANALYSIS}
               organization={component.organization}
-              stepNumber={stepNumber++}
+              stepNumber={2}
               token={token}
             />
           </>

@@ -22,6 +22,8 @@ import { shallow } from 'enzyme';
 import AnalyzeTutorial from '../AnalyzeTutorial';
 import { LoggedInUser } from '../../../../app/types';
 
+Date.now = jest.fn().mockReturnValue(1540457859031);
+
 const component = {
   key: 'foo',
   analysisDate: '2016-01-01',
