@@ -39,6 +39,7 @@ export default class HeadingsLink extends React.Component {
 
   componentDidMount() {
     document.addEventListener('scroll', this.scrollHandler, true);
+    this.scrollHandler();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -64,9 +65,10 @@ export default class HeadingsLink extends React.Component {
       }
       headingIndex = i;
     }
+    const scrollLimit = document.body.scrollHeight - document.body.clientHeight;
     this.setState({
       activeIndex: headingIndex,
-      marginTop: Math.max(MINIMUM_TOP_MARGIN, scrollTop)
+      marginTop: Math.max(MINIMUM_TOP_MARGIN, Math.min(scrollTop, scrollLimit))
     });
     this.markH2(headingIndex + 1, false);
   };
