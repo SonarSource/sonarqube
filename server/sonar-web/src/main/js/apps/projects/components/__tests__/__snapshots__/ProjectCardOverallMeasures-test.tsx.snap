@@ -237,6 +237,14 @@ exports[`should render correctly with all data 1`] = `
 </div>
 `;
 
+exports[`should render empty 1`] = `
+<div
+  className="note"
+>
+  overview.project.empty
+</div>
+`;
+
 exports[`should render ncloc correctly 1`] = `
 <div
   className="project-card-measure project-card-ncloc"

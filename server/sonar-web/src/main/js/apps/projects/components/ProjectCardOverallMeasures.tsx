@@ -38,6 +38,11 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
     return null;
   }
 
+  const { ncloc } = measures;
+  if (!ncloc) {
+    return <div className="note">{translate('overview.project.empty')}</div>;
+  }
+
   return (
     <div className="project-card-measures">
       <div className="project-card-measure" data-key="reliability_rating">

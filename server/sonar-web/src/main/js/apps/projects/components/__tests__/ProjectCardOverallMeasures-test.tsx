@@ -70,7 +70,7 @@ it('should not render duplications', () => {
   expect(wrapper.find('[data-key="duplicated_lines_density"]')).toMatchSnapshot();
 });
 
-it('should not render ncloc', () => {
+it('should render empty', () => {
   const measures = {
     alert_status: 'ERROR',
     bugs: '17',
@@ -82,8 +82,7 @@ it('should not render ncloc', () => {
     sqale_rating: '1.0',
     vulnerabilities: '0'
   };
-  const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
-  expect(wrapper.find('[data-key="ncloc"]').length).toBe(0);
+  expect(shallow(<ProjectCardOverallMeasures measures={measures} />)).toMatchSnapshot();
 });
 
 it('should render ncloc correctly', () => {
