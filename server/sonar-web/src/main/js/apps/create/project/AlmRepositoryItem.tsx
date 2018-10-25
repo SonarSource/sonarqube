@@ -25,6 +25,7 @@ import CheckIcon from '../../../components/icons-components/CheckIcon';
 import { AlmRepository, IdentityProvider } from '../../../app/types';
 import { getBaseUrl, getProjectUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
+import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
   identityProvider: IdentityProvider;
@@ -45,14 +46,14 @@ export default class AlmRepositoryItem extends React.PureComponent<Props> {
       <>
         <Checkbox
           checked={selected || alreadyImported}
-          disabled={alreadyImported}
+          disabled={alreadyImported || repository.private}
           onCheck={this.handleChange}>
           <img
             alt={identityProvider.name}
             className="spacer-left"
             height={14}
             src={`${getBaseUrl()}/images/sonarcloud/${identityProvider.key}.svg`}
-            style={{ opacity: alreadyImported ? 0.5 : 1 }}
+            style={{ opacity: alreadyImported || repository.private ? 0.5 : 1 }}
             width={14}
           />
           <span className="spacer-left">{this.props.repository.label}</span>
@@ -64,6 +65,11 @@ export default class AlmRepositoryItem extends React.PureComponent<Props> {
               {translate('onboarding.create_project.already_imported')}
             </Link>
           </span>
+        )}
+        {repository.private && (
+          <Tooltip overlay={translate('onboarding.import_organization.private.disabled')}>
+            <div className="outline-badge spacer-left">{translate('visibility.private')}</div>
+          </Tooltip>
         )}
       </>
     );

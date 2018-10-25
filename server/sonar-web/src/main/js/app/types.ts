@@ -37,6 +37,7 @@ export interface AlmRepository {
   installationKey: string;
   linkedProjectKey?: string;
   linkedProjectName?: string;
+  private?: boolean;
 }
 
 export interface AlmUnboundApplication {

@@ -53,6 +53,10 @@ it('should render disabled', () => {
   expect(getWrapper({ repository: repositories[0] })).toMatchSnapshot();
 });
 
+it('should render private repositories', () => {
+  expect(getWrapper({ repository: { ...repositories[1], private: true } })).toMatchSnapshot();
+});
+
 function getWrapper(props = {}) {
   return shallow(
     <AlmRepositoryItem

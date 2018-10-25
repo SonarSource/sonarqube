@@ -63,9 +63,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
 
   fetchRepositories = () => {
     const { organization } = this.props;
-    return getRepositories({
-      organization
-    }).then(
+    return getRepositories({ organization }).then(
       ({ repositories }) => {
         if (this.mounted) {
           this.setState({ loading: false, repositories });
@@ -86,9 +84,10 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
       const { selectedRepositories } = this.state;
       this.setState({ submitting: true });
       provisionProject({
-        installationKeys: Object.keys(selectedRepositories).filter(key =>
-          Boolean(selectedRepositories[key])
-        ),
+        installationKeys: Object.keys(selectedRepositories).filter(key => {
+          const repositories = selectedRepositories[key];
+          return repositories && !repositories.private;
+        }),
         organization: this.props.organization
       }).then(
         ({ projects }) => this.props.onProjectCreate(projects.map(project => project.projectKey)),

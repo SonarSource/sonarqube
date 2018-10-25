@@ -4,7 +4,6 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <Checkbox
     checked={false}
-    disabled={false}
     onCheck={[Function]}
     thirdState={false}
   >
@@ -81,11 +80,48 @@ exports[`should render disabled 1`] = `
 </Fragment>
 `;
 
+exports[`should render private repositories 1`] = `
+<Fragment>
+  <Checkbox
+    checked={false}
+    disabled={true}
+    onCheck={[Function]}
+    thirdState={false}
+  >
+    <img
+      alt="Foo Provider"
+      className="spacer-left"
+      height={14}
+      src="/images/sonarcloud/foo.svg"
+      style={
+        Object {
+          "opacity": 0.5,
+        }
+      }
+      width={14}
+    />
+    <span
+      className="spacer-left"
+    >
+      Awesome Project
+    </span>
+  </Checkbox>
+  <Tooltip
+    overlay="onboarding.import_organization.private.disabled"
+  >
+    <div
+      className="outline-badge spacer-left"
+    >
+      visibility.private
+    </div>
+  </Tooltip>
+</Fragment>
+`;
+
 exports[`should render selected 1`] = `
 <Fragment>
   <Checkbox
     checked={true}
-    disabled={false}
     onCheck={[Function]}
     thirdState={false}
   >

@@ -57,6 +57,10 @@ a[class*=' icon-'] {
   box-sizing: border-box;
 }
 
+.icon-checkbox:focus {
+  outline: none;
+}
+
 .icon-checkbox:before {
   content: ' ';
   display: inline-block;
@@ -68,8 +72,8 @@ a[class*=' icon-'] {
     box-shadow 0.4s ease;
 }
 
-.icon-checkbox:focus:before,
-.link-checkbox:focus:focus .icon-checkbox:before {
+.icon-checkbox:not(.icon-checkbox-disabled):focus:before,
+.link-checkbox:not(.disabled):focus:focus .icon-checkbox:before {
   box-shadow: 0 0 0 3px rgba(35, 106, 151, 0.25);
 }
 
