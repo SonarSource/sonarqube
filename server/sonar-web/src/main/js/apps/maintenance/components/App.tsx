@@ -25,7 +25,9 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import InstanceMessage from '../../../components/common/InstanceMessage';
 import { getBaseUrl } from '../../../helpers/urls';
+import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
 interface Props {
@@ -141,11 +143,13 @@ export default class App extends React.PureComponent<Props, State> {
             {status === 'OFFLINE' && (
               <>
                 <h1 className="maintenance-title text-danger">
-                  {translate('maintenance.sonarqube_is_offline')}
+                  <InstanceMessage message={translate('maintenance.is_offline')} />
                 </h1>
-                <p className="maintenance-text">
-                  {translate('maintenance.sonarqube_is_offline.text')}
-                </p>
+                {!isSonarCloud() && (
+                  <p className="maintenance-text">
+                    {translate('maintenance.sonarqube_is_offline.text')}
+                  </p>
+                )}
                 <p className="maintenance-text text-center">
                   <a href={getBaseUrl() + '/'}>{translate('maintenance.try_again')}</a>
                 </p>
@@ -154,7 +158,9 @@ export default class App extends React.PureComponent<Props, State> {
 
             {status === 'UP' && (
               <>
-                <h1 className="maintenance-title">{translate('maintenance.sonarqube_is_up')}</h1>
+                <h1 className="maintenance-title">
+                  <InstanceMessage message={translate('maintenance.is_up')} />
+                </h1>
                 <p className="maintenance-text text-center">
                   {translate('maintenance.all_systems_opetational')}
                 </p>
@@ -167,7 +173,7 @@ export default class App extends React.PureComponent<Props, State> {
             {status === 'STARTING' && (
               <>
                 <h1 className="maintenance-title">
-                  {translate('maintenance.sonarqube_is_starting')}
+                  <InstanceMessage message={translate('maintenance.is_starting')} />
                 </h1>
                 <p className="maintenance-spinner">
                   <i className="spinner" />
@@ -178,7 +184,7 @@ export default class App extends React.PureComponent<Props, State> {
             {status === 'DOWN' && (
               <>
                 <h1 className="maintenance-title text-danger">
-                  {translate('maintenance.sonarqube_is_down')}
+                  <InstanceMessage message={translate('maintenance.is_down')} />
                 </h1>
                 <p className="maintenance-text">
                   {translate('maintenance.sonarqube_is_down.text')}
@@ -192,20 +198,24 @@ export default class App extends React.PureComponent<Props, State> {
             {(status === 'DB_MIGRATION_NEEDED' || status === 'DB_MIGRATION_RUNNING') && (
               <>
                 <h1 className="maintenance-title">
-                  {translate('maintenance.sonarqube_is_under_maintenance')}
+                  <InstanceMessage message={translate('maintenance.is_under_maintenance')} />
                 </h1>
-                <p
-                  className="maintenance-text"
-                  dangerouslySetInnerHTML={{
-                    __html: translate('maintenance.sonarqube_is_under_maintenance.1')
-                  }}
-                />
-                <p
-                  className="maintenance-text"
-                  dangerouslySetInnerHTML={{
-                    __html: translate('maintenance.sonarqube_is_under_maintenance.2')
-                  }}
-                />
+                {!isSonarCloud() && (
+                  <>
+                    <p
+                      className="maintenance-text"
+                      dangerouslySetInnerHTML={{
+                        __html: translate('maintenance.sonarqube_is_under_maintenance.1')
+                      }}
+                    />
+                    <p
+                      className="maintenance-text"
+                      dangerouslySetInnerHTML={{
+                        __html: translate('maintenance.sonarqube_is_under_maintenance.2')
+                      }}
+                    />
+                  </>
+                )}
               </>
             )}
 

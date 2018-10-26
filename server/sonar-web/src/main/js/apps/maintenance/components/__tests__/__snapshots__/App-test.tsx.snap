@@ -18,7 +18,9 @@ exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
       <h1
         className="maintenance-title"
       >
-        maintenance.sonarqube_is_under_maintenance
+        <InstanceMessage
+          message="maintenance.is_under_maintenance"
+        />
       </h1>
       <p
         className="maintenance-text"
@@ -59,7 +61,9 @@ exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
       <h1
         className="maintenance-title"
       >
-        maintenance.sonarqube_is_under_maintenance
+        <InstanceMessage
+          message="maintenance.is_under_maintenance"
+        />
       </h1>
       <p
         className="maintenance-text"
@@ -100,7 +104,9 @@ exports[`Maintenance Page should render DOWN status 1`] = `
       <h1
         className="maintenance-title text-danger"
       >
-        maintenance.sonarqube_is_down
+        <InstanceMessage
+          message="maintenance.is_down"
+        />
       </h1>
       <p
         className="maintenance-text"
@@ -139,7 +145,9 @@ exports[`Maintenance Page should render OFFLINE status 1`] = `
       <h1
         className="maintenance-title text-danger"
       >
-        maintenance.sonarqube_is_offline
+        <InstanceMessage
+          message="maintenance.is_offline"
+        />
       </h1>
       <p
         className="maintenance-text"
@@ -178,7 +186,9 @@ exports[`Maintenance Page should render STARTING status 1`] = `
       <h1
         className="maintenance-title"
       >
-        maintenance.sonarqube_is_starting
+        <InstanceMessage
+          message="maintenance.is_starting"
+        />
       </h1>
       <p
         className="maintenance-spinner"
@@ -210,7 +220,9 @@ exports[`Maintenance Page should render UP status 1`] = `
       <h1
         className="maintenance-title"
       >
-        maintenance.sonarqube_is_up
+        <InstanceMessage
+          message="maintenance.is_up"
+        />
       </h1>
       <p
         className="maintenance-text text-center"
