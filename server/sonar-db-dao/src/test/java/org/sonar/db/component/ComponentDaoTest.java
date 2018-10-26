@@ -2022,7 +2022,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void selectPrivateProjectsWithNcloc() throws Exception {
+  public void selectPrivateProjectsWithNcloc() {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey("ncloc"));
     OrganizationDto organizationDto = db.organizations().insert();
 
@@ -2037,10 +2037,10 @@ public class ComponentDaoTest {
     insertMeasure(10d, db.components().insertMainBranch(organizationDto, b -> b.setName("bar")), metric);
 
     // public project - not returned
-    insertMeasure(10d, db.components().insertMainBranch(organizationDto, b -> b.setPrivate(false)), metric);
+    insertMeasure(11d, db.components().insertMainBranch(organizationDto, b -> b.setPrivate(false)), metric);
 
     // different org - not returned
-    insertMeasure(10d, db.components().insertMainBranch(db.organizations().insert()), metric);
+    insertMeasure(12d, db.components().insertMainBranch(db.organizations().insert()), metric);
 
     List<ProjectNclocDistributionDto> result = underTest.selectPrivateProjectsWithNcloc(db.getSession(), organizationDto.getUuid());
 

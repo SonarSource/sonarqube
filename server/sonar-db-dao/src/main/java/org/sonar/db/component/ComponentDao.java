@@ -45,7 +45,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.DaoUtils.buildLikeValue;
@@ -245,7 +244,7 @@ public class ComponentDao implements Dao {
   /**
    * Select the children or the leaves of a base component, given by its UUID. The components that are not present in last
    * analysis are ignored.
-   *
+   * <p>
    * An empty list is returned if the base component does not exist or if the base component is a leaf.
    */
   public List<ComponentDto> selectDescendants(DbSession dbSession, ComponentTreeQuery query) {
@@ -297,9 +296,9 @@ public class ComponentDao implements Dao {
   /**
    * Returns all projects (Scope {@link Scopes#PROJECT} and qualifier
    * {@link Qualifiers#PROJECT}) which are enabled.
-   *
+   * <p>
    * Branches are not returned.
-   *
+   * <p>
    * Used by Views.
    */
   public List<ComponentDto> selectProjects(DbSession session) {
@@ -308,7 +307,7 @@ public class ComponentDao implements Dao {
 
   /**
    * Select all projects for a given organization.
-   *
+   * <p>
    * Branches are not returned
    */
   public List<ComponentDto> selectProjectsByOrganization(DbSession dbSession, String organizationUuid) {
@@ -325,9 +324,10 @@ public class ComponentDao implements Dao {
 
   /**
    * Selects all components that are relevant for indexing. The result is not returned (since it is usually too big), but handed over to the <code>handler</code>
-   * @param session the database session
+   *
+   * @param session     the database session
    * @param projectUuid the project uuid, which is selected with all of its children
-   * @param handler the action to be applied to every result
+   * @param handler     the action to be applied to every result
    */
   public void scrollForIndexing(DbSession session, @Nullable String projectUuid, ResultHandler<ComponentDto> handler) {
     mapper(session).scrollForIndexing(projectUuid, handler);
@@ -335,7 +335,7 @@ public class ComponentDao implements Dao {
 
   /**
    * Retrieves all components with a specific root project Uuid, no other filtering is done by this method.
-   *
+   * <p>
    * Used by Views plugin
    */
   public List<ComponentDto> selectByProjectUuid(String projectUuid, DbSession dbSession) {
@@ -344,7 +344,7 @@ public class ComponentDao implements Dao {
 
   /**
    * Retrieve enabled components keys with given qualifiers
-   *
+   * <p>
    * Used by Views plugin
    */
   public Set<ComponentDto> selectComponentsByQualifiers(DbSession dbSession, Set<String> qualifiers) {
@@ -420,7 +420,7 @@ public class ComponentDao implements Dao {
   }
 
   public List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectPrivateProjectsWithNcloc(NCLOC_KEY, organizationUuid, KeyType.BRANCH, BranchType.LONG);
+    return mapper(dbSession).selectPrivateProjectsWithNcloc(organizationUuid);
   }
 
 }
