@@ -5,7 +5,7 @@ url: /project-administration/narrowing-the-focus/
 
 ## Table of Contents
 
-If {instance}'s results aren't relevant, developers will push back on using it. That's why precisely configuring what to analyze for each project is a very important step. Doing so allows you to remove noise, like the issues and duplications marked on generated code, or the issues from rules that aren't relevant for certain types of objects.
+If {instance}'s results aren't relevant, no one will want to use it. That's why precisely configuring what to analyze for each project is a very important step. Doing so allows you to remove noise, like the issues and duplications marked on generated code, or the issues from rules that aren't relevant for certain types of objects.
 
 {instance} gives you several options for configuring exactly what will be analyzed. You can
 
@@ -26,21 +26,31 @@ Set the [sonar.sources](/analysis/analysis-parameters/) property to limit the sc
 Most language plugins offer a way to restrict the scope of analysis to files matching a set of extensions. Go to **Administration > General Settings > [Language]** to set the File suffixes property.
 
 ### Choosing Files
-To specify which files are are and are not included in an analysis go to **Administration > General Settings > Analysis Scope > Files**.
+Your first line of defence having a well-defined set of files in your analysis is your `sonar.sources` value. For projects built and analysed with Maven, Gradle, or MSBuild, this value is defined automatically with a generally thorough, yet sane value. For other projects, you want to make sure `sonar.sources` is set to your project _sub-directory_ that actually contains your source files. Setting it to `.` will cast a wider net than most people intend. 
 
-Use exclusion to analyze everything but the specified files:
+![Set sonar.sources to the project sub-directory that contains your source files](/images/sources.jpg)
 
-* sonar.exclusions - to exclude source code files
-* sonar.test.exclusions - to exclude unit test files
+Once you've got all the files _in_ your analysis that you want, it's time to look at whether you have any files you'd rather leave _out_ of your analysis, such as JavaScript libraries, and generated files. Those can be handled with Exclusions. Specifying an exclusion means that everything under your `sonar.sources` directory will be included in analysis _except_ the files with paths that match your exclusion regular expression.
 
-Use inclusion to analyzes only the specified files:
+![Use exclusions to keep libraries and generated files out of analysis](/images/exclusions.jpg)
 
-* sonar.inclusions
-* sonar.test.inclusions
+To use exclusions to analyze everything but the specified files, go to **Administration > General Settings > Analysis Scope > Files**.
 
-You can set these properties at the project and global levels.
+* **Source File Exclusions** (`sonar.exclusions`) - to exclude source code files
+* **Test File Exclusions** (`sonar.test.exclusions`) - to exclude test files
 
-See the Patterns section for more details on the syntax to use in these inputs.
+The vast majority of needs are met simply by setting `sonar.sources` carefully. Most other needs are met with the addition of a few simple exclusions. In a few corner cases, it is necessary to be explicit about what's _included_ in analysis and leave out everything else, but that is not the normal case, and setting inclusions should not be the first thing you try when configuring a new project.
+
+![Use inclusions in the rare case that you want to analyze only a subset of files](/images/inclusions.jpg)
+
+To use exclusions to analyze _only_ the specified subset(s) of files in `sonar.sources`, go to **Administration > General Settings > Analysis Scope > Files**.
+
+* **Source File Inclusions** (`sonar.inclusions`)
+* **Test File Inclusions** (`sonar.test.inclusions`)
+
+You can set these properties at both the project and global levels.
+
+See the Patterns section below for more details on the syntax to use in these inputs.
 
 ## Ignore Issues
 You can have {instance} ignore issues on certain components and against certain coding rules. Go to **Administration > General Settings > Analysis Scope > Issues**.
