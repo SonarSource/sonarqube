@@ -28,7 +28,9 @@ exports[`should fetch members and groups and render for admin 1`] = `
         }
         organization={
           Object {
-            "canAdmin": true,
+            "actions": Object {
+              "admin": true,
+            },
             "key": "foo",
             "name": "Foo",
           }
@@ -63,7 +65,9 @@ exports[`should fetch members and groups and render for admin 1`] = `
     }
     organization={
       Object {
-        "canAdmin": true,
+        "actions": Object {
+          "admin": true,
+        },
         "key": "foo",
         "name": "Foo",
       }

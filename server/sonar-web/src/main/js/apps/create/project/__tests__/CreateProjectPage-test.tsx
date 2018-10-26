@@ -84,10 +84,11 @@ function getWrapper(props = {}) {
       // @ts-ignore avoid passing everything from WithRouterProps
       location={{}}
       router={mockRouter()}
-      skipOnboardingAction={jest.fn()}
+      skipOnboarding={jest.fn()}
       userOrganizations={[
-        { key: 'foo', name: 'Foo' },
-        { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
+        { actions: { provision: true }, key: 'foo', name: 'Foo' },
+        { actions: { provision: true }, alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' },
+        { actions: { provision: false }, key: 'baz', name: 'Baz' }
       ]}
       {...props}
     />

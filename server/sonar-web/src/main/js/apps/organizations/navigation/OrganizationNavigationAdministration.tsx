@@ -41,8 +41,8 @@ const ADMIN_PATHS = [
 ];
 
 export default function OrganizationNavigationAdministration({ location, organization }: Props) {
-  const extensions = organization.adminPages || [];
-  const adminPathsWithExtensions = extensions.map(e => `extension/${e.key}`).concat(ADMIN_PATHS);
+  const { actions = {}, adminPages = [] } = organization;
+  const adminPathsWithExtensions = adminPages.map(e => `extension/${e.key}`).concat(ADMIN_PATHS);
   const adminActive = adminPathsWithExtensions.some(path =>
     location.pathname.endsWith(`organizations/${organization.key}/${path}`)
   );
@@ -51,7 +51,7 @@ export default function OrganizationNavigationAdministration({ location, organiz
     <Dropdown
       overlay={
         <ul className="menu">
-          {extensions.map(extension => (
+          {adminPages.map(extension => (
             <li key={extension.key}>
               <Link
                 activeClassName="active"
@@ -94,7 +94,7 @@ export default function OrganizationNavigationAdministration({ location, organiz
               {translate('edit')}
             </Link>
           </li>
-          {organization.canDelete && (
+          {actions.delete && (
             <li>
               <Link activeClassName="active" to={`/organizations/${organization.key}/delete`}>
                 {translate('delete')}

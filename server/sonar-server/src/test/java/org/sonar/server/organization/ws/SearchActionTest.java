@@ -56,6 +56,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.organization.ws.SearchAction.PARAM_MEMBER;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -76,23 +77,65 @@ public class SearchActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void is_admin_available_for_each_organization() {
+  public void admin_and_delete_action_available_for_each_organization() {
     OrganizationDto userAdminOrganization = db.organizations().insert();
     OrganizationDto groupAdminOrganization = db.organizations().insert();
     OrganizationDto browseOrganization = db.organizations().insert();
+    OrganizationDto guardedOrganization = db.organizations().insert(dto -> dto.setGuarded(true));
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup(groupAdminOrganization);
     db.users().insertMember(group, user);
-    userSession.logIn(user).addPermission(ADMINISTER, userAdminOrganization);
+    userSession.logIn(user).addPermission(ADMINISTER, userAdminOrganization)
+      .addPermission(ADMINISTER, guardedOrganization);
     db.users().insertPermissionOnUser(userAdminOrganization, user, ADMINISTER);
+    db.users().insertPermissionOnUser(guardedOrganization, user, ADMINISTER);
     db.users().insertPermissionOnGroup(group, ADMINISTER);
 
     SearchWsResponse result = call(ws.newRequest());
 
-    assertThat(result.getOrganizationsList()).extracting(Organization::getKey, Organization::getIsAdmin).containsExactlyInAnyOrder(
-      tuple(userAdminOrganization.getKey(), true),
+    assertThat(result.getOrganizationsList())
+      .extracting(Organization::getKey, o -> o.getActions().getAdmin(), o -> o.getActions().getDelete())
+      .containsExactlyInAnyOrder(
+        tuple(userAdminOrganization.getKey(), true, true),
+        tuple(browseOrganization.getKey(), false, false),
+        tuple(groupAdminOrganization.getKey(), true, true),
+        tuple(guardedOrganization.getKey(), true, false));
+  }
+
+  @Test
+  public void root_can_do_everything() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto guardedOrganization = db.organizations().insert(dto -> dto.setGuarded(true));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setRoot();
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getOrganizationsList())
+      .extracting(Organization::getKey, o -> o.getActions().getAdmin(), o -> o.getActions().getDelete(), o -> o.getActions().getProvision())
+      .containsExactlyInAnyOrder(
+        tuple(organization.getKey(), true, true, true),
+        tuple(guardedOrganization.getKey(), true, true, true));
+  }
+
+  @Test
+  public void provision_action_available_for_each_organization() {
+    OrganizationDto userProvisionOrganization = db.organizations().insert();
+    OrganizationDto groupProvisionOrganization = db.organizations().insert();
+    OrganizationDto browseOrganization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup(groupProvisionOrganization);
+    db.users().insertMember(group, user);
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS, userProvisionOrganization);
+    db.users().insertPermissionOnUser(userProvisionOrganization, user, PROVISION_PROJECTS);
+    db.users().insertPermissionOnGroup(group, PROVISION_PROJECTS);
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getOrganizationsList()).extracting(Organization::getKey, o -> o.getActions().getProvision()).containsExactlyInAnyOrder(
+      tuple(userProvisionOrganization.getKey(), true),
       tuple(browseOrganization.getKey(), false),
-      tuple(groupAdminOrganization.getKey(), true));
+      tuple(groupProvisionOrganization.getKey(), true));
   }
 
   @Test

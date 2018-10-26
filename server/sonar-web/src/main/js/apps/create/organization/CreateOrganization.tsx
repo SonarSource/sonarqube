@@ -290,7 +290,8 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
             createOrganization={this.props.createOrganization}
             onOrgCreated={this.handleOrgCreated}
             unboundOrganizations={this.props.userOrganizations.filter(
-              o => !o.alm && o.key !== currentUser.personalOrganization
+              ({ actions = {}, alm, key }) =>
+                !alm && key !== currentUser.personalOrganization && actions.admin
             )}
           />
         )}

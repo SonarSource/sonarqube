@@ -21,7 +21,7 @@ import { hasPrivateAccess, isCurrentUserMemberOf } from '../organizations';
 import { OrganizationSubscription } from '../../app/types';
 
 const org = { key: 'foo', name: 'Foo', subscription: OrganizationSubscription.Paid };
-const adminOrg = { key: 'bar', name: 'Bar', canAdmin: true };
+const adminOrg = { actions: { admin: true }, key: 'bar', name: 'Bar' };
 const randomOrg = { key: 'bar', name: 'Bar' };
 
 const loggedIn = {

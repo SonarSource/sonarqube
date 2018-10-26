@@ -39,13 +39,13 @@ const loggedInUser = {
 };
 
 const organization = {
-  canAdmin: false,
+  actions: { admin: false },
   key: 'foo',
   name: 'Foo',
   projectVisibility: Visibility.Public
 };
 
-const adminOrganization = { ...organization, canAdmin: true };
+const adminOrganization = { ...organization, actions: { admin: true } };
 
 describe('component', () => {
   it('should render children', () => {

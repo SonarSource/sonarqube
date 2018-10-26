@@ -71,7 +71,13 @@ function byKey(state: State['byKey'] = {}, action: Action): State['byKey'] {
     case 'RECEIVE_MY_ORGANIZATIONS':
       return onReceiveOrganizations(state, action);
     case 'CREATE_ORGANIZATION':
-      return { ...state, [action.organization.key]: { ...action.organization, isAdmin: true } };
+      return {
+        ...state,
+        [action.organization.key]: {
+          ...action.organization,
+          actions: { ...(action.organization.actions || {}), admin: true }
+        }
+      };
     case 'UPDATE_ORGANIZATION':
       return {
         ...state,

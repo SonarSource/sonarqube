@@ -45,6 +45,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Common.Paging;
 
@@ -72,6 +73,7 @@ public class SearchAction implements OrganizationsWsAction {
       .setInternal(true)
       .setSince("6.2")
       .setChangelog(new Change("6.4", "Paging fields have been added to the response"))
+      .setChangelog(new Change("7.5", "Removed 'isAdmin' and return 'actions' for each organization"))
       .setHandler(this);
 
     action.createParam(PARAM_ORGANIZATIONS)
@@ -103,9 +105,10 @@ public class SearchAction implements OrganizationsWsAction {
       Paging paging = buildWsPaging(request, total);
       List<OrganizationDto> organizations = dbClient.organizationDao().selectByQuery(dbSession, dbQuery, forPage(paging.getPageIndex()).andSize(paging.getPageSize()));
       Set<String> adminOrganizationUuids = searchOrganizationWithAdminPermission(dbSession);
+      Set<String> provisionOrganizationUuids = searchOrganizationWithProvisionPermission(dbSession);
       Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid = dbClient.organizationAlmBindingDao().selectByOrganizations(dbSession, organizations)
         .stream().collect(MoreCollectors.uniqueIndex(OrganizationAlmBindingDto::getOrganizationUuid));
-      writeResponse(request, response, organizations, adminOrganizationUuids, organizationAlmBindingByOrgUuid, paging);
+      writeResponse(request, response, organizations, adminOrganizationUuids, provisionOrganizationUuids, organizationAlmBindingByOrgUuid, paging);
     }
   }
 
@@ -122,7 +125,14 @@ public class SearchAction implements OrganizationsWsAction {
       : dbClient.organizationDao().selectByPermission(dbSession, userId, ADMINISTER.getKey()).stream().map(OrganizationDto::getUuid).collect(toSet());
   }
 
-  private static void writeResponse(Request httpRequest, Response httpResponse, List<OrganizationDto> organizations, Set<String> adminOrganizationUuids,
+  private Set<String> searchOrganizationWithProvisionPermission(DbSession dbSession) {
+    Integer userId = userSession.getUserId();
+    return userId == null ? emptySet()
+      : dbClient.organizationDao().selectByPermission(dbSession, userId, PROVISION_PROJECTS.getKey()).stream().map(OrganizationDto::getUuid).collect(toSet());
+  }
+
+  private void writeResponse(Request httpRequest, Response httpResponse, List<OrganizationDto> organizations,
+    Set<String> adminOrganizationUuids, Set<String> provisionOrganizationUuids,
     Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid,
     Paging paging) {
     Organizations.SearchWsResponse.Builder response = Organizations.SearchWsResponse.newBuilder();
@@ -131,8 +141,12 @@ public class SearchAction implements OrganizationsWsAction {
     organizations
       .forEach(o -> {
         wsOrganization.clear();
-        boolean isAdmin = adminOrganizationUuids.contains(o.getUuid());
-        wsOrganization.setIsAdmin(isAdmin);
+        boolean isAdmin = userSession.isRoot() || adminOrganizationUuids.contains(o.getUuid());
+        boolean canProvision = userSession.isRoot() || provisionOrganizationUuids.contains(o.getUuid());
+        wsOrganization.setActions(Organization.Actions.newBuilder()
+          .setAdmin(isAdmin)
+          .setProvision(canProvision)
+          .setDelete(o.isGuarded() ? userSession.isRoot() : isAdmin));
         response.addOrganizations(toOrganization(wsOrganization, o, organizationAlmBindingByOrgUuid.get(o.getUuid())));
       });
     writeProtobuf(response.build(), httpRequest, httpResponse);

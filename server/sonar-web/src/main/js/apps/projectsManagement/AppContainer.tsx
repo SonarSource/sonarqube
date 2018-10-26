@@ -66,11 +66,12 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
     }
 
     const topLevelQualifiers = organization.isDefault ? this.props.appState.qualifiers : ['TRK'];
+    const { actions = {} } = organization;
 
     return (
       <App
         currentUser={this.props.currentUser}
-        hasProvisionPermission={organization.canProvisionProjects}
+        hasProvisionPermission={actions.provision}
         onVisibilityChange={this.handleVisibilityChange}
         organization={organization}
         topLevelQualifiers={topLevelQualifiers}

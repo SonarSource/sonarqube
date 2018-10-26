@@ -99,7 +99,7 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
   render() {
     const { organization } = this.props;
 
-    if (!organization || organization.canAdmin == null) {
+    if (!organization || !organization.actions || organization.actions.admin == null) {
       if (this.state.loading) {
         return null;
       } else {

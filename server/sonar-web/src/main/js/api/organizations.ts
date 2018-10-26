@@ -19,7 +19,13 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Organization, OrganizationBase, Paging, OrganizationMember } from '../app/types';
+import {
+  Organization,
+  OrganizationBase,
+  Paging,
+  OrganizationMember,
+  Extension
+} from '../app/types';
 
 export function getOrganizations(data: {
   organizations?: string;
@@ -39,12 +45,10 @@ export function getOrganization(key: string): Promise<Organization | undefined> 
 }
 
 interface GetOrganizationNavigation {
-  adminPages: Array<{ key: string; name: string }>;
-  canAdmin: boolean;
-  canDelete: boolean;
-  canProvisionProjects: boolean;
+  adminPages: Extension[];
+  canUpdateProjectsVisibilityToPrivate: boolean;
   isDefault: boolean;
-  pages: Array<{ key: string; name: string }>;
+  pages: Extension[];
 }
 
 export function getOrganizationNavigation(key: string): Promise<GetOrganizationNavigation> {

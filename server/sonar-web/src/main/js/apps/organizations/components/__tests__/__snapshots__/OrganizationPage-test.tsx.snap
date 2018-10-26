@@ -41,7 +41,9 @@ exports[`smoke test 1`] = `
     }
     organization={
       Object {
-        "canAdmin": false,
+        "actions": Object {
+          "admin": false,
+        },
         "isDefault": false,
         "key": "foo",
         "name": "Foo",

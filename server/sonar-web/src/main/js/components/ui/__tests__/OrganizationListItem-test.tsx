@@ -27,7 +27,7 @@ it('renders', () => {
     shallow(
       <OrganizationListItem
         organization={{
-          isAdmin: true,
+          actions: { admin: true },
           key: 'org',
           name: 'org',
           projectVisibility: Visibility.Public

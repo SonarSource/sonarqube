@@ -51,8 +51,8 @@ it('renders with alm integration', () => {
 
 it('renders dropdown', () => {
   const organizations = [
-    { isAdmin: true, key: 'org1', name: 'org1', projectVisibility: Visibility.Public },
-    { isAdmin: false, key: 'org2', name: 'org2', projectVisibility: Visibility.Public }
+    { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: Visibility.Public },
+    { actions: { admin: false }, key: 'org2', name: 'org2', projectVisibility: Visibility.Public }
   ];
   const wrapper = shallow(
     <OrganizationNavigationHeader

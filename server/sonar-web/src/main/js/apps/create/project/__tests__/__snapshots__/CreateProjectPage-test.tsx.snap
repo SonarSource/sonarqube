@@ -76,6 +76,9 @@ exports[`should render correctly 2`] = `
       boundOrganizations={
         Array [
           Object {
+            "actions": Object {
+              "provision": true,
+            },
             "alm": Object {
               "key": "github",
               "url": "",
@@ -126,10 +129,16 @@ exports[`should render with Manual creation only 1`] = `
       userOrganizations={
         Array [
           Object {
+            "actions": Object {
+              "provision": true,
+            },
             "key": "foo",
             "name": "Foo",
           },
           Object {
+            "actions": Object {
+              "provision": true,
+            },
             "alm": Object {
               "key": "github",
               "url": "",
@@ -193,6 +202,9 @@ exports[`should switch tabs 1`] = `
       boundOrganizations={
         Array [
           Object {
+            "actions": Object {
+              "provision": true,
+            },
             "alm": Object {
               "key": "github",
               "url": "",

@@ -56,7 +56,7 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
   componentDidMount() {
     this.mounted = true;
     this.fetchMembers();
-    if (this.props.organization.canAdmin) {
+    if (this.props.organization.actions && this.props.organization.actions.admin) {
       this.fetchGroups();
     }
   }
@@ -191,19 +191,20 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
         <Helmet title={translate('organization.members.page')} />
         <Suggestions suggestions="organization_members" />
         <MembersPageHeader loading={loading}>
-          {organization.canAdmin && (
-            <div className="page-actions">
-              <AddMemberForm
-                addMember={this.handleAddMember}
-                memberLogins={memberLogins}
-                organization={organization}
-              />
-              <DocTooltip
-                className="spacer-left"
-                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md')}
-              />
-            </div>
-          )}
+          {organization.actions &&
+            organization.actions.admin && (
+              <div className="page-actions">
+                <AddMemberForm
+                  addMember={this.handleAddMember}
+                  memberLogins={memberLogins}
+                  organization={organization}
+                />
+                <DocTooltip
+                  className="spacer-left"
+                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md')}
+                />
+              </div>
+            )}
         </MembersPageHeader>
         {members !== undefined &&
           paging !== undefined && (

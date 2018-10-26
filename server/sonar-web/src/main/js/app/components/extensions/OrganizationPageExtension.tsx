@@ -56,8 +56,9 @@ class OrganizationPageExtension extends React.PureComponent<Props> {
       return null;
     }
 
-    let pages = organization.pages || [];
-    if (organization.canAdmin && organization.adminPages) {
+    const { actions = {} } = organization;
+    let { pages = [] } = organization;
+    if (actions.admin && organization.adminPages) {
       pages = pages.concat(organization.adminPages);
     }
 

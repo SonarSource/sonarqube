@@ -32,7 +32,7 @@ it('smoke test', () => {
   const wrapper = getWrapper();
   expect(wrapper.type()).toBeNull();
 
-  const organization = { key: 'foo', name: 'Foo', isDefault: false, canAdmin: false };
+  const organization = { actions: { admin: false }, key: 'foo', name: 'Foo', isDefault: false };
   wrapper.setProps({ organization });
   expect(wrapper).toMatchSnapshot();
 });

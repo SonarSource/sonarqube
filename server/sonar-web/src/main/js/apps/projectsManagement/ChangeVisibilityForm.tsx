@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Organization, Visibility } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import Modal from '../../components/controls/Modal';
+import { Organization, Visibility } from '../../app/types';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { Alert } from '../../components/ui/Alert';
@@ -55,8 +55,7 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
   };
 
   render() {
-    const { canUpdateProjectsVisibilityToPrivate } = this.props.organization;
-
+    const { organization } = this.props;
     return (
       <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
         <header className="modal-head">
@@ -67,7 +66,8 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
           {[Visibility.Public, Visibility.Private].map(visibility => (
             <div className="big-spacer-bottom" key={visibility}>
               <p>
-                {visibility === Visibility.Private && !canUpdateProjectsVisibilityToPrivate ? (
+                {visibility === Visibility.Private &&
+                !organization.canUpdateProjectsVisibilityToPrivate ? (
                   <span className="text-muted cursor-not-allowed">
                     <i
                       className={classNames('icon-radio', 'spacer-right', {
@@ -97,7 +97,7 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
             </div>
           ))}
 
-          {canUpdateProjectsVisibilityToPrivate ? (
+          {organization.canUpdateProjectsVisibilityToPrivate ? (
             <Alert variant="warning">
               {translate('organization.change_visibility_form.warning')}
             </Alert>

@@ -78,6 +78,7 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
 
   render() {
     const { member, organization } = this.props;
+    const { actions = {} } = organization;
     return (
       <tr>
         <td className="thin nowrap">
@@ -87,7 +88,7 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
           <strong>{member.name}</strong>
           <span className="note little-spacer-left">{member.login}</span>
         </td>
-        {organization.canAdmin && (
+        {actions.admin && (
           <td className="text-right text-middle">
             {translateWithParameters(
               'organization.members.x_groups',
@@ -95,7 +96,7 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
             )}
           </td>
         )}
-        {organization.canAdmin && (
+        {actions.admin && (
           <React.Fragment>
             <td className="nowrap text-middle text-right">
               <ActionsDropdown>

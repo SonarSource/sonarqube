@@ -69,6 +69,9 @@ exports[`should render with auto personal organization bind page 2`] = `
       }
       importPersonalOrg={
         Object {
+          "actions": Object {
+            "admin": true,
+          },
           "key": "foo",
           "name": "Foo",
         }
@@ -155,6 +158,9 @@ exports[`should render with auto tab displayed 1`] = `
       unboundOrganizations={
         Array [
           Object {
+            "actions": Object {
+              "admin": true,
+            },
             "key": "foo",
             "name": "Foo",
           },
@@ -257,6 +263,9 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
       unboundOrganizations={
         Array [
           Object {
+            "actions": Object {
+              "admin": true,
+            },
             "key": "foo",
             "name": "Foo",
           },
@@ -405,6 +414,9 @@ exports[`should switch tabs 1`] = `
       unboundOrganizations={
         Array [
           Object {
+            "actions": Object {
+              "admin": true,
+            },
             "key": "foo",
             "name": "Foo",
           },

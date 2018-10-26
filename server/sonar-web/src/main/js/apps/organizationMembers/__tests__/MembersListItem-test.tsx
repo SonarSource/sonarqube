@@ -43,7 +43,7 @@ it('should render actions and groups for admin', () => {
   const wrapper = shallow(
     <MembersListItem
       member={admin}
-      organization={{ ...organization, canAdmin: true }}
+      organization={{ ...organization, actions: { admin: true } }}
       organizationGroups={[]}
       removeMember={jest.fn()}
       updateMemberGroups={jest.fn()}
@@ -56,7 +56,7 @@ it('should groups at 0 if the groupCount field is not defined (just added user)'
   const wrapper = shallow(
     <MembersListItem
       member={john}
-      organization={{ ...organization, canAdmin: true }}
+      organization={{ ...organization, actions: { admin: true } }}
       organizationGroups={[]}
       removeMember={jest.fn()}
       updateMemberGroups={jest.fn()}
@@ -69,7 +69,7 @@ it('should open groups form', () => {
   const wrapper = shallow(
     <MembersListItem
       member={admin}
-      organization={{ ...organization, canAdmin: true }}
+      organization={{ ...organization, actions: { admin: true } }}
       organizationGroups={[]}
       removeMember={jest.fn()}
       updateMemberGroups={jest.fn()}
@@ -88,7 +88,7 @@ it('should open remove member form', () => {
   const wrapper = shallow(
     <MembersListItem
       member={admin}
-      organization={{ ...organization, canAdmin: true }}
+      organization={{ ...organization, actions: { admin: true } }}
       organizationGroups={[]}
       removeMember={jest.fn()}
       updateMemberGroups={jest.fn()}

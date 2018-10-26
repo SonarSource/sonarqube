@@ -31,7 +31,9 @@ exports[`renders dropdown 1`] = `
       <OrganizationListItem
         organization={
           Object {
-            "isAdmin": true,
+            "actions": Object {
+              "admin": true,
+            },
             "key": "org1",
             "name": "org1",
             "projectVisibility": "public",
@@ -41,7 +43,9 @@ exports[`renders dropdown 1`] = `
       <OrganizationListItem
         organization={
           Object {
-            "isAdmin": false,
+            "actions": Object {
+              "admin": false,
+            },
             "key": "org2",
             "name": "org2",
             "projectVisibility": "public",

@@ -28,6 +28,7 @@ interface Props {
 }
 
 export default function OrganizationCard({ organization }: Props) {
+  const { actions = {} } = organization;
   return (
     <div className="account-project-card clearfix">
       <aside className="account-project-side note">
@@ -39,9 +40,7 @@ export default function OrganizationCard({ organization }: Props) {
         <OrganizationLink className="spacer-left text-middle" organization={organization}>
           {organization.name}
         </OrganizationLink>
-        {organization.isAdmin && (
-          <span className="outline-badge spacer-left">{translate('admin')}</span>
-        )}
+        {actions.admin && <span className="outline-badge spacer-left">{translate('admin')}</span>}
       </h3>
 
       {!!organization.description && (

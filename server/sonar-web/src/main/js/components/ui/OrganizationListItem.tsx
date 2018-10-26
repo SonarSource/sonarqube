@@ -28,6 +28,7 @@ interface Props {
 }
 
 export default function OrganizationListItem({ organization }: Props) {
+  const { actions = {} } = organization;
   return (
     <li>
       <OrganizationLink className="display-flex-center" organization={organization}>
@@ -35,9 +36,7 @@ export default function OrganizationListItem({ organization }: Props) {
           <OrganizationAvatar organization={organization} small={true} />
           <span className="spacer-left">{organization.name}</span>
         </div>
-        {organization.isAdmin && (
-          <span className="outline-badge spacer-left">{translate('admin')}</span>
-        )}
+        {actions.admin && <span className="outline-badge spacer-left">{translate('admin')}</span>}
       </OrganizationLink>
     </li>
   );

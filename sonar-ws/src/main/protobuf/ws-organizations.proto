@@ -60,12 +60,18 @@ message Organization {
   optional string url = 4;
   optional string avatar = 5;
   optional bool guarded = 6;
-  optional bool isAdmin = 7;
   optional Alm alm = 8;
+  optional Actions actions = 9;
 
   message Alm {
     optional string key = 1;
     optional string url = 2;
+  }
+
+  message Actions {
+    optional bool admin = 1;
+    optional bool delete = 2;
+    optional bool provision = 3;
   }
 }
 

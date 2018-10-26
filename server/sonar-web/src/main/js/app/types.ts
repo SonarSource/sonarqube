@@ -485,15 +485,19 @@ export interface Notification {
   type: string;
 }
 
+export interface OrganizationActions {
+  admin?: boolean;
+  delete?: boolean;
+  provision?: boolean;
+  executeAnalysis?: boolean;
+}
+
 export interface Organization extends OrganizationBase {
+  actions?: OrganizationActions;
   alm?: { key: string; url: string };
   adminPages?: Extension[];
-  canAdmin?: boolean;
-  canDelete?: boolean;
-  canProvisionProjects?: boolean;
   canUpdateProjectsVisibilityToPrivate?: boolean;
   guarded?: boolean;
-  isAdmin?: boolean;
   isDefault?: boolean;
   key: string;
   pages?: Extension[];

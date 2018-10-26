@@ -47,7 +47,7 @@ it('renders public with icon', () => {
     getWrapper({
       organization: {
         ...organization,
-        canAdmin: true,
+        actions: { admin: true },
         subscription: OrganizationSubscription.Paid
       },
       visibility: Visibility.Public

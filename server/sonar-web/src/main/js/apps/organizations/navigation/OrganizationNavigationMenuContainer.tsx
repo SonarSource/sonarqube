@@ -48,6 +48,7 @@ export function OrganizationNavigationMenu({
   userOrganizations
 }: Props) {
   const hasPrivateRights = hasPrivateAccess(currentUser, organization, userOrganizations);
+  const { actions = {} } = organization;
   return (
     <NavBarTabs className="navbar-context-tabs">
       <li>
@@ -92,7 +93,7 @@ export function OrganizationNavigationMenu({
         </li>
       )}
       <OrganizationNavigationExtensions location={location} organization={organization} />
-      {organization.canAdmin && (
+      {actions.admin && (
         <OrganizationNavigationAdministration location={location} organization={organization} />
       )}
     </NavBarTabs>

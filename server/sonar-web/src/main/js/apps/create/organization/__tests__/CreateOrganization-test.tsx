@@ -249,8 +249,9 @@ function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
       skipOnboardingAction={jest.fn()}
       updateOrganization={jest.fn()}
       userOrganizations={[
-        { key: 'foo', name: 'Foo' },
-        { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
+        { actions: { admin: true }, key: 'foo', name: 'Foo' },
+        { actions: { admin: true }, alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' },
+        { actions: { admin: false }, key: 'baz', name: 'Baz' }
       ]}
       {...props}
     />

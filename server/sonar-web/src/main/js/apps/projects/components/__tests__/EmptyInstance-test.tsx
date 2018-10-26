@@ -55,7 +55,7 @@ it('renders correctly for SC', () => {
     shallow(
       <EmptyInstance
         currentUser={{ isLoggedIn: false }}
-        organization={{ canProvisionProjects: true, key: 'foo', name: 'Foo' }}
+        organization={{ actions: { provision: true }, key: 'foo', name: 'Foo' }}
       />
     )
   ).toMatchSnapshot();

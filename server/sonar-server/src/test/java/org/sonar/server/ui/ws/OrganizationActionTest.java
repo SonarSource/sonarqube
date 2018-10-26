@@ -91,91 +91,6 @@ public class OrganizationActionTest {
   }
 
   @Test
-  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_the_default_organization() {
-    TestResponse response = executeRequest(db.getDefaultOrganization());
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_the_default_organization() {
-    userSession.logIn();
-
-    TestResponse response = executeRequest(db.getDefaultOrganization());
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_the_default_organization() {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
-
-    TestResponse response = executeRequest(defaultOrganization);
-
-    verifyResponse(response, true, false, true);
-  }
-
-  @Test
-  public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_not_the_default_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_non_admin_and_canDelete_false_when_user_logged_in_but_not_admin_and_key_is_not_the_default_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn();
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, false, false, false);
-  }
-
-  @Test
-  public void returns_admin_and_canDelete_true_when_user_logged_in_and_admin_and_key_is_not_the_default_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, true, false, true);
-  }
-
-  @Test
-  public void returns_admin_and_canDelete_false_when_user_logged_in_and_admin_and_key_is_guarded_organization() {
-    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, true, false, false);
-  }
-
-  @Test
-  public void returns_only_canDelete_true_when_user_is_system_administrator_and_key_is_guarded_organization() {
-    OrganizationDto organization = db.organizations().insert(dto -> dto.setGuarded(true));
-    userSession.logIn().setSystemAdministrator();
-
-    TestResponse response = executeRequest(organization);
-
-    verifyResponse(response, false, false, true);
-  }
-
-  @Test
-  public void returns_provisioning_true_when_user_can_provision_projects_in_organization() {
-    // user can provision projects in org2 but not in org1
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    userSession.logIn().addPermission(PROVISION_PROJECTS, org2);
-
-    verifyResponse(executeRequest(org1), false, false, false);
-    verifyResponse(executeRequest(org2), false, true, false);
-  }
-
-  @Test
   public void returns_project_visibility_private() {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setNewProjectPrivate(organization, true);
@@ -324,18 +239,6 @@ public class OrganizationActionTest {
       request.setParam("organization", organization.getKey());
     }
     return request.execute();
-  }
-
-  private static void verifyResponse(TestResponse response, boolean canAdmin, boolean canProvisionProjects, boolean canDelete) {
-    assertJson(response.getInput())
-      .isSimilarTo("{" +
-        "  \"organization\": {" +
-        "    \"canAdmin\": " + canAdmin + "," +
-        "    \"canProvisionProjects\": " + canProvisionProjects + "," +
-        "    \"canDelete\": " + canDelete +
-        "    \"pages\": []" +
-        "  }" +
-        "}");
   }
 
   private static void verifyCanUpdateProjectsVisibilityToPrivateResponse(TestResponse response, boolean canUpdateProjectsVisibilityToPrivate) {

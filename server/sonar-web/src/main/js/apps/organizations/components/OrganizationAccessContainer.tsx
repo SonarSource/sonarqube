@@ -75,8 +75,9 @@ export function hasAdminAccess({
   currentUser,
   organization
 }: Pick<StateToProps, 'currentUser' | 'organization'>) {
-  const isAdmin = isLoggedIn(currentUser) && organization && organization.canAdmin;
-  return Boolean(isAdmin);
+  return Boolean(
+    isLoggedIn(currentUser) && organization && organization.actions && organization.actions.admin
+  );
 }
 
 export function OrganizationAdminAccess(props: OwnProps) {

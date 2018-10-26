@@ -65,7 +65,7 @@ it('renders for admin', () => {
       <OrganizationNavigationMenu
         currentUser={loggedInUser}
         location={{ pathname: '' }}
-        organization={{ ...organization, canAdmin: true }}
+        organization={{ ...organization, actions: { admin: true } }}
         userOrganizations={[organization]}
       />
     )

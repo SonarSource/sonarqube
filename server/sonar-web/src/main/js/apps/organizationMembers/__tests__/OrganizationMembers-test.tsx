@@ -67,7 +67,7 @@ it('should fetch members and render for non-admin', async () => {
 
 it('should fetch members and groups and render for admin', async () => {
   const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, canAdmin: true }} />
+    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -77,7 +77,7 @@ it('should fetch members and groups and render for admin', async () => {
 
 it('should search users', async () => {
   const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, canAdmin: true }} />
+    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
   );
   await waitAndUpdate(wrapper);
   wrapper.find('MembersListHeader').prop<Function>('handleSearch')('user');
@@ -86,7 +86,7 @@ it('should search users', async () => {
 
 it('should load more members', async () => {
   const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, canAdmin: true }} />
+    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
   );
   await waitAndUpdate(wrapper);
   wrapper.find('ListFooter').prop<Function>('loadMore')();
@@ -95,7 +95,7 @@ it('should load more members', async () => {
 
 it('should add new member', async () => {
   const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, canAdmin: true }} />
+    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
   );
   await waitAndUpdate(wrapper);
   wrapper.find('AddMemberForm').prop<Function>('addMember')({ login: 'bar' });
@@ -112,7 +112,7 @@ it('should add new member', async () => {
 
 it('should remove member', async () => {
   const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, canAdmin: true }} />
+    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
   );
   await waitAndUpdate(wrapper);
   wrapper.find('MembersList').prop<Function>('removeMember')({ login: 'john' });
@@ -129,7 +129,7 @@ it('should remove member', async () => {
 
 it('should update groups', async () => {
   const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, canAdmin: true }} />
+    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
   );
   await waitAndUpdate(wrapper);
   wrapper.find('MembersList').prop<Function>('updateMemberGroups')(

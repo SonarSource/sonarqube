@@ -42,7 +42,7 @@ export default class EmptyInstance extends React.PureComponent<Props> {
   render() {
     const { currentUser, organization } = this.props;
     const showNewProjectButton = isSonarCloud()
-      ? organization && organization.canProvisionProjects
+      ? organization && organization.actions && organization.actions.provision
       : isLoggedIn(currentUser) && hasGlobalPermission(currentUser, 'provisioning');
 
     return (

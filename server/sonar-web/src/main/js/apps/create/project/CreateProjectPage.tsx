@@ -27,10 +27,9 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
-import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
+import { skipOnboarding } from '../../../store/users';
 import { LoggedInUser, AlmApplication, Organization } from '../../../app/types';
 import { getAlmAppInfo } from '../../../api/alm-integration';
-import { skipOnboarding } from '../../../api/users';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -38,7 +37,7 @@ import '../../../app/styles/sonarcloud.css';
 
 interface Props {
   currentUser: LoggedInUser;
-  skipOnboardingAction: () => void;
+  skipOnboarding: () => void;
   userOrganizations: Organization[];
 }
 
@@ -80,8 +79,7 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
   }
 
   handleProjectCreate = (projectKeys: string[]) => {
-    skipOnboarding().catch(() => {});
-    this.props.skipOnboardingAction();
+    this.props.skipOnboarding();
     if (projectKeys.length > 1) {
       this.props.router.push({ pathname: '/projects' });
     } else if (projectKeys.length === 1) {
@@ -153,12 +151,16 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
                   currentUser={currentUser}
                   onProjectCreate={this.handleProjectCreate}
                   organization={state.organization}
-                  userOrganizations={userOrganizations}
+                  userOrganizations={userOrganizations.filter(
+                    ({ actions = {} }) => actions.provision
+                  )}
                 />
               ) : (
                 <AutoProjectCreate
                   almApplication={almApplication}
-                  boundOrganizations={userOrganizations.filter(o => o.alm)}
+                  boundOrganizations={userOrganizations.filter(
+                    ({ alm, actions = {} }) => alm && actions.provision
+                  )}
                   onProjectCreate={this.handleProjectCreate}
                   organization={state.organization}
                 />
@@ -171,7 +173,7 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
   }
 }
 
-const mapDispatchToProps = { skipOnboardingAction };
+const mapDispatchToProps = { skipOnboarding };
 
 export default whenLoggedIn(
   withUserOrganizations(

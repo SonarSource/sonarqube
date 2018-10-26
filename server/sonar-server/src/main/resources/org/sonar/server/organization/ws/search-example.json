@@ -9,7 +9,11 @@
       "key": "foo-company",
       "name": "Foo Company",
       "guarded": true,
-      "isAdmin": false
+      "actions": {
+        "admin": false,
+        "delete": false,
+        "provision": false
+      }
     },
     {
       "key": "bar-company",
@@ -18,7 +22,11 @@
       "url": "https://www.bar.com",
       "avatar": "https://www.bar.com/logo.png",
       "guarded": false,
-      "isAdmin": true
+      "actions": {
+        "admin": true,
+        "delete": true,
+        "provision": false
+      }
     }
   ]
 }

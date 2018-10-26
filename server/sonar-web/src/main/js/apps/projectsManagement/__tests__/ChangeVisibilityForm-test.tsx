@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ChangeVisibilityForm, { Props } from '../ChangeVisibilityForm';
+import ChangeVisibilityForm from '../ChangeVisibilityForm';
 import { click } from '../../../helpers/testUtils';
 import { Visibility } from '../../../app/types';
 
@@ -62,7 +62,7 @@ it('changes visibility', () => {
   expect(onConfirm).toBeCalledWith(Visibility.Private);
 });
 
-function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
+function shallowRender(props: Partial<ChangeVisibilityForm['props']> = {}) {
   return shallow(
     <ChangeVisibilityForm
       onClose={jest.fn()}

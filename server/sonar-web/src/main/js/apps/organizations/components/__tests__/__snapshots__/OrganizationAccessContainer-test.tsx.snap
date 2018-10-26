@@ -5,7 +5,9 @@ exports[`component should render children 1`] = `
   location={Object {}}
   organization={
     Object {
-      "canAdmin": true,
+      "actions": Object {
+        "admin": true,
+      },
       "key": "foo",
       "name": "Foo",
       "projectVisibility": "public",

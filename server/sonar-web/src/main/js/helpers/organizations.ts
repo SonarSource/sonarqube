@@ -43,8 +43,7 @@ export function isCurrentUserMemberOf(
   return Boolean(
     organization &&
       isLoggedIn(currentUser) &&
-      (organization.canAdmin ||
-        organization.isAdmin ||
+      ((organization.actions && organization.actions.admin) ||
         userOrganizations.some(org => org.key === organization.key))
   );
 }

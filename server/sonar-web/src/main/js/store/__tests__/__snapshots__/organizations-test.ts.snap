@@ -4,7 +4,9 @@ exports[`Reducer should create organization 1`] = `
 Object {
   "byKey": Object {
     "foo": Object {
-      "isAdmin": true,
+      "actions": Object {
+        "admin": true,
+      },
       "key": "foo",
       "name": "foo",
     },
@@ -84,8 +86,10 @@ exports[`Reducer should update organization 1`] = `
 Object {
   "byKey": Object {
     "foo": Object {
+      "actions": Object {
+        "admin": true,
+      },
       "description": "description",
-      "isAdmin": true,
       "key": "foo",
       "name": "bar",
     },
