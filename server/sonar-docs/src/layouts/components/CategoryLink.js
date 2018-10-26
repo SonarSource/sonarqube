@@ -20,7 +20,6 @@
 import * as React from 'react';
 import Link from 'gatsby-link';
 import SubpageLink from './SubpageLink';
-import HeadingsLink from './HeadingsLink';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronUpIcon from './icons/ChevronUpIcon';
 

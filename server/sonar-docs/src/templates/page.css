@@ -546,9 +546,13 @@ a.search-result .note {
 .alert-warning {
   border-color: #c99916;
   background: #ffefbc url(../images/alerts/danger.svg) no-repeat;
-  background-position: 10px 10px;
+  background-position: 10px 15px;
   background-size: 24px;
   padding-left: 40px;
+}
+
+.page-sidebar .alert-warning {
+  background-position: 10px 10px;
 }
 
 .alert-warning a {
