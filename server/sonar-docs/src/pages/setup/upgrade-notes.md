@@ -19,7 +19,7 @@ Two distinct new create permissions have been added. Users who have any creation
 **Issues from third party Roslyn analyzers**  
 Analyzing a C# / VB.NET solution now automatically imports issues found by attached Roslyn analyzers into SonarQube, and no longer suppresses them from the MSBuild output. The Quality Gate status of projects may be impacted.
 
-**More memory may be needed for analysis**
+**More memory may be needed for analysis**  
 Changes in the advanced security analysis available in Developer Edition and above may mean that a larger heap is needed during analysis.
 
 **Analysis warnings in UI**
