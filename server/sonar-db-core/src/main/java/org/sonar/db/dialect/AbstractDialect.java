@@ -87,6 +87,11 @@ abstract class AbstractDialect implements Dialect {
     return 1;
   }
 
+  @Override
+  public boolean supportsUpsert() {
+    return false;
+  }
+
   Version checkDbVersion(DatabaseMetaData metaData, Version minSupported) throws SQLException {
     int major = metaData.getDatabaseMajorVersion();
     int minor = metaData.getDatabaseMinorVersion();

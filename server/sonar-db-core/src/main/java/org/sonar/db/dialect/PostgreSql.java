@@ -25,12 +25,19 @@ import java.sql.SQLException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Loggers;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public class PostgreSql extends AbstractDialect {
 
   public static final String ID = "postgresql";
   static final List<String> INIT_STATEMENTS = ImmutableList.of("SET standard_conforming_strings=on", "SET backslash_quote=off");
   private static final Version MIN_SUPPORTED_VERSION = Version.create(9, 3, 0);
+  private static final Version MIN_UPSERT_VERSION = Version.create(9, 5, 0);
+
+  private boolean initialized = false;
+  private boolean supportsUpsert = false;
 
   public PostgreSql() {
     super(ID, "org.postgresql.Driver", "true", "false", "SELECT 1");
@@ -52,7 +59,22 @@ public class PostgreSql extends AbstractDialect {
   }
 
   @Override
+  public boolean supportsUpsert() {
+    checkState(initialized, "onInit() must be called before calling supportsUpsert()");
+    return supportsUpsert;
+  }
+
+  @Override
   public void init(DatabaseMetaData metaData) throws SQLException {
-    checkDbVersion(metaData, MIN_SUPPORTED_VERSION);
+    checkState(!initialized, "onInit() must be called once");
+
+    Version version = checkDbVersion(metaData, MIN_SUPPORTED_VERSION);
+
+    supportsUpsert = version.compareTo(MIN_UPSERT_VERSION) >= 0;
+    if (!supportsUpsert) {
+      Loggers.get(getClass()).warn("Upgrading PostgreSQL to {} or greater is recommended for better performances", MIN_UPSERT_VERSION);
+    }
+
+    initialized = true;
   }
 }

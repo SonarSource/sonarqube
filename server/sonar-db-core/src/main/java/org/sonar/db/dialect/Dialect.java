@@ -64,6 +64,8 @@ public interface Dialect {
    */
   boolean supportsMigration();
 
+  boolean supportsUpsert();
+
   /**
    * This method is called when connecting for the first
    * time to the database.

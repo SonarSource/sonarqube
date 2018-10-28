@@ -90,6 +90,11 @@ public class MsSqlTest {
     underTest.init(metadata);
   }
 
+  @Test
+  public void supportsUpsert_returns_false() {
+    assertThat(underTest.supportsUpsert()).isFalse();
+  }
+
   private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion) throws SQLException {
     DatabaseMetaData metadata = mock(DatabaseMetaData.class, Mockito.RETURNS_DEEP_STUBS);
     when(metadata.getDatabaseMajorVersion()).thenReturn(dbMajorVersion);

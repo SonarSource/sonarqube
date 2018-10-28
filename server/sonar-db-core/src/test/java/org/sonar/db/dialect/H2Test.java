@@ -75,4 +75,9 @@ public class H2Test {
 
     assertThat(logs.logs(LoggerLevel.WARN)).contains("H2 database should be used for evaluation purpose only.");
   }
+
+  @Test
+  public void supportsUpsert_returns_false() {
+    assertThat(underTest.supportsUpsert()).isFalse();
+  }
 }

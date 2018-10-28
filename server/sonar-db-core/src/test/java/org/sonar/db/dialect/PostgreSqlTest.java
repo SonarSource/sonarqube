@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,6 +37,8 @@ public class PostgreSqlTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logs = new LogTester();
 
   private PostgreSql underTest = new PostgreSql();
 
@@ -78,7 +82,7 @@ public class PostgreSqlTest {
   }
 
   @Test
-  public void init_throws_MessageException_if_postgresql_9_2() throws Exception {
+  public void postgresql_9_2_is_not_supported() throws Exception {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Unsupported postgresql version: 9.2. Minimal supported version is 9.3.");
 
@@ -87,9 +91,40 @@ public class PostgreSqlTest {
   }
 
   @Test
-  public void init_does_not_fail_if_postgresql_9_3() throws Exception {
+  public void postgresql_9_3_is_supported_without_upsert() throws Exception {
     DatabaseMetaData metadata = newMetadata( 9, 3);
     underTest.init(metadata);
+
+    assertThat(underTest.supportsUpsert()).isFalse();
+    assertThat(logs.logs(LoggerLevel.WARN)).contains("Upgrading PostgreSQL to 9.5 or greater is recommended for better performances");
+  }
+
+  @Test
+  public void postgresql_9_5_is_supported_with_upsert() throws Exception {
+    DatabaseMetaData metadata = newMetadata( 9, 5);
+    underTest.init(metadata);
+
+    assertThat(underTest.supportsUpsert()).isTrue();
+    assertThat(logs.logs(LoggerLevel.WARN)).isEmpty();
+  }
+
+  @Test
+  public void init_throws_ISE_if_called_twice() throws Exception {
+    DatabaseMetaData metaData = newMetadata(9, 5);
+    underTest.init(metaData);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("onInit() must be called once");
+
+    underTest.init(metaData);
+  }
+
+  @Test
+  public void supportsUpsert_throws_ISE_if_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("onInit() must be called before calling supportsUpsert()");
+
+    underTest.supportsUpsert();
   }
 
   private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion) throws SQLException {

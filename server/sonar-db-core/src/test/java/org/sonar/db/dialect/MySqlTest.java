@@ -102,6 +102,11 @@ public class MySqlTest {
     assertThat(logs.logs(LoggerLevel.WARN)).contains("MySQL support is deprecated and will be dropped soon.");
   }
 
+  @Test
+  public void supportsUpsert_returns_false() {
+    assertThat(underTest.supportsUpsert()).isFalse();
+  }
+
   private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion) throws SQLException {
     DatabaseMetaData metadata = mock(DatabaseMetaData.class, Mockito.RETURNS_DEEP_STUBS);
     when(metadata.getDatabaseMajorVersion()).thenReturn(dbMajorVersion);
