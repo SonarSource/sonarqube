@@ -35,7 +35,6 @@ import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
-import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
@@ -99,7 +98,6 @@ public class PlatformLevel1 extends PlatformLevel {
       LogbackHelper.class,
       WebServerProcessLogging.class,
       DefaultDatabase.class,
-      DatabaseChecker.class,
       MyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,

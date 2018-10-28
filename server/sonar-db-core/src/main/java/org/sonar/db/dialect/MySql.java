@@ -19,11 +19,16 @@
  */
 package org.sonar.db.dialect;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Loggers;
 
 public class MySql extends AbstractDialect {
 
   public static final String ID = "mysql";
+  private static final Version MIN_SUPPORTED_VERSION = Version.create(5, 6, 0);
 
   public MySql() {
     super(ID, "com.mysql.jdbc.Driver", "true", "false", "SELECT 1");
@@ -52,5 +57,12 @@ public class MySql extends AbstractDialect {
   @Override
   public String getSqlFromDual() {
     return "from dual";
+  }
+
+  @Override
+  public void init(DatabaseMetaData metaData) throws SQLException {
+    checkDbVersion(metaData, MIN_SUPPORTED_VERSION);
+
+    Loggers.get(getClass()).warn("MySQL support is deprecated and will be dropped soon.");
   }
 }

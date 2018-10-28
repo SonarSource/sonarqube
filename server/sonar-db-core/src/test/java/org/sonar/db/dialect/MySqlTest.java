@@ -19,11 +19,26 @@
  */
 package org.sonar.db.dialect;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MySqlTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logs = new LogTester();
 
   private MySql underTest = new MySql();
 
@@ -63,5 +78,34 @@ public class MySqlTest {
   @Test
   public void getSqlFromDual() {
     assertThat(underTest.getSqlFromDual()).isEqualTo("from dual");
+  }
+
+  @Test
+  public void init_throws_MessageException_if_mysql_5_5() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Unsupported mysql version: 5.5. Minimal supported version is 5.6.");
+
+    DatabaseMetaData metadata = newMetadata( 5, 5);
+    underTest.init(metadata);
+  }
+
+  @Test
+  public void init_does_not_fail_if_mysql_5_6() throws Exception {
+    DatabaseMetaData metadata = newMetadata( 5, 6);
+    underTest.init(metadata);
+  }
+
+  @Test
+  public void init_logs_warning() throws SQLException {
+    underTest.init(newMetadata(5, 6));
+
+    assertThat(logs.logs(LoggerLevel.WARN)).contains("MySQL support is deprecated and will be dropped soon.");
+  }
+
+  private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion) throws SQLException {
+    DatabaseMetaData metadata = mock(DatabaseMetaData.class, Mockito.RETURNS_DEEP_STUBS);
+    when(metadata.getDatabaseMajorVersion()).thenReturn(dbMajorVersion);
+    when(metadata.getDatabaseMinorVersion()).thenReturn(dbMinorVersion);
+    return metadata;
   }
 }

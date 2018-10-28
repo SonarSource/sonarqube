@@ -19,9 +19,16 @@
  */
 package org.sonar.db.dialect;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.api.utils.MessageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class OracleTest {
 
@@ -60,5 +67,75 @@ public class OracleTest {
   @Test
   public void getSqlFromDual() {
     assertThat(underTest.getSqlFromDual()).isEqualTo("from dual");
+  }
+
+  @Test
+  public void test_db_versions() throws Exception {
+    // oracle 11.0 is ok
+    DatabaseMetaData metadata = newMetadata( 11, 0, "12.1.0.1.0");
+    underTest.init(metadata);
+
+    // oracle 11.1 is noit
+    metadata = newMetadata(11, 1, "12.1.0.1.0");
+    underTest.init(metadata);
+
+    // oracle 11.2 is ok
+    metadata = newMetadata(11, 2, "12.1.0.1.0");
+    underTest.init(metadata);
+
+    // oracle 12 is ok
+    metadata = newMetadata(12, 0, "12.1.0.1.0");
+    underTest.init(metadata);
+
+    // oracle 18 is ok
+    metadata = newMetadata(18, 0, "18.3.0.0.0");
+    underTest.init(metadata);
+
+    // oracle 10 is not supported
+    metadata = newMetadata(10, 2, "12.1.0.1.0");
+    try {
+      underTest.init(metadata);
+      fail();
+    } catch (MessageException e) {
+      assertThat(e).hasMessage("Unsupported oracle version: 10.2. Minimal supported version is 11.0.");
+    }
+  }
+  
+  @Test
+  public void test_driver_versions() throws Exception {
+    DatabaseMetaData metadata = newMetadata( 11, 2, "18.3.0.0.0");
+    underTest.init(metadata);
+
+    metadata = newMetadata(11, 2, "12.2.0.1.0");
+    underTest.init(metadata);
+    // no error
+
+    metadata = newMetadata(11, 2, "12.1.0.2.0");
+    underTest.init(metadata);
+    // no error
+
+    metadata = newMetadata(11, 2, "12.1.0.1.0");
+    underTest.init(metadata);
+    // no error
+
+    metadata = newMetadata(11, 2, "12.0.2");
+    underTest.init(metadata);
+    // no error
+
+    metadata = newMetadata(11, 2, "11.1.0.2");
+    try {
+      underTest.init(metadata);
+      fail();
+    } catch (MessageException e) {
+      assertThat(e).hasMessage("Unsupported Oracle driver version: 11.1.0.2. Minimal supported version is 12.1.");
+    }
+  }
+
+  private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion, String driverVersion) throws SQLException {
+    DatabaseMetaData metadata = mock(DatabaseMetaData.class, Mockito.RETURNS_DEEP_STUBS);
+    when(metadata.getDatabaseMajorVersion()).thenReturn(dbMajorVersion);
+    when(metadata.getDatabaseMinorVersion()).thenReturn(dbMinorVersion);
+    when(metadata.getDriverVersion()).thenReturn(driverVersion);
+    return metadata;
   }
 }

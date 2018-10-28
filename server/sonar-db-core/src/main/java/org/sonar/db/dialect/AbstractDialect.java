@@ -19,8 +19,12 @@
  */
 package org.sonar.db.dialect;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.Version;
 
 abstract class AbstractDialect implements Dialect {
   private final String id;
@@ -81,5 +85,16 @@ abstract class AbstractDialect implements Dialect {
   @Override
   public int getScrollSingleRowFetchSize() {
     return 1;
+  }
+
+  Version checkDbVersion(DatabaseMetaData metaData, Version minSupported) throws SQLException {
+    int major = metaData.getDatabaseMajorVersion();
+    int minor = metaData.getDatabaseMinorVersion();
+    Version version = Version.create(major, minor, 0);
+    if (version.compareTo(minSupported) < 0) {
+      throw MessageException.of(String.format(
+        "Unsupported %s version: %s. Minimal supported version is %s.", getId(), version, minSupported));
+    }
+    return version;
   }
 }

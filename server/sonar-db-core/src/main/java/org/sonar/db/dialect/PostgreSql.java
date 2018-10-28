@@ -20,13 +20,17 @@
 package org.sonar.db.dialect;
 
 import com.google.common.collect.ImmutableList;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.Version;
 
 public class PostgreSql extends AbstractDialect {
 
   public static final String ID = "postgresql";
   static final List<String> INIT_STATEMENTS = ImmutableList.of("SET standard_conforming_strings=on", "SET backslash_quote=off");
+  private static final Version MIN_SUPPORTED_VERSION = Version.create(9, 3, 0);
 
   public PostgreSql() {
     super(ID, "org.postgresql.Driver", "true", "false", "SELECT 1");
@@ -45,5 +49,10 @@ public class PostgreSql extends AbstractDialect {
   @Override
   public boolean supportsMigration() {
     return true;
+  }
+
+  @Override
+  public void init(DatabaseMetaData metaData) throws SQLException {
+    checkDbVersion(metaData, MIN_SUPPORTED_VERSION);
   }
 }

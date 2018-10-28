@@ -19,11 +19,22 @@
  */
 package org.sonar.db.dialect;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+import org.sonar.api.utils.MessageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PostgreSqlTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private PostgreSql underTest = new PostgreSql();
 
@@ -65,4 +76,27 @@ public class PostgreSqlTest {
   public void getSqlFromDual() {
     assertThat(underTest.getSqlFromDual()).isEqualTo("");
   }
+
+  @Test
+  public void init_throws_MessageException_if_postgresql_9_2() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Unsupported postgresql version: 9.2. Minimal supported version is 9.3.");
+
+    DatabaseMetaData metadata = newMetadata( 9, 2);
+    underTest.init(metadata);
+  }
+
+  @Test
+  public void init_does_not_fail_if_postgresql_9_3() throws Exception {
+    DatabaseMetaData metadata = newMetadata( 9, 3);
+    underTest.init(metadata);
+  }
+
+  private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion) throws SQLException {
+    DatabaseMetaData metadata = mock(DatabaseMetaData.class, Mockito.RETURNS_DEEP_STUBS);
+    when(metadata.getDatabaseMajorVersion()).thenReturn(dbMajorVersion);
+    when(metadata.getDatabaseMinorVersion()).thenReturn(dbMinorVersion);
+    return metadata;
+  }
+
 }

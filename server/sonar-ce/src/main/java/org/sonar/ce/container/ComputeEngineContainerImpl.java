@@ -80,7 +80,6 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
-import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
@@ -282,7 +281,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       WebServerImpl.class,
       LogbackHelper.class,
       DefaultDatabase.class,
-      DatabaseChecker.class,
       MyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
@@ -481,7 +479,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   }
 
   private static Object[] startupComponents() {
-    return new Object[] {
+    return new Object[]{
       ServerLifecycleNotifier.class,
       PurgeCeActivities.class,
       CeQueueCleaner.class

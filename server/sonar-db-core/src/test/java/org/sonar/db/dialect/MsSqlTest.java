@@ -19,11 +19,22 @@
  */
 package org.sonar.db.dialect;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+import org.sonar.api.utils.MessageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MsSqlTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private MsSql underTest = new MsSql();
 
@@ -62,5 +73,27 @@ public class MsSqlTest {
   @Test
   public void getSqlFromDual() {
     assertThat(underTest.getSqlFromDual()).isEqualTo("");
+  }
+
+  @Test
+  public void init_throws_MessageException_if_mssql_2012() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Unsupported mssql version: 11.0. Minimal supported version is 12.0.");
+
+    DatabaseMetaData metadata = newMetadata( 11, 0);
+    underTest.init(metadata);
+  }
+
+  @Test
+  public void init_does_not_fail_if_mssql_2014() throws Exception {
+    DatabaseMetaData metadata = newMetadata( 12, 0);
+    underTest.init(metadata);
+  }
+
+  private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion) throws SQLException {
+    DatabaseMetaData metadata = mock(DatabaseMetaData.class, Mockito.RETURNS_DEEP_STUBS);
+    when(metadata.getDatabaseMajorVersion()).thenReturn(dbMajorVersion);
+    when(metadata.getDatabaseMinorVersion()).thenReturn(dbMinorVersion);
+    return metadata;
   }
 }

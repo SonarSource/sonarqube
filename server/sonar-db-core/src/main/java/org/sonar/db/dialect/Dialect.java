@@ -19,7 +19,10 @@
  */
 package org.sonar.db.dialect;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.List;
+import org.sonar.api.utils.MessageException;
 
 public interface Dialect {
 
@@ -60,4 +63,13 @@ public interface Dialect {
    * Indicates whether DB migration can be perform on the DB vendor implementation associated with the current dialect.
    */
   boolean supportsMigration();
+
+  /**
+   * This method is called when connecting for the first
+   * time to the database.
+   *
+   * @throws MessageException when validation error must be displayed to user
+   * @throws SQLException in case of error to run the validations
+   */
+  void init(DatabaseMetaData metaData) throws SQLException;
 }

@@ -104,6 +104,7 @@ public class DefaultDatabase implements Database {
     Connection connection = null;
     try {
       connection = datasource.getConnection();
+      dialect.init(connection.getMetaData());
     } catch (SQLException e) {
       throw new IllegalStateException("Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').", e);
     } finally {
