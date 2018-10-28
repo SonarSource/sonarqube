@@ -23,9 +23,6 @@ import java.util.List;
 
 public interface Dialect {
 
-  /**
-   * @return the sonar dialect Id to be matched with the sonar.jdbc.dialect property when provided
-   */
   String getId();
 
   /**
@@ -33,51 +30,34 @@ public interface Dialect {
    */
   boolean matchesJdbcUrl(String jdbcConnectionURL);
 
-  /**
-   * @since 2.13
-   */
   String getDefaultDriverClassName();
 
   List<String> getConnectionInitStatements();
 
-  /**
-   * @since 2.14
-   */
   String getTrueSqlValue();
 
-  /**
-   * @since 2.14
-   */
   String getFalseSqlValue();
 
   String getSqlFromDual();
 
   /**
    * Query used to validate the jdbc connection.
-   *
-   * @since 3.2
    */
   String getValidationQuery();
 
   /**
    * Fetch size to be used when scrolling large result sets.
-   *
-   * @since 5.0
    */
   int getScrollDefaultFetchSize();
 
   /**
    * Fetch size to scroll one row at a time. It sounds strange because obviously value is 1 in most cases,
    * but it's different on MySQL...
-   *
-   * @since 5.0
    */
   int getScrollSingleRowFetchSize();
 
   /**
    * Indicates whether DB migration can be perform on the DB vendor implementation associated with the current dialect.
-   *
-   * @return a boolean
    */
   boolean supportsMigration();
 }
