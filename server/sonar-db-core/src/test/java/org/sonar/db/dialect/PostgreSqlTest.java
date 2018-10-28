@@ -29,8 +29,8 @@ public class PostgreSqlTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(underTest.matchesJdbcURL("jdbc:postgresql://localhost/sonar")).isTrue();
-    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:postgresql://localhost/sonar")).isTrue();
+    assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
   }
 
   @Test

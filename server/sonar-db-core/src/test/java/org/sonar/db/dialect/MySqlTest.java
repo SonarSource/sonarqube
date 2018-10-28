@@ -29,11 +29,11 @@ public class MySqlTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(underTest.matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
-    assertThat(underTest.matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
+    assertThat(underTest.matchesJdbcUrl("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
+    assertThat(underTest.matchesJdbcUrl("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
 
-    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
-    assertThat(underTest.matchesJdbcURL("jdbc:oracle:foo")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:oracle:foo")).isFalse();
   }
 
   @Test

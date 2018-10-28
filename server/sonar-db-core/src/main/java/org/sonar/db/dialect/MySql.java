@@ -30,7 +30,7 @@ public class MySql extends AbstractDialect {
   }
 
   @Override
-  public boolean matchesJdbcURL(String jdbcConnectionURL) {
+  public boolean matchesJdbcUrl(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:mysql:");
   }
 

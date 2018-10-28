@@ -40,7 +40,7 @@ public final class DialectUtils {
   }
 
   private static Optional<Dialect> findByJdbcUrl(String jdbcConnectionUrl) {
-    return findDialect(dialect -> dialect != null && dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl)));
+    return findDialect(dialect -> dialect != null && dialect.matchesJdbcUrl(StringUtils.trimToEmpty(jdbcConnectionUrl)));
   }
 
   private static Optional<Dialect> findById(String dialectId) {

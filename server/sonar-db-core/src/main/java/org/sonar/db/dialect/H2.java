@@ -30,7 +30,7 @@ public class H2 extends AbstractDialect {
   }
 
   @Override
-  public boolean matchesJdbcURL(String jdbcConnectionURL) {
+  public boolean matchesJdbcUrl(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:h2:");
   }
 

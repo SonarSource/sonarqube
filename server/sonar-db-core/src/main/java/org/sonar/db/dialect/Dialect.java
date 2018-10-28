@@ -29,12 +29,9 @@ public interface Dialect {
   String getId();
 
   /**
-   * Used to autodetect a dialect for a given driver URL
-   *
-   * @param jdbcConnectionURL a jdbc driver url such as jdbc:mysql://localhost:3306/sonar
-   * @return true if the dialect supports surch url
+   * Used to autodetect dialect from connection URL
    */
-  boolean matchesJdbcURL(String jdbcConnectionURL);
+  boolean matchesJdbcUrl(String jdbcConnectionURL);
 
   /**
    * @since 2.13

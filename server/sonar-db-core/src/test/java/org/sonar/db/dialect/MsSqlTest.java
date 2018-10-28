@@ -29,10 +29,10 @@ public class MsSqlTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(underTest.matchesJdbcURL("jdbc:sqlserver://localhost:1433;databasename=sonar")).isTrue();
+    assertThat(underTest.matchesJdbcUrl("jdbc:sqlserver://localhost:1433;databasename=sonar")).isTrue();
 
-    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
-    assertThat(underTest.matchesJdbcURL("jdbc:mysql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:mysql:foo")).isFalse();
   }
 
   @Test
@@ -50,7 +50,7 @@ public class MsSqlTest {
 
   @Test
   public void do_not_support_jtds_since_5_2() {
-    assertThat(underTest.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isFalse();
 
   }
 

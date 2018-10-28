@@ -29,8 +29,8 @@ public class OracleTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(underTest.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE")).isTrue();
-    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:oracle:thin:@localhost/XE")).isTrue();
+    assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
   }
 
   @Test

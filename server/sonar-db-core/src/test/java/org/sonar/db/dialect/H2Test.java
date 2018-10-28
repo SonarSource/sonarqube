@@ -29,8 +29,8 @@ public class H2Test {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(underTest.matchesJdbcURL("jdbc:h2:foo")).isTrue();
-    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcUrl("jdbc:h2:foo")).isTrue();
+    assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
