@@ -22,6 +22,7 @@ import CreateButton from './CreateButton';
 import { MetricProps } from './Form';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   domains: string[] | undefined;
@@ -39,7 +40,9 @@ export default function Header({ domains, loading, onCreate, types }: Props) {
         {domains && types && <CreateButton domains={domains} onCreate={onCreate} types={types} />}
       </div>
       <div className="page-description">
-        <div className="alert alert-danger">{translate('custom_metrics.deprecated')}</div>
+        <Alert display="inline" variant="error">
+          {translate('custom_metrics.deprecated')}
+        </Alert>
         <p>{translate('custom_metrics.page.description')}</p>
       </div>
     </header>

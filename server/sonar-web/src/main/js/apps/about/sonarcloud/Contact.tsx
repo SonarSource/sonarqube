@@ -23,6 +23,7 @@ import { Location } from 'history';
 import SonarCloudPage from './SonarCloudPage';
 import Select from '../../../components/controls/Select';
 import { isLoggedIn, Organization } from '../../../app/types';
+import { Alert } from '../../../components/ui/Alert';
 import './style.css';
 
 const CATEGORIES = [
@@ -83,7 +84,7 @@ export default class Contact extends React.PureComponent<Props, State> {
         {({ currentUser, userOrganizations }) => (
           <div className="page page-limited sc-page sc-contact-page">
             <h1 className="sc-page-title">Contact us</h1>
-            <p className="alert alert-warning alert-big display-inline-block">
+            <Alert display="inline" variant="warning">
               If you are looking for help with SonarCloud, our{' '}
               <a
                 href="https://community.sonarsource.com/c/help/sc"
@@ -92,11 +93,11 @@ export default class Contact extends React.PureComponent<Props, State> {
                 <strong>Support forum</strong>
               </a>{' '}
               is the best place to get help.
-            </p>
+            </Alert>
             <br />
-            <p className="alert alert-warning alert-big display-inline-block">
+            <Alert display="inline" variant="warning">
               Please contact us only if you couldn&apos;t solve your problem with the forum help.
-            </p>
+            </Alert>
             {!isLoggedIn(currentUser) && (
               <p>
                 You can{' '}

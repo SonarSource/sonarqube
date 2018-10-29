@@ -33,6 +33,7 @@ import { getSecurityHotspots } from '../../../api/security-reports';
 import { isLongLivingBranch } from '../../../helpers/branches';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { StandardType } from '../utils';
+import { Alert } from '../../../components/ui/Alert';
 import '../style.css';
 
 interface Props {
@@ -136,9 +137,9 @@ export default class App extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="alert alert-info spacer-top display-inline-block">
+      <Alert className="spacer-top" display="inline" variant="info">
         {translate('security_reports.more_rules')}
-      </div>
+      </Alert>
     );
   };
 

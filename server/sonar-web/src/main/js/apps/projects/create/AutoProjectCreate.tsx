@@ -25,6 +25,7 @@ import { getRepositories, provisionProject } from '../../../api/alm-integration'
 import { IdentityProvider, AlmRepository } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   identityProvider: IdentityProvider;
@@ -166,12 +167,12 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
 
     return (
       <>
-        <p className="alert alert-info width-60 big-spacer-bottom">
+        <Alert className="width-60 big-spacer-bottom" variant="info">
           {translateWithParameters(
             'onboarding.create_project.beta_feature_x',
             identityProvider.name
           )}
-        </p>
+        </Alert>
         {loading ? <DeferredSpinner /> : this.renderContent()}
       </>
     );

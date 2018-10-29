@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
+import { Alert } from '../../../components/ui/Alert';
 
 export default class ListHeader extends React.PureComponent {
   static propTypes = {
@@ -33,9 +34,9 @@ export default class ListHeader extends React.PureComponent {
     permission.key === 'user' || permission.key === 'codeviewer' ? (
       <div>
         <InstanceMessage message={translate('projects_role', permission.key, 'desc')} />
-        <div className="alert alert-warning spacer-top">
+        <Alert className="spacer-top" variant="warning">
           {translate('projects_role.public_projects_warning')}
-        </div>
+        </Alert>
       </div>
     ) : (
       <InstanceMessage message={translate('projects_role', permission.key, 'desc')} />

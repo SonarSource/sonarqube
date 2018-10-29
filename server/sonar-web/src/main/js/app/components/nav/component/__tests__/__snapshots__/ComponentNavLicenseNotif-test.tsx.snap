@@ -2,7 +2,7 @@
 
 exports[`renders a different message if the license is valid 1`] = `
 <NavBarNotif
-  className="alert alert-danger"
+  variant="error"
 >
   <span
     className="little-spacer-right"
@@ -14,7 +14,7 @@ exports[`renders a different message if the license is valid 1`] = `
 
 exports[`renders background task license info correctly 1`] = `
 <NavBarNotif
-  className="alert alert-danger"
+  variant="error"
 >
   <span
     className="little-spacer-right"
@@ -34,7 +34,7 @@ exports[`renders background task license info correctly 1`] = `
 
 exports[`renders background task license info correctly 2`] = `
 <NavBarNotif
-  className="alert alert-danger"
+  variant="error"
 >
   <span
     className="little-spacer-right"
@@ -47,7 +47,7 @@ exports[`renders background task license info correctly 2`] = `
 
 exports[`renders correctly for LICENSING_LOC error 1`] = `
 <NavBarNotif
-  className="alert alert-danger"
+  variant="error"
 >
   <span
     className="little-spacer-right"

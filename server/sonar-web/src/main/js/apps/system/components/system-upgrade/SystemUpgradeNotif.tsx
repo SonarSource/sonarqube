@@ -23,6 +23,7 @@ import { sortUpgrades, groupUpgrades } from '../../utils';
 import { getSystemUpgrades, SystemUpgrade } from '../../../../api/system';
 import { Button } from '../../../../components/ui/buttons';
 import { translate } from '../../../../helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface State {
   systemUpgrades: SystemUpgrade[][];
@@ -69,12 +70,12 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
 
     return (
       <div className="page-notifs">
-        <div className="alert alert-info">
+        <Alert variant="info">
           {translate('system.new_version_available')}
           <Button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>
             {translate('learn_more')}
           </Button>
-        </div>
+        </Alert>
         {this.state.openSystemUpgradeForm && (
           <SystemUpgradeForm
             onClose={this.handleCloseSystemUpgradeForm}

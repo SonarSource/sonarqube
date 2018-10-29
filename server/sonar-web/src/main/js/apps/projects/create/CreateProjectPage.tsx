@@ -175,16 +175,12 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
                       href="#"
                       onClick={this.showAuto}>
                       {translate('onboarding.create_project.select_repositories')}
-                      <span
-                        className={classNames(
-                          'rounded alert alert-small spacer-left display-inline-block',
-                          {
-                            'alert-info': !displayManual,
-                            'alert-muted': displayManual
-                          }
-                        )}>
+                      <div
+                        className={classNames('beta-badge spacer-left', {
+                          'is-muted': displayManual
+                        })}>
                         {translate('beta')}
-                      </span>
+                      </div>
                     </a>
                   </li>
                   <li>

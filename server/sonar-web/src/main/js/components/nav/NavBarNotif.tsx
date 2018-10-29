@@ -19,12 +19,14 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { DeleteButton } from '../ui/buttons';
+import './NavBarNotif.css';
+
+type NavBarNotifVariant = 'error' | 'info';
 
 interface Props {
   children?: React.ReactNode;
   className?: string;
-  onCancel?: () => {};
+  variant: NavBarNotifVariant;
 }
 
 export default function NavBarNotif(props: Props) {
@@ -32,16 +34,8 @@ export default function NavBarNotif(props: Props) {
     return null;
   }
   return (
-    <div className={classNames('navbar-notif', props.className)}>
-      <div className="navbar-limited clearfix">
-        <div
-          className={classNames('display-flex-center', {
-            'navbar-notif-cancelable': !!props.onCancel
-          })}>
-          {props.children}
-          {props.onCancel && <DeleteButton className="button-small" onClick={props.onCancel} />}
-        </div>
-      </div>
+    <div className={classNames('navbar-notif', `navbar-notif-${props.variant}`, props.className)}>
+      <div className="navbar-limited clearfix">{props.children}</div>
     </div>
   );
 }

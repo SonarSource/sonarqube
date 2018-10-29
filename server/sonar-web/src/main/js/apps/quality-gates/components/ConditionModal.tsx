@@ -28,6 +28,7 @@ import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { isDiffMetric } from '../../../helpers/measures';
 import { parseError } from '../../../helpers/request';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   condition?: Condition;
@@ -142,9 +143,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         header={header}
         onClose={onClose}
         onConfirm={this.handleFormSubmit}>
-        {this.state.errorMessage && (
-          <div className="alert alert-danger modal-alert">{this.state.errorMessage}</div>
-        )}
+        {this.state.errorMessage && <Alert variant="error">{this.state.errorMessage}</Alert>}
         <div className="modal-field">
           <label htmlFor="create-user-login">{translate('quality_gates.conditions.metric')}</label>
           {metrics && (

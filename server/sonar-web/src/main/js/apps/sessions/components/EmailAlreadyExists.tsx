@@ -25,6 +25,7 @@ import { IdentityProvider } from '../../../app/types';
 import { getTextColor } from '../../../helpers/colors';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   location: {
@@ -120,14 +121,14 @@ export default class EmailAlreadyExists extends React.PureComponent<Props, State
             {this.renderIdentityProvier(query.provider, query.login)}
           </div>
 
-          <div className="alert alert-warning">
+          <Alert variant="warning">
             {translate('sessions.email_already_exists.3')}
             <ul className="list-styled">
               <li className="spacer-top">{translate('sessions.email_already_exists.4')}</li>
               <li className="spacer-top">{translate('sessions.email_already_exists.5')}</li>
               <li className="spacer-top">{translate('sessions.email_already_exists.6')}</li>
             </ul>
-          </div>
+          </Alert>
 
           <div className="big-spacer-top text-right">
             <a

@@ -68,3 +68,19 @@
   color: var(--blue);
   border-bottom-color: var(--blue);
 }
+
+.beta-badge {
+  display: inline-block;
+  padding: 2px 4px;
+  border: 1px solid var(--alertBorderInfo);
+  border-radius: 2px;
+  background-color: var(--alertBackgroundInfo);
+  color: var(--alertTextInfo);
+  font-size: 10px;
+}
+
+.beta-badge.is-muted {
+  border-color: var(--disableGrayBorder);
+  background-color: var(--disableGrayBg);
+  color: var(--disableGrayText);
+}

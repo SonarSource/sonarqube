@@ -24,6 +24,7 @@ import ProfilesListHeader from './ProfilesListHeader';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Profile } from '../types';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   languages: Array<{ key: string; name: string }>;
@@ -109,7 +110,9 @@ export default class ProfilesList extends React.PureComponent<Props> {
         />
 
         {Object.keys(profilesToShow).length === 0 && (
-          <div className="alert alert-warning spacer-top">{translate('no_results')}</div>
+          <Alert className="spacer-top" variant="warning">
+            {translate('no_results')}
+          </Alert>
         )}
 
         {languagesToShow.map(languageKey =>

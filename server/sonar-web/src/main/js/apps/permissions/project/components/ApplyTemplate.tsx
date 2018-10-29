@@ -25,6 +25,7 @@ import SimpleModal from '../../../../components/controls/SimpleModal';
 import Select from '../../../../components/controls/Select';
 import { SubmitButton, ResetButtonLink } from '../../../../components/ui/buttons';
 import { translateWithParameters, translate } from '../../../../helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   onApply?: () => void;
@@ -107,9 +108,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
 
             <div className="modal-body">
               {this.state.done ? (
-                <div className="alert alert-success">
-                  {translate('projects_role.apply_template.success')}
-                </div>
+                <Alert variant="success">{translate('projects_role.apply_template.success')}</Alert>
               ) : (
                 <>
                   {this.state.loading ? (

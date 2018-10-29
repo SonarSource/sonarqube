@@ -121,11 +121,13 @@ exports[`handle checkbox for cwe display 2`] = `
       >
         learn_more
       </Link>
-      <div
-        className="alert alert-info spacer-top display-inline-block"
+      <Alert
+        className="spacer-top"
+        display="inline"
+        variant="info"
       >
         security_reports.more_rules
-      </div>
+      </Alert>
     </div>
   </header>
   <div
@@ -266,11 +268,13 @@ exports[`renders owaspTop10 1`] = `
       >
         learn_more
       </Link>
-      <div
-        className="alert alert-info spacer-top display-inline-block"
+      <Alert
+        className="spacer-top"
+        display="inline"
+        variant="info"
       >
         security_reports.more_rules
-      </div>
+      </Alert>
     </div>
   </header>
   <div

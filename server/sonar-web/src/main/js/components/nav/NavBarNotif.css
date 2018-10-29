@@ -17,23 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import ClipboardButton from '../../../components/controls/ClipboardButton';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { Alert } from '../../../components/ui/Alert';
-
-interface Props {
-  token: { name: string; token: string };
+.navbar-notif {
+  margin-bottom: var(--gridSize);
+  border: 1px solid;
+  border-left: none;
+  border-right: none;
+  padding: var(--gridSize) 0;
 }
 
-export default function TokensFormNewToken({ token }: Props) {
-  return (
-    <div className="panel panel-white big-spacer-top">
-      <Alert variant="warning">
-        {translateWithParameters('users.tokens.new_token_created', token.name)}
-      </Alert>
-      <ClipboardButton copyValue={token.token} />
-      <code className="big-spacer-left text-success">{token.token}</code>
-    </div>
-  );
+.navbar-notif a,
+.navbar-notif .button-link {
+  border-color: var(--darkBlue);
+}
+
+.navbar-notif-error {
+  border-color: var(--alertBorderError);
+  background-color: var(--alertBackgroundError);
+  color: var(--alertTextError);
+}
+
+.navbar-notif-info {
+  border-color: var(--alertBorderInfo);
+  background-color: var(--alertBackgroundInfo);
+  color: var(--alertTextInfo);
 }

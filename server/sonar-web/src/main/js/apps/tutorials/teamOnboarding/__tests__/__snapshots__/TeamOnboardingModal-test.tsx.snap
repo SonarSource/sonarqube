@@ -17,11 +17,11 @@ exports[`renders correctly 1`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-info modal-alert"
+    <Alert
+      variant="info"
     >
       onboarding.team.work_in_progress
-    </div>
+    </Alert>
     <p
       className="spacer-top big-spacer-bottom"
     >

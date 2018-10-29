@@ -20,6 +20,7 @@
 import * as React from 'react';
 import MultiSelect from '../../../../components/common/MultiSelect';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   elements: string[];
@@ -38,13 +39,13 @@ export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...pr
 
   if (props.selectedElements.length >= 6) {
     footerNode = (
-      <span className="alert alert-info spacer-left spacer-right spacer-top">
+      <Alert className="spacer-left spacer-right spacer-top" variant="info">
         {translate('project_activity.graphs.custom.add_metric_info')}
-      </span>
+      </Alert>
     );
   } else if (metricsTypeFilter && metricsTypeFilter.length > 0) {
     footerNode = (
-      <span className="alert alert-info spacer-left spacer-right spacer-top">
+      <Alert className="spacer-left spacer-right spacer-top" variant="info">
         {translateWithParameters(
           'project_activity.graphs.custom.type_x_message',
           metricsTypeFilter
@@ -52,7 +53,7 @@ export default function AddGraphMetricPopup({ elements, metricsTypeFilter, ...pr
             .sort()
             .join(', ')
         )}
-      </span>
+      </Alert>
     );
   }
 

@@ -27,6 +27,7 @@ import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { sortProfiles } from '../../quality-profiles/utils';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   activation?: RuleActivation;
@@ -163,9 +164,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
           <div className="modal-body">
             {!isUpdateMode &&
               activeInAllProfiles && (
-                <div className="alert alert-info">
-                  {translate('coding_rules.active_in_all_profiles')}
-                </div>
+                <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
               )}
 
             <div className="modal-field">

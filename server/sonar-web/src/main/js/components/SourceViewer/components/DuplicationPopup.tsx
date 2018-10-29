@@ -29,6 +29,7 @@ import { WorkspaceContext } from '../../workspace/context';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
+import { Alert } from '../../ui/Alert';
 
 interface Props {
   blocks: DuplicationBlock[];
@@ -94,9 +95,9 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
       <DropdownOverlay placement={PopupPlacement.RightTop}>
         <div className="source-viewer-bubble-popup abs-width-400">
           {this.props.inRemovedComponent && (
-            <div className="alert alert-warning">
+            <Alert variant="warning">
               {translate('duplications.dups_found_on_deleted_resource')}
-            </div>
+            </Alert>
           )}
           {duplications.length > 0 && (
             <>

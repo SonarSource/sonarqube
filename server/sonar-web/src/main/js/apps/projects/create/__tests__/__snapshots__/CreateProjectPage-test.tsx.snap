@@ -57,11 +57,11 @@ exports[`should render correctly 2`] = `
           onClick={[Function]}
         >
           onboarding.create_project.select_repositories
-          <span
-            className="rounded alert alert-small spacer-left display-inline-block alert-info"
+          <div
+            className="beta-badge spacer-left"
           >
             beta
-          </span>
+          </div>
         </a>
       </li>
       <li>
@@ -156,11 +156,11 @@ exports[`should switch tabs 1`] = `
           onClick={[Function]}
         >
           onboarding.create_project.select_repositories
-          <span
-            className="rounded alert alert-small spacer-left display-inline-block alert-info"
+          <div
+            className="beta-badge spacer-left"
           >
             beta
-          </span>
+          </div>
         </a>
       </li>
       <li>

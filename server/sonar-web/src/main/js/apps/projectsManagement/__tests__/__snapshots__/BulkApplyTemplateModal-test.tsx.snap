@@ -47,14 +47,11 @@ exports[`bulk applies template to all results 2`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       permission_templates.bulk_apply_permission_template.apply_to_all.17
-    </div>
+    </Alert>
     <div
       className="modal-field"
     >
@@ -120,14 +117,11 @@ exports[`bulk applies template to all results 3`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       permission_templates.bulk_apply_permission_template.apply_to_all.17
-    </div>
+    </Alert>
     <div
       className="modal-field"
     >
@@ -196,11 +190,11 @@ exports[`bulk applies template to all results 4`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-success"
+    <Alert
+      variant="success"
     >
       projects_role.apply_template.success
-    </div>
+    </Alert>
   </div>
   <footer
     className="modal-foot"
@@ -262,14 +256,11 @@ exports[`bulk applies template to selected results 2`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       permission_templates.bulk_apply_permission_template.apply_to_selected.2
-    </div>
+    </Alert>
     <div
       className="modal-field"
     >
@@ -335,14 +326,11 @@ exports[`bulk applies template to selected results 3`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       permission_templates.bulk_apply_permission_template.apply_to_selected.2
-    </div>
+    </Alert>
     <div
       className="modal-field"
     >
@@ -411,11 +399,11 @@ exports[`bulk applies template to selected results 4`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-success"
+    <Alert
+      variant="success"
     >
       projects_role.apply_template.success
-    </div>
+    </Alert>
   </div>
   <footer
     className="modal-foot"

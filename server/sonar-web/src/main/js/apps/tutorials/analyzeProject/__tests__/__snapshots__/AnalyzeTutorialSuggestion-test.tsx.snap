@@ -1,8 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders bitbucket suggestions correctly 1`] = `
-<div
-  className="alert alert-info big-spacer-bottom"
+<Alert
+  className="big-spacer-bottom"
+  variant="info"
 >
   <p>
     onboarding.project_analysis.commands_for_analysis
@@ -17,6 +18,7 @@ exports[`renders bitbucket suggestions correctly 1`] = `
       Object {
         "link": <a
           href="/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines"
+          rel="noopener noreferrer"
           target="_blank"
         >
           onboarding.project_analysis.guide_to_integrate_piplines
@@ -24,12 +26,13 @@ exports[`renders bitbucket suggestions correctly 1`] = `
       }
     }
   />
-</div>
+</Alert>
 `;
 
 exports[`renders github suggestions correctly 1`] = `
-<div
-  className="alert alert-info big-spacer-bottom"
+<Alert
+  className="big-spacer-bottom"
+  variant="info"
 >
   <p>
     onboarding.project_analysis.commands_for_analysis
@@ -53,12 +56,13 @@ exports[`renders github suggestions correctly 1`] = `
       }
     }
   />
-</div>
+</Alert>
 `;
 
 exports[`renders vsts suggestions correctly 1`] = `
-<p
-  className="alert alert-info big-spacer-bottom"
+<Alert
+  className="big-spacer-bottom"
+  variant="info"
 >
   <FormattedMessage
     defaultMessage="onboarding.project_analysis.simply_link"
@@ -67,6 +71,7 @@ exports[`renders vsts suggestions correctly 1`] = `
       Object {
         "link": <a
           href="/documentation/integrations/vsts/"
+          rel="noopener noreferrer"
           target="_blank"
         >
           onboarding.project_analysis.guide_to_integrate_vsts
@@ -74,5 +79,5 @@ exports[`renders vsts suggestions correctly 1`] = `
       }
     }
   />
-</p>
+</Alert>
 `;

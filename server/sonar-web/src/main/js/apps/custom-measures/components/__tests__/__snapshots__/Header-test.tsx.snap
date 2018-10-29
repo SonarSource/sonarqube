@@ -25,11 +25,12 @@ exports[`should create new custom measure 1`] = `
   <div
     className="page-description"
   >
-    <div
-      className="alert alert-danger"
+    <Alert
+      display="inline"
+      variant="error"
     >
       custom_measures.deprecated
-    </div>
+    </Alert>
     <p>
       custom_measures.page.description
     </p>

@@ -22,11 +22,12 @@ import { FormattedMessage } from 'react-intl';
 import { isBitbucket, isGithub, isVSTS } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
+import { Alert } from '../../../components/ui/Alert';
 
 export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string }) {
   if (isBitbucket(almId)) {
     return (
-      <div className="alert alert-info big-spacer-bottom">
+      <Alert className="big-spacer-bottom" variant="info">
         <p>{translate('onboarding.project_analysis.commands_for_analysis')}</p>
         <p>{translate('onboarding.project_analysis.suggestions.bitbucket')}</p>
         <FormattedMessage
@@ -39,17 +40,18 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
                   getBaseUrl() +
                   '/documentation/integrations/bitbucketcloud/#analyzing-with-pipelines'
                 }
+                rel="noopener noreferrer"
                 target="_blank">
                 {translate('onboarding.project_analysis.guide_to_integrate_piplines')}
               </a>
             )
           }}
         />
-      </div>
+      </Alert>
     );
   } else if (isGithub(almId)) {
     return (
-      <div className="alert alert-info big-spacer-bottom">
+      <Alert className="big-spacer-bottom" variant="info">
         <p>{translate('onboarding.project_analysis.commands_for_analysis')} </p>
         <p>{translate('onboarding.project_analysis.suggestions.github')}</p>
         <FormattedMessage
@@ -66,23 +68,26 @@ export default function AnalyzeTutorialSuggestion({ almId }: { almId?: string })
             )
           }}
         />
-      </div>
+      </Alert>
     );
   } else if (isVSTS(almId)) {
     return (
-      <p className="alert alert-info big-spacer-bottom">
+      <Alert className="big-spacer-bottom" variant="info">
         <FormattedMessage
           defaultMessage={translate('onboarding.project_analysis.simply_link')}
           id={'onboarding.project_analysis.simply_link'}
           values={{
             link: (
-              <a href={getBaseUrl() + '/documentation/integrations/vsts/'} target="_blank">
+              <a
+                href={getBaseUrl() + '/documentation/integrations/vsts/'}
+                rel="noopener noreferrer"
+                target="_blank">
                 {translate('onboarding.project_analysis.guide_to_integrate_vsts')}
               </a>
             )
           }}
         />
-      </p>
+      </Alert>
     );
   }
   return null;

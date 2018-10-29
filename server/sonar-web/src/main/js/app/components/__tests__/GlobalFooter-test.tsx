@@ -36,7 +36,7 @@ it('should not render the only logged in information', () => {
 });
 
 it('should show the db warning message', () => {
-  expect(getWrapper({ productionDatabase: false }).find('.alert')).toMatchSnapshot();
+  expect(getWrapper({ productionDatabase: false }).find('Alert')).toMatchSnapshot();
 });
 
 it('should display the sq version', () => {

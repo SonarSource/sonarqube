@@ -60,6 +60,7 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
         {
           remark()
             .use(remarkToc, { maxDepth: 3 })
+            // TODO find a way to replace these custom blocks with real Alert components
             .use(remarkCustomBlocks, {
               danger: { classes: 'alert alert-danger' },
               warning: { classes: 'alert alert-warning' },

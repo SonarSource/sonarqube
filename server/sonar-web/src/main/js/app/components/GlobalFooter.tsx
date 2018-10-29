@@ -25,6 +25,7 @@ import InstanceMessage from '../../components/common/InstanceMessage';
 import { EDITIONS, EditionKey } from '../../apps/marketplace/utils';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isSonarCloud } from '../../helpers/system';
+import { Alert } from '../../components/ui/Alert';
 
 interface Props {
   hideLoggedInInfo?: boolean;
@@ -48,14 +49,12 @@ export default function GlobalFooter({
   return (
     <div className="page-footer page-container" id="footer">
       {productionDatabase === false && (
-        <div className="alert alert-danger">
-          <p className="big" id="evaluation_warning">
-            {translate('footer.production_database_warning')}
-          </p>
+        <Alert display="inline" id="evaluation_warning" variant="warning">
+          <p className="big">{translate('footer.production_database_warning')}</p>
           <p>
             <InstanceMessage message={translate('footer.production_database_explanation')} />
           </p>
-        </div>
+        </Alert>
       )}
 
       <GlobalFooterBranding />

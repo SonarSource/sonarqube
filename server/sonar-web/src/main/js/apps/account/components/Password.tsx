@@ -22,6 +22,7 @@ import { changePassword } from '../../../api/users';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { LoggedInUser } from '../../../app/types';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   user: LoggedInUser;
@@ -78,15 +79,13 @@ export default class Password extends React.Component<Props, State> {
         <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
 
         <form className="boxed-group-inner" onSubmit={this.handleChangePassword}>
-          {success && (
-            <div className="alert alert-success">{translate('my_profile.password.changed')}</div>
-          )}
+          {success && <Alert variant="success">{translate('my_profile.password.changed')}</Alert>}
 
           {errors &&
             errors.map((e, i) => (
-              <div className="alert alert-danger" key={i}>
+              <Alert key={i} variant="error">
                 {e}
-              </div>
+              </Alert>
             ))}
 
           <div className="modal-field">

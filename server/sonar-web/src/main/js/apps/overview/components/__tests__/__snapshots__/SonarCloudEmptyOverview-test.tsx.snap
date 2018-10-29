@@ -200,8 +200,8 @@ exports[`should render another message when there are branches 2`] = `
 `;
 
 exports[`should render warning message 1`] = `
-<div
-  className="alert alert-warning"
+<Alert
+  variant="warning"
 >
   <FormattedMessage
     defaultMessage="foo"
@@ -217,5 +217,5 @@ exports[`should render warning message 1`] = `
       }
     }
   />
-</div>
+</Alert>
 `;

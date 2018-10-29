@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { PermissionDefinition, PermissionDefinitionGroup } from '../../../../app/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import Tooltip from '../../../../components/controls/Tooltip';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   onSelectPermission?: (permission: string) => void;
@@ -59,9 +60,9 @@ export default class PermissionHeader extends React.PureComponent<Props> {
         return (
           <div>
             <InstanceMessage message={permission.description} />
-            <div className="alert alert-warning spacer-top">
+            <Alert className="spacer-top" variant="warning">
               {translate('projects_role.public_projects_warning')}
-            </div>
+            </Alert>
           </div>
         );
       }

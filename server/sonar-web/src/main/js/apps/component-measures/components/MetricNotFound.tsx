@@ -19,11 +19,13 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
+// TODO seems like this component is used by never rendered in real life
 export default function MetricNotFound({ className }: { className?: string }) {
   return (
     <div className={className}>
-      <div className="alert alert-danger">{translate('component_measures.not_found')}</div>
+      <Alert variant="error">{translate('component_measures.not_found')}</Alert>
     </div>
   );
 }

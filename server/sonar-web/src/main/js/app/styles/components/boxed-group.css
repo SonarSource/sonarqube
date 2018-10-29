@@ -92,8 +92,8 @@
   padding-bottom: calc(2 * var(--gridSize));
 }
 
-.boxed-group-accordion .boxed-group-header > .alert {
-  display: inline-block;
+.boxed-group-accordion-alert.boxed-group-accordion-alert {
+  vertical-align: middle;
   margin-bottom: -6px;
   margin-top: -6px;
 }
@@ -103,6 +103,9 @@
 }
 
 .boxed-group-accordion-title {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
   font-weight: bold;
   transition: color 0.3s ease;
 }

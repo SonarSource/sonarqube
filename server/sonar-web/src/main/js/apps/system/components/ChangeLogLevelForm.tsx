@@ -23,6 +23,7 @@ import { setLogLevel } from '../../../api/system';
 import Modal from '../../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   infoMsg: string;
@@ -83,11 +84,13 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
                 </label>
               </p>
             ))}
-            <div className="alert alert-info spacer-top">{this.props.infoMsg}</div>
+            <Alert className="spacer-top" variant="info">
+              {this.props.infoMsg}
+            </Alert>
             {newLevel !== 'INFO' && (
-              <div className="alert alert-danger spacer-top">
+              <Alert className="spacer-top" variant="warning">
                 {translate('system.log_level.warning')}
-              </div>
+              </Alert>
             )}
           </div>
           <div className="modal-foot">

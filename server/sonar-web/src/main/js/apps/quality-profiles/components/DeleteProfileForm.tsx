@@ -23,6 +23,7 @@ import { deleteProfile } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   onClose: () => void;
@@ -71,9 +72,9 @@ export default class DeleteProfileForm extends React.PureComponent<Props, State>
             <div className="js-modal-messages" />
             {profile.childrenCount > 0 ? (
               <div>
-                <div className="alert alert-warning">
+                <Alert variant="warning">
                   {translate('quality_profiles.this_profile_has_descendants')}
-                </div>
+                </Alert>
                 <p>
                   {translateWithParameters(
                     'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',

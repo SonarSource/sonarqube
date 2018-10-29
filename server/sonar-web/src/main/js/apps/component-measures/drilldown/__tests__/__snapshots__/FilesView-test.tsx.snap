@@ -43,8 +43,9 @@ exports[`should render with best values hidden 1`] = `
       }
     }
   />
-  <div
-    className="alert alert-info spacer-top"
+  <Alert
+    className="spacer-top"
+    variant="info"
   >
     component_measures.hidden_best_score_metrics.1.
     <Button
@@ -53,7 +54,7 @@ exports[`should render with best values hidden 1`] = `
     >
       show_all
     </Button>
-  </div>
+  </Alert>
 </div>
 `;
 

@@ -23,6 +23,7 @@ import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 const MAX_WORKERS = 10;
 
@@ -103,9 +104,9 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
               searchable={false}
               value={this.state.newWorkerCount}
             />
-            <div className="big-spacer-top alert alert-success markdown">
+            <Alert className="big-spacer-top" variant="info">
               {translate('background_tasks.change_number_of_workers.hint')}
-            </div>
+            </Alert>
           </div>
           <footer className="modal-foot">
             <div>

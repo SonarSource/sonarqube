@@ -59,6 +59,26 @@ module.exports = {
   // alerts
   warningIconColor: '#e2bf41',
 
+  alertBorderError: '#ebccd1',
+  alertBackgroundError: '#f2dede',
+  alertTextError: '#862422',
+  alertIconError: '#b81723',
+
+  alertBorderWarning: '#faebcc',
+  alertBackgroundWarning: '#fcf8e3',
+  alertTextWarning: '#6f4f17',
+  alertIconWarning: '#db781a',
+
+  alertBorderSuccess: '#d6e9c6',
+  alertBackgroundSuccess: '#dff0d8',
+  alertTextSuccess: '#215821',
+  alertIconSuccess: '#6d9867',
+
+  alertBorderInfo: '#b1dff3',
+  alertBackgroundInfo: '#d9edf7',
+  alertTextInfo: '#0e516f',
+  alertIconInfo: '#0271b9',
+
   // sizes
   grid,
   gridSize: `${grid}px`,

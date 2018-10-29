@@ -18,22 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ClipboardButton from '../../../components/controls/ClipboardButton';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { Alert } from '../../../components/ui/Alert';
+import Icon, { IconProps } from './Icon';
 
-interface Props {
-  token: { name: string; token: string };
-}
-
-export default function TokensFormNewToken({ token }: Props) {
+export default function InfoIcon({ className, fill = 'currentColor', size }: IconProps) {
   return (
-    <div className="panel panel-white big-spacer-top">
-      <Alert variant="warning">
-        {translateWithParameters('users.tokens.new_token_created', token.name)}
-      </Alert>
-      <ClipboardButton copyValue={token.token} />
-      <code className="big-spacer-left text-success">{token.token}</code>
-    </div>
+    <Icon className={className} size={size}>
+      <path
+        d="M10.333 12.375v-1.458a.288.288 0 0 0-.291-.292h-.875V5.958a.288.288 0 0 0-.292-.291H5.958a.288.288 0 0 0-.291.291v1.459c0 .164.127.291.291.291h.875v2.917h-.875a.288.288 0 0 0-.291.292v1.458c0 .164.127.292.291.292h4.084a.288.288 0 0 0 .291-.292zM9.167 4.208V2.75a.288.288 0 0 0-.292-.292h-1.75a.288.288 0 0 0-.292.292v1.458c0 .164.128.292.292.292h1.75a.288.288 0 0 0 .292-.292zM15 8c0 3.865-3.135 7-7 7s-7-3.135-7-7 3.135-7 7-7 7 3.135 7 7z"
+        style={{ fill }}
+      />
+    </Icon>
   );
 }

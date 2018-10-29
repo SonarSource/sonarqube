@@ -9,11 +9,11 @@ exports[`should fetch notifications and render 1`] = `
     encodeSpecialCharacters={true}
     title="my_account.notifications"
   />
-  <p
-    className="alert alert-info"
+  <Alert
+    variant="info"
   >
     notification.dispatcher.information
-  </p>
+  </Alert>
   <DeferredSpinner
     loading={false}
     timeout={100}

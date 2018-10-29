@@ -25,6 +25,7 @@ import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccor
 import { HealthType, SysValueObject } from '../../../../api/system';
 import { LOGS_LEVELS, groupSections, getLogsLevel } from '../../utils';
 import { translate } from '../../../../helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   biggerHealth?: boolean;
@@ -58,9 +59,12 @@ export default function HealthCard({
       renderHeader={() => (
         <>
           {showLogLevelWarning && (
-            <span className="alert alert-danger spacer-left">
+            <Alert
+              className="boxed-group-accordion-alert spacer-left"
+              display="inline"
+              variant="warning">
               {translate('system.log_level.warning.short')}
-            </span>
+            </Alert>
           )}
           {health && (
             <HealthItem

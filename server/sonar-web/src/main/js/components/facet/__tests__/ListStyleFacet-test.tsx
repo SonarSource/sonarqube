@@ -140,7 +140,7 @@ it('should show warning that there might be more results', () => {
   const wrapper = shallowRender({ maxInitialItems: 2, maxItems: 3 });
   wrapper.find('ListStyleFacetFooter').prop<Function>('showMore')();
   wrapper.update();
-  expect(wrapper.find('.alert-warning').exists()).toBe(true);
+  expect(wrapper.find('Alert').exists()).toBe(true);
 });
 
 it('should reset state when closes', () => {

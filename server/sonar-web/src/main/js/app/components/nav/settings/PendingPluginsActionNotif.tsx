@@ -58,7 +58,7 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
     }
 
     return (
-      <NavBarNotif className="alert alert-info js-pending">
+      <NavBarNotif className="js-pending" variant="info">
         <span className="little-spacer-right">
           <InstanceMessage message={translate('marketplace.instance_needs_to_be_restarted_to')} />
         </span>

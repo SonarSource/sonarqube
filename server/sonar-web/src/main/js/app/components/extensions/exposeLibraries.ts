@@ -63,6 +63,7 @@ import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import SearchSelect from '../../../components/controls/SearchSelect';
 import RadioToggle from '../../../components/controls/RadioToggle';
+import { Alert } from '../../../components/ui/Alert';
 
 const exposeLibraries = () => {
   const global = window as any;
@@ -74,6 +75,7 @@ const exposeLibraries = () => {
   global.SonarComponents = {
     ActionsDropdown,
     ActionsDropdownItem,
+    Alert,
     AlertErrorIcon,
     AlertSuccessIcon,
     AlertWarnIcon,

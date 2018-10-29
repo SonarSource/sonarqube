@@ -236,12 +236,13 @@ exports[`should render the only logged in information 1`] = `
 `;
 
 exports[`should show the db warning message 1`] = `
-<div
-  className="alert alert-danger"
+<Alert
+  display="inline"
+  id="evaluation_warning"
+  variant="warning"
 >
   <p
     className="big"
-    id="evaluation_warning"
   >
     footer.production_database_warning
   </p>
@@ -250,5 +251,5 @@ exports[`should show the db warning message 1`] = `
       message="footer.production_database_explanation"
     />
   </p>
-</div>
+</Alert>
 `;

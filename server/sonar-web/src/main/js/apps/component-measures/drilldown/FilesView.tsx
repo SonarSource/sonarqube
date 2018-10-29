@@ -33,6 +33,7 @@ import {
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isPeriodBestValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { scrollToElement } from '../../../helpers/scrolling';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   branchLike?: BranchLike;
@@ -177,7 +178,7 @@ export default class ListView extends React.PureComponent<Props, State> {
           selectedComponent={this.props.selectedKey}
         />
         {hidingBestMeasures && (
-          <div className="alert alert-info spacer-top">
+          <Alert className="spacer-top" variant="info">
             {translateWithParameters(
               'component_measures.hidden_best_score_metrics',
               components.length - filteredComponents.length,
@@ -186,7 +187,7 @@ export default class ListView extends React.PureComponent<Props, State> {
             <Button className="button-link spacer-left" onClick={this.handleShowBestMeasures}>
               {translate('show_all')}
             </Button>
-          </div>
+          </Alert>
         )}
         {!hidingBestMeasures &&
           this.props.paging &&

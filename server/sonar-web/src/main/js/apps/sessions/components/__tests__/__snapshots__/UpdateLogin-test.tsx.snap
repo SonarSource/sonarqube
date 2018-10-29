@@ -55,8 +55,8 @@ exports[`render 1`] = `
         foo
       </div>
     </div>
-    <div
-      className="alert alert-warning"
+    <Alert
+      variant="warning"
     >
       sessions.update_login.3
       <ul
@@ -93,7 +93,7 @@ exports[`render 1`] = `
           />
         </li>
       </ul>
-    </div>
+    </Alert>
     <div
       className="big-spacer-top text-right"
     >

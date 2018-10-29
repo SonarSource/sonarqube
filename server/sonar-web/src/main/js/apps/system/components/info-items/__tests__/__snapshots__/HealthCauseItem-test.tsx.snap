@@ -1,17 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<span
-  className="alert alert-danger"
+<Alert
+  className="boxed-group-accordion-alert"
+  display="inline"
+  variant="error"
 >
   foo
-</span>
+</Alert>
 `;
 
 exports[`should render correctly 2`] = `
-<span
-  className="alert alert-warning"
+<Alert
+  className="boxed-group-accordion-alert"
+  display="inline"
+  variant="warning"
 >
   foo
-</span>
+</Alert>
 `;

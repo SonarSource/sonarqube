@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { HealthType } from '../../../../api/system';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   className?: string;
@@ -29,13 +30,11 @@ interface Props {
 
 export default function HealthCauseItem({ className, health, healthCause }: Props) {
   return (
-    <span
-      className={classNames(
-        'alert',
-        health === HealthType.RED ? 'alert-danger' : 'alert-warning',
-        className
-      )}>
+    <Alert
+      className={classNames('boxed-group-accordion-alert', className)}
+      display="inline"
+      variant={health === HealthType.RED ? 'error' : 'warning'}>
       {healthCause}
-    </span>
+    </Alert>
   );
 }

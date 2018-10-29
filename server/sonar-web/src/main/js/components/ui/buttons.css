@@ -122,6 +122,7 @@
   margin: 0;
   padding: 0;
   border: none;
+  border-radius: 0;
   background: transparent;
   color: var(--darkBlue);
   border-bottom: 1px solid var(--lightBlue);

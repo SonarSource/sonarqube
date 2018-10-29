@@ -33,14 +33,13 @@ interface Props {
 }
 
 interface State {
-  error: string;
   groups: UserGroup[];
   selectedGroups: string[];
 }
 
 export default class GroupsForm extends React.PureComponent<Props> {
   container?: HTMLDivElement | null;
-  state: State = { error: '', groups: [], selectedGroups: [] };
+  state: State = { groups: [], selectedGroups: [] };
 
   componentDidMount() {
     this.handleSearch('', Filter.Selected);
@@ -112,11 +111,6 @@ export default class GroupsForm extends React.PureComponent<Props> {
         </div>
 
         <div className="modal-body">
-          {this.state.error !== '' && (
-            <div className="alert alert-danger">
-              <p>{this.state.error}</p>
-            </div>
-          )}
           <SelectList
             elements={this.state.groups.map(group => group.name)}
             onSearch={this.handleSearch}

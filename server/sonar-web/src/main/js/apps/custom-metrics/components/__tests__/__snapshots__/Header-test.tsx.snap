@@ -36,11 +36,12 @@ exports[`should create new metric 1`] = `
   <div
     className="page-description"
   >
-    <div
-      className="alert alert-danger"
+    <Alert
+      display="inline"
+      variant="error"
     >
       custom_metrics.deprecated
-    </div>
+    </Alert>
     <p>
       custom_metrics.page.description
     </p>

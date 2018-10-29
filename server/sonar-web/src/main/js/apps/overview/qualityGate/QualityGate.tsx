@@ -25,6 +25,7 @@ import Level from '../../../components/ui/Level';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { Component, BranchLike, MeasureEnhanced } from '../../../app/types';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   branchLike?: BranchLike;
@@ -62,7 +63,7 @@ export default function QualityGate({ branchLike, component, measures }: Props) 
       </div>
 
       {ignoredConditions && (
-        <div className="alert alert-info display-inline-block big-spacer-top">
+        <Alert className="big-spacer-top" display="inline" variant="info">
           <span className="text-middle">
             {translate('overview.quality_gate.ignored_conditions')}
           </span>
@@ -70,7 +71,7 @@ export default function QualityGate({ branchLike, component, measures }: Props) 
             className="spacer-left"
             overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}
           />
-        </div>
+        </Alert>
       )}
 
       {conditions.length > 0 && (

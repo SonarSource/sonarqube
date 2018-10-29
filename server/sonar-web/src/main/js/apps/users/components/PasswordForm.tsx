@@ -26,6 +26,7 @@ import Modal from '../../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   isCurrentUser: boolean;
@@ -107,7 +108,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
             <h2>{header}</h2>
           </header>
           <div className="modal-body">
-            {error && <p className="alert alert-danger">{error}</p>}
+            {error && <Alert variant="error">{error}</Alert>}
             {this.props.isCurrentUser && (
               <div className="modal-field">
                 <label htmlFor="old-user-password">

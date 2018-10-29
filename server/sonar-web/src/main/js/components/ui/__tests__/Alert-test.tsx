@@ -19,42 +19,14 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import HealthCard from '../HealthCard';
-import { HealthType } from '../../../../../api/system';
+import { Alert } from '../Alert';
 
-it('should render correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
-});
-
-it('should show a main section and multiple sub sections', () => {
-  const sysInfoData = {
-    Name: 'foo',
-    bar: 'Bar',
-    Database: { db: 'test' },
-    Elasticseach: { Elastic: 'search' }
-  };
-  expect(getWrapper({ open: true, sysInfoData })).toMatchSnapshot();
-});
-
-it('should display the log level alert', () => {
+it('should render', () => {
   expect(
-    getWrapper({ sysInfoData: { 'Logs Level': 'DEBUG' } })
-      .dive()
-      .find('Alert')
+    shallow(
+      <Alert id="error-message" variant="error">
+        This is an error!
+      </Alert>
+    )
   ).toMatchSnapshot();
 });
-
-function getWrapper(props = {}) {
-  return shallow(
-    <HealthCard
-      biggerHealth={false}
-      health={HealthType.RED}
-      healthCauses={['foo']}
-      name="Foobar"
-      onClick={() => {}}
-      open={false}
-      sysInfoData={{}}
-      {...props}
-    />
-  );
-}

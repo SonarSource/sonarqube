@@ -69,11 +69,12 @@ exports[`changes select 1`] = `
         searchable={false}
         value={1}
       />
-      <div
-        className="big-spacer-top alert alert-success markdown"
+      <Alert
+        className="big-spacer-top"
+        variant="info"
       >
         background_tasks.change_number_of_workers.hint
-      </div>
+      </Alert>
     </div>
     <footer
       className="modal-foot"
@@ -164,11 +165,12 @@ exports[`changes select 2`] = `
         searchable={false}
         value={7}
       />
-      <div
-        className="big-spacer-top alert alert-success markdown"
+      <Alert
+        className="big-spacer-top"
+        variant="info"
       >
         background_tasks.change_number_of_workers.hint
-      </div>
+      </Alert>
     </div>
     <footer
       className="modal-foot"

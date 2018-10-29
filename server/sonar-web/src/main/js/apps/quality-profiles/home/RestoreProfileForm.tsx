@@ -22,6 +22,7 @@ import { restoreQualityProfile } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   onClose: () => void;
@@ -93,22 +94,22 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
           <div className="modal-body">
             {profile != null && ruleSuccesses != null ? (
               ruleFailures ? (
-                <div className="alert alert-warning">
+                <Alert variant="warning">
                   {translateWithParameters(
                     'quality_profiles.restore_profile.warning',
                     profile.name,
                     ruleSuccesses,
                     ruleFailures
                   )}
-                </div>
+                </Alert>
               ) : (
-                <div className="alert alert-success">
+                <Alert variant="success">
                   {translateWithParameters(
                     'quality_profiles.restore_profile.success',
                     profile.name,
                     ruleSuccesses
                   )}
-                </div>
+                </Alert>
               )
             ) : (
               <div className="modal-field">

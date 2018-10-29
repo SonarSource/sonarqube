@@ -28,6 +28,7 @@ import Modal from '../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
+import { Alert } from '../../components/ui/Alert';
 
 interface Props {
   onClose: () => void;
@@ -124,7 +125,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
             </header>
 
             <div className="modal-body">
-              <div className="alert alert-success">
+              <Alert variant="success">
                 <FormattedMessage
                   defaultMessage={translate(
                     'projects_management.project_has_been_successfully_created'
@@ -136,7 +137,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
                     )
                   }}
                 />
-              </div>
+              </Alert>
             </div>
 
             <footer className="modal-foot">

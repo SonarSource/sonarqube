@@ -19,11 +19,11 @@ exports[`should display error message when no issues available 1`] = `
     <div
       className="modal-body"
     >
-      <span
-        className="alert alert-warning"
+      <Alert
+        variant="warning"
       >
         issue_bulk_change.no_match
-      </span>
+      </Alert>
     </div>
     <div
       className="modal-foot"

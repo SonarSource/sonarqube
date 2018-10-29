@@ -2,11 +2,12 @@
 
 exports[`should display the list of repositories 1`] = `
 <Fragment>
-  <p
-    className="alert alert-info width-60 big-spacer-bottom"
+  <Alert
+    className="width-60 big-spacer-bottom"
+    variant="info"
   >
     onboarding.create_project.beta_feature_x.Foo Provider
-  </p>
+  </Alert>
   <form
     onSubmit={[Function]}
   >
@@ -76,11 +77,12 @@ exports[`should display the list of repositories 1`] = `
 
 exports[`should display the provider app install button 1`] = `
 <Fragment>
-  <p
-    className="alert alert-info width-60 big-spacer-bottom"
+  <Alert
+    className="width-60 big-spacer-bottom"
+    variant="info"
   >
     onboarding.create_project.beta_feature_x.Foo Provider
-  </p>
+  </Alert>
   <DeferredSpinner
     timeout={100}
   />
@@ -89,11 +91,12 @@ exports[`should display the provider app install button 1`] = `
 
 exports[`should display the provider app install button 2`] = `
 <Fragment>
-  <p
-    className="alert alert-info width-60 big-spacer-bottom"
+  <Alert
+    className="width-60 big-spacer-bottom"
+    variant="info"
   >
     onboarding.create_project.beta_feature_x.Foo Provider
-  </p>
+  </Alert>
   <div>
     <p
       className="spacer-bottom"

@@ -24,6 +24,7 @@ import { sendTestEmail } from '../../../api/settings';
 import { parseError } from '../../../helpers/request';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { SubmitButton } from '../../../components/ui/buttons';
+import { Alert } from '../../../components/ui/Alert';
 
 class EmailForm extends React.PureComponent {
   constructor(props) {
@@ -56,18 +57,18 @@ class EmailForm extends React.PureComponent {
         <form onSubmit={this.handleFormSubmit} style={{ marginLeft: 201 }}>
           {this.state.success && (
             <div className="modal-field">
-              <div className="alert alert-success">
+              <Alert variant="success">
                 {translateWithParameters(
                   'email_configuration.test.email_was_sent_to_x',
                   this.state.recipient
                 )}
-              </div>
+              </Alert>
             </div>
           )}
 
           {this.state.error != null && (
             <div className="modal-field">
-              <div className="alert alert-danger">{this.state.error}</div>
+              <Alert variant="error">{this.state.error}</Alert>
             </div>
           )}
 

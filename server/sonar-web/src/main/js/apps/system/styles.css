@@ -31,10 +31,6 @@
   top: 8px;
 }
 
-.system-info-health-info .alert {
-  display: inline-block;
-}
-
 .system-info-health-info.no-margin .status-indicator {
   margin: 0;
 }

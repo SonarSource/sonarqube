@@ -24,6 +24,7 @@ import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationB
 import Modal from '../../components/controls/Modal';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
+import { Alert } from '../../components/ui/Alert';
 
 export interface Props {
   onClose: () => void;
@@ -97,9 +98,9 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
           ))}
 
           {canUpdateProjectsVisibilityToPrivate ? (
-            <div className="alert alert-warning">
+            <Alert variant="warning">
               {translate('organization.change_visibility_form.warning')}
-            </div>
+            </Alert>
           ) : (
             <UpgradeOrganizationBox organization={this.props.organization.key} />
           )}

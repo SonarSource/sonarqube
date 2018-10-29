@@ -49,6 +49,7 @@ import {
 } from '../../app/types';
 import { isSameBranchLike, getBranchLikeQuery } from '../../helpers/branches';
 import { translate } from '../../helpers/l10n';
+import { Alert } from '../ui/Alert';
 import './styles.css';
 
 // TODO react-virtualized
@@ -683,17 +684,17 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
 
     if (this.state.notExist) {
       return (
-        <div className="alert alert-warning spacer-top">
+        <Alert className="spacer-top" variant="warning">
           {translate('component_viewer.no_component')}
-        </div>
+        </Alert>
       );
     }
 
     if (notAccessible) {
       return (
-        <div className="alert alert-warning spacer-top">
+        <Alert className="spacer-top" variant="warning">
           {translate('code_viewer.no_source_code_displayed_due_to_security')}
-        </div>
+        </Alert>
       );
     }
 
@@ -714,9 +715,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
           />
         )}
         {sourceRemoved && (
-          <div className="alert alert-warning spacer-top">
+          <Alert className="spacer-top" variant="warning">
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
-          </div>
+          </Alert>
         )}
         {!sourceRemoved && sources !== undefined && this.renderCode(sources)}
       </div>

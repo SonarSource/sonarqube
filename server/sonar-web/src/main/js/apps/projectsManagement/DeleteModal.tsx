@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { bulkDeleteProjects } from '../../api/components';
 import Modal from '../../components/controls/Modal';
-import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { toNotSoISOString } from '../../helpers/dates';
+import { Alert } from '../../components/ui/Alert';
 
 export interface Props {
   analyzedBefore: Date | undefined;
@@ -83,15 +83,14 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
   };
 
   renderWarning = () => (
-    <div className="alert alert-warning modal-alert">
-      <AlertWarnIcon className="spacer-right" />
+    <Alert variant="warning">
       {this.props.selection.length
         ? translateWithParameters(
             'projects_management.delete_selected_warning',
             this.props.selection.length
           )
         : translateWithParameters('projects_management.delete_all_warning', this.props.total)}
-    </div>
+    </Alert>
   );
 
   render() {

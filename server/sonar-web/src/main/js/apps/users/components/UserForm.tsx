@@ -27,6 +27,7 @@ import Modal from '../../../components/controls/Modal';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
+import { Alert } from '../../../components/ui/Alert';
 
 export interface Props {
   user?: User;
@@ -163,7 +164,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
           </header>
 
           <div className="modal-body">
-            {error && <p className="alert alert-danger">{error}</p>}
+            {error && <Alert variant="error">{error}</Alert>}
 
             {!user && (
               <div className="modal-field">

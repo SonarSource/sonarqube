@@ -92,8 +92,9 @@
   vertical-align: text-bottom;
 }
 
-.documentation-content.markdown .alert p {
-  margin: 0;
+.documentation-content.markdown .alert {
+  display: block;
+  padding: var(--gridSize) calc(2 * var(--gridSize));
 }
 
 .documentation-content.markdown .collapse-container {

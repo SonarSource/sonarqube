@@ -21,6 +21,7 @@ import * as React from 'react';
 import CreateButton from './CreateButton';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   loading: boolean;
@@ -37,7 +38,9 @@ export default function Header({ loading, onCreate, skipMetrics }: Props) {
         <CreateButton onCreate={onCreate} skipMetrics={skipMetrics} />
       </div>
       <div className="page-description">
-        <div className="alert alert-danger">{translate('custom_measures.deprecated')}</div>
+        <Alert display="inline" variant="error">
+          {translate('custom_measures.deprecated')}
+        </Alert>
         <p>{translate('custom_measures.page.description')}</p>
       </div>
     </header>

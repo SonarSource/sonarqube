@@ -71,11 +71,11 @@ exports[`changes visibility 1`] = `
         visibility.private.description.short
       </p>
     </div>
-    <div
-      className="alert alert-warning"
+    <Alert
+      variant="warning"
     >
       organization.change_visibility_form.warning
-    </div>
+    </Alert>
   </div>
   <footer
     className="modal-foot"
@@ -167,11 +167,11 @@ exports[`changes visibility 2`] = `
         visibility.private.description.short
       </p>
     </div>
-    <div
-      className="alert alert-warning"
+    <Alert
+      variant="warning"
     >
       organization.change_visibility_form.warning
-    </div>
+    </Alert>
   </div>
   <footer
     className="modal-foot"

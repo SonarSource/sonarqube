@@ -20,6 +20,7 @@
 import * as React from 'react';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   component: {
@@ -38,9 +39,9 @@ export default function PublicProjectDisclaimer({ component, onClose, onConfirm 
       header={translateWithParameters('projects_role.turn_x_to_public', component.name)}
       onClose={onClose}
       onConfirm={onConfirm}>
-      <div className="alert alert-warning modal-alert">
+      <Alert variant="warning">
         {translate('projects_role.are_you_sure_to_turn_project_to_public.warning', qualifier)}
-      </div>
+      </Alert>
       <p>{translate('projects_role.are_you_sure_to_turn_project_to_public', qualifier)}</p>
     </ConfirmModal>
   );

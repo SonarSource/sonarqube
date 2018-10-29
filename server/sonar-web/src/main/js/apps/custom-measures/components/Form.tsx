@@ -25,6 +25,7 @@ import Select from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   confirmButtonText: string;
@@ -109,9 +110,7 @@ export default class Form extends React.PureComponent<Props, State> {
 
   renderMetricSelect = (options: { label: string; value: string }[]) => {
     if (!options.length && !this.state.loading) {
-      return (
-        <div className="alert alert-warning">{translate('custom_measures.all_metrics_taken')}</div>
-      );
+      return <Alert variant="warning">{translate('custom_measures.all_metrics_taken')}</Alert>;
     }
     return (
       <div className="modal-field">

@@ -79,16 +79,18 @@ exports[`should display some warning messages for non INFO levels 1`] = `
           TRACE
         </label>
       </p>
-      <div
-        className="alert alert-info spacer-top"
+      <Alert
+        className="spacer-top"
+        variant="info"
       >
         Foo
-      </div>
-      <div
-        className="alert alert-danger spacer-top"
+      </Alert>
+      <Alert
+        className="spacer-top"
+        variant="warning"
       >
         system.log_level.warning
-      </div>
+      </Alert>
     </div>
     <div
       className="modal-foot"
@@ -189,11 +191,12 @@ exports[`should render correctly 1`] = `
           TRACE
         </label>
       </p>
-      <div
-        className="alert alert-info spacer-top"
+      <Alert
+        className="spacer-top"
+        variant="info"
       >
         Foo
-      </div>
+      </Alert>
     </div>
     <div
       className="modal-foot"

@@ -2,7 +2,7 @@
 
 exports[`renders background task error correctly 1`] = `
 <NavBarNotif
-  className="alert alert-danger"
+  variant="error"
 >
   <FormattedMessage
     defaultMessage="component_navigation.status.failed"
@@ -19,7 +19,7 @@ exports[`renders background task error correctly 1`] = `
 
 exports[`renders background task error correctly for a different branch/PR 1`] = `
 <NavBarNotif
-  className="alert alert-danger"
+  variant="error"
 >
   <FormattedMessage
     defaultMessage="component_navigation.status.failed_branch"
@@ -36,7 +36,7 @@ exports[`renders background task error correctly for a different branch/PR 1`] =
 
 exports[`renders background task error correctly for a different branch/PR 2`] = `
 <NavBarNotif
-  className="alert alert-danger"
+  variant="error"
 >
   <FormattedMessage
     defaultMessage="component_navigation.status.failed_branch"
@@ -53,7 +53,7 @@ exports[`renders background task error correctly for a different branch/PR 2`] =
 
 exports[`renders background task in progress info correctly 1`] = `
 <NavBarNotif
-  className="alert alert-info"
+  variant="info"
 >
   <i
     className="spinner spacer-right text-bottom"
@@ -85,7 +85,7 @@ exports[`renders background task license info correctly 1`] = `
 
 exports[`renders background task pending info correctly 1`] = `
 <NavBarNotif
-  className="alert alert-info"
+  variant="info"
 >
   <PendingIcon
     className="spacer-right"
@@ -105,7 +105,7 @@ exports[`renders background task pending info correctly 1`] = `
 
 exports[`renders background task pending info correctly for admin 1`] = `
 <NavBarNotif
-  className="alert alert-info"
+  variant="info"
 >
   <PendingIcon
     className="spacer-right"

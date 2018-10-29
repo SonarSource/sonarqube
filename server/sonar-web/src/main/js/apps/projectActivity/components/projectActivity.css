@@ -97,10 +97,6 @@
   border-radius: 12px;
 }
 
-.project-activity-graph-legend-actionable:not(.alert-warning) {
-  border-color: var(--barBorderColor);
-}
-
 .project-activity-graph-tooltip {
   padding: 8px;
 }

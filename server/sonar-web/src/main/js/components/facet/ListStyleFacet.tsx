@@ -32,6 +32,7 @@ import SearchBox from '../controls/SearchBox';
 import ListFooter from '../controls/ListFooter';
 import { formatMeasure } from '../../helpers/measures';
 import { queriesEqual, RawQuery } from '../../helpers/query';
+import { Alert } from '../ui/Alert';
 
 interface SearchResponse<S> {
   maxResults?: boolean;
@@ -297,9 +298,9 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         />
         {mightHaveMoreResults &&
           this.state.showFullList && (
-            <div className="alert alert-warning spacer-top">
+            <Alert className="spacer-top" variant="warning">
               {translate('facet_might_have_more_results')}
-            </div>
+            </Alert>
           )}
       </>
     );
@@ -341,9 +342,9 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
           {searchResults.map(result => this.renderSearchResult(result))}
         </FacetItemsList>
         {searchMaxResults && (
-          <div className="alert alert-warning spacer-top">
+          <Alert className="spacer-top" variant="warning">
             {translate('facet_might_have_more_results')}
-          </div>
+          </Alert>
         )}
         {searchPaging && (
           <ListFooter

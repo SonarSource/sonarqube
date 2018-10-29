@@ -29,6 +29,7 @@ import { Organization } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 import { getOrganizationBilling } from '../../../api/organizations';
 import { isSonarCloud } from '../../../helpers/system';
+import { Alert } from '../../../components/ui/Alert';
 
 interface DispatchToProps {
   deleteOrganization: (key: string) => Promise<void>;
@@ -105,9 +106,9 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
             modalBody={
               <div>
                 {hasPaidPlan && (
-                  <div className="alert alert-warning modal-alert">
+                  <Alert variant="warning">
                     {translate('organization.delete.sonarcloud.paid_plan_info')}
-                  </div>
+                  </Alert>
                 )}
                 <p>{translate('organization.delete.question')}</p>
               </div>

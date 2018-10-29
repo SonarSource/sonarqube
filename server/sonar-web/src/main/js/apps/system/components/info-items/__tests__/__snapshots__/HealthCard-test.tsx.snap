@@ -1,11 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display the log level alert 1`] = `
-<span
-  className="alert alert-danger spacer-left"
+<Alert
+  className="boxed-group-accordion-alert spacer-left"
+  display="inline"
+  variant="warning"
 >
   system.log_level.warning.short
-</span>
+</Alert>
 `;
 
 exports[`should render correctly 1`] = `

@@ -65,14 +65,14 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
     const { currentTask, currentTaskOnSameBranch, isInProgress, isPending } = this.props;
     if (isInProgress) {
       return (
-        <NavBarNotif className="alert alert-info">
+        <NavBarNotif variant="info">
           <i className="spinner spacer-right text-bottom" />
           {this.renderMessage('component_navigation.status.in_progress')}
         </NavBarNotif>
       );
     } else if (isPending) {
       return (
-        <NavBarNotif className="alert alert-info">
+        <NavBarNotif variant="info">
           <PendingIcon className="spacer-right" />
           {this.renderMessage('component_navigation.status.pending', STATUSES.ALL)}
         </NavBarNotif>
@@ -100,7 +100,7 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
         message = this.renderMessage('component_navigation.status.failed');
       }
 
-      return <NavBarNotif className="alert alert-danger">{message}</NavBarNotif>;
+      return <NavBarNotif variant="error">{message}</NavBarNotif>;
     }
     return null;
   }

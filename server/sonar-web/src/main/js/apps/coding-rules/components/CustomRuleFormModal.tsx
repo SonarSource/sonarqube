@@ -30,6 +30,7 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { createRule, updateRule } from '../../../api/rules';
 import { csvEscape } from '../../../helpers/csv';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   customRule?: RuleDetails;
@@ -372,7 +373,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
 
           <div className="modal-body modal-container">
             {reactivating && (
-              <div className="alert alert-warning">{translate('coding_rules.reactivate.help')}</div>
+              <Alert variant="warning">{translate('coding_rules.reactivate.help')}</Alert>
             )}
             <table>
               <tbody>

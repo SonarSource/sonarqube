@@ -337,8 +337,8 @@ exports[`creates project 4`] = `
     <div
       className="modal-body"
     >
-      <div
-        className="alert alert-success"
+      <Alert
+        variant="success"
       >
         <FormattedMessage
           defaultMessage="projects_management.project_has_been_successfully_created"
@@ -363,7 +363,7 @@ exports[`creates project 4`] = `
             }
           }
         />
-      </div>
+      </Alert>
     </div>
     <footer
       className="modal-foot"

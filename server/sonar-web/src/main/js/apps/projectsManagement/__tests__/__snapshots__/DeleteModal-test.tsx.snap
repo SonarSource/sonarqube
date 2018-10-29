@@ -15,14 +15,11 @@ exports[`deletes all projects 1`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       projects_management.delete_all_warning.17
-    </div>
+    </Alert>
     qualifiers.delete_confirm.TRK
   </div>
   <footer
@@ -60,14 +57,11 @@ exports[`deletes all projects 2`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       projects_management.delete_all_warning.17
-    </div>
+    </Alert>
     qualifiers.delete_confirm.TRK
   </div>
   <footer
@@ -108,14 +102,11 @@ exports[`deletes selected projects 1`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       projects_management.delete_selected_warning.2
-    </div>
+    </Alert>
     qualifiers.delete_confirm.TRK
   </div>
   <footer
@@ -153,14 +144,11 @@ exports[`deletes selected projects 2`] = `
   <div
     className="modal-body"
   >
-    <div
-      className="alert alert-warning modal-alert"
+    <Alert
+      variant="warning"
     >
-      <AlertWarnIcon
-        className="spacer-right"
-      />
       projects_management.delete_selected_warning.2
-    </div>
+    </Alert>
     qualifiers.delete_confirm.TRK
   </div>
   <footer

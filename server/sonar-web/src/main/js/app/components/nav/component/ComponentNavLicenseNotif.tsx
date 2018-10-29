@@ -78,7 +78,7 @@ export default class ComponentNavLicenseNotif extends React.PureComponent<Props,
 
     if (isValidLicense && currentTask.errorType !== 'LICENSING_LOC') {
       return (
-        <NavBarNotif className="alert alert-danger">
+        <NavBarNotif variant="error">
           <span className="little-spacer-right">
             {translate('component_navigation.status.last_blocked_due_to_bad_license')}
           </span>
@@ -87,7 +87,7 @@ export default class ComponentNavLicenseNotif extends React.PureComponent<Props,
     }
 
     return (
-      <NavBarNotif className="alert alert-danger">
+      <NavBarNotif variant="error">
         <span className="little-spacer-right">{currentTask.errorMessage}</span>
         {this.context.canAdmin ? (
           <Link to="/admin/extension/license/app">

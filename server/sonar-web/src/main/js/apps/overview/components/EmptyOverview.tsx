@@ -23,6 +23,7 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../app/types';
 import { isBranch, isLongLivingBranch } from '../../../helpers/branches';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   branchLike?: BranchLike;
@@ -45,7 +46,7 @@ export default function EmptyOverview({ branchLike, branchLikes, component, show
     <div className="page page-limited">
       {showWarning && (
         <div className="big-spacer-bottom">
-          <div className="alert alert-warning">
+          <Alert variant="warning">
             {hasBranches && isBranch(branchLike) ? (
               <FormattedMessage
                 defaultMessage={branchWarnMsg}
@@ -62,7 +63,7 @@ export default function EmptyOverview({ branchLike, branchLikes, component, show
             ) : (
               translate('provisioning.no_analysis')
             )}
-          </div>
+          </Alert>
 
           {!hasBranches && (
             <div className="big-spacer-top">

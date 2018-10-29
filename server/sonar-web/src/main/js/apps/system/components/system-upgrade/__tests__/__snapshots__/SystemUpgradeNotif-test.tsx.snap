@@ -4,8 +4,8 @@ exports[`should display correctly 1`] = `
 <div
   className="page-notifs"
 >
-  <div
-    className="alert alert-info"
+  <Alert
+    variant="info"
   >
     system.new_version_available
     <Button
@@ -14,6 +14,6 @@ exports[`should display correctly 1`] = `
     >
       learn_more
     </Button>
-  </div>
+  </Alert>
 </div>
 `;

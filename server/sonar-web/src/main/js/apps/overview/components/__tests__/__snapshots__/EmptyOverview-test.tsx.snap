@@ -22,11 +22,11 @@ exports[`renders 1`] = `
   <div
     className="big-spacer-bottom"
   >
-    <div
-      className="alert alert-warning"
+    <Alert
+      variant="warning"
     >
       provisioning.no_analysis
-    </div>
+    </Alert>
     <div
       className="big-spacer-top"
     >
@@ -73,8 +73,8 @@ exports[`should render another message when there are branches 1`] = `
   <div
     className="big-spacer-bottom"
   >
-    <div
-      className="alert alert-warning"
+    <Alert
+      variant="warning"
     >
       <FormattedMessage
         defaultMessage="provisioning.no_analysis_on_main_branch"
@@ -90,7 +90,7 @@ exports[`should render another message when there are branches 1`] = `
           }
         }
       />
-    </div>
+    </Alert>
   </div>
   <div>
     <h4>
@@ -110,8 +110,8 @@ exports[`should render another message when there are branches 2`] = `
   <div
     className="big-spacer-bottom"
   >
-    <div
-      className="alert alert-warning"
+    <Alert
+      variant="warning"
     >
       <FormattedMessage
         defaultMessage="provisioning.no_analysis_on_main_branch.bad_configuration"
@@ -127,7 +127,7 @@ exports[`should render another message when there are branches 2`] = `
           }
         }
       />
-    </div>
+    </Alert>
   </div>
   <div>
     <h4>

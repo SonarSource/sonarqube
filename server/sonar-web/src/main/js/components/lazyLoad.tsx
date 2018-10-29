@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Alert } from './ui/Alert';
 import { translate } from '../helpers/l10n';
 import { get, save } from '../helpers/storage';
 
@@ -84,7 +85,7 @@ export function lazyLoad<P>(loader: Loader<P>, displayName?: string) {
       const { Component, error } = this.state;
 
       if (error && error.request) {
-        return <div className="alert alert-danger">{translate('default_error_message')}</div>;
+        return <Alert variant="error">{translate('default_error_message')}</Alert>;
       }
 
       if (!Component) {

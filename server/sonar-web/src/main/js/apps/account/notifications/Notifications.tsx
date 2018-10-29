@@ -28,6 +28,7 @@ import * as api from '../../../api/notifications';
 import { Notification } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 export interface Props {
   fetchOrganizations: (organizations: string[]) => void;
@@ -147,7 +148,7 @@ export default class Notifications extends React.PureComponent<Props, State> {
     return (
       <div className="account-body account-container">
         <Helmet title={translate('my_account.notifications')} />
-        <p className="alert alert-info">{translate('notification.dispatcher.information')}</p>
+        <Alert variant="info">{translate('notification.dispatcher.information')}</Alert>
         <DeferredSpinner loading={this.state.loading}>
           {this.state.notifications && (
             <>

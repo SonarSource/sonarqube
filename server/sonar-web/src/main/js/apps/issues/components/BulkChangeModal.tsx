@@ -34,6 +34,7 @@ import Avatar from '../../../components/ui/Avatar';
 import { SubmitButton } from '../../../components/ui/buttons';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface AssigneeOption {
   avatar?: string;
@@ -501,9 +502,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
         <div className="modal-body">
           {limitReached && (
-            <div className="alert alert-warning">
+            <Alert variant="warning">
               {translateWithParameters('issue_bulk_change.max_issues_reached', issues.length)}
-            </div>
+            </Alert>
           )}
 
           {this.renderAssigneeField()}
@@ -515,7 +516,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           {this.renderCommentField()}
           {issues.length > 0 && this.renderNotificationsField()}
           {issues.length === 0 && (
-            <span className="alert alert-warning">{translate('issue_bulk_change.no_match')}</span>
+            <Alert variant="warning">{translate('issue_bulk_change.no_match')}</Alert>
           )}
         </div>
 

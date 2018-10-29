@@ -27,6 +27,7 @@ import { isLongLivingBranch, isBranch, isMainBranch } from '../../../helpers/bra
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import '../../../app/styles/sonarcloud.css';
+import { Alert } from '../../../components/ui/Alert';
 
 interface OwnProps {
   branchLike?: BranchLike;
@@ -104,7 +105,7 @@ export function WarningMessage({
     return null;
   }
   return (
-    <div className="alert alert-warning">
+    <Alert variant="warning">
       <FormattedMessage
         defaultMessage={message}
         id={message}
@@ -115,7 +116,7 @@ export function WarningMessage({
           )
         }}
       />
-    </div>
+    </Alert>
   );
 }
 

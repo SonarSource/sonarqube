@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="alert alert-error"
+  id="error-message"
+  role="alert"
+>
+  <Tooltip
+    overlay="alert.tooltip.error"
+  >
+    <div
+      className="alert-icon"
+    >
+      <AlertErrorIcon
+        fill="#b81723"
+      />
+    </div>
+  </Tooltip>
+  <div
+    className="alert-content"
+  >
+    This is an error!
+  </div>
+</div>
+`;

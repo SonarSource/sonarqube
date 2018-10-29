@@ -41,14 +41,3 @@
   padding-left: 20px;
   padding-right: 20px;
 }
-
-.navbar-notif.alert {
-  border-left: none;
-  border-right: none;
-  padding: 6px 0;
-}
-
-.navbar-notif-cancelable {
-  display: flex;
-  justify-content: space-between;
-}

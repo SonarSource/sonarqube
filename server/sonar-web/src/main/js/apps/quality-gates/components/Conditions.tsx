@@ -26,6 +26,7 @@ import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
 import ModalButton from '../../../components/controls/ModalButton';
 import { Button } from '../../../components/ui/buttons';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   canEdit: boolean;
@@ -109,14 +110,14 @@ export default class Conditions extends React.PureComponent<Props> {
         <div className="big-spacer-bottom">{translate('quality_gates.introduction')}</div>
 
         {uniqDuplicates.length > 0 && (
-          <div className="alert alert-warning">
+          <Alert variant="warning">
             <p>{translate('quality_gates.duplicated_conditions')}</p>
             <ul className="list-styled spacer-top">
               {uniqDuplicates.map(d => (
                 <li key={d.metric.key}>{getLocalizedMetricName(d.metric)}</li>
               ))}
             </ul>
-          </div>
+          </Alert>
         )}
 
         {sortedConditions.length ? (

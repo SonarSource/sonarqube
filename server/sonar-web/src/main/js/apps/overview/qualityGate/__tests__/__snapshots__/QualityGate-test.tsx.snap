@@ -22,8 +22,10 @@ exports[`renders message about ignored conditions 1`] = `
       level="OK"
     />
   </div>
-  <div
-    className="alert alert-info display-inline-block big-spacer-top"
+  <Alert
+    className="big-spacer-top"
+    display="inline"
+    variant="info"
   >
     <span
       className="text-middle"
@@ -34,6 +36,6 @@ exports[`renders message about ignored conditions 1`] = `
       className="spacer-left"
       overlay="overview.quality_gate.ignored_conditions.tooltip"
     />
-  </div>
+  </Alert>
 </div>
 `;
