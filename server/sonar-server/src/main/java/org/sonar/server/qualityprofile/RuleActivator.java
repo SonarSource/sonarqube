@@ -130,13 +130,14 @@ public class RuleActivator {
       persist(change, context, dbSession);
     }
 
+    if (!changes.isEmpty()) {
+      updateProfileDates(dbSession, context);
+    }
+
     if (!stopCascading) {
       changes.addAll(propagateActivationToDescendants(dbSession, activation, context));
     }
 
-    if (!changes.isEmpty()) {
-      updateProfileDates(dbSession, context);
-    }
     return changes;
   }
 
