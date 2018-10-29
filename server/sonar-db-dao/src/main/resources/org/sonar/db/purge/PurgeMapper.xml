@@ -453,5 +453,9 @@
   <delete id="deleteLiveMeasuresByProjectUuid">
     delete from live_measures where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
+
+  <delete id="deleteLiveMeasuresByComponentUuids">
+    delete from live_measures where component_uuid in <foreach item="componentUuid" index="index" collection="componentUuids" open="(" separator="," close=")">#{componentUuid, jdbcType=VARCHAR}</foreach>
+  </delete>
 </mapper>
 

@@ -137,7 +137,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
     // persist the measures that have been created or updated
     matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE)
-      .forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m, null));
+      .forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
     projectIndexer.commitAndIndex(dbSession, singleton(project), ProjectIndexer.Cause.MEASURE_CHANGE);
 
     return Optional.of(

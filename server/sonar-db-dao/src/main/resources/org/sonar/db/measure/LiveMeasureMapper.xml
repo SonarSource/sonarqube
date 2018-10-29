@@ -71,7 +71,6 @@
     text_value,
     variation,
     measure_data,
-    update_marker,
     created_at,
     updated_at
     ) values (
@@ -83,7 +82,6 @@
     #{dto.textValue, jdbcType=VARCHAR},
     #{dto.variation, jdbcType=DOUBLE},
     #{dto.data, jdbcType=BINARY},
-    #{marker, jdbcType=VARCHAR},
     #{now, jdbcType=BIGINT},
     #{now, jdbcType=BIGINT}
     )
@@ -95,33 +93,34 @@
     variation = #{dto.variation, jdbcType=DOUBLE},
     text_value = #{dto.textValue, jdbcType=VARCHAR},
     measure_data  = #{dto.data, jdbcType=BINARY},
-    update_marker = #{marker, jdbcType=VARCHAR},
     updated_at = #{now, jdbcType=BIGINT}
     where
     component_uuid = #{dto.componentUuid, jdbcType=VARCHAR}
     and metric_id = #{dto.metricId, jdbcType=INTEGER}
   </update>
 
-  <delete id="deleteByProjectUuidExcludingMarker" parameterType="map">
-    <include refid="sql_deleteByProjectUuidExcludingMarker"/>
+  <delete id="deleteByComponentUuidExcludingMetricIds" parameterType="map">
+    <include refid="sql_deleteByComponentUuidExcludingMetricIds"/>
   </delete>
 
   <!--
   best practice on MySQL : order the rows to be locked in order
-  to minimze risk of deadlock.
+  to minimize risk of deadlock.
   https://stackoverflow.com/a/2423921/229031
   https://jira.sonarsource.com/browse/SONAR-10117?focusedCommentId=153555&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-153555
   -->
-  <delete id="deleteByProjectUuidExcludingMarker" parameterType="map" databaseId="mysql">
-    <include refid="sql_deleteByProjectUuidExcludingMarker"/>
+  <delete id="deleteByComponentUuidExcludingMetricIds" parameterType="map" databaseId="mysql">
+    <include refid="sql_deleteByComponentUuidExcludingMetricIds"/>
     order by uuid
   </delete>
 
-  <sql id="sql_deleteByProjectUuidExcludingMarker">
+  <sql id="sql_deleteByComponentUuidExcludingMetricIds">
     delete from live_measures
     where
-    project_uuid = #{projectUuid, jdbcType=VARCHAR} and
-    (update_marker != #{marker, jdbcType=VARCHAR} or update_marker is null)
+      component_uuid = #{componentUuid, jdbcType=VARCHAR}
+      <if test="!excludedMetricIds.isEmpty()">
+      and metric_id not in <foreach collection="excludedMetricIds" item="metricId" open="(" close=")" separator=",">#{metricId,jdbcType=INTEGER}</foreach>
+      </if>
   </sql>
 
   <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">

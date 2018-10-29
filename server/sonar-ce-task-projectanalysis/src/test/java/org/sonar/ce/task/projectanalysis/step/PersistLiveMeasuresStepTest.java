@@ -143,12 +143,10 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void delete_measures_from_db_if_no_more_computed() {
+  public void delete_measures_from_db_if_no_longer_computed() {
     prepareProject();
     // measure to be updated
     LiveMeasureDto measureOnFileInProject = insertMeasure("file-uuid", "project-uuid", INT_METRIC);
-    // measure to be deleted because on a file that has been deleted
-    LiveMeasureDto measureOnDeletedFileInProject = insertMeasure("deleted-file-in-project", "project-uuid", INT_METRIC);
     // measure to be deleted because not computed anymore
     LiveMeasureDto otherMeasureOnFileInProject = insertMeasure("file-uuid", "project-uuid", STRING_METRIC);
     // measure in another project, not touched
@@ -161,10 +159,9 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     step().execute(context);
 
     assertThatMeasureHasValue(measureOnFileInProject, 42);
-    assertThatMeasureDoesNotExist(measureOnDeletedFileInProject);
     assertThatMeasureDoesNotExist(otherMeasureOnFileInProject);
     assertThatMeasureHasValue(measureInOtherProject, (int) measureInOtherProject.getValue().doubleValue());
-    verifyStatistics(context, 1, 2);
+    verifyStatistics(context, 1, 1);
   }
 
   @Test
@@ -211,7 +208,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
       .setComponentUuid(componentUuid)
       .setProjectUuid(projectUuid)
       .setMetricId(metricRepository.getByKey(metric.getKey()).getId());
-    dbClient.liveMeasureDao().insertOrUpdate(db.getSession(), measure, null);
+    dbClient.liveMeasureDao().insertOrUpdate(db.getSession(), measure);
     return measure;
   }
 

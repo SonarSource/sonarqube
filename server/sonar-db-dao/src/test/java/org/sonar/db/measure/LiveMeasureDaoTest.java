@@ -21,6 +21,7 @@ package org.sonar.db.measure;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -289,7 +290,7 @@ public class LiveMeasureDaoTest {
   public void insertOrUpdate() {
     // insert
     LiveMeasureDto dto = newLiveMeasure();
-    underTest.insertOrUpdate(db.getSession(), dto, "foo");
+    underTest.insertOrUpdate(db.getSession(), dto);
     verifyPersisted(dto);
     verifyTableSize(1);
 
@@ -297,31 +298,29 @@ public class LiveMeasureDaoTest {
     dto.setValue(dto.getValue() + 1);
     dto.setVariation(dto.getVariation() + 10);
     dto.setData(dto.getDataAsString() + "_new");
-    underTest.insertOrUpdate(db.getSession(), dto, "foo");
+    underTest.insertOrUpdate(db.getSession(), dto);
     verifyPersisted(dto);
     verifyTableSize(1);
   }
 
   @Test
-  public void deleteByProjectUuidExcludingMarker() {
-    LiveMeasureDto measure1 = newLiveMeasure().setProjectUuid("P1");
-    LiveMeasureDto measure2 = newLiveMeasure().setProjectUuid("P1");
-    LiveMeasureDto measure3DifferentMarker = newLiveMeasure().setProjectUuid("P1");
-    LiveMeasureDto measure4NoMarker = newLiveMeasure().setProjectUuid("P1");
-    LiveMeasureDto measure5OtherProject = newLiveMeasure().setProjectUuid("P2");
-    underTest.insertOrUpdate(db.getSession(), measure1, "foo");
-    underTest.insertOrUpdate(db.getSession(), measure2, "foo");
-    underTest.insertOrUpdate(db.getSession(), measure3DifferentMarker, "bar");
-    underTest.insertOrUpdate(db.getSession(), measure4NoMarker, null);
-    underTest.insertOrUpdate(db.getSession(), measure5OtherProject, "foo");
+  public void deleteByComponentUuidExcludingMetricIds() {
+    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricId(1);
+    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricId(2);
+    LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricId(3);
+    LiveMeasureDto measureOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricId(3);
+    underTest.insertOrUpdate(db.getSession(), measure1);
+    underTest.insertOrUpdate(db.getSession(), measure2);
+    underTest.insertOrUpdate(db.getSession(), measure3);
+    underTest.insertOrUpdate(db.getSession(), measureOtherComponent);
 
-    int count = underTest.deleteByProjectUuidExcludingMarker(db.getSession(), "P1", "foo");
+    int count = underTest.deleteByComponentUuidExcludingMetricIds(db.getSession(), "C1", Arrays.asList(1, 2));
 
     verifyTableSize(3);
     verifyPersisted(measure1);
     verifyPersisted(measure2);
-    verifyPersisted(measure5OtherProject);
-    assertThat(count).isEqualTo(2);
+    verifyPersisted(measureOtherComponent);
+    assertThat(count).isEqualTo(1);
   }
 
   private void verifyTableSize(int expectedSize) {

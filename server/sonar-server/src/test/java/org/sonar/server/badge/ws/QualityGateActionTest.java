@@ -125,7 +125,7 @@ public class QualityGateActionTest {
     String eTagOK = response.getHeader("ETag");
 
     liveMeasure.setData(WARN.name());
-    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure, null);
+    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure);
     db.commit();
 
     response = ws.newRequest()
@@ -135,7 +135,7 @@ public class QualityGateActionTest {
     String eTagWARN = response.getHeader("ETag");
 
     liveMeasure.setData(ERROR.name());
-    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure, null);
+    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure);
     db.commit();
 
     response = ws.newRequest()

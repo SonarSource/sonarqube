@@ -20,6 +20,7 @@
 package org.sonar.db.purge;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +55,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -212,6 +214,18 @@ public class PurgeDaoTest {
     FileSourceDto nonSelectedFileSource = db.fileSources().insertFileSource(nonSelectedFile);
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(3);
 
+    MetricDto metric1 = db.measures().insertMetric();
+    MetricDto metric2 = db.measures().insertMetric();
+    LiveMeasureDto liveMeasureMetric1OnFile = db.measures().insertLiveMeasure(srcFile, metric1);
+    LiveMeasureDto liveMeasureMetric2OnFile = db.measures().insertLiveMeasure(srcFile, metric2);
+    LiveMeasureDto liveMeasureMetric1OnDir = db.measures().insertLiveMeasure(dir, metric1);
+    LiveMeasureDto liveMeasureMetric2OnDir = db.measures().insertLiveMeasure(dir, metric2);
+    LiveMeasureDto liveMeasureMetric1OnProject = db.measures().insertLiveMeasure(project, metric1);
+    LiveMeasureDto liveMeasureMetric2OnProject = db.measures().insertLiveMeasure(project, metric2);
+    LiveMeasureDto liveMeasureMetric1OnNonSelected = db.measures().insertLiveMeasure(nonSelectedFile, metric1);
+    LiveMeasureDto liveMeasureMetric2OnNonSelected = db.measures().insertLiveMeasure(nonSelectedFile, metric2);
+    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(8);
+
     // back to present
     when(system2.now()).thenReturn(new Date().getTime());
     underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), module.uuid(), dir.uuid(), srcFile.uuid(), testFile.uuid()), PurgeListener.EMPTY,
@@ -237,6 +251,16 @@ public class PurgeDaoTest {
     // delete file sources of selected
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
     assertThat(db.getDbClient().fileSourceDao().selectSourceByFileUuid(dbSession, nonSelectedFileSource.getFileUuid())).isNotNull();
+
+    // deletes live measure of selected
+    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
+    List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), nonSelectedFile.uuid()), ImmutableSet.of(metric1.getId(), metric2.getId()));
+    assertThat(liveMeasureDtos)
+      .extracting(LiveMeasureDto::getComponentUuid)
+      .containsOnly(nonSelectedFile.uuid(), project.uuid());
+    assertThat(liveMeasureDtos)
+      .extracting(LiveMeasureDto::getMetricId)
+      .containsOnly(metric1.getId(), metric2.getId());
   }
 
   @Test

@@ -148,6 +148,7 @@ public class PurgeDao implements Dao {
       input -> {
         mapper.deleteFileSourcesByFileUuid(input);
         mapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
+        mapper.deleteLiveMeasuresByComponentUuids(input);
         return emptyList();
       });
 

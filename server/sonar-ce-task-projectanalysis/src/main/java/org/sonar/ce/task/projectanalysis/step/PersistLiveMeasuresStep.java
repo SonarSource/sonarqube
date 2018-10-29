@@ -20,8 +20,10 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -38,7 +40,6 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.LiveMeasureComparator;
@@ -84,32 +85,30 @@ public class PersistLiveMeasuresStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String marker = Uuids.create();
       Component root = treeRootHolder.getRoot();
-      MeasureVisitor visitor = new MeasureVisitor(dbSession, marker);
+      MeasureVisitor visitor = new MeasureVisitor(dbSession);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
-      int deleted = dbClient.liveMeasureDao().deleteByProjectUuidExcludingMarker(dbSession, root.getUuid(), marker);
       dbSession.commit();
 
-      context.getStatistics().add("insertsOrUpdates", visitor.total);
-      context.getStatistics().add("deletes", deleted);
+      context.getStatistics().add("insertsOrUpdates", visitor.insertsOrUpdates);
+      context.getStatistics().add("deletes", visitor.deleted);
     }
   }
 
   private class MeasureVisitor extends TypeAwareVisitorAdapter {
     private final DbSession dbSession;
-    private final String marker;
-    private int total = 0;
+    private int insertsOrUpdates = 0;
+    private int deleted = 0;
 
-    private MeasureVisitor(DbSession dbSession, String marker) {
+    private MeasureVisitor(DbSession dbSession) {
       super(CrawlerDepthLimit.LEAVES, PRE_ORDER);
       this.dbSession = dbSession;
-      this.marker = marker;
     }
 
     @Override
     public void visitAny(Component component) {
       LiveMeasureDao dao = dbClient.liveMeasureDao();
+      List<Integer> metricIds = new ArrayList<>();
       Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
       for (Map.Entry<String, Collection<Measure>> measuresByMetricKey : measures.asMap().entrySet()) {
         String metricKey = measuresByMetricKey.getKey();
@@ -125,10 +124,12 @@ public class PersistLiveMeasuresStep implements ComputationStep {
           // To prevent deadlock, live measures are ordered the same way as in LiveMeasureComputerImpl#refreshComponentsOnSameProject
           .sorted(LiveMeasureComparator.INSTANCE)
           .forEach(lm -> {
-            dao.insertOrUpdate(dbSession, lm, marker);
-            total++;
+            dao.insertOrUpdate(dbSession, lm);
+            metricIds.add(metric.getId());
+            insertsOrUpdates++;
           });
       }
+      deleted += dao.deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
     }
   }
 

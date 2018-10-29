@@ -121,4 +121,6 @@ public interface PurgeMapper {
   void deleteBranchByUuid(@Param("uuid") String uuid);
 
   void deleteLiveMeasuresByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteLiveMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 }

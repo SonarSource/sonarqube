@@ -54,15 +54,13 @@ public interface LiveMeasureMapper {
   void insert(
     @Param("dto") LiveMeasureDto dto,
     @Param("uuid") String uuid,
-    @Nullable @Param("marker") String marker,
     @Param("now") long now);
 
   int update(
     @Param("dto") LiveMeasureDto dto,
-    @Nullable @Param("marker") String marker,
     @Param("now") long now);
 
-  int deleteByProjectUuidExcludingMarker(
-    @Param("projectUuid") String projectUuid,
-    @Param("marker") String marker);
+  int deleteByComponentUuidExcludingMetricIds(
+    @Param("componentUuid") String componentUuid,
+    @Param("excludedMetricIds") List<Integer> excludedMetricIds);
 }
