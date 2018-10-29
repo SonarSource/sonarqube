@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.KeyType;
+import org.sonar.db.dialect.Dialect;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -102,6 +103,19 @@ public class LiveMeasureDao implements Dao {
     if (mapper.update(dto, now) == 0) {
       mapper.insert(dto, Uuids.create(), now);
     }
+  }
+
+  /**
+   * Similar to {@link #insertOrUpdate(DbSession, LiveMeasureDto)}, except that:
+   * <ul>
+   * <li>it is batch session friendly (single same statement for both updates and inserts)</li>
+   * <li>it triggers a single SQL request</li>
+   * </ul>
+   * <p>
+   * <strong>This method should not be called unless {@link Dialect#supportsUpsert()} is true</strong>
+   */
+  public int upsert(DbSession dbSession, LiveMeasureDto dto) {
+    return mapper(dbSession).upsert(dto, Uuids.create(), system2.now());
   }
 
   public int deleteByComponentUuidExcludingMetricIds(DbSession dbSession, String componentUuid, List<Integer> excludedMetricIds) {

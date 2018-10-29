@@ -60,6 +60,11 @@ public interface LiveMeasureMapper {
     @Param("dto") LiveMeasureDto dto,
     @Param("now") long now);
 
+  int upsert(
+    @Param("dto") LiveMeasureDto dto,
+    @Param("uuid") String uuid,
+    @Param("now") long now);
+
   int deleteByComponentUuidExcludingMetricIds(
     @Param("componentUuid") String componentUuid,
     @Param("excludedMetricIds") List<Integer> excludedMetricIds);

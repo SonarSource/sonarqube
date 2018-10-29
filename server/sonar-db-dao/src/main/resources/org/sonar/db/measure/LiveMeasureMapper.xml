@@ -99,6 +99,65 @@
     and metric_id = #{dto.metricId, jdbcType=INTEGER}
   </update>
 
+  <update id="upsert" parameterType="map" useGeneratedKeys="false" databaseId="postgresql">
+    insert into live_measures (
+      uuid,
+      component_uuid,
+      project_uuid,
+      metric_id,
+      value,
+      text_value,
+      variation,
+      measure_data,
+      created_at,
+      updated_at
+    ) values (
+      #{uuid, jdbcType=VARCHAR},
+      #{dto.componentUuid, jdbcType=VARCHAR},
+      #{dto.projectUuid, jdbcType=VARCHAR},
+      #{dto.metricId, jdbcType=INTEGER},
+      #{dto.value, jdbcType=DOUBLE},
+      #{dto.textValue, jdbcType=VARCHAR},
+      #{dto.variation, jdbcType=DOUBLE},
+      #{dto.data, jdbcType=BINARY},
+      #{now, jdbcType=BIGINT},
+      #{now, jdbcType=BIGINT}
+    ) on conflict(component_uuid, metric_id) do update set
+      value = excluded.value,
+      variation = excluded.variation,
+      text_value = excluded.text_value,
+      measure_data  = excluded.measure_data,
+      updated_at = excluded.updated_at
+      where
+        <if test="dto.value==null">
+         live_measures.value is not null
+        </if>
+        <if test="dto.value!=null">
+          (live_measures.value is null or live_measures.value != excluded.value)
+        </if>
+        or
+        <if test="dto.textValue==null">
+          live_measures.text_value is not null
+        </if>
+        <if test="dto.textValue!=null">
+          (live_measures.text_value is null or live_measures.text_value != excluded.text_value)
+        </if>
+        or
+        <if test="dto.variation==null">
+          live_measures.variation is not null
+        </if>
+        <if test="dto.variation!=null">
+          (live_measures.variation is null or live_measures.variation != excluded.variation)
+        </if>
+        or
+        <if test="dto.data==null">
+          live_measures.measure_data is not null
+        </if>
+        <if test="dto.data!=null">
+          (live_measures.measure_data is null or live_measures.measure_data != excluded.measure_data)
+        </if>
+  </update>
+
   <delete id="deleteByComponentUuidExcludingMetricIds" parameterType="map">
     <include refid="sql_deleteByComponentUuidExcludingMetricIds"/>
   </delete>

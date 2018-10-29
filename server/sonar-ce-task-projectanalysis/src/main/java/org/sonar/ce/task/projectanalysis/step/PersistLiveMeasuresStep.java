@@ -84,24 +84,25 @@ public class PersistLiveMeasuresStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    boolean supportUpsert = dbClient.getDatabase().getDialect().supportsUpsert();
+    try (DbSession dbSession = dbClient.openSession(supportUpsert)) {
       Component root = treeRootHolder.getRoot();
-      MeasureVisitor visitor = new MeasureVisitor(dbSession);
+      MeasureVisitor visitor = new MeasureVisitor(dbSession, supportUpsert);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
       dbSession.commit();
 
       context.getStatistics().add("insertsOrUpdates", visitor.insertsOrUpdates);
-      context.getStatistics().add("deletes", visitor.deleted);
     }
   }
 
   private class MeasureVisitor extends TypeAwareVisitorAdapter {
     private final DbSession dbSession;
+    private final boolean supportUpsert;
     private int insertsOrUpdates = 0;
-    private int deleted = 0;
 
-    private MeasureVisitor(DbSession dbSession) {
+    private MeasureVisitor(DbSession dbSession, boolean supportUpsert) {
       super(CrawlerDepthLimit.LEAVES, PRE_ORDER);
+      this.supportUpsert = supportUpsert;
       this.dbSession = dbSession;
     }
 
@@ -124,12 +125,19 @@ public class PersistLiveMeasuresStep implements ComputationStep {
           // To prevent deadlock, live measures are ordered the same way as in LiveMeasureComputerImpl#refreshComponentsOnSameProject
           .sorted(LiveMeasureComparator.INSTANCE)
           .forEach(lm -> {
-            dao.insertOrUpdate(dbSession, lm);
+            if (supportUpsert) {
+              dao.upsert(dbSession, lm);
+            } else {
+              dao.insertOrUpdate(dbSession, lm);
+            }
             metricIds.add(metric.getId());
             insertsOrUpdates++;
           });
       }
-      deleted += dao.deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
+      // The measures that no longer exist on the component must be deleted, for example
+      // when the coverage on a file goes to the "best value" 100%.
+      // The measures on deleted components are deleted by the step PurgeDatastoresStep
+      dao.deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
     }
   }
 

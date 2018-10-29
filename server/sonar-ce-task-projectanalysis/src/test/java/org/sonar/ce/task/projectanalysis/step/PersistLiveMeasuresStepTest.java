@@ -111,7 +111,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     assertThat(selectMeasure("module-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("module-value");
     assertThat(selectMeasure("dir-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("dir-value");
     assertThat(selectMeasure("file-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("file-value");
-    verifyStatistics(context, 4, 0);
+    verifyStatistics(context, 4);
   }
 
   @Test
@@ -125,7 +125,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
     assertThatMeasureIsNotPersisted("project-uuid", STRING_METRIC);
     assertThatMeasureIsNotPersisted("project-uuid", INT_METRIC);
-    verifyStatistics(context, 0, 0);
+    verifyStatistics(context, 0);
   }
 
   @Test
@@ -139,7 +139,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     LiveMeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
     assertThat(persistedMeasure.getValue()).isNull();
     assertThat(persistedMeasure.getVariation()).isEqualTo(42.0);
-    verifyStatistics(context, 1, 0);
+    verifyStatistics(context, 1);
   }
 
   @Test
@@ -161,7 +161,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     assertThatMeasureHasValue(measureOnFileInProject, 42);
     assertThatMeasureDoesNotExist(otherMeasureOnFileInProject);
     assertThatMeasureHasValue(measureInOtherProject, (int) measureInOtherProject.getValue().doubleValue());
-    verifyStatistics(context, 1, 1);
+    verifyStatistics(context, 1);
   }
 
   @Test
@@ -181,7 +181,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
     assertThatMeasureDoesNotExist(oldMeasure);
     assertThatMeasureHasValue("project-uuid", METRIC_WITH_BEST_VALUE, 0);
-    verifyStatistics(context, 1, 1);
+    verifyStatistics(context, 1);
   }
 
   @Test
@@ -200,7 +200,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     assertThat(selectMeasure("view-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("view-value");
     assertThat(selectMeasure("subview-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("subview-value");
     assertThat(selectMeasure("project-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("project-value");
-    verifyStatistics(context, 3, 0);
+    verifyStatistics(context, 3);
   }
 
   private LiveMeasureDto insertMeasure(String componentUuid, String projectUuid, Metric metric) {
@@ -299,8 +299,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     return new PersistLiveMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository);
   }
 
-  private static void verifyStatistics(TestComputationStepContext context, int expectedInsertsOrUpdates, int expectedDeletes) {
+  private static void verifyStatistics(TestComputationStepContext context, int expectedInsertsOrUpdates) {
     context.getStatistics().assertValue("insertsOrUpdates", expectedInsertsOrUpdates);
-    context.getStatistics().assertValue("deletes", expectedDeletes);
   }
 }
