@@ -17,7 +17,9 @@ exports[`should not render drilldown for estimated duplications 1`] = `
   >
     <ScreenPositionHelper
       className="layout-page-side-outer"
-    />
+    >
+      <Component />
+    </ScreenPositionHelper>
     <div
       className="layout-page-main"
     >
