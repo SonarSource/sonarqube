@@ -133,19 +133,43 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_tokens_count() {
+  public void return_tokens_count_for_logged_user() {
     UserDto user = db.users().insertUser();
     db.users().insertToken(user);
     db.users().insertToken(user);
     userIndexer.indexOnStartup(null);
+
     userSession.logIn();
+    assertThat(ws.newRequest()
+        .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::hasTokensCount)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
 
-    SearchWsResponse response = ws.newRequest()
-      .executeProtobuf(SearchWsResponse.class);
+    userSession.logIn(user);
+    assertThat(ws.newRequest()
+        .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::getTokensCount)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
+  }
 
-    assertThat(response.getUsersList())
-      .extracting(User::getLogin, User::getTokensCount)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
+  @Test
+  public void return_tokens_count_when_system_administer() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    db.users().insertToken(user);
+    userIndexer.indexOnStartup(null);
+
+    userSession.logIn().setSystemAdministrator();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::getTokensCount)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
+
+    userSession.logIn();
+    assertThat(ws.newRequest()
+        .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::hasTokensCount)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test

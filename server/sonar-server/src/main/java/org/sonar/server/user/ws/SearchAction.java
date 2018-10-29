@@ -92,6 +92,7 @@ public class SearchAction implements UsersWsAction {
     WebService.NewAction action = controller.createAction("search")
       .setDescription("Get a list of active users. <br/>" +
         "Administer System permission is required to show the 'groups' field.<br/>" +
+        "Field 'tokensCount' is only accessible to System Administrator and logged in user.<br/>" +
         "When accessed anonymously, only logins and names are returned.")
       .setSince("3.6")
       .setChangelog(
@@ -152,7 +153,7 @@ public class SearchAction implements UsersWsAction {
       setIfNeeded(FIELD_ACTIVE, fields, user.isActive(), userBuilder::setActive);
       setIfNeeded(FIELD_LOCAL, fields, user.isLocal(), userBuilder::setLocal);
       setIfNeeded(FIELD_EXTERNAL_PROVIDER, fields, user.getExternalIdentityProvider(), userBuilder::setExternalProvider);
-      setIfNeeded(FIELD_TOKENS_COUNT, fields, tokensCount, userBuilder::setTokensCount);
+      setIfNeeded(isNeeded(FIELD_TOKENS_COUNT, fields) && user.getLogin().equals(userSession.getLogin()), tokensCount, userBuilder::setTokensCount);
       setIfNeeded(isNeeded(FIELD_SCM_ACCOUNTS, fields) && !user.getScmAccountsAsList().isEmpty(), user.getScmAccountsAsList(),
         scm -> userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(scm)));
     }
@@ -161,6 +162,7 @@ public class SearchAction implements UsersWsAction {
       setIfNeeded(isNeeded(FIELD_GROUPS, fields) && !groups.isEmpty(), groups,
         g -> userBuilder.setGroups(Groups.newBuilder().addAllGroups(g)));
       setIfNeeded(FIELD_EXTERNAL_IDENTITY, fields, user.getExternalLogin(), userBuilder::setExternalIdentity);
+      setIfNeeded(FIELD_TOKENS_COUNT, fields, tokensCount, userBuilder::setTokensCount);
     }
     return userBuilder.build();
   }
