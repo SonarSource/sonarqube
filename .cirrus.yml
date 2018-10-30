@@ -41,6 +41,8 @@ build_task:
     memory: 10Gb
   gradle_cache:
     folder: ~/.gradle/caches
+  env:
+    CIRRUS_CLONE_DEPTH: 1
   script:
     - ./private/cirrus/cirrus-build.sh
   cleanup_before_cache_script:
@@ -57,6 +59,8 @@ deploy_docs_task:
     namespace: default
     cpu: 1
     memory: 1Gb
+  env:
+    CIRRUS_CLONE_DEPTH: 1
   script:
     - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
@@ -125,6 +129,7 @@ qa_task:
       QA_CATEGORY: Billing
       QA_CATEGORY: License
       QA_CATEGORY: Branch
+    CIRRUS_CLONE_DEPTH: 1
   gradle_cache:
     folder: ~/.gradle/caches
   script:
@@ -146,5 +151,7 @@ promote_task:
     namespace: default
     cpu: 1
     memory: 1Gb
+  env:
+    CIRRUS_CLONE_DEPTH: 1
   script:
     - ./private/cirrus/cirrus-promote.sh
