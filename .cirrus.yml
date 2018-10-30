@@ -74,7 +74,9 @@ validate_task:
     memory: 10Gb
     additional_containers:
       - name: postgres
-        image: postgres:9.3
+        # 9.5 is the version used internally at SonarSource.
+        # The minimal supported version is 9.3 and is tested by nightly QA jobs.
+        image: postgres:9.5
         port: 5432
         cpu: 1
         memory: 1Gb
