@@ -59,7 +59,7 @@ export default class Pricing extends React.PureComponent {
       <div className="global-container">
         <div className="page-wrapper">
           <div className="page-container sc-page">
-            <Helmet title="SonarCloud | Plans and Pricing">
+            <Helmet title="Plans and Pricing | SonarCloud">
               <meta
                 content="Get all the SonarCloud features and functionality for free on your open-source projects. If you need privacy for your code, we have a pricing plan to fit your needs."
                 name="description"
@@ -176,7 +176,7 @@ function PricingFAQ({ getReference }: PricingFAQProps) {
               code to be analyzed in your organization.
               <br />
               <br />
-              Find you max LOC below to see what it will cost you per month:
+              Find your max LOC below to see what it will cost you per month:
             </p>
             <table className="loc-price sc-big-spacer-bottom">
               <thead>

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Helmet from 'react-helmet';
 import SQPageContainer from './components/SQPageContainer';
 import SQStartUsing from './components/SQStartUsing';
 import SQTopNav from './components/SQTopNav';
@@ -30,6 +31,12 @@ export default function BranchAnalysis() {
     <SQPageContainer>
       {({ currentUser }) => (
         <div className="page page-limited sc-page">
+          <Helmet title="Pull requests analysis in Github, BitBucket and Azure DevOps | SonarCloud">
+            <meta
+              content="SonarCloud automatically analyzes branches and decorates pull requests with Github, BitBucket and Azure DevOps."
+              name="description"
+            />
+          </Helmet>
           <SQTopNav />
 
           <div className="sc-child-header">

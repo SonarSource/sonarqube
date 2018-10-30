@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import Helmet from 'react-helmet';
 import LoginButtons from './components/LoginButtons';
 import Pricing from './components/Pricing';
 import SQPageContainer from './components/SQPageContainer';
@@ -32,6 +33,12 @@ export default function SQHome() {
     <SQPageContainer>
       {({ currentUser }) => (
         <div className="page sc-page sc-sq-page">
+          <Helmet title="Use SonarQube as a Service, sign up for SonarCloud | SonarCloud">
+            <meta
+              content="Enhance your workflow with continuous code quality, SonarCloud automatically analyzes and decorates pull requests on GitHub, Bitbucket and Azure DevOps on major languages."
+              name="description"
+            />
+          </Helmet>
           <Jumbotron />
 
           <h2 className="sc-sq-header2">You use the service, we take care of the rest</h2>
@@ -103,7 +110,7 @@ function Features() {
             height="34"
             src={`${getBaseUrl()}/images/sonarcloud/branch-analysis.svg`}
           />
-          <h3 className="sc-feature-title">Branch & pull request analysis</h3>
+          <h3 className="sc-feature-title">Branch &amp; pull request analysis</h3>
           <p className="sc-feature-description">
             SonarCloud comes with a built-in feature to automatically analyze project branches and
             pull requests as soon as they get created.
@@ -138,7 +145,7 @@ function Features() {
 function Languages() {
   return (
     <div className="sc-languages">
-      <h3 className="sc-feature-title">On 17 programming languages</h3>
+      <h3 className="sc-feature-title">On 21 programming languages</h3>
       <ul className="sc-languages-list">
         <li>
           <img
@@ -168,7 +175,7 @@ function Languages() {
           <img
             alt="C#"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/csharp.svg`}
+            src={`${getBaseUrl()}/images/languages/black/c-sharp.svg`}
             width="60"
           />
         </li>
@@ -176,7 +183,7 @@ function Languages() {
           <img
             alt="C++"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/c-c-plus-plus.svg`}
+            src={`${getBaseUrl()}/images/languages/black/c-plus.svg`}
             width="60"
           />
         </li>
@@ -216,9 +223,17 @@ function Languages() {
         </li>
         <li>
           <img
+            alt="Kotlin"
+            height="60"
+            src={`${getBaseUrl()}/images/languages/black/kotlin.svg`}
+            width="60"
+          />
+        </li>
+        <li>
+          <img
             alt="Flex"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/flex@2x.png`}
+            src={`${getBaseUrl()}/images/languages/black/flex.png`}
             width="85"
           />
         </li>
@@ -240,10 +255,18 @@ function Languages() {
         </li>
         <li>
           <img
-            alt="Scala"
+            alt="Ruby"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/scala.svg`}
+            src={`${getBaseUrl()}/images/languages/black/ruby.svg`}
             width="60"
+          />
+        </li>
+        <li>
+          <img
+            alt="Scala"
+            height="57"
+            src={`${getBaseUrl()}/images/languages/black/scala.svg`}
+            width="57"
           />
         </li>
         <li>
@@ -254,6 +277,8 @@ function Languages() {
             width="60"
           />
         </li>
+      </ul>
+      <ul className="sc-languages-list">
         <li>
           <img
             alt="Objective-C"
@@ -266,7 +291,7 @@ function Languages() {
           <img
             alt="T-SQL"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/t-sql.svg`}
+            src={`${getBaseUrl()}/images/languages/black/tsql.svg`}
             width="60"
           />
         </li>
@@ -274,7 +299,7 @@ function Languages() {
           <img
             alt="PL/SQL"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/pl-sql.svg`}
+            src={`${getBaseUrl()}/images/languages/black/plsql.svg`}
             width="60"
           />
         </li>

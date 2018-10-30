@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 import SQPageContainer from './components/SQPageContainer';
 import { isLoggedIn } from '../../../app/types';
@@ -29,6 +30,12 @@ export default function AzureDevOps() {
     <SQPageContainer>
       {({ currentUser }) => (
         <div className="page page-limited sc-page">
+          <Helmet title="Continuous Code Quality in Azure Devops | SonarCloud">
+            <meta
+              content="Enhance Azure DevOps with continuous code quality and automatically analyze branches and decorate pull requests."
+              name="description"
+            />
+          </Helmet>
           <ul className="sc-top-nav">
             <li className="sc-top-nav-item">
               <Link className="sc-top-nav-link" to="/about/sq">

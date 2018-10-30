@@ -372,6 +372,7 @@ a.sc-orange-button {
   height: 44px;
   line-height: 44px;
   box-shadow: none;
+  border-bottom: none !important;
 }
 
 a.sc-orange-button:hover {

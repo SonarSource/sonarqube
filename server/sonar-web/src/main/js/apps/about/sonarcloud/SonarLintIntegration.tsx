@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Helmet from 'react-helmet';
 import SQPageContainer from './components/SQPageContainer';
 import SQStartUsing from './components/SQStartUsing';
 import SQTopNav from './components/SQTopNav';
@@ -30,6 +31,12 @@ export default function SonarLintIntegration() {
     <SQPageContainer>
       {({ currentUser }) => (
         <div className="page page-limited sc-page">
+          <Helmet title="Enhance SonarCloud experience with SonarLint | SonarCloud">
+            <meta
+              content="SonarLint connected teams are efficient, consistent and get more value. Connect SonarCloud with SonarLint and share consistent rulesets and analysis settings in everyone’s IDE."
+              name="description"
+            />
+          </Helmet>
           <SQTopNav />
 
           <div className="sc-child-header">

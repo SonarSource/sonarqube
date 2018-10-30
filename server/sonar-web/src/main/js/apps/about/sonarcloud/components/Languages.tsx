@@ -41,7 +41,7 @@ const LANGUAGES = [
   { name: 'HTML', file: 'html5.svg', width: 40 },
   { name: 'Objective-C', file: 'obj-c.svg', width: 60 },
   { name: 'PHP', file: 'php.svg', width: 57 },
-  { name: 'Scala', file: 'scala.svg', width: 30 },
+  { name: 'Scala', file: 'scala.svg', width: 29 },
   { name: 'Swift', file: 'swift.svg', width: 40 },
   { name: 'T-SQL', file: 't-sql.svg', width: 53 },
   { name: 'PL/SQL', file: 'pl-sql.svg', width: 65 },

@@ -638,7 +638,7 @@ exports[`should render 8`] = `
       Come join the fun, it’s entirely free for open-source projects!
     </h6>
     <div
-      className="sc-big-spacer-bottom"
+      className="sc-spacer-bottom"
     >
       <LoginButtons />
     </div>

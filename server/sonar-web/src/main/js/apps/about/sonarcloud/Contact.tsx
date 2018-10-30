@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet';
 import { Link } from 'react-router';
 import { Location } from 'history';
 import SQPageContainer from './components/SQPageContainer';
@@ -83,6 +84,12 @@ export default class Contact extends React.PureComponent<Props, State> {
       <SQPageContainer>
         {({ currentUser, userOrganizations }) => (
           <div className="page page-limited sc-page sc-contact-page">
+            <Helmet title="Contact Us | SonarCloud">
+              <meta
+                content="If you are looking for help with SonarCloud, our Support forum is the best place to get help."
+                name="description"
+              />
+            </Helmet>
             <h1 className="sc-page-title">Contact us</h1>
             <Alert display="inline" variant="warning">
               If you are looking for help with SonarCloud, our{' '}

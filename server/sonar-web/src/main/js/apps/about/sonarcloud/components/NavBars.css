@@ -94,6 +94,7 @@
   border: 1px solid var(--sonarcloudBlack800);
   padding: 0 10px;
   border-radius: 3px;
+  transition: all 0.2s ease;
 }
 
 .top-navbar ul li.outline a {
@@ -114,6 +115,8 @@
 .top-navbar ul li.outline a:hover,
 .navbar ul li.outline a:hover {
   border-bottom-width: 1px;
+  background: var(--sonarcloudOrange500);
+  color: #fff;
 }
 
 .top-navbar ul li.outline:hover a {
