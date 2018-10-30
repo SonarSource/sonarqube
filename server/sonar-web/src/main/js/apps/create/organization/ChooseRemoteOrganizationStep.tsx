@@ -19,14 +19,21 @@
  */
 import * as React from 'react';
 import { WithRouterProps, withRouter } from 'react-router';
+import { FormattedMessage } from 'react-intl';
 import { sortBy } from 'lodash';
 import { serializeQuery } from './utils';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
+import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Select from '../../../components/controls/Select';
 import Step from '../../tutorials/components/Step';
 import { Alert } from '../../../components/ui/Alert';
 import { SubmitButton } from '../../../components/ui/buttons';
-import { AlmApplication, AlmUnboundApplication } from '../../../app/types';
+import {
+  AlmApplication,
+  AlmOrganization,
+  AlmUnboundApplication,
+  OrganizationBase
+} from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
@@ -34,7 +41,9 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   almApplication: AlmApplication;
   almInstallId?: string;
+  almOrganization?: AlmOrganization;
   almUnboundApplications: AlmUnboundApplication[];
+  boundOrganization?: OrganizationBase;
 }
 
 interface State {
@@ -82,19 +91,58 @@ export class ChooseRemoteOrganizationStep extends React.PureComponent<
   };
 
   renderForm = () => {
-    const { almApplication, almInstallId, almUnboundApplications } = this.props;
+    const {
+      almApplication,
+      almInstallId,
+      almOrganization,
+      almUnboundApplications,
+      boundOrganization
+    } = this.props;
     const { unboundInstallationId } = this.state;
     return (
       <div className="boxed-group-inner">
-        {almInstallId && (
-          <Alert className="markdown big-spacer-bottom width-60" variant="error">
-            {translate('onboarding.import_organization.org_not_found')}
-            <ul>
-              <li>{translate('onboarding.import_organization.org_not_found.tips_1')}</li>
-              <li>{translate('onboarding.import_organization.org_not_found.tips_2')}</li>
-            </ul>
-          </Alert>
-        )}
+        {almInstallId &&
+          !almOrganization && (
+            <Alert className="big-spacer-bottom width-60" variant="error">
+              <div className="markdown">
+                {translate('onboarding.import_organization.org_not_found')}
+                <ul>
+                  <li>{translate('onboarding.import_organization.org_not_found.tips_1')}</li>
+                  <li>{translate('onboarding.import_organization.org_not_found.tips_2')}</li>
+                </ul>
+              </div>
+            </Alert>
+          )}
+        {almOrganization &&
+          boundOrganization && (
+            <Alert className="big-spacer-bottom width-60" variant="error">
+              <FormattedMessage
+                defaultMessage={translate('onboarding.import_organization.already_bound_x')}
+                id="onboarding.import_organization.already_bound_x"
+                values={{
+                  avatar: (
+                    <img
+                      alt={almApplication.name}
+                      className="little-spacer-left"
+                      src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
+                        almApplication.key
+                      )}.svg`}
+                      width={16}
+                    />
+                  ),
+                  name: <strong>{almOrganization.name}</strong>,
+                  boundAvatar: (
+                    <OrganizationAvatar
+                      className="little-spacer-left"
+                      organization={boundOrganization}
+                      small={true}
+                    />
+                  ),
+                  boundName: <strong>{boundOrganization.name}</strong>
+                }}
+              />
+            </Alert>
+          )}
         <div className="display-flex-center">
           <div className="display-inline-block abs-width-400">
             <IdentityProviderLink

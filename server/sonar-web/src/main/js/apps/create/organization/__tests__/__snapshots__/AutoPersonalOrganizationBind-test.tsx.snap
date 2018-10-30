@@ -12,7 +12,7 @@ exports[`should render correctly 1`] = `
     }
   }
 >
-  <p
+  <div
     className="huge-spacer-bottom"
   >
     <FormattedMessage
@@ -44,7 +44,7 @@ exports[`should render correctly 1`] = `
         }
       }
     />
-  </p>
+  </div>
   <OrganizationDetailsForm
     keyReadOnly={true}
     onContinue={[Function]}

@@ -109,6 +109,7 @@ public class OrganizationDto {
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
@@ -118,6 +119,7 @@ public class OrganizationDto {
     return this;
   }
 
+  @CheckForNull
   public String getUrl() {
     return url;
   }
@@ -127,6 +129,7 @@ public class OrganizationDto {
     return this;
   }
 
+  @CheckForNull
   public String getAvatarUrl() {
     return avatarUrl;
   }

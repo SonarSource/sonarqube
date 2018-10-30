@@ -22,7 +22,8 @@ import {
   AlmApplication,
   AlmOrganization,
   AlmRepository,
-  AlmUnboundApplication
+  AlmUnboundApplication,
+  OrganizationBase
 } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
@@ -51,10 +52,20 @@ function fetchAlmOrganization(data: { installationId: string }, remainingTries: 
   );
 }
 
-export function getAlmOrganization(data: { installationId: string }): Promise<AlmOrganization> {
-  return fetchAlmOrganization(data, 5).then(({ organization }) => ({
-    ...organization,
-    name: organization.name || organization.key
+export interface GetAlmOrganizationResponse {
+  almOrganization: AlmOrganization;
+  boundOrganization?: OrganizationBase;
+}
+
+export function getAlmOrganization(data: {
+  installationId: string;
+}): Promise<GetAlmOrganizationResponse> {
+  return fetchAlmOrganization(data, 5).then(({ almOrganization, boundOrganization }) => ({
+    almOrganization: {
+      ...almOrganization,
+      name: almOrganization.name || almOrganization.key
+    },
+    boundOrganization
   }));
 }
 
@@ -64,8 +75,12 @@ export function getRepositories(data: {
   return getJSON('/api/alm_integration/list_repositories', data).catch(throwGlobalError);
 }
 
-export function listUnboundApplications(): Promise<{ applications: AlmUnboundApplication[] }> {
-  return getJSON('/api/alm_integration/list_unbound_applications').catch(throwGlobalError);
+export function listUnboundApplications(): Promise<AlmUnboundApplication[]> {
+  return getJSON('/api/alm_integration/list_unbound_applications').then(
+    ({ applications }) =>
+      applications.map((app: AlmUnboundApplication) => ({ ...app, name: app.name || app.key })),
+    throwGlobalError
+  );
 }
 
 export function provisionProject(data: {

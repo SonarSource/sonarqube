@@ -42,6 +42,7 @@ export interface AlmRepository {
 
 export interface AlmUnboundApplication {
   installationId: string;
+  key: string;
   name: string;
 }
 

@@ -31,7 +31,7 @@ it('should display an alert message', () => {
 });
 
 it('should display unbound installations', () => {
-  const installation = { installationId: '12345', name: 'Foo' };
+  const installation = { installationId: '12345', key: 'foo', name: 'Foo' };
   const push = jest.fn();
   const wrapper = shallowRender({
     almUnboundApplications: [installation],
@@ -45,6 +45,16 @@ it('should display unbound installations', () => {
     pathname: '/create-organization',
     query: { installation_id: installation.installationId } // eslint-disable-line camelcase
   });
+});
+
+it('should display already bound alert message', () => {
+  expect(
+    shallowRender({
+      almInstallId: 'foo',
+      almOrganization: { avatar: 'foo-avatar', key: 'foo', name: 'Foo', personal: false },
+      boundOrganization: { avatar: 'bound-avatar', key: 'bound', name: 'Bound' }
+    }).find('Alert')
+  ).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {}) {

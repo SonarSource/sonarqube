@@ -25,14 +25,12 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -75,7 +73,7 @@ public class OrganizationAlmBindingDaoTest {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
     db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
-    // No binding on other organization
+    // No binding on other installation
     OrganizationDto otherOrganization = db.organizations().insert();
 
     Optional<OrganizationAlmBindingDto> result = underTest.selectByOrganization(db.getSession(), otherOrganization);
@@ -98,6 +96,36 @@ public class OrganizationAlmBindingDaoTest {
         tuple(organizationAlmBinding2.getUuid(), organization2.getUuid()));
 
     assertThat(underTest.selectByOrganizations(db.getSession(), singletonList(organizationNotBound))).isEmpty();
+  }
+
+  @Test
+  public void selectByAlmAppInstall() {
+    OrganizationDto organization = db.organizations().insert();
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
+    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+
+    Optional<OrganizationAlmBindingDto> result = underTest.selectByAlmAppInstall(db.getSession(), almAppInstall);
+
+    assertThat(result.get())
+      .extracting(OrganizationAlmBindingDto::getUuid, OrganizationAlmBindingDto::getOrganizationUuid, OrganizationAlmBindingDto::getAlmAppInstallUuid,
+        OrganizationAlmBindingDto::getUrl, OrganizationAlmBindingDto::getAlm,
+        OrganizationAlmBindingDto::getUserUuid, OrganizationAlmBindingDto::getCreatedAt)
+      .containsExactlyInAnyOrder(dto.getUuid(), organization.getUuid(), dto.getAlmAppInstallUuid(),
+        dto.getUrl(), ALM.GITHUB,
+        dto.getUserUuid(), NOW);
+  }
+
+  @Test
+  public void selectByAlmAppInstall_returns_empty_when_installation_is_not_bound_to_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
+    db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    // No binding on other organization
+    AlmAppInstallDto otherAlmAppInstall = db.alm().insertAlmAppInstall();
+
+    Optional<OrganizationAlmBindingDto> result = underTest.selectByAlmAppInstall(db.getSession(), otherAlmAppInstall);
+
+    assertThat(result).isEmpty();
   }
 
   @Test

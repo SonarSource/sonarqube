@@ -42,6 +42,7 @@ import {
   bindAlmOrganization,
   getAlmAppInfo,
   getAlmOrganization,
+  GetAlmOrganizationResponse,
   listUnboundApplications
 } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
@@ -59,8 +60,7 @@ import { translate } from '../../../helpers/l10n';
 import { get, remove } from '../../../helpers/storage';
 import { slugify } from '../../../helpers/strings';
 import { getOrganizationUrl } from '../../../helpers/urls';
-import { skipOnboarding as skipOnboardingAction } from '../../../store/users';
-import { skipOnboarding } from '../../../api/users';
+import { skipOnboarding } from '../../../store/users';
 import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
 import '../../../app/styles/sonarcloud.css';
@@ -76,7 +76,7 @@ interface Props {
     organization: OrganizationBase & { installationId?: string }
   ) => Promise<Organization>;
   userOrganizations: Organization[];
-  skipOnboardingAction: () => void;
+  skipOnboarding: () => void;
 }
 
 interface State {
@@ -84,6 +84,7 @@ interface State {
   almOrganization?: AlmOrganization;
   almOrgLoading: boolean;
   almUnboundApplications: AlmUnboundApplication[];
+  boundOrganization?: OrganizationBase;
   loading: boolean;
   organization?: Organization;
   subscriptionPlans?: SubscriptionPlan[];
@@ -127,7 +128,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       if (query.almInstallId) {
         this.fetchAlmOrganization(query.almInstallId);
       } else {
-        this.setState({ almOrganization: undefined, loading: true });
+        this.setState({ almOrganization: undefined, boundOrganization: undefined, loading: true });
         this.fetchAlmUnboundApplications().then(this.stopLoading, this.stopLoading);
       }
     }
@@ -136,6 +137,9 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   componentWillUnmount() {
     this.mounted = false;
     document.body.classList.remove('white-page');
+    if (document.documentElement) {
+      document.documentElement.classList.remove('white-page');
+    }
   }
 
   fetchAlmApplication = () => {
@@ -147,14 +151,14 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   };
 
   fetchAlmUnboundApplications = () => {
-    return listUnboundApplications().then(({ applications }) => {
+    return listUnboundApplications().then(almUnboundApplications => {
       if (this.mounted) {
-        this.setState({ almUnboundApplications: applications });
+        this.setState({ almUnboundApplications });
       }
     });
   };
 
-  fetchValidOrgKey = (almOrganization: AlmOrganization) => {
+  setValidOrgKey = (almOrganization: AlmOrganization) => {
     const key = slugify(almOrganization.key);
     const keys = [key, ...times(9, i => `${key}-${i + 1}`)];
     return api
@@ -167,24 +171,31 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
         () => key
       )
       .then(key => {
-        return { ...almOrganization, key };
+        return { almOrganization: { ...almOrganization, key } };
       });
   };
 
   fetchAlmOrganization = (installationId: string) => {
     this.setState({ almOrgLoading: true });
     return getAlmOrganization({ installationId })
-      .then(this.fetchValidOrgKey)
-      .then(almOrganization => {
-        if (this.mounted) {
-          this.setState({ almOrganization, almOrgLoading: false });
+      .then(({ almOrganization, boundOrganization }) => {
+        if (boundOrganization) {
+          return Promise.resolve({ almOrganization, boundOrganization });
         }
+        return this.setValidOrgKey(almOrganization);
       })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ almOrgLoading: false });
+      .then(
+        ({ almOrganization, boundOrganization }: GetAlmOrganizationResponse) => {
+          if (this.mounted) {
+            this.setState({ almOrganization, almOrgLoading: false, boundOrganization });
+          }
+        },
+        () => {
+          if (this.mounted) {
+            this.setState({ almOrgLoading: false });
+          }
         }
-      });
+      );
   };
 
   fetchSubscriptionPlans = () => {
@@ -196,8 +207,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   };
 
   handleOrgCreated = (organization: string, justCreated = true) => {
-    skipOnboarding().catch(() => {});
-    this.props.skipOnboardingAction();
+    this.props.skipOnboarding();
     const redirectProjectTimestamp = get(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP);
     remove(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP);
     if (
@@ -237,7 +247,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   renderContent = (almInstallId?: string, importPersonalOrg?: Organization) => {
     const { currentUser, location } = this.props;
     const { almApplication, almOrganization } = this.state;
-    const state = (location.state || {}) as LocationState;
+    const state: LocationState = location.state || {};
 
     if (importPersonalOrg && almOrganization && almApplication) {
       return (
@@ -287,6 +297,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
             almInstallId={almInstallId}
             almOrganization={almOrganization}
             almUnboundApplications={this.state.almUnboundApplications}
+            boundOrganization={this.state.boundOrganization}
             createOrganization={this.props.createOrganization}
             onOrgCreated={this.handleOrgCreated}
             unboundOrganizations={this.props.userOrganizations.filter(
@@ -392,7 +403,7 @@ const mapDispatchToProps = {
   createOrganization: createOrganization as any,
   deleteOrganization: deleteOrganization as any,
   updateOrganization: updateOrganization as any,
-  skipOnboardingAction: skipOnboardingAction as any
+  skipOnboarding: skipOnboarding as any
 };
 
 export default whenLoggedIn(

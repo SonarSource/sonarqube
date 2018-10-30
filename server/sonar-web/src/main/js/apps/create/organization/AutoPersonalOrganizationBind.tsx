@@ -45,20 +45,16 @@ interface Props {
 
 export default class AutoPersonalOrganizationBind extends React.PureComponent<Props> {
   handleCreateOrganization = (organization: Required<OrganizationBase>) => {
-    if (organization) {
-      return this.props
-        .updateOrganization({
-          avatar: organization.avatar,
-          description: organization.description,
-          installationId: this.props.almInstallId,
-          key: this.props.importPersonalOrg.key,
-          name: organization.name || organization.key,
-          url: organization.url
-        })
-        .then(({ key }) => this.props.onOrgCreated(key));
-    } else {
-      return Promise.reject();
-    }
+    return this.props
+      .updateOrganization({
+        avatar: organization.avatar,
+        description: organization.description,
+        installationId: this.props.almInstallId,
+        key: this.props.importPersonalOrg.key,
+        name: organization.name || organization.key,
+        url: organization.url
+      })
+      .then(({ key }) => this.props.onOrgCreated(key));
   };
 
   render() {
@@ -69,7 +65,7 @@ export default class AutoPersonalOrganizationBind extends React.PureComponent<Pr
         onOpen={() => {}}
         open={true}
         organization={importPersonalOrg}>
-        <p className="huge-spacer-bottom">
+        <div className="huge-spacer-bottom">
           <FormattedMessage
             defaultMessage={translate('onboarding.import_personal_organization_x')}
             id="onboarding.import_personal_organization_x"
@@ -89,7 +85,7 @@ export default class AutoPersonalOrganizationBind extends React.PureComponent<Pr
               personalName: importPersonalOrg && <strong>{importPersonalOrg.name}</strong>
             }}
           />
-        </p>
+        </div>
         <OrganizationDetailsForm
           keyReadOnly={true}
           onContinue={this.handleCreateOrganization}

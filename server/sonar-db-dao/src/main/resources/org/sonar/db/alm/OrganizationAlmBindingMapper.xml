@@ -26,12 +26,21 @@
     select
     <include refid="columns"/>
     from
-    organization_alm_bindings
+      organization_alm_bindings
     where
-    organization_uuid in
-    <foreach collection="organizationUuids" open="(" close=")" item="organizationUuid" separator=",">
-      #{organizationUuid , jdbcType=VARCHAR}
-    </foreach>
+      organization_uuid in
+      <foreach collection="organizationUuids" open="(" close=")" item="organizationUuid" separator=",">
+        #{organizationUuid , jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
+  <select id="selectByInstallationUuid" parameterType="String" resultType="org.sonar.db.alm.OrganizationAlmBindingDto">
+    select
+    <include refid="columns"/>
+    from
+      organization_alm_bindings
+    where
+      alm_app_install_uuid = #{installationUuid, jdbcType=VARCHAR}
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">

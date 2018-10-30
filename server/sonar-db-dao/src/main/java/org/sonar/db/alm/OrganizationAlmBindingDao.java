@@ -29,6 +29,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class OrganizationAlmBindingDao implements Dao {
@@ -42,12 +43,16 @@ public class OrganizationAlmBindingDao implements Dao {
   }
 
   public Optional<OrganizationAlmBindingDto> selectByOrganization(DbSession dbSession, OrganizationDto organization) {
-    return Optional.ofNullable(getMapper(dbSession).selectByOrganizationUuid(organization.getUuid()));
+    return ofNullable(getMapper(dbSession).selectByOrganizationUuid(organization.getUuid()));
   }
 
   public List<OrganizationAlmBindingDto> selectByOrganizations(DbSession dbSession, Collection<OrganizationDto> organizations) {
     return executeLargeInputs(organizations.stream().map(OrganizationDto::getUuid).collect(MoreCollectors.toSet()),
       organizationUuids -> getMapper(dbSession).selectByOrganizationUuids(organizationUuids));
+  }
+
+  public Optional<OrganizationAlmBindingDto> selectByAlmAppInstall(DbSession dbSession, AlmAppInstallDto almAppInstall) {
+    return ofNullable(getMapper(dbSession).selectByInstallationUuid(almAppInstall.getUuid()));
   }
 
   public void insert(DbSession dbSession, OrganizationDto organization, AlmAppInstallDto almAppInstall, String url, String userUuid) {

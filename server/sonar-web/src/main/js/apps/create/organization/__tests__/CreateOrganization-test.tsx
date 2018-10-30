@@ -50,14 +50,16 @@ jest.mock('../../../../api/alm-integration', () => ({
     }
   }),
   getAlmOrganization: jest.fn().mockResolvedValue({
-    avatar: 'my-avatar',
-    description: 'Continuous Code Quality',
-    key: 'sonarsource',
-    name: 'SonarSource',
-    personal: false,
-    url: 'https://www.sonarsource.com'
+    almOrganization: {
+      avatar: 'my-avatar',
+      description: 'Continuous Code Quality',
+      key: 'sonarsource',
+      name: 'SonarSource',
+      personal: false,
+      url: 'https://www.sonarsource.com'
+    }
   }),
-  listUnboundApplications: jest.fn().mockResolvedValue({ applications: [] })
+  listUnboundApplications: jest.fn().mockResolvedValue([])
 }));
 
 jest.mock('../../../../api/organizations', () => ({
@@ -127,10 +129,12 @@ it('should render with auto tab selected and manual disabled', async () => {
 
 it('should render with auto personal organization bind page', async () => {
   (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
-    key: 'foo',
-    name: 'Foo',
-    avatar: 'my-avatar',
-    personal: true
+    almOrganization: {
+      key: 'foo',
+      name: 'Foo',
+      avatar: 'my-avatar',
+      personal: true
+    }
   });
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github', personalOrganization: 'foo' },
@@ -143,10 +147,12 @@ it('should render with auto personal organization bind page', async () => {
 
 it('should slugify and find a uniq organization key', async () => {
   (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
-    avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
-    key: 'Foo&Bar',
-    name: 'Foo & Bar',
-    personal: true
+    almOrganization: {
+      avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+      key: 'Foo&Bar',
+      name: 'Foo & Bar',
+      personal: true
+    }
   });
   (getOrganizations as jest.Mock<any>).mockResolvedValueOnce({
     organizations: [{ key: 'foo-and-bar' }, { key: 'foo-and-bar-1' }]
@@ -246,7 +252,7 @@ function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
       // @ts-ignore avoid passing everything from WithRouterProps
       location={{}}
       router={mockRouter()}
-      skipOnboardingAction={jest.fn()}
+      skipOnboarding={jest.fn()}
       updateOrganization={jest.fn()}
       userOrganizations={[
         { actions: { admin: true }, key: 'foo', name: 'Foo' },

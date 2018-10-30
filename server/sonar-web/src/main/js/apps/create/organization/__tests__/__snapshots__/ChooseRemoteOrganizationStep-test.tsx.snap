@@ -1,19 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display an alert message 1`] = `
+exports[`should display already bound alert message 1`] = `
 <Alert
-  className="markdown big-spacer-bottom width-60"
+  className="big-spacer-bottom width-60"
   variant="error"
 >
-  onboarding.import_organization.org_not_found
-  <ul>
-    <li>
-      onboarding.import_organization.org_not_found.tips_1
-    </li>
-    <li>
-      onboarding.import_organization.org_not_found.tips_2
-    </li>
-  </ul>
+  <FormattedMessage
+    defaultMessage="onboarding.import_organization.already_bound_x"
+    id="onboarding.import_organization.already_bound_x"
+    values={
+      Object {
+        "avatar": <img
+          alt="GitHub"
+          className="little-spacer-left"
+          src="/images/sonarcloud/github.svg"
+          width={16}
+        />,
+        "boundAvatar": <OrganizationAvatar
+          className="little-spacer-left"
+          organization={
+            Object {
+              "avatar": "bound-avatar",
+              "key": "bound",
+              "name": "Bound",
+            }
+          }
+          small={true}
+        />,
+        "boundName": <strong>
+          Bound
+        </strong>,
+        "name": <strong>
+          Foo
+        </strong>,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`should display an alert message 1`] = `
+<Alert
+  className="big-spacer-bottom width-60"
+  variant="error"
+>
+  <div
+    className="markdown"
+  >
+    onboarding.import_organization.org_not_found
+    <ul>
+      <li>
+        onboarding.import_organization.org_not_found.tips_1
+      </li>
+      <li>
+        onboarding.import_organization.org_not_found.tips_2
+      </li>
+    </ul>
+  </div>
 </Alert>
 `;
 
@@ -103,6 +146,7 @@ exports[`should display unbound installations 1`] = `
                   Array [
                     Object {
                       "installationId": "12345",
+                      "key": "foo",
                       "name": "Foo",
                     },
                   ]

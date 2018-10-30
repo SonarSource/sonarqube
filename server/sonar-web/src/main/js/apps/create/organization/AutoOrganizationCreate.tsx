@@ -38,8 +38,7 @@ import { getBaseUrl } from '../../../helpers/urls';
 
 export enum Filters {
   Bind = 'bind',
-  Create = 'create',
-  None = 'none'
+  Create = 'create'
 }
 
 interface Props {
@@ -47,6 +46,7 @@ interface Props {
   almInstallId?: string;
   almOrganization?: AlmOrganization;
   almUnboundApplications: AlmUnboundApplication[];
+  boundOrganization?: OrganizationBase;
   createOrganization: (
     organization: OrganizationBase & { installationId?: string }
   ) => Promise<Organization>;
@@ -55,14 +55,14 @@ interface Props {
 }
 
 interface State {
-  filter: Filters;
+  filter?: Filters;
 }
 
 export default class AutoOrganizationCreate extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      filter: props.unboundOrganizations.length === 0 ? Filters.Create : Filters.None
+      filter: props.unboundOrganizations.length === 0 ? Filters.Create : undefined
     };
   }
 
@@ -71,19 +71,16 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
   };
 
   handleCreateOrganization = (organization: Required<OrganizationBase>) => {
-    if (organization) {
-      return this.props
-        .createOrganization({
-          avatar: organization.avatar,
-          description: organization.description,
-          installationId: this.props.almInstallId,
-          key: organization.key,
-          name: organization.name || organization.key,
-          url: organization.url
-        })
-        .then(({ key }) => this.props.onOrgCreated(key));
-    }
-    return Promise.reject();
+    return this.props
+      .createOrganization({
+        avatar: organization.avatar,
+        description: organization.description,
+        installationId: this.props.almInstallId,
+        key: organization.key,
+        name: organization.name || organization.key,
+        url: organization.url
+      })
+      .then(({ key }) => this.props.onOrgCreated(key));
   };
 
   handleBindOrganization = (organization: string) => {
@@ -97,8 +94,14 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
   };
 
   render() {
-    const { almApplication, almInstallId, almOrganization, unboundOrganizations } = this.props;
-    if (almInstallId && almOrganization) {
+    const {
+      almApplication,
+      almInstallId,
+      almOrganization,
+      boundOrganization,
+      unboundOrganizations
+    } = this.props;
+    if (almInstallId && almOrganization && !boundOrganization) {
       const { filter } = this.state;
       const hasUnboundOrgs = unboundOrganizations.length > 0;
       return (
@@ -168,7 +171,9 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
       <ChooseRemoteOrganizationStep
         almApplication={this.props.almApplication}
         almInstallId={almInstallId}
+        almOrganization={almOrganization}
         almUnboundApplications={this.props.almUnboundApplications}
+        boundOrganization={boundOrganization}
       />
     );
   }
