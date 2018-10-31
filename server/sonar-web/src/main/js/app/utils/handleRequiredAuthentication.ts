@@ -22,8 +22,5 @@ import getHistory from './getHistory';
 export default function handleRequiredAuthentication() {
   const history = getHistory();
   const returnTo = window.location.pathname + window.location.search + window.location.hash;
-  history.replace({
-    pathname: '/sessions/new',
-    query: { return_to: returnTo } // eslint-disable-line camelcase
-  });
+  history.replace({ pathname: '/sessions/new', query: { return_to: returnTo } });
 }

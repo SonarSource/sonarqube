@@ -25,7 +25,6 @@ import { Visibility } from '../../../../app/types';
 it('renders', () => {
   const project1 = {
     key: 'foo',
-    // eslint-disable-next-line camelcase
     measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734', security_rating: '2' },
     name: 'Foo',
     tags: [],

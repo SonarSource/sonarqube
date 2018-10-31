@@ -35,7 +35,7 @@ interface Props {
 const METRIC_RATING: { [x: string]: string } = {
   bugs: 'reliability_rating',
   vulnerabilities: 'security_rating',
-  code_smells: 'sqale_rating' // eslint-disable-line camelcase
+  code_smells: 'sqale_rating'
 };
 
 export default function GraphsTooltipsContentIssues(props: Props) {

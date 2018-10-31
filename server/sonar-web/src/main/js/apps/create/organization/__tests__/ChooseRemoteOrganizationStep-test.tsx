@@ -43,7 +43,7 @@ it('should display unbound installations', () => {
   submit(wrapper.find('form'));
   expect(push).toHaveBeenCalledWith({
     pathname: '/create-organization',
-    query: { installation_id: installation.installationId } // eslint-disable-line camelcase
+    query: { installation_id: installation.installationId }
   });
 });
 

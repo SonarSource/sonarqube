@@ -83,9 +83,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
     updateRule({
       key: this.props.ruleDetails.key,
-      /* eslint-disable camelcase */
       markdown_note: text,
-      /* eslint-enable camelcase*/
       organization: this.props.organization
     }).then(
       ruleDetails => {

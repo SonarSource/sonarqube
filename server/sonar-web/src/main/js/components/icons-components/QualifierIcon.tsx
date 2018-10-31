@@ -34,7 +34,6 @@ const qualifierIcons: { [x: string]: (props: IconProps) => React.ReactElement<an
 
   // deprecated:
   cla: UnitTestIcon,
-  // eslint-disable-next-line camelcase
   dev_prj: ProjectIcon,
   lib: LibraryIcon,
   pac: DirectoryIcon

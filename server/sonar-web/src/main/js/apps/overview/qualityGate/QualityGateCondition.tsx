@@ -97,7 +97,6 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     const metricKey = condition.measure.metric.key;
 
-    /* eslint-disable camelcase */
     const RATING_METRICS_MAPPING: { [metric: string]: [string, boolean] } = {
       reliability_rating: [IssueType.Bug, false],
       new_reliability_rating: [IssueType.Bug, true],
@@ -106,7 +105,6 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       sqale_rating: [IssueType.CodeSmell, false],
       new_maintainability_rating: [IssueType.CodeSmell, true]
     };
-    /* eslint-enable camelcase */
 
     return RATING_METRICS_MAPPING[metricKey] ? (
       <Link className={className} to={this.getUrlForType(...RATING_METRICS_MAPPING[metricKey])}>

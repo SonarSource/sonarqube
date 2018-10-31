@@ -87,7 +87,6 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   }
 
   prepareRequest = () => {
-    /* eslint-disable camelcase */
     const { customRule, organization, templateRule } = this.props;
     const params = Object.keys(this.state.params)
       .map(key => `${key}=${csvEscape(this.state.params[key])}`)
@@ -109,7 +108,6 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           template_key: templateRule.key,
           type: this.state.type
         });
-    /* eslint-enable camelcase */
   };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {

@@ -211,7 +211,7 @@ export function getDeprecatedActiveRulesUrl(
 }
 
 export function getRuleUrl(rule: string, organization: string | undefined) {
-  return getRulesUrl({ open: rule, rule_key: rule }, organization); // eslint-disable-line camelcase
+  return getRulesUrl({ open: rule, rule_key: rule }, organization);
 }
 
 export function getMarkdownHelpUrl(): string {

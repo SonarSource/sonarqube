@@ -31,10 +31,7 @@ interface OwnProps {
   location: {
     hash?: string;
     pathName: string;
-    query: {
-      advanced?: string;
-      return_to?: string; // eslint-disable-line camelcase
-    };
+    query: { advanced?: string; return_to?: string };
   };
 }
 

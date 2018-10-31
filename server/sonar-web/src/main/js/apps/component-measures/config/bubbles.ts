@@ -46,7 +46,6 @@ export const bubbles: {
   },
   Coverage: { x: 'complexity', y: 'coverage', size: 'uncovered_lines', yDomain: [100, 0] },
   Duplications: { x: 'ncloc', y: 'duplicated_lines', size: 'duplicated_blocks' },
-  // eslint-disable-next-line camelcase
   project_overview: {
     x: 'sqale_index',
     y: 'coverage',

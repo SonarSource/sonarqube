@@ -280,11 +280,11 @@ export function serializeQuery(query: Query): RawQuery {
 export function serializeUrlQuery(query: Query): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
-    custom_metrics: serializeStringArray(query.customMetrics), // eslint-disable-line camelcase
+    custom_metrics: serializeStringArray(query.customMetrics),
     from: serializeDate(query.from),
     graph: serializeGraph(query.graph),
     id: serializeString(query.project),
     to: serializeDate(query.to),
-    selected_date: serializeDate(query.selectedDate) // eslint-disable-line camelcase
+    selected_date: serializeDate(query.selectedDate)
   });
 }

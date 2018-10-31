@@ -117,7 +117,7 @@ it('should render with auto tab displayed', async () => {
 it('should render with auto tab selected and manual disabled', async () => {
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github' },
-    location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
+    location: { query: { installation_id: 'foo' } } as Location
   });
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
@@ -138,7 +138,7 @@ it('should render with auto personal organization bind page', async () => {
   });
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github', personalOrganization: 'foo' },
-    location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
+    location: { query: { installation_id: 'foo' } } as Location
   });
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
@@ -159,7 +159,7 @@ it('should slugify and find a uniq organization key', async () => {
   });
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github' },
-    location: { query: { installation_id: 'foo' } } as Location // eslint-disable-line camelcase
+    location: { query: { installation_id: 'foo' } } as Location
   });
   await waitAndUpdate(wrapper);
   expect(getOrganizations).toHaveBeenCalledWith({
@@ -194,7 +194,7 @@ it('should reload the alm organization when the url query changes', async () => 
   const wrapper = shallowRender({ currentUser: { ...user, externalProvider: 'github' } });
   await waitAndUpdate(wrapper);
   expect(getAlmOrganization).not.toHaveBeenCalled();
-  wrapper.setProps({ location: { query: { installation_id: 'foo' } } }); // eslint-disable-line camelcase
+  wrapper.setProps({ location: { query: { installation_id: 'foo' } } });
   expect(getAlmOrganization).toHaveBeenCalledWith({ installationId: 'foo' });
   wrapper.setProps({ location: { query: {} } });
   expect(wrapper.state('almOrganization')).toBeUndefined();

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable camelcase */
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardLeak from '../ProjectCardLeak';
@@ -28,7 +27,6 @@ jest.mock(
   () => () => 1000 * 60 * 60 * 24 * 30 * 8 // ~ 8 months
 );
 
-/* eslint-disable camelcase */
 const MEASURES = {
   alert_status: 'OK',
   reliability_rating: '1.0',

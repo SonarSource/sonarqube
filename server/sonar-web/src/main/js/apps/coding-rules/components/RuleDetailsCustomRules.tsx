@@ -65,9 +65,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     searchRules({
       f: 'name,severity,params',
       organization: this.props.organization,
-      /* eslint-disable camelcase */
       template_key: this.props.ruleDetails.key
-      /* eslint-enable camelcase */
     }).then(
       ({ rules }) => {
         if (this.mounted) {

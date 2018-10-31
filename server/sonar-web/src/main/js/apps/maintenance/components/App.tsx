@@ -31,7 +31,6 @@ import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
 interface Props {
-  // eslint-disable-next-line camelcase
   location: { query: { return_to?: string } };
   setup: boolean;
 }

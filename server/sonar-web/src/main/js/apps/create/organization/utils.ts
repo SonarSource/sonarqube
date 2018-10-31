@@ -59,7 +59,6 @@ export const parseQuery = memoize(
 
 export const serializeQuery = (query: Query): RawQuery =>
   cleanQuery({
-    // eslint-disable-next-line camelcase
     installation_id: isGithub(query.almKey) ? serializeString(query.almInstallId) : undefined,
     clientKey: isBitbucket(query.almKey) ? serializeString(query.almInstallId) : undefined
   });

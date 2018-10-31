@@ -50,7 +50,6 @@ export default class RuleFacet extends React.PureComponent<Props> {
       p: page,
       ps: 30,
       s: 'name',
-      // eslint-disable-next-line camelcase
       include_external: true
     }).then(response => ({
       paging: { pageIndex: response.p, pageSize: response.ps, total: response.total },

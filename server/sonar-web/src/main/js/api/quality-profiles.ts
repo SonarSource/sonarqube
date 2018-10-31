@@ -242,7 +242,6 @@ export function removeGroup(parameters: AddRemoveGroupParameters): Promise<void 
 }
 
 export interface BulkActivateParameters {
-  /* eslint-disable camelcase */
   activation?: boolean;
   active_severities?: string;
   asc?: boolean;
@@ -264,7 +263,6 @@ export interface BulkActivateParameters {
   targetSeverity?: string;
   template_key?: string;
   types?: string;
-  /* eslint-enable camelcase */
 }
 
 export function bulkActivateRules(data: BulkActivateParameters) {

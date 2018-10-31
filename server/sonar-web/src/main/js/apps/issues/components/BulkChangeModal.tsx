@@ -202,7 +202,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    /* eslint-disable camelcase */
+
     const query = pickBy(
       {
         add_tags: this.state.addTags && this.state.addTags.map(t => t.value).join(),
@@ -216,7 +216,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       },
       x => x !== undefined
     );
-    /* eslint-enable camelcase */
+
     const issueKeys = this.state.issues.map(issue => issue.key);
 
     this.setState({ submitting: true });

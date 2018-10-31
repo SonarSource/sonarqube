@@ -27,7 +27,6 @@ export default class MigrationContainer extends React.PureComponent<WithRouterPr
       this.props.router.push({
         pathname: '/maintenance',
         query: {
-          // eslint-disable-next-line camelcase
           return_to: window.location.pathname + window.location.search + window.location.hash
         }
       });

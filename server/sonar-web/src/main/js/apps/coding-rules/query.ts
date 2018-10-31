@@ -93,7 +93,6 @@ export function parseQuery(query: RawQuery): Query {
 }
 
 export function serializeQuery(query: Query): RawQuery {
-  /* eslint-disable camelcase */
   return cleanQuery({
     activation: serializeOptionalBoolean(query.activation),
     active_severities: serializeStringArray(query.activationSeverities),
@@ -111,7 +110,6 @@ export function serializeQuery(query: Query): RawQuery {
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types)
   });
-  /* eslint-enable camelcase */
 }
 
 export function areQueriesEqual(a: RawQuery, b: RawQuery) {

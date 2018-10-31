@@ -21,7 +21,6 @@ import * as React from 'react';
 import App from './App';
 
 interface Props {
-  // eslint-disable-next-line camelcase
   location: { query: { return_to: string } };
 }
 
