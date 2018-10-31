@@ -9,7 +9,7 @@ _High Availability is a feature of the [Data Center Edition](https://redirect.so
 
 ## Table of Contents
 
-Once the the [SonarQube cluster is installed](/setup/operate-cluster/), you have a High Availability configuration that will allow your SonarQube instance to stay up and running even if there is a crash or failure in one of the nodes of the cluster.
+Once the the [SonarQube cluster is installed](/setup/install-cluster/), you have a High Availability configuration that will allow your SonarQube instance to stay up and running even if there is a crash or failure in one of the nodes of the cluster.
 
 ## Start/Stop/Upgrade the Cluster
 ### Start the Cluster
