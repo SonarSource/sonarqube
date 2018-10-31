@@ -105,7 +105,7 @@ export function ComponentNavMeta({
               <a
                 className="display-inline-flex-center big-spacer-right"
                 href={branchLike.url}
-                rel="nofollow"
+                rel="noopener noreferrer"
                 target="_blank">
                 {translate('branches.see_the_pr')}
                 <DetachIcon className="little-spacer-left" size={12} />
@@ -116,7 +116,11 @@ export function ComponentNavMeta({
             branchMeasures.length > 0 && (
               <>
                 <span className="vertical-separator" />
-                <BranchMeasures measures={branchMeasures} />
+                <BranchMeasures
+                  branchLike={branchLike}
+                  componentKey={component.key}
+                  measures={branchMeasures}
+                />
               </>
             )}
         </div>

@@ -25,7 +25,7 @@ import './DuplicationsRating.css';
 interface Props {
   muted?: boolean;
   size?: 'small' | 'normal' | 'big' | 'huge';
-  value: number;
+  value: number | null | undefined;
 }
 
 export default function DuplicationsRating({ muted = false, size = 'normal', value }: Props) {
@@ -33,12 +33,12 @@ export default function DuplicationsRating({ muted = false, size = 'normal', val
     'duplications-rating-small': size === 'small',
     'duplications-rating-big': size === 'big',
     'duplications-rating-huge': size === 'huge',
-    'duplications-rating-muted': muted,
-    'duplications-rating-A': inRange(value, 0, 3),
-    'duplications-rating-B': inRange(value, 3, 5),
-    'duplications-rating-C': inRange(value, 5, 10),
-    'duplications-rating-D': inRange(value, 10, 20),
-    'duplications-rating-E': value >= 20
+    'duplications-rating-muted': muted || value == null || isNaN(value),
+    'duplications-rating-A': inRange(value || 0, 0, 3),
+    'duplications-rating-B': inRange(value || 0, 3, 5),
+    'duplications-rating-C': inRange(value || 0, 5, 10),
+    'duplications-rating-D': inRange(value || 0, 10, 20),
+    'duplications-rating-E': (value || 0) >= 20
   });
 
   return <div className={className} />;

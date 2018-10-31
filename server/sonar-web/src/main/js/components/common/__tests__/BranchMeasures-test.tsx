@@ -20,34 +20,47 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchMeasures, { BranchCoverage, BranchDuplications } from '../BranchMeasures';
+import { PullRequest } from '../../../app/types';
 
 const MEASURES = [
   { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
   { metric: 'new_duplicated_lines_density', periods: [{ index: 1, value: '3.5' }] }
 ];
 
+const pr: PullRequest = { base: 'master', branch: 'feature-x', key: '5', title: '' };
+
 describe('BranchMeasures', () => {
   it('should render coverage and duplications', () => {
-    expect(shallow(<BranchMeasures measures={MEASURES} />)).toMatchSnapshot();
+    expect(
+      shallow(<BranchMeasures branchLike={pr} componentKey="foo" measures={MEASURES} />)
+    ).toMatchSnapshot();
   });
 
   it('should render correctly when coverage is missing', () => {
-    expect(shallow(<BranchMeasures measures={[MEASURES[1]]} />)).toMatchSnapshot();
+    expect(
+      shallow(<BranchMeasures branchLike={pr} componentKey="foo" measures={[MEASURES[1]]} />)
+    ).toMatchSnapshot();
   });
 
   it('should not render anything', () => {
-    expect(shallow(<BranchMeasures measures={[]} />).type()).toBeNull();
+    expect(
+      shallow(<BranchMeasures branchLike={pr} componentKey="foo" measures={[]} />).type()
+    ).toBeNull();
   });
 });
 
 describe('BranchCoverage', () => {
   it('should render correctly', () => {
-    expect(shallow(<BranchCoverage measure={MEASURES[0]} />)).toMatchSnapshot();
+    expect(
+      shallow(<BranchCoverage branchLike={pr} componentKey="foo" measure={MEASURES[0]} />)
+    ).toMatchSnapshot();
   });
 });
 
 describe('BranchDuplications', () => {
   it('should render correctly', () => {
-    expect(shallow(<BranchDuplications measure={MEASURES[1]} />)).toMatchSnapshot();
+    expect(
+      shallow(<BranchDuplications branchLike={pr} componentKey="foo" measure={MEASURES[1]} />)
+    ).toMatchSnapshot();
   });
 });

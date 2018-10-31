@@ -15,7 +15,32 @@ exports[`BranchCoverage should render correctly 1`] = `
   </span>
   <HelpTooltip
     className="little-spacer-left"
-    overlay="branches.measures.new_coverage.help"
+    overlay={
+      <FormattedMessage
+        defaultMessage="branches.measures.new_coverage.help"
+        id="branches.measures.new_coverage.help"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/component_measures",
+                  "query": Object {
+                    "id": "foo",
+                    "metric": "new_coverage",
+                    "pullRequest": "5",
+                  },
+                }
+              }
+            >
+              layout.measures
+            </Link>,
+          }
+        }
+      />
+    }
   />
 </div>
 `;
@@ -35,7 +60,32 @@ exports[`BranchDuplications should render correctly 1`] = `
   </span>
   <HelpTooltip
     className="little-spacer-left"
-    overlay="branches.measures.new_duplicated_lines_density.help"
+    overlay={
+      <FormattedMessage
+        defaultMessage="branches.measures.new_duplicated_lines_density.help"
+        id="branches.measures.new_duplicated_lines_density.help"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/component_measures",
+                  "query": Object {
+                    "id": "foo",
+                    "metric": "new_duplicated_lines_density",
+                    "pullRequest": "5",
+                  },
+                }
+              }
+            >
+              layout.measures
+            </Link>,
+          }
+        }
+      />
+    }
   />
 </div>
 `;
@@ -44,8 +94,28 @@ exports[`BranchMeasures should render correctly when coverage is missing 1`] = `
 <div
   className="display-inline-flex-center"
 >
+  <BranchCoverage
+    branchLike={
+      Object {
+        "base": "master",
+        "branch": "feature-x",
+        "key": "5",
+        "title": "",
+      }
+    }
+    componentKey="foo"
+  />
   <BranchDuplications
-    className=""
+    branchLike={
+      Object {
+        "base": "master",
+        "branch": "feature-x",
+        "key": "5",
+        "title": "",
+      }
+    }
+    className="big-spacer-left"
+    componentKey="foo"
     measure={
       Object {
         "metric": "new_duplicated_lines_density",
@@ -66,6 +136,15 @@ exports[`BranchMeasures should render coverage and duplications 1`] = `
   className="display-inline-flex-center"
 >
   <BranchCoverage
+    branchLike={
+      Object {
+        "base": "master",
+        "branch": "feature-x",
+        "key": "5",
+        "title": "",
+      }
+    }
+    componentKey="foo"
     measure={
       Object {
         "metric": "new_coverage",
@@ -80,7 +159,16 @@ exports[`BranchMeasures should render coverage and duplications 1`] = `
     }
   />
   <BranchDuplications
+    branchLike={
+      Object {
+        "base": "master",
+        "branch": "feature-x",
+        "key": "5",
+        "title": "",
+      }
+    }
     className="big-spacer-left"
+    componentKey="foo"
     measure={
       Object {
         "metric": "new_duplicated_lines_density",
