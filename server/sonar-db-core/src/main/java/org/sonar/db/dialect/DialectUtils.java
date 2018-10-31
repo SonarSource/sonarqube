@@ -19,15 +19,17 @@
  */
 package org.sonar.db.dialect;
 
-import java.util.Arrays;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 
 public final class DialectUtils {
 
-  private static final Dialect[] DIALECTS = new Dialect[] {new H2(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
+  private static final Set<Supplier<Dialect>> DIALECTS = ImmutableSet.of(H2::new, MySql::new, Oracle::new, PostgreSql::new, MsSql::new);
 
   private DialectUtils() {
     // only static stuff
@@ -48,7 +50,8 @@ public final class DialectUtils {
   }
 
   private static Optional<Dialect> findDialect(Predicate<Dialect> predicate) {
-    return Arrays.stream(DIALECTS)
+    return DIALECTS.stream()
+      .map(Supplier::get)
       .filter(predicate)
       .findFirst();
   }
