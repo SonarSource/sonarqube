@@ -84,6 +84,11 @@ yarn jest
 
 This will run the broken link test and stop at the first broken link it finds. Continue running this iteratively until it passes.
 
+## Committing
+**Always start your commit message with "DOCS".**
+
+The convention is to start commit messages with the ticket number the changes are for. Since docs changes are often made without tickets, use "DOCS" instead.
+
 ## Navigation trees
 Controlling the navigation trees of the tree instances is covered in [static/README.md](static)
 
