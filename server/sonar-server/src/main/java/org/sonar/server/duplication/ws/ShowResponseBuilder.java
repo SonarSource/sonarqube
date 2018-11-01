@@ -21,6 +21,7 @@ package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +41,6 @@ import static org.sonar.core.util.Protobuf.setNullable;
 public class ShowResponseBuilder {
 
   private final ComponentDao componentDao;
-  private final Map<String, Reference> refByComponentKey = new HashMap<>();
 
   public ShowResponseBuilder(DbClient dbClient) {
     this.componentDao = dbClient.componentDao();
@@ -51,25 +51,26 @@ public class ShowResponseBuilder {
   }
 
   ShowResponse build(DbSession session, List<DuplicationsParser.Block> blocks, @Nullable String branch, @Nullable String pullRequest) {
+    Map<String, Reference> refByComponentKey = new LinkedHashMap<>();
     ShowResponse.Builder response = ShowResponse.newBuilder();
     blocks.stream()
-      .map(this::toWsDuplication)
+      .map(block -> toWsDuplication(block, refByComponentKey))
       .forEach(response::addDuplications);
 
-    writeFileRefs(session, response, branch, pullRequest);
+    writeFileRefs(session, refByComponentKey, response, branch, pullRequest);
     return response.build();
   }
 
-  private Duplications.Duplication.Builder toWsDuplication(DuplicationsParser.Block block) {
+  private static Duplications.Duplication.Builder toWsDuplication(DuplicationsParser.Block block, Map<String, Reference> refByComponentKey) {
     Duplications.Duplication.Builder wsDuplication = Duplications.Duplication.newBuilder();
     block.getDuplications().stream()
-      .map(this::toWsBlock)
+      .map(duplication -> toWsBlock(duplication, refByComponentKey))
       .forEach(wsDuplication::addBlocks);
 
     return wsDuplication;
   }
 
-  private Block.Builder toWsBlock(Duplication duplication) {
+  private static Block.Builder toWsBlock(Duplication duplication, Map<String, Reference> refByComponentKey) {
     Block.Builder block = Block.newBuilder();
 
     if (!duplication.removed()) {
@@ -77,7 +78,7 @@ public class ShowResponseBuilder {
         Integer.toString(refByComponentKey.size() + 1),
         duplication.componentDto(),
         duplication.componentDbKey()));
-      block.setRef(ref.id);
+      block.setRef(ref.getId());
     }
 
     block.setFrom(duplication.from());
@@ -86,20 +87,20 @@ public class ShowResponseBuilder {
     return block;
   }
 
-  private void writeFileRefs(DbSession session, ShowResponse.Builder response, @Nullable String branch, @Nullable String pullRequest) {
+  private void writeFileRefs(DbSession session, Map<String, Reference> refByComponentKey, ShowResponse.Builder response, @Nullable String branch, @Nullable String pullRequest) {
     Map<String, ComponentDto> projectsByUuid = new HashMap<>();
     Map<String, ComponentDto> parentModulesByUuid = new HashMap<>();
 
     for (Map.Entry<String, Reference> entry : refByComponentKey.entrySet()) {
       Reference ref = entry.getValue();
-      ComponentDto file = ref.dto();
+      ComponentDto file = ref.getDto();
 
       if (file != null) {
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
         ComponentDto parentModule = getParentProject(file.getRootUuid(), parentModulesByUuid, session);
-        response.putFiles(ref.id(), toWsFile(file, project, parentModule, branch, pullRequest));
+        response.putFiles(ref.getId(), toWsFile(file, project, parentModule, branch, pullRequest));
       } else {
-        response.putFiles(ref.id(), toWsFile(ref.componentKey(), branch, pullRequest));
+        response.putFiles(ref.getId(), toWsFile(ref.getComponentKey(), branch, pullRequest));
       }
     }
   }
@@ -173,16 +174,16 @@ public class ShowResponseBuilder {
       this.componentKey = componentKey;
     }
 
-    public String id() {
+    public String getId() {
       return id;
     }
 
     @CheckForNull
-    public ComponentDto dto() {
+    public ComponentDto getDto() {
       return dto;
     }
 
-    public String componentKey() {
+    public String getComponentKey() {
       return componentKey;
     }
 

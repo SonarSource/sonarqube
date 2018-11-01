@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -32,13 +33,17 @@ import org.sonar.ce.task.projectanalysis.duplication.DetailedTextBlock;
 import org.sonar.ce.task.projectanalysis.duplication.Duplicate;
 import org.sonar.ce.task.projectanalysis.duplication.Duplication;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepositoryRule;
+import org.sonar.ce.task.projectanalysis.duplication.InExtendedProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.InProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
@@ -56,7 +61,8 @@ public class LoadDuplicationsFromReportStepTest {
     builder(PROJECT, ROOT_REF)
       .addChildren(
         builder(FILE, FILE_1_REF).build(),
-        builder(FILE, FILE_2_REF).build())
+        // status has no effect except if it's a SLB or PR
+        builder(FILE, FILE_2_REF).setStatus(Component.Status.SAME).build())
       .build());
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -95,6 +101,23 @@ public class LoadDuplicationsFromReportStepTest {
     underTest.execute(context);
 
     assertDuplications(FILE_1_REF, singleLineDetailedTextBlock(1, LINE), new InProjectDuplicate(treeRootHolder.getComponentByRef(FILE_2_REF), singleLineTextBlock(LINE + 1)));
+    assertNoDuplication(FILE_2_REF);
+    assertNbOfDuplications(context, 1);
+  }
+
+  @Test
+  public void loads_duplication_with_otherFileRef_as_InExtendedProject_duplication() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    analysisMetadataHolder.setBranch(branch);
+
+    reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(LINE), createInProjectDuplicate(FILE_2_REF, LINE + 1)));
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    assertDuplications(FILE_1_REF, singleLineDetailedTextBlock(1, LINE),
+      new InExtendedProjectDuplicate(treeRootHolder.getComponentByRef(FILE_2_REF), singleLineTextBlock(LINE + 1)));
     assertNoDuplication(FILE_2_REF);
     assertNbOfDuplications(context, 1);
   }

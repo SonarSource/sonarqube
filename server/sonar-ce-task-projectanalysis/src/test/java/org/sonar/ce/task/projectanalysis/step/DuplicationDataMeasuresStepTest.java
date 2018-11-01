@@ -111,9 +111,22 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
+  public void compute_duplications_on_unchanged_file() {
+    duplicationRepository.addExtendedProjectDuplication(FILE_1_REF, new TextBlock(1, 5), FILE_2_REF, new TextBlock(6, 10));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
+      "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"true\" r=\""
+        + FILE_2_KEY + "\"/></g></duplications>");
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
+  }
+
+  @Test
   public void compute_duplications_on_different_projects() {
     String fileKeyFromOtherProject = "PROJECT2_KEY:file2";
-    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), fileKeyFromOtherProject, new TextBlock(6, 10));
+    duplicationRepository.addCrossProjectDuplication(FILE_1_REF, new TextBlock(1, 5), fileKeyFromOtherProject, new TextBlock(6, 10));
 
     underTest.execute(new TestComputationStepContext());
 

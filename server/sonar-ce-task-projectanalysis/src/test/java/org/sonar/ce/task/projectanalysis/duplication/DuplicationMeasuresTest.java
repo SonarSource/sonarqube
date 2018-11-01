@@ -129,7 +129,7 @@ public class DuplicationMeasuresTest {
 
   @Test
   public void compute_duplicated_blocks_one_for_original_and_ignores_CrossProjectDuplicate() {
-    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 1), SOME_FILE_KEY, new TextBlock(2, 2));
+    duplicationRepository.addCrossProjectDuplication(FILE_1_REF, new TextBlock(1, 1), SOME_FILE_KEY, new TextBlock(2, 2));
 
     underTest.execute();
 
@@ -185,7 +185,7 @@ public class DuplicationMeasuresTest {
   @Test
   public void compute_duplicated_lines_counts_lines_from_original_and_ignores_CrossProjectDuplicate() {
     TextBlock original = new TextBlock(1, 1);
-    duplicationRepository.addDuplication(FILE_1_REF, original, SOME_FILE_KEY, new TextBlock(2, 2));
+    duplicationRepository.addCrossProjectDuplication(FILE_1_REF, original, SOME_FILE_KEY, new TextBlock(2, 2));
 
     underTest.execute();
 

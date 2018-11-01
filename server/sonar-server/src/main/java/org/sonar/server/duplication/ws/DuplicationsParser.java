@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -50,7 +50,7 @@ public class DuplicationsParser {
   }
 
   public List<Block> parse(DbSession session, ComponentDto component, @Nullable String branch, @Nullable String pullRequest, @Nullable String duplicationsData) {
-    Map<String, ComponentDto> componentsByKey = new HashMap<>();
+    Map<String, ComponentDto> componentsByKey = new LinkedHashMap<>();
     List<Block> blocks = new ArrayList<>();
     if (duplicationsData == null) {
       return blocks;
@@ -69,10 +69,10 @@ public class DuplicationsParser {
         while (bCursor.getNext() != null) {
           String from = bCursor.getAttrValue("s");
           String size = bCursor.getAttrValue("l");
-          boolean onlyText = Boolean.parseBoolean(bCursor.getAttrValue("t"));
+          boolean disableLink = Boolean.parseBoolean(bCursor.getAttrValue("t"));
           String componentDbKey = bCursor.getAttrValue("r");
           if (from != null && size != null && componentDbKey != null) {
-            if (onlyText) {
+            if (disableLink) {
               // flag means that the target refers to an unchanged file in SLBs/PRs that doesn't exist in DB.
               // Display as text without a link or other details.
               duplications.add(Duplication.newTextComponent(componentDbKey, Integer.valueOf(from), Integer.valueOf(size)));

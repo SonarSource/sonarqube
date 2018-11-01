@@ -128,11 +128,11 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
       appendDuplication(xml, componentDbKey, duplicate.getTextBlock(), false);
     }
 
-    private void appendDuplication(StringBuilder xml, String componentDbKey, TextBlock textBlock, boolean onlyText) {
+    private void appendDuplication(StringBuilder xml, String componentDbKey, TextBlock textBlock, boolean disableLink) {
       int length = textBlock.getEnd() - textBlock.getStart() + 1;
       xml.append("<b s=\"").append(textBlock.getStart())
         .append("\" l=\"").append(length)
-        .append("\" t=\"").append(onlyText)
+        .append("\" t=\"").append(disableLink)
         .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentDbKey))
         .append("\"/>");
     }

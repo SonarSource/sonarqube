@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Arrays;
+import java.util.Collections;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.junit.rules.ExternalResource;
@@ -116,12 +117,12 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
     delegate.add(component,
       new Duplication(
         original,
-        Arrays.asList(new InProjectDuplicate(componentProvider.getByRef(otherFileRef), duplicate))));
+        Collections.singletonList(new InProjectDuplicate(componentProvider.getByRef(otherFileRef), duplicate))));
 
     return this;
   }
 
-  public DuplicationRepositoryRule addDuplication(int fileRef, TextBlock original, String otherFileKey, TextBlock duplicate) {
+  public DuplicationRepositoryRule addExtendedProjectDuplication(int fileRef, TextBlock original, int otherFileRef, TextBlock duplicate) {
     ensureComponentProviderInitialized();
     Component component = componentProvider.getByRef(fileRef);
     checkArgument(!componentRefsWithCrossProjectDuplications.containsEntry(component, original), "CrossProject duplications for file %s and original %s already set", fileRef);
@@ -130,7 +131,21 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
     delegate.add(componentProvider.getByRef(fileRef),
       new Duplication(
         original,
-        Arrays.asList(new CrossProjectDuplicate(otherFileKey, duplicate))));
+        Collections.singletonList(new InExtendedProjectDuplicate(componentProvider.getByRef(otherFileRef), duplicate))));
+
+    return this;
+  }
+
+  public DuplicationRepositoryRule addCrossProjectDuplication(int fileRef, TextBlock original, String otherFileKey, TextBlock duplicate) {
+    ensureComponentProviderInitialized();
+    Component component = componentProvider.getByRef(fileRef);
+    checkArgument(!componentRefsWithCrossProjectDuplications.containsEntry(component, original), "CrossProject duplications for file %s and original %s already set", fileRef);
+
+    componentRefsWithCrossProjectDuplications.put(component, original);
+    delegate.add(componentProvider.getByRef(fileRef),
+      new Duplication(
+        original,
+        Collections.singletonList(new CrossProjectDuplicate(otherFileKey, duplicate))));
 
     return this;
   }

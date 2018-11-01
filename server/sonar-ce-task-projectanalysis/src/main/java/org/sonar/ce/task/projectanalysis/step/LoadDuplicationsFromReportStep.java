@@ -19,7 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
@@ -41,7 +42,6 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 
 /**
  * Loads duplication information from the report and loads them into the {@link DuplicationRepository}.
@@ -122,8 +122,8 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       duplicationRepository.add(file,
         new Duplication(
           convert(duplication.getOriginPosition(), id),
-          from(duplication.getDuplicateList())
-            .transform(new BatchDuplicateToCeDuplicate(file))));
+          duplication.getDuplicateList().stream()
+            .map(new BatchDuplicateToCeDuplicate(file)).collect(Collectors.toList())));
     }
 
     private DetailedTextBlock convert(ScannerReport.TextRange textRange, int id) {

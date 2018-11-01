@@ -30,6 +30,14 @@ public class Duplication {
   private final Integer size;
   private final boolean removed;
 
+  private Duplication(@Nullable ComponentDto componentDto, String componentDbKey, Integer from, Integer size, boolean removed) {
+    this.componentDto = componentDto;
+    this.componentDbKey = componentDbKey;
+    this.from = from;
+    this.size = size;
+    this.removed = removed;
+  }
+
   static Duplication newRemovedComponent(String componentDbKey, Integer from, Integer size) {
     return new Duplication(null, componentDbKey, from, size, true);
   }
@@ -40,14 +48,6 @@ public class Duplication {
 
   static Duplication newComponent(ComponentDto componentDto, Integer from, Integer size) {
     return new Duplication(componentDto, componentDto.getDbKey(), from, size, false);
-  }
-
-  private Duplication(@Nullable ComponentDto componentDto, String componentDbKey, Integer from, Integer size, boolean removed) {
-    this.componentDto = componentDto;
-    this.componentDbKey = componentDbKey;
-    this.from = from;
-    this.size = size;
-    this.removed = removed;
   }
 
   String componentDbKey() {

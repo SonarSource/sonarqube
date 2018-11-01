@@ -55,7 +55,7 @@ public class DuplicationLineReader implements LineReader {
     // in {@link DbFileSources.Line#getDuplicationList()}
     duplicatedTextBlockIndexByTextBlock.entrySet().stream()
       .filter(containsLine)
-      .map(MapEntryToBlockId.INSTANCE)
+      .map(Map.Entry::getValue)
       .sorted(Comparator.naturalOrder())
       .forEach(lineBuilder::addDuplication);
 
@@ -108,16 +108,6 @@ public class DuplicationLineReader implements LineReader {
 
     private static boolean isLineInBlock(TextBlock range, int line) {
       return line >= range.getStart() && line <= range.getEnd();
-    }
-  }
-
-  private enum MapEntryToBlockId implements Function<Map.Entry<TextBlock, Integer>, Integer> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public Integer apply(@Nonnull Map.Entry<TextBlock, Integer> input) {
-      return input.getValue();
     }
   }
 
