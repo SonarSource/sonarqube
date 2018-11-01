@@ -126,9 +126,9 @@ Paths are relative to the project base directory.
 
 The following wildcards can be used:
 
-\*	zero or more characters
-\*\*	zero or more directories
-\?	a single character
+* `*`	- zero or more characters  
+* `**` - zero or more directories  
+* `?` - a single character  
 
 Relative paths are based on the fully qualified name of the component.
 
