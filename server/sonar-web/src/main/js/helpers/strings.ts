@@ -417,3 +417,10 @@ export function slugify(text: string) {
     .replace(/^-+/, '') // Remove heading dash
     .replace(/-+$/, ''); // Remove trailing dash
 }
+
+export function decodeJwt(token: string) {
+  const segments = token.split('.');
+  const base64Url = segments.length > 1 ? segments[1] : segments[0];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(window.atob(base64));
+}

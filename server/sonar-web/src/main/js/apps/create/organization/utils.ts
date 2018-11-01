@@ -27,6 +27,7 @@ import {
   serializeString
 } from '../../../helpers/query';
 import { isBitbucket, isGithub } from '../../../helpers/almIntegrations';
+import { decodeJwt } from '../../../helpers/strings';
 
 export const ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP =
   'sonarcloud.import_org.redirect_to_projects';
@@ -45,15 +46,23 @@ export interface Query {
 
 export const parseQuery = memoize(
   (urlQuery: RawQuery = {}): Query => {
-    return {
-      almInstallId:
-        parseAsOptionalString(urlQuery['installation_id']) ||
-        parseAsOptionalString(urlQuery['clientKey']),
-      almKey:
-        (urlQuery['installation_id'] && 'github') ||
-        (urlQuery['clientKey'] && 'bitbucket') ||
-        undefined
-    };
+    let almInstallId = undefined;
+    let almKey = undefined;
+
+    if (urlQuery['installation_id']) {
+      almKey = 'github';
+      almInstallId = parseAsOptionalString(urlQuery['installation_id']);
+    } else if (urlQuery['clientKey']) {
+      almKey = 'bitbucket';
+      almInstallId = parseAsOptionalString(urlQuery['clientKey']);
+    } else if (urlQuery['jwt']) {
+      const jwt = decodeJwt(urlQuery['jwt']);
+      if (jwt && jwt.iss) {
+        almKey = 'bitbucket';
+        almInstallId = jwt.iss;
+      }
+    }
+    return { almInstallId, almKey };
   }
 );
 
