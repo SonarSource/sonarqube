@@ -122,5 +122,10 @@ public interface PostProjectAnalysisTask {
      * @since 6.1
      */
     ScannerContext getScannerContext();
+
+    /**
+     * Revision Id that has been analysed
+     */
+    String getScmRevisionId();
   }
 }

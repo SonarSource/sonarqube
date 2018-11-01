@@ -114,6 +114,8 @@ public class PostProjectAnalysisTasksExecutorTest {
       .setOrganizationsEnabled(new Random().nextBoolean())
       .setOrganization(Organization.from(
         new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo")));
+
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
   }
 
   @Test

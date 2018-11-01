@@ -782,6 +782,11 @@ public class PostProjectAnalysisTaskTester {
         }
 
         @Override
+        public String getScmRevisionId() {
+          return null;
+        }
+
+        @Override
         public String toString() {
           return "ProjectAnalysis{" +
             "organization=" + organization +
