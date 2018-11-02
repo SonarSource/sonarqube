@@ -502,7 +502,6 @@ export interface OrganizationMember {
   login: string;
   name: string;
   avatar?: string;
-  email?: string;
   groupCount?: number;
 }
 

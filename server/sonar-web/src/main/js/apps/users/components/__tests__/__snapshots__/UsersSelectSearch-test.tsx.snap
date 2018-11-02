@@ -4,6 +4,7 @@ exports[`UsersSelectSearch should render correctly 1`] = `
 <Select
   className="Select-big"
   clearable={false}
+  filterOptions={[Function]}
   isLoading={false}
   labelKey="name"
   noResultsText="no_results"
@@ -44,6 +45,7 @@ exports[`UsersSelectSearch should render correctly 3`] = `
 <Select
   className="Select-big"
   clearable={false}
+  filterOptions={[Function]}
   isLoading={false}
   labelKey="name"
   noResultsText="no_results"
@@ -83,6 +85,7 @@ exports[`UsersSelectSearchOption should render correctly with email instead of h
   onMouseDown={[Function]}
   onMouseEnter={[Function]}
   onMouseMove={[Function]}
+  role="listitem"
   title="Administrator"
 >
   <Connect(Avatar)
@@ -107,6 +110,7 @@ exports[`UsersSelectSearchOption should render correctly without all parameters 
   onMouseDown={[Function]}
   onMouseEnter={[Function]}
   onMouseMove={[Function]}
+  role="listitem"
   title="Administrator"
 >
   <Connect(Avatar)
