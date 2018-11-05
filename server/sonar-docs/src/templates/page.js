@@ -25,7 +25,12 @@ import './page.css';
 const version = process.env.GATSBY_DOCS_VERSION || '1.0';
 
 export default class Page extends React.PureComponent {
+  baseUrl = '';
+
   componentDidMount() {
+    if (window) {
+      this.baseUrl = window.location.origin + '/';
+    }
     const collaspables = document.getElementsByClassName('collapse');
     for (let i = 0; i < collaspables.length; i++) {
       collaspables[i].classList.add('close');
@@ -63,7 +68,10 @@ export default class Page extends React.PureComponent {
         <Helmet title={page.frontmatter.title || 'Documentation'}>
           <html lang="en" />
           <link rel="icon" href={`/${version}/favicon.ico`} />
-          <link rel="canonical" href={this.props.location.pathname.replace('latest', version)} />
+          <link
+            rel="canonical"
+            href={this.baseUrl + this.props.location.pathname.replace(version, 'latest')}
+          />
         </Helmet>
         <HeaderList headers={realHeadingsList} />
         <h1>{page.frontmatter.title}</h1>

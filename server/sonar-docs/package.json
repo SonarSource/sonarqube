@@ -41,13 +41,8 @@
     "singleQuote": true
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/.cache"
-    ],
+    "moduleFileExtensions": ["js"],
+    "testPathIgnorePatterns": ["<rootDir>/node_modules", "<rootDir>/.cache"],
     "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$"
   }
 }
