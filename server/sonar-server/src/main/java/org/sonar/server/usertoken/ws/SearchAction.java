@@ -49,7 +49,7 @@ public class SearchAction implements UserTokensWsAction {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setDescription("List the access tokens of a user.<br>" +
         "The login must exist and active.<br>" +
-        "If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.")
+        "It requires administration permissions to specify a 'login' and list the tokens of another user. Otherwise, tokens for the current user are listed.")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("5.3")
       .setHandler(this);

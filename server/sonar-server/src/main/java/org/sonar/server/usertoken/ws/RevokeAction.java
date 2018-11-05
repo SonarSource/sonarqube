@@ -44,7 +44,7 @@ public class RevokeAction implements UserTokensWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_REVOKE)
       .setDescription("Revoke a user access token. <br/>" +
-        "If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.")
+        "It requires administration permissions to specify a 'login' and revoke a token for another user. Otherwise, the token for the current user is revoked.")
       .setSince("5.3")
       .setPost(true)
       .setHandler(this);
