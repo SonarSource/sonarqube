@@ -203,7 +203,6 @@
     "singleQuote": true
   },
   "lint-staged": {
-    "gitDir": "../../",
     "linters": {
       "*.{css,json}": [
         "prettier --write",
