@@ -25,3 +25,29 @@ exports[`should render an event correctly 1`] = `
   </strong>
 </div>
 `;
+
+exports[`should render rich quality gate event 1`] = `
+<div
+  className="overview-analysis-event"
+>
+  <span
+    className="note"
+  >
+    event.category.QUALITY_GATE
+    :
+  </span>
+   
+  <FormattedMessage
+    defaultMessage="event.quality_gate.still_x"
+    id="event.quality_gate.still_x"
+    values={
+      Object {
+        "status": <Level
+          level="ERROR"
+          small={true}
+        />,
+      }
+    }
+  />
+</div>
+`;

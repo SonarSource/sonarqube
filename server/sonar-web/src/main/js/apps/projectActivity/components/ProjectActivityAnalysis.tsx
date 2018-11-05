@@ -108,7 +108,6 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
   render() {
     const { analysis, isFirst, canAdmin } = this.props;
     const { date, events } = analysis;
-    const analysisTitle = translate('project_activity.analysis');
     const hasVersion = events.find(event => event.category === 'VERSION') != null;
 
     const canAddVersion = canAdmin && !hasVersion && this.props.canCreateVersion;
@@ -117,16 +116,13 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
 
     return (
       <li
-        className={classNames('project-activity-analysis clearfix', {
-          selected: this.props.selected
-        })}
+        className={classNames('project-activity-analysis', { selected: this.props.selected })}
         data-date={date.valueOf()}
         onClick={this.handleClick}
         tabIndex={0}>
         <div className="project-activity-time spacer-right">
           <TimeTooltipFormatter className="text-middle" date={date} />
         </div>
-        <div className="project-activity-analysis-icon spacer-right" title={analysisTitle} />
 
         {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
           <div className="project-activity-analysis-actions big-spacer-right">

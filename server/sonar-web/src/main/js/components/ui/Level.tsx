@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function Level(props: Props) {
-  const formatted = formatMeasure(props.level, 'LEVEL', null);
+  const formatted = formatMeasure(props.level, 'LEVEL');
   const className = classNames(props.className, 'level', 'level-' + props.level, {
     'level-small': props.small,
     'level-muted': props.muted

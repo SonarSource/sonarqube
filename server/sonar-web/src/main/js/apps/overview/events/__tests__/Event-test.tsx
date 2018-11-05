@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Event from '../Event';
+import { RichQualityGateEvent } from '../../../projectActivity/components/RichQualityGateEventInner';
 
 const EVENT = { key: '1', category: 'OTHER', name: 'test' };
 const VERSION = { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' };
@@ -30,4 +31,18 @@ it('should render an event correctly', () => {
 
 it('should render a version correctly', () => {
   expect(shallow(<Event event={VERSION} />)).toMatchSnapshot();
+});
+
+it('should render rich quality gate event', () => {
+  const event: RichQualityGateEvent = {
+    category: 'QUALITY_GATE',
+    key: 'foo1234',
+    name: '',
+    qualityGate: {
+      failing: [{ branch: 'master', key: 'foo', name: 'Foo' }],
+      status: 'ERROR',
+      stillFailing: true
+    }
+  };
+  expect(shallow(<Event event={event} />)).toMatchSnapshot();
 });

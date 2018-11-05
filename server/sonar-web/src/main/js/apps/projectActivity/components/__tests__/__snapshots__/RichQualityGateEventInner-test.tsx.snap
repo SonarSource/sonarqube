@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="project-activity-event-inner"
+>
+  <div
+    className="project-activity-event-inner-main"
+  >
+    <ProjectEventIcon
+      className="project-activity-event-icon little-spacer-right QUALITY_GATE"
+    />
+    <div
+      className="project-activity-event-inner-text flex-1"
+    >
+      <span
+        className="note little-spacer-right"
+      >
+        event.category.QUALITY_GATE
+        :
+      </span>
+      <FormattedMessage
+        defaultMessage="event.quality_gate.still_x"
+        id="event.quality_gate.still_x"
+        values={
+          Object {
+            "status": <Level
+              level="ERROR"
+              small={true}
+            />,
+          }
+        }
+      />
+    </div>
+    <ResetButtonLink
+      className="project-activity-event-inner-more-link"
+      onClick={[Function]}
+      stopPropagation={true}
+    >
+      more
+      <DropdownIcon
+        className="little-spacer-left"
+        turned={false}
+      />
+    </ResetButtonLink>
+  </div>
+</div>
+`;
+
+exports[`should render 2`] = `
+<div
+  className="project-activity-event-inner"
+>
+  <div
+    className="project-activity-event-inner-main"
+  >
+    <ProjectEventIcon
+      className="project-activity-event-icon little-spacer-right QUALITY_GATE"
+    />
+    <div
+      className="project-activity-event-inner-text flex-1"
+    >
+      <span
+        className="note little-spacer-right"
+      >
+        event.category.QUALITY_GATE
+        :
+      </span>
+      <FormattedMessage
+        defaultMessage="event.quality_gate.still_x"
+        id="event.quality_gate.still_x"
+        values={
+          Object {
+            "status": <Level
+              level="ERROR"
+              small={true}
+            />,
+          }
+        }
+      />
+    </div>
+    <ResetButtonLink
+      className="project-activity-event-inner-more-link"
+      onClick={[Function]}
+      stopPropagation={true}
+    >
+      hide
+      <DropdownIcon
+        className="little-spacer-left"
+        turned={true}
+      />
+    </ResetButtonLink>
+  </div>
+  <ul>
+    <li
+      className="display-flex-center little-spacer-top"
+      key="foo"
+    >
+      <Level
+        className="little-spacer-right"
+        level="ERROR"
+        small={true}
+      />
+      <div
+        className="flex-1 text-ellipsis"
+      >
+        <Link
+          onClick={[Function]}
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/dashboard",
+              "query": Object {
+                "branch": "master",
+                "id": "foo",
+              },
+            }
+          }
+        >
+          Foo
+        </Link>
+      </div>
+    </li>
+    <li
+      className="display-flex-center little-spacer-top"
+      key="bar"
+    >
+      <Level
+        className="little-spacer-right"
+        level="ERROR"
+        small={true}
+      />
+      <div
+        className="flex-1 text-ellipsis"
+      >
+        <Link
+          onClick={[Function]}
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/dashboard",
+              "query": Object {
+                "branch": "master",
+                "id": "bar",
+              },
+            }
+          }
+        >
+          Bar
+        </Link>
+      </div>
+    </li>
+  </ul>
+</div>
+`;

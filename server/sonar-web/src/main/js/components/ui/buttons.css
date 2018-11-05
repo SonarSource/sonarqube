@@ -119,6 +119,7 @@
 .button-link {
   display: inline;
   height: auto; /* Keep this to not inherit the height from .button */
+  line-height: 1;
   margin: 0;
   padding: 0;
   border: none;
@@ -128,7 +129,6 @@
   border-bottom: 1px solid var(--lightBlue);
   font-weight: 400;
   font-size: inherit;
-  line-height: inherit;
   transition: all 0.2s ease;
 }
 

@@ -42,8 +42,8 @@
   padding-right: 9px;
   margin-top: -1px;
   margin-bottom: -1px;
-  height: 18px;
-  line-height: 18px;
+  height: var(--smallControlHeight);
+  line-height: var(--smallControlHeight);
   font-size: var(--smallFontSize);
 }
 

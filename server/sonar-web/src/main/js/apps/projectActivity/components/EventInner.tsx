@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
+import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
 import { AnalysisEvent } from '../../../app/types';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 import { translate } from '../../../helpers/l10n';
@@ -27,17 +29,28 @@ interface Props {
 }
 
 export default function EventInner({ event }: Props) {
-  return (
-    <div className="project-activity-event-inner">
-      <div className="project-activity-event-inner-icon little-spacer-right">
-        <ProjectEventIcon
-          className={'project-activity-event-icon margin-align ' + event.category}
-        />
+  if (isRichQualityGateEvent(event)) {
+    return <RichQualityGateEventInner event={event} />;
+  } else {
+    return (
+      <div className="project-activity-event-inner">
+        <div className="project-activity-event-inner-main">
+          <ProjectEventIcon
+            className={classNames(
+              'project-activity-event-icon',
+              'little-spacer-right',
+              event.category
+            )}
+          />
+
+          <span className="project-activity-event-inner-text">
+            <span className="note little-spacer-right">
+              {translate('event.category', event.category)}:
+            </span>
+            <strong title={event.description}>{event.name}</strong>
+          </span>
+        </div>
       </div>
-      <span className="project-activity-event-inner-text">
-        <span className="note">{translate('event.category', event.category)}:</span>{' '}
-        <strong title={event.description}>{event.name}</strong>
-      </span>
-    </div>
-  );
+    );
+  }
 }

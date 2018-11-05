@@ -86,7 +86,7 @@ export class Meta extends React.PureComponent<Props> {
     }
 
     return (
-      <div className="overview-meta-card">
+      <div className="overview-meta-card" id="overview-meta-quality-gate">
         {qualityGate && (
           <MetaQualityGate
             organization={organizationsEnabled ? component.organization : undefined}

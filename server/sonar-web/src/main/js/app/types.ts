@@ -57,6 +57,11 @@ export interface AnalysisEvent {
   description?: string;
   key: string;
   name: string;
+  qualityGate?: {
+    failing: Array<{ branch: string; key: string; name: string }>;
+    status: string;
+    stillFailing: boolean;
+  };
 }
 
 export interface AppState {

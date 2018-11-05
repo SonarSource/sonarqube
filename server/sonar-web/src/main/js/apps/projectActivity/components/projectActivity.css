@@ -61,6 +61,162 @@
   flex-shrink: 0;
 }
 
+.project-activity-days-list {
+}
+
+.project-activity-day {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.project-activity-day:last-child {
+  margin-bottom: 10px;
+}
+
+.project-activity-date {
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.project-activity-analyses-list {
+}
+
+.project-activity-analysis {
+  position: relative;
+  display: flex;
+  min-height: var(--smallControlHeight);
+  padding: calc(0.5 * var(--gridSize));
+  border-top: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid var(--barBorderColor);
+  cursor: pointer;
+}
+
+.project-activity-analysis.selected {
+  background-color: #ecf6fe;
+}
+
+.project-activity-analysis:focus {
+  outline: none;
+}
+
+.project-activity-analysis:hover {
+  background-color: #ecf6fe;
+}
+
+.project-activity-analysis + .project-activity-analysis {
+  border-top: none;
+}
+
+.project-activity-analysis-actions {
+  flex-shrink: 0;
+  flex-grow: 0;
+  height: var(--smallControlHeight);
+}
+
+.project-activity-time {
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: 54px;
+  height: var(--smallControlHeight);
+  line-height: var(--smallControlHeight);
+  box-sizing: border-box;
+  font-size: var(--smallFontSize);
+  font-weight: bold;
+  text-align: right;
+}
+
+.project-activity-events {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-activity-event {
+  line-height: var(--smallControlHeight);
+  display: flex;
+}
+
+.project-activity-event + .project-activity-event {
+  margin-top: 4px;
+}
+
+.project-activity-event-inner {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-activity-event-inner-main {
+  display: flex;
+  align-items: flex-start;
+}
+
+.project-activity-event-icon {
+  flex-shrink: 0;
+  flex-grow: 0;
+  margin-top: calc(0.5 * var(--smallControlHeight) - 7px);
+}
+
+.project-activity-event-inner-text {
+  line-height: var(--smallControlHeight);
+}
+
+.project-activity-event-inner-more-link {
+  line-height: 16px;
+  margin-top: 2px;
+}
+
+.project-activity-event-actions {
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.project-activity-event-icon.VERSION {
+  color: var(--blue);
+}
+
+.project-activity-event-icon.QUALITY_GATE {
+  color: var(--purple);
+}
+
+.project-activity-event-icon.QUALITY_PROFILE {
+  color: #cccccc;
+}
+
+.project-activity-event-icon.OTHER {
+  color: #442d1b;
+}
+
+.project-activity-version-badge {
+  margin-left: -12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background-color: white;
+}
+
+.project-activity-version-badge.sticky,
+.project-activity-version-badge.first {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 16px;
+  padding-top: 24px;
+  z-index: var(--belowNormalZIndex);
+}
+
+.project-activity-version-badge.sticky + .project-activity-days-list {
+  padding-top: 36px;
+}
+
+.project-activity-version-badge .badge {
+  max-width: 385px;
+  border-radius: 0 2px 2px 0;
+  font-weight: bold;
+  font-size: var(--smallFontSize);
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .project-activity-graphs {
   flex-grow: 1;
   display: flex;
@@ -109,6 +265,7 @@
   padding-top: 4px;
 }
 
+.Select .project-activity-event-icon,
 .project-activity-graph-tooltip-line .project-activity-event-icon {
   margin-top: 1px;
 }
@@ -131,161 +288,4 @@
 .project-activity-graph-tooltip-title,
 .project-activity-graph-tooltip-value {
   font-weight: bold;
-}
-
-.project-activity-days-list {
-}
-
-.project-activity-day {
-  margin-top: 8px;
-  margin-bottom: 24px;
-}
-
-.project-activity-day:last-child {
-  margin-bottom: 10px;
-}
-
-.project-activity-date {
-  margin-bottom: 16px;
-  font-size: 15px;
-  font-weight: bold;
-}
-
-.project-activity-analyses-list {
-}
-
-.project-activity-analysis {
-  position: relative;
-  min-height: 20px;
-  padding: 4px;
-  border-top: 1px solid var(--barBorderColor);
-  border-bottom: 1px solid var(--barBorderColor);
-  cursor: pointer;
-}
-
-.project-activity-analysis.selected {
-  background-color: #ecf6fe;
-}
-
-.project-activity-analysis:focus {
-  outline: none;
-}
-
-.project-activity-analysis:hover {
-  background-color: #ecf6fe;
-}
-
-.project-activity-analysis + .project-activity-analysis {
-  border-top: none;
-}
-
-.project-activity-analysis-actions {
-  float: left;
-}
-
-.project-activity-time {
-  float: left;
-  width: 54px;
-  line-height: 20px;
-  box-sizing: border-box;
-  font-size: var(--smallFontSize);
-  font-weight: bold;
-  text-align: right;
-}
-
-.project-activity-analysis-icon {
-  float: left;
-  width: 10px;
-  height: 10px;
-  margin-top: 5px;
-  border: 2px solid var(--blue);
-  border-radius: 10px;
-  box-sizing: border-box;
-  content: '';
-}
-
-.project-activity-events {
-  overflow: hidden;
-}
-
-.project-activity-event {
-  line-height: 18px;
-  display: flex;
-}
-
-.project-activity-event + .project-activity-event {
-  margin-top: 4px;
-}
-
-.project-activity-event-inner {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
-}
-
-.project-activity-event-inner-icon {
-  flex-shrink: 0;
-}
-
-.project-activity-event-inner-text {
-  flex: 1;
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.project-activity-event-actions {
-  display: inline-block;
-}
-
-.project-activity-event-inner-icon .project-activity-event-icon {
-  margin-top: 3px;
-}
-
-.project-activity-event-icon.VERSION {
-  color: var(--blue);
-}
-
-.project-activity-event-icon.QUALITY_GATE {
-  color: var(--purple);
-}
-
-.project-activity-event-icon.QUALITY_PROFILE {
-  color: #cccccc;
-}
-
-.project-activity-event-icon.OTHER {
-  color: #442d1b;
-}
-
-.project-activity-version-badge {
-  margin-left: -12px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  background-color: white;
-}
-
-.project-activity-version-badge.sticky,
-.project-activity-version-badge.first {
-  position: absolute;
-  top: 0;
-  left: 12px;
-  right: 16px;
-  padding-top: 24px;
-  z-index: var(--belowNormalZIndex);
-}
-
-.project-activity-version-badge.sticky + .project-activity-days-list {
-  padding-top: 36px;
-}
-
-.project-activity-version-badge .badge {
-  max-width: 385px;
-  border-radius: 0 2px 2px 0;
-  font-weight: bold;
-  font-size: var(--smallFontSize);
-  letter-spacing: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
