@@ -4,7 +4,7 @@ exports[`should correctly create a project 1`] = `
 <SubmitButton
   disabled={true}
 >
-  create
+  setup
 </SubmitButton>
 `;
 
@@ -12,7 +12,7 @@ exports[`should correctly create a project 2`] = `
 <SubmitButton
   disabled={false}
 >
-  create
+  setup
 </SubmitButton>
 `;
 
@@ -88,7 +88,7 @@ exports[`should render correctly 1`] = `
     <SubmitButton
       disabled={true}
     >
-      create
+      setup
     </SubmitButton>
     <DeferredSpinner
       className="spacer-left"

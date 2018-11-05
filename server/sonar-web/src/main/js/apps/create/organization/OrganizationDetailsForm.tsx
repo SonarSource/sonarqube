@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import OrganizationAvatarInput from '../components/OrganizationAvatarInput';
 import OrganizationDescriptionInput from '../components/OrganizationDescriptionInput';
 import OrganizationKeyInput from '../components/OrganizationKeyInput';
 import OrganizationNameInput from '../components/OrganizationNameInput';
 import OrganizationUrlInput from '../components/OrganizationUrlInput';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import { OrganizationBase } from '../../../app/types';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
@@ -88,20 +89,20 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
     this.setState(state => ({ additional: !state.additional }));
   };
 
-  handleKeyUpdate = (key: string | undefined) => {
-    this.setState({ key });
-  };
-
-  handleNameUpdate = (name: string | undefined) => {
-    this.setState({ name });
+  handleAvatarUpdate = (avatar: string | undefined) => {
+    this.setState({ avatar });
   };
 
   handleDescriptionUpdate = (description: string | undefined) => {
     this.setState({ description });
   };
 
-  handleAvatarUpdate = (avatar: string | undefined) => {
-    this.setState({ avatar });
+  handleKeyUpdate = (key: string | undefined) => {
+    this.setState({ key });
+  };
+
+  handleNameUpdate = (name: string | undefined) => {
+    this.setState({ name });
   };
 
   handleUrlUpdate = (url: string | undefined) => {
@@ -132,13 +133,13 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
   };
 
   render() {
+    const { submitting } = this.state;
+    const { keyReadOnly } = this.props;
     return (
       <form id="organization-form" onSubmit={this.handleSubmit}>
-        <OrganizationKeyInput
-          initialValue={this.state.key}
-          onChange={this.handleKeyUpdate}
-          readOnly={this.props.keyReadOnly}
-        />
+        {!keyReadOnly && (
+          <OrganizationKeyInput initialValue={this.state.key} onChange={this.handleKeyUpdate} />
+        )}
         <div className="big-spacer-top">
           <ResetButtonLink onClick={this.handleAdditionalClick}>
             {translate(
@@ -160,23 +161,25 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
             <OrganizationAvatarInput
               initialValue={this.state.avatar}
               name={this.state.name}
-              onChange={this.handleDescriptionUpdate}
+              onChange={this.handleAvatarUpdate}
             />
           </div>
           <div className="big-spacer-top">
             <OrganizationDescriptionInput
               initialValue={this.state.description}
-              onChange={this.handleAvatarUpdate}
+              onChange={this.handleDescriptionUpdate}
             />
           </div>
           <div className="big-spacer-top">
             <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />
           </div>
         </div>
-        <div className="big-spacer-top">
-          <SubmitButton disabled={this.state.submitting || !this.canSubmit(this.state)}>
+
+        <div className="display-flex-center big-spacer-top">
+          <SubmitButton disabled={submitting || !this.canSubmit(this.state)}>
             {this.props.submitText}
           </SubmitButton>
+          {submitting && <DeferredSpinner className="spacer-left" />}
         </div>
       </form>
     );

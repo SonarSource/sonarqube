@@ -115,7 +115,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   };
 
   openOrganizationOnboarding = () => {
-    this.closeOnboarding();
+    this.setState({ automatic: false, modal: undefined });
     this.props.router.push({ pathname: '/create-organization', state: { paid: true } });
   };
 

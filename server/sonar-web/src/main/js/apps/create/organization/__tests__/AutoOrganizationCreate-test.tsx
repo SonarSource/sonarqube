@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoOrganizationCreate from '../AutoOrganizationCreate';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 import { bindAlmOrganization } from '../../../../api/alm-integration';
 
 jest.mock('../../../../api/alm-integration', () => ({
@@ -56,6 +56,18 @@ it('should render prefilled and create org', async () => {
 
   expect(createOrganization).toBeCalledWith({ ...organization, installationId: 'id-foo' });
   expect(onOrgCreated).toBeCalledWith('foo');
+});
+
+it('should allow to cancel org import', () => {
+  const updateUrlQuery = jest.fn().mockResolvedValue({ key: 'foo' });
+  const wrapper = shallowRender({
+    almInstallId: 'id-foo',
+    almOrganization: { ...organization, personal: false },
+    updateUrlQuery
+  });
+
+  click(wrapper.find('DeleteButton'));
+  expect(updateUrlQuery).toBeCalledWith({ almInstallId: undefined, almKey: undefined });
 });
 
 it('should display choice between import or creation', () => {
@@ -109,6 +121,7 @@ function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
       createOrganization={jest.fn()}
       onOrgCreated={jest.fn()}
       unboundOrganizations={[]}
+      updateUrlQuery={jest.fn()}
       {...props}
     />
   );

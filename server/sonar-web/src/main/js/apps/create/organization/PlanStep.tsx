@@ -91,6 +91,7 @@ export default class PlanStep extends React.PureComponent<Props, State> {
   };
 
   renderForm = () => {
+    const { submitting } = this.state;
     return (
       <div className="boxed-group-inner">
         {this.state.ready && (
@@ -122,10 +123,10 @@ export default class PlanStep extends React.PureComponent<Props, State> {
               </BillingForm>
             ) : (
               <div className="display-flex-center big-spacer-top">
-                <SubmitButton disabled={this.state.submitting} onClick={this.handleFreePlanSubmit}>
+                <SubmitButton disabled={submitting} onClick={this.handleFreePlanSubmit}>
                   {translate('my_account.create_organization')}
                 </SubmitButton>
-                {this.state.submitting && <DeferredSpinner className="spacer-left" />}
+                {submitting && <DeferredSpinner className="spacer-left" />}
               </div>
             )}
           </>

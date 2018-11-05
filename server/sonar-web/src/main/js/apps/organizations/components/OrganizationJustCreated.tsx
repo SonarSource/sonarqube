@@ -53,7 +53,7 @@ export class OrganizationJustCreated extends React.PureComponent<Props & WithRou
           <Button className="onboarding-choice" onClick={this.handleNewProjectClick}>
             <OnboardingProjectIcon className="big-spacer-bottom" />
             <h6 className="onboarding-choice-name">
-              {translate('provisioning.create_new_project')}
+              {translate('provisioning.analyze_new_project')}
             </h6>
           </Button>
           <Button className="onboarding-choice" onClick={this.handleAddMembersClick}>

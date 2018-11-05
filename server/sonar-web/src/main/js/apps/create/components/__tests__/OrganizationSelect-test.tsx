@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import OrganizationSelect, { optionRenderer } from '../OrganizationSelect';
+import OrganizationSelect, { getOptionRenderer } from '../OrganizationSelect';
 
 const organizations = [
   { key: 'foo', name: 'Foo' },
@@ -35,6 +35,7 @@ it('should render correctly', () => {
 });
 
 it('should render options correctly', () => {
-  expect(shallow(optionRenderer(organizations[0]))).toMatchSnapshot();
-  expect(shallow(optionRenderer(organizations[1]))).toMatchSnapshot();
+  expect(shallow(getOptionRenderer()(organizations[0]))).toMatchSnapshot();
+  expect(shallow(getOptionRenderer()(organizations[1]))).toMatchSnapshot();
+  expect(shallow(getOptionRenderer(true)(organizations[0]))).toMatchSnapshot();
 });

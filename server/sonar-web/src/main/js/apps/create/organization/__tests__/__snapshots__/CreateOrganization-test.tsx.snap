@@ -25,28 +25,6 @@ exports[`should render with auto personal organization bind page 2`] = `
       >
         onboarding.import_organization.personal.page.header
       </h1>
-      <p
-        className="page-description"
-      >
-        <FormattedMessage
-          defaultMessage="onboarding.import_organization.personal.page.description"
-          id="onboarding.import_organization.personal.page.description"
-          values={
-            Object {
-              "break": <br />,
-              "more": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                target="_blank"
-                to="/documentation/sonarcloud-pricing/"
-              >
-                learn_more
-              </Link>,
-              "price": "billing.price_format.10",
-            }
-          }
-        />
-      </p>
     </header>
     <AutoPersonalOrganizationBind
       almApplication={
@@ -78,6 +56,7 @@ exports[`should render with auto personal organization bind page 2`] = `
       }
       onOrgCreated={[Function]}
       updateOrganization={[MockFunction]}
+      updateUrlQuery={[Function]}
     />
   </div>
 </Fragment>
@@ -135,9 +114,26 @@ exports[`should render with auto tab displayed 1`] = `
             "node": "onboarding.import_organization.github",
           },
           Object {
-            "disabled": false,
             "key": "manual",
             "node": "onboarding.create_organization.create_manually",
+          },
+        ]
+      }
+    />
+    <ManualOrganizationCreate
+      className="hidden"
+      createOrganization={[MockFunction]}
+      deleteOrganization={[MockFunction]}
+      onOrgCreated={[Function]}
+      subscriptionPlans={
+        Array [
+          Object {
+            "maxNcloc": 100000,
+            "price": 10,
+          },
+          Object {
+            "maxNcloc": 250000,
+            "price": 75,
           },
         ]
       }
@@ -153,6 +149,7 @@ exports[`should render with auto tab displayed 1`] = `
         }
       }
       almUnboundApplications={Array []}
+      className=""
       createOrganization={[MockFunction]}
       onOrgCreated={[Function]}
       unboundOrganizations={
@@ -166,6 +163,7 @@ exports[`should render with auto tab displayed 1`] = `
           },
         ]
       }
+      updateUrlQuery={[Function]}
     />
   </div>
 </Fragment>
@@ -229,9 +227,26 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
             "node": "onboarding.import_organization.github",
           },
           Object {
-            "disabled": true,
             "key": "manual",
             "node": "onboarding.create_organization.create_manually",
+          },
+        ]
+      }
+    />
+    <ManualOrganizationCreate
+      className="hidden"
+      createOrganization={[MockFunction]}
+      deleteOrganization={[MockFunction]}
+      onOrgCreated={[Function]}
+      subscriptionPlans={
+        Array [
+          Object {
+            "maxNcloc": 100000,
+            "price": 10,
+          },
+          Object {
+            "maxNcloc": 250000,
+            "price": 75,
           },
         ]
       }
@@ -258,6 +273,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
         }
       }
       almUnboundApplications={Array []}
+      className=""
       createOrganization={[MockFunction]}
       onOrgCreated={[Function]}
       unboundOrganizations={
@@ -271,6 +287,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
           },
         ]
       }
+      updateUrlQuery={[Function]}
     />
   </div>
 </Fragment>
@@ -319,6 +336,7 @@ exports[`should render with manual tab displayed 1`] = `
       </p>
     </header>
     <ManualOrganizationCreate
+      className=""
       createOrganization={[MockFunction]}
       deleteOrganization={[MockFunction]}
       onOrgCreated={[Function]}
@@ -391,9 +409,26 @@ exports[`should switch tabs 1`] = `
             "node": "onboarding.import_organization.github",
           },
           Object {
-            "disabled": false,
             "key": "manual",
             "node": "onboarding.create_organization.create_manually",
+          },
+        ]
+      }
+    />
+    <ManualOrganizationCreate
+      className="hidden"
+      createOrganization={[MockFunction]}
+      deleteOrganization={[MockFunction]}
+      onOrgCreated={[Function]}
+      subscriptionPlans={
+        Array [
+          Object {
+            "maxNcloc": 100000,
+            "price": 10,
+          },
+          Object {
+            "maxNcloc": 250000,
+            "price": 75,
           },
         ]
       }
@@ -409,6 +444,7 @@ exports[`should switch tabs 1`] = `
         }
       }
       almUnboundApplications={Array []}
+      className=""
       createOrganization={[MockFunction]}
       onOrgCreated={[Function]}
       unboundOrganizations={
@@ -422,6 +458,7 @@ exports[`should switch tabs 1`] = `
           },
         ]
       }
+      updateUrlQuery={[Function]}
     />
   </div>
 </Fragment>

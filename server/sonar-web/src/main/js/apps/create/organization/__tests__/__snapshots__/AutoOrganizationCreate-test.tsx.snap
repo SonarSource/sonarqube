@@ -1,136 +1,153 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display choice between import or creation 1`] = `
-<OrganizationDetailsStep
-  finished={false}
-  onOpen={[Function]}
-  open={true}
-  organization={
-    Object {
-      "avatar": "http://example.com/avatar",
-      "description": "description-foo",
-      "key": "key-foo",
-      "name": "name-foo",
-      "personal": false,
-      "url": "http://example.com/foo",
-    }
-  }
+<div
+  className="boxed-group"
 >
   <div
-    className="huge-spacer-bottom"
+    className="boxed-group-header"
   >
-    <p
-      className="big-spacer-bottom"
-    >
-      <FormattedMessage
-        defaultMessage="onboarding.import_organization_x"
-        id="onboarding.import_organization_x"
-        values={
-          Object {
-            "avatar": <img
-              alt="BitBucket"
-              className="little-spacer-left"
-              src="/images/sonarcloud/bitbucket.svg"
-              width={16}
-            />,
-            "name": <strong>
-              name-foo
-            </strong>,
-          }
-        }
-      />
-    </p>
-    <RadioToggle
-      disabled={false}
-      name="filter"
-      onCheck={[Function]}
-      options={
-        Array [
-          Object {
-            "label": "onboarding.import_organization.create_new",
-            "value": "create",
-          },
-          Object {
-            "label": "onboarding.import_organization.bind_existing",
-            "value": "bind",
-          },
-        ]
-      }
-      value={null}
-    />
+    <h2>
+      onboarding.import_organization.import_org_details
+    </h2>
   </div>
-</OrganizationDetailsStep>
+  <div
+    className="boxed-group-inner"
+  >
+    <div
+      className="huge-spacer-bottom"
+    >
+      <p
+        className="display-flex-center big-spacer-bottom"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.import_organization_x"
+          id="onboarding.import_organization_x"
+          values={
+            Object {
+              "avatar": <img
+                alt="BitBucket"
+                className="little-spacer-left"
+                src="/images/sonarcloud/bitbucket.svg"
+                width={16}
+              />,
+              "name": <strong>
+                name-foo
+              </strong>,
+            }
+          }
+        />
+        <DeleteButton
+          className="little-spacer-left"
+          onClick={[Function]}
+        />
+      </p>
+      <RadioToggle
+        disabled={false}
+        name="filter"
+        onCheck={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "onboarding.import_organization.create_new",
+              "value": "create",
+            },
+            Object {
+              "label": "onboarding.import_organization.bind_existing",
+              "value": "bind",
+            },
+          ]
+        }
+        value={null}
+      />
+    </div>
+  </div>
+</div>
 `;
 
 exports[`should render prefilled and create org 1`] = `
-<OrganizationDetailsStep
-  finished={false}
-  onOpen={[Function]}
-  open={true}
-  organization={
-    Object {
-      "avatar": "http://example.com/avatar",
-      "description": "description-foo",
-      "key": "key-foo",
-      "name": "name-foo",
-      "personal": false,
-      "url": "http://example.com/foo",
-    }
-  }
+<div
+  className="boxed-group"
 >
   <div
-    className="huge-spacer-bottom"
+    className="boxed-group-header"
   >
-    <p
-      className="big-spacer-bottom"
-    >
-      <FormattedMessage
-        defaultMessage="onboarding.import_organization_x"
-        id="onboarding.import_organization_x"
-        values={
-          Object {
-            "avatar": <img
-              alt="BitBucket"
-              className="little-spacer-left"
-              src="/images/sonarcloud/bitbucket.svg"
-              width={16}
-            />,
-            "name": <strong>
-              name-foo
-            </strong>,
-          }
-        }
-      />
-    </p>
+    <h2>
+      onboarding.import_organization.import_org_details
+    </h2>
   </div>
-  <OrganizationDetailsForm
-    onContinue={[Function]}
-    organization={
-      Object {
-        "avatar": "http://example.com/avatar",
-        "description": "description-foo",
-        "key": "key-foo",
-        "name": "name-foo",
-        "personal": false,
-        "url": "http://example.com/foo",
+  <div
+    className="boxed-group-inner"
+  >
+    <div
+      className="huge-spacer-bottom"
+    >
+      <p
+        className="display-flex-center big-spacer-bottom"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.import_organization_x"
+          id="onboarding.import_organization_x"
+          values={
+            Object {
+              "avatar": <img
+                alt="BitBucket"
+                className="little-spacer-left"
+                src="/images/sonarcloud/bitbucket.svg"
+                width={16}
+              />,
+              "name": <strong>
+                name-foo
+              </strong>,
+            }
+          }
+        />
+        <DeleteButton
+          className="little-spacer-left"
+          onClick={[Function]}
+        />
+      </p>
+    </div>
+    <OrganizationDetailsForm
+      onContinue={[Function]}
+      organization={
+        Object {
+          "avatar": "http://example.com/avatar",
+          "description": "description-foo",
+          "key": "key-foo",
+          "name": "name-foo",
+          "personal": false,
+          "url": "http://example.com/foo",
+        }
       }
-    }
-    submitText="onboarding.import_organization.import"
-  />
-</OrganizationDetailsStep>
+      submitText="onboarding.import_organization.import"
+    />
+  </div>
+</div>
 `;
 
 exports[`should render with import org button 1`] = `
-<withRouter(ChooseRemoteOrganizationStep)
-  almApplication={
-    Object {
-      "backgroundColor": "#0052CC",
-      "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
-      "installationUrl": "https://bitbucket.org/install/app",
-      "key": "bitbucket",
-      "name": "BitBucket",
+<div
+  className="boxed-group"
+>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.import_organization.import_org_details
+    </h2>
+  </div>
+  <withRouter(RemoteOrganizationChoose)
+    almApplication={
+      Object {
+        "backgroundColor": "#0052CC",
+        "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
+        "installationUrl": "https://bitbucket.org/install/app",
+        "key": "bitbucket",
+        "name": "BitBucket",
+      }
     }
-  }
-  almUnboundApplications={Array []}
-/>
+    almUnboundApplications={Array []}
+  />
+</div>
 `;

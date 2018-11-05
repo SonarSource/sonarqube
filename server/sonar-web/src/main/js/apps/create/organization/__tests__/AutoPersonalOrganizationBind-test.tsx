@@ -20,10 +20,11 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoPersonalOrganizationBind from '../AutoPersonalOrganizationBind';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate, click } from '../../../../helpers/testUtils';
+
+const personalOrg = { key: 'personalorg', name: 'Personal Org' };
 
 it('should render correctly', async () => {
-  const personalOrg = { key: 'personalorg', name: 'Personal Org' };
   const updateOrganization = jest.fn().mockResolvedValue({ key: personalOrg.key });
   const onOrgCreated = jest.fn();
   const wrapper = shallowRender({
@@ -40,6 +41,18 @@ it('should render correctly', async () => {
 
   expect(updateOrganization).toBeCalledWith({ ...personalOrg, installationId: 'id-foo' });
   expect(onOrgCreated).toBeCalledWith(personalOrg.key);
+});
+
+it('should allow to cancel org import', () => {
+  const updateUrlQuery = jest.fn();
+  const wrapper = shallowRender({
+    almInstallId: 'id-foo',
+    importPersonalOrg: personalOrg,
+    updateUrlQuery
+  });
+
+  click(wrapper.find('DeleteButton'));
+  expect(updateUrlQuery).toBeCalledWith({ almInstallId: undefined, almKey: undefined });
 });
 
 function shallowRender(props: Partial<AutoPersonalOrganizationBind['props']> = {}) {
@@ -63,6 +76,7 @@ function shallowRender(props: Partial<AutoPersonalOrganizationBind['props']> = {
       importPersonalOrg={{ key: 'personalorg', name: 'Personal Org' }}
       onOrgCreated={jest.fn()}
       updateOrganization={jest.fn()}
+      updateUrlQuery={jest.fn()}
       {...props}
     />
   );

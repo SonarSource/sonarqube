@@ -54,9 +54,7 @@ export class NoFavoriteProjects extends React.PureComponent<StateProps> {
             <p>{translate('projects.no_favorite_projects.how_to_add_projects')}</p>
             <div className="huge-spacer-top">
               <Button onClick={this.onAnalyzeProjectClick}>
-                {isSonarCloud()
-                  ? translate('provisioning.create_new_project')
-                  : translate('my_account.analyze_new_project')}
+                {translate('provisioning.analyze_new_project')}
               </Button>
 
               <Dropdown

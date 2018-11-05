@@ -15,6 +15,7 @@ exports[`should render correctly 1`] = `
     </em>
   </label>
   <OrganizationSelect
+    hideIcons={true}
     onChange={[MockFunction]}
     organization="bar"
     organizations={

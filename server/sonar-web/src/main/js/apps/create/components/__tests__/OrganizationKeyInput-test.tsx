@@ -38,13 +38,6 @@ it('should render correctly', () => {
   expect(wrapper.find('ValidationInput').prop('isValid')).toMatchSnapshot();
 });
 
-it('should render correctly with readonly mode', () => {
-  const wrapper = shallow(
-    <OrganizationKeyInput initialValue="key" onChange={jest.fn()} readOnly={true} />
-  );
-  expect(wrapper).toMatchSnapshot();
-});
-
 it('should not display any status when the key is not defined', async () => {
   const wrapper = shallow(<OrganizationKeyInput onChange={jest.fn()} />);
   await waitAndUpdate(wrapper);

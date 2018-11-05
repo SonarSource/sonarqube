@@ -48,7 +48,7 @@ exports[`renders for SonarCloud 1`] = `
       <Button
         onClick={[Function]}
       >
-        provisioning.create_new_project
+        provisioning.analyze_new_project
       </Button>
       <Dropdown
         className="display-inline-block big-spacer-left"

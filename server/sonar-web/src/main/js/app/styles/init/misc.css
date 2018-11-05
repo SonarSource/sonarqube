@@ -368,6 +368,7 @@ td.big-spacer-top {
 .vertical-pipe-separator {
   display: flex;
   flex-direction: column;
+  margin-left: 60px;
   margin-right: 60px;
 }
 

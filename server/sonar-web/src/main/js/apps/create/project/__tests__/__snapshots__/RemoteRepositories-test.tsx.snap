@@ -4,7 +4,7 @@ exports[`should correctly create a project 1`] = `
 <SubmitButton
   disabled={false}
 >
-  create
+  setup
 </SubmitButton>
 `;
 
@@ -24,7 +24,7 @@ exports[`should display the list of repositories 1`] = `
     <SubmitButton
       disabled={true}
     >
-      create
+      setup
     </SubmitButton>
     <DeferredSpinner
       className="spacer-left"
@@ -102,7 +102,7 @@ exports[`should display the list of repositories 2`] = `
     <SubmitButton
       disabled={true}
     >
-      create
+      setup
     </SubmitButton>
     <DeferredSpinner
       className="spacer-left"

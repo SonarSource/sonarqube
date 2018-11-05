@@ -150,9 +150,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               value={this.state.projectKey}
             />
           </div>
-          <SubmitButton disabled={!this.isValid() || submitting}>
-            {translate('create')}
-          </SubmitButton>
+          <SubmitButton disabled={!this.isValid() || submitting}>{translate('setup')}</SubmitButton>
           <DeferredSpinner className="spacer-left" loading={submitting} />
         </form>
       </>

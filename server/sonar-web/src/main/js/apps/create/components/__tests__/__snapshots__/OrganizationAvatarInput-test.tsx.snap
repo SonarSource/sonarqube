@@ -23,6 +23,7 @@ exports[`should display the fallback avatar when there is no url 1`] = `
     onBlur={[Function]}
     onChange={[Function]}
     onFocus={[Function]}
+    placeholder="onboarding.create_organization.avatar.placeholder"
     type="text"
     value=""
   />
@@ -52,6 +53,7 @@ exports[`should render correctly 1`] = `
     onBlur={[Function]}
     onChange={[Function]}
     onFocus={[Function]}
+    placeholder="onboarding.create_organization.avatar.placeholder"
     type="text"
     value="https://my.avatar"
   />

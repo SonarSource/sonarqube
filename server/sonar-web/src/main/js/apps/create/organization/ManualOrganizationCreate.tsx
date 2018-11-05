@@ -27,6 +27,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   createOrganization: (organization: OrganizationBase) => Promise<Organization>;
+  className?: string;
   deleteOrganization: (key: string) => Promise<void>;
   onOrgCreated: (organization: string) => void;
   onlyPaid?: boolean;
@@ -101,12 +102,12 @@ export default class ManualOrganizationCreate extends React.PureComponent<Props,
   };
 
   render() {
-    const { subscriptionPlans } = this.props;
+    const { className, subscriptionPlans } = this.props;
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     const formattedPrice = formatPrice(startedPrice);
 
     return (
-      <>
+      <div className={className}>
         <OrganizationDetailsStep
           finished={this.state.organization !== undefined}
           onOpen={this.handleOrganizationDetailsStepOpen}
@@ -131,7 +132,7 @@ export default class ManualOrganizationCreate extends React.PureComponent<Props,
             subscriptionPlans={subscriptionPlans}
           />
         )}
-      </>
+      </div>
     );
   }
 }

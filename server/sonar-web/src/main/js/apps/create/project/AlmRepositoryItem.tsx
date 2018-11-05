@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import * as theme from '../../../app/theme';
 import Checkbox from '../../../components/controls/Checkbox';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
+import Tooltip from '../../../components/controls/Tooltip';
 import { AlmRepository, IdentityProvider } from '../../../app/types';
 import { getBaseUrl, getProjectUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
   identityProvider: IdentityProvider;
@@ -61,9 +62,17 @@ export default class AlmRepositoryItem extends React.PureComponent<Props> {
         {repository.linkedProjectKey && (
           <span className="big-spacer-left">
             <CheckIcon className="little-spacer-right" fill={theme.green} />
-            <Link to={getProjectUrl(repository.linkedProjectKey)}>
-              {translate('onboarding.create_project.already_imported')}
-            </Link>
+            <FormattedMessage
+              defaultMessage={translate('onboarding.create_project.repository_imported')}
+              id="onboarding.create_project.repository_imported"
+              values={{
+                link: (
+                  <Link to={getProjectUrl(repository.linkedProjectKey)}>
+                    {translate('onboarding.create_project.see_project')}
+                  </Link>
+                )
+              }}
+            />
           </span>
         )}
         {repository.private && (

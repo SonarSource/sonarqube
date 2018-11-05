@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { differenceInMinutes } from 'date-fns';
 import { times } from 'lodash';
 import { connect } from 'react-redux';
@@ -27,8 +28,10 @@ import { FormattedMessage } from 'react-intl';
 import { Link, withRouter, WithRouterProps } from 'react-router';
 import {
   formatPrice,
+  ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP,
   parseQuery,
-  ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP
+  serializeQuery,
+  Query
 } from './utils';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
@@ -89,6 +92,8 @@ interface State {
   organization?: Organization;
   subscriptionPlans?: SubscriptionPlan[];
 }
+
+type StateWithAutoImport = State & Required<Pick<State, 'almApplication'>>;
 
 type TabKeys = 'auto' | 'manual';
 
@@ -157,6 +162,10 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       }
     });
   };
+
+  hasAutoImport(state: State, paid?: boolean): state is StateWithAutoImport {
+    return Boolean(state.almApplication && !paid);
+  }
 
   setValidOrgKey = (almOrganization: AlmOrganization) => {
     const key = slugify(almOrganization.key);
@@ -227,7 +236,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   };
 
   onTabChange = (tab: TabKeys) => {
-    this.updateUrl({ tab });
+    this.updateUrlState({ tab });
   };
 
   stopLoading = () => {
@@ -236,7 +245,15 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     }
   };
 
-  updateUrl = (state: Partial<LocationState> = {}) => {
+  updateUrlQuery = (query: Partial<Query> = {}) => {
+    this.props.router.push({
+      pathname: this.props.location.pathname,
+      query: serializeQuery({ ...parseQuery(this.props.location.query), ...query }),
+      state: this.props.location.state
+    });
+  };
+
+  updateUrlState = (state: Partial<LocationState> = {}) => {
     this.props.router.replace({
       pathname: this.props.location.pathname,
       query: this.props.location.query,
@@ -246,36 +263,36 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   renderContent = (almInstallId?: string, importPersonalOrg?: Organization) => {
     const { currentUser, location } = this.props;
-    const { almApplication, almOrganization } = this.state;
-    const state: LocationState = location.state || {};
+    const { state } = this;
+    const { almOrganization } = state;
+    const { paid, tab = 'auto' } = (location.state || {}) as LocationState;
 
-    if (importPersonalOrg && almOrganization && almApplication) {
+    if (importPersonalOrg && almOrganization && state.almApplication) {
       return (
         <AutoPersonalOrganizationBind
-          almApplication={almApplication}
+          almApplication={state.almApplication}
           almInstallId={almInstallId}
           almOrganization={almOrganization}
           importPersonalOrg={importPersonalOrg}
           onOrgCreated={this.handleOrgCreated}
           updateOrganization={this.props.updateOrganization}
+          updateUrlQuery={this.updateUrlQuery}
         />
       );
     }
 
-    const showManualTab = state.tab === 'manual' && !almOrganization;
     return (
       <>
-        {almApplication && (
+        {this.hasAutoImport(state, paid) && (
           <Tabs<TabKeys>
             onChange={this.onTabChange}
-            selected={showManualTab ? 'manual' : 'auto'}
+            selected={tab || 'auto'}
             tabs={[
               {
                 key: 'auto',
-                node: translate('onboarding.import_organization', almApplication.key)
+                node: translate('onboarding.import_organization', state.almApplication.key)
               },
               {
-                disabled: Boolean(almOrganization),
                 key: 'manual',
                 node: translate('onboarding.create_organization.create_manually')
               }
@@ -283,27 +300,30 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
           />
         )}
 
-        {showManualTab || !almApplication ? (
-          <ManualOrganizationCreate
-            createOrganization={this.props.createOrganization}
-            deleteOrganization={this.props.deleteOrganization}
-            onOrgCreated={this.handleOrgCreated}
-            onlyPaid={state.paid}
-            subscriptionPlans={this.state.subscriptionPlans}
-          />
-        ) : (
+        <ManualOrganizationCreate
+          className={classNames({ hidden: tab !== 'manual' && this.hasAutoImport(state, paid) })}
+          createOrganization={this.props.createOrganization}
+          deleteOrganization={this.props.deleteOrganization}
+          onOrgCreated={this.handleOrgCreated}
+          onlyPaid={paid}
+          subscriptionPlans={this.state.subscriptionPlans}
+        />
+
+        {this.hasAutoImport(state, paid) && (
           <AutoOrganizationCreate
-            almApplication={almApplication}
+            almApplication={state.almApplication}
             almInstallId={almInstallId}
             almOrganization={almOrganization}
             almUnboundApplications={this.state.almUnboundApplications}
             boundOrganization={this.state.boundOrganization}
+            className={classNames({ hidden: tab !== 'auto' })}
             createOrganization={this.props.createOrganization}
             onOrgCreated={this.handleOrgCreated}
             unboundOrganizations={this.props.userOrganizations.filter(
               ({ actions = {}, alm, key }) =>
                 !alm && key !== currentUser.personalOrganization && actions.admin
             )}
+            updateUrlQuery={this.updateUrlQuery}
           />
         )}
       </>
@@ -325,9 +345,6 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     const header = importPersonalOrg
       ? translate('onboarding.import_organization.personal.page.header')
       : translate('onboarding.create_organization.page.header');
-    const description = importPersonalOrg
-      ? translate('onboarding.import_organization.personal.page.description')
-      : translate('onboarding.create_organization.page.description');
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     const formattedPrice = formatPrice(startedPrice);
 
@@ -337,23 +354,24 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
         <div className="sonarcloud page page-limited">
           <header className="page-header">
             <h1 className="page-title big-spacer-bottom">{header}</h1>
-            {startedPrice !== undefined && (
-              <p className="page-description">
-                <FormattedMessage
-                  defaultMessage={description}
-                  id={description}
-                  values={{
-                    break: <br />,
-                    price: formattedPrice,
-                    more: (
-                      <Link target="_blank" to="/documentation/sonarcloud-pricing/">
-                        {translate('learn_more')}
-                      </Link>
-                    )
-                  }}
-                />
-              </p>
-            )}
+            {!importPersonalOrg &&
+              startedPrice !== undefined && (
+                <p className="page-description">
+                  <FormattedMessage
+                    defaultMessage={translate('onboarding.create_organization.page.description')}
+                    id="onboarding.create_organization.page.description"
+                    values={{
+                      break: <br />,
+                      price: formattedPrice,
+                      more: (
+                        <Link target="_blank" to="/documentation/sonarcloud-pricing/">
+                          {translate('learn_more')}
+                        </Link>
+                      )
+                    }}
+                  />
+                </p>
+              )}
           </header>
           {this.state.loading ? (
             <DeferredSpinner />

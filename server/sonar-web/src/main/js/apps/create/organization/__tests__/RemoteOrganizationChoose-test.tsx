@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ChooseRemoteOrganizationStep } from '../ChooseRemoteOrganizationStep';
+import { RemoteOrganizationChoose } from '../RemoteOrganizationChoose';
 import { mockRouter, submit } from '../../../../helpers/testUtils';
 
 it('should render', () => {
@@ -57,10 +57,10 @@ it('should display already bound alert message', () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {}) {
+function shallowRender(props: Partial<RemoteOrganizationChoose['props']> = {}) {
   return shallow(
     // @ts-ignore avoid passing everything from WithRouterProps
-    <ChooseRemoteOrganizationStep
+    <RemoteOrganizationChoose
       almApplication={{
         backgroundColor: 'blue',
         iconPath: 'icon/path',
@@ -72,5 +72,5 @@ function shallowRender(props: Partial<ChooseRemoteOrganizationStep['props']> = {
       router={mockRouter()}
       {...props}
     />
-  ).dive();
+  );
 }

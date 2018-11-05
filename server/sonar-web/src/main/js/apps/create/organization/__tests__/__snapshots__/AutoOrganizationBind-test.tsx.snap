@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
     }
   />
   <div
-    className="big-spacer-top"
+    className="display-flex-center big-spacer-top"
   >
     <SubmitButton
       disabled={false}

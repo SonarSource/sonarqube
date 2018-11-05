@@ -1,60 +1,60 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<OrganizationDetailsStep
-  finished={false}
-  onOpen={[Function]}
-  open={true}
-  organization={
-    Object {
-      "key": "personalorg",
-      "name": "Personal Org",
-    }
-  }
+<div
+  className="boxed-group"
 >
   <div
-    className="huge-spacer-bottom"
+    className="boxed-group-inner"
   >
-    <FormattedMessage
-      defaultMessage="onboarding.import_personal_organization_x"
-      id="onboarding.import_personal_organization_x"
-      values={
-        Object {
-          "avatar": <img
-            alt="BitBucket"
-            className="little-spacer-left"
-            src="/images/sonarcloud/bitbucket.svg"
-            width={16}
-          />,
-          "name": <strong>
-            name-foo
-          </strong>,
-          "personalAvatar": <OrganizationAvatar
-            organization={
-              Object {
-                "key": "personalorg",
-                "name": "Personal Org",
+    <div
+      className="display-flex-center big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.import_personal_organization_x"
+        id="onboarding.import_personal_organization_x"
+        values={
+          Object {
+            "avatar": <img
+              alt="BitBucket"
+              className="little-spacer-left"
+              src="/images/sonarcloud/bitbucket.svg"
+              width={16}
+            />,
+            "name": <strong>
+              name-foo
+            </strong>,
+            "personalAvatar": <OrganizationAvatar
+              organization={
+                Object {
+                  "key": "personalorg",
+                  "name": "Personal Org",
+                }
               }
-            }
-            small={true}
-          />,
-          "personalName": <strong>
-            Personal Org
-          </strong>,
+              small={true}
+            />,
+            "personalName": <strong>
+              Personal Org
+            </strong>,
+          }
+        }
+      />
+      <DeleteButton
+        className="little-spacer-left"
+        onClick={[Function]}
+      />
+    </div>
+    <OrganizationDetailsForm
+      keyReadOnly={true}
+      onContinue={[Function]}
+      organization={
+        Object {
+          "key": "personalorg",
+          "name": "Personal Org",
         }
       }
+      submitText="onboarding.import_organization.bind"
     />
   </div>
-  <OrganizationDetailsForm
-    keyReadOnly={true}
-    onContinue={[Function]}
-    organization={
-      Object {
-        "key": "personalorg",
-        "name": "Personal Org",
-      }
-    }
-    submitText="onboarding.import_organization.bind"
-  />
-</OrganizationDetailsStep>
+</div>
 `;

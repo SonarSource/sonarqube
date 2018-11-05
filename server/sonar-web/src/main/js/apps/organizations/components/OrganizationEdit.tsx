@@ -21,10 +21,11 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
-import { translate } from '../../../helpers/l10n';
-import { updateOrganization } from '../actions';
+import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import { SubmitButton } from '../../../components/ui/buttons';
+import { updateOrganization } from '../actions';
 import { Organization, OrganizationBase } from '../../../app/types';
+import { translate } from '../../../helpers/l10n';
 
 interface DispatchProps {
   updateOrganization: (organization: string, changes: OrganizationBase) => Promise<any>;
@@ -138,19 +139,25 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                 maxLength={256}
                 name="avatar"
                 onChange={this.handleAvatarInputChange}
+                placeholder={translate('onboarding.create_organization.avatar.placeholder')}
                 type="text"
                 value={this.state.avatar}
               />
               <div className="modal-field-description">
                 {translate('organization.avatar.description')}
               </div>
-              {!!this.state.avatarImage && (
+              {(this.state.avatarImage || this.state.name) && (
                 <div className="spacer-top spacer-bottom">
                   <div className="little-spacer-bottom">
                     {translate('organization.avatar.preview')}
                     {':'}
                   </div>
-                  <img alt="" height={30} src={this.state.avatarImage} />
+                  <OrganizationAvatar
+                    organization={{
+                      avatar: this.state.avatarImage || undefined,
+                      name: this.state.name || ''
+                    }}
+                  />
                 </div>
               )}
             </div>

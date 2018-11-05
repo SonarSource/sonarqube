@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import OrganizationDetailsForm from './OrganizationDetailsForm';
-import OrganizationDetailsStep from './OrganizationDetailsStep';
+import { Query } from './utils';
+import { DeleteButton } from '../../../components/ui/buttons';
 import {
   AlmApplication,
   AlmOrganization,
@@ -41,9 +42,14 @@ interface Props {
   updateOrganization: (
     organization: OrganizationBase & { installationId?: string }
   ) => Promise<Organization>;
+  updateUrlQuery: (query: Partial<Query>) => void;
 }
 
 export default class AutoPersonalOrganizationBind extends React.PureComponent<Props> {
+  handleCancelImport = () => {
+    this.props.updateUrlQuery({ almInstallId: undefined, almKey: undefined });
+  };
+
   handleCreateOrganization = (organization: Required<OrganizationBase>) => {
     return this.props
       .updateOrganization({
@@ -60,39 +66,40 @@ export default class AutoPersonalOrganizationBind extends React.PureComponent<Pr
   render() {
     const { almApplication, importPersonalOrg } = this.props;
     return (
-      <OrganizationDetailsStep
-        finished={false}
-        onOpen={() => {}}
-        open={true}
-        organization={importPersonalOrg}>
-        <div className="huge-spacer-bottom">
-          <FormattedMessage
-            defaultMessage={translate('onboarding.import_personal_organization_x')}
-            id="onboarding.import_personal_organization_x"
-            values={{
-              avatar: (
-                <img
-                  alt={almApplication.name}
-                  className="little-spacer-left"
-                  src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(almApplication.key)}.svg`}
-                  width={16}
-                />
-              ),
-              name: <strong>{this.props.almOrganization.name}</strong>,
-              personalAvatar: importPersonalOrg && (
-                <OrganizationAvatar organization={importPersonalOrg} small={true} />
-              ),
-              personalName: importPersonalOrg && <strong>{importPersonalOrg.name}</strong>
-            }}
+      <div className="boxed-group">
+        <div className="boxed-group-inner">
+          <div className="display-flex-center big-spacer-bottom">
+            <FormattedMessage
+              defaultMessage={translate('onboarding.import_personal_organization_x')}
+              id="onboarding.import_personal_organization_x"
+              values={{
+                avatar: (
+                  <img
+                    alt={almApplication.name}
+                    className="little-spacer-left"
+                    src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
+                      almApplication.key
+                    )}.svg`}
+                    width={16}
+                  />
+                ),
+                name: <strong>{this.props.almOrganization.name}</strong>,
+                personalAvatar: importPersonalOrg && (
+                  <OrganizationAvatar organization={importPersonalOrg} small={true} />
+                ),
+                personalName: importPersonalOrg && <strong>{importPersonalOrg.name}</strong>
+              }}
+            />
+            <DeleteButton className="little-spacer-left" onClick={this.handleCancelImport} />
+          </div>
+          <OrganizationDetailsForm
+            keyReadOnly={true}
+            onContinue={this.handleCreateOrganization}
+            organization={importPersonalOrg}
+            submitText={translate('onboarding.import_organization.bind')}
           />
         </div>
-        <OrganizationDetailsForm
-          keyReadOnly={true}
-          onContinue={this.handleCreateOrganization}
-          organization={importPersonalOrg}
-          submitText={translate('onboarding.import_organization.bind')}
-        />
-      </OrganizationDetailsStep>
+      </div>
     );
   }
 }

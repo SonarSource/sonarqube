@@ -101,6 +101,7 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
             onBlur={this.handleBlur}
             onChange={this.handleChange}
             onFocus={this.handleFocus}
+            placeholder={translate('onboarding.create_organization.avatar.placeholder')}
             type="text"
             value={this.state.value}
           />

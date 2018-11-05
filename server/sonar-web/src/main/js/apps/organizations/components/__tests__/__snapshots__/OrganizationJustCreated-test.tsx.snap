@@ -22,7 +22,7 @@ exports[`should render 1`] = `
       <h6
         className="onboarding-choice-name"
       >
-        provisioning.create_new_project
+        provisioning.analyze_new_project
       </h6>
     </Button>
     <Button

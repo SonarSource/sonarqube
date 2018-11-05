@@ -185,9 +185,11 @@ it('should switch tabs', async () => {
   expect(wrapper).toMatchSnapshot();
 
   (wrapper.find('Tabs').prop('onChange') as Function)('manual');
-  expect(wrapper.find('ManualOrganizationCreate').exists()).toBeTruthy();
+  expect(wrapper.find('ManualOrganizationCreate').hasClass('hidden')).toBeFalsy();
+  expect(wrapper.find('AutoOrganizationCreate').hasClass('hidden')).toBeTruthy();
   (wrapper.find('Tabs').prop('onChange') as Function)('auto');
-  expect(wrapper.find('AutoOrganizationCreate').exists()).toBeTruthy();
+  expect(wrapper.find('AutoOrganizationCreate').hasClass('hidden')).toBeFalsy();
+  expect(wrapper.find('ManualOrganizationCreate').hasClass('hidden')).toBeTruthy();
 });
 
 it('should reload the alm organization when the url query changes', async () => {

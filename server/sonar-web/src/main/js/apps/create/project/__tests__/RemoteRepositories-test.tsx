@@ -79,7 +79,7 @@ it('should correctly create a project', async () => {
   });
 
   await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith(['awesome']);
+  expect(onProjectCreate).toBeCalledWith(['awesome'], 'sonarsource');
 });
 
 function shallowRender(props: Partial<RemoteRepositories['props']> = {}) {

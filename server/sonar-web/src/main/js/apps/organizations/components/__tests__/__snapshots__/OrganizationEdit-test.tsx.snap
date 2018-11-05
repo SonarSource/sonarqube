@@ -67,6 +67,7 @@ exports[`smoke test 1`] = `
           maxLength={256}
           name="avatar"
           onChange={[Function]}
+          placeholder="onboarding.create_organization.avatar.placeholder"
           type="text"
           value=""
         />
@@ -74,6 +75,24 @@ exports[`smoke test 1`] = `
           className="modal-field-description"
         >
           organization.avatar.description
+        </div>
+        <div
+          className="spacer-top spacer-bottom"
+        >
+          <div
+            className="little-spacer-bottom"
+          >
+            organization.avatar.preview
+            :
+          </div>
+          <OrganizationAvatar
+            organization={
+              Object {
+                "avatar": undefined,
+                "name": "Foo",
+              }
+            }
+          />
         </div>
       </div>
       <div
@@ -203,6 +222,7 @@ exports[`smoke test 2`] = `
           maxLength={256}
           name="avatar"
           onChange={[Function]}
+          placeholder="onboarding.create_organization.avatar.placeholder"
           type="text"
           value="foo-avatar"
         />
@@ -220,10 +240,13 @@ exports[`smoke test 2`] = `
             organization.avatar.preview
             :
           </div>
-          <img
-            alt=""
-            height={30}
-            src="foo-avatar-image"
+          <OrganizationAvatar
+            organization={
+              Object {
+                "avatar": "foo-avatar-image",
+                "name": "New Foo",
+              }
+            }
           />
         </div>
       </div>
@@ -354,6 +377,7 @@ exports[`smoke test 3`] = `
           maxLength={256}
           name="avatar"
           onChange={[Function]}
+          placeholder="onboarding.create_organization.avatar.placeholder"
           type="text"
           value="foo-avatar"
         />
@@ -371,10 +395,13 @@ exports[`smoke test 3`] = `
             organization.avatar.preview
             :
           </div>
-          <img
-            alt=""
-            height={30}
-            src="foo-avatar-image"
+          <OrganizationAvatar
+            organization={
+              Object {
+                "avatar": "foo-avatar-image",
+                "name": "New Foo",
+              }
+            }
           />
         </div>
       </div>

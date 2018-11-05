@@ -106,7 +106,7 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
     return (
       <li>
         <a className="js-new-project" href="#" onClick={this.handleNewProjectClick}>
-          {translate('provisioning.create_new_project')}
+          {translate('provisioning.analyze_new_project')}
         </a>
       </li>
     );

@@ -29,7 +29,7 @@ import { save } from '../../../helpers/storage';
 interface Props {
   almApplication: AlmApplication;
   boundOrganizations: Organization[];
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKeys: string[], organization: string) => void;
   organization?: string;
 }
 
@@ -44,15 +44,13 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
   }
 
   getInitialSelectedOrganization(props: Props) {
-    const organization =
-      props.organization && props.boundOrganizations.find(o => o.key === props.organization);
-    if (organization) {
-      return organization.key;
-    }
-    if (props.boundOrganizations.length === 1) {
+    if (props.organization) {
+      return props.organization;
+    } else if (props.boundOrganizations.length === 1) {
       return props.boundOrganizations[0].key;
+    } else {
+      return '';
     }
-    return '';
   }
 
   handleInstallAppClick = () => {
@@ -69,6 +67,9 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
     if (boundOrganizations.length === 0) {
       return (
         <>
+          <p className="spacer-bottom">
+            {translate('onboarding.create_project.install_app_description', almApplication.key)}
+          </p>
           <IdentityProviderLink
             className="display-inline-block"
             identityProvider={almApplication}

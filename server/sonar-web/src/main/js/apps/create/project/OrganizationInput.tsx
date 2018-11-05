@@ -52,6 +52,7 @@ export class OrganizationInput extends React.PureComponent<Props & WithRouterPro
           <em className="mandatory">*</em>
         </label>
         <OrganizationSelect
+          hideIcons={!autoImport}
           onChange={onChange}
           organization={organization}
           organizations={organizations}

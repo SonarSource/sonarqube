@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   almApplication: AlmApplication;
-  onProjectCreate: (projectKeys: string[]) => void;
+  onProjectCreate: (projectKeys: string[], organization: string) => void;
   organization: string;
 }
 
@@ -90,7 +90,11 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
         }),
         organization: this.props.organization
       }).then(
-        ({ projects }) => this.props.onProjectCreate(projects.map(project => project.projectKey)),
+        ({ projects }) =>
+          this.props.onProjectCreate(
+            projects.map(project => project.projectKey),
+            this.props.organization
+          ),
         this.handleProvisionFail
       );
     }
@@ -150,9 +154,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
               ))}
             </ul>
           </div>
-          <SubmitButton disabled={!this.isValid() || submitting}>
-            {translate('create')}
-          </SubmitButton>
+          <SubmitButton disabled={!this.isValid() || submitting}>{translate('setup')}</SubmitButton>
           <DeferredSpinner className="spacer-left" loading={submitting} />
         </form>
       </DeferredSpinner>

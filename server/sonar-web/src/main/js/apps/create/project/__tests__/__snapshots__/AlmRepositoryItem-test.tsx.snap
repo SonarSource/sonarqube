@@ -61,21 +61,29 @@ exports[`should render disabled 1`] = `
       className="little-spacer-right"
       fill="#00aa00"
     />
-    <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
+    <FormattedMessage
+      defaultMessage="onboarding.create_project.repository_imported"
+      id="onboarding.create_project.repository_imported"
+      values={
         Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "branch": undefined,
-            "id": "proj_cool",
-          },
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/dashboard",
+                "query": Object {
+                  "branch": undefined,
+                  "id": "proj_cool",
+                },
+              }
+            }
+          >
+            onboarding.create_project.see_project
+          </Link>,
         }
       }
-    >
-      onboarding.create_project.already_imported
-    </Link>
+    />
   </span>
 </Fragment>
 `;

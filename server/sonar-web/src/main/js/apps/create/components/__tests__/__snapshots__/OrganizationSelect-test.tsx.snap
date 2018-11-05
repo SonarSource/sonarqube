@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <Select
-  autoFocus={true}
+  autoFocus={false}
   className="input-super-large"
   clearable={false}
   id="select-organization"
@@ -63,6 +63,17 @@ exports[`should render options correctly 2`] = `
     className="note little-spacer-left"
   >
     bar
+  </span>
+</span>
+`;
+
+exports[`should render options correctly 3`] = `
+<span>
+  Foo
+  <span
+    className="note little-spacer-left"
+  >
+    foo
   </span>
 </span>
 `;

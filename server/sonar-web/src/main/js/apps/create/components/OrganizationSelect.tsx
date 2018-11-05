@@ -26,15 +26,22 @@ import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
+  hideIcons?: boolean;
   onChange: (organization: Organization) => void;
   organization: string;
   organizations: Organization[];
 }
 
-export default function OrganizationSelect({ onChange, organization, organizations }: Props) {
+export default function OrganizationSelect({
+  hideIcons,
+  onChange,
+  organization,
+  organizations
+}: Props) {
+  const optionRenderer = getOptionRenderer(hideIcons);
   return (
     <Select
-      autoFocus={true}
+      autoFocus={!organization}
       className="input-super-large"
       clearable={false}
       id="select-organization"
@@ -51,20 +58,24 @@ export default function OrganizationSelect({ onChange, organization, organizatio
   );
 }
 
-export function optionRenderer(organization: Organization) {
-  const icon = organization.alm
-    ? `sonarcloud/${sanitizeAlmId(organization.alm.key)}`
-    : 'sonarcloud-square-logo';
-  return (
-    <span>
-      <img
-        alt={organization.alm ? organization.alm.key : 'SonarCloud'}
-        className="spacer-right"
-        height={14}
-        src={`${getBaseUrl()}/images/${icon}.svg`}
-      />
-      {organization.name}
-      <span className="note little-spacer-left">{organization.key}</span>
-    </span>
-  );
+export function getOptionRenderer(hideIcons?: boolean) {
+  return function optionRenderer(organization: Organization) {
+    const icon = organization.alm
+      ? `sonarcloud/${sanitizeAlmId(organization.alm.key)}`
+      : 'sonarcloud-square-logo';
+    return (
+      <span>
+        {!hideIcons && (
+          <img
+            alt={organization.alm ? organization.alm.key : 'SonarCloud'}
+            className="spacer-right"
+            height={14}
+            src={`${getBaseUrl()}/images/${icon}.svg`}
+          />
+        )}
+        {organization.name}
+        <span className="note little-spacer-left">{organization.key}</span>
+      </span>
+    );
+  };
 }

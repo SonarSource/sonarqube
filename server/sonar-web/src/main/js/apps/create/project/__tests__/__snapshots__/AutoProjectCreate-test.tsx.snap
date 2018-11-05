@@ -45,6 +45,11 @@ exports[`should display the bounded organizations dropdown with the list of repo
 
 exports[`should display the provider app install button 1`] = `
 <Fragment>
+  <p
+    className="spacer-bottom"
+  >
+    onboarding.create_project.install_app_description.github
+  </p>
   <IdentityProviderLink
     className="display-inline-block"
     identityProvider={

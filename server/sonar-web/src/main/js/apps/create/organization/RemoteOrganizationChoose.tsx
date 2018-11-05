@@ -25,7 +25,6 @@ import { serializeQuery } from './utils';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Select from '../../../components/controls/Select';
-import Step from '../../tutorials/components/Step';
 import { Alert } from '../../../components/ui/Alert';
 import { SubmitButton } from '../../../components/ui/buttons';
 import {
@@ -50,10 +49,7 @@ interface State {
   unboundInstallationId: string;
 }
 
-export class ChooseRemoteOrganizationStep extends React.PureComponent<
-  Props & WithRouterProps,
-  State
-> {
+export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRouterProps, State> {
   state: State = { unboundInstallationId: '' };
 
   handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -90,7 +86,7 @@ export class ChooseRemoteOrganizationStep extends React.PureComponent<
     );
   };
 
-  renderForm = () => {
+  render() {
     const {
       almApplication,
       almInstallId,
@@ -144,7 +140,7 @@ export class ChooseRemoteOrganizationStep extends React.PureComponent<
             </Alert>
           )}
         <div className="display-flex-center">
-          <div className="display-inline-block abs-width-400">
+          <div className="display-inline-block">
             <IdentityProviderLink
               className="display-inline-block"
               identityProvider={almApplication}
@@ -194,25 +190,7 @@ export class ChooseRemoteOrganizationStep extends React.PureComponent<
         </div>
       </div>
     );
-  };
-
-  renderResult = () => {
-    return null;
-  };
-
-  render() {
-    return (
-      <Step
-        finished={false}
-        onOpen={() => {}}
-        open={true}
-        renderForm={this.renderForm}
-        renderResult={this.renderResult}
-        stepNumber={1}
-        stepTitle={translate('onboarding.import_organization.import_org_details')}
-      />
-    );
   }
 }
 
-export default withRouter(ChooseRemoteOrganizationStep);
+export default withRouter(RemoteOrganizationChoose);

@@ -32,7 +32,7 @@ import { LoggedInUser, AlmApplication, Organization } from '../../../app/types';
 import { getAlmAppInfo } from '../../../api/alm-integration';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
 import '../../../app/styles/sonarcloud.css';
 
 interface Props {
@@ -78,10 +78,12 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
     }
   }
 
-  handleProjectCreate = (projectKeys: string[]) => {
+  handleProjectCreate = (projectKeys: string[], organization?: string) => {
     this.props.skipOnboarding();
     if (projectKeys.length > 1) {
-      this.props.router.push({ pathname: '/projects' });
+      this.props.router.push({
+        pathname: (organization ? getOrganizationUrl(organization) : '') + '/projects'
+      });
     } else if (projectKeys.length === 1) {
       this.props.router.push(getProjectUrl(projectKeys[0]));
     }
@@ -141,7 +143,7 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
                       key: 'auto',
                       node: translate('onboarding.create_project.select_repositories')
                     },
-                    { key: 'manual', node: translate('onboarding.create_project.create_manually') }
+                    { key: 'manual', node: translate('onboarding.create_project.setup_manually') }
                   ]}
                 />
               )}

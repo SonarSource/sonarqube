@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Organization } from '../../../app/types';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import OrganizationSelect from '../components/OrganizationSelect';
+import { Organization } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
@@ -84,10 +85,11 @@ export default class AutoOrganizationBind extends React.PureComponent<Props, Sta
           organization={organization}
           organizations={this.props.unboundOrganizations}
         />
-        <div className="big-spacer-top">
+        <div className="display-flex-center big-spacer-top">
           <SubmitButton disabled={submitting || !organization}>
             {translate('onboarding.import_organization.bind')}
           </SubmitButton>
+          {submitting && <DeferredSpinner className="spacer-left" />}
         </div>
       </form>
     );
