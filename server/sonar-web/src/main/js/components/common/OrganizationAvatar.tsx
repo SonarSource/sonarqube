@@ -20,31 +20,48 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import GenericAvatar from '../ui/GenericAvatar';
+import { OrganizationBase } from '../../app/types';
 import './OrganizationAvatar.css';
 
 interface Props {
   className?: string;
-  organization: {
-    avatar?: string;
-    name: string;
-  };
+  organization: Pick<OrganizationBase, 'avatar' | 'name'>;
   small?: boolean;
 }
 
-export default function OrganizationAvatar({ className, organization, small }: Props) {
-  return (
-    <div
-      className={classNames(
-        'navbar-context-avatar',
-        'rounded',
-        { 'no-border': !organization.avatar, 'is-small': small },
-        className
-      )}>
-      {organization.avatar ? (
-        <img alt={organization.name} className="rounded" src={organization.avatar} />
-      ) : (
-        <GenericAvatar name={organization.name} size={small ? 15 : 30} />
-      )}
-    </div>
-  );
+interface State {
+  imgLoadError: boolean;
+}
+
+export default class OrganizationAvatar extends React.PureComponent<Props, State> {
+  state = { imgLoadError: false };
+
+  handleImgError = () => {
+    this.setState({ imgLoadError: true });
+  };
+
+  render() {
+    const { className, organization, small } = this.props;
+    const { imgLoadError } = this.state;
+    return (
+      <div
+        className={classNames(
+          'navbar-context-avatar',
+          'rounded',
+          { 'no-border': !organization.avatar, 'is-small': small },
+          className
+        )}>
+        {organization.avatar && !imgLoadError ? (
+          <img
+            alt={organization.name}
+            className="rounded"
+            onError={this.handleImgError}
+            src={organization.avatar}
+          />
+        ) : (
+          <GenericAvatar name={organization.name} size={small ? 15 : 30} />
+        )}
+      </div>
+    );
+  }
 }
