@@ -28,9 +28,10 @@ env:
   # could be used in Artifactory statistics
   CI_ENV: cirrus
 
+auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
+
 build_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
-  auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   timeout_in: 90m
   gke_container:
     image: gradle:4.10.1-jdk8
@@ -51,7 +52,6 @@ build_task:
 deploy_docs_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
-  auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
     cluster_name: cirrus-euw3a-cluster
@@ -67,7 +67,6 @@ deploy_docs_task:
 validate_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
-  auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   timeout_in: 90m
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-build:0.0.3
@@ -97,7 +96,6 @@ validate_task:
 qa_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
-  auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-qa:0.0.2
     cluster_name: cirrus-euw3a-cluster
@@ -143,7 +141,6 @@ promote_task:
     - validate
     - qa
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
-  auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
     cluster_name: cirrus-euw3a-cluster
