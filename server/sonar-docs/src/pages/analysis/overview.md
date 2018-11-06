@@ -52,7 +52,7 @@ A project is created in the platform automatically on its first analysis. Howeve
 ## What does analysis produce? 
 {instance} can perform analysis on 20+ different languages. The outcome of this analysis will be quality measures and issues (instances where coding rules were broken). However, what gets analyzed will vary depending on the language:
 
-* On all languages, "blame" data will automatically be imported from supported SCM providers. Git and SVN are supported automatically. Other providers require additional plugins.
+* On all languages, "blame" data will automatically be imported from supported SCM providers. [Git and SVN are supported automatically](/analysis/scm-integration/). Other providers require additional plugins.
 * On all languages, a static analysis of source code is performed (Java files, COBOL programs, etc.)
 * A static analysis of compiled code can be performed for certain languages (.class files in Java, .dll files in C#, etc.)
 * A dynamic analysis of code can be performed on certain languages.
@@ -61,7 +61,10 @@ A project is created in the platform automatically on its first analysis. Howeve
 By default, only files that are recognized by a language analyzer are loaded into the project during analysis. 
 <!-- sonarqube -->
 For example if your SonarQube instance had only SonarJava SonarJS on board, all .java and .js files would be loaded, but .xml files would be ignored.
-<!-- /sonarqube -->
+
+## What about branches and pull requests?
+_Developer Edition_ adds the ability to analyze your project's release / [long-lived branches](/branches/long-lived-branches/), feature / [short-lived branches](/branches/short-lived-branches/), and [pull requests](/analysis/pull-request/) as well as the ability to automatically decorate pull requests in some SCM interfaces. For more on branches see the [branches overview](/branches/overview/).
+<!-- /sonarqube>
 
 ## What happens during analysis?
 During analysis, data is requested from the server, the files provided to the analysis are analyzed, and the resulting data is sent back to the server at the end in the form of a report, which is then analyzed asynchronously server-side.
