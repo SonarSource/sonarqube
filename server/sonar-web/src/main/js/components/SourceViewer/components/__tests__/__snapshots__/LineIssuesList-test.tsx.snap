@@ -9,6 +9,7 @@ exports[`render issues list 1`] = `
     displayLocationsLink={true}
     issue={
       Object {
+        "actions": Array [],
         "component": "",
         "componentLongName": "",
         "componentQualifier": "",
@@ -28,6 +29,7 @@ exports[`render issues list 1`] = `
         "secondaryLocations": Array [],
         "severity": "",
         "status": "",
+        "transitions": Array [],
         "type": "BUG",
       }
     }
@@ -42,6 +44,7 @@ exports[`render issues list 1`] = `
     displayLocationsLink={true}
     issue={
       Object {
+        "actions": Array [],
         "component": "",
         "componentLongName": "",
         "componentQualifier": "",
@@ -61,6 +64,7 @@ exports[`render issues list 1`] = `
         "secondaryLocations": Array [],
         "severity": "",
         "status": "",
+        "transitions": Array [],
         "type": "BUG",
       }
     }

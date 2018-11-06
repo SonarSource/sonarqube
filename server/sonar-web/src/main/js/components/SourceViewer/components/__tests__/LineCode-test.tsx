@@ -23,6 +23,7 @@ import LineCode from '../LineCode';
 import { BranchType, Issue, ShortLivingBranch, IssueType } from '../../../../app/types';
 
 const issueBase: Issue = {
+  actions: [],
   component: '',
   componentLongName: '',
   componentQualifier: '',
@@ -42,6 +43,7 @@ const issueBase: Issue = {
   secondaryLocations: [],
   severity: '',
   status: '',
+  transitions: [],
   type: IssueType.Bug
 };
 

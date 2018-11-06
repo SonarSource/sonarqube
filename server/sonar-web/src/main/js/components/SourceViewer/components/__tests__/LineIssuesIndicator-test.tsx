@@ -24,6 +24,7 @@ import LineIssuesIndicator from '../LineIssuesIndicator';
 import { Issue, IssueType } from '../../../../app/types';
 
 const issueBase: Issue = {
+  actions: [],
   component: '',
   componentLongName: '',
   componentQualifier: '',
@@ -43,6 +44,7 @@ const issueBase: Issue = {
   secondaryLocations: [],
   severity: '',
   status: '',
+  transitions: [],
   type: IssueType.Bug
 };
 

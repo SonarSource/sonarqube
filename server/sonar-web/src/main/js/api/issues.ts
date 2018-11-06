@@ -23,10 +23,10 @@ import { RawIssue } from '../helpers/issues';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface IssueResponse {
-  components?: Array<{}>;
-  issue: {};
+  components?: Array<{ key: string; name: string }>;
+  issue: RawIssue;
   rules?: Array<{}>;
-  users?: Array<{}>;
+  users?: Array<{ login: string }>;
 }
 
 interface IssuesResponse {

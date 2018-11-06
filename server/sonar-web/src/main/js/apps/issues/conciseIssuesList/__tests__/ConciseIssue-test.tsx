@@ -20,29 +20,31 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssue from '../ConciseIssue';
-import { IssueType } from '../../../../app/types';
+import { Issue, IssueType } from '../../../../app/types';
 
-const issue = {
+const issue: Issue = {
+  actions: [],
   component: '',
   componentLongName: 'src/file.js',
   componentQualifier: '',
   componentUuid: '',
   creationDate: '',
+  flows: [],
+  fromHotspot: false,
   key: '',
   message: '',
   organization: '',
   project: '',
+  projectKey: '',
   projectName: '',
   projectOrganization: '',
-  projectKey: '',
   rule: '',
   ruleName: '',
+  secondaryLocations: [],
   severity: '',
   status: '',
-  type: IssueType.Bug,
-  secondaryLocations: [],
-  flows: [],
-  fromHotspot: false
+  transitions: [],
+  type: IssueType.Bug
 };
 
 it('should render', () => {

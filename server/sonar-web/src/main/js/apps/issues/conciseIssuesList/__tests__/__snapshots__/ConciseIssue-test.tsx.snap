@@ -8,6 +8,7 @@ exports[`should render 1`] = `
   <ConciseIssueBox
     issue={
       Object {
+        "actions": Array [],
         "component": "",
         "componentLongName": "src/file.js",
         "componentQualifier": "",
@@ -27,6 +28,7 @@ exports[`should render 1`] = `
         "secondaryLocations": Array [],
         "severity": "",
         "status": "",
+        "transitions": Array [],
         "type": "BUG",
       }
     }

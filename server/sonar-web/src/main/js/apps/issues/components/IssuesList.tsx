@@ -29,7 +29,7 @@ interface Props {
   issues: Issue[];
   onFilterChange: (changes: Partial<Query>) => void;
   onIssueChange: (issue: Issue) => void;
-  onIssueCheck: ((issueKey: string, event: Event) => void) | undefined;
+  onIssueCheck: ((issueKey: string, event: { shiftKey?: boolean }) => void) | undefined;
   onIssueClick: (issueKey: string) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup: { issue: string; name: string } | undefined;

@@ -36,6 +36,7 @@ it('should display error message when no issues available', async () => {
 it('should display form when issues are present', async () => {
   const wrapper = getWrapper([
     {
+      actions: [],
       component: 'foo',
       componentLongName: 'foo',
       componentQualifier: 'foo',
@@ -55,6 +56,7 @@ it('should display form when issues are present', async () => {
       secondaryLocations: [],
       severity: 'foo',
       status: 'foo',
+      transitions: [],
       type: IssueType.Bug
     }
   ]);

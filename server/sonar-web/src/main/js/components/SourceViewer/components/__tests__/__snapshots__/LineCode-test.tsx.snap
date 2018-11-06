@@ -47,6 +47,7 @@ exports[`render code 1`] = `
     issues={
       Array [
         Object {
+          "actions": Array [],
           "component": "",
           "componentLongName": "",
           "componentQualifier": "",
@@ -66,9 +67,11 @@ exports[`render code 1`] = `
           "secondaryLocations": Array [],
           "severity": "",
           "status": "",
+          "transitions": Array [],
           "type": "BUG",
         },
         Object {
+          "actions": Array [],
           "component": "",
           "componentLongName": "",
           "componentQualifier": "",
@@ -88,6 +91,7 @@ exports[`render code 1`] = `
           "secondaryLocations": Array [],
           "severity": "",
           "status": "",
+          "transitions": Array [],
           "type": "BUG",
         },
       ]

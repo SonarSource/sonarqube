@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the comment popup correctly when changing a comment 1`] = `
+<DropdownOverlay>
+  <div
+    className="issue-comment-bubble-popup"
+  >
+    <div
+      className="issue-comment-form-text"
+    >
+      <textarea
+        autoFocus={true}
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder=""
+        rows={2}
+        value="*test*"
+      />
+    </div>
+    <div
+      className="issue-comment-form-footer"
+    >
+      <div
+        className="issue-comment-form-actions"
+      >
+        <Button
+          className="js-issue-comment-submit little-spacer-right"
+          disabled={false}
+          onClick={[Function]}
+        >
+          save
+        </Button>
+        <ResetButtonLink
+          className="js-issue-comment-cancel"
+          onClick={[Function]}
+        >
+          cancel
+        </ResetButtonLink>
+      </div>
+      <div
+        className="issue-comment-form-tips"
+      >
+        <MarkdownTips />
+      </div>
+    </div>
+  </div>
+</DropdownOverlay>
+`;
+
+exports[`should render the comment popup correctly without existing comment 1`] = `
+<DropdownOverlay>
+  <div
+    className="issue-comment-bubble-popup"
+  >
+    <div
+      className="issue-comment-form-text"
+    >
+      <textarea
+        autoFocus={true}
+        onChange={[Function]}
+        onKeyDown={[Function]}
+        placeholder="placeholder test"
+        rows={2}
+        value=""
+      />
+    </div>
+    <div
+      className="issue-comment-form-footer"
+    >
+      <div
+        className="issue-comment-form-actions"
+      >
+        <Button
+          className="js-issue-comment-submit little-spacer-right"
+          disabled={true}
+          onClick={[Function]}
+        >
+          issue.comment.submit
+        </Button>
+        <ResetButtonLink
+          className="js-issue-comment-cancel"
+          onClick={[Function]}
+        >
+          cancel
+        </ResetButtonLink>
+      </div>
+      <div
+        className="issue-comment-form-tips"
+      >
+        <MarkdownTips />
+      </div>
+    </div>
+  </div>
+</DropdownOverlay>
+`;

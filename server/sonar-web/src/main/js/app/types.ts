@@ -311,7 +311,7 @@ export interface SecurityHotspot {
 }
 
 export interface Issue {
-  actions?: string[];
+  actions: string[];
   assignee?: string;
   assigneeActive?: string;
   assigneeAvatar?: string;
@@ -326,6 +326,7 @@ export interface Issue {
   componentUuid: string;
   creationDate: string;
   effort?: string;
+  externalRuleEngine?: string;
   fromExternalRule?: boolean;
   key: string;
   flows: FlowLocation[][];
@@ -349,7 +350,7 @@ export interface Issue {
   subProjectUuid?: string;
   tags?: string[];
   textRange?: TextRange;
-  transitions?: string[];
+  transitions: string[];
   type: IssueType;
 }
 

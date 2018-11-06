@@ -26,18 +26,19 @@ import EditIcon from '../icons-components/EditIcon';
 import Tooltip from '../controls/Tooltip';
 import './buttons.css';
 
-interface ButtonProps {
+type AllowedButtonAttributes = Pick<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'className' | 'disabled' | 'id' | 'style' | 'title'
+>;
+
+interface ButtonProps extends AllowedButtonAttributes {
   autoFocus?: boolean;
-  className?: string;
   children?: React.ReactNode;
-  disabled?: boolean;
-  id?: string;
   innerRef?: (node: HTMLElement | null) => void;
   name?: string;
-  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  onClick?: () => void;
   preventDefault?: boolean;
   stopPropagation?: boolean;
-  style?: React.CSSProperties;
   type?: string;
 }
 
@@ -48,7 +49,7 @@ export class Button extends React.PureComponent<ButtonProps> {
     event.currentTarget.blur();
     if (preventDefault) event.preventDefault();
     if (stopPropagation) event.stopPropagation();
-    if (onClick) onClick(event);
+    if (onClick) onClick();
   };
 
   render() {

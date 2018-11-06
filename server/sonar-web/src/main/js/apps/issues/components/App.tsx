@@ -737,7 +737,7 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
-  handleIssueCheck = (issue: string, event: MouseEvent) => {
+  handleIssueCheck = (issue: string, event: { shiftKey?: boolean }) => {
     // Selecting multiple issues with shift+click
     const { lastChecked } = this.state;
     if (event.shiftKey && lastChecked) {
