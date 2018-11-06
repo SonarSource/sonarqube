@@ -34,7 +34,7 @@ build_task:
   timeout_in: 90m
   gke_container:
     image: gradle:4.10.1-jdk8
-    cluster_name: cirrus-euw3-cluster
+    cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
     cpu: 3
@@ -54,7 +54,7 @@ deploy_docs_task:
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
-    cluster_name: cirrus-euw3-cluster
+    cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
     cpu: 1
@@ -71,7 +71,7 @@ validate_task:
   timeout_in: 90m
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-build:0.0.3
-    cluster_name: cirrus-euw3-cluster
+    cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
     cpu: 2.4
@@ -100,7 +100,7 @@ qa_task:
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-qa:0.0.2
-    cluster_name: cirrus-euw3-cluster
+    cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
     cpu: 2.4
@@ -146,7 +146,7 @@ promote_task:
   auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
   gke_container:
     image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
-    cluster_name: cirrus-euw3-cluster
+    cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
     cpu: 1
