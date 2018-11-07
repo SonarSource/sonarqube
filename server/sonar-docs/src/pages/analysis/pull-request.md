@@ -69,3 +69,7 @@ Note: if you were relying on the GitHub Plugin, its properties are no longer req
 | `sonar.pullrequest.bitbucketcloud.repository` | SLUG or UUID of the Bitbucket Cloud Repo |
 | `sonar.pullrequest.bitbucketcloud.owner` | SLUG or UUID of the Bitbucket Cloud Owner |
 
+<!-- sonarqube -->
+#### Issue links
+During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > General](/#sonarqube-admin#/admin/settings)**) must be set correctly. Otherwise the links will default to `localhost`.
+<!-- /sonarqube -->
