@@ -5,7 +5,7 @@ exports[`should render correctly the list of series 1`] = `
   className="page-header"
 >
   <Select
-    className="input-medium pull-left big-spacer-right"
+    className="pull-left big-spacer-right input-medium"
     clearable={true}
     onChange={[Function]}
     optionComponent={[Function]}

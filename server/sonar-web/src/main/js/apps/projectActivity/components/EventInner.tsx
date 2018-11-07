@@ -20,7 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
+import { isDefinitionChangeEvent, DefinitionChangeEventInner } from './DefinitionChangeEventInner';
 import { AnalysisEvent } from '../../../app/types';
+import { ComponentContext } from '../../../app/components/ComponentContext';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 import { translate } from '../../../helpers/l10n';
 
@@ -31,6 +33,12 @@ interface Props {
 export default function EventInner({ event }: Props) {
   if (isRichQualityGateEvent(event)) {
     return <RichQualityGateEventInner event={event} />;
+  } else if (isDefinitionChangeEvent(event)) {
+    return (
+      <ComponentContext.Consumer>
+        {({ branchLike }) => <DefinitionChangeEventInner branchLike={branchLike} event={event} />}
+      </ComponentContext.Consumer>
+    );
   } else {
     return (
       <div className="project-activity-event-inner">

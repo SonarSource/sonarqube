@@ -29,8 +29,7 @@ import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 
-export type RichQualityGateEvent = Exclude<AnalysisEvent, 'qualityGate'> &
-  Required<Pick<AnalysisEvent, 'qualityGate'>>;
+export type RichQualityGateEvent = AnalysisEvent & Required<Pick<AnalysisEvent, 'qualityGate'>>;
 
 export function isRichQualityGateEvent(event: AnalysisEvent): event is RichQualityGateEvent {
   return event.category === 'QUALITY_GATE' && event.qualityGate !== undefined;

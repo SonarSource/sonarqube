@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
 import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
@@ -39,8 +40,8 @@ export default class ProjectActivityPageHeader extends React.PureComponent<Props
     this.props.updateQuery({ category: option ? option.value : '' });
 
   render() {
-    const eventTypes =
-      this.props.project.qualifier === 'APP' ? APPLICATION_EVENT_TYPES : EVENT_TYPES;
+    const isApp = this.props.project.qualifier === 'APP';
+    const eventTypes = isApp ? APPLICATION_EVENT_TYPES : EVENT_TYPES;
     const options = eventTypes.map(category => ({
       label: translate('event.category', category),
       value: category
@@ -50,7 +51,10 @@ export default class ProjectActivityPageHeader extends React.PureComponent<Props
       <header className="page-header">
         {!['VW', 'SVW'].includes(this.props.project.qualifier) && (
           <Select
-            className="input-medium pull-left big-spacer-right"
+            className={classNames('pull-left big-spacer-right', {
+              'input-medium': !isApp,
+              'input-large': isApp
+            })}
             clearable={true}
             onChange={this.handleCategoryChange}
             optionComponent={ProjectActivityEventSelectOption}

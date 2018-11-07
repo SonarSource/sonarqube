@@ -182,6 +182,10 @@
   color: #cccccc;
 }
 
+.project-activity-event-icon.DEFINITION_CHANGE {
+  color: #33a759;
+}
+
 .project-activity-event-icon.OTHER {
   color: #442d1b;
 }

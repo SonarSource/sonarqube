@@ -67,7 +67,7 @@ export interface MeasureHistory {
 }
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
-export const APPLICATION_EVENT_TYPES = ['QUALITY_GATE', 'OTHER'];
+export const APPLICATION_EVENT_TYPES = ['QUALITY_GATE', 'DEFINITION_CHANGE', 'OTHER'];
 export const DEFAULT_GRAPH = 'issues';
 export const GRAPH_TYPES = ['issues', 'coverage', 'duplications', 'custom'];
 export const GRAPHS_METRICS_DISPLAYED: { [x: string]: string[] } = {

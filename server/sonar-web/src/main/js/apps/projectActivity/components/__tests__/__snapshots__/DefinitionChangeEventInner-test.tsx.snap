@@ -1,0 +1,275 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<div
+  className="project-activity-event-inner"
+>
+  <div
+    className="project-activity-event-inner-main"
+  >
+    <ProjectEventIcon
+      className="project-activity-event-icon little-spacer-right DEFINITION_CHANGE"
+    />
+    <div
+      className="project-activity-event-inner-text flex-1"
+    >
+      <span
+        className="note little-spacer-right"
+      >
+        event.category.DEFINITION_CHANGE
+      </span>
+    </div>
+    <ResetButtonLink
+      className="project-activity-event-inner-more-link"
+      onClick={[Function]}
+      stopPropagation={true}
+    >
+      more
+      <DropdownIcon
+        className="little-spacer-left"
+        turned={false}
+      />
+    </ResetButtonLink>
+  </div>
+</div>
+`;
+
+exports[`should render 2`] = `
+<div
+  className="project-activity-event-inner"
+>
+  <div
+    className="project-activity-event-inner-main"
+  >
+    <ProjectEventIcon
+      className="project-activity-event-icon little-spacer-right DEFINITION_CHANGE"
+    />
+    <div
+      className="project-activity-event-inner-text flex-1"
+    >
+      <span
+        className="note little-spacer-right"
+      >
+        event.category.DEFINITION_CHANGE
+      </span>
+    </div>
+    <ResetButtonLink
+      className="project-activity-event-inner-more-link"
+      onClick={[Function]}
+      stopPropagation={true}
+    >
+      hide
+      <DropdownIcon
+        className="little-spacer-left"
+        turned={true}
+      />
+    </ResetButtonLink>
+  </div>
+  <ul>
+    <li
+      className="display-flex-center little-spacer-top"
+      key="foo"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <FormattedMessage
+          defaultMessage="event.definition_change.added"
+          id="event.definition_change.added"
+          values={
+            Object {
+              "branch": <span
+                className="nowrap"
+              >
+                <LongLivingBranchIcon
+                  className="little-spacer-left text-text-top"
+                />
+                master
+              </span>,
+              "project": <Link
+                onClick={[Function]}
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": "master",
+                      "id": "foo",
+                    },
+                  }
+                }
+              >
+                Foo
+              </Link>,
+            }
+          }
+        />
+      </div>
+    </li>
+    <li
+      className="display-flex-center little-spacer-top"
+      key="bar"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <FormattedMessage
+          defaultMessage="event.definition_change.removed"
+          id="event.definition_change.removed"
+          values={
+            Object {
+              "branch": <span
+                className="nowrap"
+              >
+                <LongLivingBranchIcon
+                  className="little-spacer-left text-text-top"
+                />
+                master
+              </span>,
+              "project": <Link
+                onClick={[Function]}
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": "master",
+                      "id": "bar",
+                    },
+                  }
+                }
+              >
+                Bar
+              </Link>,
+            }
+          }
+        />
+      </div>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`should render for a branch 1`] = `
+<div
+  className="project-activity-event-inner"
+>
+  <div
+    className="project-activity-event-inner-main"
+  >
+    <ProjectEventIcon
+      className="project-activity-event-icon little-spacer-right DEFINITION_CHANGE"
+    />
+    <div
+      className="project-activity-event-inner-text flex-1"
+    >
+      <span
+        className="note little-spacer-right"
+      >
+        event.category.DEFINITION_CHANGE
+      </span>
+    </div>
+    <ResetButtonLink
+      className="project-activity-event-inner-more-link"
+      onClick={[Function]}
+      stopPropagation={true}
+    >
+      hide
+      <DropdownIcon
+        className="little-spacer-left"
+        turned={true}
+      />
+    </ResetButtonLink>
+  </div>
+  <ul>
+    <li
+      className="display-flex-center little-spacer-top"
+      key="foo"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <FormattedMessage
+          defaultMessage="event.definition_change.branch_added"
+          id="event.definition_change.branch_added"
+          values={
+            Object {
+              "branch": <span
+                className="nowrap"
+              >
+                <LongLivingBranchIcon
+                  className="little-spacer-left text-text-top"
+                />
+                feature-x
+              </span>,
+              "project": <Link
+                onClick={[Function]}
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": "feature-x",
+                      "id": "foo",
+                    },
+                  }
+                }
+              >
+                Foo
+              </Link>,
+            }
+          }
+        />
+      </div>
+    </li>
+    <li
+      className="display-flex-center little-spacer-top"
+      key="bar"
+    >
+      <FormattedMessage
+        defaultMessage="event.definition_change.branch_replaced"
+        id="event.definition_change.branch_replaced"
+        values={
+          Object {
+            "newBranch": <span
+              className="nowrap"
+            >
+              <LongLivingBranchIcon
+                className="little-spacer-left text-text-top"
+              />
+              feature-y
+            </span>,
+            "oldBranch": <span
+              className="nowrap"
+            >
+              <LongLivingBranchIcon
+                className="little-spacer-left text-text-top"
+              />
+              master
+            </span>,
+            "project": <Link
+              onClick={[Function]}
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": "feature-y",
+                    "id": "bar",
+                  },
+                }
+              }
+            >
+              Bar
+            </Link>,
+          }
+        }
+      />
+    </li>
+  </ul>
+</div>
+`;

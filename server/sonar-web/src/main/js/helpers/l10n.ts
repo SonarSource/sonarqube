@@ -158,14 +158,14 @@ export function getLocalizedMetricName(
   short?: boolean
 ): string {
   const bundleKey = `metric.${metric.key}.${short ? 'short_name' : 'name'}`;
-  const fromBundle = translate(bundleKey);
-  if (fromBundle === bundleKey) {
+  if (hasMessage(bundleKey)) {
+    return translate(bundleKey);
+  } else {
     if (short) {
       return getLocalizedMetricName(metric);
     }
     return metric.name || metric.key;
   }
-  return fromBundle;
 }
 
 export function getLocalizedCategoryMetricName(metric: { key: string; name?: string }) {

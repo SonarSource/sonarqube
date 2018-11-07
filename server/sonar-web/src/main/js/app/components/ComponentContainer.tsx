@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { differenceBy } from 'lodash';
+import { ComponentContext } from './ComponentContext';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
 import { Component, BranchLike, Measure, Task } from '../types';
@@ -365,15 +366,17 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             <i className="spinner" />
           </div>
         ) : (
-          React.cloneElement(this.props.children, {
-            branchLike,
-            branchLikes,
-            component,
-            isInProgress,
-            isPending,
-            onBranchesChange: this.handleBranchesChange,
-            onComponentChange: this.handleComponentChange
-          })
+          <ComponentContext.Provider value={{ branchLike, component }}>
+            {React.cloneElement(this.props.children, {
+              branchLike,
+              branchLikes,
+              component,
+              isInProgress,
+              isPending,
+              onBranchesChange: this.handleBranchesChange,
+              onComponentChange: this.handleComponentChange
+            })}
+          </ComponentContext.Provider>
         )}
       </div>
     );
