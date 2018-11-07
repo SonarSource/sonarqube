@@ -60,6 +60,8 @@ export default class Home extends React.PureComponent<{}, State> {
   };
 
   render() {
+    const { data } = this.state;
+
     return (
       <div className="global-container">
         <div className="page-wrapper">
@@ -77,10 +79,8 @@ export default class Home extends React.PureComponent<{}, State> {
             <EnhanceWorkflow />
             <Functionality />
             <Languages />
-            <Stats data={this.state.data} />
-            <Projects
-              featuredProjects={this.state.data ? this.state.data.featuredProjects : undefined}
-            />
+            <Stats data={data} />
+            <Projects featuredProjects={(data && data.featuredProjects) || []} />
           </div>
         </div>
         <Footer />
@@ -313,14 +313,14 @@ function Stats({ data }: StatsProps) {
 }
 
 interface ProjectsProps {
-  featuredProjects?: FeaturedProject[];
+  featuredProjects: FeaturedProject[];
 }
 
 function Projects({ featuredProjects }: ProjectsProps) {
   return (
     <div className="sc-section sc-columns">
       <div className="sc-column sc-column-full">
-        {featuredProjects && (
+        {featuredProjects.length > 0 && (
           <>
             <h6 className="big-spacer-bottom">
               Transparency makes sense

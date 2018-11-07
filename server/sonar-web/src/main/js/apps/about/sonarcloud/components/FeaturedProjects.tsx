@@ -95,6 +95,10 @@ export default class FeaturedProjects extends React.PureComponent<Props, State> 
 
   orderProjectsFromProps = () => {
     const { projects } = this.props;
+    if (projects.length === 0) {
+      return [];
+    }
+
     // Last element should be put at the begining for proper carousel animation
     return [projects.pop(), ...projects].map((project: FeaturedProject, id) => {
       return {
