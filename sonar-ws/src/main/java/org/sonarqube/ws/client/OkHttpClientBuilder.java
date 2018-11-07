@@ -142,8 +142,9 @@ public class OkHttpClientBuilder {
   /**
    * Set credentials that will be passed on every request
    */
-  public void setCredentials(String credentials) {
+  public OkHttpClientBuilder setCredentials(String credentials) {
     this.credentials = credentials;
+    return this;
   }
 
   /**
