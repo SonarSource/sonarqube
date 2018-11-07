@@ -21,6 +21,7 @@
   background-color: var(--sonarcloudBlack800);
   color: var(--sonarcloudBlack300);
   font-size: 12px;
+  min-width: 1080px;
 }
 
 .sc-footer *:focus {
