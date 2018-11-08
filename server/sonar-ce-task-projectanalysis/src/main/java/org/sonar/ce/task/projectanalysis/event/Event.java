@@ -50,6 +50,10 @@ public class Event {
     return new Event(name, Category.PROFILE, data, description);
   }
 
+  public static Event createDefinitionChange(String name, @Nullable String data, @Nullable String description) {
+    return new Event(name, Category.DEFINITION_CHANGE, data, description);
+  }
+
   public String getName() {
     return name;
   }
@@ -86,7 +90,7 @@ public class Event {
   }
 
   public enum Category {
-    ALERT, PROFILE
+    ALERT, PROFILE, DEFINITION_CHANGE
   }
 
 }

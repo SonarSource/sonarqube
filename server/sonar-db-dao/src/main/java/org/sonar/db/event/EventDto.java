@@ -31,6 +31,7 @@ public class EventDto {
   public static final String CATEGORY_VERSION = "Version";
   public static final String CATEGORY_ALERT = "Alert";
   public static final String CATEGORY_PROFILE = "Profile";
+  public static final String DEFINITION_CHANGE = "Definition change";
 
   private Long id;
   private String uuid;
