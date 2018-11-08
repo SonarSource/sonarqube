@@ -48,25 +48,35 @@ exports[`should render ProjectCard correctly 1`] = `
         metric={0}
         metricKey="bugs"
         ratingMetric={1}
-        viewable={false}
+        viewable={true}
       />
       <ProjectIssues
         metric={0}
         metricKey="vulnerabilities"
         ratingMetric={1}
-        viewable={false}
+        viewable={true}
       />
       <ProjectIssues
         metric={7}
         metricKey="code_smells"
         ratingMetric={1}
-        viewable={false}
+        viewable={true}
       />
       <li>
         <span>
           overview.metric.coverage
         </span>
         <div>
+          <CountUp
+            decimal="."
+            decimals={1}
+            delay={0}
+            duration={4}
+            end={9.7}
+            suffix="%"
+          >
+            <Component />
+          </CountUp>
           <CoverageRating
             value={9.7}
           />
@@ -77,6 +87,16 @@ exports[`should render ProjectCard correctly 1`] = `
           overview.metric.duplications
         </span>
         <div>
+          <CountUp
+            decimal="."
+            decimals={1}
+            delay={0}
+            duration={4}
+            end={56.2}
+            suffix="%"
+          >
+            <Component />
+          </CountUp>
           <DuplicationsRating
             value={56.2}
           />
@@ -104,6 +124,35 @@ exports[`should render ProjectIssues correctly 1`] = `
     overview.metric.foo
   </span>
   <div>
+    <CountUp
+      delay={0}
+      duration={4}
+      end={5}
+      suffix=""
+    >
+      <Component />
+    </CountUp>
+    <Rating
+      value={20}
+    />
+  </div>
+</li>
+`;
+
+exports[`should render ProjectIssues correctly 2`] = `
+<li>
+  <span>
+    overview.metric.foo
+  </span>
+  <div>
+    <CountUp
+      delay={0}
+      duration={4}
+      end={15}
+      suffix="short_number_suffix.k"
+    >
+      <Component />
+    </CountUp>
     <Rating
       value={20}
     />

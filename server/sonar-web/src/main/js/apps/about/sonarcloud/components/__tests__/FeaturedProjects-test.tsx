@@ -117,13 +117,16 @@ const PROJECTS = [
 
 it('should render ProjectIssues correctly', () => {
   expect(
-    shallow(<ProjectIssues metric={15} metricKey="foo" ratingMetric={20} viewable={false} />)
+    shallow(<ProjectIssues metric={5} metricKey="foo" ratingMetric={20} viewable={true} />)
+  ).toMatchSnapshot();
+  expect(
+    shallow(<ProjectIssues metric={15000} metricKey="foo" ratingMetric={20} viewable={true} />)
   ).toMatchSnapshot();
 });
 
 it('should render ProjectCard correctly', () => {
   expect(
-    shallow(<ProjectCard order={1} project={PROJECTS[0]} viewable={false} />)
+    shallow(<ProjectCard order={1} project={PROJECTS[0]} viewable={true} />)
   ).toMatchSnapshot();
 });
 

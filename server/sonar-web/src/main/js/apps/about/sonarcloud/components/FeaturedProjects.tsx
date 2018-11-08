@@ -280,9 +280,9 @@ interface ProjectIssues {
 }
 
 export function ProjectIssues({ metric, metricKey, ratingMetric, viewable }: ProjectIssues) {
-  const formattedString = formatMeasure(metric, 'SHORT_INT');
-  const value = parseFloat(formattedString.slice(0, -1));
-  const suffix = formattedString.substr(-1);
+  const formattedValue = formatMeasure(metric, 'SHORT_INT');
+  const value = parseFloat(formattedValue);
+  const suffix = formattedValue.replace(value.toString(), '');
   return (
     <li>
       <span>{getMetricName(metricKey)}</span>
