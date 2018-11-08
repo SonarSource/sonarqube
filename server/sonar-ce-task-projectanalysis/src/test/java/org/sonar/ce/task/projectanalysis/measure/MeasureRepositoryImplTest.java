@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
@@ -28,6 +27,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +53,6 @@ import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -133,7 +132,7 @@ public class MeasureRepositoryImplTest {
   public void getBaseMeasure_returns_absent_if_measure_does_not_exist_in_DB() {
     Optional<Measure> res = underTest.getBaseMeasure(FILE_COMPONENT, metric1);
 
-    assertThat(res).isAbsent();
+    assertThat(res).isNotPresent();
   }
 
   @Test
@@ -152,7 +151,7 @@ public class MeasureRepositoryImplTest {
     // metric 2 is associated to snapshot with "last=false" => not retrieved
     res = underTest.getBaseMeasure(FILE_COMPONENT, metric2);
 
-    assertThat(res).isAbsent();
+    assertThat(res).isNotPresent();
   }
 
   @Test
@@ -318,8 +317,8 @@ public class MeasureRepositoryImplTest {
     assertThat(res.get()).isSameAs(SOME_MEASURE);
 
     // make sure we really match on the specified component and metric
-    assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isAbsent();
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isAbsent();
+    assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isNotPresent();
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isNotPresent();
   }
 
   @Test
@@ -337,8 +336,8 @@ public class MeasureRepositoryImplTest {
     assertThat(res.get().getStringValue()).isEqualTo(value);
 
     // make sure we really match on the specified component and metric
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isAbsent();
-    assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isAbsent();
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isNotPresent();
+    assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isNotPresent();
   }
 
   @Test
@@ -351,7 +350,7 @@ public class MeasureRepositoryImplTest {
       ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue(StringValue.newBuilder().setValue("value2")).build()));
 
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1)).isPresent();
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isAbsent();
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isNotPresent();
   }
 
   @Test

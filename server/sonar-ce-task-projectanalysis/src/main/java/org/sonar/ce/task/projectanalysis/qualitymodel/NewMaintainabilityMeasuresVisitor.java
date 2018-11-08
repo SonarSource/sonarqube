@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
-import com.google.common.base.Optional;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.measures.CoreMetrics;
@@ -50,7 +50,6 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 /**
  * This visitor depends on {@link IntegrateIssuesVisitor} for the computation of
  * metric {@link CoreMetrics#NEW_TECHNICAL_DEBT}.
- *
  * Compute following measure :
  * {@link CoreMetrics#NEW_SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#NEW_MAINTAINABILITY_RATING_KEY}
@@ -136,10 +135,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   }
 
   private static long getLongValue(Optional<Measure> measure) {
-    if (!measure.isPresent()) {
-      return 0L;
-    }
-    return getLongValue(measure.get());
+    return measure.map(NewMaintainabilityMeasuresVisitor::getLongValue).orElse(0L);
   }
 
   private static long getLongValue(Measure measure) {
@@ -155,7 +151,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
       return;
     }
 
-    java.util.Optional<Set<Integer>> changedLines = newLinesRepository.getNewLines(file);
+    Optional<Set<Integer>> changedLines = newLinesRepository.getNewLines(file);
 
     if (!changedLines.isPresent()) {
       LOG.trace(String.format("No information about changed lines is available for file '%s'. Dev cost will be zero.", file.getKey()));
@@ -193,7 +189,6 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   /**
    * NCLOC_DATA contains Key-value pairs, where key - is a number of line, and value - is an indicator of whether line
    * contains code (1) or not (0).
-   *
    * This method parses the value of the NCLOC_DATA measure and return the line numbers of lines which contain code.
    */
   private static Iterable<Integer> nclocLineIndexes(Measure nclocDataMeasure) {

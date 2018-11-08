@@ -19,9 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
-import org.assertj.guava.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -144,7 +143,7 @@ public class IntSumFormulaTest {
   }
 
   private void assertCreateNoMeasure(IntSumCounter counter) {
-    Assertions.assertThat(INT_SUM_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isAbsent();
+    assertThat(INT_SUM_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isNotPresent();
   }
 
   private void assertCreateMeasureValue(IntSumCounter counter, int expectMeasureValue) {
@@ -154,7 +153,7 @@ public class IntSumFormulaTest {
   private void initialize_does_not_create_measure_on_file(IntSumCounter counter) {
     counter.initialize(createMeasureInInitContext(10));
 
-    Assertions.assertThat(INT_SUM_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isAbsent();
+    assertThat(INT_SUM_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isNotPresent();
   }
 
   private static CounterInitializationContext createMeasureInInitContext(int value) {
@@ -165,7 +164,7 @@ public class IntSumFormulaTest {
 
   private static CounterInitializationContext createNoMeasureInInitContext() {
     CounterInitializationContext initContext = mock(CounterInitializationContext.class);
-    when(initContext.getMeasure(LINES_KEY)).thenReturn(Optional.absent());
+    when(initContext.getMeasure(LINES_KEY)).thenReturn(Optional.empty());
     return initContext;
   }
 

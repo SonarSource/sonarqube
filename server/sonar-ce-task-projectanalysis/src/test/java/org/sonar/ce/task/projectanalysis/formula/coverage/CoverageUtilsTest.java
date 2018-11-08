@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.formula.coverage;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -130,7 +130,7 @@ public class CoverageUtilsTest {
 
     @Override
     public Optional<Measure> getMeasure(String metricKey) {
-      return Optional.fromNullable(measures.get(metricKey));
+      return Optional.ofNullable(measures.get(metricKey));
     }
 
   }

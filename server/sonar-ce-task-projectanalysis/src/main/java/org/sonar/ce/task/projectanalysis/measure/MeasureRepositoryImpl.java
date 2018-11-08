@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.SetMultimap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -65,11 +65,11 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     requireNonNull(metric);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      java.util.Optional<MeasureDto> measureDto = dbClient.measureDao().selectLastMeasure(dbSession, component.getUuid(), metric.getKey());
+      Optional<MeasureDto> measureDto = dbClient.measureDao().selectLastMeasure(dbSession, component.getUuid(), metric.getKey());
       if (measureDto.isPresent()) {
         return measureTransformer.toMeasure(measureDto.get(), metric);
       }
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

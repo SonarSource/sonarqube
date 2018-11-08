@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -192,7 +192,7 @@ public class DuplicationMeasures {
         double density = Math.min(100d, 100d * duplicatedLines / nbLines);
         return Optional.of(Measure.newMeasureBuilder().create(density, context.getMetric().getDecimalScale()));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     @Override

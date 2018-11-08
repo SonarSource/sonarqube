@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -64,7 +64,7 @@ public abstract class SumFormula<T extends SumCounter<U, T>, U extends Number> i
       if (shouldCreateMeasure(context, valueOptional)) {
         return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
@@ -92,7 +92,7 @@ public abstract class SumFormula<T extends SumCounter<U, T>, U extends Number> i
       if (shouldCreateMeasure(context, valueOptional)) {
         return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

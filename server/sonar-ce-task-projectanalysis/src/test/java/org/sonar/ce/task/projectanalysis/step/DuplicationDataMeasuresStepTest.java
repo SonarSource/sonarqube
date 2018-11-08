@@ -30,7 +30,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -80,8 +79,8 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
   public void nothing_to_do_when_no_duplication() {
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isNotPresent();
   }
 
   @Test
@@ -94,7 +93,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
       "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"false\" r=\""
         + FILE_1_KEY + "\"/></g></duplications>");
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isNotPresent();
   }
 
   @Test
@@ -107,7 +106,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
       "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"false\" r=\""
         + FILE_2_KEY + "\"/></g></duplications>");
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isNotPresent();
   }
 
   @Test
@@ -120,7 +119,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
       "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"true\" r=\""
         + FILE_2_KEY + "\"/></g></duplications>");
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isNotPresent();
   }
 
   @Test
@@ -134,7 +133,7 @@ public class DuplicationDataMeasuresStepTest extends BaseStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATIONS_DATA_KEY).get().getData()).isEqualTo(
       "<duplications><g><b s=\"1\" l=\"5\" t=\"false\" r=\"" + FILE_1_KEY + "\"/><b s=\"6\" l=\"5\" t=\"false\" r=\""
         + fileKeyFromOtherProject + "\"/></g></duplications>");
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATIONS_DATA_KEY)).isNotPresent();
   }
 
 }

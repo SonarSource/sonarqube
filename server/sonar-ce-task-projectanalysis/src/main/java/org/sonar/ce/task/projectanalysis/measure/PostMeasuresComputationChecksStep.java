@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -83,7 +83,7 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
     public int getNcloc() {
       Metric nclocMetric = metricRepository.getByKey(CoreMetrics.NCLOC_KEY);
       Optional<Measure> nclocMeasure = measureRepository.getRawMeasure(treeRootHolder.getRoot(), nclocMetric);
-      return nclocMeasure.isPresent() ? nclocMeasure.get().getIntValue() : 0;
+      return nclocMeasure.map(Measure::getIntValue).orElse(0);
     }
 
     @Override

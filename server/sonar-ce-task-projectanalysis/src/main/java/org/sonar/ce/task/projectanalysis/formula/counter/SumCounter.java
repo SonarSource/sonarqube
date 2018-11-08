@@ -19,8 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula.counter;
 
-import com.google.common.base.Optional;
-import org.sonar.ce.task.projectanalysis.formula.Counter;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.formula.Counter;
 
 public interface SumCounter<T extends Number, COUNTER extends SumCounter<T, COUNTER>> extends Counter<COUNTER> {

@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;

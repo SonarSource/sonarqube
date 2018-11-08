@@ -19,14 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.ValueCase;
 
-import static com.google.common.base.Optional.of;
+import static java.util.Optional.of;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class BatchMeasureToMeasure {
@@ -34,7 +34,7 @@ public class BatchMeasureToMeasure {
   public Optional<Measure> toMeasure(@Nullable ScannerReport.Measure batchMeasure, Metric metric) {
     Objects.requireNonNull(metric);
     if (batchMeasure == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     Measure.NewMeasureBuilder builder = Measure.newMeasureBuilder();

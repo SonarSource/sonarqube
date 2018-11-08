@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;

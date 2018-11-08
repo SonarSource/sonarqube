@@ -19,8 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
-import org.assertj.guava.api.Assertions;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -89,10 +88,10 @@ public class DistributionFormulaTest {
   @Test
   public void create_no_measure_when_no_value() {
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
-    when(counterInitializationContext.getMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(Optional.absent());
+    when(counterInitializationContext.getMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(Optional.empty());
     counter.initialize(counterInitializationContext);
 
-    Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isAbsent();
+    assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isNotPresent();
   }
 
   @Test
@@ -101,7 +100,7 @@ public class DistributionFormulaTest {
     addMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "0=3;3=7;6=10");
     counter.initialize(counterInitializationContext);
 
-    Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isAbsent();
+    assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isNotPresent();
   }
 
   private void addMeasure(String metricKey, String value) {

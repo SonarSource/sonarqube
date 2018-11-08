@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -102,7 +102,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
-      java.util.Optional<Set<Integer>> changedLines = newLinesRepository.getNewLines(leaf);
+      Optional<Set<Integer>> changedLines = newLinesRepository.getNewLines(leaf);
       if (!changedLines.isPresent()) {
         return;
       }
@@ -203,7 +203,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
     private static Optional<Measure> createMeasure(IntValue intValue) {
       return intValue.isSet()
         ? Optional.of(Measure.newMeasureBuilder().setVariation(intValue.getValue()).createNoValue())
-        : Optional.absent();
+        : Optional.empty();
     }
 
     private static Optional<Measure> createNewDuplicatedLinesDensityMeasure(NewSizeCounter counter) {
@@ -217,7 +217,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
           return Optional.of(Measure.newMeasureBuilder().setVariation(density).createNoValue());
         }
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     @Override

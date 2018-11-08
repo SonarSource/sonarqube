@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -102,14 +102,14 @@ public class UnitTestMeasuresStep implements ComputationStep {
       if (metricValue.isPresent() && leafComponent.getType().isDeeperThan(currentComponent.getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(metricValue.get()));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     private static Optional<Measure> createLongMeasure(Component currentComponent, Component leafComponent, Optional<Long> metricValue) {
       if (metricValue.isPresent() && leafComponent.getType().isDeeperThan(currentComponent.getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(metricValue.get()));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     private static Optional<Measure> createDensityMeasure(UnitTestsCounter counter, int decimalScale) {
@@ -122,7 +122,7 @@ public class UnitTestMeasuresStep implements ComputationStep {
         double density = (errors + failures) * 100d / tests;
         return Optional.of(Measure.newMeasureBuilder().create(100d - density, decimalScale));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     private static boolean isPositive(Optional<Integer> value, boolean isStrictComparison) {

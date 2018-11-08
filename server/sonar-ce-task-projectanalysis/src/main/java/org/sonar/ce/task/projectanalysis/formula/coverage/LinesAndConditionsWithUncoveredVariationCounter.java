@@ -19,8 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula.coverage;
 
-import com.google.common.base.Optional;
-import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 

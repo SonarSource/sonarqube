@@ -28,7 +28,6 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS;
@@ -361,7 +360,7 @@ public class DuplicationMeasuresTest {
   }
 
   private void assertNoRawMeasure(int componentRef, String metricKey) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isNotPresent();
   }
 
   private void assertRawMeasureValue(int componentRef, String metricKey, int value) {

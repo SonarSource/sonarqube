@@ -19,12 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -89,7 +89,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_event_if_no_base_measure() {
-    when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.absent());
+    when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.empty());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -99,7 +99,7 @@ public class QualityProfileEventsStepTest {
   @Test
   public void no_event_if_no_raw_measure() {
     when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.of(newMeasure()));
-    when(measureRepository.getRawMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.absent());
+    when(measureRepository.getRawMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.empty());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -242,11 +242,11 @@ public class QualityProfileEventsStepTest {
   }
 
   private void mockLanguageNotInRepository(String languageKey) {
-    when(languageRepository.find(languageKey)).thenReturn(Optional.absent());
+    when(languageRepository.find(languageKey)).thenReturn(Optional.empty());
   }
 
   private void mockNoLanguageInRepository() {
-    when(languageRepository.find(anyString())).thenReturn(Optional.absent());
+    when(languageRepository.find(anyString())).thenReturn(Optional.empty());
   }
 
   private void mockMeasures(Component component, @Nullable QualityProfile[] previous, @Nullable QualityProfile[] current) {

@@ -27,7 +27,7 @@ import static org.assertj.guava.api.Assertions.assertThat;
 public class MeasureLevelTest {
   @Test
   public void toLevel_return_absent_for_null_arg() {
-    assertThat(Measure.Level.toLevel(null)).isAbsent();
+    assertThat(Measure.Level.toLevel(null)).isNotPresent();
   }
 
   @Test
@@ -40,12 +40,12 @@ public class MeasureLevelTest {
   @Test
   public void toLevel_is_case_sensitive_and_returns_absent() {
     for (Measure.Level level : Measure.Level.values()) {
-      assertThat(Measure.Level.toLevel(level.name().toLowerCase())).isAbsent();
+      assertThat(Measure.Level.toLevel(level.name().toLowerCase())).isNotPresent();
     }
   }
 
   @Test
   public void toLevel_returns_absent_when_value_is_unknown() {
-    assertThat(Measure.Level.toLevel("trololo")).isAbsent();
+    assertThat(Measure.Level.toLevel("trololo")).isNotPresent();
   }
 }

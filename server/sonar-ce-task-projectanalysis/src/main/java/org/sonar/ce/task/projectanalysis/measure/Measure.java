@@ -19,14 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.ce.task.projectanalysis.component.Developer;
 import org.sonar.ce.task.projectanalysis.component.Developer;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -56,13 +55,13 @@ public final class Measure {
 
     public static Optional<Level> toLevel(@Nullable String level) {
       if (level == null) {
-        return Optional.absent();
+        return Optional.empty();
       }
 
       try {
         return Optional.of(Level.valueOf(level));
       } catch (IllegalArgumentException e) {
-        return Optional.absent();
+        return Optional.empty();
       }
     }
   }

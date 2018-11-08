@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;

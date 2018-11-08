@@ -30,7 +30,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION;
@@ -114,15 +113,15 @@ public class ReportLanguageDistributionMeasuresStepTest {
   public void do_not_compute_ncloc_language_distribution_when_no_ncloc() {
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_3_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_4_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_3_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_4_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
 
-    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, NCLOC_LANGUAGE_DISTRIBUTION_KEY)).isNotPresent();
   }
 
 }

@@ -19,13 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.db.measure.MeasureDto;
 
-import static com.google.common.base.Optional.of;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.of;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
 
 public class MeasureDtoToMeasure {
@@ -33,7 +33,7 @@ public class MeasureDtoToMeasure {
   public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric) {
     requireNonNull(metric);
     if (measureDto == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
     Double value = measureDto.getValue();
     String data = measureDto.getData();

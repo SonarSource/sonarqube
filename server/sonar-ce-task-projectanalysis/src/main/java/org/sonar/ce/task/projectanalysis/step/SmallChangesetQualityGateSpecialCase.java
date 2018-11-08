@@ -67,7 +67,7 @@ public class SmallChangesetQualityGateSpecialCase {
 
   private boolean isSmallChangeset(Component project) {
     return measureRepository.getRawMeasure(project, metricRepository.getByKey(CoreMetrics.NEW_LINES_KEY))
-      .transform(newLines -> newLines.hasVariation() && newLines.getVariation() <= MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS)
-      .or(false);
+      .map(newLines -> newLines.hasVariation() && newLines.getVariation() <= MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS)
+      .orElse(false);
   }
 }

@@ -19,10 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.formula.counter;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 
@@ -76,6 +75,6 @@ public class LongSumCounter implements SumCounter<Long, LongSumCounter> {
     if (initialized) {
       return Optional.of(value);
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 }

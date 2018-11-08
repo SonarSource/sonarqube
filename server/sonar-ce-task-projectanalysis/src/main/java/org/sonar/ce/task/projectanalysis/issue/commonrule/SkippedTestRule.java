@@ -19,9 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.issue.commonrule;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
@@ -48,7 +47,7 @@ public class SkippedTestRule extends CommonRule {
   protected CommonRuleIssue doProcessFile(Component file, ActiveRule activeRule) {
     Optional<Measure> measure = measureRepository.getRawMeasure(file, skippedTestsMetric);
 
-    int skipped = measure.isPresent() ? measure.get().getIntValue() : 0;
+    int skipped = measure.map(Measure::getIntValue).orElse(0);
     if (skipped > 0) {
       String message = format("Fix or remove skipped unit tests in file \"%s\".", file.getName());
       return new CommonRuleIssue(skipped, message);

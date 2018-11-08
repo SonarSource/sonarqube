@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue.commonrule;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -57,7 +57,7 @@ public class CommentDensityRule extends CommonRule {
       // this is a small optimization to not load the minimum value when the measures are not present
       double minCommentDensity = getMinDensity(activeRule);
       if (commentDensityMeasure.get().getDoubleValue() < minCommentDensity) {
-        return generateIssue(commentDensityMeasure, commentLinesMeasure, nclocMeasure, minCommentDensity);
+        return generateIssue(commentDensityMeasure.get(), commentLinesMeasure, nclocMeasure.get(), minCommentDensity);
       }
     }
     return null;
@@ -71,15 +71,15 @@ public class CommentDensityRule extends CommonRule {
     return min;
   }
 
-  private static CommonRuleIssue generateIssue(Optional<Measure> commentDensityMeasure, Optional<Measure> commentLinesMeasure,
-    Optional<Measure> nclocMeasure, double minCommentDensity) {
-    int commentLines = commentLinesMeasure.isPresent() ? commentLinesMeasure.get().getIntValue() : 0;
-    int ncloc = nclocMeasure.get().getIntValue();
+  private static CommonRuleIssue generateIssue(Measure commentDensityMeasure, Optional<Measure> commentLinesMeasure,
+    Measure nclocMeasure, double minCommentDensity) {
+    int commentLines = commentLinesMeasure.map(Measure::getIntValue).orElse(0);
+    int ncloc = nclocMeasure.getIntValue();
     int minExpectedCommentLines = (int) Math.ceil(minCommentDensity * ncloc / (100 - minCommentDensity));
     int missingCommentLines = minExpectedCommentLines - commentLines;
     if (missingCommentLines <= 0) {
-      throw new IllegalStateException(format("Bug in measures of comment lines - density=%s, comment_lines= %d, ncloc=%d, threshold=%s%%", commentDensityMeasure.get()
-        .getDoubleValue(), commentLines, nclocMeasure.get().getIntValue(), minCommentDensity));
+      throw new IllegalStateException(format("Bug in measures of comment lines - density=%s, comment_lines= %d, ncloc=%d, threshold=%s%%",
+        commentDensityMeasure.getDoubleValue(), commentLines, nclocMeasure.getIntValue(), minCommentDensity));
     }
 
     // TODO declare min threshold as int but not float ?

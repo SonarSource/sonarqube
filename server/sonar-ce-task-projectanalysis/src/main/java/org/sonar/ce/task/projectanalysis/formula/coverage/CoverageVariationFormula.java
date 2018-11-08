@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula.coverage;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.ce.task.projectanalysis.formula.Formula;
 import org.sonar.ce.task.projectanalysis.formula.counter.LongValue;
@@ -42,7 +42,7 @@ public abstract class CoverageVariationFormula<T extends ElementsAndCoveredEleme
       double variation = calculateCoverage(coveredElements.getValue(), elements.getValue());
       return Optional.of(newMeasureBuilder().setVariation(variation).createNoValue());
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
 }

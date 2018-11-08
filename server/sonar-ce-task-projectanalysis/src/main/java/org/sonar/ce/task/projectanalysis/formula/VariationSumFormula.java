@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.formula.counter.DoubleValue;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -46,7 +46,7 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
   @Override
   public Optional<Measure> createMeasure(VariationSumCounter counter, CreateMeasureContext context) {
     if (!CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType()) || !counter.doubleValue.isSet()) {
-      return Optional.absent();
+      return Optional.empty();
     }
     return Optional.of(newMeasureBuilder().setVariation(counter.doubleValue.getValue()).createNoValue());
   }

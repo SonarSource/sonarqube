@@ -29,7 +29,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY;
@@ -139,8 +138,8 @@ public class ReportComplexityMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isNotPresent();
 
     int expectedNonFileValue = 50;
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
@@ -170,8 +169,8 @@ public class ReportComplexityMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isNotPresent();
 
     String expectedNonFileValue = "0.5=3;3.5=7;6.5=10";
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));

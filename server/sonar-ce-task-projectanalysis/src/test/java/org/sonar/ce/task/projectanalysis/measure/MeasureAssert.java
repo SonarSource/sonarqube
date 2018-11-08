@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.data.Offset;
@@ -38,7 +38,7 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   }
 
   public static MeasureAssert assertThat(@Nullable Optional<Measure> actual) {
-    return new MeasureAssert(actual == null ? null : actual.orNull());
+    return new MeasureAssert(actual == null ? null : actual.orElse(null));
   }
 
   public MeasureAssert hasValueType(Measure.ValueType expected) {

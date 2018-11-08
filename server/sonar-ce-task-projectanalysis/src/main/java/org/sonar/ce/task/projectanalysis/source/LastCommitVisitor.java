@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -99,10 +99,8 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
   @Override
   public void visitProjectView(Component projectView, Path<LastCommit> path) {
     Optional<Measure> rawMeasure = measureRepository.getRawMeasure(projectView, lastCommitDateMetric);
-    if (rawMeasure.isPresent()) {
-      // path.parent() should never fail as a project view must never be a root component
-      path.parent().addDate(rawMeasure.get().getLongValue());
-    }
+    // path.parent() should never fail as a project view must never be a root component
+    rawMeasure.ifPresent(measure -> path.parent().addDate(measure.getLongValue()));
   }
 
   private void saveAndAggregate(Component component, Path<LastCommit> path) {

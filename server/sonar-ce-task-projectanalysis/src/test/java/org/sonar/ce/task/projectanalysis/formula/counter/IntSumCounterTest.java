@@ -19,13 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.formula.counter;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,7 +39,7 @@ public class IntSumCounterTest {
 
   @Test
   public void no_value_when_no_aggregation() {
-    assertThat(sumCounter.getValue()).isAbsent();
+    assertThat(sumCounter.getValue()).isNotPresent();
   }
 
   @Test
@@ -54,11 +53,11 @@ public class IntSumCounterTest {
 
   @Test
   public void no_value_when_aggregate_from_context_but_no_measure() {
-    when(counterInitializationContext.getMeasure(anyString())).thenReturn(Optional.absent());
+    when(counterInitializationContext.getMeasure(anyString())).thenReturn(Optional.empty());
 
     sumCounter.initialize(counterInitializationContext);
 
-    assertThat(sumCounter.getValue()).isAbsent();
+    assertThat(sumCounter.getValue()).isNotPresent();
   }
 
   @Test
@@ -78,7 +77,7 @@ public class IntSumCounterTest {
 
     sumCounter.aggregate(anotherCounter);
 
-    assertThat(sumCounter.getValue()).isAbsent();
+    assertThat(sumCounter.getValue()).isNotPresent();
   }
 
 }

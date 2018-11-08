@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.language;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.resources.Language;
 
 public interface LanguageRepository {

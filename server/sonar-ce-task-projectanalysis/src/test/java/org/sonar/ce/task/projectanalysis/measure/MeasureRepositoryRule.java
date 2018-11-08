@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
@@ -28,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -151,7 +151,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     Set<Measure> measures = getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey);
     if (measures.isEmpty()) {
-      return Optional.absent();
+      return Optional.empty();
     }
     checkArgument(measures.size() == 1, String.format("There is more than one measure on metric '%s' for component '%s'", metricKey, componentRef));
     return Optional.of(measures.iterator().next());
@@ -187,7 +187,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
   @Override
   public Optional<Measure> getBaseMeasure(Component component, Metric metric) {
-    return Optional.fromNullable(baseMeasures.get(new InternalKey(component, metric)));
+    return Optional.ofNullable(baseMeasures.get(new InternalKey(component, metric)));
   }
 
   public Collection<Component> getComponentsLoadedAsRaw() {
@@ -200,15 +200,15 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
   @Override
   public Optional<Measure> getRawMeasure(Component component, Metric metric) {
-    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric)));
+    return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric)));
   }
 
   public Optional<Measure> getRawMeasure(Component component, Metric metric, DumbDeveloper developer) {
-    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, developer)));
+    return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric, developer)));
   }
 
   public Optional<Measure> getRawRuleMeasure(Component component, Metric metric, int ruleId) {
-    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, null)));
+    return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric, null)));
   }
 
   @Override

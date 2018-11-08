@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -92,14 +92,15 @@ public class QualityGateEventsStepTest {
   @Before
   public void setUp() {
     when(metricRepository.getByKey(ALERT_STATUS_KEY)).thenReturn(alertStatusMetric);
-    analysisMetadataHolder.setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getDbKey(), PROJECT_COMPONENT.getName(), PROJECT_COMPONENT.getDescription(), emptyList()));
+    analysisMetadataHolder
+      .setProject(new Project(PROJECT_COMPONENT.getUuid(), PROJECT_COMPONENT.getDbKey(), PROJECT_COMPONENT.getName(), PROJECT_COMPONENT.getDescription(), emptyList()));
     analysisMetadataHolder.setBranch(mock(Branch.class));
     treeRootHolder.setRoot(PROJECT_COMPONENT);
   }
 
   @Test
   public void no_event_if_no_raw_ALERT_STATUS_measure() {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(Optional.absent());
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(Optional.empty());
 
     underTest.execute(new TestComputationStepContext());
 

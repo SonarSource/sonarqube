@@ -314,7 +314,7 @@ public class ViewsCommentMeasuresStepTest {
   }
 
   private void assertNoRawMeasure(String metricKey, int componentRef) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isNotPresent();
   }
 
   private void addRawMeasure(int componentRef, String metricKey, int value) {

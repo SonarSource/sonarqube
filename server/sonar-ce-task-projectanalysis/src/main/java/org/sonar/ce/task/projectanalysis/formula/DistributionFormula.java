@@ -19,9 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.ce.measure.RangeDistributionBuilder;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -48,7 +47,7 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
     if (value.isPresent() && CrawlerDepthLimit.LEAVES.isDeeperThan(componentType)) {
       return Optional.of(Measure.newMeasureBuilder().create(value.get()));
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -82,9 +81,9 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
 
     public Optional<String> getValue() {
       if (initialized) {
-        return Optional.fromNullable(distribution.build());
+        return Optional.ofNullable(distribution.build());
       }
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 }

@@ -19,9 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.issue.commonrule;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
@@ -51,8 +50,8 @@ public class TestErrorRule extends CommonRule {
     Optional<Measure> errorsMeasure = measureRepository.getRawMeasure(file, testErrorMetric);
     Optional<Measure> failuresMeasure = measureRepository.getRawMeasure(file, testFailureMetric);
 
-    int errors = errorsMeasure.isPresent() ? errorsMeasure.get().getIntValue() : 0;
-    int failures = failuresMeasure.isPresent() ? failuresMeasure.get().getIntValue() : 0;
+    int errors = errorsMeasure.map(Measure::getIntValue).orElse(0);
+    int failures = failuresMeasure.map(Measure::getIntValue).orElse(0);
     int total = errors + failures;
     if (total > 0) {
       String message = format("Fix failing unit tests on file \"%s\".", file.getName());

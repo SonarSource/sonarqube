@@ -19,11 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.measures.CoreMetrics;
@@ -95,13 +95,13 @@ public class QualityProfileEventsStep implements ComputationStep {
     }
     Map<String, QualityProfile> rawProfiles = QPMeasureData.fromJson(rawMeasure.get().getStringValue()).getProfilesByKey();
 
-    Map<String, QualityProfile> baseProfiles = parseJsonData(baseMeasure);
+    Map<String, QualityProfile> baseProfiles = parseJsonData(baseMeasure.get());
     detectNewOrUpdatedProfiles(projectComponent, baseProfiles, rawProfiles);
     detectNoMoreUsedProfiles(projectComponent, baseProfiles, rawProfiles);
   }
 
-  private static Map<String, QualityProfile> parseJsonData(Optional<Measure> measure) {
-    String data = measure.get().getStringValue();
+  private static Map<String, QualityProfile> parseJsonData(Measure measure) {
+    String data = measure.getStringValue();
     if (data == null) {
       return Collections.emptyMap();
     }

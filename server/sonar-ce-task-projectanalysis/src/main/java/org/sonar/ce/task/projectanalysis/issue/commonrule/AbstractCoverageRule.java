@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue.commonrule;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;

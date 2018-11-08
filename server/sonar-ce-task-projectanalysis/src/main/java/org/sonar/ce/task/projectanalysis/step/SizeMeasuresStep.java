@@ -19,10 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
@@ -78,10 +78,10 @@ public class SizeMeasuresStep implements ComputationStep {
       metricRepository.getByKey(DIRECTORIES_KEY),
       metricRepository.getByKey(FILES_KEY),
       metricRepository.getByKey(LINES_KEY)))
-        .visit(treeRootHolder.getRoot());
+      .visit(treeRootHolder.getRoot());
     new PathAwareCrawler<>(FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS))
-        .visit(treeRootHolder.getRoot());
+      .visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -165,7 +165,7 @@ public class SizeMeasuresStep implements ComputationStep {
 
     private int getIntValue(Component component, Metric metric) {
       Optional<Measure> fileMeasure = measureRepository.getRawMeasure(component, metric);
-      return fileMeasure.isPresent() ? fileMeasure.get().getIntValue() : 0;
+      return fileMeasure.map(Measure::getIntValue).orElse(0);
     }
   }
 

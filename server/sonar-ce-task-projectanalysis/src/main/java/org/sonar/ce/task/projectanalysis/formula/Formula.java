@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 
 /**
@@ -34,7 +34,7 @@ public interface Formula<T extends Counter> {
 
   /**
    * This method is used to create a measure on each node, using the value of the counter
-   * If {@link Optional#absent()} is returned, no measure will be created
+   * If {@link Optional#empty()} is returned, no measure will be created
    *
    * @param context the context for which the measure must be created
    */

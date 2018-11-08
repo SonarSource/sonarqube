@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 
 import static java.util.Objects.requireNonNull;
@@ -53,7 +53,7 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
         return Optional.of(Measure.newMeasureBuilder().create(mainValue / byValue, context.getMetric().getDecimalScale()));
       }
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -136,12 +136,12 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
       if (initialized) {
         return Optional.of(value);
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     private Optional<Double> getDoubleValue(Optional<Measure> measureOptional) {
       if (!measureOptional.isPresent()) {
-        return Optional.absent();
+        return Optional.empty();
       }
       Measure measure = measureOptional.get();
       switch (measure.getValueType()) {
@@ -152,7 +152,7 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
         case INT:
           return Optional.of((double) measure.getIntValue());
         case NO_VALUE:
-          return Optional.absent();
+          return Optional.empty();
         default:
           throw new IllegalArgumentException(String.format("Measure of type '%s' are not supported", measure.getValueType().name()));
       }

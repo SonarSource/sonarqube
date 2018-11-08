@@ -286,7 +286,7 @@ public class ViewsUnitTestMeasuresStepTest {
   }
 
   private void assertNoAddedRawMeasure(int componentRef, String metricKey) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isNotPresent();
   }
 
   private void assertAddedRawMeasureValue(int componentRef, String metricKey, int expectedValue) {

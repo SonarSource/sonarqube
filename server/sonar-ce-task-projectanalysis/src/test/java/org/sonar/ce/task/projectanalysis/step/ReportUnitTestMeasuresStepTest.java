@@ -30,7 +30,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.SKIPPED_TESTS;
 import static org.sonar.api.measures.CoreMetrics.SKIPPED_TESTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.TESTS;
@@ -233,12 +232,12 @@ public class ReportUnitTestMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
   }
 
   @Test
@@ -251,12 +250,12 @@ public class ReportUnitTestMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_SUCCESS_DENSITY_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_SUCCESS_DENSITY_KEY)).isNotPresent();
   }
 
   @Test
@@ -313,8 +312,8 @@ public class ReportUnitTestMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isNotPresent();
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
@@ -327,8 +326,8 @@ public class ReportUnitTestMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isNotPresent();
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));

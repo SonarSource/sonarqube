@@ -19,12 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -188,7 +188,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
         int value = computeValueForMetric(counter, context.getMetric());
         return Optional.of(newMeasureBuilder().setVariation(value).createNoValue());
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     private int computeValueForMetric(NewCoverageCounter counter, Metric metric) {
@@ -242,7 +242,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component fileComponent = context.getLeaf();
-      java.util.Optional<Set<Integer>> newLinesSet = newLinesRepository.getNewLines(fileComponent);
+      Optional<Set<Integer>> newLinesSet = newLinesRepository.getNewLines(fileComponent);
       if (!newLinesSet.isPresent()) {
         return;
       }

@@ -19,10 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Optional;
 import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +34,6 @@ import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.db.measure.LiveMeasureDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(DataProviderRunner.class)
 public class LiveMeasureDtoToMeasureTest {
@@ -56,7 +55,7 @@ public class LiveMeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_absent_for_null_argument() {
-    assertThat(underTest.toMeasure(null, SOME_INT_METRIC)).isAbsent();
+    assertThat(underTest.toMeasure(null, SOME_INT_METRIC)).isNotPresent();
   }
 
   @Test(expected = NullPointerException.class)

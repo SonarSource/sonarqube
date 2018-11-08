@@ -104,8 +104,8 @@ public class ReportCommentMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENTED_OUT_CODE_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENTED_OUT_CODE_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENTED_OUT_CODE_LINES_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENTED_OUT_CODE_LINES_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
@@ -119,8 +119,8 @@ public class ReportCommentMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
@@ -219,8 +219,8 @@ public class ReportCommentMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_API_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_API_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_API_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_API_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
@@ -234,8 +234,8 @@ public class ReportCommentMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isAbsent();
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isNotPresent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);

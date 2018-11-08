@@ -20,13 +20,13 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,7 +53,6 @@ import org.sonar.db.rule.RuleDto;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -156,7 +155,7 @@ public class MapBasedRawMeasureRepositoryTest {
     Measure.newMeasureBuilder().create("sds"),
     Measure.newMeasureBuilder().create(Measure.Level.OK),
     Measure.newMeasureBuilder().createNoValue()
-    );
+  );
 
   @DataProvider
   public static Object[][] measures() {
@@ -261,8 +260,8 @@ public class MapBasedRawMeasureRepositoryTest {
     assertThat(res.get()).isSameAs(SOME_MEASURE);
 
     // make sure we really match on the specified component and metric
-    assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isAbsent();
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isAbsent();
+    assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isNotPresent();
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isNotPresent();
   }
 
   @Test(expected = NullPointerException.class)

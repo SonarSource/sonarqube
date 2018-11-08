@@ -20,9 +20,9 @@
 package org.sonar.ce.task.projectanalysis.language;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.sonar.api.resources.Language;
 
@@ -48,7 +48,7 @@ public class LanguageRepositoryImpl implements LanguageRepository {
 
   @Override
   public Optional<Language> find(String languageKey) {
-    return Optional.fromNullable(languagesByKey.get(languageKey));
+    return Optional.ofNullable(languagesByKey.get(languageKey));
   }
 
   private enum LanguageToKey implements Function<Language, String> {

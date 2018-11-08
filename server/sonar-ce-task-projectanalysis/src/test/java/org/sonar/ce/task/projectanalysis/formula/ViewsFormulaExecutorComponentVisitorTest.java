@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.formula;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -293,7 +293,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
             .setVariation(measureVariations.getValue())
             .createNoValue());
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     @Override

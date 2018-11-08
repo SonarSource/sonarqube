@@ -20,11 +20,11 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
@@ -83,7 +83,7 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
     @Override
     public Optional<Measure> createMeasure(LanguageDistributionCounter counter, CreateMeasureContext context) {
       if (counter.multiset.isEmpty()) {
-        return Optional.absent();
+        return Optional.empty();
       }
       return Optional.of(newMeasureBuilder().create(format(asMap(counter.multiset.elementSet(), new LanguageToTotalCount(counter.multiset)))));
     }

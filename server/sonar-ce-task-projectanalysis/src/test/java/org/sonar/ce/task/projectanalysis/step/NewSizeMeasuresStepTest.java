@@ -37,7 +37,6 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED;
@@ -411,7 +410,7 @@ public class NewSizeMeasuresStepTest {
   }
 
   private void assertNoRawMeasure(int componentRef, String metricKey) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).isNotPresent();
   }
 
   private void assertNoRawMeasures(String metricKey) {

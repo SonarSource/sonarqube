@@ -177,7 +177,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
     boolean ignoredConditions = false;
     for (Map.Entry<Metric, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
       Metric metric = entry.getKey();
-      com.google.common.base.Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
+      Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
       if (!measure.isPresent()) {
         continue;
       }

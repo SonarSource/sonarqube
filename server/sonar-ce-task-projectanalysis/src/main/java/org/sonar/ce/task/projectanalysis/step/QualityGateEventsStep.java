@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.Notification;

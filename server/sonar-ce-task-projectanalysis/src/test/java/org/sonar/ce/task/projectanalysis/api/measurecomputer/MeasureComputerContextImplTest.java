@@ -19,10 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.api.measurecomputer;
 
-import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,7 +43,6 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
@@ -69,8 +68,8 @@ public class MeasureComputerContextImplTest {
 
   private static final org.sonar.ce.task.projectanalysis.component.Component FILE_1 = builder(
     org.sonar.ce.task.projectanalysis.component.Component.Type.FILE, FILE_1_REF)
-      .setKey(FILE_1_KEY)
-      .build();
+    .setKey(FILE_1_KEY)
+    .build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()

@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -70,7 +70,7 @@ public class CommentMeasuresStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(formulas))
-        .visit(treeRootHolder.getRoot());
+      .visit(treeRootHolder.getRoot());
   }
 
   private class CommentDensityFormula implements Formula<IntSumCounter> {
@@ -88,8 +88,8 @@ public class CommentMeasuresStep implements ComputationStep {
 
     @Override
     public Optional<Measure> createMeasure(IntSumCounter counter, CreateMeasureContext context) {
-      return createCommentLinesMeasure(counter, context)
-        .or(createCommentLinesDensityMeasure(counter, context));
+      Optional<Measure> measure = createCommentLinesMeasure(counter, context);
+      return measure.isPresent() ? measure : createCommentLinesDensityMeasure(counter, context);
     }
 
     private Optional<Measure> createCommentLinesMeasure(SumCounter counter, CreateMeasureContext context) {
@@ -99,7 +99,7 @@ public class CommentMeasuresStep implements ComputationStep {
         && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(commentLines.get()));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     private Optional<Measure> createCommentLinesDensityMeasure(SumCounter counter, CreateMeasureContext context) {
@@ -116,7 +116,7 @@ public class CommentMeasuresStep implements ComputationStep {
           }
         }
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     @Override
@@ -134,9 +134,12 @@ public class CommentMeasuresStep implements ComputationStep {
 
     @Override
     public Optional<Measure> createMeasure(DocumentationCounter counter, CreateMeasureContext context) {
-      return getMeasure(context, counter.getPublicApiValue(), PUBLIC_API_KEY)
-        .or(getMeasure(context, counter.getPublicUndocumentedApiValue(), PUBLIC_UNDOCUMENTED_API_KEY))
-        .or(getDensityMeasure(counter, context));
+      Optional<Measure> measure = getMeasure(context, counter.getPublicApiValue(), PUBLIC_API_KEY);
+      if (measure.isPresent()) {
+        return measure;
+      }
+      measure = getMeasure(context, counter.getPublicUndocumentedApiValue(), PUBLIC_UNDOCUMENTED_API_KEY);
+      return measure.isPresent() ? measure : getDensityMeasure(counter, context);
     }
 
     private static Optional<Measure> getMeasure(CreateMeasureContext context, Optional<Integer> metricValue, String metricKey) {
@@ -144,7 +147,7 @@ public class CommentMeasuresStep implements ComputationStep {
         && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(metricValue.get()));
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     private static Optional<Measure> getDensityMeasure(DocumentationCounter counter, CreateMeasureContext context) {
@@ -158,7 +161,7 @@ public class CommentMeasuresStep implements ComputationStep {
           return Optional.of(Measure.newMeasureBuilder().create(value, context.getMetric().getDecimalScale()));
         }
       }
-      return Optional.absent();
+      return Optional.empty();
     }
 
     @Override

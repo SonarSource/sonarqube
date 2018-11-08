@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.SetMultimap;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
