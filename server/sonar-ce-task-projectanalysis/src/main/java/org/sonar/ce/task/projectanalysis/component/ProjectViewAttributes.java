@@ -30,10 +30,12 @@ public class ProjectViewAttributes {
   private final String projectUuid;
   @CheckForNull
   private final Long analysisDate;
+  private final String branchName;
 
-  public ProjectViewAttributes(String projectUuid, @Nullable Long analysisDate) {
+  public ProjectViewAttributes(String projectUuid, @Nullable Long analysisDate, @Nullable String branchName) {
     this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
     this.analysisDate = analysisDate;
+    this.branchName = branchName;
   }
 
   public String getProjectUuid() {
@@ -45,10 +47,16 @@ public class ProjectViewAttributes {
     return analysisDate;
   }
 
+
+  public String getBranchName() {
+    return branchName;
+  }
+
   @Override
   public String toString() {
     return "ProjectViewAttributes{" +
       ", projectUuid='" + projectUuid + '\'' +
+      ", branchName='" + branchName + '\'' +
       ", analysisDate=" + analysisDate +
       '}';
   }
