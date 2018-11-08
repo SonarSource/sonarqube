@@ -9,19 +9,9 @@ exports[`should render ProjectCard correctly 1`] = `
     }
   }
 >
-  <Link
+  <a
     className="sc-project-card"
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to={
-      Object {
-        "pathname": "/dashboard",
-        "query": Object {
-          "branch": undefined,
-          "id": "sonarsource-jfrog.simple-js-php-project",
-        },
-      }
-    }
+    href="/dashboard?id=sonarsource-jfrog.simple-js-php-project"
   >
     <div
       className="sc-project-card-header"
@@ -104,7 +94,7 @@ exports[`should render ProjectCard correctly 1`] = `
         distribution="js;php"
       />
     </div>
-  </Link>
+  </a>
 </div>
 `;
 

@@ -21,7 +21,6 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import CountUp from 'react-countup';
 import { throttle } from 'lodash';
-import { Link } from 'react-router';
 import { FeaturedProject } from '../utils';
 import CoverageRating from '../../../../components/ui/CoverageRating';
 import DuplicationsRating from '../../../../components/ui/DuplicationsRating';
@@ -31,7 +30,7 @@ import ProjectCardLanguagesContainer from '../../../projects/components/ProjectC
 import Rating from '../../../../components/ui/Rating';
 import { formatMeasure } from '../../../../helpers/measures';
 import { getMetricName } from '../../../overview/utils';
-import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
+import { getProjectUrl, getBaseUrl, getPathUrlAsString } from '../../../../helpers/urls';
 import './FeaturedProjects.css';
 
 interface Props {
@@ -182,7 +181,7 @@ interface ProjectCardProps {
 export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
   return (
     <div className="sc-project-card-container" style={{ order }}>
-      <Link className="sc-project-card" to={getProjectUrl(project.key)}>
+      <a className="sc-project-card" href={getPathUrlAsString(getProjectUrl(project.key))}>
         <div className="sc-project-card-header">
           <OrganizationAvatar
             className="no-border spacer-bottom"
@@ -268,7 +267,7 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
             distribution={project.languages.join(';')}
           />
         </div>
-      </Link>
+      </a>
     </div>
   );
 }
