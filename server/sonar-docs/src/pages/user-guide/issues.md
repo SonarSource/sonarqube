@@ -43,8 +43,8 @@ After creation, issues flow through a lifecycle, taking one of five possible sta
 ### Resolutions
 Closed issues will have one of two resolutions:
 
-* **Fixed** - set automatically when a subsequent analysis shows that the issue has been corrected
-* **Removed** - set automatically when either the related coding rule or the file is no longer available. The rule may not be available either because it has been removed from the profile or because the underlying plugin has been uninstalled. The file could be unavailable because it has been removed from the project, moved to a different location or renamed.
+* **Fixed** - set automatically when a subsequent analysis shows that the issue has been corrected or the file is no longer available (removed from the project, excluded or renamed)
+* **Removed** - set automatically when the related rule is no longer available. The rule may not be available either because it has been removed from the Quality Profile or because the underlying plugin has been uninstalled.
 
 Resolved issues will have one of two resolutions:
 * **False Positive** - set manually
