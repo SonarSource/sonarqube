@@ -19,10 +19,10 @@
  */
 .sonarcloud-login-page {
   margin-top: 15vh;
-  width: 200px;
+  width: 216px;
   margin-left: auto;
   margin-right: auto;
-  padding: calc(2 * var(--gridSize)) 20px;
+  padding: calc(4 * var(--gridSize)) 20px;
 }
 
 .sonarcloud-login-page-large {
@@ -34,11 +34,11 @@
   font-size: var(--bigFontSize);
   font-weight: 300;
   width: 135px;
-  margin: var(--gridSize) auto calc(2 * var(--gridSize));
+  margin: var(--gridSize) auto calc(3 * var(--gridSize));
 }
 
 .sonarcloud-oauth-providers.oauth-providers > ul {
-  width: 174px;
+  width: 186px;
 }
 
 .sonarcloud-oauth-providers.oauth-providers > ul > li {
