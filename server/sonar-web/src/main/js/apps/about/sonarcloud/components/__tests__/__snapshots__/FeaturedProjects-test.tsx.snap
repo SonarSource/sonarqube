@@ -37,9 +37,6 @@ exports[`should render ProjectCard correctly 1`] = `
       >
         Simple JS & PHP project
       </h5>
-      <Level
-        level="OK"
-      />
     </div>
     <ul
       className="sc-project-card-measures"

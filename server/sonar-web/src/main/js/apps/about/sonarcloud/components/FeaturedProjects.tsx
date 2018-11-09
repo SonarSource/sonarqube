@@ -24,7 +24,6 @@ import { throttle } from 'lodash';
 import { FeaturedProject } from '../utils';
 import CoverageRating from '../../../../components/ui/CoverageRating';
 import DuplicationsRating from '../../../../components/ui/DuplicationsRating';
-import Level from '../../../../components/ui/Level';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import ProjectCardLanguagesContainer from '../../../projects/components/ProjectCardLanguagesContainer';
 import Rating from '../../../../components/ui/Rating';
@@ -196,7 +195,6 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
           <h5 className="sc-project-card-limited big-spacer-bottom" title={project.name}>
             {project.name}
           </h5>
-          <Level level={project.gateStatus} />
         </div>
         <ul className="sc-project-card-measures">
           <ProjectIssues
