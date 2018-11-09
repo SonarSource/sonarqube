@@ -59,6 +59,7 @@ import org.sonar.db.component.ViewsSnapshotDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.es.EsQueueMapper;
+import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
 import org.sonar.db.issue.IssueChangeDto;
@@ -222,6 +223,7 @@ public class MyBatis implements Startable {
       DuplicationMapper.class,
       EsQueueMapper.class,
       EventMapper.class,
+      EventComponentChangeMapper.class,
       FileSourceMapper.class,
       GroupMapper.class,
       GroupMembershipMapper.class,

@@ -38,6 +38,7 @@ import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.es.EsQueueDao;
+import org.sonar.db.event.EventComponentChangeDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
@@ -118,6 +119,7 @@ public class DbClient {
   private final FileSourceDao fileSourceDao;
   private final ProjectLinkDao projectLinkDao;
   private final EventDao eventDao;
+  private final EventComponentChangeDao eventComponentChangeDao;
   private final PurgeDao purgeDao;
   private final QualityGateDao qualityGateDao;
   private final QualityGateConditionDao gateConditionDao;
@@ -186,6 +188,7 @@ public class DbClient {
     fileSourceDao = getDao(map, FileSourceDao.class);
     projectLinkDao = getDao(map, ProjectLinkDao.class);
     eventDao = getDao(map, EventDao.class);
+    eventComponentChangeDao = getDao(map, EventComponentChangeDao.class);
     purgeDao = getDao(map, PurgeDao.class);
     qualityGateDao = getDao(map, QualityGateDao.class);
     gateConditionDao = getDao(map, QualityGateConditionDao.class);
@@ -352,6 +355,10 @@ public class DbClient {
 
   public EventDao eventDao() {
     return eventDao;
+  }
+
+  public EventComponentChangeDao eventComponentChangeDao() {
+    return eventComponentChangeDao;
   }
 
   public PurgeDao purgeDao() {

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.event.EventComponentChangeMapper">
+
+  <sql id="columns">
+    ecc.uuid as "uuid",
+    ecc.event_uuid as "eventUuid",
+    ecc.change_category as "changeCategory",
+    ecc.component_uuid as "componentUuid",
+    ecc.component_key as "componentKey",
+    ecc.component_name as "componentName",
+    ecc.component_branch_key as "componentBranchKey",
+    ecc.created_at as "createdAt"
+  </sql>
+
+  <select id="selectByEventUuid" parameterType="String" resultType="org.sonar.db.event.EventComponentChangeDto">
+    select
+      <include refid="columns"/>
+    from event_component_changes ecc
+    where
+      ecc.event_uuid=#{eventUuid, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert">
+    INSERT INTO event_component_changes (
+      uuid,
+      event_uuid,
+      event_component_uuid,
+      event_analysis_uuid,
+      change_category,
+      component_uuid,
+      component_key,
+      component_name,
+      component_branch_key,
+      created_at
+    )
+    VALUES (
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.eventUuid, jdbcType=VARCHAR},
+      #{purgeData.componentUuid, jdbcType=VARCHAR},
+      #{purgeData.analysisUuid, jdbcType=VARCHAR},
+      #{dto.changeCategory, jdbcType=VARCHAR},
+      #{dto.componentUuid, jdbcType=VARCHAR},
+      #{dto.componentKey, jdbcType=VARCHAR},
+      #{dto.componentName, jdbcType=VARCHAR},
+      #{dto.componentBranchKey, jdbcType=VARCHAR},
+      #{createdAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+</mapper>
+

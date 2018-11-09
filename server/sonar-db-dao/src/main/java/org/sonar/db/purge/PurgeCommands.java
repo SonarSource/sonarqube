@@ -55,6 +55,11 @@ class PurgeCommands {
   }
 
   void deleteAnalyses(String rootComponentUuid) {
+    profiler.start("deleteAnalyses (event_component_changes)");
+    purgeMapper.deleteEventComponentChangesByComponentUuid(rootComponentUuid);
+    session.commit();
+    profiler.stop();
+
     profiler.start("deleteAnalyses (events)");
     purgeMapper.deleteEventsByComponentUuid(rootComponentUuid);
     session.commit();
@@ -94,6 +99,11 @@ class PurgeCommands {
     List<List<String>> analysisUuidsPartitions = Lists.partition(IdUuidPairs.uuids(analysisIdUuids), MAX_SNAPSHOTS_PER_QUERY);
 
     deleteAnalysisDuplications(analysisUuidsPartitions);
+
+    profiler.start("deleteAnalyses (event_component_changes)");
+    analysisUuidsPartitions.forEach(purgeMapper::deleteAnalysisEventComponentChanges);
+    session.commit();
+    profiler.stop();
 
     profiler.start("deleteAnalyses (events)");
     analysisUuidsPartitions.forEach(purgeMapper::deleteAnalysisEvents);

@@ -126,6 +126,15 @@
       </foreach>
   </delete>
 
+  <delete id="deleteAnalysisEventComponentChanges" parameterType="map">
+    delete from event_component_changes
+    where
+      event_analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
   <delete id="deleteAnalyses" parameterType="map">
     delete from snapshots
     where
@@ -240,6 +249,12 @@
     delete from events
     where
       component_uuid = #{componentUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteEventComponentChangesByComponentUuid" parameterType="map">
+    delete from event_component_changes
+    where
+      event_component_uuid = #{componentUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteIssueChangesByProjectUuid" parameterType="map">

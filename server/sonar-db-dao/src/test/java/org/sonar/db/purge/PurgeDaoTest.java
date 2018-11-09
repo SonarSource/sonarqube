@@ -50,10 +50,14 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.event.EventComponentChangeDto;
+import org.sonar.db.event.EventDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
@@ -271,6 +275,68 @@ public class PurgeDaoTest {
     db.assertDbUnit(getClass(), "shouldDeleteAnalyses-result.xml", "snapshots");
   }
 
+
+  @Test
+  public void deleteAnalyses_deletes_rows_in_events_and_event_component_changes() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project);
+    SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
+    SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);
+    SnapshotDto projectAnalysis3 = db.components().insertSnapshot(project);
+    SnapshotDto projectAnalysis4 = db.components().insertSnapshot(project);
+    EventDto projectEvent1 = db.events().insertEvent(projectAnalysis1);
+    EventDto projectEvent2 = db.events().insertEvent(projectAnalysis2);
+    EventDto projectEvent3 = db.events().insertEvent(projectAnalysis3);
+    // note: projectAnalysis4 has no event
+    ComponentDto referencedProjectA = db.components().insertPublicProject();
+    ComponentDto referencedProjectB = db.components().insertPublicProject();
+    db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectA, null);
+    db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectB, null);
+    BranchDto branchProjectA = newBranchDto(referencedProjectA);
+    ComponentDto cptBranchProjectA = ComponentTesting.newProjectBranch(referencedProjectA, branchProjectA);
+    db.events().insertEventComponentChanges(projectEvent2, projectAnalysis2, randomChangeCategory(), cptBranchProjectA, branchProjectA);
+    // note: projectEvent3 has no component change
+
+    // delete non existing analysis has no effect
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(3, "foo")));
+    assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
+      .containsOnly(projectAnalysis1.getUuid(), projectAnalysis2.getUuid());
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isEqualTo(3);
+    assertThat(uuidsIn("events"))
+      .containsOnly(projectEvent1.getUuid(), projectEvent2.getUuid(), projectEvent3.getUuid());
+
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(projectAnalysis1.getId(), projectAnalysis1.getUuid())));
+    assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
+      .containsOnly(projectAnalysis2.getUuid());
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isEqualTo(1);
+    assertThat(uuidsIn("events"))
+      .containsOnly(projectEvent2.getUuid(), projectEvent3.getUuid());
+
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(projectAnalysis4.getId(), projectAnalysis4.getUuid())));
+    assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
+      .containsOnly(projectAnalysis2.getUuid());
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isEqualTo(1);
+    assertThat(uuidsIn("events"))
+      .containsOnly(projectEvent2.getUuid(), projectEvent3.getUuid());
+
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(projectAnalysis3.getId(), projectAnalysis3.getUuid())));
+    assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
+      .containsOnly(projectAnalysis2.getUuid());
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isEqualTo(1);
+    assertThat(uuidsIn("events"))
+      .containsOnly(projectEvent2.getUuid());
+
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(projectAnalysis2.getId(), projectAnalysis2.getUuid())));
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isZero();
+    assertThat(db.countRowsOfTable("events"))
+      .isZero();
+  }
+
   @Test
   public void selectPurgeableAnalyses() {
     db.prepareDbUnit(getClass(), "shouldSelectPurgeableAnalysis.xml");
@@ -320,12 +386,6 @@ public class PurgeDaoTest {
     assertThat(db.select(db.getSession(), "select uuid as \"uuid\" from webhook_deliveries"))
       .extracting(m -> m.get("uuid"))
       .containsExactlyInAnyOrder(webhookDeliveryNotDeleted.getUuid());
-  }
-
-  private Stream<String> taskUuidsOfTable(String tableName) {
-    return db.select("select task_uuid as \"TASK_UUID\" from " + tableName)
-      .stream()
-      .map(s -> (String) s.get("TASK_UUID"));
   }
 
   private Stream<String> uuidsOfTable(String tableName) {
@@ -629,6 +689,68 @@ public class PurgeDaoTest {
 
     assertThat(uuidsIn("ce_queue")).containsOnly(anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_message")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
+  }
+
+  @Test
+  public void delete_row_in_events_and_event_component_changes_when_deleting_project() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    ComponentDto branch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherBranch = ComponentTesting.newProjectBranch(project, newBranchDto(project));
+    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    dbClient.componentDao().insert(dbSession, project, branch, anotherBranch, anotherProject);
+    SnapshotDto projectAnalysis1 = db.components().insertSnapshot(project);
+    SnapshotDto projectAnalysis2 = db.components().insertSnapshot(project);
+    EventDto projectEvent1 = db.events().insertEvent(projectAnalysis1);
+    EventDto projectEvent2 = db.events().insertEvent(projectAnalysis2);
+    EventDto projectEvent3 = db.events().insertEvent(db.components().insertSnapshot(project));
+    SnapshotDto branchAnalysis1 = db.components().insertSnapshot(branch);
+    SnapshotDto branchAnalysis2 = db.components().insertSnapshot(branch);
+    EventDto branchEvent1 = db.events().insertEvent(branchAnalysis1);
+    EventDto branchEvent2 = db.events().insertEvent(branchAnalysis2);
+    SnapshotDto anotherBranchAnalysis = db.components().insertSnapshot(anotherBranch);
+    EventDto anotherBranchEvent = db.events().insertEvent(anotherBranchAnalysis);
+    SnapshotDto anotherProjectAnalysis = db.components().insertSnapshot(anotherProject);
+    EventDto anotherProjectEvent = db.events().insertEvent(anotherProjectAnalysis);
+    ComponentDto referencedProjectA = db.components().insertPublicProject();
+    ComponentDto referencedProjectB = db.components().insertPublicProject();
+    db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectA, null);
+    db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectB, null);
+    BranchDto branchProjectA = newBranchDto(referencedProjectA);
+    ComponentDto cptBranchProjectA = ComponentTesting.newProjectBranch(referencedProjectA, branchProjectA);
+    db.events().insertEventComponentChanges(projectEvent2, projectAnalysis2, randomChangeCategory(), cptBranchProjectA, branchProjectA);
+    // note: projectEvent3 has no component change
+    db.events().insertEventComponentChanges(branchEvent1, branchAnalysis1, randomChangeCategory(), referencedProjectB, null);
+    db.events().insertEventComponentChanges(branchEvent2, branchAnalysis2, randomChangeCategory(), cptBranchProjectA, branchProjectA);
+    db.events().insertEventComponentChanges(anotherBranchEvent, anotherBranchAnalysis, randomChangeCategory(), referencedProjectB, null);
+    db.events().insertEventComponentChanges(anotherProjectEvent, anotherProjectAnalysis, randomChangeCategory(), referencedProjectB, null);
+
+    // deleting referenced project does not delete any data
+    underTest.deleteProject(dbSession, referencedProjectA.uuid());
+
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isEqualTo(7);
+    assertThat(db.countRowsOfTable("events"))
+      .isEqualTo(7);
+
+    underTest.deleteProject(dbSession, branch.uuid());
+    assertThat(uuidsIn("event_component_changes", "event_component_uuid"))
+      .containsOnly(project.uuid(), anotherBranch.uuid(), anotherProject.uuid());
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isEqualTo(5);
+    assertThat(uuidsIn("events"))
+      .containsOnly(projectEvent1.getUuid(), projectEvent2.getUuid(), projectEvent3.getUuid(), anotherBranchEvent.getUuid(), anotherProjectEvent.getUuid());
+
+    underTest.deleteProject(dbSession, project.uuid());
+    assertThat(uuidsIn("event_component_changes", "event_component_uuid"))
+      .containsOnly(anotherBranch.uuid(), anotherProject.uuid());
+    assertThat(db.countRowsOfTable("event_component_changes"))
+      .isEqualTo(2);
+    assertThat(uuidsIn("events"))
+      .containsOnly(anotherBranchEvent.getUuid(), anotherProjectEvent.getUuid());
+  }
+
+  private static EventComponentChangeDto.ChangeCategory randomChangeCategory() {
+    return EventComponentChangeDto.ChangeCategory.values()[new Random().nextInt(EventComponentChangeDto.ChangeCategory.values().length)];
   }
 
   private ComponentDto insertProjectWithBranchAndRelatedData() {
@@ -1116,13 +1238,15 @@ public class PurgeDaoTest {
   }
 
   private Stream<String> uuidsIn(String tableName) {
-    return db.select("select uuid as \"UUID\" from " + tableName)
-      .stream()
-      .map(row -> (String) row.get("UUID"));
+    return uuidsIn(tableName, "uuid");
   }
 
   private Stream<String> taskUuidsIn(String tableName) {
-    return db.select("select task_uuid as \"UUID\" from " + tableName)
+    return uuidsIn(tableName, "task_uuid");
+  }
+
+  private Stream<String> uuidsIn(String tableName, String columnName) {
+    return db.select("select " + columnName + " as \"UUID\" from " + tableName)
       .stream()
       .map(row -> (String) row.get("UUID"));
   }

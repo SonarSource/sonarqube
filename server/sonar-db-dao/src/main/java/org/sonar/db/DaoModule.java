@@ -40,6 +40,7 @@ import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.es.EsQueueDao;
+import org.sonar.db.event.EventComponentChangeDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
@@ -104,6 +105,7 @@ public class DaoModule extends Module {
     DuplicationDao.class,
     EsQueueDao.class,
     EventDao.class,
+    EventComponentChangeDao.class,
     FileSourceDao.class,
     GroupDao.class,
     GroupMembershipDao.class,

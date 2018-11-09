@@ -65,6 +65,7 @@ public final class SqTables {
     "duplications_index",
     "es_queue",
     "events",
+    "event_component_changes",
     "file_sources",
     "groups",
     "groups_users",
