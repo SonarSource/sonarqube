@@ -100,6 +100,7 @@ import org.sonar.scanner.storage.Storages;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
@@ -256,7 +257,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @VisibleForTesting
   static ExtensionMatcher getBatchPluginExtensionsFilter() {
-    return extension -> isScannerSide(extension) && isInstantiationStrategy(extension, PER_BATCH);
+    return extension -> isScannerSide(extension) || (isDeprecatedScannerSide(extension) && isInstantiationStrategy(extension, PER_BATCH));
   }
 
   @Override

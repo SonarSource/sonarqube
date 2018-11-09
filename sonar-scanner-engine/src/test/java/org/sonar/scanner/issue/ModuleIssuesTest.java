@@ -35,12 +35,10 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -57,7 +55,7 @@ public class ModuleIssuesTest {
   static final String SQUID_RULE_NAME = "Avoid Cycle";
 
   @Mock
-  IssueFilters filters;
+  ModuleIssueFilters filters;
 
   ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
   RulesBuilder ruleBuilder = new RulesBuilder();

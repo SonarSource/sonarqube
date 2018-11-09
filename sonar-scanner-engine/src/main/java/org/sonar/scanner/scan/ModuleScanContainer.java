@@ -33,7 +33,7 @@ import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
-import org.sonar.scanner.issue.IssueFilters;
+import org.sonar.scanner.issue.ModuleIssueFilters;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
 import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
@@ -66,8 +66,8 @@ import org.sonar.scanner.sensor.SensorOptimizer;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_PROJECT;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
-import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -127,7 +127,7 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultSensorStorage.class,
       DefaultSensorContext.class,
       ScannerExtensionDictionnary.class,
-      IssueFilters.class,
+      ModuleIssueFilters.class,
       CoverageExclusions.class,
 
       // rules
@@ -156,7 +156,7 @@ public class ModuleScanContainer extends ComponentContainer {
     CoreExtensionsInstaller coreExtensionsInstaller = getComponentByType(CoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(this, noExtensionFilter(), t -> isInstantiationStrategy(t, PER_PROJECT));
     ExtensionInstaller pluginInstaller = getComponentByType(ExtensionInstaller.class);
-    pluginInstaller.install(this, e -> isScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
+    pluginInstaller.install(this, e -> isDeprecatedScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
   }
 
   @Override

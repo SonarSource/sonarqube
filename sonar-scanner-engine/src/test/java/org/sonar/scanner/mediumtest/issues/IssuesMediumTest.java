@@ -65,9 +65,6 @@ public class IssuesMediumTest {
     
     List<ExternalIssue> externalIssues = result.externalIssuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(externalIssues).isEmpty();
-
-    Issue issue = issues.get(0);
-    assertThat(issue.getTextRange().getStartLine()).isEqualTo(issue.getTextRange().getStartLine());
   }
   
   @Test
@@ -83,9 +80,6 @@ public class IssuesMediumTest {
 
     List<ExternalIssue> externalIssues = result.externalIssuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(externalIssues).hasSize(8 /* lines */);
-
-    ExternalIssue externalIssue = externalIssues.get(0);
-    assertThat(externalIssue.getTextRange().getStartLine()).isEqualTo(externalIssue.getTextRange().getStartLine());
   }
 
   @Test
@@ -161,6 +155,21 @@ public class IssuesMediumTest {
     assertThat(issues)
       .extracting("msg", "textRange.startLine", "gap")
       .contains(tuple("This issue is generated on each line", 1, 0.0));
+  }
+
+  @Test
+  public void testIssueFilter() throws Exception {
+    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+
+    TaskResult result = tester
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .property("sonar.xoo.excludeAllIssuesOnOddLines", "true")
+      .execute();
+
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
+    assertThat(issues).hasSize(4 /* even lines */);
   }
 
 }

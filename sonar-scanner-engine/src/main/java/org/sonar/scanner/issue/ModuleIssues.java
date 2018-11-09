@@ -44,10 +44,10 @@ import static com.google.common.base.Strings.nullToEmpty;
 public class ModuleIssues {
 
   private final ActiveRules activeRules;
-  private final IssueFilters filters;
+  private final ModuleIssueFilters filters;
   private final ReportPublisher reportPublisher;
 
-  public ModuleIssues(ActiveRules activeRules, IssueFilters filters, ReportPublisher reportPublisher) {
+  public ModuleIssues(ActiveRules activeRules, ModuleIssueFilters filters, ReportPublisher reportPublisher) {
     this.activeRules = activeRules;
     this.filters = filters;
     this.reportPublisher = reportPublisher;

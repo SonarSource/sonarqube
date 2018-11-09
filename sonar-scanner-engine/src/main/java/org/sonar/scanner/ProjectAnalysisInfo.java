@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Optional;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
 
@@ -33,7 +32,6 @@ import org.sonar.api.utils.DateUtils;
  * 
  * Immutable after {@link #start()}
  */
-@ScannerSide
 public class ProjectAnalysisInfo implements Startable {
   private final Clock clock;
   private Configuration settings;

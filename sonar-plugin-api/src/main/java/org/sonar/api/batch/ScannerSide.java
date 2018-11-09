@@ -44,7 +44,9 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * @since 6.0
+ * @deprecated since 7.6 use {@link org.sonar.api.scanner.ScannerSide} that will move the component to the project container
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

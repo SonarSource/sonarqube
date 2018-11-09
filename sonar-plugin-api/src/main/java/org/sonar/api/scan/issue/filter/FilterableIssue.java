@@ -27,8 +27,10 @@ import org.sonar.api.rule.RuleKey;
 
 /**
  * @since 5.3
+ * @deprecated since 7.6
  */
 @ThreadSafe
+@Deprecated
 public interface FilterableIssue {
 
   /**

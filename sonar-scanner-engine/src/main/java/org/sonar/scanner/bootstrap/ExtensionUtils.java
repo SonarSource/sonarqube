@@ -20,7 +20,7 @@
 package org.sonar.scanner.bootstrap;
 
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.AnnotationUtils;
 
 public class ExtensionUtils {
@@ -37,6 +37,10 @@ public class ExtensionUtils {
     return InstantiationStrategy.PER_PROJECT.equals(strategy);
   }
   
+  public static boolean isDeprecatedScannerSide(Object extension) {
+    return AnnotationUtils.getAnnotation(extension, org.sonar.api.batch.ScannerSide.class) != null;
+  }
+
   public static boolean isScannerSide(Object extension) {
     return AnnotationUtils.getAnnotation(extension, ScannerSide.class) != null;
   }

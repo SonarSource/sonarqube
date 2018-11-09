@@ -32,7 +32,9 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ThreadSafe
 /**
  * @since 5.3
+ * @deprecated since 7.6
  */
+@Deprecated
 public interface IssueFilter {
 
   /**

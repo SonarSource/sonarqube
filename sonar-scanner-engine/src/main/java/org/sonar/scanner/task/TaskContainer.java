@@ -33,7 +33,7 @@ import org.sonar.scanner.bootstrap.GlobalProperties;
 import static org.sonar.api.batch.InstantiationStrategy.PER_TASK;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
-import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
 
 public class TaskContainer extends ComponentContainer {
 
@@ -63,7 +63,7 @@ public class TaskContainer extends ComponentContainer {
     getComponentByType(CoreExtensionsInstaller.class)
       .install(this, noExtensionFilter(), t -> isInstantiationStrategy(t, PER_TASK));
     getComponentByType(ExtensionInstaller.class)
-      .install(this, extension -> isScannerSide(extension) && isInstantiationStrategy(extension, PER_TASK));
+      .install(this, extension -> isDeprecatedScannerSide(extension) && isInstantiationStrategy(extension, PER_TASK));
   }
 
   @Override
