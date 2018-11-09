@@ -142,14 +142,16 @@ public class ChangelogAction implements IssuesWsAction {
       FieldDiffs.Diff value = diff.getValue();
       Changelog.Diff.Builder diffBuilder = Changelog.Diff.newBuilder();
       String key = diff.getKey();
+      String oldValue = value.oldValue() != null ? value.oldValue().toString() : null;
+      String newValue = value.newValue() != null ? value.newValue().toString() : null;
       if (key.equals(FILE)) {
         diffBuilder.setKey(key);
-        setNullable(results.getFileLongName(emptyToNull(value.newValue().toString())), diffBuilder::setNewValue);
-        setNullable(results.getFileLongName(emptyToNull(value.oldValue().toString())), diffBuilder::setOldValue);
+        setNullable(results.getFileLongName(emptyToNull(newValue)), diffBuilder::setNewValue);
+        setNullable(results.getFileLongName(emptyToNull(oldValue)), diffBuilder::setOldValue);
       } else {
         diffBuilder.setKey(key.equals(TECHNICAL_DEBT) ? EFFORT_CHANGELOG_KEY : key);
-        setNullable(emptyToNull(value.newValue().toString()), diffBuilder::setNewValue);
-        setNullable(emptyToNull(value.oldValue().toString()), diffBuilder::setOldValue);
+        setNullable(emptyToNull(newValue), diffBuilder::setNewValue);
+        setNullable(emptyToNull(oldValue), diffBuilder::setOldValue);
       }
       return diffBuilder.build();
     };

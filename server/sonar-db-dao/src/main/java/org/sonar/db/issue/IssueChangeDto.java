@@ -72,7 +72,7 @@ public final class IssueChangeDto implements Serializable {
   public static IssueChangeDto of(String issueKey, FieldDiffs diffs) {
     IssueChangeDto dto = newDto(issueKey);
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
-    dto.setChangeData(diffs.toString());
+    dto.setChangeData(diffs.toEncodedString());
     dto.setUserUuid(diffs.userUuid());
     Date createdAt = requireNonNull(diffs.creationDate(), "Diffs created at must not be null");
     dto.setIssueChangeCreationDate(createdAt.getTime());

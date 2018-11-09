@@ -25,7 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FieldDiffsTest {
 
-  FieldDiffs diffs = new FieldDiffs();
+  private static final String NAME_WITH_RESERVED_CHARS = "name,with|reserved=chars:";
+  private static final String ENCODED_NAME_WITH_RESERVED_CHARS = "{base64:bmFtZSx3aXRofHJlc2VydmVkPWNoYXJzOg==}";
+
+  private FieldDiffs diffs = new FieldDiffs();
 
   @Test
   public void diffs_should_be_empty_by_default() {
@@ -50,11 +53,11 @@ public class FieldDiffsTest {
 
   @Test
   public void diff_with_long_values() {
-    diffs.setDiff("technicalDebt", 50l, "100");
+    diffs.setDiff("technicalDebt", 50L, "100");
 
     FieldDiffs.Diff diff = diffs.diffs().get("technicalDebt");
-    assertThat(diff.oldValueLong()).isEqualTo(50l);
-    assertThat(diff.newValueLong()).isEqualTo(100l);
+    assertThat(diff.oldValueLong()).isEqualTo(50L);
+    assertThat(diff.newValueLong()).isEqualTo(100L);
   }
 
   @Test
@@ -64,6 +67,33 @@ public class FieldDiffsTest {
     FieldDiffs.Diff diff = diffs.diffs().get("technicalDebt");
     assertThat(diff.oldValueLong()).isNull();
     assertThat(diff.newValueLong()).isNull();
+  }
+
+  @Test
+  public void diff_with_assignee() {
+    diffs.setDiff("assignee", "oldAssignee", NAME_WITH_RESERVED_CHARS);
+
+    FieldDiffs.Diff diff = diffs.diffs().get("assignee");
+    assertThat(diff.oldValue()).isEqualTo("oldAssignee");
+    assertThat(diff.newValue()).isEqualTo(NAME_WITH_RESERVED_CHARS);
+  }
+
+  @Test
+  public void get() {
+    diffs.setDiff("severity", "BLOCKER", "INFO");
+
+    FieldDiffs.Diff diff = diffs.get("severity");
+    assertThat(diff.oldValue()).isEqualTo("BLOCKER");
+    assertThat(diff.newValue()).isEqualTo("INFO");
+  }
+
+  @Test
+  public void get_with_assignee() {
+    diffs.setDiff("assignee", "oldAssignee", NAME_WITH_RESERVED_CHARS);
+
+    FieldDiffs.Diff diff = diffs.get("assignee");
+    assertThat(diff.oldValue()).isEqualTo("oldAssignee");
+    assertThat(diff.newValue()).isEqualTo(NAME_WITH_RESERVED_CHARS);
   }
 
   @Test
@@ -100,6 +130,14 @@ public class FieldDiffsTest {
   }
 
   @Test
+  public void test_toEncodedString() {
+    diffs.setDiff("assignee", "oldAssignee", NAME_WITH_RESERVED_CHARS);
+    diffs.setDiff("resolution", "OPEN", "FIXED");
+
+    assertThat(diffs.toEncodedString()).isEqualTo("assignee=oldAssignee|" + ENCODED_NAME_WITH_RESERVED_CHARS + ",resolution=OPEN|FIXED");
+  }
+
+  @Test
   public void test_toString_with_null_values() {
     diffs.setDiff("severity", null, "INFO");
     diffs.setDiff("assignee", "user1", null);
@@ -121,16 +159,30 @@ public class FieldDiffsTest {
     assertThat(diff.newValue()).isEqualTo("FIXED");
 
     diff = diffs.diffs().get("donut");
-    assertThat(diff.oldValue()).isEqualTo("");
+    assertThat(diff.oldValue()).isEqualTo(null);
     assertThat(diff.newValue()).isEqualTo("new");
 
     diff = diffs.diffs().get("gambas");
-    assertThat(diff.oldValue()).isEqualTo("");
+    assertThat(diff.oldValue()).isEqualTo(null);
     assertThat(diff.newValue()).isEqualTo("miam");
 
     diff = diffs.diffs().get("acme");
     assertThat(diff.oldValue()).isEqualTo("old");
-    assertThat(diff.newValue()).isEqualTo("");
+    assertThat(diff.newValue()).isEqualTo(null);
+  }
+
+  @Test
+  public void test_parse_encoded_assignee() {
+    diffs = FieldDiffs.parse("severity=BLOCKER|INFO,assignee=oldValue|" + ENCODED_NAME_WITH_RESERVED_CHARS);
+    assertThat(diffs.diffs()).hasSize(2);
+
+    FieldDiffs.Diff diff = diffs.diffs().get("severity");
+    assertThat(diff.oldValue()).isEqualTo("BLOCKER");
+    assertThat(diff.newValue()).isEqualTo("INFO");
+
+    diff = diffs.diffs().get("assignee");
+    assertThat(diff.oldValue()).isEqualTo("oldValue");
+    assertThat(diff.newValue()).isEqualTo(NAME_WITH_RESERVED_CHARS);
   }
 
   @Test
@@ -139,12 +191,12 @@ public class FieldDiffsTest {
     assertThat(diffs.diffs()).hasSize(2);
 
     FieldDiffs.Diff diff = diffs.diffs().get("severity");
-    assertThat(diff.oldValue()).isEqualTo("");
+    assertThat(diff.oldValue()).isEqualTo(null);
     assertThat(diff.newValue()).isEqualTo("INFO");
 
     diff = diffs.diffs().get("resolution");
-    assertThat(diff.oldValue()).isEqualTo("");
-    assertThat(diff.newValue()).isEqualTo("");
+    assertThat(diff.oldValue()).isEqualTo(null);
+    assertThat(diff.newValue()).isEqualTo(null);
   }
 
   @Test
