@@ -31,9 +31,17 @@
 .sc-page h2,
 .sc-page h3,
 .sc-page h4,
-.sc-page h5 {
+.sc-page h5,
+.sc-page h6 {
   font-family: var(--sonarcloudFontFamily);
   color: var(--sonarcloudBlack800);
+}
+
+.sc-page h1,
+.sc-page h2,
+.sc-page h3,
+.sc-page h4,
+.sc-page h5 {
   font-weight: 700;
 }
 

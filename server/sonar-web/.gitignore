@@ -24,3 +24,6 @@ lcov.info
 
 # eslint
 eslint-report.json
+
+# SonarCloud homepage file
+public/json/homepage.json
