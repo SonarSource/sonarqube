@@ -1,21 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should correctly create a project 1`] = `
-<SubmitButton
-  disabled={true}
->
-  setup
-</SubmitButton>
-`;
-
-exports[`should correctly create a project 2`] = `
-<SubmitButton
-  disabled={false}
->
-  setup
-</SubmitButton>
-`;
-
 exports[`should render correctly 1`] = `
 <Fragment>
   <form
@@ -37,54 +21,14 @@ exports[`should render correctly 1`] = `
         ]
       }
     />
-    <div
+    <ProjectKeyInput
       className="form-field"
-    >
-      <label
-        htmlFor="project-name"
-      >
-        onboarding.create_project.project_name
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
-      </label>
-      <input
-        className="input-super-large"
-        id="project-name"
-        maxLength={400}
-        minLength={1}
-        onChange={[Function]}
-        required={true}
-        type="text"
-        value=""
-      />
-    </div>
-    <div
+      onChange={[Function]}
+    />
+    <ProjectNameInput
       className="form-field"
-    >
-      <label
-        htmlFor="project-key"
-      >
-        onboarding.create_project.project_key
-        <em
-          className="mandatory"
-        >
-          *
-        </em>
-      </label>
-      <input
-        className="input-super-large"
-        id="project-key"
-        maxLength={400}
-        minLength={1}
-        onChange={[Function]}
-        required={true}
-        type="text"
-        value=""
-      />
-    </div>
+      onChange={[Function]}
+    />
     <SubmitButton
       disabled={true}
     >

@@ -27,6 +27,7 @@ it('should render', () => {
       <ValidationInput
         description="My description"
         error={undefined}
+        help="Help message"
         id="field-id"
         isInvalid={false}
         isValid={false}

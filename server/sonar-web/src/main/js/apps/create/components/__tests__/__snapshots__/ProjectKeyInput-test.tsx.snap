@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ValidationInput
+  description="onboarding.create_project.project_key.description"
+  help="onboarding.create_project.project_key.help"
+  id="project-key"
+  isInvalid={false}
+  isValid={false}
+  label="onboarding.create_project.project_key"
+  required={true}
+>
+  <input
+    autoFocus={true}
+    className="input-super-large"
+    id="project-key"
+    maxLength={400}
+    minLength={1}
+    onBlur={[Function]}
+    onChange={[Function]}
+    onFocus={[Function]}
+    type="text"
+    value="key"
+  />
+</ValidationInput>
+`;
+
+exports[`should render correctly 2`] = `true`;

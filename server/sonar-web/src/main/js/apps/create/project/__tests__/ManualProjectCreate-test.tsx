@@ -39,11 +39,12 @@ it('should correctly create a project', async () => {
   const onProjectCreate = jest.fn();
   const wrapper = getWrapper({ onProjectCreate });
   wrapper.find('withRouter(OrganizationInput)').prop<Function>('onChange')({ key: 'foo' });
-  change(wrapper.find('#project-name'), 'Bar');
-  expect(wrapper.find('SubmitButton')).toMatchSnapshot();
 
-  change(wrapper.find('#project-key'), 'bar');
-  expect(wrapper.find('SubmitButton')).toMatchSnapshot();
+  change(wrapper.find('ProjectKeyInput'), 'bar');
+  expect(wrapper.find('SubmitButton').prop('disabled')).toBe(true);
+
+  change(wrapper.find('ProjectNameInput'), 'Bar');
+  expect(wrapper.find('SubmitButton').prop('disabled')).toBe(false);
 
   submit(wrapper.find('form'));
   expect(createProject).toBeCalledWith({ project: 'bar', name: 'Bar', organization: 'foo' });

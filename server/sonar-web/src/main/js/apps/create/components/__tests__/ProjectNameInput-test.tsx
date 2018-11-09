@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import OrganizationNameInput from '../OrganizationNameInput';
+import ProjectNameInput from '../ProjectNameInput';
 
 it('should render correctly', () => {
-  const wrapper = shallow(<OrganizationNameInput initialValue="Org Name" onChange={jest.fn()} />);
+  const wrapper = shallow(<ProjectNameInput initialValue="Project Name" onChange={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ touched: true });
   expect(wrapper.find('ValidationInput').prop('isValid')).toMatchSnapshot();
@@ -30,7 +30,7 @@ it('should render correctly', () => {
 
 it('should have an error when name is too long', () => {
   expect(
-    shallow(<OrganizationNameInput initialValue={'x'.repeat(256)} onChange={jest.fn()} />)
+    shallow(<ProjectNameInput initialValue={'x'.repeat(501)} onChange={jest.fn()} />)
       .find('ValidationInput')
       .prop('isInvalid')
   ).toBe(true);

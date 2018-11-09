@@ -52,11 +52,19 @@ export function submit(element: ShallowWrapper | ReactWrapper): void {
 }
 
 export function change(element: ShallowWrapper | ReactWrapper, value: string, event = {}): void {
-  element.simulate('change', {
-    target: { value },
-    currentTarget: { value },
-    ...event
-  });
+  // `type()` returns a component constructor for a composite element and string for DOM nodes
+  if (typeof element.type() === 'function') {
+    element.prop<Function>('onChange')(value);
+    // TODO find out if `root` is a public api
+    // https://github.com/airbnb/enzyme/blob/master/packages/enzyme/src/ReactWrapper.js#L109
+    (element as any).root().update();
+  } else {
+    element.simulate('change', {
+      target: { value },
+      currentTarget: { value },
+      ...event
+    });
+  }
 }
 
 export function keydown(keyCode: number): void {

@@ -164,6 +164,15 @@ export function getTree(data: {
   return getJSON('/api/components/tree', data).catch(throwGlobalError);
 }
 
+export function doesComponentExists(
+  data: { component: string } & BranchParameters
+): Promise<boolean> {
+  return getJSON('/api/components/show', data).then(
+    ({ component }) => component !== undefined,
+    () => false
+  );
+}
+
 export function getComponentShow(data: { component: string } & BranchParameters): Promise<any> {
   return getJSON('/api/components/show', data).catch(throwGlobalError);
 }

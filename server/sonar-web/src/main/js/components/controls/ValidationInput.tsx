@@ -18,13 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from './HelpTooltip';
 import AlertErrorIcon from '../icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../icons-components/AlertSuccessIcon';
 
 interface Props {
   description?: string;
   children: React.ReactNode;
+  className?: string;
   error: string | undefined;
+  help?: string;
   id: string;
   isInvalid: boolean;
   isValid: boolean;
@@ -35,10 +38,13 @@ interface Props {
 export default function ValidationInput(props: Props) {
   const hasError = props.isInvalid && props.error !== undefined;
   return (
-    <div>
+    <div className={props.className}>
       <label htmlFor={props.id}>
-        <strong>{props.label}</strong>
-        {props.required && <em className="mandatory">*</em>}
+        <span className="text-middle">
+          <strong>{props.label}</strong>
+          {props.required && <em className="mandatory">*</em>}
+        </span>
+        {props.help && <HelpTooltip className="spacer-left" overlay={props.help} />}
       </label>
       <div className="little-spacer-top spacer-bottom">
         {props.children}
