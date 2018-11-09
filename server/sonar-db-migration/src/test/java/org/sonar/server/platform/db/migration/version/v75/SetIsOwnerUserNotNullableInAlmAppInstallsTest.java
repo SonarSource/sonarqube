@@ -19,22 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v75;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.BOOLEAN;
 
-public class DbVersion75Test {
+public class SetIsOwnerUserNotNullableInAlmAppInstallsTest {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(SetIsOwnerUserNotNullableInAlmAppInstallsTest.class, "almAppInstalls.sql");
 
-  private DbVersion75 underTest = new DbVersion75();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private SetIsOwnerUserNotNullableInAlmAppInstalls underTest = new SetIsOwnerUserNotNullableInAlmAppInstalls(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2400() {
-    verifyMinimumMigrationNumber(underTest, 2400);
+  public void columns_are_updated() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDefinition("alm_app_installs", "is_owner_user", BOOLEAN, null, false);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 4);
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+
+    underTest.execute();
   }
+
 }

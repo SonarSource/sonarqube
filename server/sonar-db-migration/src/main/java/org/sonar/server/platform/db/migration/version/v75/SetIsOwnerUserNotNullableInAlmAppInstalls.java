@@ -19,22 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v75;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
-public class DbVersion75Test {
+@SupportsBlueGreen
+public class SetIsOwnerUserNotNullableInAlmAppInstalls extends DdlChange {
 
-  private DbVersion75 underTest = new DbVersion75();
-
-  @Test
-  public void migrationNumber_starts_at_2400() {
-    verifyMinimumMigrationNumber(underTest, 2400);
+  public SetIsOwnerUserNotNullableInAlmAppInstalls(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 4);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), "alm_app_installs")
+      .updateColumn(newBooleanColumnDefBuilder()
+        .setColumnName("is_owner_user")
+        .setIsNullable(false)
+        .build())
+      .build());
   }
 }

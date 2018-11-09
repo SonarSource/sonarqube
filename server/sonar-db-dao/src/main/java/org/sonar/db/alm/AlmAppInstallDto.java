@@ -92,12 +92,11 @@ public class AlmAppInstallDto {
     return this;
   }
 
-  @Nullable
-  public Boolean isOwnerUser() {
+  public boolean isOwnerUser() {
     return isOwnerUser;
   }
 
-  public AlmAppInstallDto setIsOwnerUser(@Nullable Boolean isOwnerUser) {
+  public AlmAppInstallDto setIsOwnerUser(boolean isOwnerUser) {
     this.isOwnerUser = isOwnerUser;
     return this;
   }

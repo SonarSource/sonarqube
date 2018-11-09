@@ -40,14 +40,6 @@
       uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectAllWithNoOwnerType" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
-    select <include refid="sqlColumns" />
-    from
-      alm_app_installs aai
-    where
-      is_owner_user is null
-  </select>
-
   <select id="selectUnboundByUserExternalId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select <include refid="sqlColumns" />
     from
