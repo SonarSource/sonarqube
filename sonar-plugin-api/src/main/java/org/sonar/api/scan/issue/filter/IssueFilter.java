@@ -21,7 +21,6 @@ package org.sonar.api.scan.issue.filter;
 
 
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;

@@ -31,6 +31,10 @@ import org.sonar.api.rule.RuleKey;
 @ThreadSafe
 public interface FilterableIssue {
 
+  /**
+   * @deprecated since 7.6 filtering issue should not depend on the key
+   */
+  @Deprecated
   String componentKey();
 
   RuleKey ruleKey();
@@ -59,10 +63,14 @@ public interface FilterableIssue {
   Double gap();
 
   /**
-   * @deprecated since 6.6 useless
+   * @deprecated since 6.6 useless since creation date is computed on server side
    */
   @Deprecated
   Date creationDate();
 
+  /**
+   * @deprecated since 7.6 filtering issue should not depend on the key
+   */
+  @Deprecated
   String projectKey();
 }
