@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -76,7 +77,7 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfileLoader;
-import org.sonar.scanner.repository.QualityProfileProvider;
+import org.sonar.scanner.repository.QualityProfilesProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.rule.ActiveRulesLoader;
@@ -167,7 +168,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // rules
       new ActiveRulesProvider(),
-      new QualityProfileProvider(),
+      new QualityProfilesProvider(),
+      CheckFactory.class,
 
       // issues
       IssueCache.class,

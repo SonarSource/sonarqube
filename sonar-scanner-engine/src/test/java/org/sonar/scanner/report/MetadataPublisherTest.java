@@ -43,7 +43,7 @@ import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.rule.ModuleQProfiles;
+import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -66,7 +66,7 @@ public class MetadataPublisherTest {
   private DefaultInputModule rootModule;
   private MetadataPublisher underTest;
   private ScanProperties properties = mock(ScanProperties.class);
-  private ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
+  private QualityProfiles qProfiles = mock(QualityProfiles.class);
   private ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
   private CpdSettings cpdSettings = mock(CpdSettings.class);
   private InputModuleHierarchy inputModuleHierarchy;

@@ -27,15 +27,15 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.analysis.AnalysisProperties;
-import org.sonar.scanner.rule.ModuleQProfiles;
+import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
-public class QualityProfileProvider extends ProviderAdapter {
-  private static final Logger LOG = Loggers.get(QualityProfileProvider.class);
+public class QualityProfilesProvider extends ProviderAdapter {
+  private static final Logger LOG = Loggers.get(QualityProfilesProvider.class);
   private static final String LOG_MSG = "Load quality profiles";
-  private ModuleQProfiles profiles = null;
+  private QualityProfiles profiles = null;
 
-  public ModuleQProfiles provide(ProjectKey projectKey, QualityProfileLoader loader, ProjectRepositories projectRepositories, AnalysisProperties props) {
+  public QualityProfiles provide(ProjectKey projectKey, QualityProfileLoader loader, ProjectRepositories projectRepositories, AnalysisProperties props) {
     if (this.profiles == null) {
       List<QualityProfile> profileList;
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
@@ -45,7 +45,7 @@ public class QualityProfileProvider extends ProviderAdapter {
         profileList = loader.load(projectKey.get(), getSonarProfile(props));
       }
       profiler.stopInfo();
-      profiles = new ModuleQProfiles(profileList);
+      profiles = new QualityProfiles(profileList);
     }
 
     return profiles;
@@ -53,9 +53,9 @@ public class QualityProfileProvider extends ProviderAdapter {
 
   @CheckForNull
   private static String getSonarProfile(AnalysisProperties props) {
-    String profile = props.property(ModuleQProfiles.SONAR_PROFILE_PROP);
+    String profile = props.property(QualityProfiles.SONAR_PROFILE_PROP);
     if (profile != null) {
-      LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
+      LOG.warn("Ability to set quality profile from command line using '" + QualityProfiles.SONAR_PROFILE_PROP
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
     }
     return profile;

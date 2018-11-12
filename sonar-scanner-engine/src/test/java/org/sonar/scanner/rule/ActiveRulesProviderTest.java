@@ -66,7 +66,7 @@ public class ActiveRulesProviderTest {
     when(loader.load(eq("qp2"))).thenReturn(qp2Rules);
     when(loader.load(eq("qp3"))).thenReturn(qp3Rules);
 
-    ModuleQProfiles profiles = mockProfiles("qp1", "qp2", "qp3");
+    QualityProfiles profiles = mockProfiles("qp1", "qp2", "qp3");
     ActiveRules activeRules = provider.provide(loader, profiles);
 
     assertThat(activeRules.findAll()).hasSize(3);
@@ -88,20 +88,19 @@ public class ActiveRulesProviderTest {
     List<LoadedActiveRule> qpRules = ImmutableList.of(r1, r2);
     when(loader.load(eq("qp"))).thenReturn(qpRules);
 
-    ModuleQProfiles profiles = mockProfiles("qp");
+    QualityProfiles profiles = mockProfiles("qp");
     ActiveRules activeRules = provider.provide(loader, profiles);
 
     assertThat(activeRules.findAll()).hasSize(2);
     assertThat(activeRules.findAll()).extracting("ruleKey", "params").containsOnly(
       Tuple.tuple(RuleKey.of("rule1", "rule1"), ImmutableMap.of()),
-      Tuple.tuple(RuleKey.of("rule2", "rule2"), ImmutableMap.of("foo1", "bar1", "foo2", "bar2"))
-    );
+      Tuple.tuple(RuleKey.of("rule2", "rule2"), ImmutableMap.of("foo1", "bar1", "foo2", "bar2")));
 
     verify(loader).load(eq("qp"));
     verifyNoMoreInteractions(loader);
   }
 
-  private static ModuleQProfiles mockProfiles(String... keys) {
+  private static QualityProfiles mockProfiles(String... keys) {
     List<QualityProfile> profiles = new LinkedList<>();
 
     for (String k : keys) {
@@ -109,7 +108,7 @@ public class ActiveRulesProviderTest {
       profiles.add(p);
     }
 
-    return new ModuleQProfiles(profiles);
+    return new QualityProfiles(profiles);
   }
 
   private static LoadedActiveRule mockRule(String name) {

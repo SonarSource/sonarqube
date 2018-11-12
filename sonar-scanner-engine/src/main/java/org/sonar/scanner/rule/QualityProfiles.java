@@ -25,21 +25,19 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 /**
- * Lists the Quality profiles enabled on the current module.
+ * Lists the Quality profiles enabled on the current project.
  */
-@ScannerSide
 @Immutable
-public class ModuleQProfiles {
+public class QualityProfiles {
 
   public static final String SONAR_PROFILE_PROP = "sonar.profile";
   private final Map<String, QProfile> byLanguage;
 
-  public ModuleQProfiles(Collection<QualityProfile> profiles) {
+  public QualityProfiles(Collection<QualityProfile> profiles) {
     Map<String, QProfile> map = new HashMap<>(profiles.size());
 
     for (QualityProfile qProfile : profiles) {

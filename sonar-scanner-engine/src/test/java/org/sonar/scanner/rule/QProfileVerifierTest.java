@@ -43,13 +43,13 @@ public class QProfileVerifierTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultFileSystem fs;
-  private ModuleQProfiles profiles;
+  private QualityProfiles profiles;
   private MapSettings settings = new MapSettings();
 
   @Before
   public void before() throws Exception {
     fs = new DefaultFileSystem(temp.newFolder().toPath());
-    profiles = mock(ModuleQProfiles.class);
+    profiles = mock(QualityProfiles.class);
     QProfile javaProfile = new QProfile("p1", "My Java profile", "java", null);
     when(profiles.findByLanguage("java")).thenReturn(javaProfile);
     QProfile cobolProfile = new QProfile("p2", "My Cobol profile", "cobol", null);

@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.extension.CoreExtensionsInstaller;
@@ -50,7 +49,6 @@ import org.sonar.scanner.phases.SensorsExecutor;
 import org.sonar.scanner.postjob.DefaultPostJobContext;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.rule.QProfileVerifier;
-import org.sonar.scanner.rule.RulesProfileProvider;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ExclusionFilters;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
@@ -129,10 +127,6 @@ public class ModuleScanContainer extends ComponentContainer {
       ScannerExtensionDictionnary.class,
       ModuleIssueFilters.class,
       CoverageExclusions.class,
-
-      // rules
-      new RulesProfileProvider(),
-      CheckFactory.class,
 
       // issues
       ModuleIssues.class,

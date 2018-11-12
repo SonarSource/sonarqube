@@ -33,7 +33,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.analysis.AnalysisProperties;
-import org.sonar.scanner.rule.ModuleQProfiles;
+import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +48,7 @@ public class QualityProfileProviderTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private QualityProfileProvider qualityProfileProvider;
+  private QualityProfilesProvider qualityProfileProvider;
 
   @Mock
   private QualityProfileLoader loader;
@@ -64,7 +64,7 @@ public class QualityProfileProviderTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    qualityProfileProvider = new QualityProfileProvider();
+    qualityProfileProvider = new QualityProfilesProvider();
 
     when(key.get()).thenReturn("project");
     when(projectRepo.exists()).thenReturn(true);
@@ -76,7 +76,7 @@ public class QualityProfileProviderTest {
   @Test
   public void testProvide() {
     when(loader.load("project", null)).thenReturn(response);
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
+    QualityProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
     assertResponse(qps);
 
     verify(loader).load("project", null);
@@ -87,8 +87,8 @@ public class QualityProfileProviderTest {
   public void testProjectDoesntExist() {
     when(projectRepo.exists()).thenReturn(false);
     when(loader.loadDefault(anyString())).thenReturn(response);
-    when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("profile");
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
+    when(props.property(QualityProfiles.SONAR_PROFILE_PROP)).thenReturn("profile");
+    QualityProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
     assertResponse(qps);
 
     verify(loader).loadDefault(anyString());
@@ -98,15 +98,15 @@ public class QualityProfileProviderTest {
   @Test
   public void testProfileProp() {
     when(loader.load(eq("project"), eq("custom"))).thenReturn(response);
-    when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
-    when(props.properties()).thenReturn(ImmutableMap.of(ModuleQProfiles.SONAR_PROFILE_PROP, "custom"));
+    when(props.property(QualityProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
+    when(props.properties()).thenReturn(ImmutableMap.of(QualityProfiles.SONAR_PROFILE_PROP, "custom"));
 
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
+    QualityProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
     assertResponse(qps);
 
     verify(loader).load(eq("project"), eq("custom"));
     verifyNoMoreInteractions(loader);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Ability to set quality profile from command line using '" + QualityProfiles.SONAR_PROFILE_PROP
       + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
   }
 
@@ -114,19 +114,19 @@ public class QualityProfileProviderTest {
   public void testProfilePropDefault() {
     when(projectRepo.exists()).thenReturn(false);
     when(loader.loadDefault(eq("custom"))).thenReturn(response);
-    when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
-    when(props.properties()).thenReturn(ImmutableMap.of(ModuleQProfiles.SONAR_PROFILE_PROP, "custom"));
+    when(props.property(QualityProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
+    when(props.properties()).thenReturn(ImmutableMap.of(QualityProfiles.SONAR_PROFILE_PROP, "custom"));
 
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
+    QualityProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
     assertResponse(qps);
 
     verify(loader).loadDefault(eq("custom"));
     verifyNoMoreInteractions(loader);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Ability to set quality profile from command line using '" + QualityProfiles.SONAR_PROFILE_PROP
       + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
   }
 
-  private void assertResponse(ModuleQProfiles qps) {
+  private void assertResponse(QualityProfiles qps) {
     assertThat(qps.findAll()).extracting("key").containsExactly("profile");
 
   }

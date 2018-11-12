@@ -37,7 +37,7 @@ import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.rule.ModuleQProfiles;
+import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -48,7 +48,7 @@ public class MetadataPublisher implements ReportPublisherStep {
   private static final Logger LOG = Loggers.get(MetadataPublisher.class);
 
   private final ScanProperties properties;
-  private final ModuleQProfiles qProfiles;
+  private final QualityProfiles qProfiles;
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
@@ -59,8 +59,8 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ScmConfiguration scmConfiguration;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
-    @Nullable ScmConfiguration scmConfiguration) {
+                           QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
+                           @Nullable ScmConfiguration scmConfiguration) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.properties = properties;
@@ -72,7 +72,7 @@ public class MetadataPublisher implements ReportPublisherStep {
   }
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
+                           QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
     this(projectAnalysisInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, null);
   }
 

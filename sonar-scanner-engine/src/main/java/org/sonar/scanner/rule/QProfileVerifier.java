@@ -37,9 +37,9 @@ public class QProfileVerifier {
 
   private final Configuration settings;
   private final FileSystem fs;
-  private final ModuleQProfiles profiles;
+  private final QualityProfiles profiles;
 
-  public QProfileVerifier(Configuration settings, FileSystem fs, ModuleQProfiles profiles) {
+  public QProfileVerifier(Configuration settings, FileSystem fs, QualityProfiles profiles) {
     this.settings = settings;
     this.fs = fs;
     this.profiles = profiles;
@@ -51,7 +51,7 @@ public class QProfileVerifier {
 
   @VisibleForTesting
   void execute(Logger logger) {
-    String defaultName = settings.get(ModuleQProfiles.SONAR_PROFILE_PROP).orElse(null);
+    String defaultName = settings.get(QualityProfiles.SONAR_PROFILE_PROP).orElse(null);
     boolean defaultNameUsed = StringUtils.isBlank(defaultName);
     for (String lang : fs.languages()) {
       QProfile profile = profiles.findByLanguage(lang);

@@ -43,7 +43,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load active rules";
   private ActiveRules singleton = null;
 
-  public ActiveRules provide(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
+  public ActiveRules provide(ActiveRulesLoader loader, QualityProfiles qProfiles) {
     if (singleton == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       singleton = load(loader, qProfiles);
@@ -52,7 +52,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return singleton;
   }
 
-  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
+  private static ActiveRules load(ActiveRulesLoader loader, QualityProfiles qProfiles) {
 
     Collection<String> qProfileKeys = getKeys(qProfiles);
     Set<RuleKey> loadedRulesKey = new HashSet<>();
@@ -98,7 +98,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return loader.load(qProfileKey);
   }
 
-  private static Collection<String> getKeys(ModuleQProfiles qProfiles) {
+  private static Collection<String> getKeys(QualityProfiles qProfiles) {
     List<String> keys = new ArrayList<>(qProfiles.findAll().size());
 
     for (QProfile qp : qProfiles.findAll()) {
