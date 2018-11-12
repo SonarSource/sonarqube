@@ -85,4 +85,9 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
    * @throws IllegalStateException if Plugins by key has already been set
    */
   MutableAnalysisMetadataHolder setScannerPluginsByKey(Map<String, ScannerPlugin> pluginsByKey);
+
+  /**
+   * @throws IllegalStateException if scm revision id has already been set
+   */
+  MutableAnalysisMetadataHolder setScmRevisionId(String scmRevisionId);
 }

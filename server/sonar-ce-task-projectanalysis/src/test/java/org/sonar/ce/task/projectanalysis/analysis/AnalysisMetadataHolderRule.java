@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.analysis;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -59,6 +60,8 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
+
+  private final InitializedProperty<String> scmRevisionId = new InitializedProperty<>();
 
   @Override
   public AnalysisMetadataHolderRule setOrganizationsEnabled(boolean isOrganizationsEnabled) {
@@ -229,6 +232,21 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public Map<String, ScannerPlugin> getScannerPluginsByKey() {
     checkState(pluginsByKey.isInitialized(), "Plugins per key has not been set");
     return pluginsByKey.getProperty();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setScmRevisionId(String scmRevisionId) {
+    checkState(!this.scmRevisionId.isInitialized(), "ScmRevisionId has already been set");
+    this.scmRevisionId.setProperty(scmRevisionId);
+    return this;
+  }
+
+  @Override
+  public Optional<String> getScmRevisionId() {
+    if (!scmRevisionId.isInitialized()) {
+      return Optional.empty();
+    }
+    return Optional.of(scmRevisionId.getProperty());
   }
 
   @Override

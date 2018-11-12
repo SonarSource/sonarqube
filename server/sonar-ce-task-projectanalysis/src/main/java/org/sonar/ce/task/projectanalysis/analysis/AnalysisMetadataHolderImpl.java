@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.analysis;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.util.InitializedProperty;
@@ -45,6 +46,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
+  private final InitializedProperty<String> scmRevisionId = new InitializedProperty<>();
 
   @Override
   public MutableAnalysisMetadataHolder setOrganizationsEnabled(boolean isOrganizationsEnabled) {
@@ -214,6 +216,21 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public Map<String, ScannerPlugin> getScannerPluginsByKey() {
     checkState(pluginsByKey.isInitialized(), "Plugins by key has not been set");
     return pluginsByKey.getProperty();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setScmRevisionId(String scmRevisionId) {
+    checkState(!this.scmRevisionId.isInitialized(), "ScmRevisionId has already been set");
+    this.scmRevisionId.setProperty(scmRevisionId);
+    return this;
+  }
+
+  @Override
+  public Optional<String> getScmRevisionId() {
+    if (!scmRevisionId.isInitialized()) {
+      return Optional.empty();
+    }
+    return Optional.of(scmRevisionId.getProperty());
   }
 
   @Override

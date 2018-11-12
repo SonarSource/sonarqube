@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.analysis;
 
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -174,6 +175,19 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   @Override
   public Map<String, ScannerPlugin> getScannerPluginsByKey() {
     return delegate.getScannerPluginsByKey();
+  }
+
+
+
+  @Override
+  public MutableAnalysisMetadataHolder setScmRevisionId(String scmRevisionId) {
+    delegate.setScmRevisionId(scmRevisionId);
+    return this;
+  }
+
+  @Override
+  public Optional<String> getScmRevisionId() {
+    return delegate.getScmRevisionId();
   }
 
   @Override
