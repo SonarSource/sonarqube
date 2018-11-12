@@ -28,6 +28,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
 
 import static java.util.Objects.requireNonNull;
@@ -35,11 +36,13 @@ import static java.util.Objects.requireNonNull;
 class SearchData {
   final List<SnapshotDto> analyses;
   final ListMultimap<String, EventDto> eventsByAnalysis;
+  final ListMultimap<String, EventComponentChangeDto> componentChangesByEventUuid;
   final Paging paging;
 
   private SearchData(Builder builder) {
     this.analyses = builder.analyses;
     this.eventsByAnalysis = buildEvents(builder.events);
+    this.componentChangesByEventUuid = buildComponentChanges(builder.componentChanges);
     this.paging = Paging
       .forPageIndex(builder.getRequest().getPage())
       .withPageSize(builder.getRequest().getPageSize())
@@ -48,6 +51,10 @@ class SearchData {
 
   private static ListMultimap<String, EventDto> buildEvents(List<EventDto> events) {
     return events.stream().collect(MoreCollectors.index(EventDto::getAnalysisUuid));
+  }
+
+  private static ListMultimap<String, EventComponentChangeDto> buildComponentChanges(List<EventComponentChangeDto> changes) {
+    return changes.stream().collect(MoreCollectors.index(EventComponentChangeDto::getEventUuid));
   }
 
   static Builder builder(DbSession dbSession, SearchRequest request) {
@@ -61,6 +68,7 @@ class SearchData {
     private List<SnapshotDto> analyses;
     private int countAnalyses;
     private List<EventDto> events;
+    private List<EventComponentChangeDto> componentChanges;
 
     private Builder(DbSession dbSession, SearchRequest request) {
       this.dbSession = dbSession;
@@ -88,6 +96,15 @@ class SearchData {
 
     Builder setEvents(List<EventDto> events) {
       this.events = events;
+      return this;
+    }
+
+    public List<EventComponentChangeDto> getComponentChanges() {
+      return componentChanges;
+    }
+
+    Builder setComponentChanges(List<EventComponentChangeDto> componentChanges) {
+      this.componentChanges = componentChanges;
       return this;
     }
 

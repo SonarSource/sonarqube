@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -79,6 +80,9 @@ public class SearchAction implements ProjectAnalysesWsAction {
         "Requires the following permission: 'Browse' on the specified project")
       .setSince("6.3")
       .setResponseExample(getClass().getResource("search-example.json"))
+      .setChangelog(
+        new Change("7.5", "Add QualityGate information on Applications")
+      )
       .setHandler(this);
 
     action.addPagingParams(DEFAULT_PAGE_SIZE, 500);
@@ -164,6 +168,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
   private void addEvents(SearchData.Builder data) {
     List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).collect(MoreCollectors.toList());
     data.setEvents(dbClient.eventDao().selectByAnalysisUuids(data.getDbSession(), analyses));
+    data.setComponentChanges(dbClient.eventComponentChangeDao().selectByAnalysisUuids(data.getDbSession(), analyses));
   }
 
   private void checkPermission(ComponentDto project) {

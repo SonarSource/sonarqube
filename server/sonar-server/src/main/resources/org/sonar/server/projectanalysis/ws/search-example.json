@@ -2,7 +2,7 @@
   "paging": {
     "pageIndex": 1,
     "pageSize": 100,
-    "total": 2
+    "total": 3
   },
   "analyses": [
     {
@@ -12,12 +12,12 @@
         {
           "key": "E21",
           "category": "QUALITY_PROFILE",
-          "name": "Quality Profile changed to Sonar Way",
+          "name": "Quality Profile changed to Sonar Way"
         },
         {
           "key": "E22",
           "category": "OTHER",
-          "name": "6.3",
+          "name": "6.3"
         }
       ]
     },
@@ -34,7 +34,33 @@
         {
           "key": "E12",
           "category": "VERSION",
-          "name": "6.3",
+          "name": "6.3"
+        }
+      ]
+    },
+    {
+      "key": "P1",
+      "date": "2015-11-11T10:00:00+0100",
+      "events": [
+        {
+          "key": "E31",
+          "category": "QUALITY_GATE",
+          "name": "Quality Gate is Red",
+          "description": "",
+          "qualityGate": {
+            "status": "ERROR",
+            "stillFailing": true,
+            "failing": [{
+              "key": "app1",
+              "name": "My project",
+              "branch": "master"
+            },{
+              "key": "app2",
+              "name": "Another project",
+              "branch": "master"
+            }
+            ]
+          }
         }
       ]
     }

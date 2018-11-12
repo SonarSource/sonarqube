@@ -48,10 +48,23 @@ message Event {
   optional string category = 3;
   optional string name = 4;
   optional string description = 5;
+  optional QualityGate qualityGate = 6;
 }
 
 message Analysis {
   optional string key = 1;
   optional string date = 2;
   repeated Event events = 3;
+}
+
+message QualityGate {
+  optional string status = 1;
+  optional bool stillFailing = 2;
+  repeated Failing failing = 3;
+}
+
+message Failing {
+  optional string key = 1;
+  optional string name = 2;
+  optional string branch = 3;
 }

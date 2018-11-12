@@ -29,13 +29,19 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.log.LogAndArguments;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
+import org.sonar.db.event.EventPurgeData;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -57,11 +63,8 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.event.EventDto.CATEGORY_ALERT;
 import static org.sonar.db.event.EventTesting.newEvent;
-import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PULL_REQUEST;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.EventCategory.QUALITY_GATE;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
@@ -69,7 +72,11 @@ import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PA
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_FROM;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_TO;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class SearchActionTest {
 
@@ -79,10 +86,13 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = db.getDbClient();
 
   private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db), userSession));
+  private UuidFactoryFast uuidFactoryFast = UuidFactoryFast.getInstance();
 
   @Test
   public void json_example() {
@@ -91,6 +101,7 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime()));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime()));
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("P1").setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime()));
     db.events().insertEvent(newEvent(a1).setUuid("E11")
       .setName("Quality Gate is Red (was Orange)")
       .setCategory(EventCategory.QUALITY_GATE.getLabel())
@@ -102,6 +113,33 @@ public class SearchActionTest {
       .setCategory(EventCategory.QUALITY_PROFILE.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E22")
       .setName("6.3").setCategory(OTHER.getLabel()));
+
+    EventDto eventDto = db.events().insertEvent(newEvent(a3)
+      .setUuid("E31")
+      .setName("Quality Gate is Red")
+      .setData("{stillFailing: true, status: \"ERROR\"}")
+      .setCategory(CATEGORY_ALERT)
+      .setDescription(""));
+    EventComponentChangeDto changeDto1 = new EventComponentChangeDto()
+      .setCategory(EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE)
+      .setUuid(uuidFactoryFast.create())
+      .setComponentName("My project")
+      .setComponentKey("app1")
+      .setComponentBranchKey("master")
+      .setComponentUuid(project.uuid())
+      .setEventUuid(eventDto.getUuid());
+    EventComponentChangeDto changeDto2 = new EventComponentChangeDto()
+      .setCategory(EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE)
+      .setUuid(uuidFactoryFast.create())
+      .setComponentName("Another project")
+      .setComponentKey("app2")
+      .setComponentBranchKey("master")
+      .setComponentUuid(uuidFactoryFast.create())
+      .setEventUuid(eventDto.getUuid());
+    EventPurgeData eventPurgeData = new EventPurgeData(project.uuid(), a3.getUuid());
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto2, eventPurgeData);
+    db.getSession().commit();
 
     String result = ws.newRequest()
       .setParam(PARAM_PROJECT, KEY_PROJECT_EXAMPLE_001)
@@ -175,6 +213,47 @@ public class SearchActionTest {
     assertThat(result)
       .hasSize(3)
       .extracting(Analysis::getKey).containsExactly(thirdAnalysis.getUuid(), secondAnalysis.getUuid(), firstAnalysis.getUuid());
+  }
+
+  @Test
+  public void incorrect_quality_gate_information() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertApplication(organization);
+    userSession.registerComponents(application);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    EventDto event = db.events().insertEvent(
+      newEvent(firstAnalysis)
+        .setName("")
+        .setUuid("E11")
+        .setCategory(CATEGORY_ALERT)
+        .setData("UNPARSEABLE JSON")); // Error in Data
+    EventComponentChangeDto changeDto1 = new EventComponentChangeDto()
+      .setCategory(EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE)
+      .setUuid(uuidFactoryFast.create())
+      .setComponentName("My project")
+      .setComponentKey("app1")
+      .setComponentBranchKey("master")
+      .setComponentUuid(uuidFactoryFast.create())
+      .setEventUuid(event.getUuid());
+    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
+    db.getSession().commit();
+
+    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+
+    assertThat(result).hasSize(1);
+    List<Event> events = result.get(0).getEventsList();
+    assertThat(events)
+      .extracting(Event::getName, Event::getCategory, Event::getKey)
+      .containsExactly(tuple("", QUALITY_GATE.name(), "E11"));
+
+    // Verify that the values are not populated
+    assertThat(events.get(0).getQualityGate().hasStatus()).isFalse();
+    assertThat(events.get(0).getQualityGate().hasStillFailing()).isFalse();
+
+    assertThat(logTester.getLogs(LoggerLevel.ERROR))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .containsExactly("Unable to retrieve data from event uuid=E11");
   }
 
   @Test
