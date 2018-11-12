@@ -43,7 +43,11 @@ public class OrganizationAlmBindingDao implements Dao {
   }
 
   public Optional<OrganizationAlmBindingDto> selectByOrganization(DbSession dbSession, OrganizationDto organization) {
-    return ofNullable(getMapper(dbSession).selectByOrganizationUuid(organization.getUuid()));
+    return selectByOrganizationUuid(dbSession, organization.getUuid());
+  }
+
+  public Optional<OrganizationAlmBindingDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
+    return ofNullable(getMapper(dbSession).selectByOrganizationUuid(organizationUuid));
   }
 
   public List<OrganizationAlmBindingDto> selectByOrganizations(DbSession dbSession, Collection<OrganizationDto> organizations) {

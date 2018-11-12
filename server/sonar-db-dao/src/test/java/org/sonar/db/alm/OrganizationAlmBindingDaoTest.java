@@ -82,6 +82,23 @@ public class OrganizationAlmBindingDaoTest {
   }
 
   @Test
+  public void selectByOrganizationUuid() {
+    OrganizationDto organization = db.organizations().insert();
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
+    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+
+    assertThat(underTest.selectByOrganizationUuid(db.getSession(), organization.getUuid()).get())
+      .extracting(OrganizationAlmBindingDto::getUuid, OrganizationAlmBindingDto::getOrganizationUuid, OrganizationAlmBindingDto::getAlmAppInstallUuid,
+        OrganizationAlmBindingDto::getUrl, OrganizationAlmBindingDto::getAlm,
+        OrganizationAlmBindingDto::getUserUuid, OrganizationAlmBindingDto::getCreatedAt)
+      .containsExactlyInAnyOrder(dto.getUuid(), organization.getUuid(), dto.getAlmAppInstallUuid(),
+        dto.getUrl(), ALM.GITHUB,
+        dto.getUserUuid(), NOW);
+
+    assertThat(underTest.selectByOrganizationUuid(db.getSession(), "unknown")).isNotPresent();
+  }
+
+  @Test
   public void selectByOrganizations() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationAlmBindingDto organizationAlmBinding1 = db.alm().insertOrganizationAlmBinding(organization1, db.alm().insertAlmAppInstall());

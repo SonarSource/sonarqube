@@ -193,7 +193,7 @@ public class ProjectAlmBindingDaoTest {
     Optional<ProjectAlmBindingDto> dto = underTest.selectByRepoId(dbSession, GITHUB, A_REPO);
     assertThat(dto).isPresent();
     assertThat(dto.get().getUuid()).isEqualTo("uuid1");
-    assertThat(dto.get().getAlm()).contains(GITHUB);
+    assertThat(dto.get().getAlm()).isEqualTo(GITHUB);
     assertThat(dto.get().getRepoId()).isEqualTo(A_REPO);
     assertThat(dto.get().getProjectUuid()).isEqualTo(A_UUID);
     assertThat(dto.get().getUrl()).isEqualTo(A_URL);
@@ -216,7 +216,7 @@ public class ProjectAlmBindingDaoTest {
     Optional<ProjectAlmBindingDto> dto = underTest.selectByProjectUuid(dbSession, A_UUID);
     assertThat(dto).isPresent();
     assertThat(dto.get().getUuid()).isEqualTo("uuid1");
-    assertThat(dto.get().getAlm()).contains(BITBUCKETCLOUD);
+    assertThat(dto.get().getAlm()).isEqualTo(BITBUCKETCLOUD);
     assertThat(dto.get().getRepoId()).isEqualTo(A_REPO);
     assertThat(dto.get().getProjectUuid()).isEqualTo(A_UUID);
     assertThat(dto.get().getUrl()).isEqualTo(A_URL);
@@ -236,7 +236,7 @@ public class ProjectAlmBindingDaoTest {
     underTest.insertOrUpdate(dbSession, BITBUCKETCLOUD, ANOTHER_REPO, "foo", null, "http://foo");
 
     assertThat(underTest.selectByRepoIds(dbSession, GITHUB, Arrays.asList(A_REPO, ANOTHER_REPO, "foo")))
-      .extracting(ProjectAlmBindingDto::getUuid, t -> t.getAlm().get(), ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid,
+      .extracting(ProjectAlmBindingDto::getUuid, t -> t.getAlm(), ProjectAlmBindingDto::getRepoId, ProjectAlmBindingDto::getProjectUuid,
         ProjectAlmBindingDto::getUrl, ProjectAlmBindingDto::getGithubSlug)
       .containsExactlyInAnyOrder(
         tuple("uuid1", GITHUB, A_REPO, A_UUID, A_URL, A_GITHUB_SLUG),

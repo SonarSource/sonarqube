@@ -42,7 +42,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.ALM;
 import org.sonar.db.alm.ProjectAlmBindingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -188,10 +187,7 @@ public class ComponentAction implements NavigationWsAction {
   private void writeAlmDetails(JsonWriter json, DbSession session, ComponentDto component) {
     Optional<ProjectAlmBindingDto> bindingOpt = dbClient.projectAlmBindingsDao().selectByProjectUuid(session, component.uuid());
     bindingOpt.ifPresent(b -> {
-      String almId = b.getAlm()
-        .map(ALM::getId)
-        .map(String::valueOf)
-        .orElseThrow(() -> new IllegalStateException("Alm binding id DB has no ALM id"));
+      String almId = String.valueOf(b.getAlm().getId());
       json.name("alm").beginObject()
         .prop("key", almId)
         .prop("url", b.getUrl())

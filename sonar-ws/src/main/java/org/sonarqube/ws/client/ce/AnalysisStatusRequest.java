@@ -19,48 +19,57 @@
  */
 package org.sonarqube.ws.client.ce;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/task">Further information about this action online (including a response example)</a>
- * @since 5.2
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/analysis_status">Further information about this action online (including a response example)</a>
+ * @since 7.4
  */
 @Generated("sonar-ws-generator")
-public class TaskRequest {
+public class AnalysisStatusRequest {
 
-  private List<String> additionalFields;
-  private String id;
+  private String branch;
+  private String component;
+  private String pullRequest;
 
   /**
-   * Possible values:
-   * <ul>
-   *   <li>"stacktrace"</li>
-   *   <li>"scannerContext"</li>
-   *   <li>"warnings"</li>
-   * </ul>
+   * This is part of the internal API.
+   * Example value: "feature/my_branch"
    */
-  public TaskRequest setAdditionalFields(List<String> additionalFields) {
-    this.additionalFields = additionalFields;
+  public AnalysisStatusRequest setBranch(String branch) {
+    this.branch = branch;
     return this;
   }
 
-  public List<String> getAdditionalFields() {
-    return additionalFields;
+  public String getBranch() {
+    return branch;
   }
 
   /**
    * This is a mandatory parameter.
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
+   * Example value: "my_project"
    */
-  public TaskRequest setId(String id) {
-    this.id = id;
+  public AnalysisStatusRequest setComponent(String component) {
+    this.component = component;
     return this;
   }
 
-  public String getId() {
-    return id;
+  public String getComponent() {
+    return component;
+  }
+
+  /**
+   * This is part of the internal API.
+   * Example value: "5461"
+   */
+  public AnalysisStatusRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
   }
 }

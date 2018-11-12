@@ -20,7 +20,6 @@
 package org.sonar.db.alm;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * DTO is used only for select, hence no setters (MyBatis populates field by reflection).
@@ -33,14 +32,11 @@ public class ProjectAlmBindingDto {
   private String githubSlug;
   private String url;
 
-  public Optional<ALM> getAlm() {
-    if (rawAlmId == null) {
-      return Optional.empty();
-    }
-
+  public ALM getAlm() {
     return Arrays.stream(ALM.values())
       .filter(a -> a.getId().equals(rawAlmId))
-      .findAny();
+      .findAny()
+      .orElseThrow(() -> new IllegalStateException("ALM id " + rawAlmId + " is invalid"));
   }
 
   public String getRepoId() {

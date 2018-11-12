@@ -21,19 +21,20 @@ package org.sonarqube.ws.client.ce;
 
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Ce.ActivityResponse;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
+import org.sonarqube.ws.Ce.AnalysisStatusWsResponse;
 import org.sonarqube.ws.Ce.ComponentResponse;
 import org.sonarqube.ws.Ce.InfoWsResponse;
 import org.sonarqube.ws.Ce.SubmitResponse;
 import org.sonarqube.ws.Ce.TaskResponse;
 import org.sonarqube.ws.Ce.TaskTypesWsResponse;
 import org.sonarqube.ws.Ce.WorkerCountResponse;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce">Further information about this web service online</a>
@@ -86,6 +87,22 @@ public class CeService extends BaseService {
   /**
    *
    * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/analysis_status">Further information about this action online (including a response example)</a>
+   * @since 7.4
+   */
+  public AnalysisStatusWsResponse analysisStatus(AnalysisStatusRequest request) {
+    return call(
+      new GetRequest(path("analysis_status"))
+        .setParam("branch", request.getBranch())
+        .setParam("component", request.getComponent())
+        .setParam("pullRequest", request.getPullRequest()),
+      AnalysisStatusWsResponse.parser());
+  }
+
+  /**
+   *
+   * This is part of the internal API.
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/cancel">Further information about this action online (including a response example)</a>
    * @since 5.2
@@ -129,6 +146,7 @@ public class CeService extends BaseService {
 
   /**
    *
+   * This is part of the internal API.
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/info">Further information about this action online (including a response example)</a>
    * @since 7.2
@@ -140,6 +158,8 @@ public class CeService extends BaseService {
   }
 
   /**
+   *
+   * This is part of the internal API.
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/pause">Further information about this action online (including a response example)</a>
    * @since 7.2
@@ -152,6 +172,8 @@ public class CeService extends BaseService {
   }
 
   /**
+   *
+   * This is part of the internal API.
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/resume">Further information about this action online (including a response example)</a>
    * @since 7.2
