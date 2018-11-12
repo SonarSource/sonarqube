@@ -25,7 +25,7 @@ let history: History;
 function ensureHistory() {
   history = useRouterHistory(createHistory)({
     // do not use `getBaseUrl` from `helpers/urls` to no import this file with all its dependecies
-    basename: (window as any).baseUrl + '/'
+    basename: (window as any).baseUrl
   });
   return history;
 }
