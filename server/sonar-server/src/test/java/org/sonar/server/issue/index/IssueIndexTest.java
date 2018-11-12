@@ -21,6 +21,9 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +35,7 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
@@ -61,7 +65,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.rules.ExpectedException.none;
+import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
+import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_REOPENED;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -73,6 +85,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
+@RunWith(DataProviderRunner.class)
 public class IssueIndexTest {
 
   @Rule
@@ -330,6 +343,47 @@ public class IssueIndexTest {
 
     assertThat(underTest.searchBranchStatistics(project.uuid(), emptyList())).isEmpty();
     assertThat(underTest.searchBranchStatistics(project.uuid(), singletonList("unknown"))).isEmpty();
+  }
+
+  @Test
+  @UseDataProvider("resolutionAndStatusAndExpectedCount")
+  public void searchPrStatistics_finds_unresolved_and_unconfirmed_issues(String status, String resolution, long expectedCount) {
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto pr = db.components().insertProjectBranch(project);
+    ComponentDto fileOnPr = db.components().insertComponent(newFileDto(pr));
+    indexIssues(newDoc(project),
+      newDoc(pr).setType(BUG).setStatus(status).setResolution(resolution),
+      newDoc(pr).setType(VULNERABILITY).setStatus(status).setResolution(resolution),
+      newDoc(pr).setType(CODE_SMELL).setStatus(status).setResolution(resolution),
+      newDoc(fileOnPr).setType(BUG).setStatus(status).setResolution(resolution),
+      newDoc(fileOnPr).setType(VULNERABILITY).setStatus(status).setResolution(resolution),
+      newDoc(fileOnPr).setType(CODE_SMELL).setStatus(status).setResolution(resolution)
+    );
+
+    BranchStatistics branchStatistics = underTest.searchPrStatistics(project.uuid(), pr.uuid());
+
+    assertThat(branchStatistics)
+      .extracting(
+        BranchStatistics::getBranchUuid,
+        BranchStatistics::getBugs,
+        BranchStatistics::getVulnerabilities,
+        BranchStatistics::getCodeSmells
+      ).containsExactly(pr.uuid(), expectedCount, expectedCount, expectedCount);
+  }
+
+  @DataProvider
+  public static Object[][] resolutionAndStatusAndExpectedCount() {
+    return new Object[][] {
+      {STATUS_OPEN, null, 2},
+      {STATUS_REOPENED, null, 2},
+      {STATUS_CONFIRMED, null, 0},
+      {STATUS_RESOLVED, null, 0},
+      {STATUS_CLOSED, null, 0},
+      {STATUS_RESOLVED, RESOLUTION_FIXED, 0},
+      {STATUS_RESOLVED, RESOLUTION_FALSE_POSITIVE, 0},
+      {STATUS_RESOLVED, RESOLUTION_WONT_FIX, 0},
+      {STATUS_RESOLVED, RESOLUTION_REMOVED, 0},
+    };
   }
 
   private void addIssues(ComponentDto component, int bugs, int vulnerabilities, int codeSmelles) {
