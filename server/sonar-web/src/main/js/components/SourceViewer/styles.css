@@ -23,8 +23,7 @@
   border: 1px solid var(--gray80);
   box-sizing: border-box;
   background-color: #fff;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 .source-table {
@@ -366,6 +365,10 @@
   border-right: none;
   background-color: #fff;
   line-height: 1.8;
+}
+
+.source-viewer-code {
+  overflow-x: auto;
 }
 
 .source-viewer-measures-overlay {

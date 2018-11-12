@@ -214,7 +214,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     const hasFileIssues = displayIssues && issues.some(issue => !issue.textRange);
 
     return (
-      <div>
+      <div className="source-viewer-code">
         {this.props.hasSourcesBefore && (
           <div className="source-viewer-more-code">
             {this.props.loadingSourcesBefore ? (
