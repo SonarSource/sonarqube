@@ -34,6 +34,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -47,6 +48,7 @@ import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -67,6 +69,7 @@ public class FileMoveDetectionStep implements ComputationStep {
   private static final List<String> FILE_QUALIFIERS = asList(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   private static final Splitter LINES_HASHES_SPLITTER = on('\n');
 
+  private final ConfigurationRepository configurationRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder rootHolder;
   private final DbClient dbClient;
@@ -74,8 +77,10 @@ public class FileMoveDetectionStep implements ComputationStep {
   private final FileSimilarity fileSimilarity;
   private final MutableMovedFilesRepository movedFilesRepository;
 
-  public FileMoveDetectionStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder, DbClient dbClient,
-    SourceLinesRepository sourceLinesRepository, FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository) {
+  public FileMoveDetectionStep(ConfigurationRepository configurationRepository, AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder,
+    DbClient dbClient, SourceLinesRepository sourceLinesRepository, FileSimilarity fileSimilarity,
+    MutableMovedFilesRepository movedFilesRepository) {
+    this.configurationRepository = configurationRepository;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.rootHolder = rootHolder;
     this.dbClient = dbClient;
@@ -92,9 +97,14 @@ public class FileMoveDetectionStep implements ComputationStep {
   @Override
   public void execute() {
     // do nothing if no files in db (first analysis)
-    if (analysisMetadataHolder.isFirstAnalysis()) {
-      LOG.debug("First analysis. Do nothing.");
+    if (configurationRepository.getConfiguration().getBoolean(CoreProperties.SKIP_FILEMOVE_DETECTION_KEY).orElse(false)) {
+      LOG.debug("File move detection disabled");
       return;
+    } else if (analysisMetadataHolder.isFirstAnalysis()) {
+      LOG.debug("First analysis. No file move detection.");
+      return;
+    } else {
+      LOG.debug("Starting file move detection...");
     }
 
     Map<String, DbComponent> dbFilesByKey = getDbFilesByKey();

@@ -28,6 +28,8 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Arrays.asList;
+import static org.sonar.api.CoreProperties.CATEGORY_GENERAL;
+import static org.sonar.api.CoreProperties.SKIP_FILEMOVE_DETECTION_KEY;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
@@ -264,7 +266,19 @@ public class CorePropertyDefinitions {
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)
         .hidden()
-        .build()));
+        .build(),
+
+      // COMPUTE ENGINE
+      PropertyDefinition.builder(SKIP_FILEMOVE_DETECTION_KEY)
+        .name("File move detection")
+        .description("If set to true, file move won't be detected. Moved/renamed files and related issues will be reported as new.")
+        .defaultValue(Boolean.toString(false))
+        .category(CATEGORY_GENERAL)
+        .type(BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build())
+
+    );
     return defs;
   }
 }

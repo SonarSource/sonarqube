@@ -511,4 +511,9 @@ public interface CoreProperties {
    * @since 5.1
    */
   String DEFAULT_ISSUE_ASSIGNEE = "sonar.issues.defaultAssigneeLogin";
+
+  /**
+   * @since 6.7.6
+   */
+  String SKIP_FILEMOVE_DETECTION_KEY = "sonar.skipFileMoveDetection";
 }
