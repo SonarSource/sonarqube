@@ -10,13 +10,13 @@ set -euo pipefail
 # at each build.
 #
 function installJDK8 {
-  JDK_RELEASE=181
+  JDK_RELEASE=191
   echo "Setup JDK 1.8u$JDK_RELEASE"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
   if [ ! -d "jdk1.8.0_$JDK_RELEASE" ]; then
     {
-      wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.tar.gz
+      wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jdk-8u191-linux-x64.tar.gz 
     } || {
       echo "failed to download JDK 1.8u$JDK_RELEASE"
       exit 1
