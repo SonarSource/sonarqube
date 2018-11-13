@@ -20,7 +20,6 @@
 // @flow
 import { combineReducers } from 'redux';
 import definitions, * as fromDefinitions from './definitions/reducer';
-import encryptionPage from './encryptionPage/reducer';
 import values, * as fromValues from './values/reducer';
 import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
 import globalMessages, * as fromGlobalMessages from '../../../store/globalMessages';
@@ -30,7 +29,6 @@ import globalMessages, * as fromGlobalMessages from '../../../store/globalMessag
 /*::
 type State = {
   definitions: {},
-  encryptionPage: {},
   globalMessages: GlobalMessagesState,
   settingsPage: {},
   values: ValuesState
@@ -41,7 +39,6 @@ const rootReducer = combineReducers({
   definitions,
   values,
   settingsPage,
-  encryptionPage,
   globalMessages
 });
 
@@ -77,8 +74,6 @@ export const isLoading = (state /*: State */, key /*: string */) =>
 
 export const getValidationMessage = (state /*: State */, key /*: string */) =>
   fromSettingsPage.getValidationMessage(state.settingsPage, key);
-
-export const getEncryptionState = (state /*: State */) => state.encryptionPage;
 
 export const getGlobalMessages = (state /*: State */) =>
   fromGlobalMessages.getGlobalMessages(state.globalMessages);

@@ -171,6 +171,10 @@ textarea.input-super-large {
   background-color: transparent !important;
 }
 
+.input-clear {
+  background-color: transparent !important;
+}
+
 .input-code {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   font-size: var(--smallFontSize);

@@ -25,7 +25,7 @@ const routes = [
   },
   {
     path: 'encryption',
-    component: lazyLoad(() => import('./encryption/EncryptionAppContainer'))
+    component: lazyLoad(() => import('./encryption/EncryptionApp'))
   }
 ];
 

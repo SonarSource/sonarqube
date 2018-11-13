@@ -41,7 +41,7 @@ export interface Definition {
   type: string;
 }
 
-export function getDefinitions(component?: string): Promise<any> {
+export function getDefinitions(component?: string): Promise<{ definitions: Definition[] }> {
   return getJSON('/api/settings/list_definitions', { component }).then(r => r.definitions);
 }
 
@@ -93,14 +93,14 @@ export function sendTestEmail(to: string, subject: string, message: string): Pro
   return post('/api/emails/send', { to, subject, message });
 }
 
-export function checkSecretKey(): Promise<any> {
-  return getJSON('/api/settings/check_secret_key');
+export function checkSecretKey(): Promise<{ secretKeyAvailable: boolean }> {
+  return getJSON('/api/settings/check_secret_key').catch(throwGlobalError);
 }
 
-export function generateSecretKey(): Promise<any> {
-  return postJSON('/api/settings/generate_secret_key');
+export function generateSecretKey(): Promise<{ secretKey: string }> {
+  return postJSON('/api/settings/generate_secret_key').catch(throwGlobalError);
 }
 
-export function encryptValue(value: string): Promise<any> {
-  return postJSON('/api/settings/encrypt', { value });
+export function encryptValue(value: string): Promise<{ encryptedValue: string }> {
+  return postJSON('/api/settings/encrypt', { value }).catch(throwGlobalError);
 }

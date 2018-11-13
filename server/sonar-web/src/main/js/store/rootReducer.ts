@@ -126,10 +126,6 @@ export function getSettingsAppValidationMessage(state: Store, key: string) {
   return fromSettingsApp.getValidationMessage(state.settingsApp, key);
 }
 
-export function getSettingsAppEncryptionState(state: Store) {
-  return fromSettingsApp.getEncryptionState(state.settingsApp);
-}
-
 export function getProjectAdminProjectModules(state: Store, projectKey: string) {
   return fromProjectAdminApp.getProjectModules(state.projectAdminApp, projectKey);
 }
