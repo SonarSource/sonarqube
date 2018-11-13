@@ -25,7 +25,6 @@ import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
 
-
 @Immutable
 public class Event {
   private final String name;
@@ -48,10 +47,6 @@ public class Event {
 
   public static Event createProfile(String name, @Nullable String data, @Nullable String description) {
     return new Event(name, Category.PROFILE, data, description);
-  }
-
-  public static Event createDefinitionChange(String name, @Nullable String data, @Nullable String description) {
-    return new Event(name, Category.DEFINITION_CHANGE, data, description);
   }
 
   public String getName() {
@@ -90,7 +85,7 @@ public class Event {
   }
 
   public enum Category {
-    ALERT, PROFILE, DEFINITION_CHANGE
+    ALERT, PROFILE
   }
 
 }
