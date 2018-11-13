@@ -33,7 +33,7 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import static java.util.Objects.requireNonNull;
 
 /**
- * @deprecated since 6.5 {@link ModuleSettings} used to be mutable, so keep a mutable copy for backward compatibility.
+ * @deprecated since 6.5 {@link ModuleConfiguration} used to be mutable, so keep a mutable copy for backward compatibility.
  */
 @Deprecated
 public class MutableModuleSettings extends Settings {
@@ -69,7 +69,7 @@ public class MutableModuleSettings extends Settings {
   }
 
   private void addBuildProperties(ProjectDefinition project) {
-    List<ProjectDefinition> orderedProjects = ModuleSettingsProvider.getTopDownParentProjects(project);
+    List<ProjectDefinition> orderedProjects = ModuleConfigurationProvider.getTopDownParentProjects(project);
     for (ProjectDefinition p : orderedProjects) {
       addProperties(p.properties());
     }

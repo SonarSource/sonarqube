@@ -32,7 +32,7 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import static java.util.Objects.requireNonNull;
 
 /**
- * @deprecated since 6.5 {@link ProjectSettings} used to be mutable, so keep a mutable copy for backward compatibility.
+ * @deprecated since 6.5 {@link ProjectConfiguration} used to be mutable, so keep a mutable copy for backward compatibility.
  */
 @Deprecated
 public class MutableProjectSettings extends Settings {

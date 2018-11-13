@@ -20,6 +20,7 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import org.sonar.api.config.Configuration;
+import org.sonar.core.config.IssueExclusionProperties;
 
 public class IssueInclusionPatternInitializer extends AbstractPatternInitializer {
 
@@ -29,6 +30,6 @@ public class IssueInclusionPatternInitializer extends AbstractPatternInitializer
 
   @Override
   protected String getMulticriteriaConfigurationKey() {
-    return "sonar.issue.enforce" + ".multicriteria";
+    return IssueExclusionProperties.INCLUSION_KEY_PREFIX + ".multicriteria";
   }
 }

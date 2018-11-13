@@ -25,9 +25,9 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.config.DefaultConfiguration;
 
-public class ModuleSettings extends DefaultConfiguration {
+public class ModuleConfiguration extends DefaultConfiguration {
 
-  public ModuleSettings(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode, Map<String, String> props) {
+  public ModuleConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode, Map<String, String> props) {
     super(propertyDefinitions, encryption, mode, props);
   }
 

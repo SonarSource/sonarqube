@@ -89,7 +89,7 @@ public class ModuleScanContainer extends ComponentContainer {
       module.definition(),
       module,
       MutableModuleSettings.class,
-      new ModuleSettingsProvider());
+      new ModuleConfigurationProvider());
 
     if (analysisMode.isIssues()) {
       add(

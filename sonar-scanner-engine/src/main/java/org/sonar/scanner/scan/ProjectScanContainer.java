@@ -119,8 +119,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
-    addBatchComponents();
-    addBatchExtensions();
+    addScannerComponents();
+    addScannerExtensions();
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoriesInitializer.class).execute();
@@ -133,7 +133,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   }
 
-  private void addBatchComponents() {
+  private void addScannerComponents() {
     add(
       props,
       ProjectReactorBuilder.class,
@@ -202,7 +202,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       MutableProjectSettings.class,
       ScannerProperties.class,
-      new ProjectSettingsProvider(),
+      new ProjectConfigurationProvider(),
 
       // Report
       ScannerMetrics.class,
@@ -252,15 +252,15 @@ public class ProjectScanContainer extends ComponentContainer {
     return getComponentByType(GlobalAnalysisMode.class).isIssues();
   }
 
-  private void addBatchExtensions() {
+  private void addScannerExtensions() {
     getComponentByType(CoreExtensionsInstaller.class)
-      .install(this, noExtensionFilter(), extension -> isInstantiationStrategy(extension, PER_BATCH));
+      .install(this, noExtensionFilter(), extension -> getScannerProjectExtensionsFilter().accept(extension));
     getComponentByType(ExtensionInstaller.class)
-      .install(this, getBatchPluginExtensionsFilter());
+      .install(this, getScannerProjectExtensionsFilter());
   }
 
   @VisibleForTesting
-  static ExtensionMatcher getBatchPluginExtensionsFilter() {
+  static ExtensionMatcher getScannerProjectExtensionsFilter() {
     return extension -> isScannerSide(extension) || (isDeprecatedScannerSide(extension) && isInstantiationStrategy(extension, PER_BATCH));
   }
 

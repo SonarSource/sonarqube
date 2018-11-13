@@ -32,23 +32,23 @@ import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.repository.ProjectRepositories;
 
-public class ModuleSettingsProvider extends ProviderAdapter {
+public class ModuleConfigurationProvider extends ProviderAdapter {
 
-  private ModuleSettings projectSettings;
+  private ModuleConfiguration moduleConfiguration;
 
-  public ModuleSettings provide(GlobalConfiguration globalSettings, DefaultInputModule module, ProjectRepositories projectRepos,
-    GlobalAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
-    if (projectSettings == null) {
+  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectRepositories projectRepos,
+                                     GlobalAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
+    if (moduleConfiguration == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(globalSettings.getProperties());
+      settings.putAll(globalConfig.getProperties());
       settings.putAll(addServerSidePropertiesIfModuleExists(projectRepos, module.definition()));
       addScannerSideProperties(settings, module.definition());
       contextReportPublisher.dumpModuleSettings(module);
 
-      projectSettings = new ModuleSettings(globalSettings.getDefinitions(), globalSettings.getEncryption(), analysisMode, settings);
+      moduleConfiguration = new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), analysisMode, settings);
     }
-    return projectSettings;
+    return moduleConfiguration;
   }
 
   private static Map<String, String> addServerSidePropertiesIfModuleExists(ProjectRepositories projectRepos, ProjectDefinition def) {

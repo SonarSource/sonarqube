@@ -34,8 +34,8 @@ public abstract class AbstractPatternInitializer {
   private Configuration settings;
   private List<IssuePattern> multicriteriaPatterns;
 
-  protected AbstractPatternInitializer(Configuration settings) {
-    this.settings = settings;
+  protected AbstractPatternInitializer(Configuration config) {
+    this.settings = config;
     initPatterns();
   }
 

@@ -27,20 +27,20 @@ import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.repository.ProjectRepositories;
 
-public class ProjectSettingsProvider extends ProviderAdapter {
+public class ProjectConfigurationProvider extends ProviderAdapter {
 
-  private ProjectSettings projectSettings;
+  private ProjectConfiguration projectConfig;
 
-  public ProjectSettings provide(ProjectReactor reactor, GlobalConfiguration globalSettings, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
-    if (projectSettings == null) {
+  public ProjectConfiguration provide(ProjectReactor reactor, GlobalConfiguration globalSettings, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
+    if (projectConfig == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
       settings.putAll(globalSettings.getProperties());
       settings.putAll(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
       settings.putAll(reactor.getRoot().properties());
 
-      projectSettings = new ProjectSettings(globalSettings.getDefinitions(), globalSettings.getEncryption(), mode, settings);
+      projectConfig = new ProjectConfiguration(globalSettings.getDefinitions(), globalSettings.getEncryption(), mode, settings);
     }
-    return projectSettings;
+    return projectConfig;
   }
 }

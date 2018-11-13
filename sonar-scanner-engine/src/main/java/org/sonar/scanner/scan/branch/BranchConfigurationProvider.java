@@ -56,7 +56,7 @@ public class BranchConfigurationProvider extends ProviderAdapter {
   }
 
   private static Supplier<Map<String, String>> createSettingsSupplier(GlobalConfiguration globalConfiguration, ProjectDefinition root, SettingsLoader settingsLoader) {
-    // we can't get ProjectSettings because it creates a circular dependency.
+    // we can't get ProjectConfiguration because it creates a circular dependency.
     // We create our own settings which will only be loaded if needed.
     return () -> {
       Map<String, String> settings = new HashMap<>();

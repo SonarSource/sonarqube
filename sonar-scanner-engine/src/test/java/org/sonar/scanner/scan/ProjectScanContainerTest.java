@@ -32,7 +32,7 @@ public class ProjectScanContainerTest {
 
   @Test
   public void should_add_only_batch_extensions() {
-    ExtensionMatcher filter = ProjectScanContainer.getBatchPluginExtensionsFilter();
+    ExtensionMatcher filter = ProjectScanContainer.getScannerProjectExtensionsFilter();
 
     assertThat(filter.accept(new MyBatchExtension())).isTrue();
     assertThat(filter.accept(MyBatchExtension.class)).isTrue();

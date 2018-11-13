@@ -40,7 +40,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
 
   @Override
   protected String getMulticriteriaConfigurationKey() {
-    return "sonar.issue.ignore" + ".multicriteria";
+    return IssueExclusionProperties.EXCLUSION_KEY_PREFIX + ".multicriteria";
   }
 
   @Override
