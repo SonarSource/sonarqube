@@ -71,6 +71,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -289,6 +290,25 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
 
     executeAndVerify(project.getDbKey(), "return_quality_gate.json");
+  }
+
+  @Test
+  public void quality_gate_for_a_long_living_branch() {
+    dbTester.qualityGates().createDefaultQualityGate("Default");
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto longLivingBranch = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
+    dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    userSession.addProjectPermission(UserRole.USER, project);
+    init();
+
+    String json = ws.newRequest()
+      .setParam("componentKey", longLivingBranch.getKey())
+      .setParam("branch", longLivingBranch.getBranch())
+      .execute()
+      .getInput();
+
+    verify(json, "return_quality_gate.json");
   }
 
   @Test

@@ -140,6 +140,7 @@ public class ComponentAction implements NavigationWsAction {
         !userSession.isSystemAdministrator()) {
         throw insufficientPrivilegesException();
       }
+      ComponentDto project = component.getMainBranchProjectUuid() == null ? component : componentFinder.getByUuid(session, component.getMainBranchProjectUuid());
       OrganizationDto org = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
@@ -147,7 +148,7 @@ public class ComponentAction implements NavigationWsAction {
       json.beginObject();
       writeComponent(json, session, component, org, analysis.orElse(null));
       writeProfiles(json, session, component);
-      writeQualityGate(json, session, component);
+      writeQualityGate(json, session, project);
       if (userSession.hasComponentPermission(ADMIN, component) ||
         userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
