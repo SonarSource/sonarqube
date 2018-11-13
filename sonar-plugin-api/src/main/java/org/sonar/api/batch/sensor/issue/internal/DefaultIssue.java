@@ -21,6 +21,7 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -37,12 +38,12 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   private Double gap;
   private Severity overriddenSeverity;
 
-  public DefaultIssue() {
-    super(null);
+  public DefaultIssue(DefaultInputModule projectRoot) {
+    this(projectRoot, null);
   }
 
-  public DefaultIssue(@Nullable SensorStorage storage) {
-    super(storage);
+  public DefaultIssue(DefaultInputModule projectRoot, @Nullable SensorStorage storage) {
+    super(projectRoot, storage);
   }
 
   public DefaultIssue forRule(RuleKey ruleKey) {
@@ -53,7 +54,6 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   public RuleKey ruleKey() {
     return this.ruleKey;
   }
-
 
   @Override
   public DefaultIssue gap(@Nullable Double gap) {

@@ -20,32 +20,42 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.utils.PathUtils;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
-public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue>  extends DefaultStorable {
+public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> extends DefaultStorable {
   protected IssueLocation primaryLocation;
   protected List<List<IssueLocation>> flows = new ArrayList<>();
-  
-  protected AbstractDefaultIssue() {
-    super(null);
+  protected DefaultInputModule projectRoot;
+
+  protected AbstractDefaultIssue(DefaultInputModule projectRoot) {
+    this(projectRoot, null);
   }
-  
-  public AbstractDefaultIssue(@Nullable SensorStorage storage) {
+
+  public AbstractDefaultIssue(DefaultInputModule projectRoot, @Nullable SensorStorage storage) {
     super(storage);
+    this.projectRoot = projectRoot;
   }
-  
+
   public IssueLocation primaryLocation() {
     return primaryLocation;
   }
@@ -55,7 +65,7 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue>  exte
       .<Flow>map(l -> () -> unmodifiableList(new ArrayList<>(l)))
       .collect(toList());
   }
-  
+
   public NewIssueLocation newLocation() {
     return new DefaultIssueLocation();
   }
@@ -63,23 +73,50 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue>  exte
   public T at(NewIssueLocation primaryLocation) {
     Preconditions.checkArgument(primaryLocation != null, "Cannot use a location that is null");
     checkState(this.primaryLocation == null, "at() already called");
-    this.primaryLocation = (DefaultIssueLocation) primaryLocation;
+    this.primaryLocation = rewriteLocation((DefaultIssueLocation) primaryLocation);
     Preconditions.checkArgument(this.primaryLocation.inputComponent() != null, "Cannot use a location with no input component");
     return (T) this;
   }
 
   public T addLocation(NewIssueLocation secondaryLocation) {
-    flows.add(Arrays.asList((IssueLocation) secondaryLocation));
+    flows.add(Collections.singletonList(rewriteLocation((DefaultIssueLocation) secondaryLocation)));
     return (T) this;
   }
 
   public T addFlow(Iterable<NewIssueLocation> locations) {
     List<IssueLocation> flowAsList = new ArrayList<>();
     for (NewIssueLocation issueLocation : locations) {
-      flowAsList.add((DefaultIssueLocation) issueLocation);
+      flowAsList.add(rewriteLocation((DefaultIssueLocation) issueLocation));
     }
     flows.add(flowAsList);
     return (T) this;
   }
-  
+
+  private DefaultIssueLocation rewriteLocation(DefaultIssueLocation location) {
+    InputComponent component = location.inputComponent();
+    Optional<Path> dirOrModulePath = Optional.empty();
+
+    if (component instanceof DefaultInputDir) {
+      DefaultInputDir dirComponent = (DefaultInputDir) component;
+      dirOrModulePath = Optional.of(projectRoot.getBaseDir().relativize(dirComponent.path()));
+    } else if (component instanceof DefaultInputModule && !Objects.equals(projectRoot.key(), component.key())) {
+      DefaultInputModule moduleComponent = (DefaultInputModule) component;
+      dirOrModulePath = Optional.of(projectRoot.getBaseDir().relativize(moduleComponent.getBaseDir()));
+    }
+
+    if (dirOrModulePath.isPresent()) {
+      String path = PathUtils.sanitize(dirOrModulePath.get().toString());
+      DefaultIssueLocation fixedLocation = new DefaultIssueLocation();
+      fixedLocation.on(projectRoot);
+      StringBuilder fullMessage = new StringBuilder();
+      if (!isNullOrEmpty(path)) {
+        fullMessage.append("[").append(path).append("] ");
+      }
+      fullMessage.append(location.message());
+      fixedLocation.message(fullMessage.toString());
+      return fixedLocation;
+    } else {
+      return location;
+    }
+  }
 }

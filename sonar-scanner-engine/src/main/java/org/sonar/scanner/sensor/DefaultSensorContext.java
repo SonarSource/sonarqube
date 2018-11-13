@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
@@ -79,9 +80,10 @@ public class DefaultSensorContext implements SensorContext {
   private final InputModule module;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
+  private final InputModuleHierarchy hierarchy;
 
   public DefaultSensorContext(InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime, InputModuleHierarchy hierarchy) {
     this.module = module;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -90,6 +92,7 @@ public class DefaultSensorContext implements SensorContext {
     this.analysisMode = analysisMode;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
+    this.hierarchy = hierarchy;
   }
 
   @Override
@@ -134,7 +137,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewIssue newIssue() {
-    return new DefaultIssue(sensorStorage);
+    return new DefaultIssue(hierarchy.root(), sensorStorage);
   }
 
   @Override
@@ -142,7 +145,7 @@ public class DefaultSensorContext implements SensorContext {
     if (analysisMode.isIssues()) {
       return NO_OP_NEW_EXTERNAL_ISSUE;
     }
-    return new DefaultExternalIssue(sensorStorage);
+    return new DefaultExternalIssue(hierarchy.root(), sensorStorage);
   }
 
   @Override

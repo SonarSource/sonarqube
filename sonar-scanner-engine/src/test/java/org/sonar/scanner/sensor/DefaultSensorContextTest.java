@@ -27,8 +27,11 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -37,6 +40,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,6 +61,7 @@ public class DefaultSensorContextTest {
   private SensorStorage sensorStorage;
   private AnalysisMode analysisMode;
   private SonarRuntime runtime;
+  private InputModuleHierarchy hierarchy;
 
   @Before
   public void prepare() throws Exception {
@@ -69,7 +74,10 @@ public class DefaultSensorContextTest {
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER);
-    adaptor = new DefaultSensorContext(mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
+    hierarchy = new DefaultInputModuleHierarchy(new DefaultInputModule(ProjectDefinition.create()
+      .setWorkDir(temp.newFolder())
+      .setBaseDir(temp.newFolder()).setKey("foo")));
+    adaptor = new DefaultSensorContext(mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime, hierarchy);
   }
 
   @Test

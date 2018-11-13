@@ -19,14 +19,20 @@
  */
 package org.sonar.scanner.issue;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
@@ -57,6 +63,11 @@ public class ModuleIssuesTest {
   static final String SQUID_RULE_NAME = "Avoid Cycle";
   private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("squid", "NoSonarCheck");
 
+  private DefaultInputModule projectRoot;
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Mock
   ModuleIssueFilters filters;
 
@@ -68,11 +79,19 @@ public class ModuleIssuesTest {
   DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n").build();
   ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
 
+  @Before
+  public void prepare() throws IOException {
+    projectRoot = new DefaultInputModule(ProjectDefinition.create()
+      .setKey("foo")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder()));
+  }
+
   @Test
   public void ignore_null_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     initModuleIssues();
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -87,7 +106,7 @@ public class ModuleIssuesTest {
     activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(SQUID_RULE_KEY).setQProfileKey("qp-1").build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -106,7 +125,7 @@ public class ModuleIssuesTest {
       .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY)
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL);
@@ -126,7 +145,7 @@ public class ModuleIssuesTest {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     initModuleIssues();
 
-    DefaultExternalIssue issue = new DefaultExternalIssue()
+    DefaultExternalIssue issue = new DefaultExternalIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .type(RuleType.BUG)
       .forRule(SQUID_RULE_KEY)
@@ -149,7 +168,7 @@ public class ModuleIssuesTest {
       .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY);
     when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
@@ -170,7 +189,7 @@ public class ModuleIssuesTest {
       .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(SQUID_RULE_KEY);
 
@@ -185,10 +204,14 @@ public class ModuleIssuesTest {
   @Test
   public void should_ignore_lines_commented_with_nosonar() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .setQProfileKey("qp-1")
+      .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(SQUID_RULE_KEY);
 
@@ -204,12 +227,16 @@ public class ModuleIssuesTest {
   public void should_accept_issues_on_no_sonar_rules() {
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
     ruleBuilder.add(NOSONAR_RULE_KEY).setName("No Sonar");
-    activeRulesBuilder.create(NOSONAR_RULE_KEY).setSeverity(Severity.INFO).activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(NOSONAR_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .setQProfileKey("qp-1")
+      .build());
     initModuleIssues();
 
     file.noSonarAt(new HashSet<>(Collections.singletonList(3)));
 
-    DefaultIssue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue(projectRoot)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(NOSONAR_RULE_KEY);
 

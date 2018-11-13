@@ -36,6 +36,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -63,6 +64,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
   private Map<String, InputFile> inputFiles = new HashMap<>();
   private Map<String, Component> reportComponents = new HashMap<>();
   private Map<String, InputDir> inputDirs = new HashMap<>();
+  private InputModule root;
   private ScannerReportReader reader;
 
   @Override
@@ -78,6 +80,8 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
       Metadata readMetadata = getReportReader().readMetadata();
       int rootComponentRef = readMetadata.getRootComponentRef();
       storeReportComponents(rootComponentRef, null);
+      InputComponentStore inputFileCache = container.getComponentByType(InputComponentStore.class);
+      root = inputFileCache.root();
     }
 
     storeFs(container);
@@ -152,6 +156,10 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
       }
     }
     return result;
+  }
+
+  public InputModule root() {
+    return root;
   }
 
   public Collection<InputFile> inputFiles() {

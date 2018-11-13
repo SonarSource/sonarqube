@@ -80,6 +80,7 @@ public class DefaultSensorStorageTest {
   private ScannerReportWriter reportWriter;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
   private BranchConfiguration branchConfiguration;
+  private DefaultInputModule projectRoot;
 
   @Before
   public void prepare() throws Exception {
@@ -101,6 +102,11 @@ public class DefaultSensorStorageTest {
     underTest = new DefaultSensorStorage(metricFinder,
       moduleIssues, settings.asConfig(), reportPublisher, measureCache,
       mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics(), branchConfiguration);
+
+    projectRoot = new DefaultInputModule(ProjectDefinition.create()
+      .setKey("foo")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder()));
   }
 
   @Test
@@ -120,7 +126,7 @@ public class DefaultSensorStorageTest {
   public void should_save_issue() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
-    DefaultIssue issue = new DefaultIssue().at(new DefaultIssueLocation().on(file));
+    DefaultIssue issue = new DefaultIssue(projectRoot).at(new DefaultIssueLocation().on(file));
     underTest.store(issue);
 
     ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
@@ -132,7 +138,7 @@ public class DefaultSensorStorageTest {
   public void should_save_external_issue() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
-    DefaultExternalIssue externalIssue = new DefaultExternalIssue().at(new DefaultIssueLocation().on(file));
+    DefaultExternalIssue externalIssue = new DefaultExternalIssue(projectRoot).at(new DefaultIssueLocation().on(file));
     underTest.store(externalIssue);
 
     ArgumentCaptor<ExternalIssue> argumentCaptor = ArgumentCaptor.forClass(ExternalIssue.class);
@@ -145,7 +151,7 @@ public class DefaultSensorStorageTest {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
 
-    DefaultIssue issue = new DefaultIssue().at(new DefaultIssueLocation().on(file));
+    DefaultIssue issue = new DefaultIssue(projectRoot).at(new DefaultIssueLocation().on(file));
     underTest.store(issue);
 
     verifyZeroInteractions(moduleIssues);

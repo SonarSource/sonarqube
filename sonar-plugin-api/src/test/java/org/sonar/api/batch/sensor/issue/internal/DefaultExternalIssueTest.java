@@ -19,11 +19,16 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.io.IOException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -35,6 +40,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DefaultExternalIssueTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  private DefaultInputModule projectRoot;
+
+  @Before
+  public void setup() throws IOException {
+    projectRoot = new DefaultInputModule(ProjectDefinition.create()
+      .setKey("foo")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder()));
+  }
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
@@ -45,7 +64,7 @@ public class DefaultExternalIssueTest {
   @Test
   public void build_file_issue() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultExternalIssue issue = new DefaultExternalIssue(storage)
+    DefaultExternalIssue issue = new DefaultExternalIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
         .on(inputFile)
         .at(inputFile.selectLine(1))
@@ -73,7 +92,7 @@ public class DefaultExternalIssueTest {
   @Test
   public void fail_to_store_if_no_type() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultExternalIssue issue = new DefaultExternalIssue(storage)
+    DefaultExternalIssue issue = new DefaultExternalIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
         .on(inputFile)
         .at(inputFile.selectLine(1))
@@ -90,7 +109,7 @@ public class DefaultExternalIssueTest {
   @Test
   public void fail_to_store_if_primary_location_is_not_a_file() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultExternalIssue issue = new DefaultExternalIssue(storage)
+    DefaultExternalIssue issue = new DefaultExternalIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
         .on(mock(InputComponent.class))
         .message("Wrong way!"))
@@ -102,11 +121,11 @@ public class DefaultExternalIssueTest {
     exception.expectMessage("External issues must be located in files");
     issue.save();
   }
-  
+
   @Test
   public void fail_to_store_if_primary_location_has_no_message() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultExternalIssue issue = new DefaultExternalIssue(storage)
+    DefaultExternalIssue issue = new DefaultExternalIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
         .on(inputFile)
         .at(inputFile.selectLine(1)))
@@ -123,7 +142,7 @@ public class DefaultExternalIssueTest {
   @Test
   public void fail_to_store_if_no_severity() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultExternalIssue issue = new DefaultExternalIssue(storage)
+    DefaultExternalIssue issue = new DefaultExternalIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
         .on(inputFile)
         .at(inputFile.selectLine(1))

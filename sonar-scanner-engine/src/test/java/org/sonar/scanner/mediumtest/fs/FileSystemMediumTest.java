@@ -36,6 +36,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -432,9 +433,10 @@ public class FileSystemMediumTest {
       .execute();
 
     DefaultInputFile unknownInputFile = (DefaultInputFile) result.inputFile("src/unknown/file.notanalyzed");
-    InputDir unknownInputDir = result.inputDir("src/unknown");
+    InputModule root = result.root();
+
     assertThat(unknownInputFile.isPublished()).isFalse();
-    assertThat(result.getReportComponent(unknownInputDir.key())).isNotNull();
+    assertThat(result.getReportComponent(root.key())).isNotNull();
 
     // no issues on empty dir
     InputDir emptyInputDir = result.inputDir(emptyDirRelative.toString());

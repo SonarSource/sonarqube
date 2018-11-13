@@ -108,7 +108,7 @@ public class SensorContextTester implements SensorContext {
   private DefaultFileSystem fs;
   private ActiveRules activeRules;
   private InMemorySensorStorage sensorStorage;
-  private InputModule module;
+  private DefaultInputModule module;
   private SonarRuntime runtime;
   private boolean cancelled;
 
@@ -220,7 +220,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public NewIssue newIssue() {
-    return new DefaultIssue(sensorStorage);
+    return new DefaultIssue(module, sensorStorage);
   }
 
   public Collection<Issue> allIssues() {
@@ -229,7 +229,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public NewExternalIssue newExternalIssue() {
-    return new DefaultExternalIssue(sensorStorage);
+    return new DefaultExternalIssue(module, sensorStorage);
   }
 
   @Override

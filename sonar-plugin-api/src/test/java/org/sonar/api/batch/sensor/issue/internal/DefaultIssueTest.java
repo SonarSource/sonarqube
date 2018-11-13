@@ -19,7 +19,9 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.io.File;
 import java.io.IOException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -41,14 +43,24 @@ public class DefaultIssueTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private DefaultInputModule projectRoot;
+
   private DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
     .build();
 
+  @Before
+  public void prepare() throws IOException {
+    projectRoot = new DefaultInputModule(ProjectDefinition.create()
+      .setKey("foo")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder()));
+  }
+
   @Test
   public void build_file_issue() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultIssue issue = new DefaultIssue(storage)
+    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
         .on(inputFile)
         .at(inputFile.selectLine(1))
@@ -68,19 +80,50 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void build_directory_issue() {
+  public void move_directory_issue_to_project_root() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultIssue issue = new DefaultIssue(storage)
+    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
-        .on(new DefaultInputDir("foo", "src"))
+        .on(new DefaultInputDir("foo", "src/main").setModuleBaseDir(projectRoot.getBaseDir()))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
       .overrideSeverity(Severity.BLOCKER);
 
-    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(new DefaultInputDir("foo", "src"));
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(projectRoot);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange()).isNull();
-    assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
+    assertThat(issue.primaryLocation().message()).isEqualTo("[src/main] Wrong way!");
+    assertThat(issue.overriddenSeverity()).isEqualTo(Severity.BLOCKER);
+
+    issue.save();
+
+    verify(storage).store(issue);
+  }
+
+  @Test
+  public void move_submodule_issue_to_project_root() {
+    File subModuleDirectory = new File(projectRoot.getBaseDir().toString(), "bar");
+    subModuleDirectory.mkdir();
+
+    ProjectDefinition subModuleDefinition = ProjectDefinition.create()
+      .setKey("foo/bar")
+      .setBaseDir(subModuleDirectory)
+      .setWorkDir(subModuleDirectory);
+    projectRoot.definition().addSubProject(subModuleDefinition);
+    DefaultInputModule subModule = new DefaultInputModule(subModuleDefinition);
+
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
+      .at(new DefaultIssueLocation()
+        .on(subModule)
+        .message("Wrong way!"))
+      .forRule(RuleKey.of("repo", "rule"))
+      .overrideSeverity(Severity.BLOCKER);
+
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(projectRoot);
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
+    assertThat(issue.primaryLocation().textRange()).isNull();
+    assertThat(issue.primaryLocation().message()).isEqualTo("[bar] Wrong way!");
     assertThat(issue.overriddenSeverity()).isEqualTo(Severity.BLOCKER);
 
     issue.save();
@@ -92,7 +135,7 @@ public class DefaultIssueTest {
   public void build_project_issue() throws IOException {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultInputModule inputModule = new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
-    DefaultIssue issue = new DefaultIssue(storage)
+    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
       .at(new DefaultIssueLocation()
         .on(inputModule)
         .message("Wrong way!"))
