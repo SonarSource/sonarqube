@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -175,6 +176,7 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueCache.class,
       DefaultProjectIssues.class,
       IssueTransition.class,
+      NoSonarFilter.class,
 
       // metrics
       DefaultMetricFinder.class,

@@ -19,63 +19,34 @@
  */
 package org.sonar.api.issue;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-import org.sonar.api.scan.issue.filter.IssueFilter;
-import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
  * Issue filter used to ignore issues created on lines commented with the tag "NOSONAR".
  * <br>
- * Plugins, via {@link ScannerSide}s, must feed this filter by registering the
+ * Plugins, via {@link org.sonar.api.batch.sensor.Sensor}s, must feed this filter by registering the
  * lines that contain "NOSONAR". Note that filters are disabled for the issues reported by
  * end-users from UI or web services.
  *
  * @since 3.6
  */
-public class NoSonarFilter implements IssueFilter {
-
-  private final Map<String, Set<Integer>> noSonarLinesByResource = new HashMap<>();
-
-  /**
-   * @deprecated since 5.0 use {@link #noSonarInFile(InputFile, Set)}
-   */
-  @Deprecated
-  public NoSonarFilter addComponent(String componentKey, Set<Integer> noSonarLines) {
-    noSonarLinesByResource.put(componentKey, noSonarLines);
-    return this;
-  }
+@ScannerSide
+public class NoSonarFilter {
 
   /**
    * Register lines in a file that contains the NOSONAR flag.
+   *
    * @param inputFile
    * @param noSonarLines Line number starts at 1 in a file
    * @since 5.0
+   * @since 7.6 the method can be called multiple times by different sensors, and NOSONAR lines are merged
    */
   public NoSonarFilter noSonarInFile(InputFile inputFile, Set<Integer> noSonarLines) {
-    noSonarLinesByResource.put(((DefaultInputFile) inputFile).key(), noSonarLines);
+    ((DefaultInputFile) inputFile).noSonarAt(noSonarLines);
     return this;
   }
 
-  @Override
-  public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
-    boolean accepted = true;
-    if (issue.line() != null) {
-      Set<Integer> noSonarLines = noSonarLinesByResource.get(issue.componentKey());
-      accepted = noSonarLines == null || !noSonarLines.contains(issue.line());
-      if (!accepted && StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar")) {
-        accepted = true;
-      }
-    }
-    if (accepted) {
-      accepted = chain.accept(issue);
-    }
-    return accepted;
-  }
 }

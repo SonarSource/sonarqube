@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
@@ -130,7 +129,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
       // issues
       ModuleIssues.class,
-      NoSonarFilter.class,
 
       // issue exclusions
       IssueInclusionPatternInitializer.class,

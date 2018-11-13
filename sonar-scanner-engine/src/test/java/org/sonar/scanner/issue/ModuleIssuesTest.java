@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.issue;
 
+import java.util.Collections;
+import java.util.HashSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -53,6 +55,7 @@ public class ModuleIssuesTest {
 
   static final RuleKey SQUID_RULE_KEY = RuleKey.of("squid", "AvoidCycle");
   static final String SQUID_RULE_NAME = "Avoid Cycle";
+  private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("squid", "NoSonarCheck");
 
   @Mock
   ModuleIssueFilters filters;
@@ -177,6 +180,45 @@ public class ModuleIssuesTest {
 
     assertThat(added).isFalse();
     verifyZeroInteractions(reportPublisher);
+  }
+
+  @Test
+  public void should_ignore_lines_commented_with_nosonar() {
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
+    initModuleIssues();
+
+    DefaultIssue issue = new DefaultIssue()
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
+      .forRule(SQUID_RULE_KEY);
+
+    file.noSonarAt(new HashSet<>(Collections.singletonList(3)));
+
+    boolean added = moduleIssues.initAndAddIssue(issue);
+
+    assertThat(added).isFalse();
+    verifyZeroInteractions(reportPublisher);
+  }
+
+  @Test
+  public void should_accept_issues_on_no_sonar_rules() {
+    // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
+    ruleBuilder.add(NOSONAR_RULE_KEY).setName("No Sonar");
+    activeRulesBuilder.create(NOSONAR_RULE_KEY).setSeverity(Severity.INFO).activate();
+    initModuleIssues();
+
+    file.noSonarAt(new HashSet<>(Collections.singletonList(3)));
+
+    DefaultIssue issue = new DefaultIssue()
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
+      .forRule(NOSONAR_RULE_KEY);
+
+    when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
+
+    boolean added = moduleIssues.initAndAddIssue(issue);
+
+    assertThat(added).isTrue();
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), any());
   }
 
   /**

@@ -19,72 +19,23 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
-import com.google.common.collect.ImmutableSet;
-import org.junit.Before;
+import java.util.Arrays;
+import java.util.HashSet;
 import org.junit.Test;
-import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.api.rule.RuleKey;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
-import java.util.Set;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class NoSonarFilterTest {
 
-  NoSonarFilter filter = new NoSonarFilter();
-  IssueFilterChain chain = mock(IssueFilterChain.class);
-
-  @Before
-  public void setupChain() {
-    when(chain.accept(isA(FilterableIssue.class))).thenReturn(true);
-  }
-
   @Test
-  public void should_ignore_lines_commented_with_nosonar() {
-    FilterableIssue issue = mock(FilterableIssue.class);
-    when(issue.componentKey()).thenReturn("struts:org.apache.Action");
-    when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "AvoidCycles"));
+  public void should_store_nosonar_lines_on_inputfile() {
+    DefaultInputFile f = TestInputFileBuilder.create("module1", "myfile.java").build();
+    new NoSonarFilter().noSonarInFile(f, new HashSet<>(Arrays.asList(1,4)));
 
-    Set<Integer> noSonarLines = ImmutableSet.of(31, 55);
-    filter.addComponent("struts:org.apache.Action", noSonarLines);
-
-    // issue on file
-    when(issue.line()).thenReturn(null);
-    assertThat(filter.accept(issue, chain)).isTrue();
-
-    // issue on lines
-    when(issue.line()).thenReturn(31);
-    assertThat(filter.accept(issue, chain)).isFalse();
-
-    when(issue.line()).thenReturn(222);
-    assertThat(filter.accept(issue, chain)).isTrue();
-
-    verify(chain, times(2)).accept(issue);
-  }
-
-  @Test
-  public void should_accept_issues_on_no_sonar_rules() {
-    // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
-    FilterableIssue issue = mock(FilterableIssue.class);
-    when(issue.componentKey()).thenReturn("struts:org.apache.Action");
-    when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "NoSonarCheck"));
-
-    Set<Integer> noSonarLines = ImmutableSet.of(31, 55);
-    filter.addComponent("struts:org.apache.Action", noSonarLines);
-
-    when(issue.line()).thenReturn(31);
-    assertThat(filter.accept(issue, chain)).isTrue();
-
-    when(issue.line()).thenReturn(222);
-    assertThat(filter.accept(issue, chain)).isTrue();
-
-    verify(chain, times(2)).accept(issue);
+     assertThat(f.hasNoSonarAt(1)).isTrue();
+     assertThat(f.hasNoSonarAt(2)).isFalse();
+     assertThat(f.hasNoSonarAt(4)).isTrue();
   }
 }

@@ -30,6 +30,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -56,6 +58,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Metadata metadata;
   private boolean published;
   private boolean excludedForCoverage;
+  private final Set<Integer> noSonarLines = new HashSet<>();
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     this(indexedFile, metadataGenerator, null);
@@ -82,7 +85,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   public InputStream inputStream() throws IOException {
     return contents != null ? new ByteArrayInputStream(contents.getBytes(charset()))
       : new BOMInputStream(Files.newInputStream(path()),
-        ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
   }
 
   @Override
@@ -242,7 +245,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     checkMetadata();
     Preconditions.checkState(metadata.originalLineEndOffsets() != null, "InputFile is not properly initialized.");
     Preconditions.checkState(metadata.originalLineEndOffsets().length == metadata.lines(),
-            "InputFile is not properly initialized. 'originalLineEndOffsets' property length should be equal to 'lines'");
+      "InputFile is not properly initialized. 'originalLineEndOffsets' property length should be equal to 'lines'");
     return metadata.originalLineEndOffsets();
   }
 
@@ -299,7 +302,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     int line = findLine(globalOffset);
     int startLineOffset = originalLineStartOffsets()[line - 1];
     // In case the global offset is between \r and \n, move the pointer to a valid location
-    return new DefaultTextPointer(line, Math.min(globalOffset, originalLineEndOffsets()[line -1]) - startLineOffset);
+    return new DefaultTextPointer(line, Math.min(globalOffset, originalLineEndOffsets()[line - 1]) - startLineOffset);
   }
 
   public DefaultInputFile setStatus(Status status) {
@@ -367,6 +370,14 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   @Override
   public URI uri() {
     return indexedFile.uri();
+  }
+
+  public void noSonarAt(Set<Integer> noSonarLines) {
+    this.noSonarLines.addAll(noSonarLines);
+  }
+
+  public boolean hasNoSonarAt(int line) {
+    return this.noSonarLines.contains(line);
   }
 
 }
