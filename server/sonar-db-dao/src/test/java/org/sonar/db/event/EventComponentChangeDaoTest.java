@@ -20,6 +20,7 @@
 package org.sonar.db.event;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -30,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.event.EventComponentChangeDto.ChangeCategory;
 
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -78,6 +80,49 @@ public class EventComponentChangeDaoTest {
     assertThat(underTest.selectByEventUuid(dbSession, uuid))
       .isEmpty();
     assertThat(underTest.selectByEventUuid(dbSession, eventUuid))
+      .extracting(
+        EventComponentChangeDto::getUuid,
+        EventComponentChangeDto::getCategory,
+        EventComponentChangeDto::getEventUuid,
+        EventComponentChangeDto::getComponentUuid,
+        EventComponentChangeDto::getComponentKey,
+        EventComponentChangeDto::getComponentName,
+        EventComponentChangeDto::getComponentBranchKey,
+        EventComponentChangeDto::getCreatedAt)
+      .containsOnly(tuple(
+        dto.getUuid(),
+        dto.getCategory(),
+        dto.getEventUuid(),
+        dto.getComponentUuid(),
+        dto.getComponentKey(),
+        dto.getComponentName(),
+        dto.getComponentBranchKey(),
+        now));
+  }
+
+  @Test
+  public void selectByAnalysisUuids_maps_columns_correctly() {
+    String eventBase = randomAlphabetic(5);
+    String rowBase = randomAlphabetic(6);
+    String eventUuid = eventBase + "_event_uuid";
+    String uuid = rowBase + "_uuid";
+    EventComponentChangeDto dto = new EventComponentChangeDto()
+      .setCategory(randomChangeCategory())
+      .setUuid(uuid)
+      .setEventUuid(eventUuid)
+      .setComponentUuid(rowBase + "_component_uuid")
+      .setComponentKey(rowBase + "_component_key")
+      .setComponentName(rowBase + "_component_name")
+      .setComponentBranchKey(rowBase + "_component_branch_key");
+    EventPurgeData purgeData = new EventPurgeData(eventBase + "_component_uuid", eventBase + "_analysis_uuid");
+    long now = random.nextLong();
+    when(system2.now()).thenReturn(now);
+
+    underTest.insert(dbSession, dto, purgeData);
+
+    assertThat(underTest.selectByAnalysisUuids(dbSession, Collections.emptyList()))
+      .isEmpty();
+    assertThat(underTest.selectByAnalysisUuids(dbSession, singletonList(eventBase + "_analysis_uuid")))
       .extracting(
         EventComponentChangeDto::getUuid,
         EventComponentChangeDto::getCategory,
@@ -186,6 +231,72 @@ public class EventComponentChangeDaoTest {
         EventComponentChangeDto::getEventUuid,
         EventComponentChangeDto::getCreatedAt)
       .containsOnly(
+        tuple(
+          event2Dtos[0].getUuid(),
+          eventUuid2,
+          now + 3),
+        tuple(
+          event2Dtos[1].getUuid(),
+          eventUuid2,
+          now + 4));
+  }
+
+  @Test
+  public void selectByAnalysisUuids_returns_all_rows_for_specified_event() {
+    String eventBase = randomAlphabetic(5);
+    String rowBase = randomAlphabetic(6);
+    String eventUuid1 = eventBase + "_event_uuid1";
+    String eventUuid2 = eventBase + "_event_uuid2";
+    EventComponentChangeDto[] event1Dtos = IntStream.range(0, 3)
+      .mapToObj(i -> new EventComponentChangeDto()
+        .setCategory(randomChangeCategory())
+        .setUuid(rowBase + eventUuid1 + i)
+        .setEventUuid(eventUuid1)
+        .setComponentUuid(rowBase + eventUuid1 + "_component_uuid" + i)
+        .setComponentKey(rowBase + "_component_key")
+        .setComponentName(rowBase + "_component_name")
+        .setComponentBranchKey(null))
+      .toArray(EventComponentChangeDto[]::new);
+    EventComponentChangeDto[] event2Dtos = IntStream.range(0, 2)
+      .mapToObj(i -> new EventComponentChangeDto()
+        .setCategory(randomChangeCategory())
+        .setUuid(rowBase + eventUuid2 + i)
+        .setEventUuid(eventUuid2)
+        .setComponentUuid(rowBase + eventUuid2 + "_component_uuid" + i)
+        .setComponentKey(rowBase + "_component_key")
+        .setComponentName(rowBase + "_component_name")
+        .setComponentBranchKey(null))
+      .toArray(EventComponentChangeDto[]::new);
+    EventPurgeData doesNotMatter = new EventPurgeData(randomAlphabetic(7), randomAlphabetic(8));
+    long now = random.nextLong();
+    when(system2.now()).thenReturn(now)
+      .thenReturn(now + 1)
+      .thenReturn(now + 2)
+      .thenReturn(now + 3)
+      .thenReturn(now + 4)
+      .thenThrow(new IllegalStateException("now should not be called 6 times"));
+
+    Arrays.stream(event1Dtos).forEach(dto -> underTest.insert(dbSession, dto, doesNotMatter));
+    Arrays.stream(event2Dtos).forEach(dto -> underTest.insert(dbSession, dto, doesNotMatter));
+
+    assertThat(underTest.selectByAnalysisUuids(dbSession, singletonList(doesNotMatter.getAnalysisUuid())))
+      .extracting(
+        EventComponentChangeDto::getUuid,
+        EventComponentChangeDto::getEventUuid,
+        EventComponentChangeDto::getCreatedAt)
+      .containsOnly(
+        tuple(
+          event1Dtos[0].getUuid(),
+          eventUuid1,
+          now),
+        tuple(
+          event1Dtos[1].getUuid(),
+          eventUuid1,
+          now + 1),
+        tuple(
+          event1Dtos[2].getUuid(),
+          eventUuid1,
+          now + 2),
         tuple(
           event2Dtos[0].getUuid(),
           eventUuid2,

@@ -21,6 +21,14 @@
       ecc.event_uuid=#{eventUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByAnalysisUuids" parameterType="Map" resultType="org.sonar.db.event.EventComponentChangeDto">
+    select
+    <include refid="columns"/>
+    from event_component_changes ecc
+    where
+    ecc.event_analysis_uuid in <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">#{analysisUuid}</foreach>
+  </select>
+
   <insert id="insert">
     INSERT INTO event_component_changes (
       uuid,

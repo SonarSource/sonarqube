@@ -24,6 +24,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+
 public class EventComponentChangeDao implements Dao {
   private final System2 system2;
 
@@ -33,6 +35,10 @@ public class EventComponentChangeDao implements Dao {
 
   public List<EventComponentChangeDto> selectByEventUuid(DbSession dbSession, String eventUuid) {
     return getMapper(dbSession).selectByEventUuid(eventUuid);
+  }
+
+  public List<EventComponentChangeDto> selectByAnalysisUuids(DbSession dbSession, List<String> analyses) {
+    return executeLargeInputs(analyses, getMapper(dbSession)::selectByAnalysisUuids);
   }
 
   public void insert(DbSession dbSession, EventComponentChangeDto dto, EventPurgeData eventPurgeData) {

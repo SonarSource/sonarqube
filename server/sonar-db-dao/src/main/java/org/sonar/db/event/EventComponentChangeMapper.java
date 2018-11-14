@@ -25,5 +25,7 @@ import org.apache.ibatis.annotations.Param;
 public interface EventComponentChangeMapper {
   List<EventComponentChangeDto> selectByEventUuid(@Param("eventUuid") String eventUuid);
 
+  List<EventComponentChangeDto> selectByAnalysisUuids(@Param("analysisUuids") List<String> analysisUuids);
+
   void insert(@Param("dto") EventComponentChangeDto dto, @Param("purgeData") EventPurgeData eventPurgeData, @Param("createdAt") long createdAt);
 }
