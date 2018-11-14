@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.LoginPage;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
@@ -43,6 +44,7 @@ import org.sonarqube.ws.client.user.CreateRequest;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -216,10 +218,43 @@ public class OAuth2IdentityProviderTest {
     assertThat(user.getExternalProvider()).isEqualTo(FAKE_PROVIDER_KEY);
   }
 
+  @Test
+  public void redirect_user() {
+    simulateRedirectionToCallback();
+    enablePlugin();
+    // Provision the user and grand him admin access
+    tester.users().service().create(CreateRequest.builder().setLogin(USER_LOGIN).setName(USER_NAME).setLocal(false).build());
+    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(USER_LOGIN).setPermission("admin"));
+    Navigation navigation = tester.openBrowser();
+
+    // Try to access a page requiring admin permission
+    LoginPage login = navigation.open("/settings", LoginPage.class);
+    navigation.shouldBeRedirectedToLogin();
+    login.useOAuth2().shouldBeLoggedIn();
+
+    // The user has well been redirected to the requested page
+    $("#settings-page").shouldBe(visible);
+  }
+
+  @Test
+  public void do_not_redirect_to_forged_urls_after_login() {
+    enablePlugin();
+    Navigation navigation = tester.openBrowser();
+
+    simulateRedirectionToCallback();
+    navigation.open("/sessions/init/" + FAKE_PROVIDER_KEY + "?return_to=https%3A%2F%2Fsonarsource.com");
+    assertThat(url()).doesNotContain("https://www.sonarsource.com/");
+    navigation.shouldBeLoggedIn();
+
+    simulateRedirectionToCallback();
+    navigation.logOut().open("/sessions/init/" + FAKE_PROVIDER_KEY + "?return_to=javascript%3Awindow.location.href%3D%27https%3A%2F%2Fwww.sonarsource.com%2F");
+    assertThat(url()).doesNotContain("https://www.sonarsource.com/");
+    navigation.shouldBeLoggedIn();
+  }
 
   private void authenticateWithFakeAuthProvider() {
     WsResponse response = tester.wsClient().wsConnector().call(
-      new GetRequest(("/sessions/init/" + FAKE_PROVIDER_KEY)));
+      new GetRequest("/sessions/init/" + FAKE_PROVIDER_KEY));
     assertThat(response.code()).isEqualTo(200);
   }
 
