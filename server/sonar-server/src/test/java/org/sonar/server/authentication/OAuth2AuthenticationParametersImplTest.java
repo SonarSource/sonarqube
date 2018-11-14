@@ -97,6 +97,25 @@ public class OAuth2AuthenticationParametersImplTest {
   }
 
   @Test
+  public void return_to_is_not_set_when_not_local() {
+    when(request.getParameter("return_to")).thenReturn("http://external_url");
+    underTest.init(request, response);
+    verify(response, never()).addCookie(any());
+
+    when(request.getParameter("return_to")).thenReturn("//local_file");
+    underTest.init(request, response);
+    verify(response, never()).addCookie(any());
+
+    when(request.getParameter("return_to")).thenReturn("/\\local_file");
+    underTest.init(request, response);
+    verify(response, never()).addCookie(any());
+
+    when(request.getParameter("return_to")).thenReturn("something_else");
+    underTest.init(request, response);
+    verify(response, never()).addCookie(any());
+  }
+
+  @Test
   public void get_return_to_parameter() {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
 
