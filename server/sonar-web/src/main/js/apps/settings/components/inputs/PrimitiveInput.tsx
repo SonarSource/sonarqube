@@ -17,62 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import InputForString from './InputForString';
 import InputForText from './InputForText';
 import InputForPassword from './InputForPassword';
 import InputForBoolean from './InputForBoolean';
 import InputForNumber from './InputForNumber';
 import InputForSingleSelectList from './InputForSingleSelectList';
-import { getUniqueName, isDefaultOrInherited } from '../../utils';
-import * as types from '../../constants';
+import {
+  getUniqueName,
+  isDefaultOrInherited,
+  DefaultInputProps,
+  DefaultSpecializedInputProps
+} from '../../utils';
+import { SettingType } from '../../../../app/types';
 
-const typeMapping = {
-  [types.TYPE_STRING]: InputForString,
-  [types.TYPE_TEXT]: InputForText,
-  [types.TYPE_PASSWORD]: InputForPassword,
-  [types.TYPE_BOOLEAN]: InputForBoolean,
-  [types.TYPE_INTEGER]: InputForNumber,
-  [types.TYPE_LONG]: InputForNumber,
-  [types.TYPE_FLOAT]: InputForNumber
+const typeMapping: {
+  [type in SettingType]?:
+    | React.ComponentClass<DefaultSpecializedInputProps>
+    | React.StatelessComponent<DefaultSpecializedInputProps>
+} = {
+  [SettingType.String]: InputForString,
+  [SettingType.Text]: InputForText,
+  [SettingType.Password]: InputForPassword,
+  [SettingType.Boolean]: InputForBoolean,
+  [SettingType.Integer]: InputForNumber,
+  [SettingType.Long]: InputForNumber,
+  [SettingType.Float]: InputForNumber
 };
 
-export default class PrimitiveInput extends React.PureComponent {
-  static propTypes = {
-    setting: PropTypes.object.isRequired,
-    value: PropTypes.any,
-    onChange: PropTypes.func.isRequired
-  };
+interface Props extends DefaultInputProps {
+  name?: string;
+}
 
+export default class PrimitiveInput extends React.PureComponent<Props> {
   render() {
-    const { setting, value, onChange, ...other } = this.props;
+    const { setting, ...other } = this.props;
     const { definition } = setting;
 
-    const name = getUniqueName(definition);
+    const name = this.props.name || getUniqueName(definition);
 
-    if (definition.type === types.TYPE_SINGLE_SELECT_LIST) {
+    if (definition.type === SettingType.SingleSelectList) {
       return (
         <InputForSingleSelectList
           isDefault={isDefaultOrInherited(setting)}
           name={name}
-          onChange={onChange}
           options={definition.options}
-          value={value}
           {...other}
         />
       );
     }
 
-    const InputComponent = typeMapping[definition.type] || InputForString;
-    return (
-      <InputComponent
-        isDefault={isDefaultOrInherited(setting)}
-        name={name}
-        onChange={onChange}
-        value={value}
-        {...other}
-      />
-    );
+    const InputComponent = (definition.type && typeMapping[definition.type]) || InputForString;
+    return <InputComponent isDefault={isDefaultOrInherited(setting)} name={name} {...other} />;
   }
 }

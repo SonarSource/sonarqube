@@ -17,31 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import PropertySetInput from './PropertySetInput';
-import MultiValueInput from './MultiValueInput';
-import PrimitiveInput from './PrimitiveInput';
-import { TYPE_PROPERTY_SET } from '../../constants';
+import * as React from 'react';
+import Select from '../../../../components/controls/Select';
+import { DefaultSpecializedInputProps } from '../../utils';
+import { SettingCategoryDefinition } from '../../../../app/types';
 
-export default class Input extends React.PureComponent {
-  static propTypes = {
-    setting: PropTypes.object.isRequired,
-    value: PropTypes.any,
-    onChange: PropTypes.func.isRequired
+type Props = DefaultSpecializedInputProps & Pick<SettingCategoryDefinition, 'options'>;
+
+export default class InputForSingleSelectList extends React.PureComponent<Props> {
+  handleInputChange = ({ value }: { value: string }) => {
+    this.props.onChange(value);
   };
 
   render() {
-    const { definition } = this.props.setting;
+    const options = this.props.options.map(option => ({
+      label: option,
+      value: option
+    }));
 
-    if (definition.multiValues) {
-      return <MultiValueInput {...this.props} />;
-    }
-
-    if (definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput {...this.props} />;
-    }
-
-    return <PrimitiveInput {...this.props} />;
+    return (
+      <Select
+        className="settings-large-input"
+        clearable={false}
+        name={this.props.name}
+        onChange={this.handleInputChange}
+        options={options}
+        value={this.props.value}
+      />
+    );
   }
 }

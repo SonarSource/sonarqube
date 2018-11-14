@@ -17,23 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { defaultInputPropTypes } from '../../propTypes';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { DefaultSpecializedInputProps } from '../../utils';
 
-export default class InputForText extends React.PureComponent {
-  static propTypes = defaultInputPropTypes;
+interface Props extends DefaultSpecializedInputProps {
+  className?: string;
+  type: string;
+  value: string | number;
+}
 
-  handleInputChange(e) {
-    this.props.onChange(e.target.value);
-  }
+export default class SimpleInput extends React.PureComponent<Props> {
+  handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.props.onChange(event.currentTarget.value);
+  };
+
+  handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.keyCode === 13 && this.props.onSave) {
+      this.props.onSave();
+    } else if (event.keyCode === 27 && this.props.onCancel) {
+      this.props.onCancel();
+    }
+  };
 
   render() {
     return (
-      <textarea
-        className="settings-large-input text-top"
+      <input
+        className={classNames('text-top', this.props.className)}
         name={this.props.name}
-        onChange={e => this.handleInputChange(e)}
-        rows="5"
+        onChange={this.handleInputChange}
+        onKeyDown={this.handleKeyDown}
+        type={this.props.type}
         value={this.props.value || ''}
       />
     );

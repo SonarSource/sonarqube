@@ -17,15 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
+import * as React from 'react';
+import { shallow, ShallowWrapper } from 'enzyme';
 import MultiValueInput from '../MultiValueInput';
 import PrimitiveInput from '../PrimitiveInput';
 import { click } from '../../../../../helpers/testUtils';
+import { DefaultInputProps } from '../../../utils';
+import { SettingType } from '../../../../../app/types';
 
-const definition = { multiValues: true };
+const settingValue = {
+  key: 'example'
+};
 
-const assertValues = (inputs, values) => {
+const settingDefinition = {
+  category: 'general',
+  fields: [],
+  key: 'example',
+  multiValues: true,
+  options: [],
+  subCategory: 'Branches',
+  type: SettingType.String
+};
+
+const assertValues = (inputs: ShallowWrapper<any>, values: string[]) => {
   values.forEach((value, index) => {
     const input = inputs.at(index);
     expect(input.prop('value')).toBe(value);
@@ -33,18 +47,14 @@ const assertValues = (inputs, values) => {
 };
 
 it('should render one value', () => {
-  const multiValueInput = shallow(
-    <MultiValueInput onChange={jest.fn()} setting={{ definition }} value={['foo']} />
-  );
+  const multiValueInput = shallowRender();
   const stringInputs = multiValueInput.find(PrimitiveInput);
   expect(stringInputs.length).toBe(1 + 1);
   assertValues(stringInputs, ['foo', '']);
 });
 
 it('should render several values', () => {
-  const multiValueInput = shallow(
-    <MultiValueInput onChange={jest.fn()} setting={{ definition }} value={['foo', 'bar', 'baz']} />
-  );
+  const multiValueInput = shallowRender({ value: ['foo', 'bar', 'baz'] });
   const stringInputs = multiValueInput.find(PrimitiveInput);
   expect(stringInputs.length).toBe(3 + 1);
   assertValues(stringInputs, ['foo', 'bar', 'baz', '']);
@@ -52,18 +62,14 @@ it('should render several values', () => {
 
 it('should remove value', () => {
   const onChange = jest.fn();
-  const multiValueInput = shallow(
-    <MultiValueInput onChange={onChange} setting={{ definition }} value={['foo', 'bar', 'baz']} />
-  );
+  const multiValueInput = shallowRender({ onChange, value: ['foo', 'bar', 'baz'] });
   click(multiValueInput.find('.js-remove-value').at(1));
   expect(onChange).toBeCalledWith(['foo', 'baz']);
 });
 
 it('should change existing value', () => {
   const onChange = jest.fn();
-  const multiValueInput = shallow(
-    <MultiValueInput onChange={onChange} setting={{ definition }} value={['foo', 'bar', 'baz']} />
-  );
+  const multiValueInput = shallowRender({ onChange, value: ['foo', 'bar', 'baz'] });
   multiValueInput
     .find(PrimitiveInput)
     .at(1)
@@ -73,12 +79,21 @@ it('should change existing value', () => {
 
 it('should add new value', () => {
   const onChange = jest.fn();
-  const multiValueInput = shallow(
-    <MultiValueInput onChange={onChange} setting={{ definition }} value={['foo']} />
-  );
+  const multiValueInput = shallowRender({ onChange });
   multiValueInput
     .find(PrimitiveInput)
     .at(1)
     .prop('onChange')('bar');
   expect(onChange).toBeCalledWith(['foo', 'bar']);
 });
+
+function shallowRender(props: Partial<DefaultInputProps> = {}) {
+  return shallow(
+    <MultiValueInput
+      onChange={jest.fn()}
+      setting={{ ...settingValue, definition: settingDefinition }}
+      value={['foo']}
+      {...props}
+    />
+  );
+}

@@ -18,43 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getEmptyValue, getDefaultValue } from '../utils';
-import {
-  TYPE_PROPERTY_SET,
-  TYPE_STRING,
-  TYPE_SINGLE_SELECT_LIST,
-  TYPE_BOOLEAN
-} from '../constants';
+import { SettingFieldDefinition, SettingCategoryDefinition, SettingType } from '../../../app/types';
 
-const fields = [{ key: 'foo', type: TYPE_STRING }, { key: 'bar', type: TYPE_SINGLE_SELECT_LIST }];
+const fields = [
+  { key: 'foo', type: SettingType.String } as SettingFieldDefinition,
+  { key: 'bar', type: SettingType.SingleSelectList } as SettingFieldDefinition
+];
+
+const settingDefinition: SettingCategoryDefinition = {
+  category: 'test',
+  fields: [],
+  key: 'test',
+  options: [],
+  subCategory: 'subtest'
+};
 
 describe('#getEmptyValue()', () => {
   it('should work for property sets', () => {
-    const setting = { type: TYPE_PROPERTY_SET, fields };
+    const setting = { ...settingDefinition, type: SettingType.PropertySet, fields };
     expect(getEmptyValue(setting)).toEqual([{ foo: '', bar: null }]);
   });
 
   it('should work for multi values string', () => {
-    const setting = { type: TYPE_STRING, multiValues: true };
+    const setting = { ...settingDefinition, type: SettingType.String, multiValues: true };
     expect(getEmptyValue(setting)).toEqual(['']);
   });
 
   it('should work for multi values boolean', () => {
-    const setting = { type: TYPE_BOOLEAN, multiValues: true };
+    const setting = { ...settingDefinition, type: SettingType.Boolean, multiValues: true };
     expect(getEmptyValue(setting)).toEqual([null]);
   });
 });
 
 describe('#getDefaultValue()', () => {
-  const check = (parentValue, expected) => {
-    const setting = { definition: { type: TYPE_BOOLEAN }, parentValue };
+  const check = (parentValue?: string, expected?: string) => {
+    const setting = {
+      definition: { key: 'test', options: [], type: SettingType.Boolean },
+      parentValue,
+      key: 'test'
+    };
     expect(getDefaultValue(setting)).toEqual(expected);
   };
 
-  it('should work for boolean field when passing true', () => check(true, 'settings.boolean.true'));
   it('should work for boolean field when passing "true"', () =>
     check('true', 'settings.boolean.true'));
-  it('should work for boolean field when passing false', () =>
-    check(false, 'settings.boolean.false'));
   it('should work for boolean field when passing "false"', () =>
     check('false', 'settings.boolean.false'));
 });

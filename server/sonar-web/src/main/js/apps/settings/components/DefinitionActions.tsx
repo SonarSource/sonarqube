@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
+import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { isEmptyValue, getDefaultValue, getSettingValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
-import { SettingValue, Definition } from '../../../api/settings';
+import { Setting } from '../../../app/types';
 
 type Props = {
   changedValue: string;
@@ -32,7 +32,7 @@ type Props = {
   onCancel: () => void;
   onReset: () => void;
   onSave: () => void;
-  setting: SettingValue & { definition: Definition };
+  setting: Setting;
 };
 
 type State = { reseting: boolean };

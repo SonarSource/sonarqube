@@ -17,61 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import PrimitiveInput from './PrimitiveInput';
-import { getEmptyValue, getUniqueName } from '../../utils';
+import { getEmptyValue, getUniqueName, DefaultInputProps, isCategoryDefinition } from '../../utils';
 import { DeleteButton } from '../../../../components/ui/buttons';
 
-export default class PropertySetInput extends React.PureComponent {
-  static propTypes = {
-    setting: PropTypes.object.isRequired,
-    value: PropTypes.array,
-    onChange: PropTypes.func.isRequired
-  };
-
+export default class PropertySetInput extends React.PureComponent<DefaultInputProps> {
   ensureValue() {
     return this.props.value || [];
   }
 
-  getFieldName(field) {
-    return getUniqueName(this.props.setting.definition, field.key);
-  }
-
-  handleDeleteValue(index) {
+  handleDeleteValue = (index: number) => {
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1);
     this.props.onChange(newValue);
-  }
+  };
 
-  handleInputChange(index, fieldKey, value) {
+  handleInputChange = (index: number, fieldKey: string, value: any) => {
     const emptyValue = getEmptyValue(this.props.setting.definition)[0];
     const newValue = [...this.ensureValue()];
     const newFields = { ...emptyValue, ...newValue[index], [fieldKey]: value };
     newValue.splice(index, 1, newFields);
     return this.props.onChange(newValue);
-  }
+  };
 
-  renderFields(fieldValues, index, isLast) {
+  renderFields(fieldValues: any, index: number, isLast: boolean) {
     const { setting } = this.props;
+    const { definition } = setting;
 
     return (
       <tr key={index}>
-        {setting.definition.fields.map(field => (
-          <td key={field.key}>
-            <PrimitiveInput
-              name={this.getFieldName(field)}
-              onChange={this.handleInputChange.bind(this, index, field.key)}
-              setting={{ definition: field, value: fieldValues[field.key] }}
-              value={fieldValues[field.key]}
-            />
-          </td>
-        ))}
+        {isCategoryDefinition(definition) &&
+          definition.fields.map(field => (
+            <td key={field.key}>
+              <PrimitiveInput
+                hasValueChanged={this.props.hasValueChanged}
+                name={getUniqueName(definition, field.key)}
+                onChange={value => this.handleInputChange(index, field.key, value)}
+                setting={{ ...setting, definition: field, value: fieldValues[field.key] }}
+                value={fieldValues[field.key]}
+              />
+            </td>
+          ))}
         <td className="thin nowrap text-middle">
           {!isLast && (
             <DeleteButton
               className="js-remove-value"
-              onClick={this.handleDeleteValue.bind(this, index)}
+              onClick={() => this.handleDeleteValue(index)}
             />
           )}
         </td>
@@ -80,9 +72,8 @@ export default class PropertySetInput extends React.PureComponent {
   }
 
   render() {
-    const { setting } = this.props;
-
-    const displayedValue = [...this.ensureValue(), ...getEmptyValue(this.props.setting.definition)];
+    const { definition } = this.props.setting;
+    const displayedValue = [...this.ensureValue(), ...getEmptyValue(definition)];
 
     return (
       <div>
@@ -91,14 +82,15 @@ export default class PropertySetInput extends React.PureComponent {
           style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
           <thead>
             <tr>
-              {setting.definition.fields.map(field => (
-                <th key={field.key}>
-                  {field.name}
-                  {field.description != null && (
-                    <span className="spacer-top small">{field.description}</span>
-                  )}
-                </th>
-              ))}
+              {isCategoryDefinition(definition) &&
+                definition.fields.map(field => (
+                  <th key={field.key}>
+                    {field.name}
+                    {field.description != null && (
+                      <span className="spacer-top small">{field.description}</span>
+                    )}
+                  </th>
+                ))}
               <th>&nbsp;</th>
             </tr>
           </thead>

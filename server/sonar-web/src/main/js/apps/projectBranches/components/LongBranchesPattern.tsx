@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import LongBranchesPatternForm from './LongBranchesPatternForm';
-import { getValues, SettingValue } from '../../../api/settings';
+import { getValues } from '../../../api/settings';
 import { EditButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { SettingValue } from '../../../app/types';
 
 interface Props {
   project: string;

@@ -36,7 +36,6 @@ import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue, checkValue } from '../store/actions';
 import { passValidation } from '../store/settingsPage/validationMessages/actions';
 import { cancelChange, changeValue } from '../store/settingsPage/changedValues/actions';
-import { TYPE_PASSWORD } from '../constants';
 import {
   getSettingsAppChangedValue,
   isSettingsAppLoading,
@@ -196,6 +195,7 @@ class Definition extends React.PureComponent {
             hasValueChanged={hasValueChanged}
             onCancel={this.handleCancel}
             onChange={this.handleChange}
+            onSave={this.handleSave}
             setting={setting}
             value={effectiveValue}
           />

@@ -19,39 +19,16 @@
  */
 import { omitBy } from 'lodash';
 import { getJSON, RequestData, post, postJSON } from '../helpers/request';
-import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
-import { BranchParameters } from '../app/types';
+import {
+  BranchParameters,
+  SettingCategoryDefinition,
+  SettingValue,
+  SettingType
+} from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-interface DefinitionField {
-  description: string;
-  key: string;
-  name: string;
-  options: string[];
-}
-
-export interface Definition {
-  category: string;
-  description: string;
-  fields: DefinitionField[];
-  key: string;
-  name: string;
-  options: string[];
-  subCategory: string;
-  type: string;
-}
-
-export function getDefinitions(component?: string): Promise<{ definitions: Definition[] }> {
+export function getDefinitions(component?: string): Promise<SettingCategoryDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(r => r.definitions);
-}
-
-export interface SettingValue {
-  inherited?: boolean;
-  key: string;
-  parentValue?: string;
-  parentValues?: string[];
-  value?: any;
-  values?: string[];
 }
 
 export function getValues(
@@ -66,7 +43,7 @@ export function setSettingValue(definition: any, value: any, component?: string)
 
   if (definition.multiValues) {
     data.values = value;
-  } else if (definition.type === TYPE_PROPERTY_SET) {
+  } else if (definition.type === SettingType.PropertySet) {
     data.fieldValues = value
       .map((fields: any) => omitBy(fields, value => value == null))
       .map(JSON.stringify);

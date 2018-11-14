@@ -17,20 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import Input from '../Input';
-import PrimitiveInput from '../PrimitiveInput';
-import MultiValueInput from '../MultiValueInput';
-import PropertySetInput from '../PropertySetInput';
-import { TYPE_STRING, TYPE_PROPERTY_SET } from '../../../constants';
+import { SettingType } from '../../../../../app/types';
+import { DefaultInputProps } from '../../../utils';
+
+const settingValue = {
+  key: 'example'
+};
+
+const settingDefinition = {
+  category: 'general',
+  fields: [],
+  key: 'example',
+  options: [],
+  subCategory: 'Branches',
+  type: SettingType.String
+};
 
 it('should render PrimitiveInput', () => {
-  const setting = { definition: { key: 'example', type: TYPE_STRING } };
+  const setting = { ...settingValue, definition: settingDefinition };
   const onChange = jest.fn();
-  const input = shallow(<Input onChange={onChange} setting={setting} value="foo" />).find(
-    PrimitiveInput
-  );
+  const input = shallowRender({ onChange, setting }).find('PrimitiveInput');
   expect(input.length).toBe(1);
   expect(input.prop('setting')).toBe(setting);
   expect(input.prop('value')).toBe('foo');
@@ -38,12 +47,10 @@ it('should render PrimitiveInput', () => {
 });
 
 it('should render MultiValueInput', () => {
-  const setting = { definition: { key: 'example', type: TYPE_STRING, multiValues: true } };
-  const value = ['foo', 'bar'];
+  const setting = { ...settingValue, definition: { ...settingDefinition, multiValues: true } };
   const onChange = jest.fn();
-  const input = shallow(<Input onChange={onChange} setting={setting} value={value} />).find(
-    MultiValueInput
-  );
+  const value = ['foo', 'bar'];
+  const input = shallowRender({ onChange, setting, value }).find('MultiValueInput');
   expect(input.length).toBe(1);
   expect(input.prop('setting')).toBe(setting);
   expect(input.prop('value')).toBe(value);
@@ -51,14 +58,27 @@ it('should render MultiValueInput', () => {
 });
 
 it('should render PropertySetInput', () => {
-  const setting = { definition: { key: 'example', type: TYPE_PROPERTY_SET, fields: [] } };
-  const value = [{ foo: 'bar' }];
+  const setting = {
+    ...settingValue,
+    definition: { ...settingDefinition, type: SettingType.PropertySet, fields: [] }
+  };
+
   const onChange = jest.fn();
-  const input = shallow(<Input onChange={onChange} setting={setting} value={value} />).find(
-    PropertySetInput
-  );
+  const value = [{ foo: 'bar' }];
+  const input = shallowRender({ onChange, setting, value }).find('PropertySetInput');
   expect(input.length).toBe(1);
   expect(input.prop('setting')).toBe(setting);
   expect(input.prop('value')).toBe(value);
   expect(input.prop('onChange')).toBe(onChange);
 });
+
+function shallowRender(props: Partial<DefaultInputProps> = {}) {
+  return shallow(
+    <Input
+      onChange={jest.fn()}
+      setting={{ ...settingValue, definition: settingDefinition }}
+      value="foo"
+      {...props}
+    />
+  );
+}

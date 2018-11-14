@@ -21,6 +21,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DefinitionActions from '../components/DefinitionActions';
+import { SettingType } from '../../../app/types';
 
 const definition = {
   category: 'baz',
@@ -30,7 +31,7 @@ const definition = {
   name: 'foobar',
   options: [],
   subCategory: 'bar',
-  type: 'foo'
+  type: SettingType.String
 };
 
 const settings = {

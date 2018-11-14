@@ -698,6 +698,53 @@ export enum RuleType {
   Unknown = 'UNKNOWN'
 }
 
+export type Setting = SettingValue & { definition: SettingDefinition };
+
+export enum SettingType {
+  String = 'STRING',
+  Text = 'TEXT',
+  Password = 'PASSWORD',
+  Boolean = 'BOOLEAN',
+  Float = 'FLOAT',
+  Integer = 'INTEGER',
+  Long = 'LONG',
+  SingleSelectList = 'SINGLE_SELECT_LIST',
+  PropertySet = 'PROPERTY_SET'
+}
+
+export interface SettingDefinition {
+  description?: string;
+  key: string;
+  name?: string;
+  options: string[];
+  type?: SettingType;
+}
+
+export interface SettingFieldDefinition extends SettingDefinition {
+  description: string;
+  name: string;
+}
+
+export interface SettingCategoryDefinition extends SettingDefinition {
+  category: string;
+  defaultValue?: string;
+  deprecatedKey?: string;
+  fields: SettingFieldDefinition[];
+  multiValues?: boolean;
+  subCategory: string;
+}
+
+export interface SettingValue {
+  fieldValues?: Array<{ [key: string]: string }>;
+  inherited?: boolean;
+  key: string;
+  parentFieldValues?: Array<{ [key: string]: string }>;
+  parentValue?: string;
+  parentValues?: string[];
+  value?: string;
+  values?: string[];
+}
+
 export interface ShortLivingBranch extends Branch {
   isMain: false;
   isOrphan?: true;

@@ -20,8 +20,9 @@
 import * as React from 'react';
 import SettingForm from './SettingForm';
 import { translate } from '../../../helpers/l10n';
-import { getValues, SettingValue } from '../../../api/settings';
+import { getValues } from '../../../api/settings';
 import Modal from '../../../components/controls/Modal';
+import { SettingValue } from '../../../app/types';
 
 interface Props {
   branch: string;

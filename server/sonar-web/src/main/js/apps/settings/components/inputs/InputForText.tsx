@@ -17,11 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import { DefaultSpecializedInputProps } from '../../utils';
 
-export const defaultInputPropTypes = {
-  name: PropTypes.string.isRequired,
-  value: PropTypes.any,
-  isDefault: PropTypes.bool.isRequired,
-  onChange: PropTypes.func.isRequired
-};
+export default class InputForText extends React.PureComponent<DefaultSpecializedInputProps> {
+  handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.props.onChange(event.target.value);
+  };
+
+  render() {
+    return (
+      <textarea
+        className="settings-large-input text-top"
+        name={this.props.name}
+        onChange={this.handleInputChange}
+        rows={5}
+        value={this.props.value || ''}
+      />
+    );
+  }
+}

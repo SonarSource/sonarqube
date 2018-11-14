@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { SettingValue, setSimpleSettingValue, resetSettingValue } from '../../../api/settings';
+import { setSimpleSettingValue, resetSettingValue } from '../../../api/settings';
 import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { SettingValue } from '../../../app/types';
 
 interface Props {
   branch?: string;

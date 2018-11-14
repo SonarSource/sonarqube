@@ -17,28 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import Toggle from '../../../../components/controls/Toggle';
-import { defaultInputPropTypes } from '../../propTypes';
-import { translate } from '../../../../helpers/l10n';
+import * as React from 'react';
+import SimpleInput from './SimpleInput';
+import { DefaultSpecializedInputProps } from '../../utils';
 
-export default class InputForBoolean extends React.PureComponent {
-  static propTypes = {
-    ...defaultInputPropTypes,
-    value: PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
-  };
-
-  render() {
-    const hasValue = this.props.value != null;
-    const displayedValue = hasValue ? this.props.value : false;
-
-    return (
-      <div className="display-inline-block text-top">
-        <Toggle name={this.props.name} onChange={this.props.onChange} value={displayedValue} />
-
-        {!hasValue && <span className="spacer-left note">{translate('settings.not_set')}</span>}
-      </div>
-    );
-  }
+export default function InputForNumber(props: DefaultSpecializedInputProps) {
+  return <SimpleInput {...props} className="input-small" type="text" />;
 }

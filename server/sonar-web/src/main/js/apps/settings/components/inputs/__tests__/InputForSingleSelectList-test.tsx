@@ -17,21 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import InputForSingleSelectList from '../InputForSingleSelectList';
+import { DefaultSpecializedInputProps } from '../../../utils';
 
 it('should render Select', () => {
   const onChange = jest.fn();
-  const select = shallow(
-    <InputForSingleSelectList
-      isDefault={false}
-      name="foo"
-      onChange={onChange}
-      options={['foo', 'bar', 'baz']}
-      value="bar"
-    />
-  ).find('Select');
+  const select = shallowRender({ onChange }).find('Select');
   expect(select.length).toBe(1);
   expect(select.prop('name')).toBe('foo');
   expect(select.prop('value')).toBe('bar');
@@ -45,18 +38,23 @@ it('should render Select', () => {
 
 it('should call onChange', () => {
   const onChange = jest.fn();
-  const select = shallow(
-    <InputForSingleSelectList
-      isDefault={false}
-      name="foo"
-      onChange={onChange}
-      options={['foo', 'bar', 'baz']}
-      value="bar"
-    />
-  ).find('Select');
+  const select = shallowRender({ onChange }).find('Select');
   expect(select.length).toBe(1);
   expect(select.prop('onChange')).toBeTruthy();
 
-  select.prop('onChange')({ value: 'baz', label: 'baz' });
+  select.prop<Function>('onChange')({ value: 'baz', label: 'baz' });
   expect(onChange).toBeCalledWith('baz');
 });
+
+function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
+  return shallow(
+    <InputForSingleSelectList
+      isDefault={false}
+      name="foo"
+      onChange={jest.fn()}
+      options={['foo', 'bar', 'baz']}
+      value="bar"
+      {...props}
+    />
+  );
+}

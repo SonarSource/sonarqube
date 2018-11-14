@@ -17,25 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import InputForPassword from '../InputForPassword';
 import { click, change, submit } from '../../../../../helpers/testUtils';
+import { DefaultSpecializedInputProps } from '../../../utils';
 
 it('should render lock icon, but no form', () => {
   const onChange = jest.fn();
-  const input = shallow(
-    <InputForPassword isDefault={false} name="foo" onChange={onChange} value="bar" />
-  );
+  const input = shallowRender({ onChange });
+
   expect(input.find('LockIcon').length).toBe(1);
   expect(input.find('form').length).toBe(0);
 });
 
 it('should open form', () => {
   const onChange = jest.fn();
-  const input = shallow(
-    <InputForPassword isDefault={false} name="foo" onChange={onChange} value="bar" />
-  );
+  const input = shallowRender({ onChange });
   const button = input.find('Button');
   expect(button.length).toBe(1);
 
@@ -45,11 +43,23 @@ it('should open form', () => {
 
 it('should set value', () => {
   const onChange = jest.fn(() => Promise.resolve());
-  const input = shallow(
-    <InputForPassword isDefault={false} name="foo" onChange={onChange} value="bar" />
-  );
+  const input = shallowRender({ onChange });
+
   click(input.find('Button'));
   change(input.find('.js-password-input'), 'secret');
   submit(input.find('form'));
   expect(onChange).toBeCalledWith('secret');
 });
+
+function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
+  return shallow(
+    <InputForPassword
+      hasValueChanged={false}
+      isDefault={false}
+      name="foo"
+      onChange={jest.fn()}
+      value="bar"
+      {...props}
+    />
+  );
+}

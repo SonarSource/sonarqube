@@ -17,31 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import * as theme from '../../../../app/theme';
-import { translate } from '../../../../helpers/l10n';
-import { defaultInputPropTypes } from '../../propTypes';
 import LockIcon from '../../../../components/icons-components/LockIcon';
 import { Button } from '../../../../components/ui/buttons';
+import { translate } from '../../../../helpers/l10n';
+import { DefaultSpecializedInputProps } from '../../utils';
 
-export default class InputForPassword extends React.PureComponent {
-  static propTypes = defaultInputPropTypes;
+interface State {
+  changing: boolean;
+  value: string;
+}
 
-  state = {
+export default class InputForPassword extends React.PureComponent<
+  DefaultSpecializedInputProps,
+  State
+> {
+  state: State = {
     value: '',
     changing: false
   };
 
-  componentWillReceiveProps(nextProps /*: Props*/) {
-    if (!nextProps.hasValueChanged && this.props.hasValueChanged) {
+  componentDidUpdate(prevProps: DefaultSpecializedInputProps) {
+    if (!prevProps.hasValueChanged && this.props.hasValueChanged) {
       this.setState({ changing: false, value: '' });
     }
   }
 
-  handleInputChange(e) {
-    this.props.onChange(e.target.value);
-    this.setState({ changing: true, value: e.target.value });
-  }
+  handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.props.onChange(event.target.value);
+    this.setState({ changing: true, value: event.target.value });
+  };
 
   handleChangeClick = () => {
     this.setState({ changing: true });
@@ -56,7 +62,7 @@ export default class InputForPassword extends React.PureComponent {
           autoFocus={this.state.changing}
           className="js-password-input settings-large-input text-top"
           name={this.props.name}
-          onChange={e => this.handleInputChange(e)}
+          onChange={this.handleInputChange}
           type="password"
           value={this.state.value}
         />
@@ -72,12 +78,12 @@ export default class InputForPassword extends React.PureComponent {
     }
 
     return (
-      <div>
+      <>
         <LockIcon className="text-middle big-spacer-right" fill={theme.gray60} />
         <Button className="text-middle" onClick={this.handleChangeClick}>
           {translate('change_verb')}
         </Button>
-      </div>
+      </>
     );
   }
 }

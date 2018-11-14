@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import InputForBoolean from '../InputForBoolean';
-import Toggle from '../../../../../components/controls/Toggle';
+import { DefaultSpecializedInputProps } from '../../../utils';
 
 it('should render Toggle', () => {
   const onChange = jest.fn();
-  const toggle = shallow(
-    <InputForBoolean isDefault={false} name="foo" onChange={onChange} value={true} />
-  ).find(Toggle);
+  const toggle = shallowRender({ onChange }).find('Toggle');
   expect(toggle.length).toBe(1);
   expect(toggle.prop('name')).toBe('foo');
   expect(toggle.prop('value')).toBe(true);
@@ -35,8 +33,8 @@ it('should render Toggle', () => {
 
 it('should render Toggle without value', () => {
   const onChange = jest.fn();
-  const input = shallow(<InputForBoolean isDefault={false} name="foo" onChange={onChange} />);
-  const toggle = input.find(Toggle);
+  const input = shallowRender({ onChange, value: undefined });
+  const toggle = input.find('Toggle');
   expect(toggle.length).toBe(1);
   expect(toggle.prop('name')).toBe('foo');
   expect(toggle.prop('value')).toBe(false);
@@ -46,14 +44,19 @@ it('should render Toggle without value', () => {
 
 it('should call onChange', () => {
   const onChange = jest.fn();
-  const input = shallow(
-    <InputForBoolean isDefault={false} name="foo" onChange={onChange} value={true} />
-  );
-  const toggle = input.find(Toggle);
+
+  const input = shallowRender({ onChange, value: true });
+  const toggle = input.find('Toggle');
   expect(toggle.length).toBe(1);
   expect(toggle.prop('onChange')).toBeTruthy();
 
-  toggle.prop('onChange')(false);
+  toggle.prop<Function>('onChange')(false);
 
   expect(onChange).toBeCalledWith(false);
 });
+
+function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
+  return shallow(
+    <InputForBoolean isDefault={false} name="foo" onChange={jest.fn()} value={true} {...props} />
+  );
+}

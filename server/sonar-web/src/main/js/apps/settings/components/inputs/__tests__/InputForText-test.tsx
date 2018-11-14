@@ -17,47 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import SimpleInput from '../SimpleInput';
+import InputForText from '../InputForText';
 import { change } from '../../../../../helpers/testUtils';
+import { DefaultSpecializedInputProps } from '../../../utils';
 
-it('should render input', () => {
+it('should render textarea', () => {
   const onChange = jest.fn();
-  const input = shallow(
-    <SimpleInput
-      className="input-large"
-      isDefault={false}
-      name="foo"
-      onChange={onChange}
-      type="text"
-      value="bar"
-    />
-  ).find('input');
-  expect(input.length).toBe(1);
-  expect(input.prop('type')).toBe('text');
-  expect(input.prop('className')).toContain('input-large');
-  expect(input.prop('name')).toBe('foo');
-  expect(input.prop('value')).toBe('bar');
-  expect(input.prop('onChange')).toBeTruthy();
+  const textarea = shallowRender({ onChange }).find('textarea');
+  expect(textarea.length).toBe(1);
+  expect(textarea.prop('name')).toBe('foo');
+  expect(textarea.prop('value')).toBe('bar');
+  expect(textarea.prop('onChange')).toBeTruthy();
 });
 
 it('should call onChange', () => {
   const onChange = jest.fn();
-  const input = shallow(
-    <SimpleInput
-      className="input-large"
-      isDefault={false}
-      name="foo"
-      onChange={onChange}
-      type="text"
-      value="bar"
-    />
-  ).find('input');
-  expect(input.length).toBe(1);
-  expect(input.prop('onChange')).toBeTruthy();
+  const textarea = shallowRender({ onChange }).find('textarea');
+  expect(textarea.length).toBe(1);
+  expect(textarea.prop('onChange')).toBeTruthy();
 
-  change(input, 'qux');
-
+  change(textarea, 'qux');
   expect(onChange).toBeCalledWith('qux');
 });
+
+function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
+  return shallow(
+    <InputForText isDefault={false} name="foo" onChange={jest.fn()} value="bar" {...props} />
+  );
+}

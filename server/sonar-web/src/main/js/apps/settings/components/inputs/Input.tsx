@@ -17,9 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import SimpleInput from './SimpleInput';
+import * as React from 'react';
+import PropertySetInput from './PropertySetInput';
+import MultiValueInput from './MultiValueInput';
+import PrimitiveInput from './PrimitiveInput';
+import { DefaultInputProps, isCategoryDefinition } from '../../utils';
+import { SettingType } from '../../../../app/types';
 
-export default function InputForString(props) {
-  return <SimpleInput {...props} className="settings-large-input" type="text" />;
+export default function Input(props: DefaultInputProps) {
+  const { definition } = props.setting;
+
+  if (isCategoryDefinition(definition) && definition.multiValues) {
+    return <MultiValueInput {...props} />;
+  }
+
+  if (definition.type === SettingType.PropertySet) {
+    return <PropertySetInput {...props} />;
+  }
+
+  return <PrimitiveInput {...props} />;
 }

@@ -24,10 +24,3 @@ export type Definition = {
   category: string
 };
 */
-
-/*::
-export type SettingValue = {
-  key: string,
-  value?: string
-};
-*/

@@ -17,51 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import PrimitiveInput from './PrimitiveInput';
-import { getEmptyValue } from '../../utils';
+import { getEmptyValue, DefaultInputProps } from '../../utils';
 import { DeleteButton } from '../../../../components/ui/buttons';
 
-export default class MultiValueInput extends React.PureComponent {
-  static propTypes = {
-    setting: PropTypes.object.isRequired,
-    value: PropTypes.array,
-    onChange: PropTypes.func.isRequired
+export default class MultiValueInput extends React.PureComponent<DefaultInputProps> {
+  ensureValue = () => {
+    return this.props.value || [];
   };
 
-  ensureValue() {
-    return this.props.value || [];
-  }
-
-  handleSingleInputChange(index, value) {
+  handleSingleInputChange = (index: number, value: any) => {
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1, value);
     this.props.onChange(newValue);
-  }
+  };
 
-  handleDeleteValue(index) {
+  handleDeleteValue = (index: number) => {
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1);
     this.props.onChange(newValue);
-  }
+  };
 
-  prepareSetting() {
+  renderInput(value: any, index: number, isLast: boolean) {
     const { setting } = this.props;
-    const newDefinition = { ...setting.definition, multiValues: false };
-    return {
-      ...setting,
-      definition: newDefinition,
-      values: undefined
-    };
-  }
-
-  renderInput(value, index, isLast) {
     return (
       <li className="spacer-bottom" key={index}>
         <PrimitiveInput
-          onChange={this.handleSingleInputChange.bind(this, index)}
-          setting={this.prepareSetting()}
+          hasValueChanged={this.props.hasValueChanged}
+          onChange={value => this.handleSingleInputChange(index, value)}
+          setting={{
+            ...setting,
+            definition: { ...setting.definition, multiValues: false },
+            values: undefined
+          }}
           value={value}
         />
 
@@ -69,7 +58,7 @@ export default class MultiValueInput extends React.PureComponent {
           <div className="display-inline-block spacer-left">
             <DeleteButton
               className="js-remove-value"
-              onClick={this.handleDeleteValue.bind(this, index)}
+              onClick={() => this.handleDeleteValue(index)}
             />
           </div>
         )}
@@ -79,7 +68,6 @@ export default class MultiValueInput extends React.PureComponent {
 
   render() {
     const displayedValue = [...this.ensureValue(), ...getEmptyValue(this.props.setting.definition)];
-
     return (
       <div>
         <ul>

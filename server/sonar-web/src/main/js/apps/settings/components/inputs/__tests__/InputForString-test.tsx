@@ -17,36 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import Select from '../../../../components/controls/Select';
-import { defaultInputPropTypes } from '../../propTypes';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import InputForString from '../InputForString';
+import SimpleInput from '../SimpleInput';
 
-export default class InputForSingleSelectList extends React.PureComponent {
-  static propTypes = {
-    ...defaultInputPropTypes,
-    options: PropTypes.arrayOf(PropTypes.string).isRequired
-  };
-
-  handleInputChange(option) {
-    this.props.onChange(option.value);
-  }
-
-  render() {
-    const options = this.props.options.map(option => ({
-      label: option,
-      value: option
-    }));
-
-    return (
-      <Select
-        className="settings-large-input"
-        clearable={false}
-        name={this.props.name}
-        onChange={option => this.handleInputChange(option)}
-        options={options}
-        value={this.props.value}
-      />
-    );
-  }
-}
+it('should render SimpleInput', () => {
+  const onChange = jest.fn();
+  const simpleInput = shallow(
+    <InputForString isDefault={false} name="foo" onChange={onChange} value="bar" />
+  ).find(SimpleInput);
+  expect(simpleInput.length).toBe(1);
+  expect(simpleInput.prop('name')).toBe('foo');
+  expect(simpleInput.prop('value')).toBe('bar');
+  expect(simpleInput.prop('type')).toBe('text');
+  expect(simpleInput.prop('onChange')).toBeTruthy();
+});
