@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,11 @@
  */
 package org.sonar.scanner.phases;
 
+import java.io.File;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.PropertyDefinitions;
@@ -29,29 +32,38 @@ import org.sonar.core.config.ExclusionProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CoverageExclusionsTest {
+public class ProjectCoverageExclusionsTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private MapSettings settings;
-  private CoverageExclusions coverageExclusions;
+  private ProjectCoverageExclusions coverageExclusions;
+  private File baseDir;
 
   @Before
-  public void prepare() {
+  public void prepare() throws Exception {
     settings = new MapSettings(new PropertyDefinitions(ExclusionProperties.all()));
+    baseDir = temp.newFolder();
   }
 
   @Test
   public void shouldExcludeFileBasedOnPattern() {
-    DefaultInputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
-    settings.setProperty("sonar.coverage.exclusions", "src/org/polop/*");
-    coverageExclusions = new CoverageExclusions(settings.asConfig());
+    DefaultInputFile file = TestInputFileBuilder.create("foo", new File(baseDir, "moduleA"), new File(baseDir, "moduleA/src/org/polop/File.php"))
+      .setProjectBaseDir(baseDir.toPath())
+      .build();
+    settings.setProperty("sonar.coverage.exclusions", "moduleA/src/org/polop/*");
+    coverageExclusions = new ProjectCoverageExclusions(settings.asConfig());
     assertThat(coverageExclusions.isExcluded(file)).isTrue();
   }
 
   @Test
   public void shouldNotExcludeFileBasedOnPattern() {
-    DefaultInputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
-    settings.setProperty("sonar.coverage.exclusions", "src/org/other/*");
-    coverageExclusions = new CoverageExclusions(settings.asConfig());
+    DefaultInputFile file = TestInputFileBuilder.create("foo", new File(baseDir, "moduleA"), new File(baseDir, "moduleA/src/org/polop/File.php"))
+      .setProjectBaseDir(baseDir.toPath())
+      .build();
+    settings.setProperty("sonar.coverage.exclusions", "moduleA/src/org/other/*");
+    coverageExclusions = new ProjectCoverageExclusions(settings.asConfig());
     assertThat(coverageExclusions.isExcluded(file)).isFalse();
   }
 }

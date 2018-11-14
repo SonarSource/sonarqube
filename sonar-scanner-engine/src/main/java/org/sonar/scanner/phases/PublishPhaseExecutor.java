@@ -20,6 +20,7 @@
 package org.sonar.scanner.phases;
 
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.report.ReportPublisher;
@@ -28,16 +29,19 @@ import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scm.ScmPublisher;
 
-public final class PublishPhaseExecutor extends AbstractPhaseExecutor {
+public final class PublishPhaseExecutor extends AbstractModulePhaseExecutor {
 
   private final ReportPublisher reportPublisher;
   private final CpdExecutor cpdExecutor;
   private final ScmPublisher scm;
 
   public PublishPhaseExecutor(PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-    ReportPublisher reportPublisher, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader,
-    CpdExecutor cpdExecutor, ScmPublisher scm, InputModuleHierarchy hierarchy, FileIndexer fileIndexer, CoverageExclusions coverageExclusions) {
-    super(postJobsExecutor, sensorsExecutor, hierarchy, fs, profileVerifier, issueExclusionsLoader, fileIndexer, coverageExclusions);
+                              ReportPublisher reportPublisher, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader,
+                              CpdExecutor cpdExecutor, ScmPublisher scm, InputModuleHierarchy hierarchy, FileIndexer fileIndexer,
+                              ModuleCoverageExclusions moduleCoverageExclusions, ProjectCoverageExclusions projectCoverageExclusions,
+                              AnalysisWarnings analysisWarnings) {
+    super(postJobsExecutor, sensorsExecutor, hierarchy, fs, profileVerifier, issueExclusionsLoader, fileIndexer, moduleCoverageExclusions,
+      projectCoverageExclusions, analysisWarnings);
     this.reportPublisher = reportPublisher;
     this.cpdExecutor = cpdExecutor;
     this.scm = scm;

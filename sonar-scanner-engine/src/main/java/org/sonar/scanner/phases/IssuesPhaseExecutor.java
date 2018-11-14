@@ -22,6 +22,7 @@ package org.sonar.scanner.phases;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.issue.tracking.IssueTransition;
 import org.sonar.scanner.rule.QProfileVerifier;
@@ -29,7 +30,7 @@ import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.report.IssuesReports;
 
-public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
+public final class IssuesPhaseExecutor extends AbstractModulePhaseExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssuesPhaseExecutor.class);
 
@@ -37,11 +38,12 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
   private final IssueTransition localIssueTracking;
 
   public IssuesPhaseExecutor(PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-    IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy, FileIndexer fileIndexer,
-    CoverageExclusions coverageExclusions) {
+                             IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+                             IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy, FileIndexer fileIndexer,
+                             ModuleCoverageExclusions moduleCoverageExclusions, ProjectCoverageExclusions projectCoverageExclusions,
+                             AnalysisWarnings analysisWarnings) {
     super(postJobsExecutor, sensorsExecutor, moduleHierarchy, fs, profileVerifier, issueExclusionsLoader, fileIndexer,
-      coverageExclusions);
+      moduleCoverageExclusions, projectCoverageExclusions, analysisWarnings);
     this.issuesReport = jsonReport;
     this.localIssueTracking = localIssueTracking;
   }

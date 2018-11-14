@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.function.Function;
 import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,28 +33,38 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 
 @Immutable
-public class CoverageExclusions {
-  private static final Logger LOG = LoggerFactory.getLogger(CoverageExclusions.class);
+public abstract class AbstractCoverageExclusions {
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractCoverageExclusions.class);
+  private final Function<DefaultInputFile, String> pathExtractor;
+  private final String[] coverageExclusionConfig;
 
   private Collection<WildcardPattern> exclusionPatterns;
 
-  public CoverageExclusions(Configuration settings) {
+  public AbstractCoverageExclusions(Configuration config, Function<DefaultInputFile, String> pathExtractor) {
+    this.pathExtractor = pathExtractor;
     Builder<WildcardPattern> builder = ImmutableList.builder();
-    for (String pattern : settings.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)) {
+    coverageExclusionConfig = config.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY);
+    for (String pattern : coverageExclusionConfig) {
       builder.add(WildcardPattern.create(pattern));
     }
     exclusionPatterns = builder.build();
   }
 
+  public String[] getCoverageExclusionConfig() {
+    return coverageExclusionConfig;
+  }
+
   void log() {
-    log("Excluded sources for coverage: ", exclusionPatterns);
+    if (!exclusionPatterns.isEmpty()) {
+      log("Excluded sources for coverage: ", exclusionPatterns);
+    }
   }
 
   boolean isExcluded(DefaultInputFile file) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = exclusionPatterns.iterator();
     while (!found && iterator.hasNext()) {
-      found = iterator.next().match(file.getModuleRelativePath());
+      found = iterator.next().match(pathExtractor.apply(file));
     }
     return found;
   }
@@ -65,9 +76,5 @@ public class CoverageExclusions {
         LOG.info("  {}", pattern);
       }
     }
-  }
-
-  public boolean shouldExecute() {
-    return !exclusionPatterns.isEmpty();
   }
 }

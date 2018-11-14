@@ -39,9 +39,9 @@ import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
-import org.sonar.scanner.phases.AbstractPhaseExecutor;
-import org.sonar.scanner.phases.CoverageExclusions;
+import org.sonar.scanner.phases.AbstractModulePhaseExecutor;
 import org.sonar.scanner.phases.IssuesPhaseExecutor;
+import org.sonar.scanner.phases.ModuleCoverageExclusions;
 import org.sonar.scanner.phases.PostJobsExecutor;
 import org.sonar.scanner.phases.PublishPhaseExecutor;
 import org.sonar.scanner.phases.SensorsExecutor;
@@ -125,7 +125,7 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultSensorContext.class,
       ScannerExtensionDictionnary.class,
       ModuleIssueFilters.class,
-      CoverageExclusions.class,
+      ModuleCoverageExclusions.class,
 
       // issues
       ModuleIssues.class,
@@ -153,7 +153,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    getComponentByType(AbstractPhaseExecutor.class).execute(module);
+    getComponentByType(AbstractModulePhaseExecutor.class).execute(module);
   }
 
 }

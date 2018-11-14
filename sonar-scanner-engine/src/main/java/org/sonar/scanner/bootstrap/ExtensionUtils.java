@@ -36,7 +36,7 @@ public class ExtensionUtils {
     }
     return InstantiationStrategy.PER_PROJECT.equals(strategy);
   }
-  
+
   public static boolean isDeprecatedScannerSide(Object extension) {
     return AnnotationUtils.getAnnotation(extension, org.sonar.api.batch.ScannerSide.class) != null;
   }
@@ -45,8 +45,4 @@ public class ExtensionUtils {
     return AnnotationUtils.getAnnotation(extension, ScannerSide.class) != null;
   }
 
-  public static boolean isType(Object extension, Class<?> extensionClass) {
-    Class clazz = extension instanceof Class ? (Class) extension : extension.getClass();
-    return extensionClass.isAssignableFrom(clazz);
-  }
 }

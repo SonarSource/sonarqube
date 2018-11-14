@@ -25,15 +25,15 @@ import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
+/**
+ * @since 5.3
+ * @deprecated since 7.6
+ */
 @ScannerSide
 @SonarLintSide
 @ExtensionPoint
 @FunctionalInterface
 @ThreadSafe
-/**
- * @since 5.3
- * @deprecated since 7.6
- */
 @Deprecated
 public interface IssueFilter {
 

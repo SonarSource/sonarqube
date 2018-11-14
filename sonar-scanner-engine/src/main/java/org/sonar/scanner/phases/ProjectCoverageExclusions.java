@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.notifications;
+package org.sonar.scanner.phases;
 
-import org.sonar.api.scanner.ScannerSide;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.config.Configuration;
 
-/**
- * Record user-friendly warnings that will be visible on SonarQube
- * to users with browse access to the project.
- *
- * @since 7.4
- */
-@ScannerSide
-public interface AnalysisWarnings {
+@Immutable
+public class ProjectCoverageExclusions extends AbstractCoverageExclusions {
 
-  /**
-   * Add a single message, if it was not already added.
-   */
-  void addUnique(String text);
+  public ProjectCoverageExclusions(Configuration projectConfig) {
+    super(projectConfig, DefaultInputFile::getProjectRelativePath);
+    log();
+  }
 }

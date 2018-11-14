@@ -58,6 +58,7 @@ import org.sonar.scanner.issue.tracking.ServerIssueRepository;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.mediumtest.ScanTaskObservers;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
+import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.AnalysisWarningsPublisher;
@@ -203,6 +204,8 @@ public class ProjectScanContainer extends ComponentContainer {
       MutableProjectSettings.class,
       ScannerProperties.class,
       new ProjectConfigurationProvider(),
+
+      ProjectCoverageExclusions.class,
 
       // Report
       ScannerMetrics.class,
