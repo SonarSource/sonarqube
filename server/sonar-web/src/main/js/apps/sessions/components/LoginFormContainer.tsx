@@ -23,7 +23,7 @@ import LoginForm from './LoginForm';
 import { doLogin } from '../../../store/rootActions';
 import { tryGetGlobalNavigation } from '../../../api/nav';
 import { IdentityProvider, getIdentityProviders } from '../../../api/users';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getReturnUrl } from '../../../helpers/urls';
 
 interface Props {
   doLogin: (login: string, password: string) => Promise<void>;
@@ -59,14 +59,11 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  getReturnUrl = () => {
-    const { location } = this.props;
-    const queryReturnTo = location.query['return_to'];
-    return queryReturnTo ? `${queryReturnTo}${location.hash}` : `${getBaseUrl()}/`;
-  };
-
   handleSuccessfulLogin = () => {
-    window.location.href = this.getReturnUrl();
+    window.location.href = getReturnUrl(
+      this.props.location.query['return_to'],
+      this.props.location.hash
+    );
   };
 
   handleSubmit = (login: string, password: string) => {
@@ -84,7 +81,7 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
         identityProviders={identityProviders}
         onSonarCloud={onSonarCloud}
         onSubmit={this.handleSubmit}
-        returnTo={this.getReturnUrl()}
+        returnTo={getReturnUrl(this.props.location.query['return_to'], this.props.location.hash)}
       />
     );
   }

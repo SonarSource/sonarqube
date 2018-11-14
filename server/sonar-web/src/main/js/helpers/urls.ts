@@ -167,3 +167,15 @@ export function getMarkdownHelpUrl(): string {
 export function getCodeUrl(project: string, branch?: string, selected?: string) {
   return { pathname: '/code', query: { id: project, branch, selected } };
 }
+
+export function getReturnUrl(returnTo?: string, hash?: string) {
+  if (isRelativeUrl(returnTo)) {
+    return returnTo + (hash ? hash : '');
+  }
+  return getBaseUrl() + '/';
+}
+
+export function isRelativeUrl(url?: string): boolean {
+  const regex = new RegExp(/^\/[^/\\]/);
+  return Boolean(url && regex.test(url));
+}
