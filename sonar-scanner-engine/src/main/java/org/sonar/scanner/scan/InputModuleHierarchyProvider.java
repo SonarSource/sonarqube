@@ -21,44 +21,35 @@ package org.sonar.scanner.scan;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 
 public class InputModuleHierarchyProvider extends ProviderAdapter {
 
   private DefaultInputModuleHierarchy hierarchy = null;
 
-  public DefaultInputModuleHierarchy provide(ProjectBuildersExecutor projectBuildersExecutor, ProjectReactorValidator validator,
-    ProjectReactor projectReactor, BatchIdGenerator batchIdGenerator) {
+  public DefaultInputModuleHierarchy provide(ScannerComponentIdGenerator scannerComponentIdGenerator, DefaultInputProject project) {
     if (hierarchy == null) {
-      // 1 Apply project builders
-      projectBuildersExecutor.execute(projectReactor);
-
-      // 2 Validate final reactor
-      validator.validate(projectReactor);
-
-      // 3 Create modules and the hierarchy
-      DefaultInputModule root = new DefaultInputModule(projectReactor.getRoot(), batchIdGenerator.getAsInt());
-      Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, batchIdGenerator, new HashMap<>());
+      DefaultInputModule root = new DefaultInputModule(project.definition(), project.scannerId());
+      Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, scannerComponentIdGenerator, new HashMap<>());
       if (parents.isEmpty()) {
         hierarchy = new DefaultInputModuleHierarchy(root);
       } else {
-        hierarchy = new DefaultInputModuleHierarchy(parents);
+        hierarchy = new DefaultInputModuleHierarchy(root, parents);
       }
     }
     return hierarchy;
   }
 
-  private static Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, BatchIdGenerator batchIdGenerator,
-    Map<DefaultInputModule, DefaultInputModule> parents) {
+  private static Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, ScannerComponentIdGenerator scannerComponentIdGenerator,
+                                                                                      Map<DefaultInputModule, DefaultInputModule> parents) {
     for (ProjectDefinition def : parent.definition().getSubProjects()) {
-      DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.getAsInt());
+      DefaultInputModule child = new DefaultInputModule(def, scannerComponentIdGenerator.getAsInt());
       parents.put(child, parent);
-      createChildren(child, batchIdGenerator, parents);
+      createChildren(child, scannerComponentIdGenerator, parents);
     }
     return parents;
   }

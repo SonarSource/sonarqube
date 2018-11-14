@@ -40,21 +40,21 @@ public class ScannerWsClientProvider extends ProviderAdapter {
 
   private ScannerWsClient wsClient;
 
-  public synchronized ScannerWsClient provide(final GlobalProperties settings, final EnvironmentInformation env,
-                                              GlobalAnalysisMode globalMode, System2 system) {
+  public synchronized ScannerWsClient provide(final ScannerProperties scannerProps, final EnvironmentInformation env,
+    GlobalAnalysisMode globalMode, System2 system) {
     if (wsClient == null) {
-      String url = defaultIfBlank(settings.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
+      String url = defaultIfBlank(scannerProps.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
       HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
-      String timeoutSec = defaultIfBlank(settings.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
+      String timeoutSec = defaultIfBlank(scannerProps.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
       String token = defaultIfBlank(system.envVariable("SONAR_TOKEN"), null);
-      String login = defaultIfBlank(settings.property(CoreProperties.LOGIN), token);
+      String login = defaultIfBlank(scannerProps.property(CoreProperties.LOGIN), token);
       connectorBuilder
         .readTimeoutMilliseconds(parseInt(timeoutSec) * 1_000)
         .connectTimeoutMilliseconds(CONNECT_TIMEOUT_MS)
         .userAgent(env.toString())
         .url(url)
-        .credentials(login, settings.property(CoreProperties.PASSWORD));
+        .credentials(login, scannerProps.property(CoreProperties.PASSWORD));
 
       // OkHttp detect 'http.proxyHost' java property, but credentials should be filled
       final String proxyUser = System.getProperty("http.proxyUser", "");

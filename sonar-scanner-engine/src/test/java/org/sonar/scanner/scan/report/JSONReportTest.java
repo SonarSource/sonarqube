@@ -37,6 +37,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Rules;
@@ -82,8 +83,9 @@ public class JSONReportTest {
 
     DefaultComponentTree inputComponentTree = new DefaultComponentTree();
     ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setWorkDir(temp.newFolder()).setKey("struts");
+    DefaultInputProject project = new DefaultInputProject(def, 1);
     DefaultInputModule rootModule = new DefaultInputModule(def, 1);
-    InputComponentStore inputComponentStore = new InputComponentStore(rootModule, mock(BranchConfiguration.class));
+    InputComponentStore inputComponentStore = new InputComponentStore(project, mock(BranchConfiguration.class));
 
     DefaultInputModule moduleA = new DefaultInputModule(ProjectDefinition.create().setKey("struts-core").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     inputComponentTree.index(moduleA, rootModule);

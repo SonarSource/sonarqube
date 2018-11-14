@@ -22,24 +22,26 @@ package org.sonar.scanner.scan;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.repository.ProjectRepositories;
 
 public class ProjectConfigurationProvider extends ProviderAdapter {
 
   private ProjectConfiguration projectConfig;
 
-  public ProjectConfiguration provide(ProjectReactor reactor, GlobalConfiguration globalSettings, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
+  public ProjectConfiguration provide(GlobalServerSettings globalServerSettings, AbstractProjectOrModule project,
+                                      GlobalConfiguration globalConfig, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
     if (projectConfig == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(globalSettings.getProperties());
-      settings.putAll(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
-      settings.putAll(reactor.getRoot().properties());
+      settings.putAll(globalServerSettings.properties());
+      settings.putAll(projectRepositories.settings(project.getKeyWithBranch()));
+      settings.putAll(project.properties());
 
-      projectConfig = new ProjectConfiguration(globalSettings.getDefinitions(), globalSettings.getEncryption(), mode, settings);
+      projectConfig = new ProjectConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), mode, settings);
     }
     return projectConfig;
   }

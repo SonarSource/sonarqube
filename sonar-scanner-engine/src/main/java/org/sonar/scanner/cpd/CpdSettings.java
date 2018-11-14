@@ -21,7 +21,7 @@ package org.sonar.scanner.cpd;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.Configuration;
 import org.sonar.duplications.block.BlockChunker;
 
@@ -29,9 +29,9 @@ public class CpdSettings {
   private final Configuration settings;
   private final String branch;
 
-  public CpdSettings(Configuration settings, InputModuleHierarchy hierarchy) {
-    this.settings = settings;
-    this.branch = hierarchy.root().getBranch();
+  public CpdSettings(Configuration config, DefaultInputProject project) {
+    this.settings = config;
+    this.branch = project.getBranch();
   }
 
   public boolean isCrossProjectDuplicationEnabled() {

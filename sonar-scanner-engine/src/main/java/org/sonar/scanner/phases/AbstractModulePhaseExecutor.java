@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -91,7 +92,7 @@ public abstract class AbstractModulePhaseExecutor {
     }
   }
 
-  private void evaluateCoverageExclusions(DefaultInputModule module) {
+  private void evaluateCoverageExclusions(AbstractProjectOrModule module) {
     if (!Arrays.equals(moduleCoverageExclusions.getCoverageExclusionConfig(), projectCoverageExclusions.getCoverageExclusionConfig())) {
       moduleCoverageExclusions.log();
     }

@@ -57,7 +57,7 @@ public class ScannerWsClientTest {
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     logTester.setLevel(LoggerLevel.DEBUG);
-    ScannerWsClient underTest = new ScannerWsClient(wsClient, false, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap())));
+    ScannerWsClient underTest = new ScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())));
 
     WsResponse result = underTest.call(request);
 
@@ -98,7 +98,7 @@ public class ScannerWsClientTest {
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new ScannerWsClient(wsClient, false, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap()))).call(request);
+    new ScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
   }
 
   @Test
@@ -110,7 +110,7 @@ public class ScannerWsClientTest {
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new ScannerWsClient(wsClient, /* credentials are configured */true, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap()))).call(request);
+    new ScannerWsClient(wsClient, /* credentials are configured */true, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
   }
 
   @Test
@@ -124,7 +124,7 @@ public class ScannerWsClientTest {
       .setContent("{\"errors\":[{\"msg\":\"missing scan permission\"}, {\"msg\":\"missing another permission\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new ScannerWsClient(wsClient, true, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap()))).call(request);
+    new ScannerWsClient(wsClient, true, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class ScannerWsClientTest {
       .setContent("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new ScannerWsClient(wsClient, true, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap()))).call(request);
+    new ScannerWsClient(wsClient, true, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
   }
 
   private MockWsResponse newResponse() {

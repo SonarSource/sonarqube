@@ -33,13 +33,14 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -58,18 +59,18 @@ public class AnalysisContextReportPublisher {
   private final AnalysisMode mode;
   private final System2 system;
   private final ProjectRepositories projectRepos;
-  private final GlobalConfiguration globalSettings;
+  private final GlobalServerSettings globalServerSettings;
   private final InputModuleHierarchy hierarchy;
 
   private ScannerReportWriter writer;
 
   public AnalysisContextReportPublisher(AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
-    ProjectRepositories projectRepos, GlobalConfiguration globalSettings, InputModuleHierarchy hierarchy) {
+    ProjectRepositories projectRepos, GlobalServerSettings globalServerSettings, InputModuleHierarchy hierarchy) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
     this.projectRepos = projectRepos;
-    this.globalSettings = globalSettings;
+    this.globalServerSettings = globalServerSettings;
     this.hierarchy = hierarchy;
   }
 
@@ -125,7 +126,7 @@ public class AnalysisContextReportPublisher {
 
   private void writeGlobalSettings(BufferedWriter fileWriter) throws IOException {
     fileWriter.append("Global properties:\n");
-    Map<String, String> props = globalSettings.getServerSideSettings();
+    Map<String, String> props = globalServerSettings.properties();
     for (String prop : new TreeSet<>(props.keySet())) {
       dumpPropIfNotSensitive(fileWriter, prop, props.get(prop));
     }
@@ -163,7 +164,7 @@ public class AnalysisContextReportPublisher {
     if (projectRepos.moduleExists(module.getKeyWithBranch())) {
       moduleSpecificProps.putAll(projectRepos.settings(module.getKeyWithBranch()));
     }
-    DefaultInputModule parent = hierarchy.parent(module);
+    AbstractProjectOrModule parent = hierarchy.parent(module);
     if (parent == null) {
       moduleSpecificProps.putAll(module.properties());
     } else {

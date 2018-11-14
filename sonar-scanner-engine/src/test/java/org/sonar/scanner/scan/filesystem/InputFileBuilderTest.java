@@ -32,7 +32,6 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
 import org.sonar.scanner.scan.ScanProperties;
 
@@ -66,7 +65,7 @@ public class InputFileBuilderTest {
       .setKey("module1"), 0);
 
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
-    BatchIdGenerator idGenerator = new BatchIdGenerator();
+    ScannerComponentIdGenerator idGenerator = new ScannerComponentIdGenerator();
     ScanProperties properties = mock(ScanProperties.class);
     ModuleFileSystemInitializer moduleFileSystemInitializer = mock(ModuleFileSystemInitializer.class);
     when(moduleFileSystemInitializer.defaultEncoding()).thenReturn(StandardCharsets.UTF_8);

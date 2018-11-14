@@ -44,7 +44,7 @@ public class SensorsExecutor {
   private final boolean isRoot;
 
   public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
-    SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
+                         SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
     this.selector = selector;
     this.strategy = strategy;
     this.pluginRepo = pluginRepo;

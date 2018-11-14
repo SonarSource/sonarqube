@@ -35,6 +35,9 @@ public class SensorWrapper {
     this.context = context;
     this.descriptor = new DefaultSensorDescriptor();
     newSensor.describe(this.descriptor);
+    if (descriptor.name() == null) {
+      descriptor.name(newSensor.getClass().getName());
+    }
   }
 
   public boolean shouldExecute() {
@@ -51,11 +54,7 @@ public class SensorWrapper {
 
   @Override
   public String toString() {
-    if (descriptor.name() != null) {
-      return descriptor.name();
-    } else {
-      return wrappedSensor.getClass().getName();
-    }
+    return descriptor.name();
   }
 
   public boolean isGlobal() {

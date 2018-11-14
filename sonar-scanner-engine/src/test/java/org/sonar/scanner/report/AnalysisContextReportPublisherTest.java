@@ -40,7 +40,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -69,7 +69,7 @@ public class AnalysisContextReportPublisherTest {
   private AnalysisMode analysisMode = mock(AnalysisMode.class);
   private System2 system2;
   private ProjectRepositories projectRepos;
-  private GlobalConfiguration globalSettings;
+  private GlobalServerSettings globalServerSettings;
   private InputModuleHierarchy hierarchy;
 
   @Before
@@ -78,9 +78,9 @@ public class AnalysisContextReportPublisherTest {
     system2 = mock(System2.class);
     when(system2.properties()).thenReturn(new Properties());
     projectRepos = mock(ProjectRepositories.class);
-    globalSettings = mock(GlobalConfiguration.class);
+    globalServerSettings = mock(GlobalServerSettings.class);
     hierarchy = mock(InputModuleHierarchy.class);
-    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2, projectRepos, globalSettings, hierarchy);
+    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2, projectRepos, globalServerSettings, hierarchy);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class AnalysisContextReportPublisherTest {
   public void dumpServerSideGlobalProps() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
-    when(globalSettings.getServerSideSettings()).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
+    when(globalServerSettings.properties()).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
 
     publisher.init(writer);
 
@@ -238,7 +238,7 @@ public class AnalysisContextReportPublisherTest {
   @Test
   public void shouldNotDumpSensitiveGlobalProperties() throws Exception {
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
-    when(globalSettings.getServerSideSettings()).thenReturn(ImmutableMap.of("sonar.login", "my_token", "sonar.password", "azerty", "sonar.cpp.license.secured", "AZERTY"));
+    when(globalServerSettings.properties()).thenReturn(ImmutableMap.of("sonar.login", "my_token", "sonar.password", "azerty", "sonar.cpp.license.secured", "AZERTY"));
 
     publisher.init(writer);
 

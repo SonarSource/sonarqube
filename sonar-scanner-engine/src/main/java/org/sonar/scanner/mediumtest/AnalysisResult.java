@@ -36,11 +36,11 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
@@ -56,19 +56,19 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
-public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver {
+public class AnalysisResult implements AnalysisObserver {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TaskResult.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisResult.class);
 
   private List<TrackedIssue> issues = new ArrayList<>();
   private Map<String, InputFile> inputFiles = new HashMap<>();
   private Map<String, Component> reportComponents = new HashMap<>();
   private Map<String, InputDir> inputDirs = new HashMap<>();
-  private InputModule root;
+  private InputProject project;
   private ScannerReportReader reader;
 
   @Override
-  public void scanTaskCompleted(ProjectScanContainer container) {
+  public void analysisCompleted(ProjectScanContainer container) {
     LOG.info("Store analysis results in memory for later assertions in medium test");
     for (TrackedIssue issue : container.getComponentByType(IssueCache.class).all()) {
       issues.add(issue);
@@ -80,8 +80,7 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
       Metadata readMetadata = getReportReader().readMetadata();
       int rootComponentRef = readMetadata.getRootComponentRef();
       storeReportComponents(rootComponentRef, null);
-      InputComponentStore inputFileCache = container.getComponentByType(InputComponentStore.class);
-      root = inputFileCache.root();
+      project = container.getComponentByType(InputProject.class);
     }
 
     storeFs(container);
@@ -158,8 +157,8 @@ public class TaskResult implements org.sonar.scanner.mediumtest.ScanTaskObserver
     return result;
   }
 
-  public InputModule root() {
-    return root;
+  public InputProject project() {
+    return project;
   }
 
   public Collection<InputFile> inputFiles() {

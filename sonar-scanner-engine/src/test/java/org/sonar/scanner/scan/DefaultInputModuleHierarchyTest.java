@@ -52,7 +52,7 @@ public class DefaultInputModuleHierarchyTest {
     parents.put(mod3, root);
     parents.put(mod4, root);
 
-    moduleHierarchy = new DefaultInputModuleHierarchy(parents);
+    moduleHierarchy = new DefaultInputModuleHierarchy(root, parents);
 
     assertThat(moduleHierarchy.children(root)).containsOnly(mod1, mod3, mod4);
     assertThat(moduleHierarchy.children(mod4)).isEmpty();
@@ -72,20 +72,6 @@ public class DefaultInputModuleHierarchyTest {
     moduleHierarchy = new DefaultInputModuleHierarchy(root);
 
     assertThat(moduleHierarchy.children(root)).isEmpty();
-    assertThat(moduleHierarchy.parent(root)).isNull();
-    assertThat(moduleHierarchy.root()).isEqualTo(root);
-  }
-
-  @Test
-  public void testParentChild() throws IOException {
-    DefaultInputModule root = new DefaultInputModule(ProjectDefinition.create().setKey("root").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
-    DefaultInputModule mod1 = new DefaultInputModule(ProjectDefinition.create().setKey("mod1").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
-    moduleHierarchy = new DefaultInputModuleHierarchy(root, mod1);
-
-    assertThat(moduleHierarchy.children(root)).containsOnly(mod1);
-    assertThat(moduleHierarchy.children(mod1)).isEmpty();
-
-    assertThat(moduleHierarchy.parent(mod1)).isEqualTo(root);
     assertThat(moduleHierarchy.parent(root)).isNull();
     assertThat(moduleHierarchy.root()).isEqualTo(root);
   }

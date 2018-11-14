@@ -32,7 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +91,7 @@ public class CoveragePerTestMediumTest {
     FileUtils.write(xooCoveragePerTestFile, "some test;src/sample.xoo,10,11;src/sample2.xoo,1,2\n" +
       "another test;src/sample.xoo,10,20\n", StandardCharsets.UTF_8);
 
-    TaskResult result = runTask(baseDir);
+    AnalysisResult result = runTask(baseDir);
 
     InputFile file = result.inputFile("test/sampleTest.xoo");
     org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail someTest = result.coveragePerTestFor(file, "some test");
@@ -107,8 +107,8 @@ public class CoveragePerTestMediumTest {
     assertThat(anotherTest.getCoveredFile(0).getCoveredLineList()).containsExactly(10, 20);
   }
 
-  private TaskResult runTask(File baseDir) {
-    return tester.newTask()
+  private AnalysisResult runTask(File baseDir) {
+    return tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())

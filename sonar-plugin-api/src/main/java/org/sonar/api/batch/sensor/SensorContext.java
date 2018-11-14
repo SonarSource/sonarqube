@@ -42,6 +42,7 @@ import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
+import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
 
 /**
@@ -75,8 +76,16 @@ public interface SensorContext {
 
   /**
    * @since 5.5
+   * @deprecated since 7.6 modules are deprecated. Use {@link #project()} instead.
    */
+  @Deprecated
   InputModule module();
+
+  /**
+   * The current project.
+   * @since 7.6
+   */
+  InputProject project();
 
   /**
    * Version of API at runtime, not at compilation time. It's a shortcut on

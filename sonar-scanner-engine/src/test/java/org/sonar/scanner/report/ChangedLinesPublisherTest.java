@@ -31,7 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
@@ -56,11 +56,12 @@ public class ChangedLinesPublisherTest {
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private ScannerReportWriter writer;
   private ScmProvider provider = mock(ScmProvider.class);
+  private DefaultInputProject project = mock(DefaultInputProject.class);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ChangedLinesPublisher publisher = new ChangedLinesPublisher(scmConfiguration, inputModuleHierarchy, inputComponentStore, branchConfiguration);
+  private ChangedLinesPublisher publisher = new ChangedLinesPublisher(scmConfiguration, project, inputComponentStore, branchConfiguration);
 
   @Before
   public void setUp() {
@@ -69,9 +70,7 @@ public class ChangedLinesPublisherTest {
     when(scmConfiguration.isDisabled()).thenReturn(false);
     when(scmConfiguration.provider()).thenReturn(provider);
     when(branchConfiguration.targetScmBranch()).thenReturn(TARGET_BRANCH);
-    DefaultInputModule root = mock(DefaultInputModule.class);
-    when(root.getBaseDir()).thenReturn(BASE_DIR);
-    when(inputModuleHierarchy.root()).thenReturn(root);
+    when(project.getBaseDir()).thenReturn(BASE_DIR);
   }
 
   @Test
@@ -135,13 +134,13 @@ public class ChangedLinesPublisherTest {
   }
 
   private void assertPublished(DefaultInputFile file, Set<Integer> lines) {
-    assertThat(new File(temp.getRoot(), "changed-lines-" + file.batchId() + ".pb")).exists();
+    assertThat(new File(temp.getRoot(), "changed-lines-" + file.scannerId() + ".pb")).exists();
     ScannerReportReader reader = new ScannerReportReader(temp.getRoot());
-    assertThat(reader.readComponentChangedLines(file.batchId()).getLineList()).containsExactlyElementsOf(lines);
+    assertThat(reader.readComponentChangedLines(file.scannerId()).getLineList()).containsExactlyElementsOf(lines);
   }
 
   private void assertNotPublished(DefaultInputFile file) {
-    assertThat(new File(temp.getRoot(), "changed-lines-" + file.batchId() + ".pb")).doesNotExist();
+    assertThat(new File(temp.getRoot(), "changed-lines-" + file.scannerId() + ".pb")).doesNotExist();
   }
 
   private void assertNotPublished() {

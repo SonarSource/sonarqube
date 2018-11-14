@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -44,11 +44,11 @@ public class ModuleInputComponentStoreTest {
 
   private InputComponentStore componentStore;
 
-  private final String moduleKey = "dummy key";
+  private final String projectKey = "dummy key";
 
   @Before
   public void setUp() throws IOException {
-    DefaultInputModule root = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
+    DefaultInputProject root = TestInputFileBuilder.newDefaultInputProject(projectKey, temp.newFolder());
     componentStore = new InputComponentStore(root, mock(BranchConfiguration.class));
   }
 
@@ -57,13 +57,13 @@ public class ModuleInputComponentStoreTest {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
     String filename = "some name";
-    InputFile inputFile1 = new TestInputFileBuilder(moduleKey, "some/path/" + filename).build();
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
     store.doAdd(inputFile1);
 
-    InputFile inputFile2 = new TestInputFileBuilder(moduleKey, "other/path/" + filename).build();
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "other/path/" + filename).build();
     store.doAdd(inputFile2);
 
-    InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/Dummy.java").build();
+    InputFile dummyInputFile = new TestInputFileBuilder(projectKey, "some/path/Dummy.java").build();
     store.doAdd(dummyInputFile);
 
     assertThat(store.getFilesByName(filename)).containsExactlyInAnyOrder(inputFile1, inputFile2);
@@ -73,13 +73,13 @@ public class ModuleInputComponentStoreTest {
   public void should_cache_files_by_extension() throws IOException {
     ModuleInputComponentStore store = newModuleInputComponentStore();
 
-    InputFile inputFile1 = new TestInputFileBuilder(moduleKey, "some/path/Program.java").build();
+    InputFile inputFile1 = new TestInputFileBuilder(projectKey, "some/path/Program.java").build();
     store.doAdd(inputFile1);
 
-    InputFile inputFile2 = new TestInputFileBuilder(moduleKey, "other/path/Utils.java").build();
+    InputFile inputFile2 = new TestInputFileBuilder(projectKey, "other/path/Utils.java").build();
     store.doAdd(inputFile2);
 
-    InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/NotJava.cpp").build();
+    InputFile dummyInputFile = new TestInputFileBuilder(projectKey, "some/path/NotJava.cpp").build();
     store.doAdd(dummyInputFile);
 
     assertThat(store.getFilesByExtension("java")).containsExactlyInAnyOrder(inputFile1, inputFile2);
@@ -91,7 +91,7 @@ public class ModuleInputComponentStoreTest {
 
     String ext = "java";
     String filename = "Program." + ext;
-    InputFile inputFile = new TestInputFileBuilder(moduleKey, "some/path/" + filename).build();
+    InputFile inputFile = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
     store.doAdd(inputFile);
     store.doAdd(inputFile);
     store.doAdd(inputFile);
@@ -106,7 +106,7 @@ public class ModuleInputComponentStoreTest {
 
     String ext = "java";
     String filename = "Program." + ext;
-    InputFile inputFile = new TestInputFileBuilder(moduleKey, "some/path/" + filename).build();
+    InputFile inputFile = new TestInputFileBuilder(projectKey, "some/path/" + filename).build();
     store.doAdd(inputFile);
 
     assertThat(store.getFilesByName("nonexistent")).isEmpty();

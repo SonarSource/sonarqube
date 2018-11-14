@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +44,7 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void scan_all_even_on_short_lived_branch() {
-    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.scanAllFiles", "true"));
+    ScannerProperties analysisProps = new ScannerProperties(Collections.singletonMap("sonar.scanAllFiles", "true"));
     DefaultAnalysisMode mode = createmode(analysisProps);
 
     assertThat(mode.scanAllFiles()).isTrue();
@@ -54,7 +55,7 @@ public class DefaultAnalysisModeTest {
     when(globalMode.isIssues()).thenReturn(true);
     when(globalMode.isPublish()).thenReturn(true);
     when(globalMode.isPreview()).thenReturn(true);
-    DefaultAnalysisMode mode = createmode(new AnalysisProperties(Collections.emptyMap()));
+    DefaultAnalysisMode mode = createmode(new ScannerProperties(Collections.emptyMap()));
 
     assertThat(mode.isIssues()).isTrue();
     assertThat(mode.isPublish()).isTrue();
@@ -64,14 +65,14 @@ public class DefaultAnalysisModeTest {
   @Test
   public void scan_all_if_publish() {
     when(globalMode.isIssues()).thenReturn(false);
-    DefaultAnalysisMode mode = createmode(new AnalysisProperties(Collections.emptyMap()));
+    DefaultAnalysisMode mode = createmode(new ScannerProperties(Collections.emptyMap()));
 
     assertThat(mode.scanAllFiles()).isTrue();
   }
 
   @Test
   public void scan_all_if_property_set() {
-    AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.scanAllFiles", "true"));
+    ScannerProperties analysisProps = new ScannerProperties(Collections.singletonMap("sonar.scanAllFiles", "true"));
     DefaultAnalysisMode mode = createmode(analysisProps);
 
     assertThat(mode.scanAllFiles()).isTrue();
@@ -80,12 +81,12 @@ public class DefaultAnalysisModeTest {
   @Test
   public void dont_scan_all_if_issues_mode() {
     when(globalMode.isIssues()).thenReturn(true);
-    DefaultAnalysisMode mode = createmode(new AnalysisProperties(Collections.emptyMap()));
+    DefaultAnalysisMode mode = createmode(new ScannerProperties(Collections.emptyMap()));
 
     assertThat(mode.scanAllFiles()).isFalse();
   }
 
-  private DefaultAnalysisMode createmode(AnalysisProperties analysisProps) {
+  private DefaultAnalysisMode createmode(ScannerProperties analysisProps) {
     return new DefaultAnalysisMode(analysisProps, globalMode);
   }
 

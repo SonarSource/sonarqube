@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.api.batch.fs.internal;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.scanner.fs.InputProject;
 
-public class InputComponentStoreProvider extends ProviderAdapter {
-  private InputComponentStore store;
+@Immutable
+public class DefaultInputProject extends AbstractProjectOrModule implements InputProject {
 
-  public InputComponentStore provide(InputModuleHierarchy hierarchy, BranchConfiguration branchConfiguration) {
-    if (store == null) {
-      store = new InputComponentStore(hierarchy.root(), branchConfiguration);
-    }
-    return store;
+  public DefaultInputProject(ProjectDefinition definition) {
+    super(definition);
+  }
+
+  public DefaultInputProject(ProjectDefinition definition, int scannerComponentId) {
+    super(definition, scannerComponentId);
   }
 }

@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.xoo.XooPlugin;
@@ -56,8 +56,8 @@ public class IssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
@@ -73,8 +73,8 @@ public class IssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property(OneExternalIssuePerLineSensor.ACTIVATE, "true")
       .execute();
 
@@ -88,8 +88,8 @@ public class IssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.xoo.internalKey", "OneIssuePerLine.internal")
       .execute();
 
@@ -103,8 +103,8 @@ public class IssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.oneIssuePerLine.forceSeverity", "CRITICAL")
       .execute();
 
@@ -118,8 +118,8 @@ public class IssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.issue.ignore.allfile", "1")
       .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
       .execute();
@@ -138,7 +138,7 @@ public class IssuesMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -159,12 +159,12 @@ public class IssuesMediumTest {
 
   @Test
   public void testIssueFilter() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.xoo.excludeAllIssuesOnOddLines", "true")
       .execute();
 

@@ -22,8 +22,8 @@ package org.sonar.scanner.scan;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
@@ -37,8 +37,8 @@ public class ModuleIndexerTest {
   private DefaultInputModuleHierarchy moduleHierarchy;
   private InputComponentStore componentStore;
 
-  public void createIndexer(DefaultInputModule rootModule) {
-    componentStore = new InputComponentStore(rootModule, mock(BranchConfiguration.class));
+  public void createIndexer(DefaultInputProject rootProject) {
+    componentStore = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
     tree = new DefaultComponentTree();
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(tree, componentStore, moduleHierarchy);
@@ -71,13 +71,13 @@ public class ModuleIndexerTest {
     when(mod2.definition()).thenReturn(def);
     when(mod3.definition()).thenReturn(def);
 
-    createIndexer(root);
+    createIndexer(mock(DefaultInputProject.class));
     when(moduleHierarchy.root()).thenReturn(root);
     when(moduleHierarchy.children(root)).thenReturn(Arrays.asList(mod1, mod2, mod3));
 
     indexer.start();
 
-    InputModule rootModule = moduleHierarchy.root();
+    DefaultInputModule rootModule = moduleHierarchy.root();
     assertThat(rootModule).isNotNull();
     assertThat(moduleHierarchy.children(rootModule)).hasSize(3);
     assertThat(tree.getChildren(rootModule)).hasSize(3);

@@ -37,9 +37,9 @@ public class ScannerWsClientProviderTest {
 
   @Test
   public void provide_client_with_default_settings() {
-    GlobalProperties settings = new GlobalProperties(new HashMap<>());
+    ScannerProperties settings = new ScannerProperties(new HashMap<>());
 
-    ScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap())), mock(System2.class));
+    ScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), mock(System2.class));
 
     assertThat(client).isNotNull();
     assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
@@ -57,9 +57,9 @@ public class ScannerWsClientProviderTest {
     props.put("sonar.login", "theLogin");
     props.put("sonar.password", "thePassword");
     props.put("sonar.ws.timeout", "42");
-    GlobalProperties settings = new GlobalProperties(props);
+    ScannerProperties settings = new ScannerProperties(props);
 
-    ScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap())), mock(System2.class));
+    ScannerWsClient client = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), mock(System2.class));
 
     assertThat(client).isNotNull();
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
@@ -71,9 +71,9 @@ public class ScannerWsClientProviderTest {
   public void build_singleton() {
     System2 system = mock(System2.class);
 
-    GlobalProperties settings = new GlobalProperties(new HashMap<>());
-    ScannerWsClient first = underTest.provide(settings, env, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap())), system);
-    ScannerWsClient second = underTest.provide(settings, env, new GlobalAnalysisMode(new GlobalProperties(Collections.emptyMap())), system);
+    ScannerProperties settings = new ScannerProperties(new HashMap<>());
+    ScannerWsClient first = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), system);
+    ScannerWsClient second = underTest.provide(settings, env, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), system);
     assertThat(first).isSameAs(second);
   }
 }

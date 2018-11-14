@@ -22,11 +22,10 @@ package org.sonar.scanner.repository;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.analysis.AnalysisProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
@@ -35,14 +34,14 @@ public class QualityProfilesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load quality profiles";
   private QualityProfiles profiles = null;
 
-  public QualityProfiles provide(ProjectKey projectKey, QualityProfileLoader loader, ProjectRepositories projectRepositories, AnalysisProperties props) {
+  public QualityProfiles provide(QualityProfileLoader loader, ProjectRepositories projectRepositories, ScannerProperties props) {
     if (this.profiles == null) {
       List<QualityProfile> profileList;
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       if (!projectRepositories.exists()) {
         profileList = loader.loadDefault(getSonarProfile(props));
       } else {
-        profileList = loader.load(projectKey.get(), getSonarProfile(props));
+        profileList = loader.load(props.getKeyWithBranch(), getSonarProfile(props));
       }
       profiler.stopInfo();
       profiles = new QualityProfiles(profileList);
@@ -52,7 +51,7 @@ public class QualityProfilesProvider extends ProviderAdapter {
   }
 
   @CheckForNull
-  private static String getSonarProfile(AnalysisProperties props) {
+  private static String getSonarProfile(ScannerProperties props) {
     String profile = props.property(QualityProfiles.SONAR_PROFILE_PROP);
     if (profile != null) {
       LOG.warn("Ability to set quality profile from command line using '" + QualityProfiles.SONAR_PROFILE_PROP

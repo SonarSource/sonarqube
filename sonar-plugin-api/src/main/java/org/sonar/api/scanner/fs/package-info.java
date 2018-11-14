@@ -17,20 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.task;
-
-import java.util.Map;
-import javax.annotation.Nullable;
-import org.sonar.scanner.bootstrap.UserProperties;
-
-/**
- * Batch properties that are specific to a task (for example
- * coming from sonar-project.properties).
- */
-public class TaskProperties extends UserProperties {
-
-  public TaskProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
-    super(properties, pathToSecretKey);
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.scanner.fs;

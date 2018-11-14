@@ -36,10 +36,9 @@ import org.sonar.scanner.bootstrap.GlobalContainer;
  */
 public final class Batch {
 
-  private boolean started = false;
   private LoggingConfiguration loggingConfig;
   private List<Object> components;
-  private Map<String, String> globalProperties = new HashMap<>();
+  private Map<String, String> scannerProperties = new HashMap<>();
   private GlobalContainer bootstrapContainer;
 
   private Batch(Builder builder) {
@@ -48,11 +47,11 @@ public final class Batch {
     if (builder.environment != null) {
       components.add(builder.environment);
     }
-    if (builder.globalProperties != null) {
-      globalProperties.putAll(builder.globalProperties);
+    if (builder.scannerProperties != null) {
+      scannerProperties.putAll(builder.scannerProperties);
     }
     if (builder.isEnableLoggingConfiguration()) {
-      loggingConfig = new LoggingConfiguration(builder.environment).setProperties(globalProperties);
+      loggingConfig = new LoggingConfiguration(builder.environment).setProperties(scannerProperties);
 
       if (builder.logOutput != null) {
         loggingConfig.setLogOutput(builder.logOutput);
@@ -68,7 +67,7 @@ public final class Batch {
     configureLogging();
     doStart();
     try {
-      doExecuteTask(globalProperties);
+      doExecute();
     } finally {
       doStop();
     }
@@ -81,21 +80,16 @@ public final class Batch {
    */
   @Deprecated
   public synchronized Batch start() {
-    if (started) {
-      throw new IllegalStateException("Scanner Engine is already started");
-    }
-    configureLogging();
-    return doStart();
+    return this;
   }
 
   private Batch doStart() {
     try {
-      bootstrapContainer = GlobalContainer.create(globalProperties, components);
+      bootstrapContainer = GlobalContainer.create(scannerProperties, components);
       bootstrapContainer.startComponents();
     } catch (RuntimeException e) {
       throw handleException(e);
     }
-    this.started = true;
 
     return this;
   }
@@ -106,24 +100,16 @@ public final class Batch {
    */
   @Deprecated
   public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
-    checkStarted();
-    configureTaskLogging(analysisProperties);
-    return doExecuteTask(analysisProperties, components);
+    return execute();
   }
 
-  private Batch doExecuteTask(Map<String, String> analysisProperties, Object... components) {
+  private Batch doExecute(Object... components) {
     try {
-      bootstrapContainer.executeTask(analysisProperties, components);
+      bootstrapContainer.executeTask(scannerProperties, components);
     } catch (RuntimeException e) {
       throw handleException(e);
     }
     return this;
-  }
-
-  private void checkStarted() {
-    if (!started) {
-      throw new IllegalStateException("Scanner engine is not started. Unable to execute task.");
-    }
   }
 
   private RuntimeException handleException(RuntimeException t) {
@@ -146,9 +132,6 @@ public final class Batch {
    */
   @Deprecated
   public synchronized void stop() {
-    checkStarted();
-    configureLogging();
-    doStop();
   }
 
   private void doStop() {
@@ -157,19 +140,11 @@ public final class Batch {
     } catch (RuntimeException e) {
       throw handleException(e);
     }
-    this.started = false;
   }
 
   private void configureLogging() {
     if (loggingConfig != null) {
-      loggingConfig.setProperties(globalProperties);
-      LoggingConfigurator.apply(loggingConfig);
-    }
-  }
-
-  private void configureTaskLogging(Map<String, String> taskProperties) {
-    if (loggingConfig != null) {
-      loggingConfig.setProperties(taskProperties, globalProperties);
+      loggingConfig.setProperties(scannerProperties);
       LoggingConfigurator.apply(loggingConfig);
     }
   }
@@ -179,7 +154,7 @@ public final class Batch {
   }
 
   public static final class Builder {
-    private Map<String, String> globalProperties;
+    private Map<String, String> scannerProperties;
     private EnvironmentInformation environment;
     private List<Object> components = new ArrayList<>();
     private boolean enableLoggingConfiguration = true;
@@ -203,17 +178,17 @@ public final class Batch {
       return this;
     }
 
-    public Builder setGlobalProperties(Map<String, String> globalProperties) {
-      this.globalProperties = globalProperties;
+    public Builder setScannerProperties(Map<String, String> scannerProperties) {
+      this.scannerProperties = scannerProperties;
       return this;
     }
 
     /**
-     * @deprecated since 6.6 use {@link #setGlobalProperties(Map)}
+     * @deprecated since 6.6 use {@link #setScannerProperties(Map)}
      */
     @Deprecated
     public Builder setBootstrapProperties(Map<String, String> bootstrapProperties) {
-      this.globalProperties = bootstrapProperties;
+      this.scannerProperties = bootstrapProperties;
       return this;
     }
 

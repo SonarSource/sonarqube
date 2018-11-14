@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.issue;
 
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
@@ -32,16 +32,16 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 @Deprecated
 public class ModuleIssueFilters {
   private final IssueFilterChain filterChain;
-  private final DefaultInputModule module;
+  private final InputModule module;
   private final ProjectAnalysisInfo projectAnalysisInfo;
 
-  public ModuleIssueFilters(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] exclusionFilters) {
+  public ModuleIssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] exclusionFilters) {
     this.module = module;
     this.filterChain = new DefaultIssueFilterChain(exclusionFilters);
     this.projectAnalysisInfo = projectAnalysisInfo;
   }
 
-  public ModuleIssueFilters(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo) {
+  public ModuleIssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo) {
     this(module, projectAnalysisInfo, new IssueFilter[0]);
   }
 

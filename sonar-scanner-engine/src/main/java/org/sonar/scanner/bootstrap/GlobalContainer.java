@@ -53,24 +53,24 @@ import org.sonar.scanner.task.TaskContainer;
 
 public class GlobalContainer extends ComponentContainer {
   private static final Logger LOG = Loggers.get(GlobalContainer.class);
-  private final Map<String, String> bootstrapProperties;
+  private final Map<String, String> scannerProperties;
 
-  private GlobalContainer(Map<String, String> bootstrapProperties) {
+  private GlobalContainer(Map<String, String> scannerProperties) {
     super();
-    this.bootstrapProperties = bootstrapProperties;
+    this.scannerProperties = scannerProperties;
   }
 
-  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions) {
-    GlobalContainer container = new GlobalContainer(bootstrapProperties);
+  public static GlobalContainer create(Map<String, String> scannerProperties, List<?> extensions) {
+    GlobalContainer container = new GlobalContainer(scannerProperties);
     container.add(extensions);
     return container;
   }
 
   @Override
   protected void doBeforeStart() {
-    GlobalProperties bootstrapProps = new GlobalProperties(bootstrapProperties);
-    GlobalAnalysisMode globalMode = new GlobalAnalysisMode(bootstrapProps);
-    add(bootstrapProps);
+    ScannerProperties scannerProps = new ScannerProperties(scannerProperties);
+    GlobalAnalysisMode globalMode = new GlobalAnalysisMode(scannerProps);
+    add(scannerProps);
     add(globalMode);
     addBootstrapComponents();
   }
@@ -89,7 +89,7 @@ public class GlobalContainer extends ComponentContainer {
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER),
       StoragesManager.class,
-      MutableGlobalSettings.class,
+      new GlobalServerSettingsProvider(),
       new GlobalConfigurationProvider(),
       new ScannerWsClientProvider(),
       DefaultServer.class,

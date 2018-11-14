@@ -42,6 +42,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -82,6 +83,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.ApiVersion;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 
@@ -89,18 +91,17 @@ import static java.util.Collections.unmodifiableMap;
 
 /**
  * Utility class to help testing {@link Sensor}. This is not an API and method signature may evolve.
- * 
+ * <p>
  * Usage: call {@link #create(File)} to create an "in memory" implementation of {@link SensorContext} with a filesystem initialized with provided baseDir.
  * <p>
  * You have to manually register inputFiles using:
  * <pre>
  *   sensorContextTester.fileSystem().add(new DefaultInputFile("myProjectKey", "src/Foo.java")
-      .setLanguage("java")
-      .initMetadata("public class Foo {\n}"));
+ * .setLanguage("java")
+ * .initMetadata("public class Foo {\n}"));
  * </pre>
  * <p>
  * Then pass it to your {@link Sensor}. You can then query elements provided by your sensor using methods {@link #allIssues()}, ...
- * 
  */
 public class SensorContextTester implements SensorContext {
 
@@ -108,6 +109,7 @@ public class SensorContextTester implements SensorContext {
   private DefaultFileSystem fs;
   private ActiveRules activeRules;
   private InMemorySensorStorage sensorStorage;
+  private DefaultInputProject project;
   private DefaultInputModule module;
   private SonarRuntime runtime;
   private boolean cancelled;
@@ -117,6 +119,7 @@ public class SensorContextTester implements SensorContext {
     this.fs = new DefaultFileSystem(moduleBaseDir).setEncoding(Charset.defaultCharset());
     this.activeRules = new ActiveRulesBuilder().build();
     this.sensorStorage = new InMemorySensorStorage();
+    this.project = new DefaultInputProject(ProjectDefinition.create().setKey("projectKey").setBaseDir(moduleBaseDir.toFile()).setWorkDir(moduleBaseDir.resolve(".sonar").toFile()));
     this.module = new DefaultInputModule(ProjectDefinition.create().setKey("projectKey").setBaseDir(moduleBaseDir.toFile()).setWorkDir(moduleBaseDir.resolve(".sonar").toFile()));
     this.runtime = SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.SCANNER);
   }
@@ -202,6 +205,11 @@ public class SensorContextTester implements SensorContext {
   }
 
   @Override
+  public InputProject project() {
+    return project;
+  }
+
+  @Override
   public <G extends Serializable> NewMeasure<G> newMeasure() {
     return new DefaultMeasure<>(sensorStorage);
   }
@@ -220,7 +228,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public NewIssue newIssue() {
-    return new DefaultIssue(module, sensorStorage);
+    return new DefaultIssue(project, sensorStorage);
   }
 
   public Collection<Issue> allIssues() {
@@ -229,7 +237,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public NewExternalIssue newExternalIssue() {
-    return new DefaultExternalIssue(module, sensorStorage);
+    return new DefaultExternalIssue(project, sensorStorage);
   }
 
   @Override
@@ -331,9 +339,10 @@ public class SensorContextTester implements SensorContext {
   /**
    * Return list of syntax highlighting applied for a given position in a file. The result is a list because in theory you
    * can apply several styles to the same range.
+   *
    * @param componentKey Key of the file like 'myProjectKey:src/foo.php'
-   * @param line Line you want to query
-   * @param lineOffset Offset you want to query.
+   * @param line         Line you want to query
+   * @param lineOffset   Offset you want to query.
    * @return List of styles applied to this position or empty list if there is no highlighting at this position.
    */
   public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {
@@ -353,9 +362,10 @@ public class SensorContextTester implements SensorContext {
 
   /**
    * Return list of symbol references ranges for the symbol at a given position in a file.
+   *
    * @param componentKey Key of the file like 'myProjectKey:src/foo.php'
-   * @param line Line you want to query
-   * @param lineOffset Offset you want to query.
+   * @param line         Line you want to query
+   * @param lineOffset   Offset you want to query.
    * @return List of references for the symbol (potentially empty) or null if there is no symbol at this position.
    */
   @CheckForNull

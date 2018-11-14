@@ -28,7 +28,9 @@ import org.sonar.api.batch.sensor.SensorContext;
  * Used to create issues and measures on modules. You can access InputModule using {@link SensorContext#module()}
  *
  * @since 5.2
+ * @deprecated since 7.6 modules are deprecated. Use {@link org.sonar.api.scanner.fs.InputProject} instead.
  */
+@Deprecated
 @Immutable
 public interface InputModule extends InputComponent {
 }

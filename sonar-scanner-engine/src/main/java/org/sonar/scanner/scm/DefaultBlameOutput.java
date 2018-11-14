@@ -72,7 +72,7 @@ class DefaultBlameOutput implements BlameOutput {
 
     Builder scmBuilder = ScannerReport.Changesets.newBuilder();
     DefaultInputFile inputFile = (DefaultInputFile) file;
-    scmBuilder.setComponentRef(inputFile.batchId());
+    scmBuilder.setComponentRef(inputFile.scannerId());
     Map<String, Integer> changesetsIdByRevision = new HashMap<>();
 
     int lineId = 1;

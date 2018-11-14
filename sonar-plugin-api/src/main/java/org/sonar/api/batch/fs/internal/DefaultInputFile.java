@@ -66,7 +66,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   // For testing
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator, @Nullable String contents) {
-    super(indexedFile.batchId());
+    super(indexedFile.scannerId());
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
     this.metadata = null;

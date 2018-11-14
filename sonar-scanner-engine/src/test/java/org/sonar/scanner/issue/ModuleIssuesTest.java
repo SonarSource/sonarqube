@@ -32,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
@@ -63,7 +63,7 @@ public class ModuleIssuesTest {
   static final String SQUID_RULE_NAME = "Avoid Cycle";
   private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("squid", "NoSonarCheck");
 
-  private DefaultInputModule projectRoot;
+  private DefaultInputProject project;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -81,7 +81,7 @@ public class ModuleIssuesTest {
 
   @Before
   public void prepare() throws IOException {
-    projectRoot = new DefaultInputModule(ProjectDefinition.create()
+    project = new DefaultInputProject(ProjectDefinition.create()
       .setKey("foo")
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder()));
@@ -91,7 +91,7 @@ public class ModuleIssuesTest {
   public void ignore_null_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     initModuleIssues();
-    DefaultIssue issue = new DefaultIssue(projectRoot)
+    DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -106,7 +106,7 @@ public class ModuleIssuesTest {
     activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(SQUID_RULE_KEY).setQProfileKey("qp-1").build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue(projectRoot)
+    DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
@@ -125,7 +125,7 @@ public class ModuleIssuesTest {
       .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue(projectRoot)
+    DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY)
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL);
@@ -136,7 +136,7 @@ public class ModuleIssuesTest {
 
     assertThat(added).isTrue();
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
   }
 
@@ -145,7 +145,7 @@ public class ModuleIssuesTest {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     initModuleIssues();
 
-    DefaultExternalIssue issue = new DefaultExternalIssue(projectRoot)
+    DefaultExternalIssue issue = new DefaultExternalIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .type(RuleType.BUG)
       .forRule(SQUID_RULE_KEY)
@@ -154,7 +154,7 @@ public class ModuleIssuesTest {
     moduleIssues.initAndAddExternalIssue(issue);
 
     ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
-    verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.batchId()), argument.capture());
+    verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
   }
 
@@ -168,14 +168,14 @@ public class ModuleIssuesTest {
       .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue(projectRoot)
+    DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY);
     when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
   }
 
@@ -189,7 +189,7 @@ public class ModuleIssuesTest {
       .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue(projectRoot)
+    DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(SQUID_RULE_KEY);
 
@@ -211,7 +211,7 @@ public class ModuleIssuesTest {
       .build());
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue(projectRoot)
+    DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(SQUID_RULE_KEY);
 
@@ -236,7 +236,7 @@ public class ModuleIssuesTest {
 
     file.noSonarAt(new HashSet<>(Collections.singletonList(3)));
 
-    DefaultIssue issue = new DefaultIssue(projectRoot)
+    DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(NOSONAR_RULE_KEY);
 
@@ -245,7 +245,7 @@ public class ModuleIssuesTest {
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isTrue();
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), any());
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.scannerId()), any());
   }
 
   /**

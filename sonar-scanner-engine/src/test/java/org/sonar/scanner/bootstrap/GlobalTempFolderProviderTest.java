@@ -51,7 +51,7 @@ public class GlobalTempFolderProviderTest {
     File workingDir = temp.newFolder();
     workingDir.delete();
 
-    TempFolder tempFolder = tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
+    TempFolder tempFolder = tempFolderProvider.provide(new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
@@ -71,7 +71,7 @@ public class GlobalTempFolderProviderTest {
       setFileCreationDate(tmp, creationTime);
     }
 
-    tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
+    tempFolderProvider.provide(new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     // this also checks that all other temps were deleted
     assertThat(getCreatedTempDir(workingDir)).exists();
 
@@ -84,7 +84,7 @@ public class GlobalTempFolderProviderTest {
     File sonarHome = temp.newFolder();
     File workingDir = new File(sonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
 
-    TempFolder tempFolder = tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath())));
+    TempFolder tempFolder = tempFolderProvider.provide(new ScannerProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
@@ -106,7 +106,7 @@ public class GlobalTempFolderProviderTest {
     File defaultSonarHome = new File(userHome.getAbsolutePath(), ".sonar");
     File workingDir = new File(defaultSonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
     try {
-      TempFolder tempFolder = tempFolderProvider.provide(new GlobalProperties(Collections.<String, String>emptyMap()));
+      TempFolder tempFolder = tempFolderProvider.provide(new ScannerProperties(Collections.<String, String>emptyMap()));
       tempFolder.newDir();
       tempFolder.newFile();
       assertThat(getCreatedTempDir(workingDir)).exists();
@@ -120,7 +120,7 @@ public class GlobalTempFolderProviderTest {
   public void dotWorkingDir() throws IOException {
     File sonarHome = temp.getRoot();
     String globalWorkDir = ".";
-    GlobalProperties globalProperties = new GlobalProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath(),
+    ScannerProperties globalProperties = new ScannerProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath(),
       CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkDir));
 
     TempFolder tempFolder = tempFolderProvider.provide(globalProperties);
@@ -136,7 +136,7 @@ public class GlobalTempFolderProviderTest {
     File symlink = temp.newFolder();
     symlink.delete();
     Files.createSymbolicLink(symlink.toPath(), realSonarHome.toPath());
-    GlobalProperties globalProperties = new GlobalProperties(ImmutableMap.of("sonar.userHome", symlink.getAbsolutePath()));
+    ScannerProperties globalProperties = new ScannerProperties(ImmutableMap.of("sonar.userHome", symlink.getAbsolutePath()));
 
     TempFolder tempFolder = tempFolderProvider.provide(globalProperties);
     File newFile = tempFolder.newFile();

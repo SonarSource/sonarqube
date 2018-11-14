@@ -20,12 +20,13 @@
 package org.sonar.scanner.scan;
 
 import org.picocontainer.Startable;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 /**
- * Indexes all modules into {@link DefaultComponentTree}, {@link DefaultInputModuleHierarchy) and {@link InputComponentStore}, using the 
+ * Indexes all modules into {@link DefaultComponentTree}, {@link DefaultInputModuleHierarchy) and {@link InputComponentStore}, using the
  * project definitions provided by the {@link ImmutableProjectReactor}.
  */
 public class ModuleIndexer implements Startable {
@@ -42,6 +43,7 @@ public class ModuleIndexer implements Startable {
   @Override
   public void start() {
     DefaultInputModule root = moduleHierarchy.root();
+    componentStore.put(root);
     indexChildren(root);
   }
 

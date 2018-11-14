@@ -24,19 +24,19 @@ import java.util.Collections;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.core.component.ComponentKeys;
 
 public class SourceHashHolder {
 
-  private final DefaultInputModule module;
+  private final AbstractProjectOrModule module;
   private final DefaultInputFile inputFile;
   private final ServerLineHashesLoader lastSnapshots;
 
   private FileHashes hashedReference;
   private FileHashes hashedSource;
 
-  public SourceHashHolder(DefaultInputModule module, DefaultInputFile inputFile, ServerLineHashesLoader lastSnapshots) {
+  public SourceHashHolder(AbstractProjectOrModule module, DefaultInputFile inputFile, ServerLineHashesLoader lastSnapshots) {
     this.module = module;
     this.inputFile = inputFile;
     this.lastSnapshots = lastSnapshots;

@@ -137,7 +137,7 @@ public class LogListenerTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .put("sonar.verbose", "true")
@@ -160,7 +160,7 @@ public class LogListenerTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -184,7 +184,7 @@ public class LogListenerTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -212,7 +212,7 @@ public class LogListenerTest {
     FileUtils.write(xooFileMeasure, "foo:bar");
 
     try {
-      tester.newTask()
+      tester.newAnalysis()
         .properties(builder
           .put("sonar.sources", "src")
           .build())

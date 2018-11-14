@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Flow;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
@@ -48,7 +48,7 @@ public class MultilineIssuesMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .addActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo");
 
-  private TaskResult result;
+  private AnalysisResult result;
 
   @Before
   public void prepare() throws Exception {
@@ -57,7 +57,7 @@ public class MultilineIssuesMediumTest {
     FileUtils.copyDirectory(projectDir, tmpDir);
 
     result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .execute();
   }
 

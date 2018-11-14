@@ -19,30 +19,24 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.junit.Test;
 
-import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
-public class DroppedPropertyChecker {
+public class ScannerPropertiesTest {
+  @Test
+  public void test_copy_of_properties() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put("foo", "bar");
 
-  private static final Logger LOG = Loggers.get(DroppedPropertyChecker.class);
+    ScannerProperties underTest = new ScannerProperties(map);
+    assertThat(underTest.properties()).containsOnly(entry("foo", "bar"));
+    assertThat(underTest.properties()).isNotSameAs(map);
 
-  private final Map<String, String> settings;
-  private final Map<String, String> properties;
-
-  public DroppedPropertyChecker(Map<String, String> properties, Map<String, String> droppedPropertiesAndMsg) {
-    this.settings = requireNonNull(properties);
-    this.properties = requireNonNull(droppedPropertiesAndMsg);
+    map.put("put", "after_copy");
+    assertThat(underTest.properties()).hasSize(1);
   }
-
-  public void checkDroppedProperties() {
-    for (Map.Entry<String, String> entry : properties.entrySet()) {
-      if (settings.containsKey(entry.getKey())) {
-        LOG.warn("Property '{}' is not supported any more. {}", entry.getKey(), entry.getValue());
-      }
-    }
-  }
-
 }

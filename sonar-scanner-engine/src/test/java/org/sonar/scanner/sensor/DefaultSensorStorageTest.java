@@ -32,6 +32,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
@@ -80,7 +81,7 @@ public class DefaultSensorStorageTest {
   private ScannerReportWriter reportWriter;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
   private BranchConfiguration branchConfiguration;
-  private DefaultInputModule projectRoot;
+  private DefaultInputProject project;
 
   @Before
   public void prepare() throws Exception {
@@ -103,7 +104,7 @@ public class DefaultSensorStorageTest {
       moduleIssues, settings.asConfig(), reportPublisher, measureCache,
       mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics(), branchConfiguration);
 
-    projectRoot = new DefaultInputModule(ProjectDefinition.create()
+    project = new DefaultInputProject(ProjectDefinition.create()
       .setKey("foo")
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder()));
@@ -126,7 +127,7 @@ public class DefaultSensorStorageTest {
   public void should_save_issue() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
-    DefaultIssue issue = new DefaultIssue(projectRoot).at(new DefaultIssueLocation().on(file));
+    DefaultIssue issue = new DefaultIssue(project).at(new DefaultIssueLocation().on(file));
     underTest.store(issue);
 
     ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
@@ -138,7 +139,7 @@ public class DefaultSensorStorageTest {
   public void should_save_external_issue() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
-    DefaultExternalIssue externalIssue = new DefaultExternalIssue(projectRoot).at(new DefaultIssueLocation().on(file));
+    DefaultExternalIssue externalIssue = new DefaultExternalIssue(project).at(new DefaultIssueLocation().on(file));
     underTest.store(externalIssue);
 
     ArgumentCaptor<ExternalIssue> argumentCaptor = ArgumentCaptor.forClass(ExternalIssue.class);
@@ -151,7 +152,7 @@ public class DefaultSensorStorageTest {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
 
-    DefaultIssue issue = new DefaultIssue(projectRoot).at(new DefaultIssueLocation().on(file));
+    DefaultIssue issue = new DefaultIssue(project).at(new DefaultIssueLocation().on(file));
     underTest.store(issue);
 
     verifyZeroInteractions(moduleIssues);
@@ -165,7 +166,7 @@ public class DefaultSensorStorageTest {
     DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(0, 1, TypeOfText.KEYWORD);
     underTest.store(highlighting);
 
-    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.batchId())).isTrue();
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.scannerId())).isTrue();
   }
 
   @Test
@@ -178,7 +179,7 @@ public class DefaultSensorStorageTest {
     DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(0, 1, TypeOfText.KEYWORD);
     underTest.store(highlighting);
 
-    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.batchId())).isFalse();
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.scannerId())).isFalse();
   }
 
   @Test
@@ -226,7 +227,7 @@ public class DefaultSensorStorageTest {
       .onFile(file)
       .addRange(file.selectLine(1)));
 
-    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, file.batchId())).isFalse();
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, file.scannerId())).isFalse();
   }
 
   @Test
@@ -238,7 +239,7 @@ public class DefaultSensorStorageTest {
       .onFile(file)
       .addRange(file.selectLine(1)));
 
-    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, file.batchId())).isTrue();
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, file.scannerId())).isTrue();
   }
 
   @Test

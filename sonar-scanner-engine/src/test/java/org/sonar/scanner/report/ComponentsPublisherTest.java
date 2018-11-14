@@ -233,7 +233,7 @@ public class ComponentsPublisherTest {
     Map<DefaultInputModule, DefaultInputModule> modules = new HashMap<>();
     modules.put(module2, module1);
     modules.put(module1, root);
-    moduleHierarchy = new DefaultInputModuleHierarchy(modules);
+    moduleHierarchy = new DefaultInputModuleHierarchy(root, modules);
     tree.index(module2, module1);
     tree.index(module1, root);
     ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
@@ -674,7 +674,7 @@ public class ComponentsPublisherTest {
     DefaultInputFile mod1_mod2_dir_file = newDefaultInputFile(root.getBaseDir(), mod1_mod2, "dir/Foo.java");
     tree.index(mod1_mod2_dir_file, mod1_mod2_dir);
 
-    moduleHierarchy = new DefaultInputModuleHierarchy(parents);
+    moduleHierarchy = new DefaultInputModuleHierarchy(root, parents);
 
     ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
     publisher.publish(writer);
@@ -682,51 +682,51 @@ public class ComponentsPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
 
     // project root
-    assertThat(reader.readComponent(root.batchId()).getPath()).isEmpty();
-    assertThat(reader.readComponent(root.batchId()).getProjectRelativePath()).isEmpty();
+    assertThat(reader.readComponent(root.scannerId()).getPath()).isEmpty();
+    assertThat(reader.readComponent(root.scannerId()).getProjectRelativePath()).isEmpty();
 
     // file in root
-    assertThat(reader.readComponent(file.batchId()).getPath()).isEqualTo("Foo.java");
-    assertThat(reader.readComponent(file.batchId()).getProjectRelativePath()).isEqualTo("Foo.java");
+    assertThat(reader.readComponent(file.scannerId()).getPath()).isEqualTo("Foo.java");
+    assertThat(reader.readComponent(file.scannerId()).getProjectRelativePath()).isEqualTo("Foo.java");
 
     // dir in root
-    assertThat(reader.readComponent(dir1.batchId()).getPath()).isEqualTo("dir1");
-    assertThat(reader.readComponent(dir1.batchId()).getProjectRelativePath()).isEqualTo("dir1");
+    assertThat(reader.readComponent(dir1.scannerId()).getPath()).isEqualTo("dir1");
+    assertThat(reader.readComponent(dir1.scannerId()).getProjectRelativePath()).isEqualTo("dir1");
 
     // file in dir in root
-    assertThat(reader.readComponent(dir1_file.batchId()).getPath()).isEqualTo("dir1/Foo.java");
-    assertThat(reader.readComponent(dir1_file.batchId()).getProjectRelativePath()).isEqualTo("dir1/Foo.java");
+    assertThat(reader.readComponent(dir1_file.scannerId()).getPath()).isEqualTo("dir1/Foo.java");
+    assertThat(reader.readComponent(dir1_file.scannerId()).getProjectRelativePath()).isEqualTo("dir1/Foo.java");
 
     // dir in dir in root
-    assertThat(reader.readComponent(dir1_dir1.batchId()).getPath()).isEqualTo("dir1/dir1");
-    assertThat(reader.readComponent(dir1_dir1.batchId()).getProjectRelativePath()).isEqualTo("dir1/dir1");
+    assertThat(reader.readComponent(dir1_dir1.scannerId()).getPath()).isEqualTo("dir1/dir1");
+    assertThat(reader.readComponent(dir1_dir1.scannerId()).getProjectRelativePath()).isEqualTo("dir1/dir1");
 
     // module in root
-    assertThat(reader.readComponent(mod1.batchId()).getPath()).isEqualTo("mod1");
-    assertThat(reader.readComponent(mod1.batchId()).getProjectRelativePath()).isEqualTo("mod1");
+    assertThat(reader.readComponent(mod1.scannerId()).getPath()).isEqualTo("mod1");
+    assertThat(reader.readComponent(mod1.scannerId()).getProjectRelativePath()).isEqualTo("mod1");
 
     // dir in module in root
-    assertThat(reader.readComponent(mod1_dir2.batchId()).getPath()).isEqualTo("dir2");
-    assertThat(reader.readComponent(mod1_dir2.batchId()).getProjectRelativePath()).isEqualTo("mod1/dir2");
+    assertThat(reader.readComponent(mod1_dir2.scannerId()).getPath()).isEqualTo("dir2");
+    assertThat(reader.readComponent(mod1_dir2.scannerId()).getProjectRelativePath()).isEqualTo("mod1/dir2");
 
     // file in dir in module in root
-    assertThat(reader.readComponent(mod1_dir2_file.batchId()).getPath()).isEqualTo("dir2/Foo.java");
-    assertThat(reader.readComponent(mod1_dir2_file.batchId()).getProjectRelativePath()).isEqualTo("mod1/dir2/Foo.java");
+    assertThat(reader.readComponent(mod1_dir2_file.scannerId()).getPath()).isEqualTo("dir2/Foo.java");
+    assertThat(reader.readComponent(mod1_dir2_file.scannerId()).getProjectRelativePath()).isEqualTo("mod1/dir2/Foo.java");
 
     // module in module
-    assertThat(reader.readComponent(mod1_mod2.batchId()).getPath()).isEqualTo("mod2");
-    assertThat(reader.readComponent(mod1_mod2.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2");
+    assertThat(reader.readComponent(mod1_mod2.scannerId()).getPath()).isEqualTo("mod2");
+    assertThat(reader.readComponent(mod1_mod2.scannerId()).getProjectRelativePath()).isEqualTo("mod1/mod2");
 
     // file in module in module
-    assertThat(reader.readComponent(mod1_mod2_file.batchId()).getPath()).isEqualTo("Foo.java");
-    assertThat(reader.readComponent(mod1_mod2_file.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2/Foo.java");
+    assertThat(reader.readComponent(mod1_mod2_file.scannerId()).getPath()).isEqualTo("Foo.java");
+    assertThat(reader.readComponent(mod1_mod2_file.scannerId()).getProjectRelativePath()).isEqualTo("mod1/mod2/Foo.java");
 
     // dir in module in module
-    assertThat(reader.readComponent(mod1_mod2_dir.batchId()).getPath()).isEqualTo("dir");
-    assertThat(reader.readComponent(mod1_mod2_dir.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2/dir");
+    assertThat(reader.readComponent(mod1_mod2_dir.scannerId()).getPath()).isEqualTo("dir");
+    assertThat(reader.readComponent(mod1_mod2_dir.scannerId()).getProjectRelativePath()).isEqualTo("mod1/mod2/dir");
 
     // file in dir in module in module
-    assertThat(reader.readComponent(mod1_mod2_dir_file.batchId()).getPath()).isEqualTo("dir/Foo.java");
-    assertThat(reader.readComponent(mod1_mod2_dir_file.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2/dir/Foo.java");
+    assertThat(reader.readComponent(mod1_mod2_dir_file.scannerId()).getPath()).isEqualTo("dir/Foo.java");
+    assertThat(reader.readComponent(mod1_mod2_dir_file.scannerId()).getProjectRelativePath()).isEqualTo("mod1/mod2/dir/Foo.java");
   }
 }

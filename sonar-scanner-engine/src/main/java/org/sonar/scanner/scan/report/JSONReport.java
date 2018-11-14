@@ -41,6 +41,7 @@ import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -76,7 +77,7 @@ public class JSONReport implements Reporter {
   private final InputComponentTree inputComponentTree;
 
   public JSONReport(InputModuleHierarchy moduleHierarchy, Configuration settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
-    DefaultInputModule rootModule, InputComponentStore componentStore, InputComponentTree inputComponentTree) {
+                    DefaultInputModule rootModule, InputComponentStore componentStore, InputComponentTree inputComponentTree) {
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.fileSystem = fileSystem;
@@ -157,14 +158,14 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private DefaultInputModule getModule(InputComponent component) {
+  private AbstractProjectOrModule getModule(InputComponent component) {
     if (component.isFile()) {
-      return (DefaultInputModule) inputComponentTree.getParent(inputComponentTree.getParent(component));
+      return (AbstractProjectOrModule) inputComponentTree.getParent(inputComponentTree.getParent(component));
     }
     if (component instanceof InputDir) {
-      return (DefaultInputModule) inputComponentTree.getParent(component);
+      return (AbstractProjectOrModule) inputComponentTree.getParent(component);
     }
-    return (DefaultInputModule) component;
+    return (AbstractProjectOrModule) component;
   }
 
   private void writeJsonComponents(JsonWriter json) {
@@ -196,13 +197,13 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private void writeJsonModuleComponents(JsonWriter json, DefaultInputModule module) {
+  private void writeJsonModuleComponents(JsonWriter json, DefaultInputModule moduleOrProject) {
     json
       .beginObject()
-      .prop("key", module.definition().getKeyWithBranch())
-      .prop("path", moduleHierarchy.relativePath(module))
+      .prop("key", moduleOrProject.definition().getKeyWithBranch())
+      .prop("path", moduleHierarchy.relativePath(moduleOrProject))
       .endObject();
-    for (DefaultInputModule subModule : moduleHierarchy.children(module)) {
+    for (DefaultInputModule subModule : moduleHierarchy.children(moduleOrProject)) {
       writeJsonModuleComponents(json, subModule);
     }
   }

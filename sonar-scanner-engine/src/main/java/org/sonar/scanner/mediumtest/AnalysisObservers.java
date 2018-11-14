@@ -21,23 +21,23 @@ package org.sonar.scanner.mediumtest;
 
 import org.sonar.scanner.scan.ProjectScanContainer;
 
-public class ScanTaskObservers {
+public class AnalysisObservers {
 
-  private ScanTaskObserver[] observers;
+  private AnalysisObserver[] observers;
   private ProjectScanContainer projectScanContainer;
 
-  public ScanTaskObservers(ProjectScanContainer projectScanContainer, ScanTaskObserver... observers) {
+  public AnalysisObservers(ProjectScanContainer projectScanContainer, AnalysisObserver... observers) {
     this.projectScanContainer = projectScanContainer;
     this.observers = observers;
   }
 
-  public ScanTaskObservers(ProjectScanContainer projectScanContainer) {
-    this(projectScanContainer, new ScanTaskObserver[0]);
+  public AnalysisObservers(ProjectScanContainer projectScanContainer) {
+    this(projectScanContainer, new AnalysisObserver[0]);
   }
 
   public void notifyEndOfScanTask() {
-    for (ScanTaskObserver scanTaskObserver : observers) {
-      scanTaskObserver.scanTaskCompleted(projectScanContainer);
+    for (AnalysisObserver analysisObserver : observers) {
+      analysisObserver.analysisCompleted(projectScanContainer);
     }
   }
 

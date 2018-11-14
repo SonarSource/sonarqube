@@ -26,7 +26,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.MutableGlobalSettings;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.repository.ProjectRepositories;
 
 import static java.util.Objects.requireNonNull;
@@ -40,10 +40,10 @@ public class MutableProjectSettings extends Settings {
   private final GlobalAnalysisMode mode;
   private final Map<String, String> properties = new HashMap<>();
 
-  public MutableProjectSettings(ProjectReactor reactor, MutableGlobalSettings mutableGlobalSettings, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
-    super(mutableGlobalSettings.getDefinitions(), mutableGlobalSettings.getEncryption());
+  public MutableProjectSettings(ProjectReactor reactor, GlobalConfiguration globalConfig, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
+    super(globalConfig.getDefinitions(), globalConfig.getEncryption());
     this.mode = mode;
-    addProperties(mutableGlobalSettings.getProperties());
+    addProperties(globalConfig.getProperties());
     addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
     addProperties(reactor.getRoot().properties());
   }

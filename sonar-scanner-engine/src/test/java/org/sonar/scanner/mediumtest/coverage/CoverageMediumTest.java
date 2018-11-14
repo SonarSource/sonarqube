@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -32,8 +31,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,14 +42,14 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class CoverageMediumTest {
 
-  private final List<String> logs = new ArrayList<>();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
-    .setLogOutput((msg, level) -> logs.add(msg))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way");
 
@@ -64,7 +65,7 @@ public class CoverageMediumTest {
     FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -100,7 +101,7 @@ public class CoverageMediumTest {
     File xooItCoverageFile = new File(srcDir, "sample.xoo.itcoverage");
     FileUtils.write(xooItCoverageFile, "2:2:2:1\n3:1\n5:0", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -138,7 +139,7 @@ public class CoverageMediumTest {
     FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -178,7 +179,7 @@ public class CoverageMediumTest {
     FileUtils.write(xooFileB, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(xooUtCoverageFileB, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -195,7 +196,7 @@ public class CoverageMediumTest {
     InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
     assertThat(result.coverageFor(fileB, 2)).isNull();
 
-    assertThat(logs).contains("File 'moduleA/src/sample.xoo' was excluded from coverage because patterns are still " +
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("File 'moduleA/src/sample.xoo' was excluded from coverage because patterns are still " +
       "evaluated using module relative paths but this is deprecated. Please update 'sonar.coverage.exclusions' " +
       "configuration so that patterns refer to project relative paths");
   }
@@ -221,7 +222,7 @@ public class CoverageMediumTest {
     FileUtils.write(xooFileB, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(xooUtCoverageFileB, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -238,9 +239,9 @@ public class CoverageMediumTest {
     InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
     assertThat(result.coverageFor(fileB, 2)).isNull();
 
-    assertThat(logs).contains("Defining coverage exclusions at module level is deprecated. " +
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Defining coverage exclusions at module level is deprecated. " +
       "Move 'sonar.coverage.exclusions' from module 'moduleB' " +
-        "to the root project and update patterns to refer to project relative paths");
+      "to the root project and update patterns to refer to project relative paths");
   }
 
   @Test
@@ -255,7 +256,7 @@ public class CoverageMediumTest {
     FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(measuresFile, "executable_lines_data:2=1;3=1;4=0", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -300,7 +301,7 @@ public class CoverageMediumTest {
     FileUtils.write(xooFile2, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(measuresFile2, "executable_lines_data:2=1;3=1;4=0", StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())

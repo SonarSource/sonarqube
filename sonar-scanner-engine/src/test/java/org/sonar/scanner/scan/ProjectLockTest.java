@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Before;
@@ -27,12 +28,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ProjectLockTest {
   @Rule
@@ -41,24 +40,19 @@ public class ProjectLockTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
   private ProjectLock lock;
+  private File baseDir;
+  private File worDir;
 
   @Before
-  public void setUp() {
-    lock = setUpTest(tempFolder.getRoot());
-  }
-
-  private ProjectLock setUpTest(File file) {
-    InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
-    DefaultInputModule root = mock(DefaultInputModule.class);
-    when(hierarchy.root()).thenReturn(root);
-    when(root.getWorkDir()).thenReturn(file.toPath());
-
-    return new ProjectLock(hierarchy);
+  public void setUp() throws IOException {
+    baseDir = tempFolder.newFolder();
+    worDir = new File(baseDir, ".sonar");
+    lock = new ProjectLock(new DefaultInputProject(ProjectDefinition.create().setBaseDir(baseDir).setWorkDir(worDir)));
   }
 
   @Test
   public void tryLock() {
-    Path lockFilePath = tempFolder.getRoot().toPath().resolve(DirectoryLock.LOCK_FILE_NAME);
+    Path lockFilePath = worDir.toPath().resolve(DirectoryLock.LOCK_FILE_NAME);
     lock.tryLock();
     assertThat(Files.exists(lockFilePath)).isTrue();
     assertThat(Files.isRegularFile(lockFilePath)).isTrue();

@@ -48,7 +48,7 @@ public class TasksMediumTest {
 
   @Test
   public void listTasksIncludingBroken() throws Exception {
-    tester.newTask()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "list").build())
       .execute();
@@ -70,7 +70,7 @@ public class TasksMediumTest {
     thrown.expectMessage(
       "Unable to load component class org.sonar.scanner.mediumtest.tasks.TasksMediumTest$BrokenTask");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "broken").build())
       .execute();
@@ -78,7 +78,7 @@ public class TasksMediumTest {
 
   @Test(expected = MessageException.class)
   public void unsupportedTask() throws Exception {
-    tester.newTask()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "foo").build())
       .execute();

@@ -25,8 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.utils.TempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,22 +38,19 @@ public class AnalysisTempFolderProviderTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private AnalysisTempFolderProvider tempFolderProvider;
-  private InputModuleHierarchy moduleHierarchy;
+  DefaultInputProject project = mock(DefaultInputProject.class);
 
   @Before
   public void setUp() {
     tempFolderProvider = new AnalysisTempFolderProvider();
-    moduleHierarchy = mock(InputModuleHierarchy.class);
-    DefaultInputModule module = mock(DefaultInputModule.class);
-    when(moduleHierarchy.root()).thenReturn(module);
-    when(module.getWorkDir()).thenReturn(temp.getRoot().toPath());
+    when(project.getWorkDir()).thenReturn(temp.getRoot().toPath());
   }
 
   @Test
   public void createTempFolder() throws IOException {
     File defaultDir = new File(temp.getRoot(), AnalysisTempFolderProvider.TMP_NAME);
 
-    TempFolder tempFolder = tempFolderProvider.provide(moduleHierarchy);
+    TempFolder tempFolder = tempFolderProvider.provide(project);
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(defaultDir).exists();

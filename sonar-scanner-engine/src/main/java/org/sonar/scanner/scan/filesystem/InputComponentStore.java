@@ -33,23 +33,21 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 /**
- * Store of all files and dirs. This cache is shared amongst all project modules. Inclusion and
+ * Store of all files and dirs. Inclusion and
  * exclusion patterns are already applied.
  */
-@ScannerSide
 public class InputComponentStore {
 
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
@@ -59,17 +57,16 @@ public class InputComponentStore {
   private final Map<String, InputDir> globalInputDirCache = new HashMap<>();
   private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
   // indexed by key with branch
-  private final Map<String, InputModule> inputModuleCache = new HashMap<>();
+  private final Map<String, AbstractProjectOrModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
-  private final InputModule root;
+  private final InputProject project;
   private final BranchConfiguration branchConfiguration;
 
-  public InputComponentStore(DefaultInputModule root, BranchConfiguration branchConfiguration) {
-    this.root = root;
+  public InputComponentStore(InputProject project, BranchConfiguration branchConfiguration) {
+    this.project = project;
     this.branchConfiguration = branchConfiguration;
-    this.put(root);
   }
 
   public Collection<InputComponent> all() {
@@ -102,10 +99,6 @@ public class InputComponentStore {
 
   public InputComponent getByKey(String key) {
     return inputComponents.get(key);
-  }
-
-  public InputModule root() {
-    return root;
   }
 
   public Iterable<InputFile> filesByModule(String moduleKey) {
@@ -167,7 +160,7 @@ public class InputComponentStore {
   }
 
   private Path getProjectBaseDir() {
-    return ((DefaultInputModule) root).getBaseDir();
+    return ((AbstractProjectOrModule) project).getBaseDir();
   }
 
   @CheckForNull
@@ -191,11 +184,11 @@ public class InputComponentStore {
   }
 
   @CheckForNull
-  public InputModule getModule(String moduleKeyWithBranch) {
+  public AbstractProjectOrModule getModule(String moduleKeyWithBranch) {
     return inputModuleCache.get(moduleKeyWithBranch);
   }
 
-  public void put(DefaultInputModule inputModule) {
+  public void put(AbstractProjectOrModule inputModule) {
     String key = inputModule.key();
     String keyWithBranch = inputModule.getKeyWithBranch();
     Preconditions.checkNotNull(inputModule);

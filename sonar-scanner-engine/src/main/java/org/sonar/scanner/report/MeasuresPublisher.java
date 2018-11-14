@@ -94,7 +94,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
       Iterable<DefaultMeasure<?>> scannerMeasures = measureCache.byComponentKey(component.key());
       if (scannerMeasures.iterator().hasNext()) {
-        writer.writeComponentMeasures(component.batchId(), StreamSupport.stream(scannerMeasures.spliterator(), false)
+        writer.writeComponentMeasures(component.scannerId(), StreamSupport.stream(scannerMeasures.spliterator(), false)
           .map(input -> {
             if (input.value() == null) {
               throw new IllegalArgumentException(

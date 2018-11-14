@@ -36,13 +36,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.LogOutputRecorder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.global.GlobalSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -103,7 +103,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -138,7 +138,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -159,7 +159,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -182,7 +182,7 @@ public class FileSystemMediumTest {
     // the fail-fast mechanism in the scanner should have prevented reaching this point.
     thrown.expect(IllegalStateException.class);
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -198,7 +198,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -222,7 +222,7 @@ public class FileSystemMediumTest {
     File javaFile = new File(srcDir, "sample.java");
     FileUtils.write(javaFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -248,7 +248,7 @@ public class FileSystemMediumTest {
     File javaFile = new File(srcDir, "sample.java");
     FileUtils.write(javaFile, "Sample xoo\ncontent");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -278,7 +278,7 @@ public class FileSystemMediumTest {
     Path javaFile = mainDir.resolve("sample.java");
     Files.write(javaFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src/main")
         .put("sonar.tests", "src/test")
@@ -307,7 +307,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.unknown");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -340,7 +340,7 @@ public class FileSystemMediumTest {
     new Random().nextBytes(b);
     FileUtils.writeByteArrayToFile(unknownFile, b);
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -366,7 +366,7 @@ public class FileSystemMediumTest {
     File unknownFile = new File(srcDir, "myfile.binary");
     FileUtils.write(unknownFile, "some text");
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -390,7 +390,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -426,17 +426,17 @@ public class FileSystemMediumTest {
     Path emptyDirRelative = Paths.get("src", "emptydir");
     Files.createDirectories(emptyDirRelative);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
       .execute();
 
     DefaultInputFile unknownInputFile = (DefaultInputFile) result.inputFile("src/unknown/file.notanalyzed");
-    InputModule root = result.root();
+    InputProject project = result.project();
 
     assertThat(unknownInputFile.isPublished()).isFalse();
-    assertThat(result.getReportComponent(root.key())).isNotNull();
+    assertThat(result.getReportComponent(project.key())).isNotNull();
 
     // no issues on empty dir
     InputDir emptyInputDir = result.inputDir(emptyDirRelative.toString());
@@ -455,7 +455,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -480,7 +480,7 @@ public class FileSystemMediumTest {
       FileUtils.write(xooFile, StringUtils.repeat(StringUtils.repeat("a", 100) + "\n", ruleCount / 1000));
     }
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -498,7 +498,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(test, "sampleTest.xoo");
     FileUtils.write(xooFile, "Sample test xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "")
         .put("sonar.tests", "test")
@@ -532,7 +532,7 @@ public class FileSystemMediumTest {
     File xooTestFile2 = new File(testDir, "sampleTest.xoo");
     FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src,another.xoo")
         .put("sonar.tests", "test,sampleTest2.xoo")
@@ -563,7 +563,7 @@ public class FileSystemMediumTest {
     File xooTestFile2 = new File(testDir, "sampleTest.xoo");
     FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src,another.xoo")
         .put("sonar.tests", "test,sampleTest2.xoo")
@@ -587,7 +587,7 @@ public class FileSystemMediumTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src,src/sample.xoo")
         .build())
@@ -605,7 +605,7 @@ public class FileSystemMediumTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
-    tester.newTask()
+    tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "module1/src")
         .put("sonar.modules", "module1")
@@ -620,8 +620,8 @@ public class FileSystemMediumTest {
   public void scanProjectWithSourceSymlink() {
     assumeTrue(!System2.INSTANCE.isOsWindows());
     File projectDir = new File("test-resources/mediumtest/xoo/sample-with-symlink");
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .execute();
 
     assertThat(result.inputFiles()).hasSize(3);
@@ -635,8 +635,8 @@ public class FileSystemMediumTest {
     // To please the quality gate, don't use assumeTrue, or the test will be reported as skipped
     if (System2.INSTANCE.isOsWindows()) {
       File projectDir = new File("test-resources/mediumtest/xoo/sample");
-      TaskResult result = tester
-        .newScanTask(new File(projectDir, "sonar-project.properties"))
+      AnalysisResult result = tester
+        .newAnalysis(new File(projectDir, "sonar-project.properties"))
         .property("sonar.sources", "XOURCES")
         .property("sonar.tests", "TESTX")
         .execute();
@@ -660,7 +660,7 @@ public class FileSystemMediumTest {
     File otherFile = new File(srcDir, "sample.other");
     FileUtils.write(otherFile, "Sample other\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -675,8 +675,8 @@ public class FileSystemMediumTest {
   @Test
   public void scanMultiModuleProject() {
     File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
@@ -686,8 +686,8 @@ public class FileSystemMediumTest {
   @Test
   public void global_sensor_should_see_project_relative_paths() {
     File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property(GlobalSensor.ENABLE_PROP, "true")
       .execute();
 
@@ -719,7 +719,7 @@ public class FileSystemMediumTest {
     File xooTestFile2 = new File(baseDir, "sampleTest,2.xoo");
     FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src,\"another,2.xoo\"")
         .put("sonar.tests", "\"test\",\"sampleTest,2.xoo\"")
@@ -741,7 +741,7 @@ public class FileSystemMediumTest {
     File xooFile2 = new File(srcDir, "sample.xoo2");
     FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
@@ -750,7 +750,7 @@ public class FileSystemMediumTest {
     assertThat(result.inputFiles()).hasSize(2);
 
     try {
-      result = tester.newTask()
+      result = tester.newAnalysis()
         .properties(builder
           .put("sonar.lang.patterns.xoo2", "**/*.xoo")
           .build())
@@ -764,7 +764,7 @@ public class FileSystemMediumTest {
     }
 
     // SONAR-9561
-    result = tester.newTask()
+    result = tester.newAnalysis()
       .properties(builder
         .put("sonar.exclusions", "**/sample.xoo")
         .build())

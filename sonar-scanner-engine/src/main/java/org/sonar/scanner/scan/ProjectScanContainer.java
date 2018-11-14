@@ -36,7 +36,6 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.ProjectAnalysisInfo;
-import org.sonar.scanner.analysis.AnalysisProperties;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
@@ -56,7 +55,7 @@ import org.sonar.scanner.issue.tracking.IssueTransition;
 import org.sonar.scanner.issue.tracking.LocalIssueTracking;
 import org.sonar.scanner.issue.tracking.ServerIssueRepository;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
-import org.sonar.scanner.mediumtest.ScanTaskObservers;
+import org.sonar.scanner.mediumtest.AnalysisObservers;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.report.ActiveRulesPublisher;
@@ -93,8 +92,8 @@ import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.branch.ProjectPullRequestsProvider;
-import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
-import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
+import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
@@ -111,11 +110,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
 
-  private final AnalysisProperties props;
-
-  public ProjectScanContainer(ComponentContainer globalContainer, AnalysisProperties props) {
+  public ProjectScanContainer(ComponentContainer globalContainer) {
     super(globalContainer);
-    this.props = props;
   }
 
   @Override
@@ -136,7 +132,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addScannerComponents() {
     add(
-      props,
       ProjectReactorBuilder.class,
       ScanProperties.class,
       WorkDirectoriesInitializer.class,
@@ -160,11 +155,12 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // file system
       ModuleIndexer.class,
-      new InputComponentStoreProvider(),
+      InputComponentStore.class,
       PathResolver.class,
+      new InputProjectProvider(),
       new InputModuleHierarchyProvider(),
       DefaultComponentTree.class,
-      BatchIdGenerator.class,
+      ScannerComponentIdGenerator.class,
       new ScmChangedFilesProvider(),
       StatusDetection.class,
 
@@ -221,7 +217,7 @@ public class ProjectScanContainer extends ComponentContainer {
       SonarCpdBlockIndex.class,
       JavaCpdBlockIndexerSensor.class,
 
-      ScanTaskObservers.class);
+      AnalysisObservers.class);
 
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
@@ -296,7 +292,7 @@ public class ProjectScanContainer extends ComponentContainer {
     scanRecursively(tree, tree.root(), analysisMode);
 
     if (analysisMode.isMediumTest()) {
-      getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
+      getComponentByType(AnalysisObservers.class).notifyEndOfScanTask();
     }
   }
 

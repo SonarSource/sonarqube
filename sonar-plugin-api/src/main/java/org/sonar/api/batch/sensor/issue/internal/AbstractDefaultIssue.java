@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
@@ -45,15 +46,15 @@ import static java.util.stream.Collectors.toList;
 public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> extends DefaultStorable {
   protected IssueLocation primaryLocation;
   protected List<List<IssueLocation>> flows = new ArrayList<>();
-  protected DefaultInputModule projectRoot;
+  protected DefaultInputProject project;
 
-  protected AbstractDefaultIssue(DefaultInputModule projectRoot) {
-    this(projectRoot, null);
+  protected AbstractDefaultIssue(DefaultInputProject project) {
+    this(project, null);
   }
 
-  public AbstractDefaultIssue(DefaultInputModule projectRoot, @Nullable SensorStorage storage) {
+  public AbstractDefaultIssue(DefaultInputProject project, @Nullable SensorStorage storage) {
     super(storage);
-    this.projectRoot = projectRoot;
+    this.project = project;
   }
 
   public IssueLocation primaryLocation() {
@@ -98,16 +99,16 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
 
     if (component instanceof DefaultInputDir) {
       DefaultInputDir dirComponent = (DefaultInputDir) component;
-      dirOrModulePath = Optional.of(projectRoot.getBaseDir().relativize(dirComponent.path()));
-    } else if (component instanceof DefaultInputModule && !Objects.equals(projectRoot.key(), component.key())) {
+      dirOrModulePath = Optional.of(project.getBaseDir().relativize(dirComponent.path()));
+    } else if (component instanceof DefaultInputModule && !Objects.equals(project.key(), component.key())) {
       DefaultInputModule moduleComponent = (DefaultInputModule) component;
-      dirOrModulePath = Optional.of(projectRoot.getBaseDir().relativize(moduleComponent.getBaseDir()));
+      dirOrModulePath = Optional.of(project.getBaseDir().relativize(moduleComponent.getBaseDir()));
     }
 
     if (dirOrModulePath.isPresent()) {
       String path = PathUtils.sanitize(dirOrModulePath.get().toString());
       DefaultIssueLocation fixedLocation = new DefaultIssueLocation();
-      fixedLocation.on(projectRoot);
+      fixedLocation.on(project);
       StringBuilder fullMessage = new StringBuilder();
       if (!isNullOrEmpty(path)) {
         fullMessage.append("[").append(path).append("] ");

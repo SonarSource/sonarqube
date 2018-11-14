@@ -33,14 +33,13 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalConfigurationProvider;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.bootstrap.MutableGlobalSettings;
+import org.sonar.scanner.bootstrap.GlobalServerSettings;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -84,7 +83,7 @@ public class MutableModuleSettingsTest {
 
   @Test
   public void test_loading_of_module_settings() {
-    GlobalConfiguration globalSettings = newGlobalSettings(ImmutableMap.of(
+    GlobalConfiguration globalConfig = newGlobalConfig(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"));
 
@@ -92,7 +91,7 @@ public class MutableModuleSettingsTest {
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    MutableModuleSettings moduleSettings = new MutableModuleSettings(new MutableGlobalSettings(globalSettings), module, projRepos, mode);
+    MutableModuleSettings moduleSettings = new MutableModuleSettings(globalConfig, module, projRepos, mode);
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -102,7 +101,7 @@ public class MutableModuleSettingsTest {
   // SONAR-6386
   @Test
   public void test_loading_of_parent_module_settings_for_new_module() {
-    GlobalConfiguration globalSettings = newGlobalSettings(ImmutableMap.of(
+    GlobalConfiguration globalConfig = newGlobalConfig(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"));
 
@@ -111,7 +110,7 @@ public class MutableModuleSettingsTest {
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     ProjectDefinition.create().setKey("struts").addSubProject(module);
 
-    MutableModuleSettings moduleSettings = new MutableModuleSettings(new MutableGlobalSettings(globalSettings), module, projRepos, mode);
+    MutableModuleSettings moduleSettings = new MutableModuleSettings(globalConfig, module, projRepos, mode);
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -120,13 +119,13 @@ public class MutableModuleSettingsTest {
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    GlobalConfiguration globalSettings = newGlobalSettings(ImmutableMap.of("sonar.foo.secured", "bar"));
+    GlobalConfiguration globalConfig = newGlobalConfig(ImmutableMap.of("sonar.foo.secured", "bar"));
 
     ProjectRepositories projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    MutableModuleSettings moduleSettings = new MutableModuleSettings(new MutableGlobalSettings(globalSettings), module, projSettingsRepo, mode);
+    MutableModuleSettings moduleSettings = new MutableModuleSettings(globalConfig, module, projSettingsRepo, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -134,7 +133,7 @@ public class MutableModuleSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_issues() {
-    GlobalConfiguration globalSettings = newGlobalSettings(ImmutableMap.of(
+    GlobalConfiguration globalConfig = newGlobalConfig(ImmutableMap.of(
       "sonar.foo.secured", "bar"));
 
     ProjectRepositories projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
@@ -143,7 +142,7 @@ public class MutableModuleSettingsTest {
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    MutableModuleSettings moduleSettings = new MutableModuleSettings(new MutableGlobalSettings(globalSettings), module, projSettingsRepo, mode);
+    MutableModuleSettings moduleSettings = new MutableModuleSettings(globalConfig, module, projSettingsRepo, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 
@@ -154,9 +153,9 @@ public class MutableModuleSettingsTest {
     moduleSettings.getString("sonar.foo.secured");
   }
 
-  private GlobalConfiguration newGlobalSettings(Map<String, String> props) {
-    GlobalProperties globalProps = new GlobalProperties(props);
-    return new GlobalConfigurationProvider().provide(mock(SettingsLoader.class), globalProps, new PropertyDefinitions(),
-      new GlobalAnalysisMode(globalProps));
+  private GlobalConfiguration newGlobalConfig(Map<String, String> props) {
+    ScannerProperties scannerProps = new ScannerProperties(props);
+    return new GlobalConfigurationProvider().provide(mock(GlobalServerSettings.class), scannerProps, new PropertyDefinitions(),
+      new GlobalAnalysisMode(scannerProps));
   }
 }

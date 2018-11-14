@@ -32,7 +32,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +62,7 @@ public class HighlightingMediumTest {
     FileUtils.write(xooFile, "Sample xoo\ncontent plop");
     FileUtils.write(xoohighlightingFile, "0:10:s\n11:18:k");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
@@ -91,7 +91,7 @@ public class HighlightingMediumTest {
 
     exception.expect(UnsupportedOperationException.class);
     exception.expectMessage("Trying to save highlighting twice for the same file is not supported");
-    tester.newTask()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
@@ -131,7 +131,7 @@ public class HighlightingMediumTest {
       }
     });
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")

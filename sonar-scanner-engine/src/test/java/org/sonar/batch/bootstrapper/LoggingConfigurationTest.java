@@ -42,29 +42,13 @@ public class LoggingConfigurationTest {
 
   @Test
   public void testSetVerboseAnalysis() {
-    Map<String, String> globalProps = Maps.newHashMap();
-    LoggingConfiguration conf = new LoggingConfiguration(null).setProperties(globalProps);
+    Map<String, String> props = Maps.newHashMap();
+    LoggingConfiguration conf = new LoggingConfiguration(null).setProperties(props);
     assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
 
-    Map<String, String> analysisProperties = Maps.newHashMap();
-    analysisProperties.put("sonar.verbose", "true");
-
-    conf.setProperties(analysisProperties, globalProps);
+    props.put("sonar.verbose", "true");
+    conf.setProperties(props);
     assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_VERBOSE);
-  }
-
-  @Test
-  public void testOverrideVerbose() {
-    Map<String, String> globalProps = Maps.newHashMap();
-    globalProps.put("sonar.verbose", "true");
-    LoggingConfiguration conf = new LoggingConfiguration(null).setProperties(globalProps);
-    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_VERBOSE);
-
-    Map<String, String> analysisProperties = Maps.newHashMap();
-    analysisProperties.put("sonar.verbose", "false");
-
-    conf.setProperties(analysisProperties, globalProps);
-    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
   }
 
   @Test

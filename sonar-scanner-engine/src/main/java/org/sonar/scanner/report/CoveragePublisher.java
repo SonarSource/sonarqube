@@ -58,7 +58,7 @@ public class CoveragePublisher implements ReportPublisherStep {
       applyLineMeasure(inputFile.key(), lineCount, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         (value, builder) -> builder.setCoveredConditions(Integer.parseInt(value)));
 
-      writer.writeComponentCoverage(inputFile.batchId(), coveragePerLine.values().stream().map(BuildCoverage.INSTANCE).collect(Collectors.toList()));
+      writer.writeComponentCoverage(inputFile.scannerId(), coveragePerLine.values().stream().map(BuildCoverage.INSTANCE).collect(Collectors.toList()));
     }
   }
 

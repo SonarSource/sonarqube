@@ -27,7 +27,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
@@ -52,6 +52,7 @@ import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
+import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.sensor.noop.NoOpNewAdHocRule;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
@@ -77,13 +78,14 @@ public class DefaultSensorContext implements SensorContext {
   private final ActiveRules activeRules;
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
+  private final DefaultInputProject project;
   private final InputModule module;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
-  private final InputModuleHierarchy hierarchy;
 
-  public DefaultSensorContext(InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime, InputModuleHierarchy hierarchy) {
+  public DefaultSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
+                              AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+    this.project = project;
     this.module = module;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -92,7 +94,6 @@ public class DefaultSensorContext implements SensorContext {
     this.analysisMode = analysisMode;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
-    this.hierarchy = hierarchy;
   }
 
   @Override
@@ -121,6 +122,11 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
+  public InputProject project() {
+    return project;
+  }
+
+  @Override
   public Version getSonarQubeVersion() {
     return sonarRuntime.getApiVersion();
   }
@@ -137,7 +143,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewIssue newIssue() {
-    return new DefaultIssue(hierarchy.root(), sensorStorage);
+    return new DefaultIssue(project, sensorStorage);
   }
 
   @Override
@@ -145,7 +151,7 @@ public class DefaultSensorContext implements SensorContext {
     if (analysisMode.isIssues()) {
       return NO_OP_NEW_EXTERNAL_ISSUE;
     }
-    return new DefaultExternalIssue(hierarchy.root(), sensorStorage);
+    return new DefaultExternalIssue(project, sensorStorage);
   }
 
   @Override

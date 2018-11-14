@@ -177,7 +177,7 @@ public class CpdExecutor {
           }
 
         })::iterator;
-    publisher.getWriter().writeComponentDuplications(component.batchId(), reportDuplications);
+    publisher.getWriter().writeComponentDuplications(component.scannerId(), reportDuplications);
   }
 
   private Optional<FileBlocks> toFileBlocks(String componentKey, Collection<Block> fileBlocks) {
@@ -211,7 +211,7 @@ public class CpdExecutor {
         String componentKey = duplicate.getResourceId();
         if (!component.key().equals(componentKey)) {
           DefaultInputComponent sameProjectComponent = (DefaultInputComponent) componentStore.getByKey(componentKey);
-          blockBuilder.setOtherFileRef(sameProjectComponent.batchId());
+          blockBuilder.setOtherFileRef(sameProjectComponent.scannerId());
         }
         dupBuilder.addDuplicate(blockBuilder
           .setRange(ScannerReport.TextRange.newBuilder()

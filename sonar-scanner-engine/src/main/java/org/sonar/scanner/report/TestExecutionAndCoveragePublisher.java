@@ -70,12 +70,12 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
       final Set<String> testNamesWithCoverage = new HashSet<>();
 
-      writer.writeTests(component.batchId(),
+      writer.writeTests(component.scannerId(),
         StreamSupport.stream(testPlan.testCases().spliterator(), false)
           .map(testCase -> toProtobufTest(testBuilder, testNamesWithCoverage, testCase))
           .collect(toList()));
 
-      writer.writeCoverageDetails(component.batchId(), testNamesWithCoverage.stream()
+      writer.writeCoverageDetails(component.scannerId(), testNamesWithCoverage.stream()
         .map(testName -> toProtobufCoverageDetails(builder, coveredBuilder, testPlan, testName))
         .collect(toList()));
     }
@@ -90,7 +90,7 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
     for (CoverageBlock block : testCase.coverageBlocks()) {
       coveredBuilder.clear();
       DefaultInputComponent c = (DefaultInputComponent) componentStore.getByKey(((DefaultTestable) block.testable()).inputFile().key());
-      coveredBuilder.setFileRef(c.batchId());
+      coveredBuilder.setFileRef(c.scannerId());
       for (int line : block.lines()) {
         coveredBuilder.addCoveredLine(line);
       }

@@ -30,7 +30,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
-import org.sonar.scanner.bootstrap.GlobalProperties;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_TASK;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
@@ -53,14 +52,9 @@ public class TaskContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     addTaskExtensions();
-    addCoreComponents();
     for (Object component : components) {
       add(component);
     }
-  }
-
-  private void addCoreComponents() {
-    add(new TaskProperties(taskProperties, getParent().getComponentByType(GlobalProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
   }
 
   private void addTaskExtensions() {

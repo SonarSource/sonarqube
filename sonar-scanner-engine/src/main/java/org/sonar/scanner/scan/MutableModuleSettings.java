@@ -27,7 +27,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.MutableGlobalSettings;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.repository.ProjectRepositories;
 
 import static java.util.Objects.requireNonNull;
@@ -42,23 +42,23 @@ public class MutableModuleSettings extends Settings {
   private final AnalysisMode analysisMode;
   private final Map<String, String> properties = new HashMap<>();
 
-  public MutableModuleSettings(MutableGlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
-    AnalysisMode analysisMode) {
-    super(batchSettings.getDefinitions(), batchSettings.getEncryption());
+  public MutableModuleSettings(GlobalConfiguration globalConfig, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
+                               AnalysisMode analysisMode) {
+    super(globalConfig.getDefinitions(), globalConfig.getEncryption());
     this.projectRepos = projectSettingsRepo;
     this.analysisMode = analysisMode;
 
-    init(moduleDefinition, batchSettings);
+    init(moduleDefinition, globalConfig);
   }
 
-  private MutableModuleSettings init(ProjectDefinition moduleDefinition, MutableGlobalSettings batchSettings) {
-    addProjectProperties(moduleDefinition, batchSettings);
+  private MutableModuleSettings init(ProjectDefinition moduleDefinition, GlobalConfiguration globalConfig) {
+    addProjectProperties(moduleDefinition, globalConfig);
     addBuildProperties(moduleDefinition);
     return this;
   }
 
-  private void addProjectProperties(ProjectDefinition def, MutableGlobalSettings batchSettings) {
-    addProperties(batchSettings.getProperties());
+  private void addProjectProperties(ProjectDefinition def, GlobalConfiguration globalConfig) {
+    addProperties(globalConfig.getProperties());
     do {
       if (projectRepos.moduleExists(def.getKeyWithBranch())) {
         addProperties(projectRepos.settings(def.getKeyWithBranch()));

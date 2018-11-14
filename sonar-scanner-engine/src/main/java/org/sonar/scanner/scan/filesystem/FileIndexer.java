@@ -44,9 +44,10 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputFileFilter;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.scan.DefaultComponentTree;
@@ -63,8 +64,8 @@ public class FileIndexer {
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilder inputFileBuilder;
   private final DefaultComponentTree componentTree;
-  private final DefaultInputModule module;
-  private final BatchIdGenerator batchIdGenerator;
+  private final AbstractProjectOrModule module;
+  private final ScannerComponentIdGenerator scannerComponentIdGenerator;
   private final InputComponentStore componentStore;
   private final ModuleFileSystemInitializer moduleFileSystemInitializer;
   private ExecutorService executorService;
@@ -74,13 +75,13 @@ public class FileIndexer {
 
   private ProgressReport progressReport;
 
-  public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
-    LanguageDetection languageDetection,
-    InputFileFilter[] filters) {
-    this.batchIdGenerator = batchIdGenerator;
+  public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, InputModule module, ExclusionFilters exclusionFilters,
+                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
+                     LanguageDetection languageDetection,
+                     InputFileFilter[] filters) {
+    this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
-    this.module = module;
+    this.module = (AbstractProjectOrModule) module;
     this.componentTree = componentTree;
     this.inputFileBuilder = inputFileBuilder;
     this.moduleFileSystemInitializer = initializer;
@@ -91,10 +92,10 @@ public class FileIndexer {
     this.tasks = new ArrayList<>();
   }
 
-  public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
-    LanguageDetection languageDetection) {
-    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, initializer, defaultModuleFileSystem, languageDetection,
+  public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, InputModule module, ExclusionFilters exclusionFilters,
+                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
+                     LanguageDetection languageDetection) {
+    this(scannerComponentIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, initializer, defaultModuleFileSystem, languageDetection,
       new InputFileFilter[0]);
   }
 
@@ -213,7 +214,7 @@ public class FileIndexer {
   private void indexFileAndParentDir(InputFile inputFile, String parentRelativePath) {
     DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), parentRelativePath);
     if (inputDir == null) {
-      inputDir = new DefaultInputDir(module.key(), parentRelativePath, batchIdGenerator.getAsInt());
+      inputDir = new DefaultInputDir(module.key(), parentRelativePath, scannerComponentIdGenerator.getAsInt());
       inputDir.setModuleBaseDir(module.getBaseDir());
       componentTree.index(inputDir, module);
       defaultModuleFileSystem.add(inputDir);

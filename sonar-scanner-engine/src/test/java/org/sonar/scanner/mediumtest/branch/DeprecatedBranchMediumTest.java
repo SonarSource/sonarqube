@@ -33,7 +33,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -82,7 +82,7 @@ public class DeprecatedBranchMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .putAll(commonProps)
         .put("sonar.branch", "branch")
@@ -93,11 +93,11 @@ public class DeprecatedBranchMediumTest {
     assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:src/sample.xoo");
 
     DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("src/sample.xoo");
-    assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
+    assertThat(result.getReportReader().readComponent(inputfile.scannerId()).getPath()).isEqualTo("src/sample.xoo");
 
     assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
 
-    result = tester.newTask()
+    result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .putAll(commonProps)
         .put("sonar.branch", "")
@@ -116,7 +116,7 @@ public class DeprecatedBranchMediumTest {
     File xooFile = new File(srcDir.toFile(), "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .putAll(commonProps)
         .put("sonar.branch", "branch")
@@ -129,14 +129,14 @@ public class DeprecatedBranchMediumTest {
 
     // no branch in the report
     DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("moduleA/src/sample.xoo");
-    assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
+    assertThat(result.getReportReader().readComponent(inputfile.scannerId()).getPath()).isEqualTo("src/sample.xoo");
 
     // no branch in InputModule's key or in report
     assertThat(result.getReportComponent("com.foo.project:moduleA").getKey()).isEqualTo("com.foo.project:moduleA");
 
     assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
 
-    result = tester.newTask()
+    result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .putAll(commonProps)
         .put("sonar.branch", "")

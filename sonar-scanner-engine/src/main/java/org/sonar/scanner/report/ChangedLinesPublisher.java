@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -43,19 +43,20 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   private static final String LOG_MSG = "SCM writing changed lines";
 
   private final ScmConfiguration scmConfiguration;
-  private final InputModuleHierarchy inputModuleHierarchy;
+  private final DefaultInputProject project;
   private final InputComponentStore inputComponentStore;
   private final BranchConfiguration branchConfiguration;
 
-  public ChangedLinesPublisher(ScmConfiguration scmConfiguration, InputModuleHierarchy inputModuleHierarchy, InputComponentStore inputComponentStore,
+  public ChangedLinesPublisher(ScmConfiguration scmConfiguration, DefaultInputProject project, InputComponentStore inputComponentStore,
     BranchConfiguration branchConfiguration) {
     this.scmConfiguration = scmConfiguration;
-    this.inputModuleHierarchy = inputModuleHierarchy;
+    this.project = project;
     this.inputComponentStore = inputComponentStore;
     this.branchConfiguration = branchConfiguration;
   }
 
-  @Override public void publish(ScannerReportWriter writer) {
+  @Override
+  public void publish(ScannerReportWriter writer) {
     String targetScmBranch = branchConfiguration.targetScmBranch();
     if (scmConfiguration.isDisabled() || !branchConfiguration.isShortOrPullRequest() || targetScmBranch == null) {
       return;
@@ -73,7 +74,7 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   }
 
   private int writeChangedLines(ScmProvider provider, ScannerReportWriter writer, String targetScmBranch) {
-    Path rootBaseDir = inputModuleHierarchy.root().getBaseDir();
+    Path rootBaseDir = project.getBaseDir();
     Map<Path, DefaultInputFile> changedFiles = StreamSupport.stream(inputComponentStore.allChangedFilesToPublish().spliterator(), false)
       .collect(Collectors.toMap(DefaultInputFile::path, f -> f));
 
@@ -93,7 +94,7 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
         LOG.warn("File '{}' was detected as changed but without having changed lines", e.getKey().toAbsolutePath());
       }
       count++;
-      writeChangedLines(writer, e.getValue().batchId(), changedLines);
+      writeChangedLines(writer, e.getValue().scannerId(), changedLines);
     }
     return count;
   }

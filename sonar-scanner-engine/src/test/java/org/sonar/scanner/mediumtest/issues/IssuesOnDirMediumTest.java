@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -58,7 +58,7 @@ public class IssuesOnDirMediumTest {
     File xooFile2 = new File(srcDir, "sample2.xoo");
     FileUtils.write(xooFile2, "Sample2 xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -71,7 +71,7 @@ public class IssuesOnDirMediumTest {
       .execute();
 
     assertThat(result.issuesFor(result.inputDir("src"))).hasSize(0);
-    assertThat(result.issuesFor(result.root())).hasSize(2);
+    assertThat(result.issuesFor(result.project())).hasSize(2);
   }
 
   @Test
@@ -85,7 +85,7 @@ public class IssuesOnDirMediumTest {
     File xooFile2 = new File(baseDir, "sample2.xoo");
     FileUtils.write(xooFile2, "Sample2 xoo\ncontent");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -98,7 +98,7 @@ public class IssuesOnDirMediumTest {
       .execute();
 
     assertThat(result.issuesFor(result.inputDir(""))).hasSize(0);
-    assertThat(result.issuesFor(result.root())).hasSize(2);
+    assertThat(result.issuesFor(result.project())).hasSize(2);
   }
 
 }

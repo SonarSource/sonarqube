@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +45,7 @@ public class ProjectRepositoriesProviderTest {
   @Mock
   private ProjectRepositoriesLoader loader;
   @Mock
-  private ProjectKey projectKey;
+  private ScannerProperties props;
   @Mock
   private GlobalAnalysisMode mode;
   @Mock
@@ -61,7 +61,7 @@ public class ProjectRepositoriesProviderTest {
     project = new ProjectRepositories(t1, t2, new Date());
     provider = new ProjectRepositoriesProvider();
 
-    when(projectKey.get()).thenReturn("key");
+    when(props.getKeyWithBranch()).thenReturn("key");
   }
 
   @Test
@@ -69,7 +69,7 @@ public class ProjectRepositoriesProviderTest {
     when(mode.isIssues()).thenReturn(true);
     when(loader.load(eq("key"), eq(true), any())).thenReturn(project);
 
-    provider.provide(loader, projectKey, mode, branchConfiguration);
+    provider.provide(loader, props, mode, branchConfiguration);
   }
 
   @Test
@@ -77,14 +77,14 @@ public class ProjectRepositoriesProviderTest {
     when(mode.isIssues()).thenReturn(false);
     when(loader.load(eq("key"), eq(false), any())).thenReturn(project);
 
-    ProjectRepositories repo = provider.provide(loader, projectKey, mode, branchConfiguration);
+    ProjectRepositories repo = provider.provide(loader, props, mode, branchConfiguration);
 
     assertThat(repo.exists()).isEqualTo(true);
     assertThat(repo.lastAnalysisDate()).isNotNull();
 
     verify(mode, times(1)).isIssues();
-    verify(projectKey).get();
+    verify(props).getKeyWithBranch();
     verify(loader).load(eq("key"), eq(false), eq(null));
-    verifyNoMoreInteractions(loader, projectKey, mode);
+    verifyNoMoreInteractions(loader, props, mode);
   }
 }

@@ -29,6 +29,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -43,7 +44,7 @@ public class DefaultIssueTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private DefaultInputModule projectRoot;
+  private DefaultInputProject project;
 
   private DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
@@ -51,7 +52,7 @@ public class DefaultIssueTest {
 
   @Before
   public void prepare() throws IOException {
-    projectRoot = new DefaultInputModule(ProjectDefinition.create()
+    project = new DefaultInputProject(ProjectDefinition.create()
       .setKey("foo")
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder()));
@@ -60,7 +61,7 @@ public class DefaultIssueTest {
   @Test
   public void build_file_issue() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
+    DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(inputFile)
         .at(inputFile.selectLine(1))
@@ -82,14 +83,14 @@ public class DefaultIssueTest {
   @Test
   public void move_directory_issue_to_project_root() {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
+    DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
-        .on(new DefaultInputDir("foo", "src/main").setModuleBaseDir(projectRoot.getBaseDir()))
+        .on(new DefaultInputDir("foo", "src/main").setModuleBaseDir(project.getBaseDir()))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
       .overrideSeverity(Severity.BLOCKER);
 
-    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(projectRoot);
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(project);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange()).isNull();
     assertThat(issue.primaryLocation().message()).isEqualTo("[src/main] Wrong way!");
@@ -102,25 +103,25 @@ public class DefaultIssueTest {
 
   @Test
   public void move_submodule_issue_to_project_root() {
-    File subModuleDirectory = new File(projectRoot.getBaseDir().toString(), "bar");
+    File subModuleDirectory = new File(project.getBaseDir().toString(), "bar");
     subModuleDirectory.mkdir();
 
     ProjectDefinition subModuleDefinition = ProjectDefinition.create()
       .setKey("foo/bar")
       .setBaseDir(subModuleDirectory)
       .setWorkDir(subModuleDirectory);
-    projectRoot.definition().addSubProject(subModuleDefinition);
+    project.definition().addSubProject(subModuleDefinition);
     DefaultInputModule subModule = new DefaultInputModule(subModuleDefinition);
 
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
+    DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(subModule)
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
       .overrideSeverity(Severity.BLOCKER);
 
-    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(projectRoot);
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(project);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange()).isNull();
     assertThat(issue.primaryLocation().message()).isEqualTo("[bar] Wrong way!");
@@ -135,7 +136,7 @@ public class DefaultIssueTest {
   public void build_project_issue() throws IOException {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultInputModule inputModule = new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
-    DefaultIssue issue = new DefaultIssue(projectRoot, storage)
+    DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(inputModule)
         .message("Wrong way!"))

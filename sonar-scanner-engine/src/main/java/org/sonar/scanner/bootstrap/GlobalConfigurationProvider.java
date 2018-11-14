@@ -23,23 +23,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class GlobalConfigurationProvider extends ProviderAdapter {
 
-  private GlobalConfiguration globalSettings;
+  private GlobalConfiguration globalConfig;
 
-  public GlobalConfiguration provide(SettingsLoader loader, GlobalProperties globalProps, PropertyDefinitions propertyDefinitions, GlobalAnalysisMode mode) {
-    if (globalSettings == null) {
+  public GlobalConfiguration provide(GlobalServerSettings globalServerSettings, ScannerProperties scannerProps, PropertyDefinitions propertyDefinitions, GlobalAnalysisMode mode) {
+    if (globalConfig == null) {
+      Map<String, String> mergedSettings = new LinkedHashMap<>();
+      mergedSettings.putAll(globalServerSettings.properties());
+      mergedSettings.putAll(scannerProps.properties());
 
-      Map<String, String> serverSideSettings = loader.load(null);
-
-      Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(serverSideSettings);
-      settings.putAll(globalProps.properties());
-
-      globalSettings = new GlobalConfiguration(propertyDefinitions, globalProps.getEncryption(), mode, settings, serverSideSettings);
+      globalConfig = new GlobalConfiguration(propertyDefinitions, scannerProps.getEncryption(), mode, mergedSettings);
     }
-    return globalSettings;
+    return globalConfig;
   }
 }

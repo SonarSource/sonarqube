@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -55,8 +55,8 @@ public class NoPreviousAnalysisTest {
   public void testIssueTrackingWithIssueOnEmptyFile() throws Exception {
     File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .execute();
 
     assertThat(result.trackedIssues()).hasSize(14);

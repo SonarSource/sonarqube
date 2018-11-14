@@ -20,16 +20,25 @@
 package org.sonar.scanner.bootstrap;
 
 import java.util.Map;
+import java.util.Optional;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
-/**
- * Immutable batch properties that are not specific to a task (for example
- * coming from global configuration file of sonar-runner).
- */
-public class GlobalProperties extends UserProperties {
+public class GlobalServerSettingsProvider extends ProviderAdapter {
 
-  public GlobalProperties(Map<String, String> properties) {
-    super(properties, properties.get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+  private static final Logger LOG = Loggers.get(GlobalServerSettingsProvider.class);
+
+  private GlobalServerSettings singleton;
+
+  public GlobalServerSettings provide(SettingsLoader loader) {
+    if (singleton == null) {
+      Map<String, String> serverSideSettings = loader.load(null);
+      singleton = new GlobalServerSettings(serverSideSettings);
+      Optional.ofNullable(serverSideSettings.get(CoreProperties.SERVER_ID)).ifPresent(v -> LOG.info("Server id: {}", v));
+    }
+    return singleton;
   }
-
 }

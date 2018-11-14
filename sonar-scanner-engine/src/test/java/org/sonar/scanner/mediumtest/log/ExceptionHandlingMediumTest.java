@@ -66,7 +66,7 @@ public class ExceptionHandlingMediumTest {
     thrown.expectMessage("Error loading settings");
     thrown.expectCause(CoreMatchers.nullValue(Throwable.class));
 
-    batch.start();
+    batch.execute();
   }
 
   @Test
@@ -87,7 +87,7 @@ public class ExceptionHandlingMediumTest {
       }
     });
 
-    batch.start();
+    batch.execute();
   }
 
   @Test
@@ -95,7 +95,7 @@ public class ExceptionHandlingMediumTest {
     setUp(true);
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to load component class");
-    batch.start();
+    batch.execute();
   }
 
   private static class ErrorSettingsLoader implements SettingsLoader {

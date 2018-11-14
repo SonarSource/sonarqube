@@ -24,13 +24,13 @@ import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 
 public class ProjectLock implements Startable {
   private final DirectoryLock lock;
 
-  public ProjectLock(InputModuleHierarchy moduleHierarchy) {
-    Path directory = moduleHierarchy.root().getWorkDir();
+  public ProjectLock(AbstractProjectOrModule project) {
+    Path directory = project.getWorkDir();
     try {
       if (!directory.toFile().exists()) {
         Files.createDirectories(directory);

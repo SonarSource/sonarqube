@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.scan.branch.BranchType;
@@ -72,7 +72,7 @@ public class BranchMediumTest {
   @Test
   public void should_not_skip_report_for_unchanged_files_in_short_branch() {
     // sanity check, normally report gets generated
-    TaskResult result = getResult(tester);
+    AnalysisResult result = getResult(tester);
     assertThat(getResult(tester).getReportComponent(result.inputFile(FILE_PATH).key())).isNotNull();
     int fileId = 2;
     assertThat(result.getReportReader().readChangesets(fileId)).isNotNull();
@@ -80,7 +80,7 @@ public class BranchMediumTest {
     assertThat(result.getReportReader().readFileSource(fileId)).isNotNull();
 
     // file is not skipped for short branches (need coverage, duplications coming soon)
-    TaskResult result2 = getResult(tester.setBranchType(BranchType.SHORT));
+    AnalysisResult result2 = getResult(tester.setBranchType(BranchType.SHORT));
     assertThat(result2.getReportComponent(result2.inputFile(FILE_PATH).key())).isNotNull();
     assertThat(result2.getReportReader().readChangesets(fileId)).isNull();
     assertThat(result2.getReportReader().hasCoverage(fileId)).isTrue();
@@ -92,7 +92,7 @@ public class BranchMediumTest {
     String branchName = "feature";
     String branchTarget = "branch-1.x";
 
-    TaskResult result = getResult(tester
+    AnalysisResult result = getResult(tester
       .setBranchName(branchName)
       .setBranchTarget(branchTarget)
       .setLongLivingSonarReferenceBranch(branchTarget)
@@ -104,9 +104,9 @@ public class BranchMediumTest {
     assertThat(metadata.getMergeBranchName()).isEqualTo(branchTarget);
   }
 
-  private TaskResult getResult(ScannerMediumTester tester) {
+  private AnalysisResult getResult(ScannerMediumTester tester) {
     return tester
-      .newTask()
+      .newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())

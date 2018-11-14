@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
@@ -35,11 +35,11 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 @ScannerSide
 public class DefaultServer extends Server {
 
-  private final Settings settings;
+  private final Configuration settings;
   private final ScannerWsClient client;
   private final SonarRuntime runtime;
 
-  public DefaultServer(Settings settings, ScannerWsClient client, SonarRuntime runtime) {
+  public DefaultServer(Configuration settings, ScannerWsClient client, SonarRuntime runtime) {
     this.settings = settings;
     this.client = client;
     this.runtime = runtime;
@@ -47,7 +47,7 @@ public class DefaultServer extends Server {
 
   @Override
   public String getId() {
-    return settings.getString(CoreProperties.SERVER_ID);
+    return settings.get(CoreProperties.SERVER_ID).orElseThrow(() -> new IllegalStateException("Mandatory"));
   }
 
   @Override
@@ -57,7 +57,7 @@ public class DefaultServer extends Server {
 
   @Override
   public Date getStartedAt() {
-    String dateString = settings.getString(CoreProperties.SERVER_STARTTIME);
+    String dateString = settings.get(CoreProperties.SERVER_STARTTIME).orElseThrow(() -> new IllegalStateException("Mandatory"));
     return DateUtils.parseDateTime(dateString);
   }
 
@@ -73,7 +73,7 @@ public class DefaultServer extends Server {
 
   @Override
   public String getPublicRootUrl() {
-    String baseUrl = trimToEmpty(settings.getString(CoreProperties.SERVER_BASE_URL));
+    String baseUrl = trimToEmpty(settings.get(CoreProperties.SERVER_BASE_URL).orElse(""));
     if (baseUrl.isEmpty()) {
       // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
       baseUrl = client.baseUrl();

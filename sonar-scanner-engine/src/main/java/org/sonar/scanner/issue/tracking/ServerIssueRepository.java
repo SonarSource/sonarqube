@@ -22,9 +22,8 @@ package org.sonar.scanner.issue.tracking;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -46,34 +45,35 @@ public class ServerIssueRepository {
   private Storage<ServerIssue> issuesCache;
   private final ServerIssuesLoader previousIssuesLoader;
   private final InputComponentStore componentStore;
+  private final AbstractProjectOrModule project;
 
-  public ServerIssueRepository(Storages caches, ServerIssuesLoader previousIssuesLoader, InputComponentStore componentStore) {
+  public ServerIssueRepository(Storages caches, ServerIssuesLoader previousIssuesLoader, InputComponentStore componentStore, AbstractProjectOrModule project) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
     this.componentStore = componentStore;
+    this.project = project;
   }
 
   public void load() {
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     this.issuesCache = caches.createCache("previousIssues");
     caches.registerValueCoder(ServerIssue.class, new ServerIssueValueCoder());
-    DefaultInputModule root = (DefaultInputModule) componentStore.root();
-    previousIssuesLoader.load(root.getKeyWithBranch(), this::store);
+    previousIssuesLoader.load(project.getKeyWithBranch(), this::store);
     profiler.stopInfo();
   }
 
   public Iterable<ServerIssue> byComponent(InputComponent component) {
-    return issuesCache.values(((DefaultInputComponent) component).batchId());
+    return issuesCache.values(((DefaultInputComponent) component).scannerId());
   }
 
   private void store(ServerIssue issue) {
     String moduleKeyWithBranch = issue.getModuleKey();
-    InputModule module = componentStore.getModule(moduleKeyWithBranch);
-    if (module != null) {
-      String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(module.key(), issue.hasPath() ? issue.getPath() : null);
+    AbstractProjectOrModule moduleOrProject = componentStore.getModule(moduleKeyWithBranch);
+    if (moduleOrProject != null) {
+      String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(moduleOrProject.key(), issue.hasPath() ? issue.getPath() : null);
       DefaultInputComponent r = (DefaultInputComponent) componentStore.getByKey(componentKeyWithoutBranch);
       if (r != null) {
-        issuesCache.put(r.batchId(), issue.getKey(), issue);
+        issuesCache.put(r.scannerId(), issue.getKey(), issue);
         return;
       }
     }

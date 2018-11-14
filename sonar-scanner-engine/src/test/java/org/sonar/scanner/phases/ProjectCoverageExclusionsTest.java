@@ -26,24 +26,22 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.core.config.ExclusionProperties;
+import org.sonar.scanner.scan.ProjectConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectCoverageExclusionsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private MapSettings settings;
   private ProjectCoverageExclusions coverageExclusions;
   private File baseDir;
 
   @Before
   public void prepare() throws Exception {
-    settings = new MapSettings(new PropertyDefinitions(ExclusionProperties.all()));
     baseDir = temp.newFolder();
   }
 
@@ -52,8 +50,7 @@ public class ProjectCoverageExclusionsTest {
     DefaultInputFile file = TestInputFileBuilder.create("foo", new File(baseDir, "moduleA"), new File(baseDir, "moduleA/src/org/polop/File.php"))
       .setProjectBaseDir(baseDir.toPath())
       .build();
-    settings.setProperty("sonar.coverage.exclusions", "moduleA/src/org/polop/*");
-    coverageExclusions = new ProjectCoverageExclusions(settings.asConfig());
+    coverageExclusions = new ProjectCoverageExclusions(mockConfig("moduleA/src/org/polop/*"));
     assertThat(coverageExclusions.isExcluded(file)).isTrue();
   }
 
@@ -62,8 +59,14 @@ public class ProjectCoverageExclusionsTest {
     DefaultInputFile file = TestInputFileBuilder.create("foo", new File(baseDir, "moduleA"), new File(baseDir, "moduleA/src/org/polop/File.php"))
       .setProjectBaseDir(baseDir.toPath())
       .build();
-    settings.setProperty("sonar.coverage.exclusions", "moduleA/src/org/other/*");
-    coverageExclusions = new ProjectCoverageExclusions(settings.asConfig());
+    coverageExclusions = new ProjectCoverageExclusions(mockConfig("moduleA/src/org/other/*"));
     assertThat(coverageExclusions.isExcluded(file)).isFalse();
   }
+
+  private ProjectConfiguration mockConfig(String... values) {
+    ProjectConfiguration config = mock(ProjectConfiguration.class);
+    when(config.getStringArray("sonar.coverage.exclusions")).thenReturn(values);
+    return config;
+  }
+
 }

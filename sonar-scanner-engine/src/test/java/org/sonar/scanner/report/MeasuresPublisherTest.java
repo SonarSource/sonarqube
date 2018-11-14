@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
@@ -62,14 +62,14 @@ public class MeasuresPublisherTest {
   private File outputDir;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
-  private DefaultInputModule inputModule;
+  private DefaultInputProject project;
 
   @Before
   public void prepare() throws IOException {
-    String moduleKey = "foo";
-    inputModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
-    inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setPublish(true).build();
-    InputComponentStore componentCache = new InputComponentStore(inputModule, mock(BranchConfiguration.class));
+    String projectKey = "foo";
+    project = TestInputFileBuilder.newDefaultInputProject(projectKey, temp.newFolder());
+    inputFile = new TestInputFileBuilder(projectKey, "src/Foo.php").setPublish(true).build();
+    InputComponentStore componentCache = new InputComponentStore(project, mock(BranchConfiguration.class));
     componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
@@ -90,8 +90,8 @@ public class MeasuresPublisherTest {
     publisher.publish(writer);
     ScannerReportReader reader = new ScannerReportReader(outputDir);
 
-    assertThat(reader.readComponentMeasures(inputModule.batchId())).hasSize(0);
-    try (CloseableIterator<ScannerReport.Measure> componentMeasures = reader.readComponentMeasures(inputFile.batchId())) {
+    assertThat(reader.readComponentMeasures(project.scannerId())).hasSize(0);
+    try (CloseableIterator<ScannerReport.Measure> componentMeasures = reader.readComponentMeasures(inputFile.scannerId())) {
       assertThat(componentMeasures).hasSize(2);
     }
   }

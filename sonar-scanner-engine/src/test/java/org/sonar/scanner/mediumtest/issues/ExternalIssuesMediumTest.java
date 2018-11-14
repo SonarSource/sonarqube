@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
@@ -57,8 +57,8 @@ public class ExternalIssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property(OneExternalIssuePerLineSensor.ACTIVATE, "true")
       .execute();
 
@@ -80,8 +80,8 @@ public class ExternalIssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property(OneExternalIssuePerLineSensor.ACTIVATE, "true")
       .property(OneExternalIssuePerLineSensor.REGISTER_AD_HOC_RULE, "true")
       .execute();
@@ -109,8 +109,8 @@ public class ExternalIssuesMediumTest {
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.externalIssuesReportPaths", "externalIssues.json")
       .execute();
 

@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
@@ -37,8 +37,8 @@ import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.rule.QProfile;
+import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scm.ScmConfiguration;
@@ -78,13 +78,13 @@ public class MetadataPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    DefaultInputModule rootProject = moduleHierarchy.root();
+    AbstractProjectOrModule rootProject = moduleHierarchy.root();
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
       .setAnalysisDate(projectAnalysisInfo.analysisDate().getTime())
       // Here we want key without branch
       .setProjectKey(rootProject.key())
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
-      .setRootComponentRef(rootProject.batchId());
+      .setRootComponentRef(rootProject.scannerId());
 
     properties.organizationKey().ifPresent(builder::setOrganizationKey);
 

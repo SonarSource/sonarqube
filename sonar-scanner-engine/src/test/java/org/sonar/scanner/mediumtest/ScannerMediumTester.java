@@ -255,18 +255,18 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
-  public TaskBuilder newTask() {
-    return new TaskBuilder(this);
+  public AnalysisBuilder newAnalysis() {
+    return new AnalysisBuilder(this);
   }
 
-  public TaskBuilder newScanTask(File sonarProps) {
+  public AnalysisBuilder newAnalysis(File sonarProps) {
     Properties prop = new Properties();
     try (Reader reader = new InputStreamReader(new FileInputStream(sonarProps), StandardCharsets.UTF_8)) {
       prop.load(reader);
     } catch (Exception e) {
       throw new IllegalStateException("Unable to read configuration file", e);
     }
-    TaskBuilder builder = new TaskBuilder(this);
+    AnalysisBuilder builder = new AnalysisBuilder(this);
     builder.property("sonar.projectBaseDir", sonarProps.getParentFile().getAbsolutePath());
     for (Map.Entry<Object, Object> entry : prop.entrySet()) {
       builder.property(entry.getKey().toString(), entry.getValue().toString());
@@ -274,22 +274,22 @@ public class ScannerMediumTester extends ExternalResource {
     return builder;
   }
 
-  public static class TaskBuilder {
+  public static class AnalysisBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
     private ScannerMediumTester tester;
 
-    public TaskBuilder(ScannerMediumTester tester) {
+    public AnalysisBuilder(ScannerMediumTester tester) {
       this.tester = tester;
     }
 
-    public TaskResult execute() {
-      TaskResult result = new TaskResult();
+    public AnalysisResult execute() {
+      AnalysisResult result = new AnalysisResult();
       Map<String, String> props = new HashMap<>();
       props.putAll(tester.globalProperties);
       props.putAll(taskProperties);
 
       Batch.builder()
-        .setGlobalProperties(props)
+        .setScannerProperties(props)
         .setEnableLoggingConfiguration(true)
         .addComponents(new EnvironmentInformation("mediumTest", "1.0"),
           tester.pluginInstaller,
@@ -308,12 +308,12 @@ public class ScannerMediumTester extends ExternalResource {
       return result;
     }
 
-    public TaskBuilder properties(Map<String, String> props) {
+    public AnalysisBuilder properties(Map<String, String> props) {
       taskProperties.putAll(props);
       return this;
     }
 
-    public TaskBuilder property(String key, String value) {
+    public AnalysisBuilder property(String key, String value) {
       taskProperties.put(key, value);
       return this;
     }

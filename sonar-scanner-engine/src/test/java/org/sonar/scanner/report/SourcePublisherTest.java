@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -57,8 +57,8 @@ public class SourcePublisherTest {
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
 
-    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir);
-    InputComponentStore componentStore = new InputComponentStore(rootModule, mock(BranchConfiguration.class));
+    DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(moduleKey, baseDir);
+    InputComponentStore componentStore = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
     componentStore.put(inputFile);
 
     publisher = new SourcePublisher(componentStore);
@@ -72,7 +72,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(inputFile.batchId());
+    File out = writer.getSourceFile(inputFile.scannerId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("");
   }
 
@@ -82,7 +82,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(inputFile.batchId());
+    File out = writer.getSourceFile(inputFile.scannerId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("1\n2\n3\n4\n");
   }
 
@@ -93,7 +93,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(inputFile.batchId());
+    File out = writer.getSourceFile(inputFile.scannerId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("1\n2\n3\n4\n");
   }
 
@@ -103,7 +103,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(inputFile.batchId());
+    File out = writer.getSourceFile(inputFile.scannerId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("1\n2\n3\n4\n5");
   }
 
@@ -113,7 +113,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(inputFile.batchId());
+    File out = writer.getSourceFile(inputFile.scannerId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("\n2\n3\n4\n5");
   }
 

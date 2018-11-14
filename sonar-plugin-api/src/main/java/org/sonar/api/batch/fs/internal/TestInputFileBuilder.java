@@ -239,20 +239,37 @@ public class TestInputFileBuilder {
     return new DefaultInputModule(projectDefinition, TestInputFileBuilder.nextBatchId());
   }
 
-  public static DefaultInputModule newDefaultInputModule(DefaultInputModule parent, String key) throws IOException {
+  public static DefaultInputModule newDefaultInputModule(AbstractProjectOrModule parent, String key) throws IOException {
     Path basedir = parent.getBaseDir().resolve(key);
     Files.createDirectory(basedir);
     return newDefaultInputModule(key, basedir.toFile());
   }
 
-  public static DefaultInputDir newDefaultInputDir(DefaultInputModule module, String relativePath) throws IOException {
+  public static DefaultInputProject newDefaultInputProject(String projectKey, File baseDir) {
+    ProjectDefinition definition = ProjectDefinition.create()
+      .setKey(projectKey)
+      .setBaseDir(baseDir)
+      .setWorkDir(new File(baseDir, ".sonar"));
+    return newDefaultInputProject(definition);
+  }
+
+  public static DefaultInputProject newDefaultInputProject(ProjectDefinition projectDefinition) {
+    return new DefaultInputProject(projectDefinition, TestInputFileBuilder.nextBatchId());
+  }
+
+  public static DefaultInputProject newDefaultInputProject(String key, Path baseDir) throws IOException {
+    Files.createDirectory(baseDir);
+    return newDefaultInputProject(key, baseDir.toFile());
+  }
+
+  public static DefaultInputDir newDefaultInputDir(AbstractProjectOrModule module, String relativePath) throws IOException {
     Path basedir = module.getBaseDir().resolve(relativePath);
     Files.createDirectory(basedir);
     return new DefaultInputDir(module.key(), relativePath)
       .setModuleBaseDir(module.getBaseDir());
   }
 
-  public static DefaultInputFile newDefaultInputFile(Path projectBaseDir, DefaultInputModule module, String relativePath) {
+  public static DefaultInputFile newDefaultInputFile(Path projectBaseDir, AbstractProjectOrModule module, String relativePath) {
     return new TestInputFileBuilder(module.key(), relativePath)
       .setStatus(InputFile.Status.SAME)
       .setProjectBaseDir(projectBaseDir)

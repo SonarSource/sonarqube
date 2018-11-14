@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -90,7 +91,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder();
 
     // non-null fields
-    builder.setRef(component.batchId());
+    builder.setRef(component.scannerId());
     builder.setType(getType(component));
 
     // Don't set key on directories and files to save space since it can be deduced from path
@@ -133,7 +134,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
 
     for (InputComponent child : children) {
-      builder.addChildRef(((DefaultInputComponent) child).batchId());
+      builder.addChildRef(((DefaultInputComponent) child).scannerId());
     }
     writeLinks(component, builder);
     writer.writeComponent(builder.build());
@@ -156,9 +157,9 @@ public class ComponentsPublisher implements ReportPublisherStep {
   private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
     if (component instanceof InputModule && children.isEmpty() && (branchConfiguration.isShortOrPullRequest())) {
       // no children on a module in short branch analysis -> skip it (except root)
-      return !moduleHierarchy.isRoot((InputModule) component);
+      return !moduleHierarchy.isRoot((DefaultInputModule) component);
     } else if (component instanceof InputDir && children.isEmpty()) {
-      try (CloseableIterator<Issue> componentIssuesIt = reader.readComponentIssues(component.batchId())) {
+      try (CloseableIterator<Issue> componentIssuesIt = reader.readComponentIssues(component.scannerId())) {
         if (!componentIssuesIt.hasNext()) {
           // no files to publish on a directory without issues -> skip it
           return true;
@@ -192,7 +193,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
         return inputPath.relativePath();
       }
     } else if (component instanceof InputModule) {
-      InputModule module = (InputModule) component;
+      DefaultInputModule module = (DefaultInputModule) component;
       return moduleHierarchy.relativePath(module);
     }
     throw new IllegalStateException("Unknown component: " + component.getClass());
@@ -211,7 +212,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
       return PathUtils.sanitize(projectBaseDir.relativize(inputDir.path()).toString());
     }
     if (component instanceof InputModule) {
-      DefaultInputModule module = (DefaultInputModule) component;
+      AbstractProjectOrModule module = (AbstractProjectOrModule) component;
       return PathUtils.sanitize(projectBaseDir.relativize(module.getBaseDir()).toString());
     }
     throw new IllegalStateException("Unknown component: " + component.getClass());
@@ -230,7 +231,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   private static void writeLinks(InputComponent c, ScannerReport.Component.Builder builder) {
     if (c instanceof InputModule) {
-      DefaultInputModule inputModule = (DefaultInputModule) c;
+      AbstractProjectOrModule inputModule = (AbstractProjectOrModule) c;
       ProjectDefinition def = inputModule.definition();
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
@@ -258,7 +259,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   @CheckForNull
-  private static String getName(DefaultInputModule module) {
+  private static String getName(AbstractProjectOrModule module) {
     if (StringUtils.isNotEmpty(module.definition().getBranch())) {
       return module.definition().getName() + " " + module.definition().getBranch();
     } else {
@@ -267,7 +268,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   @CheckForNull
-  private static String getDescription(DefaultInputModule module) {
+  private static String getDescription(AbstractProjectOrModule module) {
     return module.definition().getDescription();
   }
 
@@ -276,7 +277,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
       return ComponentType.FILE;
     } else if (r instanceof InputDir) {
       return ComponentType.DIRECTORY;
-    } else if ((r instanceof InputModule) && moduleHierarchy.isRoot((InputModule) r)) {
+    } else if ((r instanceof InputModule) && moduleHierarchy.isRoot((DefaultInputModule) r)) {
       return ComponentType.PROJECT;
     } else if (r instanceof InputModule) {
       return ComponentType.MODULE;

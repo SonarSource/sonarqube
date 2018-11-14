@@ -37,7 +37,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -165,7 +165,7 @@ public class LocalIssueTracking {
   private SourceHashHolder loadSourceHashes(InputComponent component) {
     SourceHashHolder sourceHashHolder = null;
     if (component.isFile()) {
-      DefaultInputModule module = (DefaultInputModule) componentTree.getParent(componentTree.getParent(component));
+      AbstractProjectOrModule module = (AbstractProjectOrModule) componentTree.getParent(componentTree.getParent(component));
       DefaultInputFile file = (DefaultInputFile) component;
       sourceHashHolder = new SourceHashHolder(module, file, lastLineHashes);
     }

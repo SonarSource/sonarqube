@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
@@ -44,11 +44,11 @@ public class ScanProperties {
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 
   private final Configuration configuration;
-  private final InputModuleHierarchy moduleHierarchy;
+  private final DefaultInputProject project;
 
-  public ScanProperties(Configuration configuration, InputModuleHierarchy moduleHierarchy) {
+  public ScanProperties(Configuration configuration, DefaultInputProject project) {
     this.configuration = configuration;
-    this.moduleHierarchy = moduleHierarchy;
+    this.project = project;
   }
 
   public boolean shouldKeepReport() {
@@ -74,9 +74,9 @@ public class ScanProperties {
       if (!metadataPath.isAbsolute()) {
         throw MessageException.of(String.format("Property '%s' must point to an absolute path: %s", METADATA_FILE_PATH_KEY, metadataFilePath.get()));
       }
-      return moduleHierarchy.root().getBaseDir().resolve(metadataPath);
+      return project.getBaseDir().resolve(metadataPath);
     } else {
-      return moduleHierarchy.root().getWorkDir().resolve(METADATA_DUMP_FILENAME);
+      return project.getWorkDir().resolve(METADATA_DUMP_FILENAME);
     }
   }
 

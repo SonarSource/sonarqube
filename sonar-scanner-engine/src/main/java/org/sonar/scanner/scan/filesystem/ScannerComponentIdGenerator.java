@@ -17,24 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.analysis;
+package org.sonar.scanner.scan.filesystem;
 
-import java.util.Map;
-import javax.annotation.Nullable;
-import org.sonar.scanner.bootstrap.UserProperties;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntSupplier;
+
+import javax.annotation.concurrent.ThreadSafe;
+
+import org.sonar.api.batch.fs.InputComponent;
 
 /**
- * Batch properties that are specific to an analysis (for example
- * coming from sonar-project.properties).
+ * Generates unique IDs for any {@link InputComponent}. 
+ * The IDs must be unique among all types of components (project, files) in the project.
+ * The ID should never be 0, as it is sometimes used to indicate invalid components. 
  */
-public class AnalysisProperties extends UserProperties {
-  public AnalysisProperties(Map<String, String> properties) {
-    this(properties, null);
+@ThreadSafe
+public class ScannerComponentIdGenerator implements IntSupplier {
+  private AtomicInteger nextId = new AtomicInteger(1);
 
+  @Override
+  public int getAsInt() {
+    return nextId.getAndIncrement();
   }
-
-  public AnalysisProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
-    super(properties, pathToSecretKey);
-  }
-
 }

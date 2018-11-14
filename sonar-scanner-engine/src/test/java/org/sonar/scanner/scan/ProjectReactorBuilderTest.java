@@ -37,8 +37,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.analysis.AnalysisProperties;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -323,18 +322,6 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldRemoveModulePropertiesFromTaskProperties() {
-    Map<String, String> props = loadProps("big-multi-module-definitions-all-in-root");
-
-    AnalysisProperties taskProperties = new AnalysisProperties(props, null);
-    assertThat(taskProperties.property("module1.module11.property")).isEqualTo("My module11 property");
-
-    new ProjectReactorBuilder(taskProperties).execute();
-
-    assertThat(taskProperties.property("module1.module11.property")).isNull();
-  }
-
-  @Test
   public void shouldFailIfMandatoryPropertiesAreNotPresent() {
     Map<String, String> props = new HashMap<>();
     props.put("foo1", "bla");
@@ -412,7 +399,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(Maps.<String, String>newHashMap(), null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(Maps.<String, String>newHashMap()));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, Maps.<String, String>newHashMap());
@@ -424,7 +411,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -436,7 +423,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -494,7 +481,7 @@ public class ProjectReactorBuilderTest {
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
-    AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
+    ScannerProperties bootstrapProps = new ScannerProperties(props);
     ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
     return projectReactor.getRoot();
   }
@@ -632,16 +619,6 @@ public class ProjectReactorBuilderTest {
       .isEqualTo(getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
     assertThat(module1Feature.getWorkDir().getCanonicalFile())
       .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_com.foo.project.module1.feature"));
-  }
-
-  @Test
-  public void should_log_a_warning_when_a_dropped_property_is_present() {
-    Map<String, String> props = loadProps("simple-project");
-    props.put("sonar.qualitygate", "somevalue");
-    AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
-    new ProjectReactorBuilder(bootstrapProps).execute();
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");
   }
 
   private Map<String, String> loadPropsFromFile(String filePath) throws IOException {

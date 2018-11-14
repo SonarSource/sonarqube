@@ -28,7 +28,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -48,7 +48,7 @@ public final class ScmPublisher {
 
   private static final Logger LOG = Loggers.get(ScmPublisher.class);
 
-  private final DefaultInputModule inputModule;
+  private final AbstractProjectOrModule inputModule;
   private final ScmConfiguration configuration;
   private final ProjectRepositories projectRepositories;
   private final ModuleInputComponentStore componentStore;
@@ -56,8 +56,8 @@ public final class ScmPublisher {
   private final ScannerReportWriter writer;
   private final BranchConfiguration branchConfiguration;
 
-  public ScmPublisher(DefaultInputModule inputModule, ScmConfiguration configuration, ProjectRepositories projectRepositories,
-    ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
+  public ScmPublisher(AbstractProjectOrModule inputModule, ScmConfiguration configuration, ProjectRepositories projectRepositories,
+                      ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
     this.inputModule = inputModule;
     this.configuration = configuration;
     this.projectRepositories = projectRepositories;
@@ -121,7 +121,7 @@ public final class ScmPublisher {
 
   private static void askToCopyDataFromPreviousAnalysis(DefaultInputFile f, ScannerReportWriter writer) {
     Builder scmBuilder = ScannerReport.Changesets.newBuilder();
-    scmBuilder.setComponentRef(f.batchId());
+    scmBuilder.setComponentRef(f.scannerId());
     scmBuilder.setCopyFromPrevious(true);
     writer.writeComponentChangesets(scmBuilder.build());
   }

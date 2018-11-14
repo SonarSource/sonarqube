@@ -21,24 +21,24 @@ package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 public class DefaultModuleFileSystem extends DefaultFileSystem {
 
-  public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
-    StatusDetection statusDetection) {
+  public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, AbstractProjectOrModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+                                 StatusDetection statusDetection) {
     super(module.getBaseDir(), moduleInputFileCache);
     setFields(module, initializer, mode, statusDetection);
   }
 
   @VisibleForTesting
-  public DefaultModuleFileSystem(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
+  public DefaultModuleFileSystem(AbstractProjectOrModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
     super(module.getBaseDir());
     setFields(module, initializer, mode, statusDetection);
   }
 
-  private void setFields(DefaultInputModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
+  private void setFields(AbstractProjectOrModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
     setWorkDir(module.getWorkDir());
     setEncoding(initializer.defaultEncoding());
 

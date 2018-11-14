@@ -32,7 +32,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure;
 import org.sonar.xoo.XooPlugin;
 
@@ -71,7 +71,7 @@ public class MeasuresMediumTest {
     File measures = new File(srcDir, "sample.xoo.measures");
     FileUtils.write(measures, "lines_to_cover:2");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -88,7 +88,7 @@ public class MeasuresMediumTest {
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
       .containsOnly(tuple("lines_to_cover", 2));
 
-    result = tester.newTask()
+    result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -114,7 +114,7 @@ public class MeasuresMediumTest {
     File measures = new File(srcDir, "sample.xoo.measures");
     FileUtils.write(measures, "it_lines_to_cover:2");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -144,7 +144,7 @@ public class MeasuresMediumTest {
     FileUtils.write(measures, "new_lines:2");
 
     try {
-      tester.newTask()
+      tester.newAnalysis()
         .properties(ImmutableMap.<String, String>builder()
           .put("sonar.task", "scan")
           .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -171,7 +171,7 @@ public class MeasuresMediumTest {
     File lineMeasures = new File(srcDir, "sample.xoo.linemeasures");
     FileUtils.write(lineMeasures, "ncloc_data:1=1;2=0;4=1");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -197,7 +197,7 @@ public class MeasuresMediumTest {
     File projectMeasures = new File(baseDir, "module.measures");
     FileUtils.write(projectMeasures, "tests:10");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())

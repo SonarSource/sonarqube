@@ -48,8 +48,8 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.ScannerMediumTester.TaskBuilder;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.FileData;
@@ -141,16 +141,16 @@ public class ScanOnlyChangedTest {
   public void testScanOnlyChangedFiles() throws Exception {
     File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
-    TaskBuilder taskBuilder = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    AnalysisBuilder analysisBuilder = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.report.export.path", "report.json");
     if (branch) {
-      taskBuilder.property("sonar.branch", "branch");
+      analysisBuilder.property("sonar.branch", "branch");
     } else {
-      taskBuilder.property("sonar.projectKey", projectKey);
+      analysisBuilder.property("sonar.projectKey", projectKey);
     }
 
-    TaskResult result = taskBuilder.execute();
+    AnalysisResult result = analysisBuilder.execute();
     /*
      * We have:
      * 6 new issues per line (open) in helloscala.xoo
@@ -169,16 +169,16 @@ public class ScanOnlyChangedTest {
   public void testScanAll() throws Exception {
     File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
-    TaskBuilder taskBuilder = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    AnalysisBuilder analysisBuilder = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.scanAllFiles", "true");
     if (branch) {
-      taskBuilder.property("sonar.branch", "branch");
+      analysisBuilder.property("sonar.branch", "branch");
     } else {
-      taskBuilder.property("sonar.projectKey", projectKey);
+      analysisBuilder.property("sonar.projectKey", projectKey);
     }
 
-    TaskResult result = taskBuilder.execute();
+    AnalysisResult result = analysisBuilder.execute();
 
     assertNumberIssues(result, 16, 2, 0);
 
@@ -188,7 +188,7 @@ public class ScanOnlyChangedTest {
     assertNumberIssuesOnFile(result, "HelloJava.xoo", 8);
   }
 
-  private static void assertNumberIssuesOnFile(TaskResult result, final String fileNameEndsWith, int issues) {
+  private static void assertNumberIssuesOnFile(AnalysisResult result, final String fileNameEndsWith, int issues) {
     assertThat(result.trackedIssues()).haveExactly(issues, new Condition<TrackedIssue>() {
       @Override
       public boolean matches(TrackedIssue value) {
@@ -197,7 +197,7 @@ public class ScanOnlyChangedTest {
     });
   }
 
-  private static void assertNumberIssues(TaskResult result, int expectedNew, int expectedOpen, int expectedResolved) {
+  private static void assertNumberIssues(AnalysisResult result, int expectedNew, int expectedOpen, int expectedResolved) {
     int newIssues = 0;
     int openIssues = 0;
     int resolvedIssue = 0;

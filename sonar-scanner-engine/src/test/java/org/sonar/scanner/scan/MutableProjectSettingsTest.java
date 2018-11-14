@@ -33,14 +33,13 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalConfigurationProvider;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.bootstrap.MutableGlobalSettings;
+import org.sonar.scanner.bootstrap.GlobalServerSettings;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,7 +54,7 @@ public class MutableProjectSettingsTest {
 
   private ProjectRepositories projectRef;
   private ProjectDefinition project;
-  private GlobalConfiguration bootstrapProps;
+  private GlobalConfiguration globalConfig;
   private Table<String, String, FileData> emptyFileData;
   private Table<String, String, String> emptySettings;
 
@@ -67,7 +66,7 @@ public class MutableProjectSettingsTest {
     emptySettings = ImmutableTable.of();
     project = ProjectDefinition.create().setKey("struts");
     globalMode = mock(GlobalAnalysisMode.class);
-    bootstrapProps = new GlobalConfigurationProvider().provide(mock(SettingsLoader.class), new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(),
+    globalConfig = new GlobalConfigurationProvider().provide(mock(GlobalServerSettings.class), new ScannerProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(),
       globalMode);
   }
 
@@ -76,7 +75,7 @@ public class MutableProjectSettingsTest {
     project.setProperty("project.prop", "project");
 
     projectRef = new ProjectRepositories(emptySettings, emptyFileData, null);
-    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), new MutableGlobalSettings(bootstrapProps), projectRef, globalMode);
+    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), globalConfig, projectRef, globalMode);
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
   }
@@ -88,7 +87,7 @@ public class MutableProjectSettingsTest {
     settings.put("struts", "sonar.java.coveragePlugin", "jacoco");
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), new MutableGlobalSettings(bootstrapProps), projectRef, globalMode);
+    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), globalConfig, projectRef, globalMode);
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
@@ -102,7 +101,7 @@ public class MutableProjectSettingsTest {
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
 
-    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), new MutableGlobalSettings(bootstrapProps), projectRef, globalMode);
+    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), globalConfig, projectRef, globalMode);
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
@@ -114,7 +113,7 @@ public class MutableProjectSettingsTest {
     settings.put("struts", "sonar.foo.license.secured", "bar2");
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), new MutableGlobalSettings(bootstrapProps), projectRef, globalMode);
+    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), globalConfig, projectRef, globalMode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(batchSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -129,7 +128,7 @@ public class MutableProjectSettingsTest {
     when(globalMode.isIssues()).thenReturn(true);
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), new MutableGlobalSettings(bootstrapProps), projectRef, globalMode);
+    MutableProjectSettings batchSettings = new MutableProjectSettings(new ProjectReactor(project), globalConfig, projectRef, globalMode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);

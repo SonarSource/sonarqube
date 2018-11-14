@@ -32,7 +32,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 import org.sonar.xoo.XooPlugin;
@@ -72,8 +72,8 @@ public class GenericTestExecutionMediumTest {
       "error:2:Error:The stack:ERROR:UNIT\n" +
       "success:4:::OK:INTEGRATION", StandardCharsets.UTF_8);
 
-    TaskResult result = tester
-      .newTask()
+    AnalysisResult result = tester
+      .newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -103,9 +103,9 @@ public class GenericTestExecutionMediumTest {
 
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-test-exec");
 
-    TaskResult result = tester
+    AnalysisResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml")
       .execute();
 
@@ -148,9 +148,9 @@ public class GenericTestExecutionMediumTest {
 
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-test-exec");
 
-    TaskResult result = tester
+    AnalysisResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.testExecutionReportPaths", "unittest.xml,unittest2.xml")
       .execute();
 

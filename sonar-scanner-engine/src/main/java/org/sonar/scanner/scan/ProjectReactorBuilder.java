@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.nio.file.Path;
@@ -43,8 +42,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.analysis.AnalysisProperties;
-import org.sonar.scanner.bootstrap.DroppedPropertyChecker;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.util.ScannerUtils;
 
 import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
@@ -55,13 +53,6 @@ import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
 public class ProjectReactorBuilder {
 
   private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
-
-  /**
-   * A map of dropped properties as key and specific message to display for that property
-   * (what will happen, what should the user do, ...) as a value
-   */
-  private static final Map<String, String> DROPPED_PROPERTIES = ImmutableMap.of(
-    "sonar.qualitygate", "It will be ignored.");
 
   private static final Logger LOG = Loggers.get(ProjectReactorBuilder.class);
 
@@ -109,30 +100,27 @@ public class ProjectReactorBuilder {
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
     CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
-  private final AnalysisProperties analysisProps;
+  private final ScannerProperties scannerProps;
   private File rootProjectWorkDir;
 
-  public ProjectReactorBuilder(AnalysisProperties props) {
-    this.analysisProps = props;
+  public ProjectReactorBuilder(ScannerProperties props) {
+    this.scannerProps = props;
   }
 
   public ProjectReactor execute() {
     Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
-    new DroppedPropertyChecker(analysisProps.properties(), DROPPED_PROPERTIES).checkDroppedProperties();
     Map<String, Map<String, String>> propertiesByModuleIdPath = new HashMap<>();
-    extractPropertiesByModule(propertiesByModuleIdPath, "", "", analysisProps.properties());
-    ProjectDefinition rootProject = defineRootProject(propertiesByModuleIdPath.get(""), null);
+    extractPropertiesByModule(propertiesByModuleIdPath, "", "", new HashMap<>(scannerProps.properties()));
+    ProjectDefinition rootProject = createModuleDefinition(propertiesByModuleIdPath.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleIdPath, "");
     cleanAndCheckProjectDefinitions(rootProject);
-    // Since task properties are now empty we should add root module properties
-    analysisProps.properties().putAll(propertiesByModuleIdPath.get(""));
     profiler.stopDebug();
     return new ProjectReactor(rootProject);
   }
 
   private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleIdPath, String currentModuleId, String currentModuleIdPath,
-    Map<String, String> parentProperties) {
+                                                Map<String, String> parentProperties) {
     if (propertiesByModuleIdPath.containsKey(currentModuleIdPath)) {
       throw MessageException.of(String.format("Two modules have the same id: '%s'. Each module must have a unique id.", currentModuleId));
     }
@@ -167,26 +155,26 @@ public class ProjectReactorBuilder {
     }
   }
 
-  protected ProjectDefinition defineRootProject(Map<String, String> rootProperties, @Nullable ProjectDefinition parent) {
-    if (rootProperties.containsKey(PROPERTY_MODULES)) {
-      checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
+  protected ProjectDefinition createModuleDefinition(Map<String, String> moduleProperties, @Nullable ProjectDefinition parent) {
+    if (moduleProperties.containsKey(PROPERTY_MODULES)) {
+      checkMandatoryProperties(moduleProperties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
     } else {
-      checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
+      checkMandatoryProperties(moduleProperties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
     }
-    File baseDir = new File(rootProperties.get(PROPERTY_PROJECT_BASEDIR));
-    final String projectKey = rootProperties.get(CoreProperties.PROJECT_KEY_PROPERTY);
+    File baseDir = new File(moduleProperties.get(PROPERTY_PROJECT_BASEDIR));
+    final String projectKey = moduleProperties.get(CoreProperties.PROJECT_KEY_PROPERTY);
     File workDir;
     if (parent == null) {
-      validateDirectories(rootProperties, baseDir, projectKey);
-      workDir = initRootProjectWorkDir(baseDir, rootProperties);
+      validateDirectories(moduleProperties, baseDir, projectKey);
+      workDir = initRootProjectWorkDir(baseDir, moduleProperties);
     } else {
-      workDir = initModuleWorkDir(baseDir, rootProperties);
+      workDir = initModuleWorkDir(baseDir, moduleProperties);
     }
 
-    return ProjectDefinition.create().setProperties(rootProperties)
+    return ProjectDefinition.create().setProperties(moduleProperties)
       .setBaseDir(baseDir)
       .setWorkDir(workDir)
-      .setBuildDir(initModuleBuildDir(baseDir, rootProperties));
+      .setBuildDir(initModuleBuildDir(baseDir, moduleProperties));
   }
 
   @VisibleForTesting
@@ -266,7 +254,7 @@ public class ProjectReactorBuilder {
 
     mergeParentProperties(moduleProps, parentProject.properties());
 
-    return defineRootProject(moduleProps, parentProject);
+    return createModuleDefinition(moduleProps, parentProject);
   }
 
   @VisibleForTesting
@@ -402,9 +390,8 @@ public class ProjectReactorBuilder {
 
   /**
    * Transforms a comma-separated list String property in to a array of trimmed strings.
-   *
+   * <p>
    * This works even if they are separated by whitespace characters (space char, EOL, ...)
-   *
    */
   static String[] getListFromProperty(Map<String, String> properties, String key) {
     String propValue = properties.get(key);

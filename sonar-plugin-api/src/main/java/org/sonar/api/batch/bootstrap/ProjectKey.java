@@ -21,7 +21,9 @@ package org.sonar.api.batch.bootstrap;
 
 /**
  * Provides root project key with branch
+ * @deprecated since 7.6
  */
+@Deprecated
 @FunctionalInterface
 public interface ProjectKey {
   String get();

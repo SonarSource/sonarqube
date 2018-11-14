@@ -17,26 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.scanner.mediumtest;
 
-import com.google.common.collect.Maps;
-import java.util.Map;
-import org.junit.Test;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.scanner.scan.ProjectScanContainer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+@ScannerSide
+@ExtensionPoint
+@FunctionalInterface
+public interface AnalysisObserver {
 
-public class GlobalPropertiesTest {
-  @Test
-  public void test_copy_of_properties() {
-    Map<String, String> map = Maps.newHashMap();
-    map.put("foo", "bar");
+  void analysisCompleted(ProjectScanContainer container);
 
-    GlobalProperties wrapper = new GlobalProperties(map);
-    assertThat(wrapper.properties()).containsOnly(entry("foo", "bar"));
-    assertThat(wrapper.properties()).isNotSameAs(map);
-
-    map.put("put", "after_copy");
-    assertThat(wrapper.properties()).hasSize(1);
-  }
 }

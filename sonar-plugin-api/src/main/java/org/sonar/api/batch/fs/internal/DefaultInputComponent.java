@@ -44,7 +44,7 @@ public abstract class DefaultInputComponent implements InputComponent {
     return key().equals(that.key());
   }
 
-  public int batchId() {
+  public int scannerId() {
     return id;
   }
 

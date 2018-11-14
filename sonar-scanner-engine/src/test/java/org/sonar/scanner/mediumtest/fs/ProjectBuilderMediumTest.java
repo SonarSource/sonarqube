@@ -34,7 +34,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -100,7 +100,7 @@ public class ProjectBuilderMediumTest {
       }
     });
 
-    tester.newTask()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -119,7 +119,7 @@ public class ProjectBuilderMediumTest {
   public void testProjectBuilder() throws IOException {
     File baseDir = prepareProject();
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -148,7 +148,7 @@ public class ProjectBuilderMediumTest {
 
     exception.expect(MessageException.class);
     exception.expectMessage("is not a valid branch name");
-    tester.newTask()
+    tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -167,7 +167,7 @@ public class ProjectBuilderMediumTest {
   public void testProjectBuilderWithBranch() throws IOException {
     File baseDir = prepareProject();
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())

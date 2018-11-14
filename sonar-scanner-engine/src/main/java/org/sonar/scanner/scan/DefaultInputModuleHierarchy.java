@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -38,10 +38,6 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   private final Map<DefaultInputModule, DefaultInputModule> parents;
   private final ImmutableMultimap<DefaultInputModule, DefaultInputModule> children;
 
-  public DefaultInputModuleHierarchy(DefaultInputModule parent, DefaultInputModule child) {
-    this(Collections.singletonMap(child, parent));
-  }
-
   public DefaultInputModuleHierarchy(DefaultInputModule root) {
     this.children = new ImmutableMultimap.Builder<DefaultInputModule, DefaultInputModule>().build();
     this.parents = Collections.emptyMap();
@@ -51,7 +47,7 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   /**
    * Map of child->parent. Neither the Keys or values can be null.
    */
-  public DefaultInputModuleHierarchy(Map<DefaultInputModule, DefaultInputModule> parents) {
+  public DefaultInputModuleHierarchy(DefaultInputModule root, Map<DefaultInputModule, DefaultInputModule> parents) {
     ImmutableMultimap.Builder<DefaultInputModule, DefaultInputModule> childrenBuilder = new ImmutableMultimap.Builder<>();
 
     for (Map.Entry<DefaultInputModule, DefaultInputModule> e : parents.entrySet()) {
@@ -60,23 +56,7 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
 
     this.children = childrenBuilder.build();
     this.parents = Collections.unmodifiableMap(new HashMap<>(parents));
-    this.root = findRoot(parents);
-  }
-
-  private static DefaultInputModule findRoot(Map<DefaultInputModule, DefaultInputModule> parents) {
-    DefaultInputModule r = null;
-    for (DefaultInputModule parent : parents.values()) {
-      if (!parents.containsKey(parent)) {
-        if (r != null && r != parent) {
-          throw new IllegalStateException(String.format("Found two modules without parent: '%s' and '%s'", r.key(), parent.key()));
-        }
-        r = parent;
-      }
-    }
-    if (r == null) {
-      throw new IllegalStateException("Found no root module");
-    }
-    return r;
+    this.root = root;
   }
 
   @Override
@@ -85,24 +65,24 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   }
 
   @Override
-  public Collection<DefaultInputModule> children(InputModule component) {
-    return children.get((DefaultInputModule) component);
+  public Collection<DefaultInputModule> children(DefaultInputModule component) {
+    return children.get(component);
   }
 
   @Override
-  public DefaultInputModule parent(InputModule component) {
+  public DefaultInputModule parent(DefaultInputModule component) {
     return parents.get(component);
   }
 
   @Override
-  public boolean isRoot(InputModule module) {
+  public boolean isRoot(DefaultInputModule module) {
     return root.equals(module);
   }
 
   @Override
   @CheckForNull
-  public String relativePath(InputModule module) {
-    DefaultInputModule parent = parent(module);
+  public String relativePath(DefaultInputModule module) {
+    AbstractProjectOrModule parent = parent(module);
     if (parent == null) {
       return null;
     }

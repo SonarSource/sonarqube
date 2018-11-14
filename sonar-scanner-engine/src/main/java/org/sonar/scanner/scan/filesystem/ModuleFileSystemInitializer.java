@@ -33,7 +33,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -50,15 +51,16 @@ public class ModuleFileSystemInitializer {
   private final List<Path> testDirsOrFiles;
   private final Charset encoding;
 
-  public ModuleFileSystemInitializer(DefaultInputModule inputModule) {
-    logDir("Base dir: ", inputModule.getBaseDir());
-    logDir("Working dir: ", inputModule.getWorkDir());
-    sourceDirsOrFiles = initSources(inputModule, ProjectDefinition.SOURCES_PROPERTY, "Source paths: ");
-    testDirsOrFiles = initSources(inputModule, ProjectDefinition.TESTS_PROPERTY, "Test paths: ");
-    encoding = initEncoding(inputModule);
+  public ModuleFileSystemInitializer(InputModule inputModule) {
+    AbstractProjectOrModule inputModuleCasted = (AbstractProjectOrModule) inputModule;
+    logDir("Base dir: ", inputModuleCasted.getBaseDir());
+    logDir("Working dir: ", inputModuleCasted.getWorkDir());
+    sourceDirsOrFiles = initSources(inputModuleCasted, ProjectDefinition.SOURCES_PROPERTY, "Source paths: ");
+    testDirsOrFiles = initSources(inputModuleCasted, ProjectDefinition.TESTS_PROPERTY, "Test paths: ");
+    encoding = initEncoding(inputModuleCasted);
   }
 
-  private static List<Path> initSources(DefaultInputModule module, String propertyKey, String logLabel) {
+  private static List<Path> initSources(AbstractProjectOrModule module, String propertyKey, String logLabel) {
     List<Path> result = new ArrayList<>();
     PathResolver pathResolver = new PathResolver();
     String srcPropValue = module.properties().get(propertyKey);
@@ -74,7 +76,7 @@ public class ModuleFileSystemInitializer {
     return result;
   }
 
-  private static Charset initEncoding(DefaultInputModule module) {
+  private static Charset initEncoding(AbstractProjectOrModule module) {
     String encodingStr = module.properties().get(CoreProperties.ENCODING_PROPERTY);
     Charset result;
     if (StringUtils.isNotEmpty(encodingStr)) {

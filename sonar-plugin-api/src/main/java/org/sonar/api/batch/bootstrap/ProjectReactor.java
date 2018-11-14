@@ -32,7 +32,7 @@ import java.util.List;
  */
 @Deprecated
 @ScannerSide
-public class ProjectReactor implements ProjectKey {
+public class ProjectReactor {
 
   private ProjectDefinition root;
 
@@ -71,7 +71,6 @@ public class ProjectReactor implements ProjectKey {
     return null;
   }
 
-  @Override
   public String get() {
     if (root != null) {
       return root.getKeyWithBranch();

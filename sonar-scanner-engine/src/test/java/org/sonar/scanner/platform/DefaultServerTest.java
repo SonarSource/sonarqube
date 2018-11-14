@@ -42,7 +42,7 @@ public class DefaultServerTest {
     ScannerWsClient client = mock(ScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com");
 
-    DefaultServer metadata = new DefaultServer(settings, client, SonarRuntimeImpl.forSonarQube(Version.parse("2.2"), SonarQubeSide.SCANNER));
+    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client, SonarRuntimeImpl.forSonarQube(Version.parse("2.2"), SonarQubeSide.SCANNER));
 
     assertThat(metadata.getId()).isEqualTo("123");
     assertThat(metadata.getVersion()).isEqualTo("2.2");
@@ -61,7 +61,7 @@ public class DefaultServerTest {
     Settings settings = new MapSettings();
     ScannerWsClient client = mock(ScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com/");
-    DefaultServer metadata = new DefaultServer(settings, client, null);
+    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client, null);
 
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://server.com/");
     assertThat(metadata.getPublicRootUrl()).isEqualTo("http://server.com");
@@ -75,7 +75,7 @@ public class DefaultServerTest {
     Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "invalid");
     ScannerWsClient client = mock(ScannerWsClient.class);
-    DefaultServer metadata = new DefaultServer(settings, client, null);
+    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client, null);
     metadata.getStartedAt();
   }
 }

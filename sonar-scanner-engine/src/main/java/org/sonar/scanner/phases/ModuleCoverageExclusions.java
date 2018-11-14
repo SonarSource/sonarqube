@@ -21,12 +21,12 @@ package org.sonar.scanner.phases;
 
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Configuration;
+import org.sonar.scanner.scan.ModuleConfiguration;
 
 @Immutable
 public class ModuleCoverageExclusions extends AbstractCoverageExclusions {
 
-  public ModuleCoverageExclusions(Configuration config) {
+  public ModuleCoverageExclusions(ModuleConfiguration config) {
     super(config, DefaultInputFile::getModuleRelativePath);
   }
 }

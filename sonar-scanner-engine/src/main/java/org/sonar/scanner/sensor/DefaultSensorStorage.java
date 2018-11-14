@@ -424,7 +424,7 @@ public class DefaultSensorStorage implements SensorStorage {
       return;
     }
     inputFile.setPublished(true);
-    int componentRef = inputFile.batchId();
+    int componentRef = inputFile.scannerId();
     if (writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile);
     }
@@ -452,7 +452,7 @@ public class DefaultSensorStorage implements SensorStorage {
       return;
     }
     inputFile.setPublished(true);
-    int componentRef = inputFile.batchId();
+    int componentRef = inputFile.scannerId();
     if (writer.hasComponentData(FileStructure.Domain.SYMBOLS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile());
     }
@@ -550,7 +550,7 @@ public class DefaultSensorStorage implements SensorStorage {
       return;
     }
     inputFile.setPublished(true);
-    int componentRef = inputFile.batchId();
+    int componentRef = inputFile.scannerId();
     if (writer.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, componentRef)) {
       throw new UnsupportedOperationException(
         "Trying to save significant code information twice for the same file is not supported: " + significantCode.inputFile());

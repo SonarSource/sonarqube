@@ -47,7 +47,7 @@ public class NoLanguagesPluginsMediumTest {
     exception.expectMessage("No language plugins are installed");
 
     tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .execute();
   }
 

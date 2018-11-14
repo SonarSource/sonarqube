@@ -21,11 +21,11 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.nio.file.Path;
 import javax.annotation.Nullable;
-
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.scanner.scan.ScanProperties;
@@ -33,21 +33,21 @@ import org.sonar.scanner.scan.ScanProperties;
 public class InputFileBuilder {
   private final String moduleKey;
   private final Path moduleBaseDir;
-  private final BatchIdGenerator idGenerator;
+  private final ScannerComponentIdGenerator idGenerator;
   private final MetadataGenerator metadataGenerator;
   private final boolean preloadMetadata;
   private final ModuleFileSystemInitializer moduleFileSystemInitializer;
   private final Path projectBaseDir;
   private final SensorStrategy sensorStrategy;
 
-  public InputFileBuilder(DefaultInputModule module, MetadataGenerator metadataGenerator,
-    BatchIdGenerator idGenerator, ScanProperties properties, ModuleFileSystemInitializer moduleFileSystemInitializer, InputModuleHierarchy hierarchy,
-    SensorStrategy sensorStrategy) {
+  public InputFileBuilder(InputModule module, MetadataGenerator metadataGenerator,
+                          ScannerComponentIdGenerator idGenerator, ScanProperties properties, ModuleFileSystemInitializer moduleFileSystemInitializer, InputModuleHierarchy hierarchy,
+                          SensorStrategy sensorStrategy) {
     this.sensorStrategy = sensorStrategy;
     this.projectBaseDir = hierarchy.root().getBaseDir();
     this.moduleFileSystemInitializer = moduleFileSystemInitializer;
     this.moduleKey = module.key();
-    this.moduleBaseDir = module.getBaseDir();
+    this.moduleBaseDir = ((AbstractProjectOrModule) module).getBaseDir();
     this.metadataGenerator = metadataGenerator;
     this.idGenerator = idGenerator;
     this.preloadMetadata = properties.preloadFileMetadata();

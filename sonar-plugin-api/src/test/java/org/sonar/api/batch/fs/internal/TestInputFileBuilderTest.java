@@ -65,7 +65,7 @@ public class TestInputFileBuilderTest {
   @Test
   public void testCreateInputModule() throws IOException {
     File baseDir = temp.newFolder();
-    DefaultInputModule module = TestInputFileBuilder.newDefaultInputModule("key", baseDir);
+    AbstractProjectOrModule module = TestInputFileBuilder.newDefaultInputModule("key", baseDir);
     assertThat(module.key()).isEqualTo("key");
     assertThat(module.getBaseDir()).isEqualTo(baseDir.toPath());
   }

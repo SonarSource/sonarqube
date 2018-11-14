@@ -41,7 +41,6 @@ public class ModuleConfigurationProvider extends ProviderAdapter {
     if (moduleConfiguration == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(globalConfig.getProperties());
       settings.putAll(addServerSidePropertiesIfModuleExists(projectRepos, module.definition()));
       addScannerSideProperties(settings, module.definition());
       contextReportPublisher.dumpModuleSettings(module);

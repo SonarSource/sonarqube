@@ -27,8 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
@@ -38,21 +37,19 @@ import static org.mockito.Mockito.when;
 
 public class ScanPropertiesTest {
   private MapSettings settings = new MapSettings();
-  private InputModuleHierarchy inputModuleHierarchy = mock(InputModuleHierarchy.class);
-  private ScanProperties underTest = new ScanProperties(settings.asConfig(), inputModuleHierarchy);
+  private DefaultInputProject project = mock(DefaultInputProject.class);
+  private ScanProperties underTest = new ScanProperties(settings.asConfig(), project);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws IOException {
-    DefaultInputModule root = mock(DefaultInputModule.class);
-    when(root.getBaseDir()).thenReturn(temp.newFolder().toPath());
-    when(root.getWorkDir()).thenReturn(temp.newFolder().toPath());
-    when(inputModuleHierarchy.root()).thenReturn(root);
+    when(project.getBaseDir()).thenReturn(temp.newFolder().toPath());
+    when(project.getWorkDir()).thenReturn(temp.newFolder().toPath());
   }
 
   @Test
@@ -61,7 +58,7 @@ public class ScanPropertiesTest {
     assertThat(underTest.organizationKey()).isEmpty();
     assertThat(underTest.preloadFileMetadata()).isFalse();
     assertThat(underTest.shouldKeepReport()).isFalse();
-    assertThat(underTest.metadataFilePath()).isEqualTo(inputModuleHierarchy.root().getWorkDir().resolve("report-task.txt"));
+    assertThat(underTest.metadataFilePath()).isEqualTo(project.getWorkDir().resolve("report-task.txt"));
     underTest.validate();
   }
 
@@ -70,32 +67,32 @@ public class ScanPropertiesTest {
     settings.setProperty("sonar.organization", "org");
     assertThat(underTest.organizationKey()).isEqualTo(Optional.of("org"));
   }
-  
+
   @Test
   public void should_define_branch_name() {
     settings.setProperty("sonar.branch.name", "name");
     assertThat(underTest.branch()).isEqualTo(Optional.of("name"));
   }
-  
+
   @Test
   public void should_define_preload_file_metadata() {
     settings.setProperty("sonar.preloadFileMetadata", "true");
     assertThat(underTest.preloadFileMetadata()).isTrue();
   }
-  
+
   @Test
   public void should_define_keep_report() {
     settings.setProperty("sonar.scanner.keepReport", "true");
     assertThat(underTest.shouldKeepReport()).isTrue();
   }
-  
+
   @Test
   public void should_define_metadata_file_path() throws IOException {
     Path path = temp.newFolder().toPath().resolve("report");
     settings.setProperty("sonar.scanner.metadataFilePath", path.toString());
     assertThat(underTest.metadataFilePath()).isEqualTo(path);
   }
-  
+
   @Test
   public void validate_fails_if_metadata_file_location_is_not_absolute() {
     settings.setProperty("sonar.scanner.metadataFilePath", "relative");

@@ -68,10 +68,10 @@ public class ModuleIssues {
       return false;
     }
 
-    ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.batchId(), activeRule.severity());
+    ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.scannerId(), activeRule.severity());
 
     if (filters.accept(inputComponent.key(), rawIssue)) {
-      write(inputComponent.batchId(), rawIssue);
+      write(inputComponent.scannerId(), rawIssue);
       return true;
     }
     return false;
@@ -87,8 +87,8 @@ public class ModuleIssues {
 
   public void initAndAddExternalIssue(ExternalIssue issue) {
     DefaultInputComponent inputComponent = (DefaultInputComponent) issue.primaryLocation().inputComponent();
-    ScannerReport.ExternalIssue rawExternalIssue = createReportExternalIssue(issue, inputComponent.batchId());
-    write(inputComponent.batchId(), rawExternalIssue);
+    ScannerReport.ExternalIssue rawExternalIssue = createReportExternalIssue(issue, inputComponent.scannerId());
+    write(inputComponent.scannerId(), rawExternalIssue);
   }
 
   private static ScannerReport.Issue createReportIssue(Issue issue, int componentRef, String activeRuleSeverity) {
@@ -158,7 +158,7 @@ public class ModuleIssues {
       }
       flowBuilder.clear();
       for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
-        int locationComponentRef = ((DefaultInputComponent) location.inputComponent()).batchId();
+        int locationComponentRef = ((DefaultInputComponent) location.inputComponent()).scannerId();
         locationBuilder.clear();
         locationBuilder.setComponentRef(locationComponentRef);
         String message = location.message();

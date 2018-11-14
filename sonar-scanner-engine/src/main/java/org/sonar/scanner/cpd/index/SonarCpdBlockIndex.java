@@ -55,7 +55,7 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
 
   public void insert(InputFile inputFile, Collection<Block> blocks) {
     if (settings.isCrossProjectDuplicationEnabled()) {
-      int id = ((DefaultInputFile) inputFile).batchId();
+      int id = ((DefaultInputFile) inputFile).scannerId();
       if (publisher.getWriter().hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, id)) {
         throw new UnsupportedOperationException("Trying to save CPD tokens twice for the same file is not supported: " + inputFile.absolutePath());
       }

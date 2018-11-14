@@ -38,7 +38,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.xoo.XooPlugin;
@@ -119,8 +119,8 @@ public class IssueModeAndReportsMediumTest {
   public void testIssueTracking() throws Exception {
     File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .execute();
 
     int newIssues = 0;
@@ -166,7 +166,7 @@ public class IssueModeAndReportsMediumTest {
     File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
     tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.xoo.enablePostJob", "true")
       .execute();
 
@@ -185,7 +185,7 @@ public class IssueModeAndReportsMediumTest {
     FileUtils.write(xooFile, "Sample xoo\ncontent plop");
     FileUtils.write(xoohighlightingFile, "0:10:s\n11:18:k");
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")

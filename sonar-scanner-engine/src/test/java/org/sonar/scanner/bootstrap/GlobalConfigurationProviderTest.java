@@ -27,8 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,38 +40,24 @@ public class GlobalConfigurationProviderTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  SettingsLoader settingsLoader;
-  GlobalProperties bootstrapProps;
+  GlobalServerSettings globalServerSettings;
+  ScannerProperties scannerProps;
 
   private GlobalAnalysisMode mode;
 
   @Before
   public void prepare() {
-    settingsLoader = mock(SettingsLoader.class);
-    bootstrapProps = new GlobalProperties(Collections.<String, String>emptyMap());
+    globalServerSettings = mock(GlobalServerSettings.class);
+    scannerProps = new ScannerProperties(Collections.<String, String>emptyMap());
     mode = mock(GlobalAnalysisMode.class);
   }
 
   @Test
   public void should_load_global_settings() {
-    when(settingsLoader.load(null)).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
+    when(globalServerSettings.properties()).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
 
-    GlobalConfiguration globalConfig = new GlobalConfigurationProvider().provide(settingsLoader, bootstrapProps, new PropertyDefinitions(), mode);
+    GlobalConfiguration globalConfig = new GlobalConfigurationProvider().provide(globalServerSettings, scannerProps, new PropertyDefinitions(), mode);
 
     assertThat(globalConfig.get("sonar.cpd.cross")).hasValue("true");
-  }
-
-  @Test
-  public void should_log_warn_msg_for_each_jdbc_property_if_present() {
-    when(settingsLoader.load(null)).thenReturn(ImmutableMap.of("sonar.jdbc.url", SOME_VALUE,
-      "sonar.jdbc.username", SOME_VALUE,
-      "sonar.jdbc.password", SOME_VALUE));
-
-    new GlobalConfigurationProvider().provide(settingsLoader, bootstrapProps, new PropertyDefinitions(), mode);
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
-      "Property 'sonar.jdbc.url' is not supported any more. It will be ignored. There is no longer any DB connection to the SQ database.",
-      "Property 'sonar.jdbc.username' is not supported any more. It will be ignored. There is no longer any DB connection to the SQ database.",
-      "Property 'sonar.jdbc.password' is not supported any more. It will be ignored. There is no longer any DB connection to the SQ database.");
   }
 }

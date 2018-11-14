@@ -66,12 +66,7 @@ public final class LoggingConfiguration {
   }
 
   public LoggingConfiguration setProperties(Map<String, String> properties) {
-    setVerbose(properties, null);
-    return this;
-  }
-
-  public LoggingConfiguration setProperties(Map<String, String> properties, @Nullable Map<String, String> fallback) {
-    setVerbose(properties, fallback);
+    setVerbose(properties);
     return this;
   }
 
@@ -88,10 +83,10 @@ public final class LoggingConfiguration {
     return verbose;
   }
 
-  public LoggingConfiguration setVerbose(Map<String, String> props, @Nullable Map<String, String> fallback) {
-    String logLevel = getFallback("sonar.log.level", props, fallback);
-    String deprecatedProfilingLevel = getFallback("sonar.log.profilingLevel", props, fallback);
-    verbose = "true".equals(getFallback("sonar.verbose", props, fallback)) ||
+  public LoggingConfiguration setVerbose(Map<String, String> props) {
+    String logLevel = props.get("sonar.log.level");
+    String deprecatedProfilingLevel = props.get("sonar.log.profilingLevel");
+    verbose = "true".equals(props.get("sonar.verbose")) ||
       "DEBUG".equals(logLevel) || "TRACE".equals(logLevel) ||
       "BASIC".equals(deprecatedProfilingLevel) || "FULL".equals(deprecatedProfilingLevel);
 

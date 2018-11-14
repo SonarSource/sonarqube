@@ -31,9 +31,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.mediumtest.LogOutputRecorder;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -47,7 +47,9 @@ public class CpdMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private LogOutputRecorder logRecorder = new LogOutputRecorder();
+  @Rule
+  public LogTester logTester = new LogTester();
+
   private File baseDir;
 
   @Rule
@@ -56,15 +58,13 @@ public class CpdMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
     // active a rule just to be sure that xoo files are published
-    .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
-    .setLogOutput(logRecorder);
+    .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null);
 
   private ImmutableMap.Builder<String, String> builder;
 
   @Before
   public void prepare() {
     baseDir = temp.getRoot();
-    logRecorder.getAll().clear();
 
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")
@@ -110,7 +110,7 @@ public class CpdMediumTest {
     File xooFile2 = new File(module2Dir, "sample2.xoo");
     FileUtils.write(xooFile2, duplicatedStuff);
 
-    TaskResult result = tester.newTask().properties(builder.build()).execute();
+    AnalysisResult result = tester.newAnalysis().properties(builder.build()).execute();
 
     assertThat(result.inputFiles()).hasSize(2);
 
@@ -156,7 +156,7 @@ public class CpdMediumTest {
     File xooFile2 = new File(srcDir, "sample2.xoo");
     FileUtils.write(xooFile2, duplicatedStuff, StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .put("sonar.cpd.xoo.minimumTokens", "10")
@@ -210,7 +210,7 @@ public class CpdMediumTest {
     File xooFile2 = new File(srcDir, "sample2.xoo");
     FileUtils.write(xooFile2, file2, StandardCharsets.UTF_8);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .put("sonar.cpd.xoo.minimumTokens", "10")
@@ -220,8 +220,8 @@ public class CpdMediumTest {
 
     assertThat(result.inputFiles()).hasSize(2);
 
-    assertThat(logRecorder.getAllAsString()).contains("Not enough content in 'src/sample2.xoo' to have CPD blocks");
-    assertThat(logRecorder.getAllAsString()).contains("1 file had no CPD blocks");
+    assertThat(logTester.logs()).contains("Not enough content in 'src/sample2.xoo' to have CPD blocks, it will not be part of the duplication detection");
+    assertThat(logTester.logs()).contains("1 file had no CPD blocks");
 
   }
 
@@ -242,7 +242,7 @@ public class CpdMediumTest {
     File xooFile2 = new File(srcDir, "sample2.xoo");
     FileUtils.write(xooFile2, duplicatedStuff);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .put("sonar.cpd.xoo.minimumTokens", "10")
@@ -272,7 +272,7 @@ public class CpdMediumTest {
     File xooFile1 = new File(srcDir, "sample1.xoo");
     FileUtils.write(xooFile1, duplicatedStuff);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .put("sonar.cpd.xoo.minimumTokens", "1")
@@ -315,7 +315,7 @@ public class CpdMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, content);
 
-    TaskResult result = tester.newTask()
+    AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .put("sonar.cpd.xoo.minimumTokens", "2")

@@ -90,7 +90,7 @@ public class IssueTransition {
   public void trackIssues(ScannerReportReader reader, DefaultInputComponent component) {
     // raw issues = all the issues created by rule engines during this module scan and not excluded by filters
     List<ScannerReport.Issue> rawIssues = new LinkedList<>();
-    try (CloseableIterator<ScannerReport.Issue> it = reader.readComponentIssues(component.batchId())) {
+    try (CloseableIterator<ScannerReport.Issue> it = reader.readComponentIssues(component.scannerId())) {
       while (it.hasNext()) {
         rawIssues.add(it.next());
       }

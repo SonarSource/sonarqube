@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.TaskResult;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,9 +47,9 @@ public class GenericCoverageMediumTest {
 
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
-    TaskResult result = tester
+    AnalysisResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml")
       .execute();
 
@@ -91,7 +91,7 @@ public class GenericCoverageMediumTest {
 
     tester
       .setLogOutput((msg, level) -> logs.add(msg))
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.genericcoverage.reportPath", "coverage.xml")
       .execute();
       
@@ -104,9 +104,9 @@ public class GenericCoverageMediumTest {
 
     File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
-    TaskResult result = tester
+    AnalysisResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.coverageReportPaths", "coverage.xml,coverage2.xml")
       .execute();
 

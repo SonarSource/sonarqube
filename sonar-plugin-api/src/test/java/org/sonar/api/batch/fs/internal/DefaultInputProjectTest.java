@@ -28,7 +28,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultInputModuleTest {
+public class DefaultInputProjectTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -46,7 +46,7 @@ public class DefaultInputModuleTest {
     def.setWorkDir(workDir);
     def.setSources("file1");
     def.setTests("test1");
-    DefaultInputModule module = new DefaultInputModule(def);
+    AbstractProjectOrModule module = new DefaultInputProject(def);
 
     assertThat(module.key()).isEqualTo("projectKey");
     assertThat(module.getName()).isEqualTo("projectName");

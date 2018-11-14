@@ -24,7 +24,7 @@ import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -41,12 +41,12 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
   /*
    * ScmConfiguration is not available in issues mode
    */
-  public ScmChangedFiles provide(@Nullable ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, InputModuleHierarchy inputModuleHierarchy) {
+  public ScmChangedFiles provide(@Nullable ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, DefaultInputProject project) {
     if (scmBranchChangedFiles == null) {
       if (scmConfiguration == null) {
         scmBranchChangedFiles = new ScmChangedFiles(null);
       } else {
-        Path rootBaseDir = inputModuleHierarchy.root().getBaseDir();
+        Path rootBaseDir = project.getBaseDir();
         Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
         validatePaths(changedFiles);
         scmBranchChangedFiles = new ScmChangedFiles(changedFiles);

@@ -25,7 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.measures.CoreMetrics;
@@ -62,7 +63,7 @@ public class DefaultMeasureTest {
   @Test
   public void build_project_measure() throws IOException {
     SensorStorage storage = mock(SensorStorage.class);
-    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
+    AbstractProjectOrModule module = new DefaultInputProject(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
     DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(storage)
       .forMetric(CoreMetrics.LINES)
       .on(module)
@@ -82,7 +83,7 @@ public class DefaultMeasureTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("on() already called");
     new DefaultMeasure<Integer>()
-      .on(new DefaultInputModule(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())))
+      .on(new DefaultInputProject(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())))
       .on(new TestInputFileBuilder("foo", "src/Foo.php").build())
       .withValue(3)
       .save();

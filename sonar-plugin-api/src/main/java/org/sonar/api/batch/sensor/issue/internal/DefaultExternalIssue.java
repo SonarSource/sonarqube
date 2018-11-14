@@ -21,7 +21,7 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
@@ -40,12 +40,12 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   private String engineId;
   private String ruleId;
 
-  public DefaultExternalIssue(DefaultInputModule projectRoot) {
-    this(projectRoot, null);
+  public DefaultExternalIssue(DefaultInputProject project) {
+    this(project, null);
   }
 
-  public DefaultExternalIssue(DefaultInputModule projectRoot, @Nullable SensorStorage storage) {
-    super(projectRoot, storage);
+  public DefaultExternalIssue(DefaultInputProject project, @Nullable SensorStorage storage) {
+    super(project, storage);
   }
 
   @Override

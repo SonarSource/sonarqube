@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.api.scanner.fs;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntSupplier;
 
-import javax.annotation.concurrent.ThreadSafe;
-
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.sensor.SensorContext;
 
 /**
- * Generates unique IDs for any {@link InputComponent}. 
- * The IDs must be unique among all types of components and for all modules in the project.
- * The ID should never be 0, as it is sometimes used to indicate invalid components. 
+ * Used to create issues and measures on project. You can access InputProject using {@link SensorContext#project()}
+ *
+ * @since 7.6
  */
-@ThreadSafe
-public class BatchIdGenerator implements IntSupplier {
-  private AtomicInteger nextBatchId = new AtomicInteger(1);
-
-  @Override
-  public int getAsInt() {
-    return nextBatchId.getAndIncrement();
-  }
+@Immutable
+public interface InputProject extends InputComponent {
 }

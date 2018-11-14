@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.rule.RuleKey;
@@ -40,10 +40,10 @@ public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final String componentKey;
-  private DefaultInputModule module;
+  private AbstractProjectOrModule module;
 
   public DefaultFilterableIssue(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, Issue rawIssue, String componentKey) {
-    this.module = (DefaultInputModule) module;
+    this.module = (AbstractProjectOrModule) module;
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.rawIssue = rawIssue;
     this.componentKey = componentKey;
