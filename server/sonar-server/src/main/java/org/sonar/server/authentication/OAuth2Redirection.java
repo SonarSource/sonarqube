@@ -23,8 +23,9 @@ import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.elasticsearch.common.Nullable;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 
@@ -39,13 +40,13 @@ public class OAuth2Redirection {
   private static final String RETURN_TO_PARAMETER = "return_to";
 
   public void create(HttpServletRequest request, HttpServletResponse response) {
-    String redirectTo = request.getParameter(RETURN_TO_PARAMETER);
-    if (isBlank(redirectTo)) {
+    Optional<String> redirectTo = sanitizeRedirectUrl(request.getParameter(RETURN_TO_PARAMETER));
+    if (!redirectTo.isPresent()) {
       return;
     }
     response.addCookie(newCookieBuilder(request)
       .setName(REDIRECT_TO_COOKIE)
-      .setValue(redirectTo)
+      .setValue(redirectTo.get())
       .setHttpOnly(true)
       .setExpiry(-1)
       .build());
@@ -60,7 +61,7 @@ public class OAuth2Redirection {
     delete(request, response);
 
     String redirectTo = cookie.get().getValue();
-    if (isBlank(redirectTo)) {
+    if (isNullOrEmpty(redirectTo)) {
       return Optional.empty();
     }
     return Optional.of(redirectTo);
@@ -73,6 +74,19 @@ public class OAuth2Redirection {
       .setHttpOnly(true)
       .setExpiry(0)
       .build());
+  }
+
+  private static Optional<String> sanitizeRedirectUrl(@Nullable String url){
+    if (isNullOrEmpty(url)){
+      return Optional.empty();
+    }
+    if (url.startsWith("//") || url.startsWith("/\\")){
+      return Optional.empty();
+    }
+    if (!url.startsWith("/")){
+      return Optional.empty();
+    }
+    return Optional.of(url);
   }
 
 }
