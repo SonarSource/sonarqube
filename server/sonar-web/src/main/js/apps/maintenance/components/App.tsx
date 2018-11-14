@@ -26,7 +26,7 @@ import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl, getReturnUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
@@ -112,7 +112,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   loadPreviousPage = () => {
     setInterval(() => {
-      window.location.href = this.props.location.query['return_to'] || getBaseUrl() + '/';
+      window.location.href = getReturnUrl(this.props.location);
     }, 2500);
   };
 

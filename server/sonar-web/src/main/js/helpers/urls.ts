@@ -252,3 +252,16 @@ export function getHomePageUrl(homepage: HomePage) {
   // should never happen, but just in case...
   return '/projects';
 }
+
+export function getReturnUrl(location: { hash?: string; query?: { return_to?: string } }) {
+  const returnTo = location.query && location.query['return_to'];
+  if (isRelativeUrl(returnTo)) {
+    return returnTo + (location.hash ? location.hash : '');
+  }
+  return getBaseUrl() + '/';
+}
+
+export function isRelativeUrl(url?: string): boolean {
+  const regex = new RegExp(/^\/[^/\\]/);
+  return Boolean(url && regex.test(url));
+}

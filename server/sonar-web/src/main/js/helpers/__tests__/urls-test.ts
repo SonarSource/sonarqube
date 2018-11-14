@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  isRelativeUrl,
   getComponentIssuesUrl,
   getComponentDrilldownUrl,
   getPathUrlAsString,
   getProjectUrl,
   getQualityGatesUrl,
-  getQualityGateUrl
+  getQualityGateUrl,
+  getReturnUrl
 } from '../urls';
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
@@ -115,5 +117,23 @@ describe('#getQualityGate(s)Url', () => {
     expect(getQualityGateUrl(COMPLEX_COMPONENT_KEY)).toEqual({
       pathname: '/quality_gates/show/' + COMPLEX_COMPONENT_KEY_ENCODED
     });
+  });
+});
+
+describe('#getReturnUrl', () => {
+  it('should get the return url', () => {
+    expect(getReturnUrl({ query: { return_to: '/test' } })).toBe('/test');
+    expect(getReturnUrl({ query: { return_to: 'http://www.google.com' } })).toBe('/');
+    expect(getReturnUrl({})).toBe('/');
+  });
+});
+
+describe('#isRelativeUrl', () => {
+  it('should check a relative url', () => {
+    expect(isRelativeUrl('/test')).toBeTruthy();
+    expect(isRelativeUrl('http://www.google.com')).toBeFalsy();
+    expect(isRelativeUrl('javascript:alert("test")')).toBeFalsy();
+    expect(isRelativeUrl('\\test')).toBeFalsy();
+    expect(isRelativeUrl('//test')).toBeFalsy();
   });
 });

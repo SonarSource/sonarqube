@@ -24,7 +24,7 @@ import LoginSonarCloud from './LoginSonarCloud';
 import { doLogin } from '../../../store/rootActions';
 import { getIdentityProviders } from '../../../api/users';
 import { IdentityProvider } from '../../../app/types';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getReturnUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 
 interface OwnProps {
@@ -68,14 +68,8 @@ class LoginContainer extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  getReturnUrl = () => {
-    const { location } = this.props;
-    const queryReturnTo = location.query['return_to'];
-    return queryReturnTo ? `${queryReturnTo}${location.hash}` : `${getBaseUrl()}/`;
-  };
-
   handleSuccessfulLogin = () => {
-    window.location.href = this.getReturnUrl();
+    window.location.href = getReturnUrl(this.props.location);
   };
 
   handleSubmit = (login: string, password: string) => {
@@ -94,7 +88,7 @@ class LoginContainer extends React.PureComponent<Props, State> {
         <LoginSonarCloud
           identityProviders={identityProviders}
           onSubmit={this.handleSubmit}
-          returnTo={this.getReturnUrl()}
+          returnTo={getReturnUrl(location)}
           showForm={location.query['advanced'] !== undefined}
         />
       );
@@ -104,7 +98,7 @@ class LoginContainer extends React.PureComponent<Props, State> {
       <Login
         identityProviders={identityProviders}
         onSubmit={this.handleSubmit}
-        returnTo={this.getReturnUrl()}
+        returnTo={getReturnUrl(location)}
       />
     );
   }
