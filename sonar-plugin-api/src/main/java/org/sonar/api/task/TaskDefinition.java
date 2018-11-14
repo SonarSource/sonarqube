@@ -30,10 +30,12 @@ import org.sonar.api.batch.ScannerSide;
  * Register and describe a {@link TaskExtension}.
  *
  * @since 3.6
+ * @deprecated since 7.6
  */
 @ExtensionPoint
 @ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_TASK)
+@Deprecated
 public class TaskDefinition implements Comparable<TaskDefinition> {
   static final String KEY_PATTERN = "[a-zA-Z0-9\\-\\_]+";
 

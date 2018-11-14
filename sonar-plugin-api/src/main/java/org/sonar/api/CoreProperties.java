@@ -351,12 +351,16 @@ public interface CoreProperties {
 
   /**
    * @since 3.5
+   * @deprecated since 7.6
    */
+  @Deprecated
   String TASK = "sonar.task";
 
   /**
    * @since 3.6
+   * @deprecated since 7.6
    */
+  @Deprecated
   String SCAN_TASK = "scan";
 
   /**

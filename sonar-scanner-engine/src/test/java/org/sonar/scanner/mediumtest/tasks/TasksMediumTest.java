@@ -29,6 +29,7 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +60,8 @@ public class TasksMediumTest {
         return value.contains("Available tasks:") && value.contains("fake: Fake description") && value.contains("broken: Broken description");
       }
     });
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Scanner tasks are deprecated");
   }
 
   @Test

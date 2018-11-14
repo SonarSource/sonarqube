@@ -25,6 +25,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
@@ -32,10 +34,12 @@ import org.sonar.scanner.bootstrap.GlobalProperties;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_TASK;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
-import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
+import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 
 public class TaskContainer extends ComponentContainer {
+
+  private static final Logger LOG = Loggers.get(TaskContainer.class);
 
   private final Map<String, String> taskProperties;
   private final Object[] components;
@@ -70,6 +74,9 @@ public class TaskContainer extends ComponentContainer {
   public void doAfterStart() {
     // default value is declared in CorePlugin
     String taskKey = StringUtils.defaultIfEmpty(taskProperties.get(CoreProperties.TASK), CoreProperties.SCAN_TASK);
+    if (!taskKey.equals(CoreProperties.SCAN_TASK)) {
+      LOG.warn("Scanner tasks are deprecated");
+    }
     // Release memory
     taskProperties.clear();
 
