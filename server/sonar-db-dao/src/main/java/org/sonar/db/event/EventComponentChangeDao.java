@@ -31,11 +31,11 @@ public class EventComponentChangeDao implements Dao {
     this.system2 = system2;
   }
 
-  List<EventComponentChangeDto> selectByEventUuid(DbSession dbSession, String eventUuid) {
+  public List<EventComponentChangeDto> selectByEventUuid(DbSession dbSession, String eventUuid) {
     return getMapper(dbSession).selectByEventUuid(eventUuid);
   }
 
-  void insert(DbSession dbSession, EventComponentChangeDto dto, EventPurgeData eventPurgeData) {
+  public void insert(DbSession dbSession, EventComponentChangeDto dto, EventPurgeData eventPurgeData) {
     getMapper(dbSession)
       .insert(dto, eventPurgeData, system2.now());
   }
