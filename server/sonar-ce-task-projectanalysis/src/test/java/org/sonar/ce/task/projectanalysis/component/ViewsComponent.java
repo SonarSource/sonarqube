@@ -70,7 +70,7 @@ public class ViewsComponent implements Component {
 
   public static final class Builder {
     private final Type type;
-    private final String key;
+    private String key;
     private String uuid;
     private String name;
     private String description;
@@ -86,6 +86,11 @@ public class ViewsComponent implements Component {
 
     public Builder setUuid(@Nullable String uuid) {
       this.uuid = uuid;
+      return this;
+    }
+
+    public Builder setKey(String key) {
+      this.key = key;
       return this;
     }
 

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
@@ -27,6 +30,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.log.LogAndArguments;
@@ -40,6 +44,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventComponentChangeDto;
+import org.sonar.db.event.EventComponentChangeDto.ChangeCategory;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventPurgeData;
 import org.sonar.db.organization.OrganizationDto;
@@ -52,8 +57,10 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.ProjectAnalyses.Analysis;
 import org.sonarqube.ws.ProjectAnalyses.Event;
+import org.sonarqube.ws.ProjectAnalyses.Project;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDate;
@@ -63,8 +70,12 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.ADDED;
+import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE;
+import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.REMOVED;
 import static org.sonar.db.event.EventDto.CATEGORY_ALERT;
 import static org.sonar.db.event.EventTesting.newEvent;
+import static org.sonar.server.projectanalysis.ws.EventCategory.DEFINITION_CHANGE;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.EventCategory.QUALITY_GATE;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
@@ -78,6 +89,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
+@RunWith(DataProviderRunner.class)
 public class SearchActionTest {
 
   @Rule
@@ -93,6 +105,15 @@ public class SearchActionTest {
 
   private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, TestComponentFinder.from(db), userSession));
   private UuidFactoryFast uuidFactoryFast = UuidFactoryFast.getInstance();
+
+  @DataProvider
+  public static Object[][] changedBranches() {
+    return new Object[][] {
+      { null, "newbranch" },
+      { "newbranch", "anotherbranch" },
+      { "newbranch", null },
+    };
+  }
 
   @Test
   public void json_example() {
@@ -120,26 +141,9 @@ public class SearchActionTest {
       .setData("{stillFailing: true, status: \"ERROR\"}")
       .setCategory(CATEGORY_ALERT)
       .setDescription(""));
-    EventComponentChangeDto changeDto1 = new EventComponentChangeDto()
-      .setCategory(EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE)
-      .setUuid(uuidFactoryFast.create())
-      .setComponentName("My project")
-      .setComponentKey("app1")
-      .setComponentBranchKey("master")
-      .setComponentUuid(project.uuid())
-      .setEventUuid(eventDto.getUuid());
-    EventComponentChangeDto changeDto2 = new EventComponentChangeDto()
-      .setCategory(EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE)
-      .setUuid(uuidFactoryFast.create())
-      .setComponentName("Another project")
-      .setComponentKey("app2")
-      .setComponentBranchKey("master")
-      .setComponentUuid(uuidFactoryFast.create())
-      .setEventUuid(eventDto.getUuid());
-    EventPurgeData eventPurgeData = new EventPurgeData(project.uuid(), a3.getUuid());
-    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
-    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto2, eventPurgeData);
-    db.getSession().commit();
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(eventDto, FAILED_QUALITY_GATE, "My project", "app1", "master", project.uuid());
+    EventComponentChangeDto changeDto2 = generateEventComponentChange(eventDto, FAILED_QUALITY_GATE, "Another project", "app2", "master", uuidFactoryFast.create());
+    insertEventComponentChanges(project, a3, changeDto1, changeDto2);
 
     String result = ws.newRequest()
       .setParam(PARAM_PROJECT, KEY_PROJECT_EXAMPLE_001)
@@ -213,6 +217,148 @@ public class SearchActionTest {
     assertThat(result)
       .hasSize(3)
       .extracting(Analysis::getKey).containsExactly(thirdAnalysis.getUuid(), secondAnalysis.getUuid(), firstAnalysis.getUuid());
+
+    assertThat(result.get(0).getEventsList()).isEmpty();
+    assertThat(result.get(1).getEventsList()).isEmpty();
+    assertThat(result.get(2).getEventsList()).isEmpty();
+  }
+
+  @Test
+  public void return_definition_change_events_on_application_analyses() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertApplication(organization);
+    userSession.registerComponents(application);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
+    EventComponentChangeDto changeDto2 = generateEventComponentChange(event, REMOVED, "Another project", "app2", "master", uuidFactoryFast.create());
+    insertEventComponentChanges(application, firstAnalysis, changeDto1, changeDto2);
+
+    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+
+    assertThat(result).hasSize(1);
+    List<Event> events = result.get(0).getEventsList();
+    assertThat(events)
+      .extracting(Event::getName, Event::getCategory, Event::getKey)
+      .containsExactly(tuple("", DEFINITION_CHANGE.name(), "E11"));
+    assertThat(events.get(0).getDefinitionChange().getProjectsList())
+      .extracting(Project::getChangeType, Project::getName, Project::getKey, Project::getNewBranch, Project::getOldBranch)
+      .containsExactly(
+        tuple("ADDED", "My project", "app1", "", ""),
+        tuple("REMOVED", "Another project", "app2", "", ""));
+  }
+
+  @Test
+  @UseDataProvider("changedBranches")
+  public void application_definition_change_with_branch(@Nullable String oldBranch, @Nullable  String newBranch) {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertApplication(organization);
+    userSession.registerComponents(application);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(event, REMOVED, "My project", "app1", oldBranch, uuidFactoryFast.create());
+    EventComponentChangeDto changeDto2 = generateEventComponentChange(event, ADDED, "My project", "app1", newBranch, changeDto1.getComponentUuid());
+    insertEventComponentChanges(application, firstAnalysis, changeDto1, changeDto2);
+
+    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+
+    assertThat(result).hasSize(1);
+    List<Event> events = result.get(0).getEventsList();
+    assertThat(events)
+      .extracting(Event::getName, Event::getCategory, Event::getKey)
+      .containsExactly(tuple("", DEFINITION_CHANGE.name(), "E11"));
+    assertThat(events.get(0).getDefinitionChange().getProjectsList())
+      .extracting(Project::getChangeType, Project::getKey, Project::getName, Project::getNewBranch, Project::getOldBranch)
+      .containsExactly(tuple("BRANCH_CHANGED", "app1", "My project", newBranch == null ? "" : newBranch, oldBranch == null ? "" : oldBranch));
+  }
+
+  @Test
+  public void incorrect_eventcomponentchange_two_identical_changes_added_on_same_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertApplication(organization);
+    userSession.registerComponents(application);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
+    EventComponentChangeDto changeDto2 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
+    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto2, eventPurgeData);
+    db.getSession().commit();
+
+    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+
+    assertThat(result).hasSize(1);
+    List<Event> events = result.get(0).getEventsList();
+    assertThat(events)
+      .extracting(Event::getName, Event::getCategory, Event::getKey)
+      .containsExactly(tuple("", DEFINITION_CHANGE.name(), "E11"));
+    assertThat(events.get(0).getDefinitionChange().getProjectsList())
+      .isEmpty();
+
+    assertThat(logTester.getLogs(LoggerLevel.ERROR))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .containsExactly(
+        format("Incorrect changes : [uuid=%s change=ADDED, branch=master] and [uuid=%s, change=ADDED, branch=master]", changeDto1.getUuid(), changeDto2.getUuid()));
+  }
+
+  @Test
+  public void incorrect_eventcomponentchange_incorrect_category() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertApplication(organization);
+    userSession.registerComponents(application);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(event, FAILED_QUALITY_GATE, "My project", "app1", "master", uuidFactoryFast.create());
+    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
+    db.getSession().commit();
+
+    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+
+    assertThat(result).hasSize(1);
+    List<Event> events = result.get(0).getEventsList();
+    assertThat(events)
+      .extracting(Event::getName, Event::getCategory, Event::getKey)
+      .containsExactly(tuple("", DEFINITION_CHANGE.name(), "E11"));
+    assertThat(events.get(0).getDefinitionChange().getProjectsList())
+      .isEmpty();
+
+    assertThat(logTester.getLogs(LoggerLevel.ERROR))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .containsExactly("Unknown change FAILED_QUALITY_GATE for eventComponentChange uuid: " + changeDto1.getUuid());
+  }
+
+  @Test
+  public void incorrect_eventcomponentchange_three_component_changes_on_same_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertApplication(organization);
+    userSession.registerComponents(application);
+    SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
+    EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
+    EventComponentChangeDto changeDto2 = generateEventComponentChange(event, REMOVED, "Another project", "app1", "", uuidFactoryFast.create());
+    EventComponentChangeDto changeDto3 = generateEventComponentChange(event, REMOVED, "Another project", "app1", "", uuidFactoryFast.create());
+    EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto2, eventPurgeData);
+    db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto3, eventPurgeData);
+    db.getSession().commit();
+
+    List<Analysis> result = call(application.getDbKey()).getAnalysesList();
+
+    assertThat(result).hasSize(1);
+    List<Event> events = result.get(0).getEventsList();
+    assertThat(events)
+      .extracting(Event::getName, Event::getCategory, Event::getKey)
+      .containsExactly(tuple("", DEFINITION_CHANGE.name(), "E11"));
+    assertThat(events.get(0).getDefinitionChange().getProjectsList())
+      .isEmpty();
+
+    assertThat(logTester.getLogs(LoggerLevel.ERROR))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .containsExactly(
+        format("Too many changes on same project (3) for eventComponentChange uuids : %s,%s,%s", changeDto1.getUuid(), changeDto2.getUuid(), changeDto3.getUuid()));
   }
 
   @Test
@@ -227,14 +373,7 @@ public class SearchActionTest {
         .setUuid("E11")
         .setCategory(CATEGORY_ALERT)
         .setData("UNPARSEABLE JSON")); // Error in Data
-    EventComponentChangeDto changeDto1 = new EventComponentChangeDto()
-      .setCategory(EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE)
-      .setUuid(uuidFactoryFast.create())
-      .setComponentName("My project")
-      .setComponentKey("app1")
-      .setComponentBranchKey("master")
-      .setComponentUuid(uuidFactoryFast.create())
-      .setEventUuid(event.getUuid());
+    EventComponentChangeDto changeDto1 = generateEventComponentChange(event, FAILED_QUALITY_GATE, "My project", "app1", "master", uuidFactoryFast.create());
     EventPurgeData eventPurgeData = new EventPurgeData(application.uuid(), firstAnalysis.getUuid());
     db.getDbClient().eventComponentChangeDao().insert(db.getSession(), changeDto1, eventPurgeData);
     db.getSession().commit();
@@ -504,7 +643,7 @@ public class SearchActionTest {
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
+    expectedException.expectMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
 
     call(SearchRequest.builder()
       .setProject(project.getKey())
@@ -533,6 +672,26 @@ public class SearchActionTest {
     assertThat(branch.since()).isEqualTo("6.6");
     assertThat(branch.isInternal()).isTrue();
     assertThat(branch.isRequired()).isFalse();
+  }
+
+  private EventComponentChangeDto generateEventComponentChange(EventDto event, ChangeCategory category, String name, String key, @Nullable String branch,
+    String componentUuid) {
+    return new EventComponentChangeDto()
+      .setCategory(category)
+      .setUuid(uuidFactoryFast.create())
+      .setComponentName(name)
+      .setComponentKey(key)
+      .setComponentBranchKey(branch)
+      .setComponentUuid(componentUuid)
+      .setEventUuid(event.getUuid());
+  }
+
+  private void insertEventComponentChanges(ComponentDto component, SnapshotDto analysis, EventComponentChangeDto... changes) {
+    EventPurgeData eventPurgeData = new EventPurgeData(component.uuid(), analysis.getUuid());
+    for (EventComponentChangeDto change : changes) {
+      db.getDbClient().eventComponentChangeDao().insert(db.getSession(), change, eventPurgeData);
+    }
+    db.getSession().commit();
   }
 
   private static Function<Event, String> wsToDbCategory() {

@@ -19,12 +19,18 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
+import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
@@ -34,6 +40,8 @@ import org.sonarqube.ws.ProjectAnalyses.Event;
 import org.sonarqube.ws.ProjectAnalyses.QualityGate;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
@@ -45,11 +53,13 @@ class SearchResponseBuilder {
   private final Event.Builder wsEvent;
   private final SearchData searchData;
   private final QualityGate.Builder wsQualityGate;
+  private final ProjectAnalyses.DefinitionChange.Builder wsDefinitionChange;
 
   SearchResponseBuilder(SearchData searchData) {
     this.wsAnalysis = Analysis.newBuilder();
     this.wsEvent = Event.newBuilder();
     this.wsQualityGate = QualityGate.newBuilder();
+    this.wsDefinitionChange = ProjectAnalyses.DefinitionChange.newBuilder();
     this.searchData = searchData;
   }
 
@@ -88,6 +98,9 @@ class SearchResponseBuilder {
     setNullable(dbEvent.getCategory(), cat -> wsEvent.setCategory(fromLabel(cat).name()));
     if (dbEvent.getCategory() != null) {
       switch (EventCategory.fromLabel(dbEvent.getCategory())) {
+        case DEFINITION_CHANGE:
+          addDefinitionChange(dbEvent);
+          break;
         case QUALITY_GATE:
           addQualityGateInformation(dbEvent);
           break;
@@ -102,6 +115,7 @@ class SearchResponseBuilder {
   }
 
   private void addQualityGateInformation(EventDto event) {
+    wsQualityGate.clear();
     List<EventComponentChangeDto> eventComponentChangeDtos = searchData.componentChangesByEventUuid.get(event.getUuid());
     if (eventComponentChangeDtos.isEmpty()) {
       return;
@@ -122,8 +136,87 @@ class SearchResponseBuilder {
 
     wsQualityGate.addAllFailing(eventComponentChangeDtos.stream()
       .map(SearchResponseBuilder::toFailing)
-      .collect(Collectors.toList()));
+      .collect(toList()));
     wsEvent.setQualityGate(wsQualityGate.build());
+  }
+
+  private void addDefinitionChange(EventDto event) {
+    wsDefinitionChange.clear();
+    List<EventComponentChangeDto> eventComponentChangeDtos = searchData.componentChangesByEventUuid.get(event.getUuid());
+    if (eventComponentChangeDtos.isEmpty()) {
+      return;
+    }
+
+    ListMultimap<String, EventComponentChangeDto> componentChangeByKey = eventComponentChangeDtos.stream()
+      .collect(MoreCollectors.index(EventComponentChangeDto::getComponentKey));
+
+    try {
+      wsDefinitionChange.addAllProjects(
+        componentChangeByKey.asMap().values().stream()
+          .map(SearchResponseBuilder::addChange)
+          .map(Project::toProject)
+          .collect(toList())
+      );
+      wsEvent.setDefinitionChange(wsDefinitionChange.build());
+    } catch (IllegalStateException e) {
+      LOGGER.error(e.getMessage(), e);
+    }
+  }
+
+  private static Project addChange(Collection<EventComponentChangeDto> changes) {
+    if (changes.size() == 1) {
+      return addSingleChange(changes.iterator().next());
+    } else {
+      return addBranchChange(changes);
+    }
+  }
+
+  private static Project addSingleChange(EventComponentChangeDto componentChange) {
+    Project project = new Project()
+      .setKey(componentChange.getComponentKey())
+      .setName(componentChange.getComponentName())
+      .setBranch(componentChange.getComponentBranchKey());
+
+    switch (componentChange.getCategory()) {
+      case ADDED:
+        project.setChangeType("ADDED");
+        break;
+      case REMOVED:
+        project.setChangeType("REMOVED");
+        break;
+      default:
+        throw new IllegalStateException(format("Unknown change %s for eventComponentChange uuid: %s", componentChange.getCategory(), componentChange.getUuid()));
+    }
+
+    return project;
+  }
+
+  private static Project addBranchChange(Collection<EventComponentChangeDto> changes) {
+    if (changes.size() != 2) {
+      throw new IllegalStateException(format("Too many changes on same project (%d) for eventComponentChange uuids : %s",
+        changes.size(),
+        changes.stream().map(EventComponentChangeDto::getUuid).collect(Collectors.joining(","))));
+    }
+
+    Optional<EventComponentChangeDto> addedChange = changes.stream().filter(c -> c.getCategory().equals(EventComponentChangeDto.ChangeCategory.ADDED)).findFirst();
+    Optional<EventComponentChangeDto> removedChange = changes.stream().filter(c -> c.getCategory().equals(EventComponentChangeDto.ChangeCategory.REMOVED)).findFirst();
+
+    if (!addedChange.isPresent() || !removedChange.isPresent() || addedChange.equals(removedChange)) {
+      Iterator<EventComponentChangeDto> iterator = changes.iterator();
+      // We are missing two different ADDED and REMOVED changes
+      EventComponentChangeDto firstChange = iterator.next();
+      EventComponentChangeDto secondChange = iterator.next();
+      throw new IllegalStateException(format("Incorrect changes : [uuid=%s change=%s, branch=%s] and [uuid=%s, change=%s, branch=%s]",
+        firstChange.getUuid(), firstChange.getCategory().name(), firstChange.getComponentBranchKey(),
+        secondChange.getUuid(), secondChange.getCategory().name(), secondChange.getComponentBranchKey()));
+    }
+
+    return new Project()
+      .setName(addedChange.get().getComponentName())
+      .setKey(addedChange.get().getComponentKey())
+      .setChangeType("BRANCH_CHANGED")
+      .setNewBranch(addedChange.get().getComponentBranchKey())
+      .setOldBranch(removedChange.get().getComponentBranchKey());
   }
 
   private void addPagination(SearchResponse.Builder wsResponse) {
@@ -168,6 +261,57 @@ class SearchResponseBuilder {
     public Data setStatus(String status) {
       this.status = status;
       return this;
+    }
+  }
+
+  private static class Project {
+    private String key;
+    private String name;
+    private String changeType;
+    private String branch;
+    private String oldBranch;
+    private String newBranch;
+
+    public Project setKey(String key) {
+      this.key = key;
+      return this;
+    }
+
+    public Project setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Project setChangeType(String changeType) {
+      this.changeType = changeType;
+      return this;
+    }
+
+    public Project setBranch(@Nullable String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    public Project setOldBranch(@Nullable String oldBranch) {
+      this.oldBranch = oldBranch;
+      return this;
+    }
+
+    public Project setNewBranch(@Nullable String newBranch) {
+      this.newBranch = newBranch;
+      return this;
+    }
+
+    private ProjectAnalyses.Project toProject() {
+      ProjectAnalyses.Project.Builder builder = ProjectAnalyses.Project.newBuilder();
+      builder
+        .setKey(key)
+        .setName(name)
+        .setChangeType(changeType);
+      setNullable(branch, builder::setBranch);
+      setNullable(oldBranch, builder::setOldBranch);
+      setNullable(newBranch, builder::setNewBranch);
+      return builder.build();
     }
   }
 }
