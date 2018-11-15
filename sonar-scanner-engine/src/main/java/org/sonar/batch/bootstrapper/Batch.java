@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrapper;
 
 import com.google.common.base.Throwables;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,8 +39,7 @@ public final class Batch {
 
   private LoggingConfiguration loggingConfig;
   private List<Object> components;
-  private Map<String, String> scannerProperties = new HashMap<>();
-  private GlobalContainer bootstrapContainer;
+  private Map<String, String> globalProperties = new HashMap<>();
 
   private Batch(Builder builder) {
     components = new ArrayList<>();
@@ -47,11 +47,11 @@ public final class Batch {
     if (builder.environment != null) {
       components.add(builder.environment);
     }
-    if (builder.scannerProperties != null) {
-      scannerProperties.putAll(builder.scannerProperties);
+    if (builder.globalProperties != null) {
+      globalProperties.putAll(builder.globalProperties);
     }
     if (builder.isEnableLoggingConfiguration()) {
-      loggingConfig = new LoggingConfiguration(builder.environment).setProperties(scannerProperties);
+      loggingConfig = new LoggingConfiguration(builder.environment).setProperties(globalProperties);
 
       if (builder.logOutput != null) {
         loggingConfig.setLogOutput(builder.logOutput);
@@ -64,12 +64,15 @@ public final class Batch {
   }
 
   public synchronized Batch execute() {
+    return doExecute(this.globalProperties, this.components);
+  }
+
+  public synchronized Batch doExecute(Map<String, String> scannerProperties, List<Object> components) {
     configureLogging();
-    doStart();
     try {
-      doExecute();
-    } finally {
-      doStop();
+      GlobalContainer.create(scannerProperties, components).execute();
+    } catch (RuntimeException e) {
+      throw handleException(e);
     }
     return this;
   }
@@ -83,33 +86,17 @@ public final class Batch {
     return this;
   }
 
-  private Batch doStart() {
-    try {
-      bootstrapContainer = GlobalContainer.create(scannerProperties, components);
-      bootstrapContainer.startComponents();
-    } catch (RuntimeException e) {
-      throw handleException(e);
-    }
-
-    return this;
-  }
-
   /**
    * @since 4.4
    * @deprecated since 6.6 use {@link #execute()}
    */
   @Deprecated
   public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
-    return execute();
-  }
-
-  private Batch doExecute(Object... components) {
-    try {
-      bootstrapContainer.executeTask(scannerProperties, components);
-    } catch (RuntimeException e) {
-      throw handleException(e);
-    }
-    return this;
+    Map<String, String> mergedProps = new HashMap<>(this.globalProperties);
+    mergedProps.putAll(analysisProperties);
+    List<Object> mergedComponents = new ArrayList<>(this.components);
+    mergedComponents.addAll(Arrays.asList(components));
+    return doExecute(mergedProps, mergedComponents);
   }
 
   private RuntimeException handleException(RuntimeException t) {
@@ -134,17 +121,9 @@ public final class Batch {
   public synchronized void stop() {
   }
 
-  private void doStop() {
-    try {
-      bootstrapContainer.stopComponents();
-    } catch (RuntimeException e) {
-      throw handleException(e);
-    }
-  }
-
   private void configureLogging() {
     if (loggingConfig != null) {
-      loggingConfig.setProperties(scannerProperties);
+      loggingConfig.setProperties(globalProperties);
       LoggingConfigurator.apply(loggingConfig);
     }
   }
@@ -154,7 +133,7 @@ public final class Batch {
   }
 
   public static final class Builder {
-    private Map<String, String> scannerProperties;
+    private Map<String, String> globalProperties;
     private EnvironmentInformation environment;
     private List<Object> components = new ArrayList<>();
     private boolean enableLoggingConfiguration = true;
@@ -178,17 +157,17 @@ public final class Batch {
       return this;
     }
 
-    public Builder setScannerProperties(Map<String, String> scannerProperties) {
-      this.scannerProperties = scannerProperties;
+    public Builder setGlobalProperties(Map<String, String> globalProperties) {
+      this.globalProperties = globalProperties;
       return this;
     }
 
     /**
-     * @deprecated since 6.6 use {@link #setScannerProperties(Map)}
+     * @deprecated since 6.6 use {@link #setGlobalProperties(Map)}
      */
     @Deprecated
     public Builder setBootstrapProperties(Map<String, String> bootstrapProperties) {
-      this.scannerProperties = bootstrapProperties;
+      this.globalProperties = bootstrapProperties;
       return this;
     }
 

@@ -289,7 +289,7 @@ public class ScannerMediumTester extends ExternalResource {
       props.putAll(taskProperties);
 
       Batch.builder()
-        .setScannerProperties(props)
+        .setGlobalProperties(props)
         .setEnableLoggingConfiguration(true)
         .addComponents(new EnvironmentInformation("mediumTest", "1.0"),
           tester.pluginInstaller,

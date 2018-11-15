@@ -34,10 +34,6 @@ import org.sonar.scanner.scan.report.JSONReport;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.source.ZeroCoverageSensor;
-import org.sonar.scanner.task.ListTask;
-import org.sonar.scanner.task.ScanTask;
-import org.sonar.scanner.task.Tasks;
-import org.sonar.scanner.task.ViewsTask;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -46,16 +42,7 @@ public class BatchComponents {
 
   public static Collection<Object> all(GlobalAnalysisMode analysisMode) {
     List<Object> components = Lists.newArrayList(
-      DefaultResourceTypes.get(),
-
-      // Tasks
-      Tasks.class,
-      ListTask.DEFINITION,
-      ListTask.class,
-      ScanTask.DEFINITION,
-      ScanTask.class,
-      ViewsTask.DEFINITION,
-      ViewsTask.class);
+      DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
     if (!analysisMode.isIssues()) {
       // SCM

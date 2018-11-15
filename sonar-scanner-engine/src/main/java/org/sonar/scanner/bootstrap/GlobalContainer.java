@@ -22,11 +22,14 @@ package org.sonar.scanner.bootstrap;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.internal.ApiVersion;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
@@ -48,8 +51,8 @@ import org.sonar.scanner.repository.MetricsRepositoryLoader;
 import org.sonar.scanner.repository.MetricsRepositoryProvider;
 import org.sonar.scanner.repository.settings.DefaultSettingsLoader;
 import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.scan.ProjectScanContainer;
 import org.sonar.scanner.storage.StoragesManager;
-import org.sonar.scanner.task.TaskContainer;
 
 public class GlobalContainer extends ComponentContainer {
   private static final Logger LOG = Loggers.get(GlobalContainer.class);
@@ -111,6 +114,18 @@ public class GlobalContainer extends ComponentContainer {
   protected void doAfterStart() {
     installPlugins();
     loadCoreExtensions();
+
+    long startTime = System.currentTimeMillis();
+    String taskKey = StringUtils.defaultIfEmpty(scannerProperties.get(CoreProperties.TASK), CoreProperties.SCAN_TASK);
+    if (taskKey.equals("views")) {
+      throw MessageException.of("The task 'views' was removed with SonarQube 7.1. " +
+        "You can safely remove this call since portfolios and applications are automatically re-calculated.");
+    } else if (!taskKey.equals(CoreProperties.SCAN_TASK)) {
+      throw MessageException.of("Tasks support was removed in SonarQube 7.6.");
+    }
+    new ProjectScanContainer(this).execute();
+
+    LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
   }
 
   private void installPlugins() {
@@ -124,13 +139,6 @@ public class GlobalContainer extends ComponentContainer {
   private void loadCoreExtensions() {
     CoreExtensionsLoader loader = getComponentByType(CoreExtensionsLoader.class);
     loader.load();
-  }
-
-  public void executeTask(Map<String, String> taskProperties, Object... components) {
-    long startTime = System.currentTimeMillis();
-    new TaskContainer(this, taskProperties, components).execute();
-
-    LOG.info("Task total time: {}", formatTime(System.currentTimeMillis() - startTime));
   }
 
   static String formatTime(long time) {

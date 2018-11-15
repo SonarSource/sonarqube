@@ -20,7 +20,6 @@
 package org.sonar.scanner.mediumtest.tasks;
 
 import com.google.common.collect.ImmutableMap;
-import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,10 +28,10 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class TasksMediumTest {
 
@@ -47,47 +46,36 @@ public class TasksMediumTest {
     .registerPlugin("faketask", new FakeTaskPlugin());
 
   @Test
-  public void listTasksIncludingBroken() throws Exception {
-    tester.newAnalysis()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "list").build())
-      .execute();
-
-    assertThat(logTester.logs()).haveExactly(1, new Condition<String>() {
-
-      @Override
-      public boolean matches(String value) {
-        return value.contains("Available tasks:") && value.contains("fake: Fake description") && value.contains("broken: Broken description");
-      }
-    });
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Scanner tasks are deprecated");
+  public void failWhenCallingTask() throws Exception {
+    try {
+      tester.newAnalysis()
+        .properties(ImmutableMap.<String, String>builder()
+          .put("sonar.task", "fake").build())
+        .execute();
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class).hasMessage("Tasks support was removed in SonarQube 7.6.");
+    }
   }
 
   @Test
-  public void runBroken() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage(
-      "Unable to load component class org.sonar.scanner.mediumtest.tasks.TasksMediumTest$BrokenTask");
-
-    tester.newAnalysis()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "broken").build())
-      .execute();
-  }
-
-  @Test(expected = MessageException.class)
-  public void unsupportedTask() throws Exception {
-    tester.newAnalysis()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "foo").build())
-      .execute();
+  public void failWhenCallingViews() throws Exception {
+    try {
+      tester.newAnalysis()
+        .properties(ImmutableMap.<String, String>builder()
+          .put("sonar.task", "views").build())
+        .execute();
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class).hasMessage("The task 'views' was removed with SonarQube 7.1. You can safely remove this call since portfolios and applications are automatically re-calculated.");
+    }
   }
 
   private static class FakeTaskPlugin implements Plugin {
 
-    @Override public void define(Context context) {
-      context.addExtensions(FakeTask.DEF, FakeTask.class, BrokenTask.DEF, BrokenTask.class);
+    @Override
+    public void define(Context context) {
+      context.addExtensions(FakeTask.DEF, FakeTask.class);
     }
   }
 
@@ -99,17 +87,6 @@ public class TasksMediumTest {
     public void execute() {
       // TODO Auto-generated method stub
 
-    }
-
-  }
-
-  private static class BrokenTask implements Task {
-
-    public static final TaskDefinition DEF = TaskDefinition.builder().key("broken").description("Broken description").taskClass(BrokenTask.class).build();
-
-    @Override
-    public void execute() {
-      // do nothing
     }
 
   }
