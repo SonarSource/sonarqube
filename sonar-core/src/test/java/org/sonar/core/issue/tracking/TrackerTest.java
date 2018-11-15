@@ -41,6 +41,7 @@ public class TrackerTest {
   public static final RuleKey RULE_UNUSED_PRIVATE_METHOD = RuleKey.of("java", "UnusedPrivateMethod");
   public static final RuleKey RULE_NOT_DESIGNED_FOR_EXTENSION = RuleKey.of("java", "NotDesignedForExtension");
   public static final RuleKey RULE_USE_DIAMOND = RuleKey.of("java", "UseDiamond");
+  public static final RuleKey RULE_MISSING_PACKAGE_INFO = RuleKey.of("java", "MissingPackageInfo");
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -430,6 +431,22 @@ public class TrackerTest {
     Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
     assertThat(tracking.getUnmatchedBases()).hasSize(3);
     assertThat(tracking.baseFor(raw1)).isEqualTo(base1);
+  }
+
+  @Test
+  public void match_issues_with_same_rule_key_on_project_level() {
+    FakeInput baseInput = new FakeInput();
+    Issue base1 = baseInput.createIssue(RULE_MISSING_PACKAGE_INFO, "[com.test:abc] Missing package-info.java in package.");
+    Issue base2 = baseInput.createIssue(RULE_MISSING_PACKAGE_INFO, "[com.test:abc/def] Missing package-info.java in package.");
+
+    FakeInput rawInput = new FakeInput();
+    Issue raw1 = rawInput.createIssue(RULE_MISSING_PACKAGE_INFO, "[com.test:abc/def] Missing package-info.java in package.");
+    Issue raw2 = rawInput.createIssue(RULE_MISSING_PACKAGE_INFO, "[com.test:abc] Missing package-info.java in package.");
+
+    Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
+    assertThat(tracking.getUnmatchedBases()).hasSize(0);
+    assertThat(tracking.baseFor(raw1)).isEqualTo(base2);
+    assertThat(tracking.baseFor(raw2)).isEqualTo(base1);
   }
 
   private static class Issue implements Trackable {

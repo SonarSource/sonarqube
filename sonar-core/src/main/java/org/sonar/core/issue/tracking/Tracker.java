@@ -35,19 +35,22 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> extends Abst
   public NonClosedTracking<RAW, BASE> trackNonClosed(Input<RAW> rawInput, Input<BASE> baseInput) {
     NonClosedTracking<RAW, BASE> tracking = NonClosedTracking.of(rawInput, baseInput);
 
-    // 1. match issues with same rule, same line and same line hash, but not necessarily with same message
+    // 1. match by rule, line, line hash and message
+    match(tracking, LineAndLineHashAndMessage::new);
+
+    // 2. match issues with same rule, same line and same line hash, but not necessarily with same message
     match(tracking, LineAndLineHashKey::new);
 
-    // 2. detect code moves by comparing blocks of codes
+    // 3. detect code moves by comparing blocks of codes
     detectCodeMoves(rawInput, baseInput, tracking);
 
-    // 3. match issues with same rule, same message and same line hash
+    // 4. match issues with same rule, same message and same line hash
     match(tracking, LineHashAndMessageKey::new);
 
-    // 4. match issues with same rule, same line and same message
+    // 5. match issues with same rule, same line and same message
     match(tracking, LineAndMessageKey::new);
 
-    // 5. match issues with same rule and same line hash but different line and different message.
+    // 6. match issues with same rule and same line hash but different line and different message.
     // See SONAR-2812
     match(tracking, LineHashKey::new);
 
